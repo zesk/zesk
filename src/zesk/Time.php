@@ -18,6 +18,9 @@ declare(strict_types=1);
 namespace zesk;
 
 use OutOfBoundsException;
+use zesk\Exception\ParameterException;
+use zesk\Exception\ParseException;
+use zesk\Locale\Locale;
 
 class Time extends Temporal {
 	/**
@@ -89,6 +92,7 @@ class Time extends Temporal {
 	 *
 	 * If null, represents no value assigned, yet.
 	 *
+	 * @see self::seconds_max
 	 * @var integer
 	 */
 	protected int $seconds = 0;
@@ -101,49 +105,26 @@ class Time extends Temporal {
 	protected int $milliseconds = 0;
 
 	/**
-	 * Add global configuration
-	 *
-	 * @param Kernel $kernel
-	 */
-	public static function hooks(Application $kernel): void {
-		$kernel->hooks->add(Hooks::HOOK_CONFIGURED, [
-			__CLASS__,
-			'configured',
-		]);
-	}
-
-	/**
-	 *
-	 * @param Application $application
-	 */
-	public static function configured(Application $application): void {
-		self::$default_format_string = $application->configuration->getPath([
-			__CLASS__,
-			'format_string',
-		], self::DEFAULT_FORMAT_STRING);
-	}
-
-	/**
 	 * Create a new Time object by calling a static method
 	 *
-	 * @param int $hour
-	 * @param int $minute
-	 * @param int $second
-	 * @return Time
+	 * @param int|float $hour
+	 * @param int|float $minute
+	 * @param int|float $second
+	 * @return self
 	 */
 	public static function instance(int|float $hour = 0, int|float $minute = 0, int|float $second = 0): self {
 		$tt = new Time();
-		$tt->hms($hour, $minute, $second);
+		$tt->setHMS($hour, $minute, $second);
 		return $tt;
 	}
 
 	/**
 	 * Construct a new Time object
 	 *
-	 * @param mixed $value
+	 * @param null|int|Time|Timestamp $value
 	 * @see Time::set
 	 */
-	public function __construct(mixed $value = null) {
+	public function __construct(null|int|Time|Timestamp $value = null) {
 		$this->set($value);
 	}
 
@@ -153,7 +134,7 @@ class Time extends Temporal {
 	 * @param mixed $value
 	 * @return self
 	 */
-	public static function factory(mixed $value = null): self {
+	public static function factory(null|int|Time|Timestamp $value = null): self {
 		return new self($value);
 	}
 
@@ -169,39 +150,32 @@ class Time extends Temporal {
 	/**
 	 * Return a new Time object representing current time of day
 	 *
-	 * @return Time
+	 * @return self
 	 */
 	public static function now(): self {
-		return self::factory('now');
+		return self::factory()->setNow();
 	}
 
 	/**
 	 * Set the time object
 	 *
 	 *
-	 * @param null|int|string|Time|Timestamp $value Values of varying types
-	 * @return Time
-	 * @throws Exception_Parameter
-	 * @throws OutOfBoundsException
+	 * @param null|int|Time|Timestamp $value Values of varying types
+	 * @return self
 	 */
-	public function set(null|int|string|Time|Timestamp $value): self {
+	public function set(null|int|Time|Timestamp $value): self {
 		if (is_int($value)) {
 			return $this->setUNIXTimestamp($value);
-		} elseif (empty($value)) {
-			$this->setEmpty();
-			return $this;
-		} elseif (is_string($value)) {
-			return $this->parse($value);
 		} elseif ($value instanceof Time) {
 			$this->setSeconds($value->seconds());
-			$this->setMilliecond($value->millisecond());
+			$this->setMillisecond($value->millisecond());
 			return $this;
 		} elseif ($value instanceof Timestamp) {
-			$this->setUNIXTimestamp($value->unixTimestamp())->setMilliecond($value->millisecond());
+			$this->setUNIXTimestamp($value->unixTimestamp())->setMillisecond($value->millisecond());
 			return $this;
 		}
-
-		throw new Exception_Parameter(map('Time::set({0})', [_dump($value)]));
+		$this->setEmpty();
+		return $this;
 	}
 
 	/**
@@ -216,7 +190,7 @@ class Time extends Temporal {
 	/**
 	 * Set this object as empty
 	 *
-	 * @return Time
+	 * @return self
 	 */
 	public function setEmpty(): self {
 		$this->seconds = -1;
@@ -226,19 +200,21 @@ class Time extends Temporal {
 	/**
 	 * Set the time to the current time of day
 	 *
-	 * @return Time
-	 * @todo Support microseconds
+	 * @return self
 	 */
-	public function setNow() {
-		return $this->setUNIXTimestamp(time());
+	public function setNow(): self {
+		$floatNow = microtime(true);
+		$time = intval($floatNow);
+		$milliseconds = intval(($floatNow - $time) * 1000.0);
+		return $this->setUNIXTimestamp(time())->setMillisecond($milliseconds);
 	}
 
 	/**
 	 * Set the time of day to midnight
 	 *
-	 * @return Time
+	 * @return self
 	 */
-	public function setMidnight() {
+	public function setMidnight(): self {
 		$this->seconds = 0;
 		return $this;
 	}
@@ -246,7 +222,7 @@ class Time extends Temporal {
 	/**
 	 * Set the time of day to noon
 	 *
-	 * @return Time
+	 * @return self
 	 */
 	public function setNoon(): self {
 		$this->seconds = 0;
@@ -270,8 +246,8 @@ class Time extends Temporal {
 	 * @throws OutOfBoundsException
 	 */
 	public function setUNIXTimestamp(int $set): self {
-		[$hours, $minutes, $seconds] = explode(' ', gmdate('G n s', $set)); // getdate doesn't support UTC
-		$this->hms(intval($hours), intval($minutes), intval($seconds));
+		[$hours, $minutes, $seconds] = explode(' ', gmdate('G n s', $set)); // doesn't support UTC
+		$this->setHMS(intval($hours), intval($minutes), intval($seconds));
 		return $this;
 	}
 
@@ -281,10 +257,10 @@ class Time extends Temporal {
 	 * @param int $hh
 	 * @param int $mm
 	 * @param int $ss
-	 * @return Time
+	 * @return self
 	 * @throws OutOfBoundsException
 	 */
-	public function hms(int $hh = 0, int $mm = 0, int $ss = 0): self {
+	public function setHMS(int $hh = 0, int $mm = 0, int $ss = 0): self {
 		if (($hh < 0) || ($hh > self::hour_max) || ($mm < 0) || ($mm > self::minute_max) || ($ss < 0) || ($ss > self::second_max)) {
 			throw new OutOfBoundsException("Time::hms($hh,$mm,$ss)");
 		}
@@ -301,17 +277,16 @@ class Time extends Temporal {
 		if ($this->isEmpty()) {
 			return '';
 		}
-		$result = $this->format(null, '{hh}:{mm}:{ss}');
-		return $result;
+		return $this->format('{hh}:{mm}:{ss}');
 	}
 
 	/**
 	 * Parse a time and set this object
 	 *
 	 * @param string $value
-	 * @return Time
+	 * @return self
 	 * @throws OutOfBoundsException
-	 * @throws Exception_Parse
+	 * @throws ParseException
 	 */
 	public function parse(string $value): self {
 		foreach ([
@@ -328,7 +303,7 @@ class Time extends Temporal {
 			],
 		] as $pattern => $assign) {
 			if (preg_match($pattern, $value, $matches)) {
-				$this->hms(0, 0, 0);
+				$this->setHMS();
 				foreach ($assign as $index => $method) {
 					if ($method) {
 						$this->$method(intval($matches[$index]));
@@ -342,7 +317,7 @@ class Time extends Temporal {
 		$ts = strtotime($value, $this->unixTimestamp());
 		date_default_timezone_set($tz);
 		if ($ts === false || $ts < 0) {
-			throw new Exception_Parse(map('Time::parse({0}): Can\'t parse', [$value]));
+			throw new ParseException('Time::parse({value}): Can\'t parse', ['value' => $value]);
 		}
 		return $this->setUNIXTimestamp($ts);
 	}
@@ -364,7 +339,7 @@ class Time extends Temporal {
 	 * @throws OutOfBoundsException
 	 */
 	public function setHour(int $set): self {
-		return $this->hms($set, $this->minute(), $this->second());
+		return $this->setHMS($set, $this->minute(), $this->second());
 	}
 
 	/**
@@ -383,7 +358,7 @@ class Time extends Temporal {
 	 * @return self
 	 */
 	public function setMinute(int $set): self {
-		return $this->hms($this->hour(), $set, $this->second());
+		return $this->setHMS($this->hour(), $set, $this->second());
 	}
 
 	/**
@@ -402,7 +377,7 @@ class Time extends Temporal {
 	 * @return self
 	 */
 	public function setSecond(int $set): self {
-		return $this->hms($this->hour(), $this->minute(), $set);
+		return $this->setHMS($this->hour(), $this->minute(), $set);
 	}
 
 	/**
@@ -440,7 +415,7 @@ class Time extends Temporal {
 	 * @param int $set
 	 * @return self
 	 */
-	public function setMilliecond(int $set): self {
+	public function setMillisecond(int $set): self {
 		$this->milliseconds = $set % 1000;
 		return $this;
 	}
@@ -459,12 +434,6 @@ class Time extends Temporal {
 		return $hour;
 	}
 
-	public function setHour12(int $set): self {
-		$set = $set % 12;
-		// Retains AM/PM
-		return $this->setHour($set + ($this->hour() < 12 ? 0 : 12));
-	}
-
 	/**
 	 * Returns whether it's am or pm
 	 *
@@ -480,15 +449,15 @@ class Time extends Temporal {
 	 *
 	 * @return integer
 	 */
-	public function day_seconds(): int {
+	public function daySeconds(): int {
 		return $this->seconds;
 	}
 
 	/**
 	 * Compare one time with another
 	 *
-	 * $this->compare($value) < 0 analagous to $this < $value
-	 * $this->compare($value) > 0 analagous to $this > $value
+	 * $this->compare($value) < 0 analogous to $this < $value
+	 * $this->compare($value) > 0 analogous to $this > $value
 	 *
 	 * @param Time $value
 	 * @return integer
@@ -519,11 +488,11 @@ class Time extends Temporal {
 	/**
 	 * Add hours, minutes, seconds to a time
 	 *
-	 * @param int $hh
-	 * @param int $mm
-	 * @param int $ss
+	 * @param int|float $hh
+	 * @param int|float $mm
+	 * @param int|float $ss
 	 * @param ?int $remain Returned remainder of addition
-	 * @return Time
+	 * @return self
 	 */
 	public function add(int|float $hh = 0, int|float $mm = 0, int|float $ss = 0, int &$remain = null): self {
 		$newValue = $this->seconds + $ss + ($hh * self::seconds_per_hour) + ($mm * self::seconds_per_minute);
@@ -541,10 +510,11 @@ class Time extends Temporal {
 	/**
 	 * Returns an array of token values (h,m,s,hh,mm,ss and values for this object)
 	 *
+	 * @param array $options
 	 * @return array
 	 * @see Time::format
 	 */
-	public function formatting(Locale $locale = null, array $options = []): array {
+	public function formatting(array $options = []): array {
 		$x = [];
 		$x['h'] = $this->hour();
 		$x['12h'] = $this->hour12();
@@ -553,12 +523,14 @@ class Time extends Temporal {
 		foreach ($x as $k => $v) {
 			$x[$k . substr($k, -1)] = StringTools::zeroPad($v);
 		}
-		$x['day_seconds'] = $this->seconds;
+		$x['daySeconds'] = $this->seconds;
 		$ampm = $this->ampm();
-		if ($locale) {
-			$x['ampm'] = $locale("Time:=$ampm");
+		$x['_ampm'] = $ampm;
+		$locale = $options['locale'] ?? null;
+		if ($locale instanceof Locale) {
+			$x['ampm'] = $locale->__("Time:=$ampm");
 			$ampm = strtoupper($ampm);
-			$x['AMPM'] = $locale("Time:=$ampm");
+			$x['AMPM'] = $locale->__("Time:=$ampm");
 		}
 		return $x;
 	}
@@ -566,27 +538,25 @@ class Time extends Temporal {
 	/**
 	 * Format a time string
 	 *
-	 * @param Locale|null $locale
-	 * @param string|null $format_string
+	 * @param string $format
 	 * @param array $options
 	 * @return string
 	 */
-	public function format(Locale $locale = null, string $format_string = null, array $options = []): string {
-		if ($format_string === null) {
-			$format_string = self::$default_format_string;
+	public function format(string $format = '', array $options = []): string {
+		if ($format === '') {
+			$format = self::$default_format_string;
 		}
-		$x = $this->formatting($locale, $options);
-		return map($format_string, $x);
+		$x = $this->formatting($options);
+		return ArrayTools::map($format, $x);
 	}
 
 	/**
 	 * Format HH${sep}MM${sep}SS
 	 *
-	 * @param string $sep
 	 * @return string
 	 */
-	private function _hms_format(string $sep = ':'): string {
-		return StringTools::zeroPad($this->hour()) . $sep . StringTools::zeroPad($this->minute()) . $sep . StringTools::zeroPad($this->second());
+	private function _hms_format(): string {
+		return StringTools::zeroPad($this->hour()) . ':' . StringTools::zeroPad($this->minute()) . ':' . StringTools::zeroPad($this->second());
 	}
 
 	/**
@@ -601,38 +571,23 @@ class Time extends Temporal {
 	/**
 	 * Add a unit to a time
 	 *
-	 * As of 2017-12-16, Zesk 0.14.1, no longer supports legacy calling (units,n_units)
-	 *
-	 * @param string $units
-	 *            Unit to add: "millisecond", "second", "minute", "hour"
 	 * @param int $n_units
 	 *            Number to add
-	 * @return Time
-	 * @throws Exception_Parameter
+	 * @param string $units
+	 *            Unit to add: "millisecond", "second", "minute", "hour"
+	 * @return self
+	 * @throws ParameterException
 	 */
 	public function addUnit(int $n_units = 1, string $units = self::UNIT_SECOND): self {
-		if (!is_numeric($n_units)) {
-			throw new Exception_Parameter('$n_units must be numeric {type} {value}', [
-				'type' => type($n_units),
-				'value' => $n_units,
-			]);
-		}
-		switch ($units) {
-			case self::UNIT_MILLISECOND:
-				return $this->add(0, 0, round($n_units / 1000));
-			case self::UNIT_SECOND:
-				return $this->add(0, 0, $n_units);
-			case self::UNIT_MINUTE:
-				return $this->add(0, $n_units);
-			case self::UNIT_HOUR:
-				return $this->add($n_units);
-			default:
-				throw new Exception_Parameter('{method)({n_units}, {units}): Invalid unit', [
-					'method' => __METHOD__,
-					'n_units' => $n_units,
-					'units' => $units,
-				]);
-		}
+		return match ($units) {
+			self::UNIT_MILLISECOND => $this->add(0, 0, round($n_units / 1000)),
+			self::UNIT_SECOND => $this->add(0, 0, $n_units),
+			self::UNIT_MINUTE => $this->add(0, $n_units),
+			self::UNIT_HOUR => $this->add($n_units),
+			default => throw new ParameterException('{method)({n_units}, {units}): Invalid unit', [
+				'method' => __METHOD__, 'n_units' => $n_units, 'units' => $units,
+			]),
+		};
 	}
 
 	/**

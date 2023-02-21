@@ -5,7 +5,7 @@ declare(strict_types=1);
  */
 namespace zesk\Repository;
 
-use zesk\Exception_NotFound;
+use zesk\Exception\NotFoundException;
 use zesk\Module;
 use zesk\Repository\Module as RepositoryModule;
 
@@ -40,7 +40,7 @@ abstract class ModuleBase extends Module {
 	 *
 	 * @param string $directory
 	 * @return Base
-	 * @throws Exception_NotFound
+	 * @throws NotFoundException
 	 */
 	public function factory(string $directory): Base {
 		return $this->repositoryModule()->factory($directory);

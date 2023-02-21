@@ -3,13 +3,11 @@ declare(strict_types=1);
 namespace zesk\Net;
 
 use zesk\Application;
+use zesk\Exception\DirectoryNotFound;
+use zesk\Exception\DirectoryPermission;
+use zesk\Exception\FileNotFound;
+use zesk\Exception\FilePermission;
 use zesk\Timestamp;
-
-use zesk\Exception_Key;
-use zesk\Exception_File_NotFound;
-use zesk\Exception_File_Permission;
-use zesk\Exception_Directory_Permission;
-use zesk\Exception_Directory_NotFound;
 
 interface FileSystem {
 	public const FEATURE_MODIFICATION_TIME = 'mtime';
@@ -24,7 +22,7 @@ interface FileSystem {
 	/**
 	 * @param string $component
 	 * @return string
-	 * @throws Exception_Key
+	 * @throws KeyNotFound
 	 *
 	 */
 	public function urlComponent(string $component): string;
@@ -32,13 +30,13 @@ interface FileSystem {
 	/**
 	 * @param string $path
 	 * @return array
-	 * @throws Exception_Directory_NotFound
+	 * @throws DirectoryNotFound
 	 */
 	public function ls(string $path): array;
 
 	/**
 	 * @param string $path
-	 * @throws Exception_Directory_NotFound
+	 * @throws DirectoryNotFound
 	 */
 	public function cd(string $path): void;
 
@@ -49,32 +47,32 @@ interface FileSystem {
 
 	/**
 	 * @param string $path
-	 * @throws Exception_Directory_NotFound
-	 * @throws Exception_File_NotFound
+	 * @throws DirectoryNotFound
+	 * @throws FileNotFound
 	 */
 	public function stat(string $path): array;
 
 	/**
 	 * @param $path
 	 * @return void
-	 * @throws Exception_Directory_NotFound
-	 * @throws Exception_Directory_Permission
+	 * @throws DirectoryNotFound
+	 * @throws DirectoryPermission
 	 */
 	public function mkdir($path): void;
 
 	/**
 	 * @param $path
 	 * @return void
-	 * @throws Exception_Directory_NotFound
-	 * @throws Exception_Directory_Permission
+	 * @throws DirectoryNotFound
+	 * @throws DirectoryPermission
 	 */
 	public function rmdir($path): void;
 
 	/**
 	 * @param $path
 	 * @return void
-	 * @throws Exception_Directory_NotFound
-	 * @throws Exception_Directory_Permission
+	 * @throws DirectoryNotFound
+	 * @throws DirectoryPermission
 	 */
 	public function chmod($path, $mode = 0o770): void;
 
@@ -83,8 +81,8 @@ interface FileSystem {
 	 * @param string $localPath
 	 * @return void
 	 * @return void
-	 * @throws Exception_File_Permission
-	 * @throws Exception_File_NotFound
+	 * @throws FilePermission
+	 * @throws FileNotFound
 	 */
 	public function download(string $remotePath, string $localPath): void;
 
@@ -93,16 +91,16 @@ interface FileSystem {
 	 * @param string $localPath
 	 * @param bool $temporary
 	 * @return void
-	 * @throws Exception_File_Permission
-	 * @throws Exception_File_NotFound
+	 * @throws FilePermission
+	 * @throws FileNotFound
 	 */
 	public function upload(string $localPath, string $remotePath, bool $temporary = false): void;
 
 	/**
 	 * @param string $path
 	 * @return Timestamp
-	 * @throws Exception_File_Permission
-	 * @throws Exception_File_NotFound
+	 * @throws FilePermission
+	 * @throws FileNotFound
 	 */
 	public function modificationTime(string $path): Timestamp;
 
@@ -115,8 +113,8 @@ interface FileSystem {
 
 	/**
 	 * @param string $path
-	 * @throws Exception_File_Permission
-	 * @throws Exception_File_NotFound
+	 * @throws FilePermission
+	 * @throws FileNotFound
 	 */
 	public function unlink(string $path): void;
 

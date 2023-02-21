@@ -8,6 +8,7 @@ namespace zesk;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel as LogLevel;
 use Throwable;
+use zesk\Application\Hooks;
 use zesk\Logger\Handler;
 use zesk\Logger\Processor;
 

@@ -34,7 +34,7 @@ class Command_Module_Version extends Command_Base {
 					$version = 'none';
 				}
 				echo "$module: $version\n";
-			} catch (Exception_NotFound) {
+			} catch (NotFoundException) {
 				echo "$module: no such module";
 				$exit = self::EXIT_CODE_ARGUMENTS;
 			}

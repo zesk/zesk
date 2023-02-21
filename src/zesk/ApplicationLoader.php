@@ -9,15 +9,20 @@ declare(strict_types=1);
 
 namespace zesk;
 
+use zesk\Exception\ClassNotFound;
+use zesk\Exception\ConfigurationException;
+use zesk\Exception\NotFoundException;
+use zesk\Exception\Unsupported;
+
 class ApplicationLoader {
 	/**
 	 * @param array $options
 	 * @return Application
 	 * @throws Exception
-	 * @throws Exception_Class_NotFound
-	 * @throws Exception_Configuration
-	 * @throws Exception_NotFound
-	 * @throws Exception_Unsupported
+	 * @throws ClassNotFound
+	 * @throws ConfigurationException
+	 * @throws NotFoundException
+	 * @throws Unsupported
 	 */
 	public static function application(array $options = []): Application {
 		try {

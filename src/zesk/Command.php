@@ -12,12 +12,26 @@ namespace zesk;
 use Psr\Log\LogLevel;
 use ReflectionClass;
 use Throwable;
+use zesk\Exception\ClassNotFound;
+use zesk\Exception\CommandFailed;
+use zesk\Exception\ConfigurationException;
+use zesk\Exception\DirectoryNotFound;
+use zesk\Exception\ExitedException;
+use zesk\Exception\FileNotFound;
+use zesk\Exception\FilePermission;
+use zesk\Exception\NotFoundException;
+use zesk\Exception\ParameterException;
+use zesk\Exception\ParseException;
+use zesk\Exception\Redirect;
+use zesk\Exception\Semantics;
+use zesk\Exception\Unsupported;
+use zesk\Interface\Promptable;
 
 /**
  *
  * @author kent
  */
-abstract class Command extends Hookable implements Logger\Handler, Interface_Prompt {
+abstract class Command extends Hookable implements Logger\Handler, Promptable {
 	public const OPTION_ANSI = 'ansi';
 
 	public const OPTION_NO_ANSI = 'no-ansi';
@@ -235,7 +249,7 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 	 *
 	 * @param array $argv
 	 * @return $this
-	 * @throws Exception_Parameter
+	 * @throws ParameterException
 	 */
 	public function parseArguments(array $argv): self {
 		$this->initialize();
@@ -254,8 +268,8 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 
 		try {
 			$this->_parseOptions();
-		} catch (Exception_Semantics $e) {
-			throw new Exception_Parameter('Invalid arguments for {class}: {argv}', [
+		} catch (Semantics $e) {
+			throw new ParameterException('Invalid arguments for {class}: {argv}', [
 				'class' => $this::class, 'argv' => $argv,
 			], $e->getCode(), $e);
 		}
@@ -267,7 +281,7 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 		}
 
 		if ($this->hasErrors()) {
-			throw new Exception_Parameter("Invalid arguments for {class}: {argv}\n{errors}", [
+			throw new ParameterException("Invalid arguments for {class}: {argv}\n{errors}", [
 				'class' => $this::class, 'argv' => $argv, 'errors' => $this->errors(),
 			]);
 		}
@@ -276,6 +290,7 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 
 	/**
 	 * Configure the application additionally upon run
+	 * @throws ConfigurationException
 	 */
 	protected function applicationConfigure(): void {
 		$application = $this->application;
@@ -329,20 +344,20 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 		$files = [];
 		foreach ($paths as $path) {
 			foreach ($suffixes as $suffix) {
-				$files[] = path($path, $suffix);
+				$files[] = Directory::path($path, $suffix);
 			}
 		}
 
 		try {
 			$default = File::findFirst(array_reverse($files));
-		} catch (Exception_NotFound) {
-			$default = last($files);
+		} catch (NotFoundException) {
+			$default = ArrayTools::last($files);
 		}
 		$result = [
 			'files' => $files, 'default' => $default,
 		];
 		if (empty($default)) {
-			$result['default'] = path(first($paths), $file);
+			$result['default'] = Directory::path(ArrayTools::first($paths), $file);
 		}
 		return $result;
 	}
@@ -365,14 +380,13 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 	 *            Configuration file name to use (either /etc/zesk/$name.conf or ~/.zesk/$name.conf)
 	 * @param bool $create
 	 * @return string LAST configuration file path
-	 * @throws Exception_Class_NotFound
-	 * @throws Exception_Configuration
-	 * @throws Exception_Directory_NotFound
-	 * @throws Exception_File_Permission
-	 * @throws Exception_Invalid
-	 * @throws Exception_Parameter
-	 * @throws Exception_Semantics
-	 * @throws Exception_Unsupported|Exception_NotFound
+	 * @throws ClassNotFound
+	 * @throws ConfigurationException
+	 * @throws DirectoryNotFound
+	 * @throws FilePermission
+	 * @throws ParameterException
+	 * @throws Semantics
+	 * @throws Unsupported|NotFoundException|ParseException
 	 */
 	protected function configure(string $name, bool $create = false): string {
 		$configure_options = $this->_configurationFiles($name);
@@ -384,7 +398,7 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 			return $filename;
 		}
 		if (empty($filename)) {
-			throw new Exception_Parameter('No configuration file name for {name}', [
+			throw new ParameterException('No configuration file name for {name}', [
 				'name' => $name, 'create' => $create,
 			]);
 		}
@@ -416,7 +430,7 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 	 * @param string $name
 	 * @param string $filename
 	 * @return void
-	 * @throws Exception_Semantics|Exception_File_Permission
+	 * @throws Semantics|FilePermission
 	 */
 	protected function write_default_configuration(string $name, string $filename): void {
 		if (!is_writable(dirname($filename))) {
@@ -462,41 +476,42 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 	}
 
 	/**
-	 * @param string $arg_name
-	 * @param string $arg_type
+	 * @param string $name
+	 * @param string $type
 	 * @return bool
+	 * @throws ParameterException
 	 */
-	protected function parse_argument(string $arg_name, string $arg_type): bool {
-		return false;
+	protected function parse_argument(string $name, string $type): bool {
+		throw new ParameterException('Unknown parameter {name} of {type}', ['name' => $name, 'type' => $type]);
 	}
 
 	/**
 	 * @param string $arg
 	 * @return Timestamp
-	 * @throws Exception_Parameter
+	 * @throws ParameterException
 	 */
 	protected function arg_to_DateTime(string $arg): Timestamp {
 		try {
-			return Timestamp::factory($arg);
-		} catch (Exception_Convert) {
+			return Timestamp::factory()->parse($arg);
+		} catch (ParseException) {
 			$this->error('Need to format like a date: {arg}', ['arg' => $arg]);
 
-			throw new Exception_Parameter($arg);
+			throw new ParameterException($arg);
 		}
 	}
 
 	/**
 	 * @param string $arg
 	 * @return Date
-	 * @throws Exception_Parameter
+	 * @throws ParameterException
 	 */
 	protected function arg_to_Date(string $arg): Date {
 		try {
-			return Date::factory($arg);
-		} catch (Exception_Convert|Exception_Parameter|Exception_Parse) {
+			return Date::factory()->parse($arg);
+		} catch (ParseException) {
 			$this->error('Need to format like a date: {arg}', ['arg' => $arg]);
 
-			throw new Exception_Parameter($arg);
+			throw new ParameterException($arg);
 		}
 	}
 
@@ -613,7 +628,6 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 	/**
 	 * Parse the option default values
 	 *
-	 * @param array $options
 	 * @return array
 	 */
 	private function parseOptionDefaults(): array {
@@ -668,8 +682,8 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 	 * @param array $context
 	 */
 	private function logLine(string $message, array $context = []): void {
-		$newline = toBool($context['newline'] ?? true);
-		$message = rtrim(map($message, $context));
+		$newline = Types::toBool($context['newline'] ?? true);
+		$message = rtrim(ArrayTools::map($message, $context));
 		$suffix = '';
 		if ($newline) {
 			if (strlen($message) == 0 || $message[strlen($message) - 1] !== "\n") {
@@ -804,10 +818,10 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 		while ($this->hasArgument($endOfArgumentMarker)) {
 			try {
 				$arguments[] = $this->getArgument(__METHOD__, $endOfArgumentMarker);
-			} catch (Exception_Semantics) {
+			} catch (Semantics) {
 			}
 		}
-		if (!$endOfArgumentMarker && first($arguments) === self::END_OF_ARGUMENT_MARKER) {
+		if (!$endOfArgumentMarker && ArrayTools::first($arguments) === self::END_OF_ARGUMENT_MARKER) {
 			array_shift($arguments);
 		}
 		return $arguments;
@@ -844,19 +858,19 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 	 * @param string $arg
 	 * @param bool $endOfArgumentMarker
 	 * @return string
-	 * @throws Exception_Semantics
+	 * @throws Semantics
 	 */
 	protected function getArgument(string $arg = '', bool $endOfArgumentMarker = true): string {
 		if (count($this->argv) === 0) {
 			$this->error("No argument parameter for $arg");
 
-			throw new Exception_Semantics('No arguments');
+			throw new Semantics('No arguments');
 		}
 		if ($endOfArgumentMarker) {
 			if ($this->argv[0] === self::END_OF_ARGUMENT_MARKER) {
 				$this->error("End of arguments marker found for $arg");
 
-				throw new Exception_Semantics('End of arguments marker found');
+				throw new Semantics('End of arguments marker found');
 			}
 		}
 		return array_shift($this->argv);
@@ -864,8 +878,8 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 
 	/**
 	 * Parse command-line options for this command
-	 * @throws Exception_Semantics
-	 * @throws Exception_Parameter
+	 * @throws Semantics
+	 * @throws ParameterException
 	 */
 	private function _parseOptions(): void {
 		$this->argv = $this->arguments;
@@ -875,7 +889,7 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 		$option_values = [];
 		while (($arg = array_shift($this->argv)) !== null) {
 			if (!is_string($arg)) {
-				$this->error('Non-string argument {type} encountered, skipping', ['type' => type($arg)]);
+				$this->error('Non-string argument {type} encountered, skipping', ['type' => Types::type($arg)]);
 				continue;
 			}
 			if (!str_starts_with($arg, '-')) {
@@ -951,7 +965,7 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 				case 'list':
 					$param = $this->getArgument($arg, false);
 					$option_values[$arg] = true;
-					$this->setOption($arg, toList($param));
+					$this->setOption($arg, Types::toList($param));
 					$this->debugLog("Set $arg to list: $param");
 					break;
 				case 'dir':
@@ -1015,10 +1029,8 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 
 					break;
 				default:
-					if (!$this->parse_argument($arg, $this->option_types[$arg])) {
-						$this->error('Unknown argument type ' . $this->option_types[$arg]);
-					}
-
+					$this->parse_argument($arg, $this->option_types[$arg]);
+					// Marked as unreachable, but parse_argument is overridden in other classes, wink wink.
 					break;
 			}
 		}
@@ -1076,14 +1088,14 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 				foreach (File::lines($this->history_file_path) as $line) {
 					readline_add_history($line);
 				}
-			} catch (Exception_File_NotFound) {
+			} catch (FileNotFound) {
 				// pass
 			}
 		}
 
 		try {
 			$this->history_file = File::open($this->history_file_path, 'ab');
-		} catch (Exception_File_Permission $e) {
+		} catch (FilePermission $e) {
 			$this->application->logger->error('{message}', $e->variables());
 		}
 	}
@@ -1152,7 +1164,7 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 	 * @param string|null $default
 	 * @param array|null $completions
 	 * @return string
-	 * @throws Exception_Redirect|Exception_Semantics
+	 * @throws StopIteration|Semantics
 	 */
 	public function prompt(string $message, string $default = null, array $completions = null): string {
 		if ($this->option('non-interactive')) {
@@ -1161,7 +1173,7 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 					'message' => $message,
 				]);
 
-				throw new Exception_Semantics('Non-interactive set but input is required for {message}', [
+				throw new Semantics('Non-interactive set but input is required for {message}', [
 					'message' => $message,
 				]);
 			}
@@ -1186,7 +1198,7 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 					return $default;
 				}
 			} catch (StopIteration) {
-				throw new Exception_Redirect('exit');
+				throw new StopIteration('exit');
 			}
 		}
 	}
@@ -1218,7 +1230,7 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 				'no', 'yes',
 			]));
 			$result = trim(fgets(STDIN));
-			$result = ($result === '') ? $default : toBool($result, null);
+			$result = ($result === '') ? $default : Types::toBool($result, null);
 		} while ($result === null);
 		return $result;
 	}
@@ -1229,7 +1241,7 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 	 *
 	 * @param string $command
 	 * @return array
-	 * @throws Exception_Command
+	 * @throws CommandFailed
 	 */
 	public function exec(string $command): array {
 		$args = func_get_args();
@@ -1246,7 +1258,7 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 	 * @param string $command
 	 * @param array $arguments
 	 * @return array
-	 * @throws Exception_Command
+	 * @throws CommandFailed
 	 */
 	protected function zesk_cli(string $command, array $arguments = []): array {
 		$app = $this->application;
@@ -1262,7 +1274,7 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 	 *
 	 * @param string $command
 	 * @return array
-	 * @throws Exception_Command
+	 * @throws CommandFailed
 	 */
 	protected function passThru(string $command): array {
 		$args = func_get_args();
@@ -1278,9 +1290,10 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 	 * Main entry point for running a command
 	 *
 	 * @return int
-	 * @throws Exception_Configuration
-	 * @throws Exception_NotFound
-	 * @throws Exception_Unsupported
+	 * @throws ConfigurationException
+	 * @throws NotFoundException
+	 * @throws Unsupported
+	 * @throws ParseException
 	 */
 	final public function go(): int {
 		self::$commands[] = $this;
@@ -1290,7 +1303,7 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 
 		try {
 			$this->callHookArguments(self::HOOK_RUN_BEFORE);
-		} catch (Exception_Exited $e) {
+		} catch (ExitedException $e) {
 			return $e->getCode();
 		}
 
@@ -1313,7 +1326,7 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 			assert(count(self::$commands) > 0);
 			array_pop(self::$commands);
 			return $result;
-		} catch (Exception_File_NotFound $e) {
+		} catch (FileNotFound $e) {
 			$this->error('File not found {path}', $e->variables());
 			return self::EXIT_CODE_ENVIRONMENT;
 		} catch (Throwable $e) {
@@ -1335,7 +1348,7 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 	 * @return Command
 	 */
 	public static function running(): self {
-		return last(self::$commands);
+		return ArrayTools::last(self::$commands);
 	}
 
 	public const OPTION_FORMAT = 'format';
@@ -1382,7 +1395,7 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 			case self::FORMAT_HTML:
 				try {
 					echo $this->application->themes->theme('dl', $content);
-				} catch (Exception_Redirect $e) {
+				} catch (Redirect $e) {
 					echo $e->url();
 				}
 				break;
@@ -1439,7 +1452,7 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 
 	/**
 	 * Main run code
-	 * @throws Exception_File_NotFound
+	 * @throws FileNotFound
 	 * @throws Exception
 	 */
 	abstract protected function run(): int;

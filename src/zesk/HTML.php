@@ -9,54 +9,38 @@ declare(strict_types=1);
 
 namespace zesk;
 
-/**
- * Tag start character class
- *
- * @var string
- */
-define('RE_TAG_NAME_START_CHAR', ":A-Za-z_\xC0-\xD6\xD8-\xF6");
-
-/**
- * Tag character class (additional characters)
- *
- * @var string
- */
-define('RE_TAG_NAME_CHAR', '-' . RE_TAG_NAME_START_CHAR . ".0-9\xB7");
-
-/**
- * Tag name pattern without delimiters.
- * Start char, then rest of chars. Minimum one char.
- *
- * @var string
- */
-define('RE_TAG_NAME', '[' . RE_TAG_NAME_START_CHAR . ']' . '[' . RE_TAG_NAME_CHAR . ']*');
+use zesk\Exception\NotFoundException;
+use zesk\Exception\Semantics;
 
 /**
  * Abstraction of HTML markup language, with tools for generating and parsing HTML
  */
 class HTML {
+	private const RE_TAG_NAME_START_CHAR = ":A-Za-z_\xC0-\xD6\xD8-\xF6";
+
+	/**
+	 * Tag character class (additional characters)
+	 *
+	 * @var string
+	 */
+	private const RE_TAG_NAME_CHAR =  '-' . self::RE_TAG_NAME_START_CHAR . ".0-9\xB7";
+
+	/**
+	 * Tag name pattern without delimiters.
+	 * Start char, then rest of chars. Minimum one char.
+	 *
+	 * @var string
+	 */
+	private const RE_TAG_NAME = '[' . self::RE_TAG_NAME_START_CHAR . ']' . '[' . self::RE_TAG_NAME_CHAR . ']*';
+
 	/**
 	 * Global HTML attributes allowed on any HTML tag
 	 *
 	 * @var array
 	 */
 	private static array $global_attributes = [
-		'accesskey',
-		'class',
-		'contenteditable',
-		'contextmenu',
-		'data-*',
-		'dir',
-		'draggable',
-		'dropzone',
-		'hidden',
-		'id',
-		'lang',
-		'spellcheck',
-		'style',
-		'tabindex',
-		'title',
-		'translate',
+		'accesskey', 'class', 'contenteditable', 'contextmenu', 'data-*', 'dir', 'draggable', 'dropzone', 'hidden',
+		'id', 'lang', 'spellcheck', 'style', 'tabindex', 'title', 'translate',
 	];
 
 	/**
@@ -66,55 +50,13 @@ class HTML {
 	 */
 	private static array $tag_attributes = [
 		'a' => [
-			'href',
-			'hreflang',
-			'title',
-			'target',
-			'type',
-			'media',
-			'download',
-		],
-		'input' => [
-			'accept',
-			'alt',
-			'checked',
-			'disabled',
-			'ismap',
-			'maxlength',
-			'name',
-			'onblur',
-			'onchange',
-			'onclick',
-			'ondblclick',
-			'onfocus',
-			'onkeydown',
-			'onkeypress',
-			'onkeyup',
-			'onmousedown',
-			'onmousemove',
-			'onmouseout',
-			'onmouseover',
-			'onmouseup',
-			'onselect',
-			'placeholder',
-			'readonly',
-			'size',
-			'src',
-			'type',
-			'usemap',
-			'value',
-		],
-		'select' => 'input',
-		'li' => ['value', ],
-		'link' => [
-			'charset',
-			'crossorigin',
-			'href',
-			'hreflang',
-			'media',
-			'rel',
-			'sizes',
-			'type',
+			'href', 'hreflang', 'title', 'target', 'type', 'media', 'download',
+		], 'input' => [
+			'accept', 'alt', 'checked', 'disabled', 'ismap', 'maxlength', 'name', 'onblur', 'onchange', 'onclick',
+			'ondblclick', 'onfocus', 'onkeydown', 'onkeypress', 'onkeyup', 'onmousedown', 'onmousemove', 'onmouseout',
+			'onmouseover', 'onmouseup', 'onselect', 'placeholder', 'readonly', 'size', 'src', 'type', 'usemap', 'value',
+		], 'select' => 'input', 'li' => ['value', ], 'link' => [
+			'charset', 'crossorigin', 'href', 'hreflang', 'media', 'rel', 'sizes', 'type',
 		],
 	];
 
@@ -172,13 +114,6 @@ class HTML {
 	private static string $RE_TAG_END_CHAR = "\xFD";
 
 	/**
-	 * Tag name pattern without delimiters
-	 *
-	 * @var string
-	 */
-	public const RE_TAG_NAME = RE_TAG_NAME;
-
-	/**
 	 *
 	 * @param string $src
 	 * @param string $text
@@ -186,7 +121,7 @@ class HTML {
 	 * @param string $full_path
 	 * @return string
 	 */
-	private static function _img(string $src, string $text, array $attrs = [], string $full_path = '') {
+	private static function _img(string $src, string $text, array $attrs = [], string $full_path = ''): string {
 		$attrs['alt'] = $text;
 		$attrs['title'] ??= $text;
 		$attrs['src'] = $src;
@@ -204,20 +139,27 @@ class HTML {
 			}
 		}
 		$attrs['border'] ??= 0;
-		return self::tag('img', $attrs, null);
+		return self::tag('img', $attrs);
 	}
 
 	/**
 	 *
+	 * @param Application $app
 	 * @param string $src
-	 * @param string $w
-	 * @param string $h
+	 * @param int|null $w
+	 * @param int|null $h
 	 * @param string $text
-	 * @param string $attrs
+	 * @param array $attrs
 	 * @return string
 	 */
-	public static function img_compat(Application $app, $src, $w = null, $h = null, $text = '', $attrs = false) {
-		$attrs = toArray($attrs, []);
+	public static function img_compat(
+		Application $app,
+		string $src,
+		int $w = null,
+		int $h = null,
+		string $text = '',
+		array $attrs = []
+	): string {
 		$attrs['width'] = $w ?? $attrs['width'] ?? null;
 		$attrs['height'] = $h ?? $attrs['height'] ?? null;
 		return self::img($app, $src, $text, $attrs);
@@ -228,6 +170,7 @@ class HTML {
 	 *
 	 * Uses Application global
 	 *
+	 * @param Application $application
 	 * @param string $src
 	 * @return string
 	 */
@@ -237,7 +180,7 @@ class HTML {
 		}
 		$prefix = $application->documentRootPrefix();
 		if ($prefix) {
-			return path($prefix, $src);
+			return Directory::path($prefix, $src);
 		}
 		return $src;
 	}
@@ -245,13 +188,14 @@ class HTML {
 	/**
 	 * Consider adding Application as a parameter, add logic for document_root
 	 *
+	 * @param Application $app
 	 * @param string $src
 	 * @param string $text
 	 * @param array $attrs
 	 * @return string
 	 */
 	public static function img(Application $app, string $src, string $text = '', array $attrs = []): string {
-		return self::_img(self::href($app, $src), $text, $attrs, path($app->documentRoot(), $src));
+		return self::_img(self::href($app, $src), $text, $attrs, Directory::path($app->documentRoot(), $src));
 	}
 
 	/**
@@ -282,19 +226,11 @@ class HTML {
 	 * </code>
 	 *
 	 * @param string $phone
-	 * @param array|string $mixed
+	 * @param array $attributes
 	 * @param string $text
 	 * @return string
 	 */
-	public static function atel($phone, $mixed = null) {
-		if (is_array($mixed)) {
-			$attributes = self::toAttributes($mixed);
-			$args = func_get_args();
-			$text = $args[2] ?? null;
-		} else {
-			$attributes = [];
-			$text = $mixed ?: $phone;
-		}
+	public static function atel(string $phone, array $attributes, string $text = ''): string {
 		$attributes['href'] = 'tel:' . preg_replace('/[^+0-9,]/', '', $phone);
 		return self::tag('a', $attributes, $text);
 	}
@@ -308,7 +244,7 @@ class HTML {
 			return $mixed;
 		}
 
-		$mixed = toList($mixed, [], ' ');
+		$mixed = Types::toList($mixed, [], ' ');
 		$result = [];
 		foreach ($mixed as $term) {
 			$char = substr($term, 0, 1);
@@ -337,13 +273,13 @@ class HTML {
 	 * @param ?string $content
 	 * @return string
 	 */
-	public static function span(string|array $attributes = [], string $content = null) {
+	public static function span(string|array $attributes = [], string $content = null): string {
 		return self::tag('span', self::toAttributes($attributes), $content);
 	}
 
 	/**
 	 * @param string $name
-	 * @param array $attributes
+	 * @param string|array $attributes
 	 * @param string $content
 	 * @return string
 	 */
@@ -356,7 +292,7 @@ class HTML {
 	}
 
 	public static function cleanTagName(string $tag): string {
-		return strtolower(preg_replace('#[^' . RE_TAG_NAME_CHAR . ']#', '', $tag));
+		return strtolower(preg_replace('#[^' . self::RE_TAG_NAME_CHAR . ']#', '', $tag));
 	}
 
 	/**
@@ -376,7 +312,7 @@ class HTML {
 	 * Output an open tag or a single tag ($content === null)
 	 *
 	 * @param string $name
-	 * @param array $attributes attributes
+	 * @param array|string $attributes attributes
 	 * @param ?string $content Pass a third value as content makes 2nd parameter attributes
 	 * @return string
 	 */
@@ -390,7 +326,7 @@ class HTML {
 				if (is_array($result)) {
 					$attributes = $result;
 				}
-			} catch (Exception_Semantics) {
+			} catch (Semantics) {
 				// pass
 			}
 		}
@@ -405,7 +341,6 @@ class HTML {
 	 * @param array $items
 	 * @param string $separator
 	 * @return string
-	 * @throws Exception_Semantics
 	 */
 	public static function tags(string $name, string|array $attributes, array $items, string $separator = "\n"): string {
 		$attributes = self::toAttributes($attributes);
@@ -419,6 +354,7 @@ class HTML {
 	/**
 	 *
 	 * @param array $types
+	 * @return array
 	 */
 	public static function inputAttributeNames(array $types = []): array {
 		if (count($types) === 0) {
@@ -449,10 +385,10 @@ class HTML {
 	 * @param array|string $mixed
 	 * @return array|string
 	 */
-	public static function specialchars(array|string $mixed): array|string {
+	public static function specialChars(array|string $mixed): array|string {
 		if (is_array($mixed)) {
 			foreach ($mixed as $k => $v) {
-				$mixed[$k] = self::specialchars($v);
+				$mixed[$k] = self::specialChars($v);
 			}
 			return $mixed;
 		}
@@ -500,10 +436,10 @@ class HTML {
 		return $string;
 	}
 
-	public static function tag_class($class, $add = null, $remove = null): string {
-		$class = toList($class);
-		$add = toList($add);
-		$remove = toList($remove);
+	public static function tagClass(string $class, string|array $add = [], string|array $remove = []): string {
+		$class = Types::toList($class, [], ' ');
+		$add = Types::toList($add);
+		$remove = Types::toList($remove);
 		return implode(' ', ArrayTools::include_exclude($class, $add, $remove));
 	}
 
@@ -513,7 +449,7 @@ class HTML {
 	 * @param array $attributes
 	 * @return array Data attributes
 	 */
-	public static function data_attributes(array $attributes) {
+	public static function dataAttributes(array $attributes): array {
 		return ArrayTools::flatten(ArrayTools::filterKeyPrefixes(ArrayTools::keysReplace(array_change_key_case($attributes), '_', '-'), 'data-', true));
 	}
 
@@ -524,7 +460,7 @@ class HTML {
 	 * @param array $attributes
 	 * @return array
 	 */
-	public static function tag_attributes($tag, array $attributes) {
+	public static function tagAttributes(string $tag, array $attributes): array {
 		$tag = self::cleanTagName($tag);
 		if (!isset(self::$tag_attributes_cache[$tag])) {
 			$allowed = self::$tag_attributes[$tag] ?? [];
@@ -535,7 +471,7 @@ class HTML {
 		} else {
 			$allowed = self::$tag_attributes_cache[$tag];
 		}
-		return ArrayTools::filter($attributes, $allowed) + self::data_attributes($attributes);
+		return ArrayTools::filter($attributes, $allowed) + self::dataAttributes($attributes);
 	}
 
 	/**
@@ -612,37 +548,19 @@ class HTML {
 	}
 
 	/**
-	 * Extract HTML_Tags from some content.
+	 * Extract HTMLTags from some content.
 	 * Tags are returned in the order they are found in a document.
 	 *
-	 * @param
-	 *            A string of the tag to extract, or $tag
+	 * @param string $tag
 	 * @param mixed $mixed
-	 *            A string, HTML_Tag, object with toString function, or array
+	 *            A string, HTMLTag, object with toString function, or array
 	 * @param boolean $recursive
-	 *            Whether to recurse within the HTML tag to find tags within tags (e.g. div inside
-	 *            of
-	 *            another div)
-	 * @return HTML_Tag[]
+	 *            Whether to recurse within the HTML tag to find tags within tags (e.g. div inside another div)
+	 * @return array
 	 */
-	public static function extract_tags($tag, $mixed, $recursive = true) {
+	public static function extractTags(string $tag, string|HTMLTag|array $mixed, bool $recursive = true): array {
 		/* Handle a variety of inputs */
 		$contents = self::mixedToString($mixed);
-		if (is_array($contents)) {
-			$results = [];
-			foreach ($contents as $k => $v) {
-				$temp = self::extract_tags($tag, $v, $recursive);
-				if (is_array($temp)) {
-					$results[$k] = $temp;
-				}
-			}
-			return $results;
-		}
-
-		if (!is_string($contents)) {
-			return $contents;
-		}
-
 		if (empty($contents)) {
 			return [];
 		}
@@ -695,7 +613,7 @@ class HTML {
 						$tag_contents = false;
 					}
 
-					$results[] = new HTML_Tag($tag, $options, $tag_contents, str_replace($reverse_search, $reverse_replace, $matched), $matched_offset);
+					$results[] = new HTMLTag($tag, $options, $tag_contents, str_replace($reverse_search, $reverse_replace, $matched), $matched_offset);
 
 					$token = '#@' . count($results) . '@#';
 
@@ -716,33 +634,30 @@ class HTML {
 		 * Since we modify the contents as we parse, the undos all modifications in results
 		 */
 		foreach ($results as $result) {
-			/* @var $result HTML_Tag */
+			/* @var $result HTMLTag */
 			$inner_html = $result->innerHTML();
-			if (is_string($inner_html)) {
-				$outer_html = $result->outerHTML();
-				while (preg_match('/#@[0-9]+@#|[' . self::$RE_TAG_START_CHAR . self::$RE_TAG_END_CHAR . ']/', $inner_html)) {
-					$inner_html = str_replace($reverse_search, $reverse_replace, $inner_html);
-					$outer_html = str_replace($reverse_search, $reverse_replace, $outer_html);
-				}
-				$result->setInnerHTML($inner_html);
-				$result->setOuterHTML($outer_html);
+			$outer_html = $result->outerHTML();
+			while (preg_match('/#@[0-9]+@#|[' . self::$RE_TAG_START_CHAR . self::$RE_TAG_END_CHAR . ']/', $inner_html)) {
+				$inner_html = str_replace($reverse_search, $reverse_replace, $inner_html);
+				$outer_html = str_replace($reverse_search, $reverse_replace, $outer_html);
 			}
+			$result->setInnerHTML($inner_html);
+			$result->setOuterHTML($outer_html);
 		}
 
 		return $results;
 	}
 
-	private static $tag_stack = [];
+	private static array $tag_stack = [];
 
 	/**
 	 * Open a tag
 	 *
-	 * @param
-	 *            tag name $name
-	 * @param string $attributes
+	 * @param string $name
+	 * @param string|array $attributes
 	 * @return string
 	 */
-	public static function tag_open($name, string|array $attributes = []) {
+	public static function tag_open(string $name, string|array $attributes = []): string {
 		if ($name === '') {
 			return '';
 		}
@@ -754,17 +669,17 @@ class HTML {
 	 * Close a tag.
 	 * Must balance tag_open calls or an error is thrown.
 	 *
-	 * @param string $name
+	 * @param null|string $name
 	 * @return string
-	 * @throws Exception_Semantics
+	 * @throws Semantics
 	 */
 	public static function tag_close(string $name = null): string {
 		if (count(self::$tag_stack) === 0) {
-			throw new Exception_Semantics("Closing tag without open ($name)");
+			throw new Semantics("Closing tag without open ($name)");
 		}
 		$top_name = array_pop(self::$tag_stack);
 		if ($name !== null && strcasecmp($name, $top_name) !== 0) {
-			throw new Exception_Semantics("Closing tag $name when it should be $top_name");
+			throw new Semantics("Closing tag $name when it should be $top_name");
 		}
 		return '</' . $top_name . '>';
 	}
@@ -772,7 +687,7 @@ class HTML {
 	/**
 	 * Common tag_open case
 	 *
-	 * @param string $attributes
+	 * @param string|array $attributes
 	 * @return string
 	 */
 	public static function div_open(string|array $attributes = []): string {
@@ -782,7 +697,7 @@ class HTML {
 	/**
 	 * Common tag_open case
 	 *
-	 * @param string $attributes
+	 * @param string|array $attributes
 	 * @return string
 	 */
 	public static function span_open(string|array $attributes = []): string {
@@ -792,6 +707,7 @@ class HTML {
 	/**
 	 * Like etag but for divs
 	 *
+	 * @param string|array $attributes
 	 * @return string
 	 */
 	public static function ediv(string|array $attributes = []): string {
@@ -802,6 +718,7 @@ class HTML {
 	/**
 	 * Like etag but for divs
 	 *
+	 * @param string|array $attributes
 	 * @return string
 	 */
 	public static function espan(string|array $attributes = []): string {
@@ -813,6 +730,7 @@ class HTML {
 	 * Common tag_close case
 	 *
 	 * @return string
+	 * @throws Semantics
 	 */
 	public static function div_close(): string {
 		return self::tag_close('div');
@@ -822,6 +740,7 @@ class HTML {
 	 * Common tag_close case
 	 *
 	 * @return string
+	 * @throws Semantics
 	 */
 	public static function span_close(): string {
 		return self::tag_close('span');
@@ -833,31 +752,27 @@ class HTML {
 	 * @param string $tag
 	 *            Tag to extract (e.g. "title")
 	 * @param mixed $mixed
-	 *            HTML string, HTML_Tag object, or an object which can be converted
-	 * @return string|null Contents of the tag
+	 *            HTML string, HTMLTag object, or an object which can be converted
+	 * @return string Contents of the tag
+	 * @throws NotFoundException
 	 */
-	public static function extractTagContents(string $tag, string $mixed): ?string {
-		$result = self::extract_tag_object($tag, $mixed);
-		if ($result instanceof HTML_Tag) {
-			return $result->innerHTML();
-		}
-		return null;
+	public static function extractTagContents(string $tag, string $mixed): string {
+		$result = self::extractTag($tag, $mixed);
+		return $result->innerHTML();
 	}
 
 	/**
 	 * Extract the first tag object of given type from HTML
 	 *
 	 * @param string $tag Tag to extract (e.g. "title")
-	 * @param mixed $mixed HTML string, HTML_Tag object, or an object which can be converted
-	 * @return HTML_Tag|null Found tag, or null
+	 * @param mixed $mixed HTML string, HTMLTag object, or an object which can be converted
+	 * @return HTMLTag Found tag, or null
+	 * @throws NotFoundException
 	 */
-	public static function extract_tag_object(string $tag, mixed $mixed) {
-		$result = self::extract_tags($tag, $mixed, false);
-		if (!is_array($result)) {
-			return null;
-		}
+	public static function extractTag(string $tag, mixed $mixed): HTMLTag {
+		$result = self::extractTags($tag, $mixed, false);
 		if (count($result) === 0) {
-			return null;
+			throw new NotFoundException('No tag {tag}', ['tag' => $tag]);
 		}
 		$htmlTag = array_shift($result);
 		return $htmlTag;
@@ -895,10 +810,12 @@ class HTML {
 		$mixed .= ' ';
 		$attr = [];
 		if (preg_match_all('/([a-zA-Z_:][-a-zA-Z0-9_:.]*)\s*=\s*(\'[^\']*\'|\"[^\"]*\"|[^\'\"]+)\s/', $mixed, $matches, PREG_SET_ORDER)) {
+			$search = [];
+			$replace = [];
 			foreach ($matches as $match) {
 				$search[] = $match[0];
 				$replace[] = '';
-				$attr[strtolower($match[1])] = unquote($match[2]);
+				$attr[strtolower($match[1])] = StringTools::unquote($match[2]);
 			}
 			$mixed = str_replace($search, $replace, $mixed);
 		}
@@ -928,10 +845,10 @@ class HTML {
 	/**
 	 * String length of HTML minus the HTML
 	 *
-	 * @param $html_content
+	 * @param string $html_content
 	 * @return int
 	 */
-	public static function strlen($html_content) {
+	public static function strlen(string $html_content): int {
 		return strlen(self::strip($html_content));
 	}
 
@@ -972,7 +889,7 @@ class HTML {
 				}
 			}
 			$html_offset += strlen($tag);
-			$end_tag = self::is_end_tag($tag);
+			$end_tag = self::isEndTag($tag);
 			if ($end_tag) {
 				while (count($stack) > 0) {
 					$stack_top = array_pop($stack);
@@ -990,7 +907,7 @@ class HTML {
 				}
 			} else {
 				$result .= $tag;
-				$tags = self::parse_tags($tag);
+				$tags = self::parseTags($tag);
 				foreach (array_keys($tags) as $start_tag) {
 					$stack[] = $start_tag;
 				}
@@ -1006,15 +923,6 @@ class HTML {
 	/**
 	 * @param string $string
 	 * @return array
-	 * @deprecated 2022-10
-	 */
-	public static function match_tags(string $string): array {
-		return self::matchTags($string);
-	}
-
-	/**
-	 * @param string $stringx
-	 * @return array
 	 */
 	public static function matchTags(string $string): array {
 		$matches = [];
@@ -1022,14 +930,6 @@ class HTML {
 			return [];
 		}
 		return $matches;
-	}
-
-	/**
-	 * @param string $string
-	 * @return array
-	 */
-	public static function parse_tags(string $string): array {
-		return self::parseTags($string);
 	}
 
 	/**
@@ -1057,11 +957,11 @@ class HTML {
 
 	/**
 	 * @param array $attr
-	 * @param $allowed
-	 * @param $disallowed
+	 * @param array|null $allowed
+	 * @param array $disallowed
 	 * @return array
 	 */
-	public static function style_clean(array $attr, array $allowed = null, array $disallowed = []) {
+	public static function styleClean(array $attr, array $allowed = null, array $disallowed = []): array {
 		return ArrayTools::filterKeys($attr, $allowed, $disallowed, true);
 	}
 
@@ -1072,7 +972,7 @@ class HTML {
 	 * @param string $html
 	 * @return string
 	 */
-	public static function cleanTagsWithoutAttributes(array $tags, string $html) {
+	public static function cleanTagsWithoutAttributes(array $tags, string $html): string {
 		$empty_tags = implode('|', ArrayTools::preg_quote($tags, '|'));
 		return preg_replace('|<(' . $empty_tags . ')>([^<>]*)</\1>|i', '$2', $html);
 	}
@@ -1124,7 +1024,7 @@ class HTML {
 		return str_replace($search, $replace, $string);
 	}
 
-	public static function clean_style_attributes(string $string, array $include = null, array $exclude = []): string {
+	public static function cleanStyleAttributes(string $string, array $include = null, array $exclude = []): string {
 		$matches = self::matchTags($string);
 		if (!$matches) {
 			return $string;
@@ -1174,7 +1074,7 @@ class HTML {
 			$allowed_tags = ArrayTools::changeValueCase($allowed_tags);
 		}
 		$remove_tags = ArrayTools::changeValueCase($remove_tags);
-		$found_tags = self::parse_tags($string);
+		$found_tags = self::parseTags($string);
 		if (!$found_tags) {
 			return $string;
 		}
@@ -1193,29 +1093,19 @@ class HTML {
 	/**
 	 * Is this an end tag?
 	 *
-	 * @param $string
+	 * @param string $string
 	 * @return false|string
 	 */
-	public static function is_end_tag($string) {
-		return self::isEndTag($string);
-	}
-
-	/**
-	 * Is this an end tag?
-	 *
-	 * @param $string
-	 * @return false|string
-	 */
-	public static function isEndTag($string) {
+	public static function isEndTag(string $string): string|false {
 		$string = trim($string);
 		$match = false;
-		if (preg_match('/<\/\s*(' . RE_TAG_NAME . ')\s*>/', $string, $match)) {
+		if (preg_match('/<\/\s*(' . self::RE_TAG_NAME . ')\s*>/', $string, $match)) {
 			return $match[1];
 		}
 		return false;
 	}
 
-	public static function extract_links($content) {
+	public static function extractLinks(string $content): array {
 		$matches = false;
 		$result = preg_match_all('#(http://|https://|ftp://|mailto:)[^\s\'"/]+(/[^\s\'"><]*)?#i', $content, $matches, PREG_PATTERN_ORDER);
 		if ($result) {
@@ -1225,21 +1115,12 @@ class HTML {
 	}
 
 	/**
-	 * @param $content
-	 * @return array
-	 * @deprecated 2022-02
-	 */
-	public static function extract_emails($content) {
-		return self::extractEmails($content);
-	}
-
-	/**
 	 * @param string $content
 	 * @return array
 	 */
 	public static function extractEmails(string $content): array {
 		$matches = false;
-		$result = preg_match_all('/(' . PREG_PATTERN_EMAIL . ')/i', $content, $matches, PREG_PATTERN_ORDER);
+		$result = preg_match_all('/(' . Types::PREG_PATTERN_EMAIL . ')/i', $content, $matches, PREG_PATTERN_ORDER);
 		if ($result) {
 			return $matches[0];
 		}
@@ -1255,7 +1136,7 @@ class HTML {
 			return '';
 		} elseif (is_string($mixed)) {
 			return $mixed;
-		} elseif ($mixed instanceof HTML_Tag) {
+		} elseif ($mixed instanceof HTMLTag) {
 			return $mixed->innerHTML();
 		} elseif (is_object($mixed) && method_exists($mixed, '__toString')) {
 			return $mixed->__toString();
@@ -1285,19 +1166,8 @@ class HTML {
 	}
 
 	/**
-	 * @param $tag
-	 * @param $mixed
-	 * @param $delete
-	 * @return mixed
-	 * @deprecated 2022-10
-	 */
-	public static function remove_tags($tag, $mixed, $delete = true) {
-		return self::removeTags($tag, $mixed, $delete);
-	}
-
-	/**
 	 * @param string $tag
-	 * @param string $content
+	 * @param string $contents
 	 * @param bool $delete
 	 * @return string
 	 */
@@ -1340,7 +1210,7 @@ class HTML {
 		return $contents;
 	}
 
-	public static function style_units($item, $default_unit = 'px') {
+	public static function style_units($item, $default_unit = 'px'): string|null {
 		$matches = [];
 		if (preg_match('/([0-9.]+)(em|ex|pt|%|in|cm|mm|pc)?/', $item, $matches)) {
 			$num = $matches[1];
@@ -1350,25 +1220,23 @@ class HTML {
 		return null;
 	}
 
-	public static function parse_styles(string $style_string) {
+	public static function parse_styles(string $style_string): array {
 		$style_string = trim($style_string);
 		if (empty($style_string)) {
-			return false;
+			return [];
 		}
 		$matches = [];
 		if (!preg_match_all('/([-a-zA-Z]+)\s*:\s*([^;]*);/', "$style_string;", $matches, PREG_SET_ORDER)) {
-			return false;
+			return [];
 		}
+		$styles = [];
 		foreach ($matches as $match) {
 			$styles[trim(strtolower($match[1]))] = trim($match[2]);
 		}
 		return $styles;
 	}
 
-	public static function styles($styles, $delim = ' ') {
-		if ($styles === null) {
-			return null;
-		}
+	public static function styles(array $styles, string $delim = ' '): string {
 		$r = [];
 		foreach ($styles as $k => $v) {
 			$r[] = strtolower($k) . ': ' . $v . ';';
@@ -1390,7 +1258,7 @@ class HTML {
 	 */
 	public static function count_until_tag(string $string, string &$tagName, int &$nWords): int {
 		$result = self::countUntilTag($string);
-		$tagMatch = $result['tagMatch'];
+		$tagName = $result['tagMatch'];
 		$nWords = $result['words'];
 		return $result['offset'] + $result['tagMatchLength'];
 	}
@@ -1402,7 +1270,7 @@ class HTML {
 	 * int next - offset + tagMatchLength - offset to next section of HTML to parse
 	 * string tagMatch - matched tag
 	 * int words - words found until the tag
-	 * string tagContents - everything inside of the < brackets > of that tag
+	 * string tagContents - everything inside the < brackets > of that tag
 	 *
 	 * @param string $string
 	 * @return array
@@ -1508,7 +1376,7 @@ class HTML {
 	public static function trim_white_space(string $html): string {
 		$matches = false;
 		$html_white_space = '(?:&nbsp;|\s)';
-		$white_spaces = '(<p(?:[^>]*)>' . $html_white_space . '*</p>|<br\s*/>|<br>|<p\s*/>)';
+		$white_spaces = '(<p[^>]*>' . $html_white_space . '*</p>|<br\s*/>|<br>|<p\s*/>)';
 		// Beginning of String
 		while (preg_match('`^' . $html_white_space . '*' . $white_spaces . '`', $html, $matches)) {
 			$html = substr($html, strlen($matches[0]));
@@ -1531,9 +1399,9 @@ class HTML {
 	/**
 	 * @param string $html
 	 * @param string $insert_html
-	 * @return array|string|string[]|null
+	 * @return string
 	 */
-	public static function insertInsideEnd(string $html, string $insert_html) {
+	public static function insertInsideEnd(string $html, string $insert_html): string {
 		$pattern = '~(</[A-Za-z][A-Za-z0-9-:]*>\s*)$~';
 		if (preg_match($pattern, $html)) {
 			return preg_replace($pattern, $insert_html . '$1', $html);
@@ -1547,14 +1415,7 @@ class HTML {
 	 * @param array $attributes
 	 * @return string HTML
 	 */
-	public static function hidden($name, $value = null, $attributes = []) {
-		if (is_array($name)) {
-			$result = [];
-			foreach ($name as $k => $v) {
-				$result[] = self::hidden($k, $v);
-			}
-			return implode("\n", $result);
-		}
+	public static function hidden(string $name, string $value = null, array $attributes = []): string {
 		return self::input_hidden($name, $value, $attributes);
 	}
 
@@ -1565,8 +1426,8 @@ class HTML {
 	 * @param array $attributes
 	 * @return string HTML
 	 */
-	public static function select($name, $value, array $options, $attributes = null) {
-		$attributes = array_change_key_case(toArray($attributes, []));
+	public static function select(string $name, string $value, array $options, array $attributes = []): string {
+		$attributes = array_change_key_case(Types::toArray($attributes, []));
 		$options_html = [];
 		foreach ($options as $option_value => $label) {
 			if (is_array($label)) {
@@ -1585,7 +1446,7 @@ class HTML {
 		return self::tag('select', ['name' => $name, ] + $attributes + ['id' => $name, ], implode('', $options_html));
 	}
 
-	public static function input_submit(string $name, string $value, array|string $attributes = []) {
+	public static function input_submit(string $name, string $value, array|string $attributes = []): string {
 		$attributes = self::toAttributes($attributes);
 		$attributes['name'] = $name;
 		$attributes['value'] = $value;
@@ -1594,7 +1455,7 @@ class HTML {
 		return self::tag('input', $attributes, null);
 	}
 
-	public static function input_button(string $name, string $value, array|string $attributes = []) {
+	public static function input_button(string $name, string $value, array|string $attributes = []): string {
 		$attributes = self::toAttributes($attributes);
 		$attributes['name'] = $name;
 		$attributes['value'] = $value;
@@ -1638,7 +1499,7 @@ class HTML {
 	 * @return string
 	 */
 	public static function urlify(string $text, array $attributes = []): string {
-		$links = self::extract_links($text);
+		$links = self::extractLinks($text);
 		$map = [];
 		foreach ($links as $link) {
 			$map[$link] = self::a($link, $attributes, $link);
@@ -1658,7 +1519,7 @@ class HTML {
 	 * @param string $domain_prefix
 	 * @return string
 	 */
-	public static function make_absolute_urls($content, $domain_prefix) {
+	public static function make_absolute_urls(string $content, string $domain_prefix): string {
 		$domain_prefix = rtrim($domain_prefix, '/');
 		$map = [];
 		foreach (['href', 'src', ] as $attr) {
@@ -1677,7 +1538,7 @@ class HTML {
 	 * @param string $html
 	 * @return string
 	 */
-	public static function entities_replace($html) {
+	public static function entities_replace(string $html): string {
 		$html = strtr($html, ['&ldquo;' => '"', '&rdquo;' => '"', '&lsquo;' => '\'', '&rsquo;' => '\'', ]);
 		return html_entity_decode($html);
 	}
@@ -1686,7 +1547,7 @@ class HTML {
 	 * Wrapping mapping function (_W)
 	 *
 	 * Mapping function which understands tags better. To apply styles or links certain elements within
-	 * a i18n phrase, use brackets
+	 * an i18n phrase, use brackets
 	 * to delineate tags to add to the phrase, as follows:
 	 *
 	 * <pre>HTML::wrap(__('This is [0:bold text] and this is [1:italic].'), '<strong>[]</strong>',
@@ -1724,7 +1585,6 @@ class HTML {
 			$match_len = strlen($match[0][0]);
 			$match_off = $match[0][1];
 			$match_string = $match[2][0];
-			$index = null;
 			if ($match[1][1] < 0) {
 				$index = $global_match_index;
 			} else {
@@ -1750,49 +1610,20 @@ class HTML {
 	}
 
 	/**
-	 *
-	 * @param string $tagName
-	 * @return string
-	 * @deprecated use tag_open
-	 */
-	public static function tag_end($tagName) {
-		return self::tag_close($tagName);
-	}
-
-	/**
-	 * Extract the first tag of given type from HTML
-	 *
-	 * @param string $tag
-	 *            Tag to extract (e.g. "title")
-	 * @param mixed $mixed
-	 *            HTML string, HTML_Tag object, or an object which can be converted
-	 * @return string Contents of the tag
-	 * @deprecated Use self::extract_tag_contents
-	 */
-	public static function extract_tag($tag, $mixed) {
-		return self::extractTagContents($tag, $mixed);
-	}
-
-	/**
 	 * Extract the body, ignoring extra body tags
 	 *
-	 * @param string $tag
-	 *            Tag to extract (e.g. "title")
 	 * @param mixed $mixed
-	 *            HTML string, HTML_Tag object, or an object which can be converted
+	 *            HTML string, HTMLTag object, or an object which can be converted
 	 * @return string|array Contents of the tag
-	 * @deprecated Use self::extract_tag_contents
+	 * @deprecated Use self::extractTagContents
 	 */
-	public static function extract_body($mixed) {
-		$mixed = self::mixedToString($mixed);
+	public static function extractBody(array|string $mixed): array|string {
 		if (is_array($mixed)) {
 			$result = [];
 			foreach ($mixed as $k => $x) {
-				$result[$k] = self::extract_body($x);
+				$result[$k] = self::extractBody($x);
 			}
 			return $result;
-		} elseif (!is_string($mixed)) {
-			return $mixed;
 		}
 		$begin_tag = stripos($mixed, '<body');
 		$end_tag = strripos($mixed, '</body>');
@@ -1808,120 +1639,5 @@ class HTML {
 			$end_tag -= $begin_tag;
 		}
 		return substr($mixed, $begin_tag, $end_tag);
-	}
-
-	/**
-	 * Given a string like:
-	 *
-	 *     "bcd e f " goo="1423" e1231="agerd"
-	 *
-	 * Generates the following map
-	 *
-	 *     x = array();
-	 *     x["a"] = "bcd e f"
-	 *     x("goo"] = "1423"
-	 *     x["e1232"] = "agerd"
-	 *
-	 * If `$mixed` is already an array, just returns as is
-	 *
-	 * @param string|array $mixed
-	 * @return array
-	 * @deprecated 2022-02 PSR
-	 */
-	public static function parse_attributes(array|string $mixed): array {
-		return self::parseAttributes($mixed);
-	}
-
-	/**
-	 * @param string $string
-	 * @param array|null $allowed_tags
-	 * @param array $remove_tags
-	 * @return string
-	 * @deprecated 2022-02 PSR
-	 */
-	public static function clean_tags(string $string, array $allowed_tags = null, array $remove_tags = []): string {
-		return self::cleanTags($string, $allowed_tags, $remove_tags);
-	}
-
-	/**
-	 * @param $string
-	 * @param $include
-	 * @param $exclude
-	 * @return string
-	 * @deprecated 2022-02 PSR
-	 */
-	public static function clean_tags_attributes(string $string, array $include = null, array $exclude = []): string {
-		return self::cleanTagsAttributes($string, $include, $exclude);
-	}
-
-	/**
-	 * @param array $tags
-	 * @param string $html
-	 * @return string
-	 * @deprecated 2022-02 PSR
-	 */
-	public static function clean_tags_without_attributes(array $tags, string $html): string {
-		return self::cleanTagsWithoutAttributes($tags, $html);
-	}
-
-	/**
-	 * @param string $tag
-	 * @param string $contents
-	 * @return int
-	 * @deprecated 2022-02 PSR
-	 */
-	public static function count_end_tags(string $tag, string $contents): int {
-		return self::countEndTags($tag, $contents);
-	}
-
-	/**
-	 * @param mixed $mixed
-	 * @return string
-	 * @deprecated 2022-02 PSR
-	 */
-	public static function mixed_to_string(mixed $mixed): string {
-		return self::mixedToString($mixed);
-	}
-
-	/**
-	 * Extract the first tag contents of given type from HTML
-	 *
-	 * @param string $tag
-	 *            Tag to extract (e.g. "title")
-	 * @param mixed $mixed
-	 *            HTML string, HTML_Tag object, or an object which can be converted
-	 * @return string Contents of the tag
-	 * @deprecated 2022-02 PSR
-	 */
-	public static function extract_tag_contents(string $tag, string $mixed) {
-		return self::extractTagContents($tag, $mixed);
-	}
-
-	/**
-	 * @param string $html
-	 * @param string $insert_html
-	 * @return array|string|string[]|null
-	 * @deprecated 2022-02 PSR
-	 */
-	public static function insert_inside_end(string $html, string $insert_html) {
-		return self::insertInsideEnd($html, $insert_html);
-	}
-
-	/**
-	 * Convert string into an attributes for HTML, adding one or more classes and setting and ID
-	 *
-	 * Supports:
-	 *
-	 * #id_name
-	 * .class_name
-	 * class_name
-	 *
-	 * @param string $mixed
-	 * @return array
-	 * @throws Exception_Semantics
-	 * @deprecated 2022-02 PSR
-	 */
-	public static function to_attributes(string|array $mixed): array {
-		return self::toAttributes($mixed);
 	}
 }

@@ -3,7 +3,7 @@ declare(strict_types=1);
 /**
  * @copyright &copy; 2023, Market Acumen, Inc.
  */
-namespace zesk\ORM;
+namespace zesk\ORM\Command;
 
 use zesk\ArrayTools;
 use zesk\Command_Base;
@@ -14,7 +14,7 @@ use zesk\Text;
  *
  * @category Database
  */
-class Command_Classes extends Command_Base {
+class Classes extends Command_Base {
 	protected array $shortcuts = ['classes'];
 
 	protected array $option_types = [

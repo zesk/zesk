@@ -4,22 +4,24 @@ declare(strict_types=1);
 namespace zesk\ORM;
 
 use zesk\Application;
-use zesk\Database;
-use zesk\DatabaseUnitTest;
-use zesk\Exception_Semantics;
+use zesk\Database\Base;
+use zesk\Database\DatabaseUnitTest;
+use zesk\Database\Exception\Duplicate;
+use zesk\Database\Exception\SQLException;
+use zesk\Database\Exception\TableNotFound;
+use zesk\Exception\Semantics;
 use zesk\Kernel;
+use zesk\ORM\Exception\ORMEmpty;
+use zesk\ORM\Exception\ORMNotFound;
+use zesk\Types;
 
 abstract class ORMUnitTest extends DatabaseUnitTest {
-	public static function setUpBeforeClass(): void {
-		// pass
-	}
-
 	/**
 	 * @param ORMBase $object
 	 * @return void
-	 * @throws Database_Exception_Duplicate
-	 * @throws Database_Exception_SQL
-	 * @throws Database_Exception_Table_NotFound
+	 * @throws Duplicate
+	 * @throws SQLException
+	 * @throws TableNotFound
 	 */
 	final protected function prepareORMTable(ORMBase $object): void {
 		$this->dropAndCreateTable($object->table(), $object->schema());
@@ -30,14 +32,14 @@ abstract class ORMUnitTest extends DatabaseUnitTest {
 	 * Must not call in dataProvider
 	 *
 	 * @return Application
-	 * @throws Exception_Semantics
+	 * @throws Semantics
 	 */
 	public static function app(): Application {
 		return Kernel::singleton()->application();
 	}
 
 	public function requireORMTables(string|array $classes): void {
-		foreach (toList($classes) as $class) {
+		foreach (Types::toList($classes) as $class) {
 			$object = $this->application->ormRegistry($class);
 			$table = $object->table();
 			if (!$object->database()->tableExists($table)) {
@@ -111,15 +113,15 @@ abstract class ORMUnitTest extends DatabaseUnitTest {
 
 		$this->assertIsArray($object->duplicateKeys());
 
-		$this->assertInstanceOf(Database::class, $object->database());
+		$this->assertInstanceOf(Base::class, $object->database());
 
 		$this->assertIsString($object->className());
 
-		$object->idColumn();
+		$this->assertIsString($object->idColumn());
 
-		$object->utcTimestamps();
+		$this->assertTrue($object->utcTimestamps());
 
-		$object->selectDatabase();
+		$this->assertEquals($object, $object->selectDatabase());
 
 		$names = $object->memberNames();
 		$this->assertIsArray($names);
@@ -167,16 +169,16 @@ abstract class ORMUnitTest extends DatabaseUnitTest {
 
 		try {
 			$this->assertInstanceOf($object::class, $object->exists());
-			$this->fail('Should throw ' . Exception_ORMNotFound::class);
-		} catch (Exception_ORMNotFound $e) {
-			$this->assertInstanceOf(Exception_ORMNotFound::class, $e);
+			$this->fail('Should throw ' . ORMNotFound::class);
+		} catch (ORMNotFound $e) {
+			$this->assertInstanceOf(ORMNotFound::class, $e);
 		}
 
 		try {
 			$this->assertInstanceOf($object::class, $object->find());
-			$this->fail('Should throw ' . Exception_ORMNotFound::class);
-		} catch (Exception_ORMNotFound $e) {
-			$this->assertInstanceOf(Exception_ORMNotFound::class, $e);
+			$this->fail('Should throw ' . ORMNotFound::class);
+		} catch (ORMNotFound $e) {
+			$this->assertInstanceOf(ORMNotFound::class, $e);
 		}
 
 
@@ -184,15 +186,15 @@ abstract class ORMUnitTest extends DatabaseUnitTest {
 
 		try {
 			$this->assertInstanceOf($object::class, $object->fetchByKey(2, $test_field));
-			$this->fail('Should throw ' . Exception_ORMNotFound::class);
-		} catch (Exception_ORMNotFound $e) {
-			$this->assertInstanceOf(Exception_ORMNotFound::class, $e);
+			$this->fail('Should throw ' . ORMNotFound::class);
+		} catch (ORMNotFound $e) {
+			$this->assertInstanceOf(ORMNotFound::class, $e);
 		}
 
 		try {
 			$object->fetch();
-			$this->fail('Should throw ' . Exception_ORMEmpty::class);
-		} catch (Exception_ORMEmpty) {
+			$this->fail('Should throw ' . ORMEmpty::class);
+		} catch (ORMEmpty) {
 		}
 
 		$columns = $object->columns();

@@ -5,7 +5,9 @@ declare(strict_types=1);
  */
 namespace zesk;
 
-/* @var $this Template */
+use zesk\Locale\Locale;
+
+/* @var $this Theme */
 /* @var $locale Locale */
 /* @var $application Application */
 

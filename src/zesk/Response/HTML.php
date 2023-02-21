@@ -9,22 +9,22 @@ declare(strict_types=1);
 
 namespace zesk\Response;
 
-use zesk\Exception_Directory_Create;
-use zesk\Exception_Directory_Permission;
-use zesk\Exception_File_NotFound;
-use zesk\Exception_Key;
-use zesk\Exception_Redirect;
-use zesk\URL;
-use zesk\Response;
-use zesk\MIME;
 use zesk\ArrayTools;
-use zesk\Exception_Semantics;
 use zesk\Directory;
-use zesk\Exception_NotFound;
-use zesk\StringTools;
-use zesk\Controller_Share;
+use zesk\Exception\DirectoryCreate;
+use zesk\Exception\DirectoryPermission;
+use zesk\Exception\KeyNotFound;
+use zesk\Exception\Redirect;
+use zesk\Exception\Semantics;
+use zesk\File;
 use zesk\HTML as HTMLTools;
 use zesk\JSON as JSONTools;
+use zesk\Kernel;
+use zesk\MIME;
+use zesk\Response;
+use zesk\StringTools;
+use zesk\Types;
+use zesk\URL;
 
 /**
  *
@@ -51,14 +51,14 @@ class HTML extends Type {
 	 *
 	 * @var array
 	 */
-	private array $links_by_rel = [];
+	private array $linksByRel = [];
 
 	/**
 	 * Links sorted
 	 *
 	 * @var array
 	 */
-	private array $links_sorted = [];
+	private array $linksSorted = [];
 
 	/**
 	 * <script> tags
@@ -72,14 +72,14 @@ class HTML extends Type {
 	 *
 	 * @var boolean
 	 */
-	private bool $scripts_sorted = false;
+	private bool $scriptsAreSorted = false;
 
 	/**
 	 * Globals to set on the page
 	 *
 	 * @var array
 	 */
-	private array $script_settings = [];
+	private array $scriptSettings = [];
 
 	/**
 	 * Head meta tags
@@ -100,21 +100,14 @@ class HTML extends Type {
 	 *
 	 * @var array
 	 */
-	private array $html_attributes = [];
+	private array $htmlAttributes = [];
 
 	/**
 	 * <body> tag attributes
 	 *
 	 * @var array
 	 */
-	private array $body_attributes = [];
-
-	/**
-	 * jquery ready functions
-	 *
-	 * @var array
-	 */
-	private array $jquery = [];
+	private array $bodyAttributes = [];
 
 	/**
 	 *
@@ -128,13 +121,13 @@ class HTML extends Type {
 	public function initialize(): void {
 		$application = $this->application;
 		$response = $this->parent;
-		$this->script_settings = [
+		$this->scriptSettings = [
 			'zesk' => [
-				'inited' => $application->initializationTime(),
+				'initializationTime' => $application->initializationTime(),
 			],
 		];
-		$this->html_attributes = $response->optionArray('html_attributes');
-		$this->body_attributes = $response->optionArray('body_attributes');
+		$this->htmlAttributes = $response->optionArray('html_attributes');
+		$this->bodyAttributes = $response->optionArray('body_attributes');
 
 		$this->pageTheme = $response->option('page_theme', $this->pageTheme);
 	}
@@ -151,22 +144,22 @@ class HTML extends Type {
 	public function setTitle(string $set): Response {
 		$this->title = $set;
 		$this->application->logger->debug('Set page title to "{title} ({context})"', [
-			'title' => $set, 'context' => calling_function(2),
+			'title' => $set, 'context' => Kernel::callingFunction(2),
 		]);
 		return $this->parent;
 	}
 
 	final public function bodyAttributes(): array {
-		return $this->body_attributes;
+		return $this->bodyAttributes;
 	}
 
 	final public function setBodyAttributes(array $attributes): Response {
-		$this->body_attributes = $attributes;
+		$this->bodyAttributes = $attributes;
 		return $this->parent;
 	}
 
 	final public function addBodyAttributes(array $attributes): Response {
-		$this->body_attributes = $attributes + $this->body_attributes;
+		$this->bodyAttributes = $attributes + $this->bodyAttributes;
 		return $this->parent;
 	}
 
@@ -176,7 +169,7 @@ class HTML extends Type {
 	 * @return Response
 	 */
 	final public function bodyAddClass(array|string $classes): Response {
-		$this->body_attributes = HTMLTools::addClass($this->body_attributes, $classes);
+		$this->bodyAttributes = HTMLTools::addClass($this->bodyAttributes, $classes);
 		return $this->parent;
 	}
 
@@ -186,7 +179,7 @@ class HTML extends Type {
 	 * @return array
 	 */
 	public function attributes(): array {
-		return $this->html_attributes;
+		return $this->htmlAttributes;
 	}
 
 	/**
@@ -197,7 +190,7 @@ class HTML extends Type {
 	 * @return Response
 	 */
 	public function setAttributes(array $attributes, bool $merge = false): Response {
-		$this->html_attributes = $merge ? $attributes + $this->html_attributes : $attributes;
+		$this->htmlAttributes = $merge ? $attributes + $this->htmlAttributes : $attributes;
 		return $this->parent;
 	}
 
@@ -205,7 +198,7 @@ class HTML extends Type {
 	 * Get meta keywords
 	 *
 	 * @return string
-	 * @throws Exception_Key
+	 * @throws KeyNotFound
 	 */
 	public function metaKeywords(): string {
 		return $this->metaContent('keywords');
@@ -225,7 +218,7 @@ class HTML extends Type {
 	 * Get/set meta description text
 	 *
 	 * @return string
-	 * @throws Exception_Key
+	 * @throws KeyNotFound
 	 */
 	public function metaDescription(): string {
 		return $this->metaContent('description');
@@ -246,14 +239,14 @@ class HTML extends Type {
 	 *
 	 * @param string $name
 	 * @return array
-	 * @throws Exception_Key
+	 * @throws KeyNotFound
 	 */
 	public function meta(string $name): array {
 		if (array_key_exists($name, $this->meta)) {
 			return $this->meta[$name];
 		}
 
-		throw new Exception_Key('No meta tag with key "{key}"', ['key' => $name]);
+		throw new KeyNotFound('No meta tag with key "{key}"', ['key' => $name]);
 	}
 
 	/**
@@ -261,15 +254,15 @@ class HTML extends Type {
 	 *
 	 * @param string $name
 	 * @return string
-	 * @throws Exception_Key
+	 * @throws KeyNotFound
 	 */
 	public function metaContent(string $name): string {
 		$meta = $this->meta($name);
 		if (array_key_exists('content', $meta)) {
-			return implode('', toList($meta['content']));
+			return implode('', Types::toList($meta['content']));
 		}
 
-		throw new Exception_Key('Meta tag "{key}" has no content', ['key' => $name]);
+		throw new KeyNotFound('Meta tag "{key}" has no content', ['key' => $name]);
 	}
 
 	/**
@@ -293,7 +286,7 @@ class HTML extends Type {
 	 */
 	public function shortcutIcon(): string {
 		$result = $this->link('shortcut icon');
-		return first($result)['href'] ?? '';
+		return ArrayTools::first($result)['href'] ?? '';
 	}
 
 	/**
@@ -301,14 +294,14 @@ class HTML extends Type {
 	 *
 	 * @param string $path
 	 * @return Response
-	 * @throws Exception_Semantics
+	 * @throws Semantics
 	 */
 	public function setShortcutIcon(string $path): Response {
 		$attrs = [];
 
 		try {
 			$type = MIME::fromExtension($path);
-		} catch (Exception_Key) {
+		} catch (KeyNotFound) {
 			$type = '';
 		}
 		$this->setLink('shortcut icon', $path, $type, $attrs);
@@ -321,7 +314,7 @@ class HTML extends Type {
 	 * @return array
 	 */
 	public function link(string $rel): array {
-		return ArrayTools::filter($this->links, $this->links_by_rel[$rel] ?? []);
+		return ArrayTools::filter($this->links, $this->linksByRel[$rel] ?? []);
 	}
 
 	/**
@@ -333,7 +326,7 @@ class HTML extends Type {
 	 * @param string $type
 	 * @param array $attrs
 	 * @return Response
-	 * @throws Exception_Semantics
+	 * @throws Semantics
 	 */
 	public function setLink(string $rel, string $path, string $type = '', array $attrs = []): Response {
 		if (!array_key_exists('weight', $attrs)) {
@@ -347,11 +340,11 @@ class HTML extends Type {
 		}
 		$share = $attrs['share'] ?? false;
 		if (!$share && $this->parent->optionBool('require_root_dir') && !array_key_exists('root_dir', $attrs)) {
-			throw new Exception_Semantics('{path} requires a root_dir specified', compact('rel', 'path'));
+			throw new Semantics('{path} requires a root_dir specified', compact('rel', 'path'));
 		}
-		ArrayTools::append($this->links_by_rel, $rel, $path);
+		ArrayTools::append($this->linksByRel, $rel, $path);
 		$this->links[$path] = $arr + $attrs;
-		$this->links_sorted = [];
+		$this->linksSorted = [];
 		return $this->parent;
 	}
 
@@ -363,13 +356,13 @@ class HTML extends Type {
 	 * @param array|string $options
 	 *            Optional options:
 	 *                media (defaults to all)
-	 *                type (defults to text/css)
+	 *                type (defaults to text/css)
 	 *                browser (may be ie, ie6, ie7)
 	 *                root_dir for files which need to be found
 	 *                share bool for share files
 	 *
 	 * @return Response
-	 * @throws Exception_Semantics
+	 * @throws Semantics
 	 */
 	public function css(string $path, array|string $options = []): Response {
 		if (is_string($options)) {
@@ -388,7 +381,7 @@ class HTML extends Type {
 	 *
 	 * @param string $styles CSS code
 	 * @param array|string $options Media type or tag options
-	 *            Optional options: media (defaults to screen), type (defults to text/css), browser
+	 *            Optional options: media (defaults to screen), type (defaults to text/css), browser
 	 *            (may be ie, ie6, ie7), and cdn (boolean to prefix with cdn path)
 	 * @return Response
 	 */
@@ -438,7 +431,10 @@ class HTML extends Type {
 	}
 
 	/**
-	 *
+	 * @return array
+	 * @throws DirectoryCreate
+	 * @throws DirectoryPermission
+	 * @throws Semantics
 	 */
 	public function scripts(): array {
 		return $this->scriptTags();
@@ -446,6 +442,10 @@ class HTML extends Type {
 
 	/**
 	 *
+	 * @return array
+	 * @throws DirectoryCreate
+	 * @throws DirectoryPermission
+	 * @throws Semantics
 	 */
 	public function links(): array {
 		return $this->linkTags($this->linkOptions());
@@ -468,27 +468,30 @@ class HTML extends Type {
 	}
 
 	/**
-	 * Retrieve link tags in unrendered form for output via JSON or other mechanism
+	 * Retrieve link tags in attributes form for output via JSON or other mechanism
 	 *
 	 * @param array $options
 	 * @return array
+	 * @throws DirectoryCreate
+	 * @throws DirectoryPermission
+	 * @throws Semantics
 	 */
 	private function linkTags(array $options = []): array {
 		$result = [];
-		$stylesheets_inline = toBool($options['stylesheets_inline'] ?? null);
-		if (count($this->links_sorted) !== count($this->links)) {
-			$this->links_sorted = $this->links;
-			usort($this->links_sorted, 'zesk_sort_weight_array');
+		$stylesheets_inline = Types::toBool($options['stylesheets_inline'] ?? null);
+		if (count($this->linksSorted) !== count($this->links)) {
+			$this->linksSorted = $this->links;
+			usort($this->linksSorted, Types::weightCompare(...));
 		}
 		$cache_links = $this->parent->optionBool(Response::OPTION_CACHE_LINKS);
 		$cached_media = [];
-		$this->links_sorted = $this->parent->callHookArguments('links_preprocess', [
-			$this->links_sorted,
-		], $this->links_sorted);
-		foreach ($this->links_sorted as $attrs) {
+		$this->linksSorted = $this->parent->callHookArguments('links_preprocess', [
+			$this->linksSorted,
+		], $this->linksSorted);
+		foreach ($this->linksSorted as $attrs) {
 			$tag = $this->browserConditionals(strval($attrs['browser'] ?? ''));
 
-			$rel = $attrs ['rel'] ?? '';
+			$rel = $attrs['rel'] ?? '';
 			if ($stylesheets_inline && $rel === 'stylesheet') {
 				$dest = $this->resourcePath($attrs['href'], $attrs);
 				if (empty($dest) || !is_file($dest)) {
@@ -515,7 +518,7 @@ class HTML extends Type {
 						$attrs,
 					], $attrs);
 					// Only cache and group stylesheets, for now.
-					if ($rel === 'stylesheet' && $cache_links && $file_path && !$attrs['nocache'] ?? null) {
+					if ($rel === 'stylesheet' && $cache_links && $file_path && !($attrs['nocache'] ?? null)) {
 						$cached_media[$media][$href] = $file_path;
 						continue;
 					}
@@ -555,7 +558,7 @@ class HTML extends Type {
 	 *
 	 * @param string $content Page body content
 	 * @return string HTML page
-	 * @throws Exception_Redirect
+	 * @throws Redirect
 	 */
 	public function render(string $content): string {
 		return $this->application->themes->theme($this->pageTheme, [
@@ -566,7 +569,7 @@ class HTML extends Type {
 	/**
 	 * @param string $content
 	 * @return void
-	 * @throws Exception_Redirect
+	 * @throws Redirect
 	 */
 	public function output(string $content): void {
 		echo $this->render($content);
@@ -583,13 +586,16 @@ class HTML extends Type {
 	 * "ready" array of JavaScript code to evaluate
 	 *
 	 * @return array
+	 * @throws DirectoryCreate
+	 * @throws DirectoryPermission
+	 * @throws Semantics
 	 */
 	public function toJSON(): array {
 		$script_tags = $this->scriptTags(false);
 		$scripts = [];
 		foreach ($script_tags as $tag) {
 			$name = $tag['name'];
-			$attributes = toArray($tag['attributes'] ?? []);
+			$attributes = Types::toArray($tag['attributes'] ?? []);
 			if ($name !== 'script') {
 				continue;
 			}
@@ -601,7 +607,7 @@ class HTML extends Type {
 		$stylesheets = [];
 		$head_tags = [];
 		foreach ($link_tags as $tag) {
-			if ($tag['name'] === 'link' && apath($tag, 'attributes.rel') === 'stylesheet') {
+			if ($tag['name'] === 'link' && ArrayTools::path($tag, ['attributes', 'rel']) === 'stylesheet') {
 				$stylesheets[] = $tag;
 			} else {
 				$head_tags[] = $tag;
@@ -619,6 +625,8 @@ class HTML extends Type {
 	 * @param string $resource_path
 	 * @param int $route_expire
 	 * @return string
+	 * @throws DirectoryCreate
+	 * @throws DirectoryPermission
 	 */
 	private function resourcePathRoute(string $resource_path, int $route_expire = 0): string {
 		$path = $this->application->cachePath([
@@ -638,7 +646,7 @@ class HTML extends Type {
 		try {
 			$content = $this->application->content($resource_path);
 			file_put_contents($path, $content);
-		} catch (Exception_NotFound $e) {
+		} catch (Semantics) {
 			return '';
 		}
 		return $path;
@@ -650,24 +658,28 @@ class HTML extends Type {
 	 * @param string $_path
 	 * @param array $attributes
 	 * @return string Empty string if something is awry
+	 * @throws DirectoryCreate
+	 * @throws DirectoryPermission
+	 * @throws Semantics
 	 */
 	protected function resourcePath(string $_path, array $attributes): string {
-		$debug = toBool($options['debug'] ?? false);
-		$share = toBool($options['share'] ?? false);
-		$is_route = toBool($options['is_route'] ?? false);
+		$debug = Types::toBool($options['debug'] ?? false);
+		$share = Types::toBool($options['share'] ?? false);
+		$is_route = Types::toBool($options['is_route'] ?? false);
 		$root_dir = strval($options['root_dir'] ?? '');
 		$defaultRouteExpire = $this->parent->optionInt(Response::OPTION_RESOURCE_CACHE_EXPIRE_SECONDS, Response::DEFAULT_RESOURCE_CACHE_EXPIRE_SECONDS);
 		$route_expire = intval($attributes['route_expire'] ?? $defaultRouteExpire);
 		if ($root_dir) {
 			if ($debug) {
-				$this->application->logger->debug('rootdir (' . JSONTools::encode($root_dir) . ") check $_path");
+				$this->application->logger->debug('root_dir (' . JSONTools::encode($root_dir) . ") check $_path");
 			}
-			return HTMLTools::href($this->application, path($root_dir, $_path));
+			return HTMLTools::href($this->application, Directory::path($root_dir, $_path));
 		} elseif ($share) {
 			if ($debug) {
 				$this->application->logger->debug("share check $_path");
 			}
-			return Controller_Share::realpath($this->application, $_path);
+			// TODO return Controller_Share::realpath($this->application, $_path);
+			return $this->application->router()->realPath($_path);
 		} elseif ($is_route) {
 			if ($debug) {
 				$this->application->logger->debug("route check $_path");
@@ -685,6 +697,9 @@ class HTML extends Type {
 	 * @param array $attributes
 	 *            Passed to resource_path
 	 * @return array First item is the URI, 2nd is the full path to the file
+	 * @throws DirectoryCreate
+	 * @throws DirectoryPermission
+	 * @throws Semantics
 	 */
 	protected function resourceDate(string $path, array $attributes): array {
 		$query = [];
@@ -724,11 +739,11 @@ class HTML extends Type {
 			$map = [];
 			foreach ($matches as $match) {
 				$import = trim($match[1]);
-				$imatch = null;
+				$urlMatch = [];
 				if (preg_match('|^"[^"]+"$|', $import) || preg_match('|^\'[^\']+\'$|', $import)) {
-					$import = unquote($import);
-				} elseif (preg_match('|^url\(([^)]+)\)$|', $import, $imatch)) {
-					$import = unquote($imatch[1]);
+					$import = StringTools::unquote($import);
+				} elseif (preg_match('|^url\(([^)]+)\)$|', $import, $urlMatch)) {
+					$import = StringTools::unquote($urlMatch[1]);
 					if (URL::valid($import) || $import[0] === '/') {
 						continue;
 					}
@@ -739,8 +754,8 @@ class HTML extends Type {
 
 					continue;
 				}
-				$import_src = path(dirname($src), $import);
-				$import_file = path(dirname($file), $import);
+				$import_src = Directory::path(dirname($src), $import);
+				$import_file = Directory::path(dirname($file), $import);
 				$import_contents = file_get_contents($import_file);
 				$import_replace = $this->processCachedCSS($import_src, $import_file, $dest, $import_contents);
 				$map[$match[0]] = $import_replace;
@@ -753,7 +768,7 @@ class HTML extends Type {
 		$map = [];
 		foreach ($matches as $match) {
 			[$full_match, $rel_image] = $match;
-			$rel_image = unquote($rel_image);
+			$rel_image = StringTools::unquote($rel_image);
 			if (URL::valid($rel_image) || StringTools::begins($rel_image, [
 				'/', 'data:',
 			])) {
@@ -767,7 +782,7 @@ class HTML extends Type {
 			}
 			$src_dir = implode('/', $src_dir);
 			$rel_image = implode('/', $rel_image);
-			$new_href = path($src_dir, $rel_image);
+			$new_href = Directory::path($src_dir, $rel_image);
 			$this->application->logger->debug("process_cached_css: $file: $rel_image => $new_href");
 			$map[$full_match] = strtr($full_match, [
 				$match[1] => '"' . $new_href . '"',
@@ -777,7 +792,7 @@ class HTML extends Type {
 	}
 
 	/**
-	 * Internal function to process cached datatypes (CSS/JavaScript)
+	 * Internal function to process cached data types (CSS/JavaScript)
 	 *
 	 * @param string $src
 	 * @param string $file
@@ -792,15 +807,15 @@ class HTML extends Type {
 		if (method_exists($this, $method)) {
 			$contents = $this->$method($src, $file, $dest, $contents);
 		}
-		$contents = $this->parent->callHookArguments($method, [
+		return $this->parent->callHookArguments($method, [
 			$src, $file, $dest, $contents,
 		], $contents);
-		return $contents;
 	}
 
 	/**
 	 * Cache files in the resource paths tend to grow, particularly
 	 * @param string $extension
+	 * @return array
 	 * @todo does this depend on a certain structure which is enforced by this?
 	 */
 	public function cleanResourcesCache(string $extension = ''): array {
@@ -843,7 +858,7 @@ class HTML extends Type {
 				$segments[] = $filename;
 			}
 		}
-		return path($segments);
+		return Directory::path($segments);
 	}
 
 	/**
@@ -853,10 +868,9 @@ class HTML extends Type {
 	 * @param string $filename
 	 * @return string
 	 */
-	private function resourceCachePath(string $extension = '', string $filename = '') {
+	private function resourceCachePath(string $extension = '', string $filename = ''): string {
 		$href = $this->resourceCacheHREF($extension, $filename);
-		$cache_path = path($this->application->documentRoot(), $href);
-		return $cache_path;
+		return Directory::path($this->application->documentRoot(), $href);
 	}
 
 	/**
@@ -867,9 +881,8 @@ class HTML extends Type {
 	 * @param string $hook
 	 * @param string $debug
 	 * @return string
-	 * @throws Exception_Directory_Create
-	 * @throws Exception_Directory_Permission
-	 * @throws Exception_File_NotFound
+	 * @throws DirectoryCreate
+	 * @throws DirectoryPermission
 	 */
 	private function resourceCache(array $cached, string $extension, string $hook, string &$debug = ''): string {
 		$debug = [];
@@ -918,9 +931,8 @@ class HTML extends Type {
 	 * @param array $cached
 	 * @param string $media
 	 * @return array
-	 * @throws Exception_Directory_Create
-	 * @throws Exception_Directory_Permission
-	 * @throws Exception_File_NotFound
+	 * @throws DirectoryCreate
+	 * @throws DirectoryPermission
 	 */
 	private function resourceCacheCSS(array $cached, string $media = 'screen'): array {
 		$debug = '';
@@ -937,6 +949,8 @@ class HTML extends Type {
 	 *
 	 * @param array $cached
 	 * @return array
+	 * @throws DirectoryCreate
+	 * @throws DirectoryPermission
 	 */
 	private function resourceCacheScripts(array $cached): array {
 		$debug = '';
@@ -959,13 +973,16 @@ class HTML extends Type {
 	 * 'attributes' => array('type' => 'text/javascript', 'src' => '),
 	 * </code>
 	 *
+	 * @param bool|null $cache_scripts
 	 * @return array
+	 * @throws DirectoryCreate
+	 * @throws DirectoryPermission|Semantics
 	 */
 	private function scriptTags(bool $cache_scripts = null): array {
 		// Sort them by weight if they're not sorted
-		if (!$this->scripts_sorted) {
-			uasort($this->scripts, 'zesk_sort_weight_array');
-			$this->scripts_sorted = true;
+		if (!$this->scriptsAreSorted) {
+			uasort($this->scripts, Types::weightCompare(...));
+			$this->scriptsAreSorted = true;
 		}
 		if ($cache_scripts === null) {
 			$cache_scripts = $this->parent->optionBool(Response::OPTION_CACHE_SCRIPTS);
@@ -978,7 +995,7 @@ class HTML extends Type {
 			$selected_attributes[] = 'weight';
 		}
 		foreach ($this->scripts as $attrs) {
-			$script_attributes = ArrayTools::filter($attrs, $selected_attributes) + HTMLTools::data_attributes($attrs);
+			$script_attributes = ArrayTools::filter($attrs, $selected_attributes) + HTMLTools::dataAttributes($attrs);
 			if (array_key_exists('callback', $attrs)) {
 				$attrs['content'] = call_user_func($attrs['callback']);
 			}
@@ -1005,7 +1022,11 @@ class HTML extends Type {
 								$cached[] = $attrs['javascript_before'];
 							}
 							$cached[$resource_path] = $file_path;
-							$cached_append[] = 'zesk.scripts_cached(' . JSONTools::encode($resource_path) . ');';
+
+							try {
+								$cached_append[] = 'zesk.scripts_cached(' . JSONTools::encode($resource_path) . ');';
+							} catch (Semantics) {
+							}
 							if (array_key_exists('javascript_after', $attrs)) {
 								$cached[] = $attrs['javascript_after'];
 							}
@@ -1061,7 +1082,7 @@ class HTML extends Type {
 	 * @param string $path
 	 * @param array $options
 	 * @return Response
-	 * @throws Exception_Semantics
+	 * @throws Semantics
 	 */
 	private function scriptAdd(string $path, array $options): Response {
 		if (array_key_exists($path, $this->scripts)) {
@@ -1078,7 +1099,7 @@ class HTML extends Type {
 				if (($after = $this->findWeight($options['after'], 'max')) !== null) {
 					if ($before !== null) {
 						if ($after <= $before) {
-							throw new Exception_Semantics('{path} has a computed {before} weight which is greater than the after weight {after}', [
+							throw new Semantics('{path} has a computed {before} weight which is greater than the after weight {after}', [
 								'path' => $path, 'before' => $before, 'after' => $after,
 							]);
 						} else {
@@ -1099,10 +1120,10 @@ class HTML extends Type {
 		$is_route = $options['is_route'] ?? false;
 		$callback = array_key_exists('callback', $options);
 		if (!$is_route && !$callback && !$content && !$share && !$nocache && $this->parent->optionBool('require_root_dir') && !array_key_exists('root_dir', $options)) {
-			throw new Exception_Semantics('{path} requires a root_dir specified', compact('path'));
+			throw new Semantics('{path} requires a root_dir specified', compact('path'));
 		}
 		$this->scripts[$path] = $options;
-		$this->scripts_sorted = false;
+		$this->scriptsAreSorted = false;
 		return $this->parent;
 	}
 
@@ -1110,10 +1131,10 @@ class HTML extends Type {
 	 * Add to JavaScript script settings
 	 *
 	 * @param array $settings
-	 * @return $this
+	 * @return Response
 	 */
 	final public function addJavascriptSettings(array $settings): Response {
-		$this->script_settings = ArrayTools::merge($this->script_settings, $settings);
+		$this->scriptSettings = ArrayTools::merge($this->scriptSettings, $settings);
 		return $this->parent;
 	}
 
@@ -1123,17 +1144,19 @@ class HTML extends Type {
 	 * @return array
 	 */
 	final public function javascriptSettings(): array {
-		return $this->script_settings;
+		return $this->scriptSettings;
 	}
 
 	/**
 	 * Register a javascript to be put on the page
 	 *
 	 * @param string|array $paths File path(s) to serve for the javascript
-	 * @param array $options Optional settings: type (defaults to text/javascript), browser (defaults to all
-	 *            browsers), cdn (defaults to false)
+	 * @param array $options Optional settings:
+	 * - type: defaults to text/javascript)
+	 * - browser: defaults to all browsers
+	 * - cdn: defaults to false
 	 * @return Response
-	 * @throws Exception_Semantics
+	 * @throws Semantics
 	 */
 	public function javascript(string|array $paths, array $options = []): Response {
 		if (is_array($paths)) {
@@ -1152,10 +1175,10 @@ class HTML extends Type {
 	 * @param string $script
 	 * @param array $options
 	 * @return Response
-	 * @throws Exception_Semantics
+	 * @throws Semantics
 	 */
 	public function inlineJavaScript(string $script, array $options = []): Response {
-		$multiple = toBool($options['multiple'] ?? false);
+		$multiple = Types::toBool($options['multiple'] ?? false);
 		$id = array_key_exists('id', $options) ? $options['id'] : md5($script);
 		if ($multiple) {
 			$id = $id . '-' . count($this->scripts);

@@ -9,12 +9,13 @@ declare(strict_types=1);
 
 namespace zesk\CSV;
 
-use zesk\Exception_File_Format;
-use zesk\Exception_File_NotFound;
-use zesk\Exception_File_Permission;
-use zesk\Exception_Key;
-use zesk\Exception_Parameter;
-use zesk\Exception_Semantics;
+use zesk\Exception\FileNotFound;
+use zesk\Exception\FilePermission;
+use zesk\Exception\FileParseException;
+use zesk\Exception\KeyNotFound;
+use zesk\Exception\ParameterException;
+use zesk\Exception\ParseException;
+use zesk\Exception\Semantics;
 use zesk\StopIteration;
 use zesk\StringTools;
 use zesk\UTF16;
@@ -39,9 +40,10 @@ class Reader extends Base {
 	/**
 	 * @param string $filename
 	 * @param array $options
-	 * @throws Exception_File_Format
-	 * @throws Exception_File_NotFound
-	 * @throws Exception_File_Permission
+	 * @throws FileNotFound
+	 * @throws FilePermission
+	 * @throws ParseException
+	 * @throws Semantics
 	 */
 	public function __construct(string $filename = '', array $options = []) {
 		parent::__construct($options);
@@ -57,9 +59,10 @@ class Reader extends Base {
 	 * @param string $filename
 	 * @param array $options
 	 * @return self
-	 * @throws Exception_File_Format
-	 * @throws Exception_File_NotFound
-	 * @throws Exception_File_Permission
+	 * @throws FileNotFound
+	 * @throws FilePermission
+	 * @throws ParseException
+	 * @throws Semantics
 	 */
 	public static function factory(string $filename = '', array $options = []): self {
 		return new self($filename, $options);
@@ -87,9 +90,10 @@ class Reader extends Base {
 	/**
 	 * @param string $filename
 	 * @return self
-	 * @throws Exception_File_NotFound
-	 * @throws Exception_File_Format
-	 * @throws Exception_File_Permission
+	 * @throws FileNotFound
+	 * @throws FilePermission
+	 * @throws ParseException
+	 * @throws Semantics
 	 */
 	public function setFilename(string $filename): self {
 		parent::_setFile($filename, 'r');
@@ -115,16 +119,16 @@ class Reader extends Base {
 	 * Seek to a previous tell point. Do not try to construct this structure
 	 *
 	 * @param array $tell
-	 * @throws Exception_Semantics
+	 * @throws Semantics
 	 */
 	public function seek(array $tell): void {
 		if (!array_key_exists('key', $tell)) {
-			throw new Exception_Semantics('Invalid tell for CSV File {filename}', [
+			throw new Semantics('Invalid tell for CSV File {filename}', [
 				'filename' => $this->FileName,
 			]);
 		}
 		if ($tell['key'] !== $this->_magicNumber()) {
-			throw new Exception_Semantics('Invalid tell for CSV File, hashes do not match {filename}', [
+			throw new Semantics('Invalid tell for CSV File, hashes do not match {filename}', [
 				'filename' => $this->FileName,
 			]);
 		}
@@ -155,7 +159,7 @@ class Reader extends Base {
 	 * Read a single line from the file. Converts from UTF-8 and UTF-16 encodings if needed
 	 *
 	 * @return array
-	 * @throws Exception_File_Format
+	 * @throws FileParseException
 	 * @throws StopIteration
 	 */
 	private function read_line(): array {
@@ -163,10 +167,10 @@ class Reader extends Base {
 			case 'UTF-8':
 				$result = fgetcsv($this->File, 10240, $this->Delimiter, $this->Enclosure);
 				if (!is_array($result)) {
-					throw new Exception_File_Format('fgetcsv failed');
+					throw new FileParseException($this->File, 'fgetcsv failed');
 				}
 				foreach ($result as $index => $value) {
-					$result[$index] = UTF8::to_iso8859($value);
+					$result[$index] = UTF8::toISO8859($value);
 				}
 				return $result;
 			case 'UTF-16':
@@ -176,16 +180,16 @@ class Reader extends Base {
 					}
 					$read_n = (10240 - $n) * 2;
 					$data = fread($this->File, $read_n);
-					$data = UTF16::to_iso8859($data, $this->EncodingBigEndian);
+					$data = UTF16::toISO8859($data, $this->EncodingBigEndian);
 					$this->FileBuffer .= $data;
 				}
-				[$line, $this->FileBuffer] = pair($this->FileBuffer, $this->LineDelimiter, $this->FileBuffer, '');
+				[$line, $this->FileBuffer] = StringTools::pair($this->FileBuffer, $this->LineDelimiter, $this->FileBuffer);
 				$result = str_getcsv($line, $this->Delimiter, $this->Enclosure, $this->Escape);
 				return $result;
 			default:
 				$result = fgetcsv($this->File, 10240, $this->Delimiter, $this->Enclosure);
 				if (!is_array($result)) {
-					throw new Exception_File_Format('fgetcsv failed');
+					throw new FileParseException($this->File, 'fgetcsv failed');
 				}
 				return $result;
 		}
@@ -195,14 +199,14 @@ class Reader extends Base {
 	 * Read the headers from the CSV file
 	 *
 	 * @return array
-	 * @throws Exception_Semantics|Exception_Key|Exception_File_Format
+	 * @throws Semantics|KeyNotFound|FileParseException
 	 */
 	public function read_headers(): array {
 		$this->_check_file();
 		if (!count($this->Headers)) {
 			$headers = $this->read_line();
 			if (!count($headers)) {
-				throw new Exception_Semantics('No headers');
+				throw new Semantics('No headers');
 			}
 			$this->RowIndex++;
 			$this->setHeaders($headers, false);
@@ -220,9 +224,9 @@ class Reader extends Base {
 	 * to set the headers prior to reading the first row
 	 *
 	 * @return array
-	 * @throws Exception_File_Format
-	 * @throws Exception_Key
-	 * @throws Exception_Semantics
+	 * @throws FileParseException
+	 * @throws KeyNotFound
+	 * @throws Semantics
 	 */
 	public function read_row(): array {
 		$this->_check_file();
@@ -244,11 +248,11 @@ class Reader extends Base {
 	 * Read a row and map column names using our headers
 	 *
 	 * @return array
-	 * @throws Exception_File_Format
-	 * @throws Exception_Key
-	 * @throws Exception_Semantics
+	 * @throws FileParseException
+	 * @throws KeyNotFound
+	 * @throws Semantics
 	 */
-	public function read_row_assoc() {
+	public function read_row_assoc(): array {
 		$row = $this->read_row();
 		$hh = $this->headers();
 		$r = [];
@@ -271,7 +275,7 @@ class Reader extends Base {
 	 * @param array $row
 	 * @return array
 	 */
-	protected function postProcessRow(array $row) {
+	protected function postProcessRow(array $row): array {
 		return $row;
 	}
 
@@ -282,12 +286,12 @@ class Reader extends Base {
 	 *
 	 * @param int $offset
 	 * @return void
-	 * @throws Exception_File_Format
-	 * @throws Exception_Parameter
+	 * @throws FileParseException
+	 * @throws ParameterException
 	 */
 	public function skip(int $offset = 1): void {
 		if ($offset < 0 || !is_int($offset)) {
-			throw new Exception_Parameter('Invalid parameter to CSV_Reader::skip({offset}) of type {type}', [
+			throw new ParameterException('Invalid parameter to CSV_Reader::skip({offset}) of type {type}', [
 				'offset' => $offset, 'type' => gettype($offset),
 			]);
 		}
@@ -301,12 +305,12 @@ class Reader extends Base {
 	 * Determine the encoding of the file by peeking at the first 1K bytes
 	 *
 	 * @return void
-	 * @throws Exception_File_Format
-	 * @throws Exception_Semantics
+	 * @throws ParseException
+	 * @throws Semantics
 	 */
 	private function determineEncoding(): void {
 		if (!is_resource($this->File)) {
-			throw new Exception_Semantics('File is not a resource: {filename}', [
+			throw new Semantics('File is not a resource: {filename}', [
 				'filename' => $this->FileName,
 			]);
 		}
@@ -316,16 +320,16 @@ class Reader extends Base {
 		if (StringTools::isUTF8($file_sample)) {
 			$this->Encoding = 'UTF-8';
 			$this->EncodingSuffix = '.UTF8';
-			$file_sample = UTF8::to_iso8859($file_sample);
+			$file_sample = UTF8::toISO8859($file_sample);
 		} elseif (StringTools::isUTF16($file_sample, $this->EncodingBigEndian)) {
 			$this->Encoding = 'UTF-16';
 			$this->EncodingSuffix = '.UTF16';
-			$file_sample = UTF16::to_iso8859($file_sample, $this->EncodingBigEndian);
+			$file_sample = UTF16::toISO8859($file_sample, $this->EncodingBigEndian);
 		} elseif (StringTools::isASCII($file_sample)) {
 			$this->Encoding = 'ISO-8859-1';
 			$this->EncodingSuffix = '.ISO8859';
 		} else {
-			throw new Exception_File_Format('Unknown file encoding');
+			throw new FileParseException($this->File, 'Unknown file encoding');
 		}
 		$old_locale = setlocale(LC_CTYPE, 'en' . $this->EncodingSuffix);
 		if ($old_locale === false) {

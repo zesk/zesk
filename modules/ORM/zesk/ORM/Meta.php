@@ -59,7 +59,7 @@ class Meta extends ORMBase {
 		if (!$this->_meta_fetch) {
 			try {
 				$this->fetch();
-			} catch (Exception_ORM_NotFound|Exception_ORM_Empty) {
+			} catch (ORM_NotFound|ORM_Empty) {
 			}
 			$this->_meta_fetch = true;
 		}

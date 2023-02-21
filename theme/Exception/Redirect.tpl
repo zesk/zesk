@@ -2,7 +2,9 @@
 declare(strict_types=1);
 namespace zesk;
 
-/* @var $this Template */
+use zesk\Locale\Locale;
+
+/* @var $this Theme */
 /* @var $application Application */
 /* @var $locale Locale */
 /* @var $session Session */
@@ -11,7 +13,7 @@ namespace zesk;
 /* @var $request Request */
 /* @var $response Response */
 
-/* @var $exception Exception_Redirect */
+/* @var $exception Redirect */
 /* @var $url string */
 if ($response->optionBool('debug_redirect')) {
 	$original_url = $exception->url();

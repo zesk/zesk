@@ -8,7 +8,7 @@ declare(strict_types=1);
  */
 namespace zesk\Diff;
 
-use zesk\Exception_NotFound;
+use zesk\Exception\NotFoundException;
 
 /**
  *
@@ -45,7 +45,7 @@ class Lines extends Base {
 	 * @param string $left
 	 * @param string $right
 	 * @param bool $skipWhitespace
-	 * @throws Exception_NotFound
+	 * @throws NotFoundException
 	 */
 	public function __construct(string $left, string $right, bool $skipWhitespace = false) {
 		$this->leftLines = toList($left, [], "\n");

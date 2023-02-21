@@ -6,10 +6,12 @@ declare(strict_types=1);
  * @author kent
  * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  */
+
 namespace zesk;
 
 use ArrayAccess;
 use Iterator;
+use zesk\Exception\KeyNotFound;
 
 /**
  * Usage:
@@ -136,11 +138,11 @@ class preg implements ArrayAccess, Iterator {
 	 * @param string|int $offset
 	 * @param mixed $value
 	 * @return void
-	 * @throws Exception_Key
+	 * @throws KeyNotFound
 	 */
 	public function offsetSet(mixed $offset, mixed $value): void {
 		if (!isset($this->matches[$offset])) {
-			throw new Exception_Key("$offset");
+			throw new KeyNotFound("$offset");
 		}
 		$newMatch = is_array($value) ? $value[0] : (is_string($value) ? $value : strval($value));
 		$this->replaceOffset(intval($offset), $newMatch);
@@ -149,11 +151,11 @@ class preg implements ArrayAccess, Iterator {
 
 	/**
 	 * @param string|int $offset
-	 * @throws Exception_Key
+	 * @throws KeyNotFound
 	 */
 	public function offsetUnset($offset): void {
 		if (!isset($this->matches[$offset])) {
-			throw new Exception_Key("$offset");
+			throw new KeyNotFound("$offset");
 		}
 		unset($this->matches[$offset]);
 		unset($this->offsets[$offset]);
@@ -167,7 +169,7 @@ class preg implements ArrayAccess, Iterator {
 		next($this->matches);
 	}
 
-	public function key(): mixed {
+	public function key(): int|string|null {
 		return key($this->matches);
 	}
 
@@ -177,5 +179,48 @@ class preg implements ArrayAccess, Iterator {
 
 	public function rewind(): void {
 		reset($this->matches);
+	}
+
+	/**
+	 * preg_replace for arrays
+	 *
+	 * @param string $pattern
+	 *            Pattern to match
+	 * @param string $replacement
+	 *            Replacement string
+	 * @param mixed $subject
+	 *            String or array to manipulate
+	 * @return array|string|null
+	 */
+	public static function replace(string $pattern, string $replacement, array|string $subject): array|string|null {
+		if (is_array($subject)) {
+			foreach ($subject as $k => $v) {
+				$subject[$k] = self::replace($pattern, $replacement, $v);
+			}
+			return $subject;
+		}
+		return preg_replace($pattern, $replacement, $subject);
+	}
+
+	/**
+	 * preg_replace_callback for arrays
+	 *
+	 * @param string $pattern
+	 *            Pattern to match
+	 * @param callable $callback
+	 *            Replacement string
+	 * @param array|string $subject
+	 *            String or array to manipulate
+	 * @return array|string
+	 */
+	public static function replaceCallback(string $pattern, callable $callback, array|string $subject): array|string {
+		if (is_array($subject)) {
+			foreach ($subject as $k => $v) {
+				$subject[$k] = self::replaceCallback($pattern, $callback, $v);
+			}
+
+			return $subject;
+		}
+		return preg_replace_callback($pattern, $callback, $subject);
 	}
 }

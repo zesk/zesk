@@ -8,6 +8,11 @@ namespace zesk;
 
 use ReflectionObject;
 use Throwable;
+use zesk\Exception\KeyNotFound;
+use zesk\Exception\ParseException;
+use zesk\Exception\SyntaxException;
+use zesk\Exception\Unimplemented;
+use zesk\Exception\Unsupported;
 
 /**
  *
@@ -41,6 +46,7 @@ class PHP {
 	 * @see to_bytes
 	 * @see PHP::setFeature
 	 * @var string
+	 * @see self::MEMORY_LIMIT_UNLIMITED
 	 */
 	public const FEATURE_MEMORY_LIMIT = 'memory_limit';
 
@@ -201,7 +207,7 @@ class PHP {
 	 *
 	 * @param array $set
 	 * @return self
-	 * @throws Exception_Key
+	 * @throws KeyNotFound
 	 */
 	public function setSettings(array $set): self {
 		$x = new ReflectionObject($this);
@@ -211,10 +217,10 @@ class PHP {
 				if ($property->isPublic()) {
 					$property->setValue($this, $value);
 				} else {
-					throw new Exception_Key($property_name);
+					throw new KeyNotFound($property_name);
 				}
 			} else {
-				throw new Exception_Key($property_name);
+				throw new KeyNotFound($property_name);
 			}
 		}
 		return $this;
@@ -228,7 +234,7 @@ class PHP {
 	 */
 	public function render(mixed $x): string {
 		$args = func_get_args();
-		$no_first_line_indent = toBool($args[2] ?? false);
+		$no_first_line_indent = Types::toBool($args[2] ?? false);
 		if (is_array($x)) {
 			if (count($x) === 0) {
 				return '[]';
@@ -276,9 +282,9 @@ class PHP {
 	/**
 	 * Exception logged during unserialize
 	 *
-	 * @var ?Exception_Syntax
+	 * @var ?SyntaxException
 	 */
-	protected static ?Exception_Syntax $unserialize_exception = null;
+	protected static ?SyntaxException $unserialize_exception = null;
 
 	/**
 	 * Temporary error handler during unserialize
@@ -287,7 +293,7 @@ class PHP {
 	 * @param string $errorString
 	 */
 	public static function _unserialize_handler(int $errno, string $errorString): void {
-		self::$unserialize_exception = new Exception_Syntax($errorString, [], $errno);
+		self::$unserialize_exception = new SyntaxException($errorString, [], $errno);
 	}
 
 	/**
@@ -297,7 +303,7 @@ class PHP {
 	 *
 	 * @param string $serialized
 	 * @return mixed
-	 * @throws Exception_Syntax
+	 * @throws SyntaxException
 	 */
 	public static function unserialize(string $serialized): mixed {
 		self::$unserialize_exception = null;
@@ -317,12 +323,12 @@ class PHP {
 	 * Test PHP for presence of various features
 	 *
 	 * @param string|array $features
-	 * @param bool $throw Exception_Unsupported will be thrown if fails
+	 * @param bool $throw Unsupported will be thrown if fails
 	 * @return array
 	 * @throws
 	 */
 	public static function requires(string|array $features, bool $throw = false): array {
-		$features = toList($features);
+		$features = Types::toList($features);
 		$results = [];
 		$errors = [];
 		foreach ($features as $feature) {
@@ -330,14 +336,14 @@ class PHP {
 				case self::FEATURE_PROCESS_CONTROL:
 					$results[$feature] = $result = function_exists('pcntl_exec');
 					if (!$result) {
-						$errors[] = map("Need pcntl extensions for PHP\nphp.ini at {0}\n", [get_cfg_var('cfg_file_path')]);
+						$errors[] = ArrayTools::map("Need pcntl extensions for PHP\nphp.ini at {0}\n", [get_cfg_var('cfg_file_path')]);
 					}
 
 					break;
 				case self::FEATURE_TIME_LIMIT:
-					$results[$feature] = $result = !toBool(ini_get('safe_mode'));
+					$results[$feature] = $result = !Types::toBool(ini_get('safe_mode'));
 					if (!$result) {
-						$errors[] = map("PHP safe mode prevents removing time limits on pages\nphp.ini at {0}\n", [get_cfg_var('safe_mode')]);
+						$errors[] = ArrayTools::map("PHP safe mode prevents removing time limits on pages\nphp.ini at {0}\n", [get_cfg_var('safe_mode')]);
 					}
 
 					break;
@@ -357,7 +363,7 @@ class PHP {
 		}
 		if (count($errors) > 0) {
 			if ($throw) {
-				throw new Exception_Unsupported('Required features are missing {errors}', ['errors' => $errors]);
+				throw new Unsupported('Required features are missing {errors}', ['errors' => $errors]);
 			}
 		}
 		return $results;
@@ -371,7 +377,7 @@ class PHP {
 	 * @param int|float|string $value Value to set it to
 	 *
 	 * @return mixed Return previous value
-	 * @throws Exception_Unimplemented
+	 * @throws Unimplemented
 	 */
 	public static function setFeature(string $feature, int|float|string $value): mixed {
 		$feature = strtolower($feature);
@@ -379,15 +385,15 @@ class PHP {
 			case self::FEATURE_TIME_LIMIT:
 				$old_value = ini_get('max_execution_time');
 				if (!set_time_limit(intval($value))) {
-					throw new Exception_Unimplemented('set_time_limit failed');
+					throw new Unimplemented('set_time_limit failed');
 				}
 				return $old_value;
 			case self::FEATURE_MEMORY_LIMIT:
-				$old_value = toBytes(ini_get('memory_limit'));
-				ini_set('memory_limit', strval(toBytes($value))); // TODO 8.1 PHP accepts float
+				$old_value = Types::toBytes(ini_get('memory_limit'));
+				ini_set('memory_limit', strval(Types::toBytes($value))); // TODO 8.1 PHP accepts float
 				return $old_value;
 			default:
-				throw new Exception_Unimplemented('No such feature {feature}', ['feature' => $feature]);
+				throw new Unimplemented('No such feature {feature}', ['feature' => $feature]);
 		}
 	}
 
@@ -446,9 +452,9 @@ class PHP {
 	 * Convert a value automatically into a native PHP type
 	 *
 	 * @param mixed $value
-	 * @param boolean $throw Throw an Exception_Parse error when value is invalid JSON. Defaults to true.
+	 * @param boolean $throw Throw an ParseException error when value is invalid JSON. Defaults to true.
 	 * @return mixed
-	 * @throws Exception_Parse
+	 * @throws ParseException
 	 */
 	public static function autoType(mixed $value, bool $throw = true): mixed {
 		if (is_array($value)) {
@@ -461,15 +467,15 @@ class PHP {
 			return $value;
 		}
 		// Convert numeric types first, then boolean
-		$boolValue = toBool($value, null);
+		$boolValue = Types::toBool($value, null);
 		if (is_bool($boolValue)) {
 			return $boolValue;
 		}
 		if (is_numeric($value)) {
 			if (preg_match('/^\d+$/', "$value")) {
-				return toInteger($value);
+				return Types::toInteger($value);
 			}
-			return toFloat($value);
+			return Types::toFloat($value);
 		}
 		if (!is_string($value)) {
 			return $value;
@@ -477,10 +483,10 @@ class PHP {
 		if ($value === 'null') {
 			return null;
 		}
-		if (unquote($value, '{}[]\'\'""') !== $value) {
+		if (StringTools::unquote($value, '{}[]\'\'""') !== $value) {
 			try {
-				return JSON::decode($value, true);
-			} catch (Exception_Parse $e) {
+				return JSON::decode($value);
+			} catch (ParseException $e) {
 				if ($throw) {
 					throw $e;
 				}
@@ -501,8 +507,8 @@ class PHP {
 	 * @return string
 	 */
 	public static function parseClass(string $class): string {
-		[$_, $cl] = self::parseNamespaceClass($class);
-		return $cl;
+		$parts = self::parseNamespaceClass($class);
+		return $parts[1];
 	}
 
 	/**
@@ -514,8 +520,8 @@ class PHP {
 	 * @return string
 	 */
 	public static function parseNamespace(string $class): string {
-		[$ns] = self::parseNamespaceClass($class);
-		return $ns;
+		$parts = self::parseNamespaceClass($class);
+		return $parts[0];
 	}
 
 	/**
@@ -527,7 +533,7 @@ class PHP {
 	 * @return string[]
 	 */
 	public static function parseNamespaceClass(string $class): array {
-		return reversePair($class, '\\', '', $class);
+		return StringTools::reversePair($class, '\\', '', $class);
 	}
 
 	/**
@@ -540,15 +546,6 @@ class PHP {
 			$arguments = Exception::exceptionVariables($message) + $arguments;
 			$message = "{class}: {message} at {file}:{line}\nBacktrace: {backtrace}";
 		}
-		error_log(map($message, $arguments));
-	}
-
-	/**
-	 * @param string $func
-	 * @return string
-	 * @deprecated 2022-05
-	 */
-	public static function clean_class(string $func): string {
-		return self::cleanClass($func);
+		error_log(ArrayTools::map($message, $arguments));
 	}
 }

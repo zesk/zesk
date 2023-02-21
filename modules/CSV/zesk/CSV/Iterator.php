@@ -10,7 +10,6 @@ declare(strict_types=1);
 namespace zesk\CSV;
 
 use Iterator as BaseIterator;
-use Reader;
 use zesk\Options;
 
 /**
@@ -44,7 +43,7 @@ class Iterator extends Options implements BaseIterator {
 	 *
 	 * @var string
 	 */
-	private $use_map = null;
+	private string $use_map;
 
 	/**
 	 * Current row
@@ -65,7 +64,7 @@ class Iterator extends Options implements BaseIterator {
 		$this->csv = $csv;
 		$this->csv_tell = $csv->tell();
 		$this->assoc = $this->optionBool('assoc', true);
-		$this->use_map = $this->option('use_map', null);
+		$this->use_map = $this->optionString('use_map');
 		$this->row = null;
 		$this->is_valid = true;
 	}

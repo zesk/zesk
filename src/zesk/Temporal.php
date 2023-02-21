@@ -7,12 +7,16 @@ declare(strict_types=1);
 
 namespace zesk;
 
+use zesk\Exception\KeyNotFound;
+use zesk\Interface\Formatting;
+use zesk\Locale\Locale;
+
 /**
  *
  * @author kent
  *
  */
-abstract class Temporal {
+abstract class Temporal implements Formatting {
 	/**
 	 *
 	 * @var string
@@ -180,21 +184,19 @@ abstract class Temporal {
 
 	/**
 	 * Format
-	 * @param Locale|null $locale
-	 * @param string $format_string
+	 * @param string $format
 	 * @param array $options
 	 * @return string
 	 */
-	abstract public function format(Locale $locale = null, string $format_string = '', array $options = []): string;
+	abstract public function format(string $format = '', array $options = []): string;
 
 	/**
 	 * Fetch formatting for this object
 	 *
 	 * @param array $options
-	 * @param Locale|null $locale
 	 * @return array
 	 */
-	abstract public function formatting(Locale $locale = null, array $options = []): array;
+	abstract public function formatting(array $options = []): array;
 
 	/**
 	 * Return an array of unit => seconds (integer)
@@ -210,12 +212,12 @@ abstract class Temporal {
 	 *
 	 * @param string $unit
 	 * @return int
-	 * @throws Exception_Key
+	 * @throws KeyNotFound
 	 */
 	public static function unitToSeconds(string $unit): int {
 		$result = self::unitsTranslationTable();
 		if (!array_key_exists($unit, $result)) {
-			throw new Exception_Key($unit);
+			throw new KeyNotFound($unit);
 		}
 		return $result[$unit];
 	}
@@ -226,7 +228,7 @@ abstract class Temporal {
 	 * @param int|float $seconds
 	 * @param string $unit
 	 * @return float
-	 * @throws Exception_Key
+	 * @throws KeyNotFound
 	 */
 	public static function convertUnits(int|float $seconds, string $unit = self::UNIT_SECOND): float {
 		return floatval($seconds / self::unitToSeconds($unit));

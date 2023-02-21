@@ -9,10 +9,10 @@ declare(strict_types=1);
 
 namespace zesk\Net;
 
-use zesk\Exception_Semantics;
-use zesk\Exception_Connect;
+use zesk\Exception\Semantics;
+use zesk\Exception\ConnectionFailed;
 use zesk\Exception_Protocol;
-use zesk\Exception_Timeout;
+use zesk\TimeoutExpired;
 
 class SocketClient extends Client {
 	/**
@@ -92,7 +92,7 @@ class SocketClient extends Client {
 	 * Connect to the socket
 	 *
 	 * @return self
-	 * @throws Exception_Connect
+	 * @throws ConnectionFailed
 	 */
 	public function connect(): self {
 		$this->EOL = strval($this->option(self::OPTION_END_OF_LINE, $this->EOL));
@@ -113,7 +113,7 @@ class SocketClient extends Client {
 		$this->log("Connecting to $host:$port");
 		$this->socket = @fsockopen($host, $port, $errorNumber, $errorString, $timeout);
 		if (!is_resource($this->socket)) {
-			throw new Exception_Connect("$host:$port", "Could not connect to $host:$port $errorString");
+			throw new ConnectionFailed("$host:$port", "Could not connect to $host:$port $errorString");
 		}
 		stream_set_timeout($this->socket, $timeout, $microseconds);
 		stream_set_blocking($this->socket, $this->optionBool(self::OPTION_SOCKET_BLOCKING, self::DEFAULT_OPTION_SOCKET_BLOCKING));
@@ -123,8 +123,8 @@ class SocketClient extends Client {
 
 	/**
 	 * @return string
-	 * @throws Exception_Semantics
-	 * @throws Exception_Connect
+	 * @throws Semantics
+	 * @throws ConnectionFailed
 	 * @throws Exception_Protocol
 	 */
 	public function connectGreeting(): string {
@@ -155,11 +155,11 @@ class SocketClient extends Client {
 	/**
 	 * Make sure we're connected
 	 *
-	 * @throws Exception_Connect
+	 * @throws ConnectionFailed
 	 */
 	protected function _check(): void {
 		if (!$this->isConnected()) {
-			throw new Exception_Connect('Not connected to server');
+			throw new ConnectionFailed('Not connected to server');
 		}
 	}
 
@@ -170,7 +170,7 @@ class SocketClient extends Client {
 	 * @param string $expect String to expect from the other side as a response
 	 * @return string
 	 * @throws Exception_Protocol
-	 * @throws Exception_Connect
+	 * @throws ConnectionFailed
 	 */
 	protected function command(string $command, string $expect = ''): string {
 		$this->write(trim($command));
@@ -188,7 +188,7 @@ class SocketClient extends Client {
 	 * @param string $command
 	 *            Debugging command (just logged)
 	 * @return string
-	 * @throws Exception_Connect
+	 * @throws ConnectionFailed
 	 * @throws Exception_Protocol
 	 */
 	protected function expect(string $expect, string $command): string {
@@ -211,7 +211,7 @@ class SocketClient extends Client {
 	 *
 	 * @param string $data
 	 * @return number of bytes written
-	 * @throws Exception_Connect
+	 * @throws ConnectionFailed
 	 */
 	public function write(string $data): int {
 		$this->_check();
@@ -222,13 +222,13 @@ class SocketClient extends Client {
 	/**
 	 * @param string $data
 	 * @return int
-	 * @throws Exception_Connect
+	 * @throws ConnectionFailed
 	 */
 	public function writeData(string $data): int {
 		$bytes = strlen($data);
 		$result = fwrite($this->socket, $data, $bytes);
 		if ($result !== $bytes) {
-			throw new Exception_Connect('Disconnected');
+			throw new ConnectionFailed('Disconnected');
 		}
 		return $result;
 	}
@@ -239,8 +239,8 @@ class SocketClient extends Client {
 	 * @param int $milliseconds
 	 * @return string
 	 * @throws Exception_Protocol
-	 * @throws Exception_Semantics
-	 * @throws Exception_Timeout
+	 * @throws Semantics
+	 * @throws TimeoutExpired
 	 */
 	public function readWait(int $milliseconds = self::DEFAULT_READ_TIMEOUT_MILLISECONDS): string {
 		$timeout = microtime(true) + $milliseconds;
@@ -254,14 +254,14 @@ class SocketClient extends Client {
 			}
 		} while (microtime(true) < $timeout);
 
-		throw new Exception_Timeout("read_wait timed out after $milliseconds milliseconds");
+		throw new TimeoutExpired("read_wait timed out after $milliseconds milliseconds");
 	}
 
 	/**
 	 * Read data from socket
 	 *
 	 * @return string
-	 * @throws Exception_Connect
+	 * @throws ConnectionFailed
 	 * @throws Exception_Protocol
 	 */
 	public function read(): string {
@@ -282,7 +282,7 @@ class SocketClient extends Client {
 	/**
 	 * @param int $length
 	 * @return string
-	 * @throws Exception_Semantics
+	 * @throws Semantics
 	 * @throws Exception_Protocol
 	 */
 	public function readData(int $length): string {

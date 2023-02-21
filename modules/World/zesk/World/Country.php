@@ -2,37 +2,37 @@
 declare(strict_types=1);
 /**
  * @package zesk
- * @subpackage objects
+ * @subpackage World
  */
 
 namespace zesk\World;
 
+use Doctrine\ORM\Mapping\Column;
+use Doctrine\ORM\Mapping\Entity;
+use Doctrine\ORM\Mapping\Id;
+use Doctrine\ORM\Mapping\SequenceGenerator;
 use zesk\Application;
-use zesk\Database_Exception_Connect;
-use zesk\Exception;
-use zesk\ORM\ORMBase;
-use zesk\ORM\Exception_ORMNotFound;
+use zesk\Exception\NotFoundException;
 
 /**
- * @author kent
- * @see Class_Country
- * @property int $id
- * @property string $code
- * @property string $name
+ * @see Country
  */
-class Country extends ORMBase {
-	public const MEMBER_ID = 'id';
+#[Entity]
+class Country {
+	#[Id, Column(type: 'integer'), SequenceGenerator]
+	public null|int $id = null;
 
-	public const MEMBER_CODE = 'code';
+	#[Column(type: 'string', length: 2)]
+	public string $code;
 
-	public const MEMBER_NAME = 'name';
+	#[Column(type: 'string')]
+	public string $name;
 
 	/**
 	 * @param Application $application
 	 * @param string|int $mixed
 	 * @return self
-	 * @throws Exception_ORMNotFound
-	 * @throws Database_Exception_Connect
+	 * @throws NotFoundException
 	 */
 	public static function findCountry(Application $application, string|int $mixed): self {
 		try {
@@ -41,16 +41,15 @@ class Country extends ORMBase {
 				return $c->fetch();
 			} else {
 				$c = new Country($application, [
-					self::MEMBER_CODE => $mixed,
 				]);
 				$country = $c->find();
 				assert($country instanceof self);
 				return $country;
 			}
-		} catch (Database_Exception_Connect|Exception_ORMNotFound $e) {
+		} catch (Database\Exception\Connect|ORMNotFound $e) {
 			throw $e;
 		} catch (Exception $e) {
-			throw new Exception_ORMNotFound(self::class, $e->getMessage(), $e->variables(), $e);
+			throw new NotFoundException(self::class, $e->getMessage(), $e->variables(), $e);
 		}
 	}
 }

@@ -9,12 +9,12 @@ declare(strict_types=1);
 namespace zesk\Response;
 
 use Throwable;
-use zesk\Exception_Redirect;
-use zesk\Exception_RedirectTemporary;
-use zesk\Interface_Session;
+use zesk\Exception\Redirect as RedirectException;
+use zesk\Exception\RedirectTemporary;
+use zesk\Interface\SessionInterface;
 use zesk\Net_HTTP;
-use zesk\Preference\Preference\zesk\Preference\Type;
 use zesk\Response;
+use zesk\Types;
 
 /**
  * @see Type
@@ -23,10 +23,10 @@ use zesk\Response;
 class Redirect extends Type {
 	/**
 	 *
-	 * @return Interface_Session
+	 * @return SessionInterface
 	 */
-	private function session(): Interface_Session {
-		return $this->application->session($this->parent->request);
+	private function session(): SessionInterface {
+		return $this->application->requireSession($this->application->request());
 	}
 
 	/**
@@ -54,7 +54,7 @@ class Redirect extends Type {
 	 */
 	public function addMessage(string $message, array $attributes = []): Response {
 		$session = $this->session();
-		$messages = toArray($session->get(self::SESSION_KEY_REDIRECT_STATE));
+		$messages = Types::toArray($session->get(self::SESSION_KEY_REDIRECT_STATE));
 		$messages[md5($message)] = ['content' => $message] + $attributes;
 		$session->set(self::SESSION_KEY_REDIRECT_STATE, $messages);
 		return $this->parent;
@@ -66,7 +66,7 @@ class Redirect extends Type {
 	 */
 	public function messages(): array {
 		$session = $this->session();
-		$messages = toArray($session->get(self::SESSION_KEY_REDIRECT_STATE));
+		$messages = Types::toArray($session->get(self::SESSION_KEY_REDIRECT_STATE));
 		return array_values($messages);
 	}
 
@@ -75,7 +75,7 @@ class Redirect extends Type {
 	 *
 	 * @param string $content
 	 * @return string
-	 * @throws Exception_Redirect
+	 * @throws Redirect
 	 */
 	public function render(string $content): string {
 		return $this->parent->html()->render($content);
@@ -91,28 +91,28 @@ class Redirect extends Type {
 	/**
 	 * @param string $content
 	 * @return void
-	 * @throws Exception_Redirect
+	 * @throws Redirect
 	 */
 	public function output(string $content): void {
 		echo $this->render($content);
 	}
 
 	/**
-	 * @throws Exception_Redirect
+	 * @throws RedirectException
 	 * @param string $url
 	 * @param string $message
 	 */
 	public function url(string $url, string $message = ''): void {
-		throw new Exception_Redirect($url, $message);
+		throw new RedirectException($url, $message);
 	}
 
 	/**
-	 * @throws Exception_RedirectTemporary
+	 * @throws RedirectTemporary
 	 * @param string $url
 	 * @param string $message
 	 */
 	public function urlTemporary(string  $url, string $message = ''): void {
-		throw new Exception_RedirectTemporary($url, $message);
+		throw new RedirectTemporary($url, $message);
 	}
 
 	/**
@@ -133,12 +133,12 @@ class Redirect extends Type {
 	}
 
 	/**
-	 * Load up an Exception_Redirect for handling
+	 * Load up an Redirect for handling
 	 *
-	 * @param Exception_Redirect $exception
+	 * @param Redirect $exception
 	 * @return string
 	 */
-	public function handleException(Exception_Redirect $exception): string {
+	public function handleException(RedirectException $exception): string {
 		$original_url = $exception->url();
 		$message = $exception->getMessage();
 

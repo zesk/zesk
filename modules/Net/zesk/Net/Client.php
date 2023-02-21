@@ -10,10 +10,10 @@ declare(strict_types=1);
 namespace zesk\Net;
 
 use Psr\Log\LogLevel;
-use zesk\Exception_Key;
-use zesk\Exception_Connect;
-use zesk\Exception_Configuration;
-use zesk\Exception_Syntax;
+use zesk\Exception\KeyNotFound;
+use zesk\Exception\ConnectionFailed;
+use zesk\Exception\ConfigurationException;
+use zesk\Exception\SyntaxException;
 use zesk\URL;
 use zesk\Hookable;
 use zesk\Application;
@@ -42,7 +42,7 @@ abstract class Client extends Hookable {
 	 * Create a new Net_Client object
 	 * @param string $url smtp://user:pass@server:port/
 	 * @param array $options Options which change the behavior of this SMTP_Client connection
-	 * @throws Exception_Syntax
+	 * @throws SyntaxException
 	 */
 	public function __construct(Application $application, string $url, array $options = []) {
 		parent::__construct($application, $options);
@@ -66,8 +66,8 @@ abstract class Client extends Hookable {
 	/**
 	 * Connect. Returns the greeting line from the server.
 	 *
-	 * @throws Exception_Connect
-	 * @throws Exception_Configuration
+	 * @throws ConnectionFailed
+	 * @throws ConfigurationException
 	 */
 	abstract public function connect(): self;
 
@@ -75,8 +75,8 @@ abstract class Client extends Hookable {
 	 * Reads first line from server as well as connecting.
 	 *
 	 * @return string
-	 * @throws Exception_Connect
-	 * @throws Exception_Configuration
+	 * @throws ConnectionFailed
+	 * @throws ConfigurationException
 	 */
 	abstract public function connectGreeting(): string;
 
@@ -105,14 +105,14 @@ abstract class Client extends Hookable {
 	 * Retrieve the URL component from this Net_Client
 	 * @param string $component
 	 * @return string
-	 * @throws Exception_Key
+	 * @throws KeyNotFound
 	 */
 	final public function urlComponent(string $component): string {
 		if (array_key_exists($component, $this->urlParts)) {
 			return $this->urlParts[$component];
 		}
 
-		throw new Exception_Key($component);
+		throw new KeyNotFound($component);
 	}
 
 	/**

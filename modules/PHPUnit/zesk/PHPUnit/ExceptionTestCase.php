@@ -13,13 +13,12 @@ namespace zesk\PHPUnit;
 
 use Throwable;
 use zesk\Exception;
-use zesk\UnitTest;
 
-class ExceptionTestCase extends UnitTest {
+class ExceptionTestCase extends TestCase {
 	/**
 	 * @param Throwable $e
 	 */
-	public function assertThrowable(Throwable $e): void {
+	public function assertThrowable(Throwable $e, bool $recurse = true): void {
 		$this->assertIsString($e->getMessage());
 
 		$this->assertIsInteger($e->getCode());
@@ -31,7 +30,9 @@ class ExceptionTestCase extends UnitTest {
 		$prev = $e->getPrevious();
 		if ($prev) {
 			$this->assertInstanceOf(Throwable::class, $prev);
-			$this->assertThrowable($prev);
+			if ($recurse) {
+				$this->assertThrowable($prev, false);
+			}
 		}
 
 		$this->assertGreaterThan(0, strlen($e->__toString()), 'Blank __toString');
@@ -44,7 +45,9 @@ class ExceptionTestCase extends UnitTest {
 		$this->assertEquals($e->getMessage(), $variables['message']);
 		$this->assertEquals($e->getFile(), $variables['file']);
 		$this->assertEquals($e->getLine(), $variables['line']);
-		$this->assertEquals($e->getTrace(), $variables['trace']);
+
+		// Causes infinite loop when this is assertEquals as the trace contains PHPUnit objects
+		$this->assertSameSize($e->getTrace(), $variables['trace']);
 		$this->assertEquals($e->getTraceAsString(), $variables['backtrace']);
 		$this->assertIsString($variables['backtrace'], 'backtrace is string');
 		$this->assertIsString($variables['rawMessage'], 'rawMessage is string');

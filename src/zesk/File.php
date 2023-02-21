@@ -11,6 +11,19 @@ declare(strict_types=1);
 
 namespace zesk;
 
+use zesk\Exception\DirectoryCreate;
+use zesk\Exception\DirectoryNotFound;
+use zesk\Exception\DirectoryPermission;
+use zesk\Exception\FileCreate;
+use zesk\Exception\FileLocked;
+use zesk\Exception\FileNotFound;
+use zesk\Exception\FilePermission;
+use zesk\Exception\FileSystemException;
+use zesk\Exception\NotFoundException;
+use zesk\Exception\SyntaxException;
+use zesk\Exception\TimeoutExpired;
+use zesk\Exception\Unimplemented;
+
 /**
  * File abstraction, lots of file tools
  *
@@ -216,19 +229,30 @@ class File {
 		if ($cwd === null) {
 			$cwd = getcwd();
 		}
-		return path($cwd, $filename);
+		return self::path($cwd, $filename);
+	}
+
+	/**
+	 * Synonym for Directory::path for convenience
+	 *
+	 * @param array|string $paths
+	 * @return string
+	 * @see Directory::path()
+	 */
+	public static function path(array|string $paths): string {
+		return Directory::path(func_get_args());
 	}
 
 	/**
 	 * Require a file or files to exist
 	 *
 	 * @param array|string $mixed List of files to require
-	 * @throws Exception_File_NotFound
+	 * @throws FileNotFound
 	 */
 	public static function depends(array|string $mixed): void {
-		foreach (toList($mixed) as $f) {
+		foreach (Types::toList($mixed) as $f) {
 			if (!file_exists($f) || !is_file($f)) {
-				throw new Exception_File_NotFound($f);
+				throw new FileNotFound($f);
 			}
 		}
 	}
@@ -287,7 +311,7 @@ class File {
 	/**
 	 * @param string $path File to generate a checksum for
 	 * @return string
-	 * @throws Exception_File_NotFound
+	 * @throws FileNotFound
 	 */
 	public static function checksum(string $path): string {
 		$size = self::size($path);
@@ -321,7 +345,7 @@ class File {
 		$dirName = $pathInfo['dirname'] ?? '.';
 		$sep = DIRECTORY_SEPARATOR;
 		$pathInfo['dirnamePrefix'] = $dirName !== '.' || str_starts_with($filename, ".$sep") ? $dirName . $sep : '';
-		return map($pattern, $pathInfo + [
+		return ArrayTools::map($pattern, $pathInfo + [
 			'/' => $sep,
 		]);
 	}
@@ -361,13 +385,13 @@ class File {
 	 * @param string $path
 	 *            Path to file to use as a counter
 	 * @return integer The number in the file, plus one
-	 * @throws Exception_File_NotFound
-	 * @throws Exception_Timeout
+	 * @throws FileNotFound
+	 * @throws TimeoutExpired
 	 */
 	public static function atomicIncrement(string $path): int {
 		$fp = @fopen($path, 'r+b');
 		if (!$fp) {
-			throw new Exception_File_NotFound($path, 'not found');
+			throw new FileNotFound($path, 'not found');
 		}
 		$timeout = 10;
 		$until = time() + $timeout;
@@ -376,7 +400,7 @@ class File {
 			if (time() >= $until) {
 				fclose($fp);
 
-				throw new Exception_Timeout('atomicIncrement({file}) after {timeout} seconds', [
+				throw new TimeoutExpired('atomicIncrement({file}) after {timeout} seconds', [
 					'file' => $path, 'timeout' => $timeout,
 				]);
 			}
@@ -398,12 +422,12 @@ class File {
 	 * @param string $data
 	 *            file data
 	 * @return boolean true if successful, false if 100ms passes and can't
-	 * @throws Exception_File_NotFound
+	 * @throws FileNotFound
 	 */
 	public static function atomicPut(string $path, string $data): bool {
 		$fp = fopen($path, 'w+b');
 		if (!is_resource($fp)) {
-			throw new Exception_File_NotFound($path, 'File::atomicPut not found');
+			throw new FileNotFound($path, 'File::atomicPut not found');
 		}
 		$until = time() + 10;
 		while (!flock($fp, LOCK_EX | LOCK_NB)) {
@@ -426,11 +450,11 @@ class File {
 	 * @param string $ext Extension to place on temporary file
 	 * @param ?int $mode Directory creation mode (e.g. 0700)
 	 * @return string
-	 * @throws Exception_Directory_Create
-	 * @throws Exception_Directory_Permission
+	 * @throws DirectoryCreate
+	 * @throws DirectoryPermission
 	 */
 	public static function temporary(string $path, string $ext = 'tmp', int $mode = null): string {
-		return path(Directory::depend($path, $mode), md5(microtime()) . '.' . ltrim($ext, '.'));
+		return self::path(Directory::depend($path, $mode), md5(microtime()) . '.' . ltrim($ext, '.'));
 	}
 
 	/**
@@ -456,17 +480,17 @@ class File {
 	 * @param string $file_name
 	 * @param int $mode
 	 * @return void
-	 * @throws Exception_File_NotFound
-	 * @throws Exception_File_Permission
+	 * @throws FileNotFound
+	 * @throws FilePermission
 	 */
 	public static function chmod(string $file_name, int $mode = 504 /* 0o770 */): void {
 		if (!file_exists($file_name)) {
-			throw new Exception_File_NotFound($file_name, 'Can not set mode to {mode}', [
+			throw new FileNotFound($file_name, 'Can not set mode to {mode}', [
 				'mode' => self::modeToOctal($mode),
 			]);
 		}
 		if (!chmod($file_name, $mode)) {
-			throw new Exception_File_Permission($file_name, 'Can not set mode to {mode}', [
+			throw new FilePermission($file_name, 'Can not set mode to {mode}', [
 				'mode' => self::modeToOctal($mode),
 			]);
 		}
@@ -477,8 +501,8 @@ class File {
 	 *
 	 * @param string $filename The file to retrieve
 	 * @return string The file contents
-	 * @throws Exception_File_NotFound
-	 * @throws Exception_File_Permission
+	 * @throws FileNotFound
+	 * @throws FilePermission
 	 */
 	public static function contents(string $filename): string {
 		if (file_exists($filename)) {
@@ -487,10 +511,10 @@ class File {
 				return $contents;
 			}
 
-			throw new Exception_File_Permission($filename);
+			throw new FilePermission($filename);
 		}
 
-		throw new Exception_File_NotFound($filename);
+		throw new FileNotFound($filename);
 	}
 
 	/**
@@ -499,19 +523,19 @@ class File {
 	 * @param string $filename
 	 * @param string $content
 	 * @return int Bytes written
-	 * @throws Exception_File_Permission
+	 * @throws FilePermission
 	 */
 	public static function append(string $filename, string $content): int {
 		$mode = file_exists($filename) ? 'a' : 'w';
 		if (!is_resource($f = fopen($filename, $mode))) {
-			throw new Exception_File_Permission($filename, 'Can not open {path} with mode {mode} to append {n} bytes of content', [
+			throw new FilePermission($filename, 'Can not open {path} with mode {mode} to append {n} bytes of content', [
 				'mode' => $mode, 'n' => strlen($content),
 			]);
 		}
 		$result = fwrite($f, $content);
 		fclose($f);
 		if ($result === false) {
-			throw new Exception_File_Permission($filename, 'Can not write {n} bytes', ['n' => strlen($content)]);
+			throw new FilePermission($filename, 'Can not write {n} bytes', ['n' => strlen($content)]);
 		}
 		return $result;
 	}
@@ -521,12 +545,12 @@ class File {
 	 *
 	 * @param string $path File to write
 	 * @param mixed $contents Contents of file
-	 * @throws Exception_File_Permission
+	 * @throws FilePermission
 	 * @see file_put_contents
 	 */
 	public static function put(string $path, string $contents): void {
 		if (file_put_contents($path, $contents) === false) {
-			throw new Exception_File_Permission($path, 'Unable to write {n} bytes to file {file}', [
+			throw new FilePermission($path, 'Unable to write {n} bytes to file {file}', [
 				'file' => $path, 'n' => strlen($contents),
 			]);
 		}
@@ -536,7 +560,7 @@ class File {
 	 * Like unlink, but does some sanity test and throws errors
 	 *
 	 * @param string $path
-	 * @throws Exception_File_Permission
+	 * @throws FilePermission
 	 */
 	public static function unlink(string $path): void {
 		if (!is_dir(dirname($path))) {
@@ -546,7 +570,7 @@ class File {
 			return;
 		}
 		if (!unlink($path)) {
-			throw new Exception_File_Permission($path, 'unable to unlink');
+			throw new FilePermission($path, 'unable to unlink');
 		}
 	}
 
@@ -555,11 +579,11 @@ class File {
 	 *
 	 * @param string $filename
 	 * @return int
-	 * @throws Exception_File_NotFound
+	 * @throws FileNotFound
 	 */
 	public static function size(string $filename): int {
 		if (!file_exists($filename)) {
-			throw new Exception_File_NotFound($filename);
+			throw new FileNotFound($filename);
 		}
 		return filesize($filename);
 	}
@@ -569,11 +593,11 @@ class File {
 	 *
 	 * @param string $filename
 	 * @return array Lines in the file
-	 * @throws Exception_File_NotFound
+	 * @throws FileNotFound
 	 */
 	public static function lines(string $filename): array {
 		if (!file_exists($filename)) {
-			throw new Exception_File_NotFound($filename);
+			throw new FileNotFound($filename);
 		}
 		return file($filename);
 	}
@@ -582,12 +606,12 @@ class File {
 	 * @param string $filename
 	 * @param string $mode
 	 * @return resource
-	 * @throws Exception_File_Permission
+	 * @throws FilePermission
 	 */
 	public static function open(string $filename, string $mode): mixed {
 		$res = fopen($filename, $mode);
 		if (!$res) {
-			throw new Exception_File_Permission($filename, 'File::open("{path}", "{mode}") failed', [
+			throw new FilePermission($filename, 'File::open("{path}", "{mode}") failed', [
 				'mode' => $mode,
 			]);
 		}
@@ -697,20 +721,20 @@ class File {
 	 *
 	 * @param string $mode_string
 	 * @return int
-	 * @throws Exception_Unimplemented
-	 * @throws Exception_Syntax
+	 * @throws Unimplemented
+	 * @throws SyntaxException
 	 */
 	public static function stringToMode(string $mode_string): int {
 		$keys = implode('', array_keys(self::$charToMask));
 		if (!preg_match('/^[' . $keys . '][-r][-w][-xSs][-r][-w][-xSs][-r][-w][-xSs]$/', $mode_string)) {
-			throw new Exception_Syntax('{mode_string} does not match pattern');
+			throw new SyntaxException('{mode_string} does not match pattern');
 		}
 		$map = array_values(self::_modeMap());
 		$mode = 0;
 		for ($i = 0; $i < strlen($mode_string); $i++) {
 			$v = $map[$i][$mode_string[$i]] ?? null;
 			if ($v === null) {
-				throw new Exception_Unimplemented("Unknown mode character $mode_string ($i)... \"" . $mode_string[$i] . '"');
+				throw new Unimplemented("Unknown mode character $mode_string ($i)... \"" . $mode_string[$i] . '"');
 			}
 			$mode |= $v;
 		}
@@ -725,11 +749,11 @@ class File {
 	 * @return string
 	 */
 	public static function setExtension(string $file, string $new_extension): string {
-		[$prefix, $file] = reversePair($file, '/', '', $file);
+		[$prefix, $file] = StringTools::reversePair($file, '/', '', $file);
 		if ($prefix) {
 			$prefix .= '/';
 		}
-		[$base] = reversePair($file, '.', $file);
+		[$base] = StringTools::reversePair($file, '.', $file);
 		if ($new_extension) {
 			$base .= '.' . ltrim($new_extension, '.');
 		}
@@ -766,7 +790,7 @@ class File {
 	/**
 	 *
 	 * @param int $uid
-	 * @return ?string
+	 * @return string|null
 	 */
 	private static function nameFromUID(int $uid): ?string {
 		return self::_nameFromID($uid, 'posix_getpwuid');
@@ -775,25 +799,25 @@ class File {
 	/**
 	 *
 	 * @param int $gid
-	 * @return string
+	 * @return string|null
 	 */
 	private static function nameFromGID(int $gid): ?string {
 		return self::_nameFromID($gid, 'posix_getgrgid');
 	}
 
 	/**
-	 * stat with extended resuilts
+	 * stat with extended results
 	 *
 	 * @param string $path Path to check
 	 * @param ?string $section Section to retrieve, or null for all sections
 	 * @return array
-	 * @throws Exception_File_NotFound
+	 * @throws FileNotFound
 	 */
 	public static function stat(string $path, string $section = null): array {
 		clearstatcache(false, $path);
 		$ss = @stat($path);
 		if (!$ss) {
-			throw new Exception_File_NotFound($path);
+			throw new FileNotFound($path);
 		}
 		$ss['path'] = $path;
 		$ss['is_resource'] = false;
@@ -805,20 +829,20 @@ class File {
 	}
 
 	/**
-	 * fstat with extended resuilts
+	 * fstat with extended results
 	 *
 	 * @param resource $path
 	 *            Path or resource to check
 	 * @param ?string $section
 	 *            Section to retrieve, or null for all sections
 	 * @return array
-	 * @throws Exception_File_NotFound
+	 * @throws FileNotFound
 	 */
 	public static function resourceStat(mixed $path, string $section = null): array {
 		assert(is_resource($path));
 		$ss = @fstat($path);
 		if (!$ss) {
-			throw new Exception_File_NotFound(_dump($path));
+			throw new FileNotFound(Debug::dump($path));
 		}
 		$ss['is_resource'] = true;
 		$s = self::expandStats($ss);
@@ -918,7 +942,7 @@ class File {
 		if ($result) {
 			return $result;
 		}
-		$memory_limit = toBytes(ini_get('memory_limit'));
+		$memory_limit = Types::toBytes(ini_get('memory_limit'));
 		return intval($memory_limit / 2);
 	}
 
@@ -935,8 +959,8 @@ class File {
 		if ($result) {
 			return $result;
 		}
-		$memory_limit = toBytes(ini_get('memory_limit'));
-		$default_trim_read_buffer_size = clamp(10240, $memory_limit / 4, 1048576);
+		$memory_limit = Types::toBytes(ini_get('memory_limit'));
+		$default_trim_read_buffer_size = Number::clamp(10240, $memory_limit / 4, 1048576);
 		return intval($default_trim_read_buffer_size);
 	}
 
@@ -944,21 +968,18 @@ class File {
 	 * Trim a file similarly to how you would trim a string.
 	 *
 	 * @param Application $application
-	 * @param string $path
-	 *            Path to the file to trim
-	 * @param int $offset
-	 *            Offset within the file to start
-	 * @param int $length
-	 *            Length within the file to remove
+	 * @param string $path Path to the file to trim
+	 * @param int $offset Offset within the file to start
+	 * @param int|null $length Length within the file to remove
 	 * @return bool
-	 * @throws Exception_FileSystem
-	 * @throws Exception_File_Create
-	 * @throws Exception_File_NotFound
-	 * @throws Exception_File_Permission
+	 * @throws FileSystemException
+	 * @throws FileCreate
+	 * @throws FileNotFound
+	 * @throws FilePermission
 	 */
 	public static function trim(Application $application, string $path, int $offset = 0, int $length = null): bool {
 		if (!is_file($path)) {
-			throw new Exception_File_NotFound($path);
+			throw new FileNotFound($path);
 		}
 		if ($offset === 0 && $length === null) {
 			return true;
@@ -976,7 +997,7 @@ class File {
 				return true;
 			}
 
-			throw new Exception_FileSystem("Unable to write $length bytes to $path ($result !== $length - $offset)");
+			throw new FileSystemException("Unable to write $length bytes to $path ($result !== $length - $offset)");
 		}
 		if ($offset < 0) {
 			$offset = $size - $offset;
@@ -991,13 +1012,13 @@ class File {
 		$temp_mv = $temp . '-rename';
 		$w = fopen($temp, 'wb');
 		if (!$w) {
-			throw new Exception_File_Create($temp);
+			throw new FileCreate($temp);
 		}
 		$r = fopen($path, 'r+b');
 		if (!$r) {
 			fclose($w);
 
-			throw new Exception_File_Create($path);
+			throw new FileCreate($path);
 		}
 		fseek($r, $offset);
 		$read_buffer_size = self::trimReadBufferSize($application);
@@ -1014,12 +1035,12 @@ class File {
 			@unlink($temp);
 			@unlink($temp_mv);
 
-			throw new Exception_File_Permission("Rename $path to $temp_mv");
+			throw new FilePermission("Rename $path to $temp_mv");
 		}
 		$result = rename($temp, $path);
 		@unlink($temp_mv);
 		if (!$result) {
-			throw new Exception_File_Permission("Didn't rename $temp to $path");
+			throw new FilePermission("Didn't rename $temp to $path");
 		}
 		return true;
 	}
@@ -1030,16 +1051,16 @@ class File {
 	 * @param string $filename
 	 * @param int $length
 	 * @return string
-	 * @throws Exception_File_Permission
-	 * @throws Exception_File_NotFound
+	 * @throws FilePermission
+	 * @throws FileNotFound
 	 */
 	public static function head(string $filename, int $length = 1024): string {
 		if (!is_file($filename)) {
-			throw new Exception_File_NotFound($filename);
+			throw new FileNotFound($filename);
 		}
 		$f = fopen($filename, 'rb');
 		if (!$f) {
-			throw new Exception_File_Permission("$filename:Can not read");
+			throw new FilePermission("$filename:Can not read");
 		}
 		$result = fread($f, $length);
 		fclose($f);
@@ -1104,42 +1125,42 @@ class File {
 	 * @param string $target
 	 * @param string|null $new_target
 	 * @return void
-	 * @throws Exception_File_Locked
-	 * @throws Exception_File_NotFound
-	 * @throws Exception_File_Permission
+	 * @throws FileLocked
+	 * @throws FileNotFound
+	 * @throws FilePermission
 	 */
 	public static function moveAtomic(string $source, string $target, string $new_target = null): void {
 		if (!is_file($target)) {
 			if (!rename($source, $target)) {
-				throw new Exception_File_Permission($target, 'Can not rename {source} to {target}', [
+				throw new FilePermission($target, 'Can not rename {source} to {target}', [
 					'source' => $source, 'target' => $target,
 				]);
 			}
 		}
 		if (!is_file($source)) {
-			throw new Exception_File_NotFound($source);
+			throw new FileNotFound($source);
 		}
 		$pid = getmypid();
 		$targetLock = $target . '.atomic-lock';
 		$lock = fopen($targetLock, 'w+b');
 		if (!$lock) {
-			throw new Exception_File_Permission($targetLock, 'Can not create lock file');
+			throw new FilePermission($targetLock, 'Can not create lock file');
 		}
 		if (!flock($lock, LOCK_EX)) {
 			fclose($lock);
 			unlink($targetLock);
 
-			throw new Exception_File_Locked($targetLock);
+			throw new FileLocked($targetLock);
 		}
 		$target_temp = $target . ".atomic.$pid";
 		$exception = null;
 		if (!rename($target, $target_temp)) {
-			$exception = new Exception_File_Permission($target_temp, 'Can not rename target {target} to temp {target_temp}', compact('target', 'target_temp'));
+			$exception = new FilePermission($target_temp, 'Can not rename target {target} to temp {target_temp}', compact('target', 'target_temp'));
 		} elseif (!@rename($source, $target)) {
 			if (!@rename($target_temp, $target)) {
-				$exception = new Exception_File_Permission($target, 'RECOVERY: Can not rename target temp {target_temp} BACK to target {target}', compact('target', 'target_temp'));
+				$exception = new FilePermission($target, 'RECOVERY: Can not rename target temp {target_temp} BACK to target {target}', compact('target', 'target_temp'));
 			} else {
-				$exception = new Exception_File_Permission($target, 'Can not rename source {source} to target {target}', compact('source', 'target'));
+				$exception = new FilePermission($target, 'Can not rename source {source} to target {target}', compact('source', 'target'));
 			}
 		}
 		flock($lock, LOCK_UN);
@@ -1162,8 +1183,8 @@ class File {
 	 * @param string $source Source file or folder to copy uid/gid from
 	 * @param string $target Target file or fiolder to copy uid/gid to
 	 * @return string $target returned upon success
-	 * @throws Exception_File_Permission
-	 * @throws Exception_File_NotFound
+	 * @throws FilePermission
+	 * @throws FileNotFound
 	 */
 	public static function copyOwnerAndGroup(string $source, string $target): string {
 		return self::copyGroup($source, self::copyOwner($source, $target));
@@ -1175,15 +1196,15 @@ class File {
 	 * @param string $source Source file or directory to copy uid from
 	 * @param string $target Target file or directory to copy uid to
 	 * @return string $target returned upon success
-	 * @throws Exception_File_NotFound
-	 * @throws Exception_File_Permission
+	 * @throws FileNotFound
+	 * @throws FilePermission
 	 */
 	public static function copyOwner(string $source, string $target): string {
 		$target_owner = File::stat($target, 'owner');
 		$source_owner = File::stat($source, 'owner');
 		if ($target_owner['uid'] !== $source_owner['uid']) {
 			if (!chown($target, $source_owner['uid'])) {
-				throw new Exception_File_Permission($target, '{method}({source}, {target}) chown({target}, {gid})', [
+				throw new FilePermission($target, '{method}({source}, {target}) chown({target}, {gid})', [
 					'method' => __METHOD__, 'source' => $source, 'target' => $target,
 				]);
 			}
@@ -1197,15 +1218,15 @@ class File {
 	 * @param string $source Source file or directory to copy gid from
 	 * @param string $target Target file or directory to copy gid to
 	 * @return string $target returned upon success
-	 * @throws Exception_File_NotFound
-	 * @throws Exception_File_Permission
+	 * @throws FileNotFound
+	 * @throws FilePermission
 	 */
 	public static function copyGroup(string $source, string $target): string {
 		$target_owner = File::stat($target, 'owner');
 		$source_owner = File::stat($source, 'owner');
 		if ($target_owner['gid'] !== $source_owner['gid']) {
 			if (!chgrp($target, $source_owner['gid'])) {
-				throw new Exception_File_Permission($target, '{method}({source}, {target}) chgrp({target}, {gid})', [
+				throw new FilePermission($target, '{method}({source}, {target}) chgrp({target}, {gid})', [
 					'method' => __METHOD__, 'source' => $source, 'target' => $target,
 				]);
 			}
@@ -1218,19 +1239,19 @@ class File {
 	 *
 	 * @param string $file
 	 * @return string
-	 * @throws Exception_File_Permission
-	 * @throws Exception_Directory_NotFound
+	 * @throws FilePermission
+	 * @throws DirectoryNotFound
 	 */
 	public static function validateWritable(string $file): string {
 		if (!is_dir($dir = dirname($file))) {
-			throw new Exception_Directory_NotFound($dir);
+			throw new DirectoryNotFound($dir);
 		}
 		if (file_exists($file)) {
 			if (is_writable($file)) {
 				return $file;
 			}
 
-			throw new Exception_File_Permission($file, 'Unable to write (!is_writable)');
+			throw new FilePermission($file, 'Unable to write (!is_writable)');
 		}
 		$lock_name = "$file.pid=" . getmypid() . '.writable.temp';
 		if (file_put_contents($lock_name, strval(microtime(true))) !== false) {
@@ -1238,7 +1259,7 @@ class File {
 			return $file;
 		}
 
-		throw new Exception_File_Permission($file, 'Unable to write in {dir} {filename}', [
+		throw new FilePermission($file, 'Unable to write in {dir} {filename}', [
 			'dir' => $dir,
 		]);
 	}
@@ -1247,7 +1268,7 @@ class File {
 	 * @param array $paths List of strings representing file system paths
 	 * @param array|string|null $files File name to search for, or list of file names to search for (array)
 	 * @return string Full path of found file, or null if not found
-	 * @throws Exception_NotFound
+	 * @throws NotFoundException
 	 */
 	public static function findFirst(array $paths, array|string $files = null): string {
 		if (is_string($files)) {
@@ -1258,7 +1279,7 @@ class File {
 		$all_files = [];
 		foreach ($paths as $path) {
 			foreach ($files as $file) {
-				$the_path = path($path, $file);
+				$the_path = self::path($path, $file);
 				if (is_file($the_path)) {
 					return $the_path;
 				}
@@ -1266,7 +1287,7 @@ class File {
 			}
 		}
 
-		throw new Exception_NotFound('No files exist {paths} {files}', ['paths' => $paths, 'files' => $all_files]);
+		throw new NotFoundException('No files exist {paths} {files}', ['paths' => $paths, 'files' => $all_files]);
 	}
 
 	/**
@@ -1286,7 +1307,7 @@ class File {
 		}
 		foreach ($paths as $path) {
 			foreach ($file as $f) {
-				$the_path = path($path, $f);
+				$the_path = self::path($path, $f);
 				if (is_file($the_path)) {
 					$result[] = $the_path;
 				}
@@ -1300,12 +1321,12 @@ class File {
 	 * @param int $modifiedBefore
 	 * @return array
 	 */
-	public function deleteModifiedBefore(string|array $files, int $modifiedBefore): array {
+	public static function deleteModifiedBefore(string|array $files, int $modifiedBefore): array {
 		$result = [];
 		$now = time();
-		foreach (toList($files) as $file) {
+		foreach (Types::toList($files) as $file) {
 			if (!is_file($file)) {
-				$result[$file] = new Exception_File_NotFound($file);
+				$result[$file] = new FileNotFound($file);
 				continue;
 			}
 			$fileModificationTime = filemtime($file);

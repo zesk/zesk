@@ -11,7 +11,7 @@ namespace zesk\Preference;
 
 use Throwable;
 use zesk\Application;
-use zesk\ORM\Exception_ORMNotFound;
+use zesk\ORM\ORMNotFound;
 use zesk\ORM\ORMBase;
 
 /**
@@ -32,7 +32,7 @@ class Type extends ORMBase {
 	 * @param string $code_name
 	 * @param string $name
 	 * @return self
-	 * @throws Exception_ORMNotFound
+	 * @throws ORMNotFound
 	 */
 	public static function registerName(Application $application, string $code_name, string $name = ''): self {
 		try {
@@ -42,7 +42,7 @@ class Type extends ORMBase {
 			assert($result instanceof self);
 			return $result;
 		} catch (Throwable $e) {
-			throw new Exception_ORMNotFound(self::class, 'Can not register {code_name} ({name})', [
+			throw new ORMNotFound(self::class, 'Can not register {code_name} ({name})', [
 				'code_name' => $code_name, 'name' => $name,
 			], $e);
 		}

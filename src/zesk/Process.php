@@ -7,10 +7,21 @@ declare(strict_types=1);
  */
 namespace zesk;
 
+use zesk\Application\Hooks;
+use zesk\Exception\CommandFailed;
+use zesk\Exception\FileNotFound;
+use zesk\Exception\FilePermission;
+use zesk\Exception\Semantics;
+
 /**
  * Current and other process status, process creation
  */
 class Process {
+	/**
+	 * Debugging enabled for execute
+	 */
+	public const OPTION_DEBUG_EXECUTE = 'debugExecute';
+
 	/**
 	 *
 	 * @var boolean
@@ -33,14 +44,16 @@ class Process {
 	}
 
 	/**
-	 *
+	 * @return void
+	 * @throws Semantics
 	 */
 	public function __wakeup(): void {
-		$this->application = __wakeup_application();
+		$this->application = Kernel::wakeupApplication();
 	}
 
 	/**
 	 * Create object
+	 * @throws Semantics
 	 */
 	public function __construct(Application $application) {
 		$this->application = $application;
@@ -60,7 +73,7 @@ class Process {
 	}
 
 	/**
-	 * Return current process owner user name
+	 * Return current process owner username
 	 *
 	 * @return string
 	 */
@@ -73,7 +86,7 @@ class Process {
 
 		try {
 			return System::users()[$uid] ?? "uid-$uid";
-		} catch (Exception_File_NotFound|Exception_File_Permission) {
+		} catch (FileNotFound|FilePermission) {
 			return "uid-$uid";
 		}
 	}
@@ -83,37 +96,24 @@ class Process {
 	 * @param Application $application
 	 */
 	public function configured(Application $application): void {
-		$key = [
-			__CLASS__,
-			'debug_execute',
-		];
-		$application->configuration->deprecated('zesk::debug_execute', $key);
-		$this->debug = toBool($application->configuration->getPath($key), false);
+		$this->debug = $application->configuration->path(__CLASS__)->getBool(self::OPTION_DEBUG_EXECUTE);
 	}
 
 	/**
 	 *
 	 * @param int $pid
-	 * @throws \Exception_Unimplemented
 	 * @return boolean
 	 */
 	public static function alive(int $pid): bool {
-		if (!function_exists('posix_kill')) {
-			throw new Exception_Unimplemented('Need --with-pcntl');
-		}
 		return posix_kill($pid, 0);
 	}
 
 	/**
 	 *
 	 * @param int $pid
-	 * @throws \Exception_Unimplemented
 	 * @return boolean
 	 */
 	public static function term(int $pid): bool {
-		if (!function_exists('posix_kill')) {
-			throw new Exception_Unimplemented('Need --with-pcntl');
-		}
 		return posix_kill($pid, SIGTERM);
 	}
 
@@ -141,7 +141,7 @@ class Process {
 	 *
 	 * @param string $command
 	 * @return array Lines output by the command (returned by exec)
-	 * @throws Exception_Command
+	 * @throws CommandFailed
 	 * @see self::executeArguments
 	 * @see exec
 	 */
@@ -177,7 +177,7 @@ class Process {
 	 * <code>
 	 * try {
 	 * zesk::execute("mount {0}", $volume);
-	 * } catch (Exception_Command $e) {
+	 * } catch (CommandFailed $e) {
 	 * echo "Volume mount failed: $volume\n" . $e->getMessage(). "\n";
 	 * }
 	 * </code>
@@ -187,7 +187,7 @@ class Process {
 	 * @param array $args
 	 *        	Arguments to escape and pass into the command
 	 * @param bool $passThru Whether to use passthru vs exec
-	 * @throws Exception_Command
+	 * @throws CommandFailed
 	 * @return array Lines output by the command (returned by exec)
 	 * @see exec
 	 */
@@ -200,7 +200,7 @@ class Process {
 			exec($raw_command, $output, $result);
 		}
 		if ($result !== 0) {
-			throw new Exception_Command($raw_command, $result, is_array($output) ? $output : []);
+			throw new CommandFailed($raw_command, $result, is_array($output) ? $output : []);
 		}
 		return $output;
 	}
@@ -210,7 +210,7 @@ class Process {
 			$args[$i] = escapeshellarg(strval($arg));
 		}
 		$args['*'] = implode(' ', array_values($args));
-		$raw_command = map($command, $args);
+		$raw_command = ArrayTools::map($command, $args);
 		if ($this->debug) {
 			$this->application->logger->debug('Running command: {raw_command}', compact('raw_command'));
 		}
@@ -223,7 +223,7 @@ class Process {
 	 * @param string $stdout Optional output file
 	 * @param string $stderr Optional error file
 	 * @return int Process ID of background process
-	 * @throws Exception_Command
+	 * @throws CommandFailed
 	 */
 	public function executeBackground(string $command, array $args = [], string $stdout = '', string $stderr = ''):
 	int {
@@ -232,7 +232,7 @@ class Process {
 		$stderr = escapeshellarg($stderr ?: '/dev/null');
 		$processId = shell_exec("$raw_command > $stdout 2> $stderr & echo $!");
 		if (!$processId) {
-			throw new Exception_Command("shell_exec($raw_command) failed", 254, []);
+			throw new CommandFailed("shell_exec($raw_command) failed", 254, []);
 		}
 		return intval($processId);
 	}

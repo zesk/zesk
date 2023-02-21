@@ -6,6 +6,13 @@ declare(strict_types=1);
 
 namespace zesk;
 
+use zesk\Exception\ClassNotFound;
+use zesk\Exception\ConnectionFailed;
+use zesk\Exception\DirectoryCreate;
+use zesk\Exception\DirectoryNotFound;
+use zesk\Exception\DirectoryPermission;
+use zesk\Exception\FileNotFound;
+use zesk\Exception\FilePermission;
 use zesk\Repository\Base as Repository;
 
 /**
@@ -82,8 +89,8 @@ class Command_Update extends Command_Base {
 
 	/**
 	 * @return int|bool
-	 * @throws Exception_Class_NotFound
-	 * @throws Exception_Parameter
+	 * @throws ClassNotFound
+	 * @throws ParameterException
 	 */
 	public function run(): int {
 		$this->configure('update');
@@ -249,7 +256,7 @@ class Command_Update extends Command_Base {
 
 		try {
 			$this->composer_json = JSON::decode(file_get_contents($composer_lock));
-		} catch (Exception_Parse $e) {
+		} catch (ParseException $e) {
 			$this->error('Unable to parse JSON in {file}', [
 				'file' => $composer_lock,
 			]);
@@ -268,7 +275,7 @@ class Command_Update extends Command_Base {
 			$devargs = $this->application->development() ? '' : ' --no-dev';
 			$quietargs = $this->optionBool('quiet') ? ' -q' : '';
 			$this->application->process->execute("$composer$quietargs $composer_command$devargs");
-		} catch (Exception_Configuration|Exception_Command $e) {
+		} catch (ConfigurationException|CommandFailed $e) {
 			$this->error($e);
 		}
 	}
@@ -279,7 +286,7 @@ class Command_Update extends Command_Base {
 	 * @return boolean
 	 */
 	private function composerHasInstalled(string $dependency): bool {
-		[$package] = reversePair($dependency, ':', $dependency, '');
+		[$package] = StringTools::reversePair($dependency, ':', $dependency, '');
 		return array_key_exists($package, $this->composer_packages);
 	}
 
@@ -294,7 +301,7 @@ class Command_Update extends Command_Base {
 	 *
 	 * @param array $set
 	 * @return $this
-	 * @throws Exception_File_Permission
+	 * @throws FilePermission
 	 */
 	private function updateDatabase(array $set): self {
 		$path = $this->application->path('.update.json');
@@ -312,7 +319,7 @@ class Command_Update extends Command_Base {
 		if (file_exists($path)) {
 			try {
 				return JSON::decode(file_get_contents($path));
-			} catch (Exception_Parse $e) {
+			} catch (ParseException $e) {
 			}
 		}
 		return [];
@@ -327,7 +334,7 @@ class Command_Update extends Command_Base {
 				'class' => $module_object::class, 'name' => $hook_name,
 			]);
 			$module_object->callHook($hook_name);
-		} catch (Exception_NotFound $e) {
+		} catch (NotFoundException $e) {
 			$logger->debug("Module object for $module was not found ... skipping");
 		}
 	}
@@ -364,7 +371,7 @@ class Command_Update extends Command_Base {
 			$checked_time = strtotime($checked);
 			$interval = $this->optionInt('check_interval', 24 * 60 * 60);
 			if ($checked_time > $now - $interval) {
-				$this->verboseLog("$moduleName checked less than " . $locale->duration_string($interval, 'hour') . ' ago' . ($force_check ? '- checking anyway' : ''));
+				$this->verboseLog("$moduleName checked less than " . $locale->durationString($interval, 'hour') . ' ago' . ($force_check ? '- checking anyway' : ''));
 				if (!$force_check) {
 					$this->_runModuleHook($moduleName, 'update');
 					return true;
@@ -412,7 +419,7 @@ class Command_Update extends Command_Base {
 	 * 2017-10 Added ability to use composer binary from system path -KMD
 	 *
 	 * @return string
-	 * @throws Exception_Configuration
+	 * @throws ConfigurationException
 	 */
 	private function composerCommand(): string {
 		$paths = $this->application->paths;
@@ -423,15 +430,15 @@ class Command_Update extends Command_Base {
 		try {
 			$composer_phar = $this->hasOption('composer_phar', true) ? strval($this->option('composer_phar')) : $paths->which('composer.phar');
 			return strval($this->option('php_command', "/usr/bin/env php $composer_phar"));
-		} catch (Exception_NotFound) {
+		} catch (NotFoundException) {
 		}
 
 		try {
 			return $this->hasOption('composer_bin', true) ? strval($this->option('composer_bin')) : $paths->which('composer');
-		} catch (Exception_NotFound) {
+		} catch (NotFoundException) {
 		}
 
-		throw new Exception_Configuration(__CLASS__ . '::composer_phar', 'Need to set composer_command, composer_phar, or composer_bin for {class}, or place composer.phar, composer into path', [
+		throw new ConfigurationException(__CLASS__ . '::composer_phar', 'Need to set composer_command, composer_phar, or composer_bin for {class}, or place composer.phar, composer into path', [
 			'class' => get_class($this),
 		]);
 	}
@@ -441,9 +448,9 @@ class Command_Update extends Command_Base {
 	 *
 	 * @param array $data
 	 * @return bool
-	 * @throws Exception_Command
-	 * @throws Exception_Configuration
-	 * @throws Exception_Syntax
+	 * @throws CommandFailed
+	 * @throws ConfigurationException
+	 * @throws SyntaxException
 	 */
 	private function composerUpdate(array $data) {
 		$name = $data['name'] ?? null;
@@ -452,7 +459,7 @@ class Command_Update extends Command_Base {
 		$logger = $application->logger;
 		$configuration = $this->application->configuration;
 		if (!is_array($composer)) {
-			throw new Exception_Syntax("Composer value is not an array: {composer}\ndata: {data}", [
+			throw new SyntaxException("Composer value is not an array: {composer}\ndata: {data}", [
 				'composer' => $composer, 'data' => $data,
 			]);
 		}
@@ -509,13 +516,13 @@ class Command_Update extends Command_Base {
 	 *
 	 * @param string $url
 	 * @return string[]
-	 * @throws Exception_Directory_Create
-	 * @throws Exception_Directory_Permission
-	 * @throws Exception_DomainLookup
-	 * @throws Exception_NotFound
-	 * @throws Exception_Parameter
+	 * @throws DirectoryCreate
+	 * @throws DirectoryPermission
+	 * @throws DomainLookupFailed
+	 * @throws NotFoundException
+	 * @throws ParameterException
 	 * @throws Exception_System
-	 * @throws Exception_Unsupported
+	 * @throws Unsupported
 	 * @throws Net_HTTP_Client_Exception
 	 */
 	private function _fetchURL(string $url): array {
@@ -536,10 +543,10 @@ class Command_Update extends Command_Base {
 			];
 		}
 		if ($response_code === 4) {
-			throw new Exception_NotFound('URL {url} no longer exists', ['url' => $url]);
+			throw new NotFoundException('URL {url} no longer exists', ['url' => $url]);
 		}
 
-		throw new Exception_System('Server {url} temporarily down or returning an error? {response_code}', [
+		throw new ConnectionFailed($client->host(), 'Server {url} temporarily down or returning an error? {response_code}', [
 			'url' => $url, 'response_code' => $response_code,
 		]);
 	}
@@ -551,15 +558,15 @@ class Command_Update extends Command_Base {
 	 */
 	private function urlsToFetch(array &$data): array {
 		$name = $data['name'] ?? null;
-		$versions = toArray($data['versions'] ?? null);
-		$urls = toList($data['urls'] ?? null, toText($data['url'] ?? ''), ' ');
-		$strip_components = toBool($data['strip_components'] ?? false);
+		$versions = Types::toArray($data['versions'] ?? null);
+		$urls = Types::toList($data['urls'] ?? null, Types::toText($data['url'] ?? ''), ' ');
+		$strip_components = Types::toBool($data['strip_components'] ?? false);
 		$destination = $data['path'] ?? null;
 
 		if (count($versions) > 0) {
 			$version = $this->application->modules->configuration($name)['version'] ?? null;
 			if (!$version) {
-				$version = last(array_keys($versions));
+				$version = ArrayTools::last(array_keys($versions));
 			}
 			$this->log('Updating {name} to version {version}', [
 				'name' => $name, 'version' => $version,
@@ -601,11 +608,11 @@ class Command_Update extends Command_Base {
 	 * @param array $data
 	 * @return self|null
 	 * @throws Exception
-	 * @throws Exception_Directory_Create
-	 * @throws Exception_Directory_NotFound
-	 * @throws Exception_Directory_Permission
-	 * @throws Exception_File_NotFound
-	 * @throws Exception_Semantics
+	 * @throws DirectoryCreate
+	 * @throws DirectoryNotFound
+	 * @throws DirectoryPermission
+	 * @throws FileNotFound
+	 * @throws Semantics
 	 */
 	private function fetch(array $data): self|null {
 		$name = $data['name'] ?? null;
@@ -756,20 +763,20 @@ class Command_Update extends Command_Base {
 	/**
 	 * @param string $cmd
 	 * @return string
-	 * @throws Exception_NotFound
-	 * @throws Exception_Semantics
+	 * @throws NotFoundException
+	 * @throws Semantics
 	 */
 	private function _whichCommand(string $cmd): string {
 		try {
 			return $this->application->paths->which($cmd);
-		} catch (Exception_NotFound $e) {
+		} catch (NotFoundException $e) {
 		}
 		$args = [
 			'command' => $cmd, 'path' => implode(':', $this->application->commandPath()),
 		];
 		$message = $this->application->theme('error/update-command-not-found', $args);
 
-		throw new Exception_NotFound($message, $args);
+		throw new NotFoundException($message, $args);
 	}
 
 	/**
@@ -793,12 +800,12 @@ class Command_Update extends Command_Base {
 	/**
 	 * @param array $data
 	 * @return bool|null
-	 * @throws Exception_Directory_Create
-	 * @throws Exception_Directory_NotFound
-	 * @throws Exception_Directory_Permission
-	 * @throws Exception_File_NotFound
-	 * @throws Exception_File_Permission
-	 * @throws Exception_Parameter
+	 * @throws DirectoryCreate
+	 * @throws DirectoryNotFound
+	 * @throws DirectoryPermission
+	 * @throws FileNotFound
+	 * @throws FilePermission
+	 * @throws ParameterException
 	 */
 	private function unpack(array $data): bool {
 		$filename = $data['filename'] ?? null;
@@ -865,7 +872,7 @@ class Command_Update extends Command_Base {
 				'source' => $source, 'dest' => $dest, 'name' => $data['name'],
 			]);
 			Directory::copy($source, $dest, true);
-		} catch (Exception_Directory_Create|Exception_Directory_NotFound|Exception_Directory_Permission|Exception_File_NotFound|Exception_File_Permission
+		} catch (DirectoryCreate|DirectoryNotFound|DirectoryPermission|FileNotFound|FilePermission
 		$e) {
 			$this->debugLog('failed because of {e} ... rolling back', [
 				'e' => $e,
@@ -873,7 +880,7 @@ class Command_Update extends Command_Base {
 			$this->rollback($dest);
 
 			throw $e;
-		} catch (Exception_Parameter $e) {
+		} catch (ParameterException $e) {
 			PHP::log($e);
 		}
 		// $this->postUpdate($data);
@@ -888,7 +895,7 @@ class Command_Update extends Command_Base {
 	 * @param string $final_destination The final destination path. MUST be a valid directory.
 	 * @param mixed $strip_components Number of diretories to strip, or filename patterns to match/remove
 	 * @return boolean
-	 * @throws Exception_File_Permission
+	 * @throws FilePermission
 	 */
 	private function stripComponents(string $temp_directory_name, string $final_destination, int|string $strip_components): bool {
 		assert(is_dir($temp_directory_name));
@@ -934,13 +941,13 @@ class Command_Update extends Command_Base {
 				}
 				if (is_file($source_path)) {
 					if (!copy($source_path, $dest_path)) {
-						throw new Exception_File_Permission($dest_path, "rename $source_path to $dest_path");
+						throw new FilePermission($dest_path, "rename $source_path to $dest_path");
 					}
 				} else {
 					if (!Directory::copy($source_path, $dest_path, true)) {
 						Directory::delete($dest_path);
 
-						throw new Exception_File_Permission($dest_path, "Directory::copy $source_path to $dest_path");
+						throw new FilePermission($dest_path, "Directory::copy $source_path to $dest_path");
 					}
 				}
 			}
@@ -1058,9 +1065,9 @@ class Command_Update extends Command_Base {
 	 * @param string $actual_destination
 	 * @param int|string $strip_components
 	 * @return bool
-	 * @throws Exception_Directory_NotFound
-	 * @throws Exception_Directory_Permission
-	 * @throws Exception_File_Permission
+	 * @throws DirectoryNotFound
+	 * @throws DirectoryPermission
+	 * @throws FilePermission
 	 */
 	private function _unpack(array $args, string $destination, string $actual_destination, int|string $strip_components): bool {
 		$command = implode(' ', $args);

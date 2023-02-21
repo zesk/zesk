@@ -2,6 +2,8 @@
 declare(strict_types=1);
 namespace zesk;
 
+use zesk\Locale\Locale;
+
 /* @var $job Job */
 /* @var $object Job */
 /* @var $response Response */

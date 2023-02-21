@@ -568,7 +568,7 @@ class Text {
 		// regardless of prior names
 		$uIndex = 0;
 		// $line is our header line to parse header names
-		$line = first($lines);
+		$line = ArrayTools::first($lines);
 		// Ad a final space so our last token is parsed as well
 		$spaces[] = true;
 		foreach ($spaces as $index => $space) {

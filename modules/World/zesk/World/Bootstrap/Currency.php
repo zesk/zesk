@@ -14,8 +14,8 @@ use zesk\ArrayTools;
 use zesk\File;
 use zesk\Hookable;
 use zesk\JSON;
-use zesk\ORM\Exception_ORMEmpty;
-use zesk\ORM\Exception_ORMNotFound;
+use zesk\ORM\ORMEmpty;
+use zesk\ORM\ORMNotFound;
 
 /**
  * @see Currency
@@ -110,12 +110,12 @@ class Bootstrap_Currency extends Hookable {
 
 		try {
 			$result = $country->find(Country::MEMBER_CODE);
-		} catch (Exception_ORMNotFound|Exception_ORMEmpty) {
+		} catch (ORMNotFound|ORMEmpty) {
 			try {
 				$result = $country->find([
 					Country::MEMBER_NAME . '|LIKE' => $name,
 				]);
-			} catch (Exception_ORMNotFound|Exception_ORMEmpty) {
+			} catch (ORMNotFound|ORMEmpty) {
 				return null;
 			}
 		}

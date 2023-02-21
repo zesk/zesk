@@ -22,14 +22,14 @@ class Net_Whois {
 		$extension = StringTools::reverseRight($domain, '.');
 		$server = Net_Whois_Servers::fromTLD($extension);
 		if (!$server) {
-			throw new Exception_NotFound('No whois server for {extension}', [
+			throw new NotFoundException('No whois server for {extension}', [
 				'extension' => $extension,
 			]);
 		}
 
 		$conn = fsockopen($server, 43);
 		if (!$conn) {
-			throw new Exception_Connect($server);
+			throw new ConnectionFailed($server);
 		}
 		$result = '';
 		fwrite($conn, $domain . "\r\n");

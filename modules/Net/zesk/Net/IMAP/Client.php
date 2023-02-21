@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace zesk\Net\IMAP;
 
-use zesk\Exception_Connect;
+use zesk\Exception\ConnectionFailed;
 use zesk\Net\Client as NetClient;
 
 class Client extends NetClient {
@@ -23,14 +23,14 @@ class Client extends NetClient {
 	/**
 	 * Connect to the server
 	 * @return $this
-	 * @throws Exception_Connect
+	 * @throws ConnectionFailed
 	 */
 	public function connect(): self {
 		$options = 0;
 		$server = $this->imap_server();
 		$this->imap_conn = imap_open($server, $this->urlParts['user'], $this->urlParts['password'], $options);
 		if (!$this->imap_conn) {
-			throw new Exception_Connect($server, 'Could not connect to IMAP {port}', $this->urlParts);
+			throw new ConnectionFailed($server, 'Could not connect to IMAP {port}', $this->urlParts);
 		}
 		$this->log('Connected.');
 		return $this;
@@ -38,7 +38,7 @@ class Client extends NetClient {
 
 	/**
 	 * @return string
-	 * @throws Exception_Connect
+	 * @throws ConnectionFailed
 	 */
 	public function connectGreeting(): string {
 		$this->connect();

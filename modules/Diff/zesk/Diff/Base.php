@@ -8,7 +8,7 @@ declare(strict_types=1);
  */
 namespace zesk\Diff;
 
-use zesk\Exception_NotFound;
+use zesk\Exception\NotFoundException;
 
 /*
  * diff - compute shortest edit script (SES) given two sequences
@@ -104,7 +104,7 @@ class Base {
 	 * @param array $left
 	 * @param array $right
 	 * @param int $distanceMaximum Maximum distance to search for matches.
-	 * @throws Exception_NotFound
+	 * @throws NotFoundException
 	 */
 	public function __construct(array $left, array $right, int $distanceMaximum = 0) {
 		$this->buf = [];
@@ -204,7 +204,7 @@ class Base {
 	 * @param int $m
 	 * @param MiddleSnake $ms
 	 * @return int
-	 * @throws Exception_NotFound
+	 * @throws NotFoundException
 	 */
 	private function _findMiddleSnake(int $aOffset, int $n, int $bOffset, int $m, MiddleSnake $ms): int {
 		$delta = $n - $m;
@@ -276,7 +276,7 @@ class Base {
 			}
 		}
 
-		throw new Exception_NotFound('No middle snake found?');
+		throw new NotFoundException('No middle snake found?');
 	}
 
 	private function _edit(string $op, int $off, int $len): void {
@@ -309,7 +309,7 @@ class Base {
 	 * @param int $bOffset
 	 * @param int $m
 	 * @return int
-	 * @throws Exception_NotFound
+	 * @throws NotFoundException
 	 */
 	private function _ses(int $aOffset, int $n, int $bOffset, int $m): int {
 		$ms = new MiddleSnake();

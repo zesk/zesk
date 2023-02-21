@@ -9,6 +9,10 @@ declare(strict_types=1);
 
 namespace zesk;
 
+use zesk\Exception\FileNotFound;
+use zesk\Exception\FilePermission;
+use zesk\Locale\Locale;
+
 /**
  * Zesk current version information
  *
@@ -52,7 +56,12 @@ abstract class Version {
 	 */
 	private static function _file(string $name, string $default): string {
 		$root = dirname(__DIR__, 2);
-		return trim(File::contents(Directory::path($root, $name)) ?? $default);
+
+		try {
+			return trim(File::contents(Directory::path($root, $name)));
+		} catch (FileNotFound|FilePermission) {
+			return $default;
+		}
 	}
 
 	/**

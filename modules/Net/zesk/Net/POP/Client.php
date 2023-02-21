@@ -9,9 +9,9 @@ declare(strict_types=1);
 
 namespace zesk\Net\POP\Client;
 
-use zesk\Exception_Authentication;
-use zesk\Exception_Connect;
-use zesk\Exception_File_Permission;
+use zesk\Exception\FilePermission;
+use zesk\Authentication;
+use zesk\Exception\ConnectionFailed;
 use zesk\Exception_Protocol;
 use zesk\Net\SocketClient;
 
@@ -101,7 +101,7 @@ class Client extends SocketClient {
 	/**
 	 * Connect
 	 * @return $this
-	 * @throws Exception_Connect
+	 * @throws ConnectionFailed
 	 */
 	public function connect(): self {
 		if ($this->state <= self::STATE_CONNECT) {
@@ -128,7 +128,7 @@ class Client extends SocketClient {
 	 * @param string $command Command to run
 	 * @param string $expect String to expect from the other side as a response
 	 * @return string
-	 * @throws Exception_Connect
+	 * @throws ConnectionFailed
 	 * @throws Exception_Protocol
 	 */
 	protected function command(string $command, string $expect = ''): string {
@@ -142,12 +142,12 @@ class Client extends SocketClient {
 	 * APOP authentication
 	 * @param string $user
 	 * @param string $password
-	 * @throws Exception_Authentication
-	 * @throws Exception_Connect
+	 * @throws Authentication
+	 * @throws ConnectionFailed
 	 */
 	private function apop(string $user, string $password): void {
 		if (!str_contains($this->greeting, '<')) {
-			throw new Exception_Authentication('APOP authentication not supported');
+			throw new Authentication('APOP authentication not supported');
 		}
 		$greeting_parts = explode(' ', $this->greeting);
 		$server_id = array_pop($greeting_parts);
@@ -157,7 +157,7 @@ class Client extends SocketClient {
 		try {
 			$this->command("APOP $user $hash");
 		} catch (Exception_Protocol) {
-			throw new Exception_Authentication($exception);
+			throw new Authentication($exception);
 		}
 	}
 
@@ -165,14 +165,14 @@ class Client extends SocketClient {
 	 * USER/PASS authentication
 	 * @param string $user
 	 * @param string $pass
-	 * @throws Exception_Authentication
-	 * @throws Exception_Connect - write or read failed
+	 * @throws Authentication
+	 * @throws ConnectionFailed - write or read failed
 	 */
 	private function user_pass(string $user, string $pass): void {
 		try {
 			$this->command("USER $user");
 		} catch (Exception_Protocol $e) {
-			throw new Exception_Authentication('User {user} (SHA1 Password: {sha1password}) not found', [
+			throw new Authentication('User {user} (SHA1 Password: {sha1password}) not found', [
 				'user' => $user, 'sha1password' => sha1($pass),
 			]);
 		}
@@ -180,7 +180,7 @@ class Client extends SocketClient {
 		try {
 			$this->command("PASS $pass");
 		} catch (Exception_Protocol $e) {
-			throw new Exception_Authentication('User {user} invalid password (SHA1 Password: {sha1password}) not found', [
+			throw new Authentication('User {user} invalid password (SHA1 Password: {sha1password}) not found', [
 				'user' => $user, 'sha1password' => sha1($pass),
 			]);
 		}
@@ -189,8 +189,8 @@ class Client extends SocketClient {
 	/**
 	 * Authenticate with the remote server
 	 * @return void
-	 * @throws Exception_Authentication
-	 * @throws Exception_Connect
+	 * @throws Authentication
+	 * @throws ConnectionFailed
 	 */
 	public function authenticate(): void {
 		if ($this->state < self::STATE_TRANSACTION) {
@@ -211,7 +211,7 @@ class Client extends SocketClient {
 						$this->user_pass($user, $pass);
 						$this->state = self::STATE_TRANSACTION;
 						return;
-					} catch (Exception_Authentication) {
+					} catch (Authentication) {
 					}
 					$this->apop($user, $pass);
 					break;
@@ -223,8 +223,8 @@ class Client extends SocketClient {
 	/**
 	 * Count messages
 	 * @return int
-	 * @throws Exception_Authentication
-	 * @throws Exception_Connect
+	 * @throws Authentication
+	 * @throws ConnectionFailed
 	 * @throws Exception_Protocol
 	 * @throws POPException
 	 */
@@ -240,8 +240,8 @@ class Client extends SocketClient {
 	/**
 	 * List messages
 	 * @return array
-	 * @throws Exception_Authentication
-	 * @throws Exception_Connect
+	 * @throws Authentication
+	 * @throws ConnectionFailed
 	 * @throws Exception_Protocol
 	 * @throws POPException
 	 */
@@ -262,8 +262,8 @@ class Client extends SocketClient {
 	 * Retrieve a message
 	 * @param int $message_index
 	 * @return string
-	 * @throws Exception_Authentication
-	 * @throws Exception_Connect
+	 * @throws Authentication
+	 * @throws ConnectionFailed
 	 * @throws Exception_Protocol
 	 * @throws POPException
 	 */
@@ -278,9 +278,9 @@ class Client extends SocketClient {
 	 * @param int $message_index
 	 * @param string $filename
 	 * @return int
-	 * @throws Exception_Authentication
-	 * @throws Exception_Connect
-	 * @throws Exception_File_Permission
+	 * @throws Authentication
+	 * @throws ConnectionFailed
+	 * @throws FilePermission
 	 * @throws Exception_Protocol
 	 * @throws POPException
 	 */
@@ -295,8 +295,8 @@ class Client extends SocketClient {
 	 * @param int $message_index
 	 * @param int $n_lines
 	 * @return string
-	 * @throws Exception_Authentication
-	 * @throws Exception_Connect
+	 * @throws Authentication
+	 * @throws ConnectionFailed
 	 * @throws Exception_Protocol
 	 * @throws POPException
 	 */
@@ -311,8 +311,8 @@ class Client extends SocketClient {
 	 *
 	 * @param int $message_index
 	 * @return bool
-	 * @throws Exception_Authentication
-	 * @throws Exception_Connect
+	 * @throws Authentication
+	 * @throws ConnectionFailed
 	 * @throws Exception_Protocol
 	 * @throws POPException
 	 */
@@ -333,8 +333,8 @@ class Client extends SocketClient {
 	/**
 	 * Require states
 	 * @return void
-	 * @throws Exception_Authentication
-	 * @throws Exception_Connect
+	 * @throws Authentication
+	 * @throws ConnectionFailed
 	 * @throws POPException
 	 */
 	private function _needTransaction(): void {
@@ -353,7 +353,7 @@ class Client extends SocketClient {
 	private function quit(): void {
 		try {
 			$this->command('QUIT');
-		} catch (Exception_Connect|Exception_Protocol $e) {
+		} catch (ConnectionFailed|Exception_Protocol $e) {
 		}
 		parent::disconnect();
 		$this->state = self::STATE_DISCONNECT;
@@ -363,7 +363,7 @@ class Client extends SocketClient {
 	 * Read multi-line response from server
 	 *
 	 * @return string
-	 * @throws Exception_Connect
+	 * @throws ConnectionFailed
 	 * @throws Exception_Protocol
 	 */
 	private function readMultilineToString(): string {
@@ -382,14 +382,14 @@ class Client extends SocketClient {
 	 *
 	 * @param string $filename
 	 * @return int
-	 * @throws Exception_Connect
-	 * @throws Exception_File_Permission
+	 * @throws ConnectionFailed
+	 * @throws FilePermission
 	 * @throws Exception_Protocol
 	 */
 	private function readMultilineToFile(string $filename): int {
 		$f = fopen($filename, 'wb');
 		if (!$f) {
-			throw new Exception_File_Permission($filename);
+			throw new FilePermission($filename);
 		}
 		$byteCount = 0;
 		while (($line = $this->read()) !== self::TOKEN_EOF) {

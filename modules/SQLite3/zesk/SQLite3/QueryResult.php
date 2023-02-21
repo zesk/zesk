@@ -3,16 +3,16 @@ declare(strict_types=1);
 
 namespace zesk\SQLite3;
 
+use zesk\Database\Base;
 use SQLite3Result;
-use zesk\Database;
 use zesk\Database\QueryResult as BaseQueryResult;
 
 class QueryResult extends BaseQueryResult {
-	public Database $database;
+	public Base $database;
 
 	public SQLite3Result $result;
 
-	public static function factory(Database $database, SQLite3Result $results): self {
+	public static function factory(Base $database, SQLite3Result $results): self {
 		return new self($database, $results);
 	}
 
@@ -20,7 +20,7 @@ class QueryResult extends BaseQueryResult {
 	 * @param \zesk\SQLite3\Database $database
 	 * @param mixed $result
 	 */
-	public function __construct(Database $database, mixed $result) {
+	public function __construct(Base $database, mixed $result) {
 		$this->database = $database;
 		$this->result = $result;
 	}

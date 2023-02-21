@@ -3,20 +3,20 @@ declare(strict_types=1);
 /**
  *
  */
-namespace zesk\ORM;
+namespace zesk\ORM\Command;
 
-use zesk\Exception;
-use zesk\Exception_Class_NotFound;
-use zesk\Exception_Unimplemented;
-use zesk\PHP;
 use zesk\Command_Base as CommandBase;
+use zesk\Exception;
+use zesk\Exception\ClassNotFound;
+use zesk\Exception\Unimplemented;
+use zesk\PHP;
 
 /**
  * Add a module to zesk, creating basic class names and configuration files.
  *
  * @category Modules
  */
-class Command_ClassNew extends CommandBase {
+class ClassNew extends CommandBase {
 	protected array $option_types = [
 		'app' => 'boolean',
 		'zesk' => 'boolean',
@@ -48,11 +48,11 @@ class Command_ClassNew extends CommandBase {
 			}
 
 			try {
-				$object = $this->application->ormFactory($class);
+				$this->application->ormFactory($class);
 				$this->error("Class $class already exists");
 
 				continue;
-			} catch (Exception_Class_NotFound $e) {
+			} catch (ClassNotFound) {
 			}
 
 			try {
@@ -66,7 +66,7 @@ class Command_ClassNew extends CommandBase {
 		return 0;
 	}
 
-	public function questionnaire($class): void {
-		throw new Exception_Unimplemented(__METHOD__);
+	public function questionnaire(string $class): void {
+		throw new Unimplemented(__METHOD__);
 	}
 }

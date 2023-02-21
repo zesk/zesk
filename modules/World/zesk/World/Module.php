@@ -9,15 +9,15 @@ declare(strict_types=1);
 
 namespace zesk\World;
 
-use zesk\ORM\Interface_Schema_Updated;
 use zesk\Module as BaseModule;
+use zesk\ORM\Interface\SchemaUpdatedInterface;
 
 /**
  *
  * @author kent
  *
  */
-class Module extends BaseModule implements Interface_Schema_Updated {
+class Module extends BaseModule implements SchemaUpdatedInterface {
 	/**
 	 * List of currencies to include (Currency)
 	 */

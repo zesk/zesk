@@ -1,9 +1,23 @@
 <?php
 declare(strict_types=1);
 
-namespace zesk;
+namespace zesk\Route;
 
-class Route_Theme extends Route {
+use zesk\ArrayTools;
+use zesk\Exception\DirectoryCreate;
+use zesk\Exception\DirectoryPermission;
+use zesk\Exception\Semantics;
+use zesk\HTTP;
+use zesk\Request;
+use zesk\Response;
+use zesk\Route;
+
+use zesk\Exception\FileNotFound;
+use zesk\Exception\Redirect as RedirectException;
+use zesk\StringTools;
+use zesk\Types;
+
+class Theme extends Route {
 	/**
 	 * Whether the theme path is set by variables
 	 *
@@ -29,8 +43,8 @@ class Route_Theme extends Route {
 	 * @return bool
 	 */
 	private static function isThemeDynamic(array|string $theme): bool {
-		foreach (toList($theme) as $themeItem) {
-			if (mapClean($themeItem) !== $themeItem) {
+		foreach (Types::toList($theme) as $themeItem) {
+			if (StringTools::cleanTokens($themeItem) !== $themeItem) {
 				return true;
 			}
 		}
@@ -41,7 +55,7 @@ class Route_Theme extends Route {
 	 * Validate this route
 	 *
 	 * @return bool
-	 * @throws Exception_File_NotFound
+	 * @throws FileNotFound
 	 */
 	public function validate(): bool {
 		$application = $this->application;
@@ -50,36 +64,39 @@ class Route_Theme extends Route {
 			'route' => $this,
 		];
 		$parameters += $this->options + $this->named;
-		$args = map($this->optionArray('theme arguments'), $parameters) + $parameters;
+		$args = ArrayTools::map($this->optionArray('theme arguments'), $parameters) + $parameters;
 		$theme = $this->option('theme');
 		if ($themes->themeExists($theme, $args)) {
 			return true;
 		}
 
-		throw new Exception_File_NotFound('No theme {theme} found in {themePaths}', [
+		throw new FileNotFound('No theme {theme} found in {themePaths}', [
 			'theme' => $theme, 'themePaths' => $themes->themePath(),
 		]);
 	}
 
 	/**
 	 * @param Request $request
-	 * @param Response $response
 	 * @return Response
-	 * @throws Exception_Redirect
+	 * @throws RedirectException
+	 * @throws DirectoryCreate
+	 * @throws DirectoryPermission
+	 * @throws Semantics
 	 */
-	public function _execute(Request $request, Response $response): Response {
+	public function internalExecute(Request $request): Response {
 		$application = $this->application;
 		$themes = $application->themes;
 		$parameters = $application->variables() + [
 			'route' => $this,
 		];
 		$parameters += $this->options + $this->named;
-		$args = map($this->optionArray('theme arguments'), $parameters) + $parameters;
+		$args = ArrayTools::map($this->optionArray('theme arguments'), $parameters) + $parameters;
 		$mapped_theme = $theme = $this->option('theme');
 		$theme_options = $this->optionArray('theme options');
 		if ($this->dynamic_theme) {
-			$mapped_theme = map($theme, $parameters);
+			$mapped_theme = ArrayTools::map($theme, $parameters);
 			if (!$themes->themeExists($mapped_theme, $args)) {
+				$response = $this->application->responseFactory($request);
 				$response->setStatus(HTTP::STATUS_FILE_NOT_FOUND);
 				$response->setContent("Theme $mapped_theme not found");
 				return $response;
@@ -87,6 +104,8 @@ class Route_Theme extends Route {
 			$application->logger->debug('Executing theme={theme} mapped_theme={mapped_theme} args={args}', compact('theme', 'mapped_theme', 'args'));
 		}
 		$content = $themes->theme($mapped_theme, $args, $theme_options); //TODO
+
+		$response = $this->application->responseFactory($request);
 		$response->content = $content;
 
 		$json_html = $this->option('json_html', false);

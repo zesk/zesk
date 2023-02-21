@@ -3,7 +3,8 @@ declare(strict_types=1);
 
 namespace zesk;
 
-use zesk\DatabaseUnitTest;
+use zesk\Database\Base;
+use zesk\Database\DatabaseUnitTest;
 
 class MySQL_Database_Test extends DatabaseUnitTest {
 	protected array $load_modules = [
@@ -14,14 +15,14 @@ class MySQL_Database_Test extends DatabaseUnitTest {
 		$mysql = $this->application->databaseRegistry('mysql://root@localhost/mysql', [
 			'connect' => false,
 		]);
-		$this->assertInstanceOf(Database::class, $mysql);
+		$this->assertInstanceOf(Base::class, $mysql);
 	}
 
 	/**
 	 *
 	 * @return \mysql\Database
 	 */
-	public function database(): Database {
+	public function database(): Base {
 		$db = $this->application->databaseRegistry();
 
 		$this->assertTrue(in_array($db->type(), [
@@ -103,7 +104,7 @@ EOF;
 			$db->query('SHOW TABLES', [
 				'auto_connect' => false,
 			]);
-		} catch (Database_Exception_Connect $e) {
+		} catch (Database\Exception\Connect $e) {
 			$this->assertStringContainsString('Not connected', $e->getMessage());
 			$success = true;
 		}
@@ -119,8 +120,8 @@ EOF;
 
 		$db->tablesCaseSensitive();
 
-		$this->assertTrue($db->can(Database::FEATURE_LIST_TABLES));
-		$this->assertTrue($db->can(Database::FEATURE_CREATE_DATABASE));
+		$this->assertTrue($db->can(Base::FEATURE_LIST_TABLES));
+		$this->assertTrue($db->can(Base::FEATURE_CREATE_DATABASE));
 
 		$tables = $db->listTables();
 
@@ -143,7 +144,7 @@ EOF;
 			$this->assertStringContainsString($table, $sql);
 
 			$dbTableObject = $db->parseCreateTable($sql, __METHOD__);
-			$sql = $db->sql()->createTable($dbTableObject);
+			$sql = $db->sqlDialect()->createTable($dbTableObject);
 			if (!is_array($sql)) {
 				$sqls = [
 					$sql,
@@ -151,7 +152,7 @@ EOF;
 			} else {
 				$sqls = $sql;
 			}
-			$sql = first($sqls);
+			$sql = ArrayTools::first($sqls);
 			$this->assertStringStartsWith('CREATE TABLE', $sql);
 			$this->assertStringContainsString($table, $sql);
 
@@ -172,14 +173,14 @@ EOF;
 		try {
 			$table = 'testtable';
 			$db->databaseTable($table);
-		} catch (Database_Exception_Table_NotFound $e) {
+		} catch (Database\Exception\TableNotFound $e) {
 			$success = true;
 		}
 		$this->assertTrue($success, "Table $table was found?");
 
 		$table = 'testtable';
 		$type = 'InnoDB';
-		$db->sql()->alter_table_type($table, $type);
+		$db->sqlDialect()->alter_table_type($table, $type);
 
 		$success = false;
 
@@ -188,23 +189,23 @@ EOF;
 			$index = new Database_Index($table);
 			$index->type('DUCKY');
 			$this->assertEquals($index->type(), Database_Index::TYPE_INDEX);
-			$sql = $db->sql()->alter_table_index_drop($table, $index);
+			$sql = $db->sqlDialect()->alter_table_index_drop($table, $index);
 			$this->log($sql);
-		} catch (Exception_Semantics $e) {
+		} catch (Semantics $e) {
 			$success = true;
 		}
 		$this->assertTrue($success);
 
 		$table = new Database_Table($db, 'Foo');
 		$index = new Database_Index($table, 'dude');
-		$sql = $db->sql()->alter_table_index_drop($table, $index);
+		$sql = $db->sqlDialect()->alter_table_index_drop($table, $index);
 		$this->assertEquals($sql, 'ALTER TABLE `Foo` DROP INDEX `dude`');
 
 		$table = new Database_Table($db, 'Foo');
 		$index = new Database_Index($table, 'dude');
 		$index->setType(Database_Index::TYPE_PRIMARY);
 
-		$sql = $db->sql()->alter_table_index_drop($table, $index);
+		$sql = $db->sqlDialect()->alter_table_index_drop($table, $index);
 		$this->assertEquals($sql, 'ALTER TABLE `Foo` DROP PRIMARY KEY');
 
 		$table = new Database_Table($db, 'testtable');
@@ -212,9 +213,9 @@ EOF;
 		$indexes = [
 			'Foo' => 32,
 		];
-		$db->sql()->index_type($table, $name, Database_Index::TYPE_INDEX, $indexes);
-		$db->sql()->index_type($table, $name, Database_Index::TYPE_UNIQUE, $indexes);
-		$db->sql()->index_type($table, $name, Database_Index::TYPE_PRIMARY, $indexes);
+		$db->sqlDialect()->indexType($table, $name, Database_Index::TYPE_INDEX, $indexes);
+		$db->sqlDialect()->indexType($table, $name, Database_Index::TYPE_UNIQUE, $indexes);
+		$db->sqlDialect()->indexType($table, $name, Database_Index::TYPE_PRIMARY, $indexes);
 
 		$table = new Database_Table($db, 'Foo');
 		$table->columnAdd(new Database_Column($table, 'ID', [
@@ -227,7 +228,7 @@ EOF;
 		$index->addColumn('ID');
 		$index->setType(Database_Index::TYPE_PRIMARY);
 
-		$sql = $db->sql()->alter_table_index_add($table, $index);
+		$sql = $db->sqlDialect()->alter_table_index_add($table, $index);
 		$this->assertEquals($sql, 'ALTER TABLE `Foo` ADD PRIMARY KEY (`ID`)');
 
 		$table = new Database_Table($db, $table_name = 'TestLine_' . __LINE__);
@@ -235,7 +236,7 @@ EOF;
 		$dbColOld->setSQLType('varchar(32)');
 		$dbColNew = new Database_Column($table, 'Foo');
 		$dbColNew->setSQLType('varchar(33)');
-		$sql = $db->sql()->alter_table_change_column($table, $dbColOld, $dbColNew);
+		$sql = $db->sqlDialect()->alter_table_change_column($table, $dbColOld, $dbColNew);
 		$this->assertEquals($sql, "ALTER TABLE `$table_name` CHANGE COLUMN `Foo` `Foo` varchar(33) NULL");
 
 		$query = 'SELECT NOW()';
@@ -248,7 +249,7 @@ EOF;
 
 		try {
 			$db->affectedRows($result);
-		} catch (Exception_Semantics) {
+		} catch (Semantics) {
 			$success = true;
 		}
 		$this->assertTrue($success, 'affected rows should not work for a resultset');
@@ -303,19 +304,19 @@ EOF;
 		$column->setSQLType('varchar(2)');
 		$sqlType = null;
 		$after_col = false;
-		$sql = $db->sql()->alter_table_column_add($table, $column);
+		$sql = $db->sqlDialect()->alter_table_column_add($table, $column);
 		$this->assertEquals($sql, "ALTER TABLE `$table_name` ADD COLUMN `hello` varchar(2) NULL");
 
 		$table = new Database_Table($db, $table_name = 'TestTable' . __LINE__);
 		$column = new Database_Column($table, 'hello');
 		$column->setSQLType('varchar(2)');
 
-		$sql = $db->sql()->alter_table_column_drop($table, $column);
+		$sql = $db->sqlDialect()->alter_table_column_drop($table, $column);
 		$this->assertEquals($sql, "ALTER TABLE `$table_name` DROP COLUMN `hello`");
 
 		$col = 'Hippy';
 		$alias = 'Dippy';
-		$sql = $db->sql()->columnAlias($col, $alias);
+		$sql = $db->sqlDialect()->columnAlias($col, $alias);
 		$this->assertEquals($sql, '`Dippy`.`Hippy`');
 
 		$db->transactionStart();

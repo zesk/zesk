@@ -11,6 +11,105 @@ namespace zesk;
 
 class StringTools {
 	/**
+	 * Clean tokens from a string
+	 *
+	 * @test_inline $this->assertEquals(map_clean("He wanted {n} days"), "He wanted  days");
+	 * @test_inline $this->assertEquals(map_clean();
+	 *
+	 * @param mixed $string
+	 * @param string $prefixChar
+	 * @param string $suffixChar
+	 * @return mixed
+	 */
+	public static function cleanTokens(string $string, string $prefixChar = '{', string $suffixChar = '}'): string {
+		$delimiter = '#';
+		$suffix = preg_quote($suffixChar, $delimiter);
+		return preg::replace($delimiter . preg_quote($prefixChar, $delimiter) . '[^' . $suffix . ']*' . $suffix .
+			$delimiter, '', $string);
+	}
+
+	/**
+	 * Return true if string contains tokens which can be mapped using prefix/suffix
+	 *
+	 * @param string $string
+	 * @param string $prefixChar
+	 * @param string $suffixChar
+	 * @return boolean
+	 */
+	public static function hasTokens(string $string, string $prefixChar = '{', string $suffixChar = '}'): bool {
+		$tokens = self::extractTokens($string, $prefixChar, $suffixChar);
+		return count($tokens) !== 0;
+	}
+
+	/**
+	 * Retrieve tokens from a string
+	 *
+	 * @param string $string
+	 * @param string $prefixChar
+	 * @param string $suffixChar
+	 * @return array
+	 */
+	public static function extractTokens(string $string, string $prefixChar = '{', string $suffixChar = '}'): array {
+		$delimiter = '#';
+		$prefix = preg_quote($prefixChar, $delimiter);
+		$suffix = preg_quote($suffixChar, $delimiter);
+		$matches = [];
+		$pattern = $delimiter . $prefix . '[^' . $suffix . ']*' . $suffix . $delimiter;
+		if (!preg_match_all($pattern, $string, $matches)) {
+			return [];
+		}
+		return $matches[0];
+	}
+
+	/**
+	 * Glue to strings together, ensuring there is one and only one character sequence between them
+	 *
+	 * Similar to path, but more useful to construct urls, e.g
+	 *
+	 * glue("http://localhost/test/","/","/foo") === "http://localhost/test/foo";
+	 * glue("http://localhost/test","/","/foo") === "http://localhost/test/foo";
+	 * glue("http://localhost/test/","/","foo") === "http://localhost/test/foo";
+	 * glue("http://localhost/test","/","foo") === "http://localhost/test/foo";
+	 *
+	 * @param string $left
+	 * @param string $glue
+	 * @param string $right
+	 * @return string
+	 */
+	public static function glue(string $left, string $glue, string $right): string {
+		return rtrim($left, $glue) . $glue . ltrim($right, $glue);
+	}
+
+	/**
+	 * Unquote a string and optionally return the quote removed.
+	 *
+	 * Meant to work with unique pairs of quotes, so passing in "AAABAC" will break it.
+	 *
+	 * @param string $string A string to unquote
+	 * @param string $quotes A list of unique quote pairs to unquote
+	 * @param string $leftQuote Returns the left quote removed
+	 * @return string
+	 */
+	public static function unquote(string $string, string $quotes = '\'\'""', string &$leftQuote = ''): string {
+		if (strlen($string) < 2) {
+			$leftQuote = '';
+			return $string;
+		}
+		$q = substr($string, 0, 1);
+		$leftOffset = strpos($quotes, $q);
+		if ($leftOffset === false) {
+			$leftQuote = '';
+			return $string;
+		}
+		$rightQuoteCharacter = $quotes[$leftOffset + 1];
+		if (substr($string, -1) === $rightQuoteCharacter) {
+			$leftQuote = $quotes[$leftOffset];
+			return substr($string, 1, -1);
+		}
+		return $string;
+	}
+
+	/**
 	 * Breaks a string in half at a given delimiter, and returns default values if delimiter is not found.
 	 *
 	 * Usage is generally:
@@ -22,7 +121,7 @@ class StringTools {
 	 * @param string $left The default left value if delimiter is not found
 	 * @param string $right The default right value if delimiter is not found
 	 * @param string $includeDelimiter If "left" includes the delimiter in the left value, if "right" includes the
-	 * 			delimiter in the right value Any other value the delimiter is stripped from the results
+	 *            delimiter in the right value Any other value the delimiter is stripped from the results
 	 * @return array A size 2 array containing the left and right portions of the pair
 	 */
 	public static function pair(string $a, string $delim = '.', string $left = '', string $right = '', string $includeDelimiter = ''): array {
@@ -213,7 +312,7 @@ class StringTools {
 		if (is_numeric($value)) {
 			return !empty($value);
 		}
-		return toBool($value, $default);
+		return Types::toBool($value, $default);
 	}
 
 	/**
@@ -440,30 +539,29 @@ class StringTools {
 	 * Remove suffixes from string values (remove a suffix iff found at end of a string)
 	 *
 	 * @param string|array $string
-	 * @param mixed $suffix
+	 * @param mixed $suffixes
 	 *            A string or an array of strings to removeSuffix. First matched string is used to
 	 *            removeSuffix the string.
 	 * @param bool $case_insensitive
 	 * @return string|array
 	 */
-	public static function removeSuffix(string|array $string, array|string $suffix, bool $case_insensitive = false):
-	string|array {
+	public static function removeSuffix(string|array $string, array|string $suffixes, bool $case_insensitive = false): string|array {
 		if (is_array($string)) {
 			$result = [];
 			foreach ($string as $k => $v) {
-				$result[$k] = self::removeSuffix($v, $suffix, $case_insensitive);
+				$result[$k] = self::removeSuffix($v, $suffixes, $case_insensitive);
 			}
 			return $result;
-		} elseif (is_array($suffix)) {
-			foreach ($suffix as $suff) {
-				$new_string = self::removeSuffix($string, $suff, $case_insensitive);
+		} elseif (is_array($suffixes)) {
+			foreach ($suffixes as $suffix) {
+				$new_string = self::removeSuffix($string, $suffix, $case_insensitive);
 				if ($new_string !== $string) {
 					return $new_string;
 				}
 			}
 			return $string;
 		} else {
-			return self::ends($string, $suffix, $case_insensitive) ? substr($string, 0, -strlen($suffix)) : $string;
+			return self::ends($string, $suffixes, $case_insensitive) ? substr($string, 0, -strlen($suffixes)) : $string;
 		}
 	}
 
@@ -570,7 +668,7 @@ class StringTools {
 	 */
 	public static function filter(string $string, array $rules, bool $default = null): ?bool {
 		foreach ($rules as $pattern => $result) {
-			$result = toBool($result);
+			$result = Types::toBool($result);
 			if (is_string($pattern)) {
 				if (preg_match($pattern, $string)) {
 					return $result;

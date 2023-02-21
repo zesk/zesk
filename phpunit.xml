@@ -7,25 +7,13 @@
     <testsuites>
         <!--Test suite for Zesk web application framework -->
         <testsuite name="core">
-            <directory>test/core</directory>
-        </testsuite>
-        <testsuite name="orm">
-            <directory>modules/ORM/test</directory>
+            <directory>test/zesk</directory>
         </testsuite>
         <testsuite name="csv">
             <directory>modules/CSV/test</directory>
         </testsuite>
         <testsuite name="diff">
             <directory>modules/Diff/test</directory>
-        </testsuite>
-        <testsuite name="database">
-            <directory>modules/Database/test</directory>
-        </testsuite>
-        <testsuite name="preference">
-            <directory>modules/Preference/test</directory>
-        </testsuite>
-        <testsuite name="world">
-            <directory>modules/World/test</directory>
         </testsuite>
     </testsuites>
     <php>

@@ -3,7 +3,13 @@ declare(strict_types=1);
 
 namespace zesk;
 
-class TestApplicationUnitTest extends UnitTest {
+use zesk\Exception\ClassNotFound;
+use zesk\Exception\DirectoryCreate;
+use zesk\Exception\DirectoryNotFound;
+use zesk\Exception\DirectoryPermission;
+use zesk\PHPUnit\TestCase;
+
+class TestApplicationUnitTest extends TestCase {
 	/**
 	 * @var array
 	 */
@@ -22,12 +28,12 @@ class TestApplicationUnitTest extends UnitTest {
 
 	/**
 	 * @return TestApplication
-	 * @throws Exception_Semantics
+	 * @throws Semantics
 	 */
 	public static function testApplication(): TestApplication {
 		$app = Kernel::singleton()->applicationByClass(TestApplication::class);
 		if (!$app) {
-			throw new Exception_Semantics('No TestApplication');
+			throw new Semantics('No TestApplication');
 		}
 		assert($app instanceof TestApplication);
 		return $app;
@@ -45,10 +51,10 @@ class TestApplicationUnitTest extends UnitTest {
 	/**
 	 * @param array $options
 	 * @return TestApplication
-	 * @throws Exception_Class_NotFound
-	 * @throws Exception_Directory_Create
-	 * @throws Exception_Directory_Permission
-	 * @throws Exception_Directory_NotFound
+	 * @throws ClassNotFound
+	 * @throws DirectoryCreate
+	 * @throws DirectoryPermission
+	 * @throws DirectoryNotFound
 	 */
 	private function newApplicationFactory(array $options = []): TestApplication {
 		$cacheDir = $this->application->cachePath('testApp/fileCache');
@@ -90,10 +96,10 @@ class TestApplicationUnitTest extends UnitTest {
 	 * @param int $expectedStatus
 	 * @param string $expectedOutputOrPattern
 	 * @return void
-	 * @throws Exception_Configuration
-	 * @throws Exception_NotFound
-	 * @throws Exception_Parameter
-	 * @throws Exception_Unsupported|Exception_Class_NotFound
+	 * @throws ConfigurationException
+	 * @throws NotFoundException
+	 * @throws ParameterException
+	 * @throws Unsupported|ClassNotFound
 	 */
 	public function assertCommandClass(string $class, array $testArguments, int $expectedStatus, string $expectedOutputOrPattern): void {
 		$options = ['exit' => false, 'no-ansi' => true];
@@ -109,7 +115,7 @@ class TestApplicationUnitTest extends UnitTest {
 		$this->assertTrue($command->optionBool('no-ansi'), $class);
 		if ($hasTest) {
 			$foundQuote = '';
-			unquote($expectedOutputOrPattern, '##//', $foundQuote);
+			StringTools::unquote($expectedOutputOrPattern, '##//', $foundQuote);
 			if ($foundQuote) {
 				$this->expectOutputRegex($expectedOutputOrPattern);
 			} else {

@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace zesk;
 
+use zesk\Application\Hooks;
+
 class Profiler {
 	/**
 	 * @var array

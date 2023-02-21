@@ -50,18 +50,13 @@ class UnsignedLong {
 	}
 
 	public function byte(int $n): int {
-		switch ($n) {
-			case 0:
-				return $this->short0 & 0xFF;
-			case 1:
-				return ($this->short0 >> 8) & 0xFF;
-			case 2:
-				return $this->short1 & 0xFF;
-			case 3:
-				return ($this->short1 >> 8) & 0xFF;
-			default:
-				return 0;
-		}
+		return match ($n) {
+			0 => $this->short0 & 0xFF,
+			1 => ($this->short0 >> 8) & 0xFF,
+			2 => $this->short1 & 0xFF,
+			3 => ($this->short1 >> 8) & 0xFF,
+			default => 0,
+		};
 	}
 
 	public function add(int|UnsignedLong $x): self {
@@ -112,7 +107,7 @@ class UnsignedLong {
 		return $this;
 	}
 
-	public function lshift(int $n): self {
+	public function leftShift(int $n): self {
 		$s1 = $this->short1 << $n;
 		$s0 = $this->short0 << $n;
 		$this->short1 = ($s1 & self::MAXIMUM_SHORT) | (($s0 >> 16) & self::MAXIMUM_SHORT);
@@ -121,7 +116,7 @@ class UnsignedLong {
 		return $this;
 	}
 
-	public function rshift(int $n): self {
+	public function rightShift(int $n): self {
 		$s1 = $this->short1;
 		$this->short0 = ($s1 << 16 - $n) & self::MAXIMUM_SHORT | ($this->short0 >> $n);
 		$this->short1 = ($s1 >> $n) & self::MAXIMUM_SHORT;

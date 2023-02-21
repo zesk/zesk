@@ -7,13 +7,24 @@ declare(strict_types=1);
 namespace zesk;
 
 use DateTimeInterface;
+
 use Psr\Cache\CacheItemInterface;
 use Psr\Cache\CacheItemPoolInterface;
 use Psr\Cache\InvalidArgumentException;
+
+use zesk\CacheItem\CacheItemNULL;
+
+use zesk\Exception\ClassNotFound;
+use zesk\Exception\FileNotFound;
+use zesk\Exception\KeyNotFound;
+use zesk\Exception\Semantics;
+use zesk\Exception\Redirect as RedirectException;
+use zesk\Exception\SyntaxException;
+
 use zesk\Response\HTML as HTMLResponse;
-use zesk\Response\JSON;
+use zesk\Response\JSON as JSONResponse;
 use zesk\Response\Raw;
-use zesk\Response\Redirect;
+use zesk\Response\Redirect as RedirectResponse;
 use zesk\Response\Text;
 use zesk\Response\Type;
 
@@ -22,9 +33,9 @@ use zesk\Response\Type;
  *
  * @see Request
  * @see HTMLResponse
- * @see JSON
+ * @see JSONResponse
  * @see Text
- * @see Redirect
+ * @see RedirectResponse
  * @see Raw
  * @package zesk
  * @subpackage system
@@ -87,9 +98,9 @@ class Response extends Hookable {
 	 * @var array
 	 */
 	private static array $type_classes = [
-		self::CONTENT_TYPE_HTML => HTMLResponse::class, self::CONTENT_TYPE_JSON => JSON::class,
+		self::CONTENT_TYPE_HTML => HTMLResponse::class, self::CONTENT_TYPE_JSON => JSONResponse::class,
 		self::CONTENT_TYPE_PLAINTEXT => Text::class, self::CONTENT_TYPE_RAW => Raw::class,
-		self::HANDLER_REDIRECT => Redirect::class,
+		self::HANDLER_REDIRECT => RedirectResponse::class,
 	];
 
 	/**
@@ -195,7 +206,7 @@ class Response extends Hookable {
 	 *
 	 * @var string
 	 */
-	public string $content_type = self::CONTENT_TYPE_HTML;
+	protected string $contentType = self::CONTENT_TYPE_HTML;
 
 	/**
 	 * Optional Content-Type to determine output handler. If null, uses $this->content_type
@@ -253,7 +264,7 @@ class Response extends Hookable {
 	 */
 	public function __sleep(): array {
 		return array_merge(parent::__sleep(), [
-			'content', 'status_code', 'status_message', 'content_type', 'output_handler', 'charset', 'types', 'headers',
+			'content', 'status_code', 'status_message', 'contentType', 'output_handler', 'charset', 'types', 'headers',
 			'response_data',
 		]);
 	}
@@ -276,6 +287,11 @@ class Response extends Hookable {
 
 	/**
 	 *
+	 */
+	public const OPTION_CONTENT_TYPE = 'contentType';
+
+	/**
+	 *
 	 * @param Application $application
 	 * @param Request $request
 	 * @param array $options
@@ -285,8 +301,8 @@ class Response extends Hookable {
 		parent::__construct($application, $options);
 		$this->id = self::$response_index++;
 		$this->inheritConfiguration();
-		if (!$this->content_type) {
-			$this->setContentType($this->option('content_type', self::CONTENT_TYPE_HTML));
+		if (!$this->contentType) {
+			$this->setContentType($this->option(self::OPTION_CONTENT_TYPE, self::CONTENT_TYPE_HTML));
 		}
 	}
 
@@ -350,7 +366,7 @@ class Response extends Hookable {
 	 * @param array|string|null $value
 	 * @param array $options
 	 * @return self
-	 * @throws Exception_Semantics
+	 * @throws Semantics
 	 */
 	public function setCookie(string $name, array|string $value = null, array $options = []): self {
 		$expire = $options['expire'] ?? $this->option('cookie_expire');
@@ -376,7 +392,7 @@ class Response extends Hookable {
 		$path = $options['path'] ?? $this->option('cookie_path', '/');
 		$expire_time = $n_seconds ? time() + $n_seconds : 0;
 		if (!$this->request->isBrowser()) {
-			throw new Exception_Semantics('Not a browser');
+			throw new Semantics('Not a browser');
 		}
 		setcookie($name, '', 1, $path, ".$domain", $secure);
 		if (!empty($value)) {
@@ -400,7 +416,7 @@ class Response extends Hookable {
 
 	/**
 	 *
-	 * @throws Exception_Semantics
+	 * @throws Semantics
 	 */
 	private function responseHeaders(bool $skip_hooks = false): void {
 		static $called = false;
@@ -413,33 +429,33 @@ class Response extends Hookable {
 			return;
 		}
 		if ($called) {
-			throw new Exception_Semantics('Response headers called twice! {previous}', [
+			throw new Semantics('Response headers called twice! {previous}', [
 				'previous' => $called,
 			]);
 		} else {
-			$called = calling_function(2);
+			$called = Kernel::callingFunction(2);
 		}
 		$file = $line = null;
 		if (headers_sent($file, $line)) {
-			throw new Exception_Semantics('Headers already sent on {file}:{line}', [
+			throw new Semantics('Headers already sent on {file}:{line}', [
 				'file' => $file, 'line' => $line,
 			]);
 		}
 		if ($do_hooks) {
 			$this->callHook('headers');
 		}
-		if (str_starts_with($this->content_type, 'text/')) {
+		if (str_starts_with($this->contentType, 'text/')) {
 			if (empty($this->charset)) {
 				$this->charset = 'utf-8';
 			}
-			$content_type = $this->content_type . '; charset=' . $this->charset;
+			$content_type = $this->contentType . '; charset=' . $this->charset;
 		} else {
-			$content_type = $this->content_type;
+			$content_type = $this->contentType;
 		}
 		if ($this->application->development() && $this->application->configuration->getPath([
 			__CLASS__, 'json_to_html',
 		])) {
-			if ($this->content_type == self::CONTENT_TYPE_JSON) {
+			if ($this->contentType == self::CONTENT_TYPE_JSON) {
 				$content_type = 'text/html; charset=' . $this->charset;
 			}
 		}
@@ -467,7 +483,7 @@ class Response extends Hookable {
 	 * @return bool
 	 */
 	final public function isHTML(): bool {
-		return $this->content_type === self::CONTENT_TYPE_HTML;
+		return $this->contentType === self::CONTENT_TYPE_HTML;
 	}
 
 	/**
@@ -476,7 +492,7 @@ class Response extends Hookable {
 	 * @return self
 	 */
 	final public function makeHTML(): self {
-		$this->content_type = self::CONTENT_TYPE_HTML;
+		$this->contentType = self::CONTENT_TYPE_HTML;
 		return $this;
 	}
 
@@ -486,7 +502,7 @@ class Response extends Hookable {
 	 * @return self
 	 */
 	final public function makeJSON(): self {
-		$this->content_type = self::CONTENT_TYPE_JSON;
+		$this->contentType = self::CONTENT_TYPE_JSON;
 		return $this;
 	}
 
@@ -496,7 +512,7 @@ class Response extends Hookable {
 	 * @return bool
 	 */
 	final public function isJSON(): bool {
-		return $this->content_type === self::CONTENT_TYPE_JSON;
+		return $this->contentType === self::CONTENT_TYPE_JSON;
 	}
 
 	/**
@@ -520,9 +536,9 @@ class Response extends Hookable {
 	 */
 	final public function setContentType(string $set): self {
 		$this->application->logger->debug('Set content type to {set} at {where}', [
-			'set' => $set, 'where' => calling_function(),
+			'set' => $set, 'where' => Kernel::callingFunction(),
 		]);
-		$this->content_type = $set;
+		$this->contentType = $set;
 		return $this;
 	}
 
@@ -532,7 +548,7 @@ class Response extends Hookable {
 	 * @return string
 	 */
 	final public function contentType(): string {
-		return $this->content_type;
+		return $this->contentType;
 	}
 
 	/**
@@ -556,7 +572,7 @@ class Response extends Hookable {
 	 */
 	final public function setOutputHandler(string $set): self {
 		$this->application->logger->debug('{method} set to {set} from {calling}', [
-			'method' => __METHOD__, 'set' => $set, 'calling' => calling_function(2),
+			'method' => __METHOD__, 'set' => $set, 'calling' => Kernel::callingFunction(2),
 		]);
 		$this->output_handler = $set;
 		return $this;
@@ -581,7 +597,7 @@ class Response extends Hookable {
 	 *
 	 * @param string $name Name of header to get
 	 * @return string|array
-	 * @throws Exception_Key
+	 * @throws KeyNotFound
 	 */
 	final public function header(string $name): string|array {
 		$lowName = strtolower($name);
@@ -593,7 +609,7 @@ class Response extends Hookable {
 			return $this->headers[$name];
 		}
 
-		throw new Exception_Key('No header {name} found', ['name' => $name]);
+		throw new KeyNotFound('No header {name} found', ['name' => $name]);
 	}
 
 	/**
@@ -629,7 +645,7 @@ class Response extends Hookable {
 	final public function setHeader(string $name, array|string $value): self {
 		$lowName = strtolower($name);
 		if ($lowName === 'content-type') {
-			return $this->setContentType(toText($value));
+			return $this->setContentType(Types::toText($value));
 		}
 		$name = HTTP::$response_headers[$lowName] ?? $name;
 		$this->headers[$name] = $value;
@@ -640,14 +656,14 @@ class Response extends Hookable {
 	 * Current output handler
 	 *
 	 * @return Type
-	 * @throws Exception_Semantics
+	 * @throws Semantics
 	 */
 	private function _output_handler(): Type {
 		$type = $this->output_handler;
 		if (!$type) {
-			$type = $this->content_type;
+			$type = $this->contentType;
 			if (!$type) {
-				throw new Exception_Semantics('No content type set in {method}', [
+				throw new Semantics('No content type set in {method}', [
 					'method' => __METHOD__,
 				]);
 			}
@@ -660,7 +676,7 @@ class Response extends Hookable {
 	 *
 	 * @param array $options
 	 * @return string
-	 * @throws Exception_Semantics
+	 * @throws Semantics
 	 */
 	final public function render(array $options = []): string {
 		ob_start();
@@ -673,14 +689,14 @@ class Response extends Hookable {
 	 *
 	 * @param array $options
 	 * @return void
-	 * @throws Exception_Semantics
+	 * @throws Semantics
 	 */
 	public function output(array $options = []): void {
 		if ($this->rendering) {
 			return;
 		}
 		$this->rendering = true;
-		$skip_hooks = toBool($options[self::OPTION_SKIP_HOOKS] ?? false);
+		$skip_hooks = Types::toBool($options[self::OPTION_SKIP_HOOKS] ?? false);
 		if (!$skip_hooks) {
 			$this->application->callHook('response_output_before', $this);
 			$this->callHook('output_before');
@@ -700,7 +716,7 @@ class Response extends Hookable {
 	 * May call zesk\Response\Type::toJSON
 	 *
 	 * @return array
-	 * @throws Exception_Semantics
+	 * @throws Semantics
 	 */
 	public function toJSON(): array {
 		return $this->_output_handler()->toJSON() + $this->response_data;
@@ -754,10 +770,10 @@ class Response extends Hookable {
 	 */
 	private static function cacheURLParts(string $url): array {
 		try {
-			$parts = toArray(URL::parse($url)) + [
+			$parts = Types::toArray(URL::parse($url)) + [
 				'scheme' => 'none',
 			];
-		} catch (Exception_Syntax $e) {
+		} catch (SyntaxException $e) {
 			/* URL should be valid therefore this never occurs */
 			PHP::log($e);
 			$parts = [];
@@ -776,8 +792,8 @@ class Response extends Hookable {
 	 * @return bool
 	 */
 	public function isContentType(string|array $mixed): bool {
-		foreach (toList($mixed) as $type) {
-			if (str_contains($this->content_type, $type)) {
+		foreach (Types::toList($mixed) as $type) {
+			if (str_contains($this->contentType, $type)) {
 				return true;
 			}
 		}
@@ -799,7 +815,7 @@ class Response extends Hookable {
 		} catch (InvalidArgumentException $e) {
 			/* Key should be valid therefore this never occurs */
 			PHP::log($e->getMessage());
-			return new CacheItem_NULL($key);
+			return new CacheItemNULL($key);
 		}
 	}
 
@@ -809,30 +825,30 @@ class Response extends Hookable {
 	 * @param CacheItemPoolInterface $pool
 	 * @param string $url
 	 * @return boolean
-	 * @throws Exception_Semantics
+	 * @throws Semantics
 	 */
 	public function cacheSave(CacheItemPoolInterface $pool, string $url): bool {
 		if (count($this->cache_settings) === 0) {
 			return false;
 		}
 		/* Typed */
-		$level = toInteger($this->cache_settings['level'] ?? self::CACHE_SCHEME, self::CACHE_SCHEME);
+		$level = Types::toInteger($this->cache_settings['level'] ?? self::CACHE_SCHEME, self::CACHE_SCHEME);
 
 		$pattern = self::$cache_pattern[$level] ?? self::$cache_pattern[self::CACHE_SCHEME];
 
-		$parts = toArray($this->cache_settings['parts'] ?? []) + self::cacheURLParts($url);
-		$item = self::fetchCacheID($pool, map($pattern, $parts));
+		$parts = Types::toArray($this->cache_settings['parts'] ?? []) + self::cacheURLParts($url);
+		$item = self::fetchCacheID($pool, ArrayTools::map($pattern, $parts));
 		$response = $this->application->responseFactory($this->request);
 		$response->setOutputHandler(Response::CONTENT_TYPE_RAW);
 		$response->setContentType($this->contentType());
 
-		$headers = toArray($this->cache_settings['headers'] ?? []);
+		$headers = Types::toArray($this->cache_settings['headers'] ?? []);
 		$response->setHeaders($headers + $this->headers());
 		$response->content = $this->render([
 			Response::OPTION_SKIP_HEADERS => true,
 		]);
 
-		$seconds = toInteger($this->cache_settings['seconds'] ?? -1, -1);
+		$seconds = Types::toInteger($this->cache_settings['seconds'] ?? -1, -1);
 		if ($seconds > 0) {
 			$item->expiresAfter($seconds);
 		}
@@ -845,7 +861,7 @@ class Response extends Hookable {
 				$item->expiresAt($expires->datetime());
 			} else {
 				$this->application->logger->error('{method} expires is unhandled type: {type}', [
-					'method' => __METHOD__, 'type' => type($expires),
+					'method' => __METHOD__, 'type' => Types::type($expires),
 				]);
 			}
 		}
@@ -865,7 +881,7 @@ class Response extends Hookable {
 	public static function cached(CacheItemPoolInterface $pool, string $url): ?Response {
 		$parts = self::cacheURLParts($url);
 		foreach (self::$cache_pattern as $id) {
-			$id = map($id, $parts);
+			$id = ArrayTools::map($id, $parts);
 			$item = self::fetchCacheID($pool, $id);
 			if ($item->isHit()) {
 				return $item->get();
@@ -901,7 +917,7 @@ class Response extends Hookable {
 			$type = $this->types[$type] = $this->application->factory(self::$type_classes[$type], $this);
 			assert($type instanceof Type);
 			return $type;
-		} catch (Exception_Class_NotFound) {
+		} catch (ClassNotFound) {
 			return $this->types[self::CONTENT_TYPE_RAW] = new Raw($this);
 		}
 	}
@@ -916,7 +932,9 @@ class Response extends Hookable {
 	 * @return HTMLResponse
 	 */
 	final public function html(): HTMLResponse {
-		return $this->_type(self::CONTENT_TYPE_HTML);
+		$result = $this->_type(self::CONTENT_TYPE_HTML);
+		assert($result instanceof HTMLResponse);
+		return $result;
 	}
 
 	/**
@@ -999,7 +1017,7 @@ class Response extends Hookable {
 
 	/**
 	 * @return string
-	 * @throws Exception_Key
+	 * @throws KeyNotFound
 	 */
 	final public function metaKeywords(): string {
 		return $this->html()->metaKeywords();
@@ -1009,7 +1027,7 @@ class Response extends Hookable {
 	 * Get meta description text
 	 *
 	 * @return string
-	 * @throws Exception_Key
+	 * @throws KeyNotFound
 	 */
 	final public function metaDescription(): string {
 		return $this->html()->metaDescription();
@@ -1035,7 +1053,7 @@ class Response extends Hookable {
 	 *            (may be ie,
 	 *            ie6, ie7), and cdn (boolean to prefix with cdn path)
 	 * @return self
-	 * @throws Exception_Semantics
+	 * @throws Semantics
 	 */
 	final public function css(string $path, array $options = []): self {
 		return $this->html()->css($path, $options);
@@ -1071,7 +1089,7 @@ class Response extends Hookable {
 	 *            browsers),
 	 *            cdn (defaults to false)
 	 * @return Response
-	 * @throws Exception_Semantics
+	 * @throws Semantics
 	 */
 	final public function javascript(string|array $path, array $options = []): Response {
 		return $this->html()->javascript($path, $options);
@@ -1083,7 +1101,7 @@ class Response extends Hookable {
 	 * @param string $script
 	 * @param array $options
 	 * @return Response
-	 * @throws Exception_Semantics
+	 * @throws Semantics
 	 */
 	final public function inlineJavaScript(string $script, array $options = []): self {
 		return $this->html()->inlineJavaScript($script, $options);
@@ -1107,10 +1125,12 @@ class Response extends Hookable {
 	/**
 	 * Fetch JSON handler
 	 *
-	 * @return JSON
+	 * @return JSONResponse
 	 */
-	final public function json(): JSON {
-		return $this->_type(self::CONTENT_TYPE_JSON);
+	final public function json(): JSONResponse {
+		$result = $this->_type(self::CONTENT_TYPE_JSON);
+		assert($result instanceof JSONResponse);
+		return $result;
 	}
 
 	/**
@@ -1152,7 +1172,9 @@ class Response extends Hookable {
 	 * @return Raw
 	 */
 	final public function raw(): Raw {
-		return $this->_type(self::CONTENT_TYPE_RAW);
+		$result = $this->_type(self::CONTENT_TYPE_RAW);
+		assert($result instanceof Raw);
+		return $result;
 	}
 
 	/**
@@ -1160,8 +1182,8 @@ class Response extends Hookable {
 	 *
 	 * @param string|null $file
 	 * @return string|$this
-	 * @throws Exception_File_NotFound
-	 * @throws Exception_Semantics
+	 * @throws FileNotFound
+	 * @throws Semantics
 	 */
 	final public function file(string $file = null): string|self {
 		return $file ? $this->setRawFile($file) : $this->raw()->file();
@@ -1172,7 +1194,7 @@ class Response extends Hookable {
 	 *
 	 * @param string $file
 	 * @return $this
-	 * @throws Exception_File_NotFound
+	 * @throws FileNotFound
 	 */
 	final public function setRawFile(string $file): self {
 		return $this->raw()->setFile($file);
@@ -1188,7 +1210,7 @@ class Response extends Hookable {
 	 * @param string|null $type
 	 *            Content disposition type (attachment)
 	 * @return Response
-	 * @throws Exception_File_NotFound
+	 * @throws FileNotFound
 	 */
 	final public function download(string $file, string $name = null, string $type = null): Response {
 		return $this->raw()->download($file, $name, $type);
@@ -1201,10 +1223,12 @@ class Response extends Hookable {
 	/**
 	 * Fetch Redirect handler
 	 *
-	 * @return Redirect
+	 * @return RedirectResponse
 	 */
-	final public function redirect(): Redirect {
-		return $this->setOutputHandler(self::HANDLER_REDIRECT)->_type(self::HANDLER_REDIRECT);
+	final public function redirect(): RedirectResponse {
+		$result = $this->setOutputHandler(self::HANDLER_REDIRECT)->_type(self::HANDLER_REDIRECT);
+		assert($result instanceof RedirectResponse);
+		return $result;
 	}
 
 	/**
@@ -1214,7 +1238,7 @@ class Response extends Hookable {
 	 * @param string $url
 	 * @param string|null $message Already-localized message to display to user on redirected page
 	 * @return void
-	 * @throws Exception_Redirect
+	 * @throws RedirectException
 	 */
 	public function redirectDefault(string $url, string $message = null): void {
 		$ref = $this->request->get('ref', '');

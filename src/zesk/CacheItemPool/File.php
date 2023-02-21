@@ -10,6 +10,10 @@ use InvalidArgumentException;
 use Psr\Cache\CacheItemInterface;
 use Psr\Cache\CacheItemPoolInterface;
 use Throwable;
+use zesk\Exception\DirectoryCreate;
+use zesk\Exception\DirectoryNotFound;
+use zesk\Exception\DirectoryPermission;
+use zesk\Exception\FilePermission;
 
 /**
  *
@@ -32,11 +36,11 @@ class CacheItemPool_File implements CacheItemPoolInterface {
 	/**
 	 *
 	 * @param string $path
-	 * @throws Exception_Directory_NotFound
+	 * @throws DirectoryNotFound
 	 */
 	public function __construct(string $path) {
 		if (!is_dir($path)) {
-			throw new Exception_Directory_NotFound($path);
+			throw new DirectoryNotFound($path);
 		}
 		$this->setPath($path);
 	}
@@ -46,11 +50,11 @@ class CacheItemPool_File implements CacheItemPoolInterface {
 	 *
 	 * @param string $path
 	 * @return self
-	 * @throws Exception_Directory_NotFound
+	 * @throws DirectoryNotFound
 	 */
 	public function setPath(string $path): self {
 		if (!is_dir($path)) {
-			throw new Exception_Directory_NotFound($path);
+			throw new DirectoryNotFound($path);
 		}
 		$this->path = realpath($path);
 		return $this;
@@ -152,7 +156,7 @@ class CacheItemPool_File implements CacheItemPoolInterface {
 	public function clear(): bool {
 		try {
 			Directory::deleteContents($this->path);
-		} catch (Exception_File_Permission|Exception_Directory_Permission|Exception_Directory_NotFound) {
+		} catch (FilePermission|DirectoryPermission|DirectoryNotFound) {
 			return false;
 		}
 		return true;
@@ -175,7 +179,7 @@ class CacheItemPool_File implements CacheItemPoolInterface {
 		try {
 			File::unlink($this->cacheFile($key));
 			return true;
-		} catch (Exception_File_Permission) {
+		} catch (FilePermission) {
 			return false;
 		}
 	}
@@ -220,7 +224,7 @@ class CacheItemPool_File implements CacheItemPoolInterface {
 			Directory::depend(dirname($file), 0o770);
 			File::put($file, serialize($item));
 			return true;
-		} catch (Exception_Directory_Create|Exception_Directory_Permission|Exception_File_Permission) {
+		} catch (DirectoryCreate|DirectoryPermission|FilePermission) {
 			return false;
 		}
 	}

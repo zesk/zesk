@@ -7,9 +7,9 @@ declare(strict_types=1);
 namespace zesk\Locale;
 
 use zesk\Application;
-use zesk\Exception_Configuration;
-use zesk\Exception_Key;
-use zesk\Exception_Semantics;
+use zesk\Exception\ConfigurationException;
+use zesk\Exception\KeyNotFound;
+use zesk\Exception\Semantics;
 use zesk\Hookable;
 use zesk\JSON;
 use zesk\StringTools;
@@ -56,14 +56,14 @@ class Validate extends Hookable {
 	/**
 	 * @param array $methodNames
 	 * @return array
-	 * @throws Exception_Key
+	 * @throws KeyNotFound
 	 */
 	private function checkMethodsToClosures(array $methodNames): array {
 		$methods = $this->defaultMethodsToClosures();
 		$results = [];
 		foreach ($methodNames as $methodName) {
 			if (!is_string($methodName) || !array_key_exists($methodName, $methods)) {
-				throw new Exception_Key($methodName);
+				throw new KeyNotFound($methodName);
 			}
 			$results[$methodName] = $methods[$methodName];
 		}
@@ -88,7 +88,7 @@ class Validate extends Hookable {
 	 * @param string $source
 	 * @param string $translation
 	 * @return array
-	 * @throws Exception_Configuration
+	 * @throws ConfigurationException
 	 */
 	public function checkTranslation(string $source, string $translation): array {
 		[$group] = pair($source, ':=', '', $source);
@@ -104,8 +104,8 @@ class Validate extends Hookable {
 				if (str_starts_with($group, $check_method)) {
 					try {
 						$methods = $this->checkMethodsToClosures($methods_list);
-					} catch (Exception_Key) {
-						throw new Exception_Configuration(self::class . '::groupCheckMethods', 'Need strings {keys}', [
+					} catch (KeyNotFound) {
+						throw new ConfigurationException(self::class . '::groupCheckMethods', 'Need strings {keys}', [
 							'keys' => array_keys($methods),
 						]);
 					}
@@ -161,11 +161,11 @@ class Validate extends Hookable {
 		$locale = $this->application->locale;
 		if ($n > 0) {
 			$errors[] = $locale->__('Missing {n_tokens} in translation', [
-				'n_tokens' => $locale->plural_word('token', $n),
+				'n_tokens' => $locale->pluralWord('token', $n),
 			]);
 		} elseif ($n < 0) {
 			$errors[] = $locale->__('You have an additional {n_tokens} in your translation', [
-				'n_tokens' => $locale->plural_word('token', -$n),
+				'n_tokens' => $locale->pluralWord('token', -$n),
 			]);
 		}
 		return $errors;
@@ -207,7 +207,7 @@ class Validate extends Hookable {
 	 * @param string $source
 	 * @param string $translation
 	 * @return string[] An array of errors found when the two strings are compared
-	 * @throws Exception_Semantics
+	 * @throws Semantics
 	 */
 	public function checkTranslationBraces(string $source, string $translation): array {
 		$source = StringTools::right($source, ':=', $source);
@@ -238,7 +238,7 @@ class Validate extends Hookable {
 		if (count($translation_matches) > count($source_matches)) {
 			$errors[] = $locale->__('The translation has an extra {num_braces} than the source phrase.', [
 				'n' => $n = count($translation_matches) - count($source_matches),
-				'num_braces' => $locale->plural_word('brace', $n),
+				'num_braces' => $locale->pluralWord('brace', $n),
 			]);
 		}
 		return $errors;

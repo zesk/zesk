@@ -7,34 +7,36 @@ declare(strict_types=1);
  * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  */
 
-namespace zesk;
+namespace zesk\Locale;
 
-class Locale_EN extends Locale {
+use zesk\StringTools;
+
+class EN extends Locale {
 	/**
 	 * @desc {@inheritDoc}
-	 * @see Locale::date_format()
+	 * @see Locale::formatDate()
 	 * @copyright &copy; 2023 Market Acumen, Inc.
 	 * @package zesk
 	 */
-	public function date_format(): string {
+	public function formatDate(): string {
 		return '{MMMM} {DDD}, {YYYY}';
 	}
 
 	/**
 	 *
 	 * {@inheritDoc}
-	 * @see Locale::datetime_format()
+	 * @see Locale::formatDateTime()
 	 */
-	public function datetime_format(): string {
+	public function formatDateTime(): string {
 		return '{MMMM} {DDD}, {YYYY} {12hh}:{mm} {AMPM}';
 	}
 
 	/**
 	 *
 	 * {@inheritDoc}
-	 * @see Locale::time_format()
+	 * @see Locale::formatTime()
 	 */
-	public function time_format(bool $include_seconds = false): string {
+	public function formatTime(bool $include_seconds = false): string {
 		return $include_seconds ? '{12h}:{mm}:{ss} {ampm}' : '{12h}:{mm} {AMPM}';
 	}
 
@@ -80,9 +82,9 @@ class Locale_EN extends Locale {
 	 * Given a noun, compute the plural given cues from the language
 	 *
 	 * {@inheritDoc}
-	 * @see Locale::noun_semantic_plural()
+	 * @see Locale::nounSemanticPlural()
 	 */
-	public function noun_semantic_plural(string $noun, float $number = 2): string {
+	public function nounSemanticPlural(string $noun, float $number = 2): string {
 		if ($number > 0 && $number <= 1) {
 			/* Singular */
 			return $noun;
@@ -152,9 +154,9 @@ class Locale_EN extends Locale {
 	 * @todo Probably should remove this 2018-01
 	 *
 	 * {@inheritDoc}
-	 * @see Locale::negate_word()
+	 * @see Locale::negateWord()
 	 */
-	public function negate_word(string $word, string $preferred_prefix = ''): string {
+	public function negateWord(string $word, string $preferred_prefix = ''): string {
 		if ($preferred_prefix === '') {
 			$preferred_prefix = 'Non-';
 		}

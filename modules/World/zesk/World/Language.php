@@ -11,14 +11,11 @@ declare(strict_types=1);
 namespace zesk\World;
 
 use Throwable;
-use zesk\Database_Exception_Duplicate;
-use zesk\Database_Exception_NoResults;
-use zesk\Database_Exception_Table_NotFound;
-use zesk\Exception_Key;
-use zesk\Exception_Semantics;
-use zesk\ORM\ORMBase;
 use zesk\Application;
-use zesk\Locale;
+use zesk\Exception\KeyNotFound;
+use zesk\Exception\Semantics;
+use zesk\Locale\Locale;
+use zesk\ORM\ORMBase;
 
 /**
  *
@@ -67,11 +64,11 @@ class Language extends ORMBase {
 	/**
 	 *
 	 * @param Application $application
-	 * @throws Database_Exception_Duplicate
-	 * @throws Database_Exception_NoResults
-	 * @throws Database_Exception_Table_NotFound
-	 * @throws Exception_Key
-	 * @throws Exception_Semantics
+	 * @throws Database\Exception\Duplicate
+	 * @throws Database\Exception\NoResults
+	 * @throws Database\Exception\TableNotFound
+	 * @throws KeyNotFound
+	 * @throws Semantics
 	 */
 	public static function clean_table(Application $application): void {
 		$query = $application->ormRegistry(__CLASS__)->queryUpdate();

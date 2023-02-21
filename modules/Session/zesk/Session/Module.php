@@ -9,12 +9,12 @@ declare(strict_types=1);
 
 namespace zesk\Session;
 
-use zesk\Exception_Unsupported;
-use zesk\Module as BaseModule;
 use zesk\Application;
-use zesk\Exception_Class_NotFound;
-use zesk\Exception_Configuration;
-use zesk\Interface_Session;
+use zesk\Exception\ClassNotFound;
+use zesk\Exception\ConfigurationException;
+use zesk\Exception\Unsupported;
+use zesk\Interface\SessionInterface;
+use zesk\Module as BaseModule;
 
 /**
  * @author kent
@@ -24,14 +24,14 @@ class Module extends BaseModule {
 
 	/**
 	 *
-	 * @var Interface_Session[]
+	 * @var SessionInterface[]
 	 */
 	private array $instances = [];
 
 	/**
 	 * @return void
-	 * @throws Exception_Configuration
-	 * @throws Exception_Unsupported
+	 * @throws ConfigurationException
+	 * @throws Unsupported
 	 */
 	public function initialize(): void {
 		parent::initialize();
@@ -57,22 +57,22 @@ class Module extends BaseModule {
 	 *
 	 * @param Application $application
 	 * @param string $class
-	 * @return Interface_Session
-	 * @throws Exception_Configuration
-	 * @throws Exception_Class_NotFound
+	 * @return SessionInterface
+	 * @throws ConfigurationException
+	 * @throws ClassNotFound
 	 */
-	public function sessionFactory(Application $application, string $class = ''): Interface_Session {
+	public function sessionFactory(Application $application, string $class = ''): SessionInterface {
 		if ($class === '') {
 			$class = $this->sessionClass();
 			if (!$class) {
-				throw new Exception_Configuration(__CLASS__ . '::' . self::OPTION_SESSION_CLASS, 'Needs a class name value');
+				throw new ConfigurationException(__CLASS__ . '::' . self::OPTION_SESSION_CLASS, 'Needs a class name value');
 			}
 		}
 		if (array_key_exists($class, $this->instances)) {
 			return $this->instances[$class];
 		}
 		$result = $this->instances[$class] = $this->application->factory($class, $application);
-		assert($result instanceof Interface_Session);
+		assert($result instanceof SessionInterface);
 		return $result;
 	}
 }

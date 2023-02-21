@@ -26,7 +26,7 @@ class UTF16 {
 	 * @param bool $be Return BOM encoding characters
 	 * @return string
 	 */
-	public static function to_utf8(string $content, bool &$be = null): string {
+	public static function toUTF8(string $content, bool &$be = null): string {
 		$c0 = ord($content[0]);
 		$c1 = ord($content[1]);
 
@@ -142,7 +142,7 @@ class UTF16 {
 	 * @param bool|null $be
 	 * @return string
 	 */
-	public static function to_iso8859(string $mixed, bool &$be = null): string {
+	public static function toISO8859(string $mixed, bool &$be = null): string {
 		return UTF16::decode($mixed, $be);
 	}
 }

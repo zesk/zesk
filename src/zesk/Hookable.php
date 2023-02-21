@@ -9,6 +9,8 @@ declare(strict_types=1);
 
 namespace zesk;
 
+use zesk\Application\Hooks;
+
 /**
  *
  * @todo When we're in a PHP version which is trait compatible, make this a trait
@@ -51,7 +53,7 @@ class Hookable extends Options {
 	 * Problem with globals.
 	 */
 	public function __wakeup(): void {
-		$this->application = __wakeup_application();
+		$this->application = Kernel::wakeupApplication();
 	}
 
 	/**
@@ -131,7 +133,7 @@ class Hookable extends Options {
 	 *            necessary.
 	 * @param array $args Optional. An array of parameters to pass to the hook.
 	 * @return array
-	 * @throws Exception_Deprecated
+	 * @throws Deprecated
 	 */
 	final public function collectHooks(array|string $types, array $args = []): array {
 		if (empty($types)) {
@@ -155,7 +157,7 @@ class Hookable extends Options {
 		$app = $this->application;
 		$hooks = [];
 		foreach ($types as $type) {
-			$method = Hooks::clean_name($type);
+			$method = Hooks::cleanName($type);
 			if ($method !== $type) {
 				$this->application->deprecated('Hook "{type}" cleaned to "{method}" - please fix', compact('method', 'type'));
 			}
@@ -190,7 +192,7 @@ class Hookable extends Options {
 	 * @return $this
 	 */
 	final public function addHook(string $type, callable $callable): self {
-		$type = Hooks::clean_name($type);
+		$type = Hooks::cleanName($type);
 		$this->_hooks[$type][] = $callable;
 		return $this;
 	}
@@ -222,7 +224,7 @@ class Hookable extends Options {
 		$types = toList($types);
 		$result = [];
 		foreach ($types as $type) {
-			$method = Hooks::clean_name($type);
+			$method = Hooks::cleanName($type);
 			$hook_method = "hook_$method";
 			//echo get_class($this) . " checking for $hook_method\n";
 			if (method_exists($this, $hook_method)) {
@@ -361,10 +363,10 @@ class Hookable extends Options {
 	 * @return $this
 	 */
 	final public function inheritConfiguration(string $class = ''): self {
-		return $this->configure($class, false);
+		return $this->_configure($class, false);
 	}
 
-	private function configure(string $class = '', bool $overwrite = true): self {
+	private function _configure(string $class = '', bool $overwrite = true): self {
 		return $this->setOptions($this->defaultOptions($class ?: get_class($this)), $overwrite);
 	}
 
@@ -376,6 +378,6 @@ class Hookable extends Options {
 	 * @return $this
 	 */
 	final public function setConfiguration(string $class = ''): self {
-		return $this->configure($class);
+		return $this->_configure($class);
 	}
 }

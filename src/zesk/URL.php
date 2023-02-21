@@ -6,6 +6,8 @@ declare(strict_types=1);
 
 namespace zesk;
 
+use zesk\Exception\Semantics;
+use zesk\Exception\SyntaxException;
 use function trim;
 
 /**
@@ -17,21 +19,21 @@ class URL {
 	 *
 	 * @var array
 	 */
-	protected static array $secure_protocols = ['http' => 'https', 'ftp' => 'sftp', 'telnet' => 'ssh', ];
+	protected static array $secureProtocols = ['http' => 'https', 'ftp' => 'sftp', 'telnet' => 'ssh', ];
 
 	/**
 	 * What's the order for items in a URL (typically http URLs)?
 	 *
 	 * @var array
 	 */
-	public static array $url_ordering = ['scheme', 'user', 'pass', 'host', 'port', 'path', 'query', 'fragment', ];
+	public static array $urlPartOrdering = ['scheme', 'user', 'pass', 'host', 'port', 'path', 'query', 'fragment', ];
 
 	/**
 	 * Query string parsing (case-sensitive)
 	 *
 	 * @param string $qs
 	 *            Query string to parse (Does NOT parse URLs)
-	 * @param string $name
+	 * @param string|null $name
 	 *            Name of field to return, or null to return an array
 	 * @param string $default
 	 *            Value to return if name not found in query string
@@ -88,7 +90,7 @@ class URL {
 	 *            Do not parse PHP arrays, just create values for them
 	 * @return array Similar to the $_GET formatting that PHP does automagically.
 	 */
-	public static function queryParseURL($url, $qmark = true, $simple = false) {
+	public static function queryParseURL(string $url, bool $qmark = true, bool $simple = false): array {
 		if ($qmark) {
 			$url = StringTools::right($url, '?');
 			$url = StringTools::left($url, '#');
@@ -99,9 +101,9 @@ class URL {
 		$tokens = explode('&', $url);
 		$urlVars = [];
 		foreach ($tokens as $token) {
-			[$token, $value] = pair($token, '=', $token, '');
+			[$token, $value] = StringTools::pair($token, '=', $token);
 			$matches = false;
-			if (!$simple && preg_match('/^([^\[]*)(\[.*\])$/', $token, $matches)) {
+			if (!$simple && preg_match('/^([^\[]*)(\[.*])$/', $token, $matches)) {
 				self::_queryParseArray($urlVars, $matches[1], $matches[2], $value);
 			} else {
 				$urlVars[urldecode($token)] = urldecode($value);
@@ -125,7 +127,7 @@ class URL {
 	 *            The value to place at the destination array key
 	 * @return void
 	 */
-	private static function _queryParseArray(&$result, $k, $arrayKeys, $value): void {
+	private static function _queryParseArray(array &$result, string $k, string $arrayKeys, string $value): void {
 		$matches = [];
 		if (!preg_match_all('/\[([^]]*)]/', $arrayKeys, $matches)) {
 			return;
@@ -160,13 +162,13 @@ class URL {
 	 * @return string
 	 */
 	public static function queryFormat(string $path, string|array $add = [], array|string $remove = []): string {
-		[$uri, $qs] = pair($path, '?', $path, '');
+		[$uri, $qs] = StringTools::pair($path, '?', $path);
 		if ($qs === '') {
 			$qs = [];
 		} else {
 			$qs = self::queryParse($qs);
 		}
-		$remove = toList($remove, []);
+		$remove = Types::toList($remove);
 		foreach ($remove as $k) {
 			unset($qs[$k]);
 		}
@@ -176,22 +178,22 @@ class URL {
 		if (is_array($add)) {
 			$qs = ArrayTools::merge($qs, $add);
 		}
-		return $uri . self::queryUnparse($qs);
+		return $uri . self::queryToString($qs);
 	}
 
 	/**
-	 * Unparse multi-dimentional arrays into a query string which PHP supports for reconstruction.
+	 * Convert multidimensional arrays into a query string which PHP supports for reconstruction.
 	 *
 	 * @param string $key_name
 	 * @param array $qs
 	 * @return string
 	 */
-	private static function queryUnparseArray(string $key_name, array $qs): string {
+	private static function queryArrayToString(string $key_name, array $qs): string {
 		$item = [];
 		foreach ($qs as $k => $v) {
 			$name = urldecode($key_name) . '[' . urlencode($k) . ']';
 			if (is_array($v)) {
-				$item[] = self::queryUnparseArray($name, $v);
+				$item[] = self::queryArrayToString($name, $v);
 			} else {
 				$item[] = $name . '=' . urlencode($v);
 			}
@@ -205,14 +207,14 @@ class URL {
 	 * @param array $qs
 	 * @return string
 	 */
-	public static function queryUnparse(array $qs): string {
+	public static function queryToString(array $qs): string {
 		if (count($qs) === 0) {
 			return '';
 		}
 		$item = [];
 		foreach ($qs as $k => $v) {
 			if (is_array($v)) {
-				$item[] = self::queryUnparseArray($k, $v);
+				$item[] = self::queryArrayToString($k, $v);
 			} else {
 				$item[] = urlencode($k) . '=' . urlencode($v ?? '');
 			}
@@ -226,8 +228,6 @@ class URL {
 	 * @param string $url
 	 * @param mixed $values
 	 *            Array or string to append
-	 * @param boolean $is_href
-	 *            Deprecated. Do not use.
 	 * @return string
 	 */
 	public static function queryAppend(string $url, array|string $values): string {
@@ -236,7 +236,7 @@ class URL {
 			$qs_append = [];
 			foreach ($values as $k => $v) {
 				if (is_array($v)) {
-					$qs_append[] = self::queryUnparseArray($k, $v);
+					$qs_append[] = self::queryArrayToString($k, $v);
 				} else {
 					$qs_append[] = urlencode($k) . '=' . urlencode($v);
 				}
@@ -256,17 +256,17 @@ class URL {
 	 * Remove items from a query string
 	 *
 	 * @param string $url
-	 * @param list|string $names A ;-separated list of query string names to remove, case-sensitive.
-	 * @return A|string
+	 * @param array|string $names A ;-separated list of query string names to remove, case-sensitive.
+	 * @return string
 	 */
 	public static function queryKeysRemove(string $url, array|string $names): string {
-		[$url, $m] = pair($url, '#', $url, '');
+		[$url, $m] = StringTools::pair($url, '#', $url);
 		$x = strpos($url, '?');
 		if ($x === false) {
 			return $url;
 		}
 		$q = substr($url, $x + 1);
-		$newu = substr($url, 0, $x);
+		$newUrl = substr($url, 0, $x);
 		$q = explode('&', $q);
 		$nq = [];
 		foreach ($q as $i) {
@@ -277,27 +277,27 @@ class URL {
 		}
 		$m = ($m ? "#$m" : '');
 		if (count($nq) == 0) {
-			return $newu . $m;
+			return $newUrl . $m;
 		}
-		return $newu . '?' . implode('&', $nq) . $m;
+		return $newUrl . '?' . implode('&', $nq) . $m;
 	}
 
 	/**
 	 * Remove items from a query string using case-insensitive string matching
 	 *
 	 * @param string $url URL to remove query string variables from
-	 * @param array|string $names ;-separated list or array of strings of query string variables to remove
+	 * @param array|string $names `;` separated list or array of strings of query string variables to remove
 	 * @return string The URL with the query string variables removed
 	 */
 	public static function queryKeysRemoveInsensitive(string $url, array|string $names): string {
-		[$x, $m] = pair($url, '#', $url, '');
+		$m = StringTools::right($url, '#', '');
 		$m = ($m ? "#$m" : '');
 		$x = strpos($url, '?');
 		if ($x === false) {
 			return $url;
 		}
 		$q = substr($url, $x + 1);
-		$newu = substr($url, 0, $x);
+		$newUrl = substr($url, 0, $x);
 		$qs = [];
 		parse_str($q, $qs);
 		$names = ArrayTools::changeValueCase($names);
@@ -310,13 +310,13 @@ class URL {
 			}
 		}
 		if (count($qs) === 0) {
-			return $newu . $m;
+			return $newUrl . $m;
 		}
 		$nq = [];
 		foreach ($qs as $k => $v) {
 			$nq[] = "$k=" . urlencode($v);
 		}
-		return $newu . '?' . implode('&', $nq) . $m;
+		return $newUrl . '?' . implode('&', $nq) . $m;
 	}
 
 	/**
@@ -325,7 +325,7 @@ class URL {
 	 * @param mixed $url
 	 *            URL to parse
 	 * @param string $component
-	 *            Optional string of component to retrieve. Different than parse_url as it doesn't
+	 *            Optional string of component to retrieve. Different from parse_url as it doesn't
 	 *            take the constant, just the string component
 	 * @param string $default
 	 *            Default value to return if component specified is not found
@@ -335,19 +335,21 @@ class URL {
 	/**
 	 * @param string $url
 	 * @return array
-	 * @throws Exception_Syntax
+	 * @throws SyntaxException
 	 */
 	public static function parse(string $url): array {
 		$url = trim($url);
 		if (preg_match('%^[a-z][a-z0-9]*://.+|^mailto:.+@.+%', strtolower($url)) === 0) {
-			throw new Exception_Syntax('Not a URL');
+			throw new SyntaxException('Not a URL');
 		}
 		if (strtolower(substr($url, 0, 7)) === 'file://') {
 			$result = ['scheme' => 'file', 'host' => '', 'path' => substr($url, 7), ];
 		} else {
 			$result = parse_url($url);
 			if (!is_array($result)) {
-				throw new Exception_Syntax('parse_url({url}) failed {type}', ['type' => type($result), 'url' => $url]);
+				throw new SyntaxException('parse_url({url}) failed {type}', [
+					'type' => Types::type($result), 'url' => $url,
+				]);
 			}
 		}
 		foreach ($result as $k => $v) {
@@ -357,7 +359,7 @@ class URL {
 		if ($result['scheme'] === 'mailto' && array_key_exists('path', $result)) {
 			$path = $result['path'];
 			unset($result['path']);
-			[$user, $host] = reversePair($path, '@', '', $path);
+			[$user, $host] = StringTools::reversePair($path, '@', '', $path);
 			if ($user) {
 				$result['user'] = $user;
 			}
@@ -375,7 +377,7 @@ class URL {
 	 *
 	 * @param string $url
 	 * @return array
-	 * @throws Exception_Syntax
+	 * @throws SyntaxException
 	 */
 	public static function variables(string $url): array {
 		$parts = self::parse($url);
@@ -458,7 +460,7 @@ class URL {
 	public static function is(string $url): bool {
 		try {
 			$p = self::parse($url);
-		} catch (Exception_Syntax) {
+		} catch (SyntaxException) {
 			return false;
 		}
 		$s = $p['scheme'] ?? null;
@@ -477,7 +479,7 @@ class URL {
 	 *
 	 * @param string $x A URL with a password in it, or not.
 	 * @return string The URL without a password
-	 * @throws Exception_Syntax
+	 * @throws SyntaxException
 	 */
 	public static function removePassword(string $x): string {
 		$parts = self::parse($x);
@@ -494,7 +496,9 @@ class URL {
 	 * @return integer returns -1 if not found
 	 */
 	public static function protocolPort(string $scheme): int {
-		static $protocols = ['ftp' => 21, 'smtp' => 25, 'mailto' => 25, 'http' => 80, 'pop' => 110, 'https' => 443, 'file' => -1, ];
+		static $protocols = [
+			'ftp' => 21, 'smtp' => 25, 'mailto' => 25, 'http' => 80, 'pop' => 110, 'https' => 443, 'file' => -1, 'telnet' => 23,
+		];
 		return $protocols[strtolower($scheme)] ?? -1;
 	}
 
@@ -511,7 +515,7 @@ class URL {
 	 * @param string $url
 	 *            A URL to parse
 	 * @return string The normalized URL
-	 * @throws Exception_Syntax
+	 * @throws SyntaxException
 	 */
 	public static function normalize(string $url): string {
 		$p = self::parse($url);
@@ -539,7 +543,7 @@ class URL {
 	 * 'http://www.example.com:80/'
 	 * URL::left('http://www.example.com:80/path/to?query=1#frag', 'host') ===
 	 * 'http://www.example.com/'
-	 * URL::left('http://www.example.com:80/path/to?query=1#frag', 'sceheme') ===
+	 * URL::left('http://www.example.com:80/path/to?query=1#frag', 'scheme') ===
 	 * 'http://www.example.com/'
 	 *
 	 * @param string $url
@@ -547,12 +551,12 @@ class URL {
 	 * @param string $part
 	 *            Return the left part of the URL up to and including this portion
 	 * @return string
-	 * @throws Exception_Syntax
+	 * @throws SyntaxException
 	 */
 	public static function left(string $url, string $part): string {
 		$parts = self::parse($url);
 		$new_parts = [];
-		foreach (self::$url_ordering as $part_item) {
+		foreach (self::$urlPartOrdering as $part_item) {
 			if (array_key_exists($part_item, $parts)) {
 				$new_parts[$part_item] = $parts[$part_item];
 			}
@@ -572,11 +576,11 @@ class URL {
 	 * This is useful to return an absolute path of a resource at the same address.
 	 *
 	 * @param string $url
-	 *            A url to modify
+	 *            URL to modify
 	 * @return string The URL up to the path
-	 * @throws Exception_Syntax
+	 * @throws SyntaxException
 	 */
-	public static function left_host(string $url) {
+	public static function leftHost(string $url): string {
 		return self::left($url, 'port');
 	}
 
@@ -588,12 +592,12 @@ class URL {
 	 * <pre>http://www.example.com:98/path/index.php</pre>
 	 * This is useful to return an absolute path of a resource at the same address.
 	 *
-	 * @param string $u
-	 *            A url to modify
+	 * @param string $url URL to modify
 	 * @return string The URL up to the path
+	 * @throws SyntaxException
 	 */
-	public static function left_path($u) {
-		return self::left($u, 'path');
+	public static function left_path(string $url): string {
+		return self::left($url, 'path');
 	}
 
 	/**
@@ -601,10 +605,8 @@ class URL {
 	 *
 	 * @param string $u
 	 *            A potentially malformed URL
-	 * @param string $default
-	 *            Value to return if repair fails
 	 * @return string Repaired URL, or false if repair failed
-	 * @throws Exception_Syntax
+	 * @throws SyntaxException
 	 */
 	public static function repair(string $u): string {
 		if (str_starts_with($u, 'https%3A//') || str_starts_with($u, 'http%3A//')) {
@@ -618,7 +620,7 @@ class URL {
 			$u = self::stringify($parts);
 		}
 		if (!self::is($u)) {
-			throw new Exception_Syntax('Can not repair');
+			throw new SyntaxException('Can not repair');
 		}
 		return $u;
 	}
@@ -626,9 +628,9 @@ class URL {
 	/**
 	 * Returns the scheme of the url
 	 *
-	 * @param string $url A url to extract the scheme from
+	 * @param string $url URL to extract the scheme from
 	 * @return string The scheme
-	 * @throws Exception_Syntax
+	 * @throws SyntaxException
 	 */
 	public static function scheme(string $url): string {
 		$result = self::parse($url);
@@ -636,12 +638,12 @@ class URL {
 	}
 
 	/**
-	 * Returns the host of a URL)
+	 * Returns the host of a URL
 	 *
 	 * @param string $url
 	 *            The url to extract the host information from
 	 * @return string The host in the URL
-	 * @throws Exception_Syntax
+	 * @throws SyntaxException
 	 */
 	public static function host(string $url): string {
 		$result = self::parse($url);
@@ -654,7 +656,7 @@ class URL {
 	 * @param string $url
 	 *            The url to extract the host information from
 	 * @return string The query string in the URL (without the ?)
-	 * @throws Exception_Syntax
+	 * @throws SyntaxException
 	 */
 	public static function query(string $url): string {
 		$parts = self::parse($url);
@@ -667,24 +669,11 @@ class URL {
 	 * @param string $url
 	 *            The url to extract the path information from
 	 * @return string The path in the URL
-	 * @throws Exception_Syntax
+	 * @throws SyntaxException
 	 */
 	public static function path(string $url): string {
 		$result = self::parse($url);
 		return $result['path'];
-	}
-
-	/**
-	 * Convert the current request URL and make it secure
-	 *
-	 * @return string
-	 */
-	public static function toHTTPS(string $url): string {
-		$prefix = 'http' . '://'; // dot shuts up warning
-		if (str_starts_with($url, $prefix)) {
-			return 'https://' . substr($url, strlen($prefix));
-		}
-		return $url;
 	}
 
 	/**
@@ -697,9 +686,9 @@ class URL {
 	 * @param string $host
 	 *            New host to
 	 * @return string Modified URL
-	 * @throws Exception_Syntax
+	 * @throws SyntaxException
 	 */
-	public static function change_host(string $url, string $host): string {
+	public static function changeHost(string $url, string $host): string {
 		$parts = self::parse($url);
 		$parts['host'] = $host;
 		return self::stringify($parts);
@@ -714,8 +703,8 @@ class URL {
 	 */
 	public static function isSecure(string $url): bool {
 		try {
-			return in_array(self::scheme($url), array_values(self::$secure_protocols));
-		} catch (Exception_Syntax) {
+			return in_array(self::scheme($url), array_values(self::$secureProtocols));
+		} catch (SyntaxException) {
 			return false;
 		}
 	}
@@ -726,19 +715,37 @@ class URL {
 	 * @param string $url
 	 *            A URL to test
 	 * @return string Secured URL
-	 * @throws Exception_Syntax
+	 * @throws SyntaxException
+	 * @throws Semantics
+	 * @see URL_Test::test_makeSecure()
 	 */
 	public static function makeSecure(string $url): string {
 		if (self::isSecure($url)) {
 			return $url;
 		}
 		$parts = self::parse($url);
-		$parts['scheme'] = self::$secure_protocols[$parts['scheme']] ?? $parts['scheme'];
+		$scheme = $parts['scheme'] ?? '';
+		if (!array_key_exists($scheme, self::$secureProtocols)) {
+			throw new Semantics('{url} Not a known insecure protocol: {choices}', [
+				'url' => $url,
+				'choices' => array_keys(self::$secureProtocols),
+			]);
+		}
+		$defaultPort = self::protocolPort($scheme);
+		if (intval($parts['port'] ?? $defaultPort) !== $defaultPort) {
+			throw new Semantics('{url} Port must be standard to promote: {port} !== {defaultPort}', [
+				'url' => $url,
+				'defaultPort' => $defaultPort,
+				'port' => $parts['port'],
+			]);
+		}
+		$parts['scheme'] = self::$secureProtocols[$scheme];
+		$parts['port'] = self::protocolPort($parts['scheme']);
 		return self::stringify($parts);
 	}
 
 	/**
-	 * Returns true if a url is an absolute URL (for testing href links)
+	 * Returns true if an url is an absolute URL (for testing href links)
 	 *
 	 * @param string $url
 	 *            A string to test
@@ -752,28 +759,24 @@ class URL {
 	/**
 	 * Determines if TWO urls reside on the same "server"
 	 *
-	 * @param string $url1
-	 *            A url to test
-	 * @param string $url2
-	 *            Another URL to test
-	 * @return boolean true if the schemes, address, port, and host are identical
+	 * @param string $url1 URL to compare
+	 * @param string $url2 URL to compare
+	 * @return boolean true if the schemes, host and port are identical
 	 */
 	public static function isSameServer(string $url1, string $url2): bool {
 		try {
 			$p1 = self::parse(strtolower($url1));
 			$p2 = self::parse(strtolower($url2));
-		} catch (Exception_Syntax $e) {
+		} catch (SyntaxException) {
 			return false;
 		}
-		$p1proto = $p1['scheme'] ?? 'http';
-		$p2proto = $p2['scheme'] ?? 'http';
-		if ($p1proto !== $p2proto) {
+		if (($p1proto = $p1['scheme'] ?? '') !== ($p2proto = $p2['scheme'] ?? '')) {
 			return false;
 		}
-		if (($p1['port'] ?? self::protocolPort($p1proto)) !== ($p2['port'] ?? self::protocolPort($p2proto))) {
+		if (intval($p1['port'] ?? self::protocolPort($p1proto)) !== intval($p2['port'] ?? self::protocolPort($p2proto))) {
 			return false;
 		}
-		if ($p1['host'] ?? '' !== $p2['host'] ?? '') {
+		if (($p1['host'] ?? '') !== ($p2['host'] ?? '')) {
 			return false;
 		}
 		return true;
@@ -787,25 +790,21 @@ class URL {
 	 *            Page where href was found
 	 * @param string $href
 	 *            Href on the page
-	 * @return string Reconciled href, or false if can not be computed
-	 * @throws Exception_Syntax
+	 * @return string Reconciled href
+	 * @throws SyntaxException
+	 * @throws Semantics
 	 */
 	public static function computeHREF(string $url, string $href): string {
 		if (empty($href)) {
-			return '';
+			throw new Semantics('href is blank');
 		}
 		if (str_starts_with($href, 'javascript:')) {
-			return '';
+			throw new Semantics('javascript: href is invalid');
 		}
 		if (self::is($href)) {
 			return self::normalize($href);
 		}
-
-		try {
-			$parts = self::parse($url);
-		} catch (Exception_Syntax) {
-			return '';
-		}
+		$parts = self::parse($url);
 		if (str_starts_with($href, '//')) {
 			$href = $parts['scheme'] . ':' . $href;
 			return self::normalize($href);
@@ -826,36 +825,9 @@ class URL {
 		}
 		$path = $parts['path'];
 		$path = dirname($path);
-		$path = path($path, $href);
+		$path = Directory::path($path, $href);
 		$path = Directory::removeDots($path);
 		$parts['path'] = $path;
 		return self::stringify($parts);
-	}
-
-	/**
-	 * Return URL scheme default port. Just uses the obvious ones. (gopher:// anyone?)
-	 *
-	 * So you can be a good programmer and avoid using constants.
-	 *
-	 * @param string $x
-	 * @return int
-	 * @deprecated 2022-11-07
-	 */
-	public static function protocolDefaultPort(string $x): int {
-		zesk()->deprecated('2022-11-07');
-		return self::protocolPort($x);
-	}
-
-	/**
-	 * Returns true if the URL is secure (https)
-	 *
-	 * @param string $url
-	 *            A URL to test
-	 * @return boolean true if the URL is a https URL
-	 * @deprecated 2021 probably
-	 */
-	public static function is_secure(string $url): bool {
-		zesk()->deprecated('2021 probably');
-		return self::isSecure($url);
 	}
 }

@@ -7,6 +7,7 @@ declare(strict_types=1);
 namespace zesk;
 
 use Psr\Log\LogLevel;
+use zesk\Application\Hooks;
 use zesk\Logger\Handler;
 
 /**
@@ -127,14 +128,14 @@ abstract class Command_Base extends Command implements Handler {
 
 	/**
 	 * @return void
-	 * @throws Exception_Exited
+	 * @throws ExitedException
 	 */
 	protected function hook_runBefore(): void {
 		$this->configure_logging();
 		if ($this->optionBool('help')) {
 			$this->usage();
 
-			throw new Exception_Exited();
+			throw new ExitedException();
 		}
 		if ($this->optionBool('debug-config')) {
 			$this->application->addHook(Hooks::HOOK_CONFIGURED, [

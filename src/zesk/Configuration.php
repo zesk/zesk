@@ -76,7 +76,7 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	}
 
 	public function normalizeKey(string $key): string {
-		return implode(ZESK_GLOBAL_KEY_SEPARATOR, _zesk_global_key($key));
+		return Types::keyToString(Types::configurationKey($key));
 	}
 
 	/**
@@ -489,7 +489,7 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 * @param array|string $old_path
 	 * @param string|array|null $new_path
 	 * @return boolean Returns true if OLD value still found and (optionally) mapped to new
-	 * @throws Exception_Semantics|Exception_Deprecated
+	 * @throws Semantics|Deprecated
 	 */
 	final public function deprecated(string|array $old_path, string|array $new_path = null): bool {
 		$old_value = $this->walk($old_path);

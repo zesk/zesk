@@ -29,7 +29,7 @@ class Command_Module extends Command_Base {
 
 	/**
 	 * @return int
-	 * @throws Exception_Semantics
+	 * @throws Semantics
 	 */
 	private function loadArgumentModules(): int {
 		do {

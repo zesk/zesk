@@ -8,7 +8,7 @@ declare(strict_types=1);
  */
 namespace zesk\Net\SMTP;
 
-use zesk\Exception_Connect;
+use zesk\Exception\ConnectionFailed;
 use zesk\Exception_Protocol;
 use zesk\Net\SocketClient;
 
@@ -156,7 +156,7 @@ class Client extends SocketClient {
 	 * @param string $from
 	 *            Email address
 	 * @return string
-	 * @throws Exception_Connect
+	 * @throws ConnectionFailed
 	 * @throws Exception_Protocol
 	 */
 	private function mail(string $from): string {
@@ -169,7 +169,7 @@ class Client extends SocketClient {
 	 * @param string $to
 	 *        	Email address
 	 * @return string
-	 * @throws Exception_Connect
+	 * @throws ConnectionFailed
 	 * @throws Exception_Protocol
 	 */
 	private function rcpt(string $to): string {
@@ -180,7 +180,7 @@ class Client extends SocketClient {
 	 * Send message data command (data should follow using RFC2821 method)
 	 *
 	 * @return boolean
-	 * @throws Exception_Connect
+	 * @throws ConnectionFailed
 	 * @throws Exception_Protocol
 	 */
 	private function data() {
@@ -191,7 +191,7 @@ class Client extends SocketClient {
 	 * Send RSET command
 	 *
 	 * @return string
-	 * @throws Exception_Connect
+	 * @throws ConnectionFailed
 	 * @throws Exception_Protocol
 	 */
 	private function rset() {
@@ -202,7 +202,7 @@ class Client extends SocketClient {
 	 * Terminate the connection
 	 *
 	 * @return boolean
-	 * @throws Exception_Connect
+	 * @throws ConnectionFailed
 	 * @throws Exception_Protocol
 	 */
 	private function quit() {

@@ -9,17 +9,16 @@ declare(strict_types=1);
  * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  */
 
-namespace zesk\ORM;
+namespace zesk\ORM\Database\Query;
 
 use Throwable;
-use zesk\Database;
+use zesk\Database\Base;
+use zesk\Database\Exception\Duplicate;
+use zesk\Database\Exception\NoResults;
+use zesk\Database\Exception\SQLException;
+use zesk\Database\Exception\TableNotFound;
 use zesk\Database\QueryResult;
-use zesk\Database_Exception;
-use zesk\Database_Exception_Duplicate;
-use zesk\Database_Exception_SQL;
-use zesk\Database_Exception_Table_NotFound;
-use zesk\Exception_Deprecated;
-use zesk\Exception_Semantics;
+use zesk\Exception\Semantics;
 use zesk\PHP;
 
 /**
@@ -27,7 +26,7 @@ use zesk\PHP;
  * @author kent
  *
  */
-class Database_Query_Insert extends Database_Query_Edit {
+class Insert extends Edit {
 	/**
 	 * This is a REPLACE command
 	 *
@@ -37,9 +36,9 @@ class Database_Query_Insert extends Database_Query_Edit {
 
 	/**
 	 *
-	 * @var ?Database_Query_Select
+	 * @var ?Select
 	 */
-	protected ?Database_Query_Select $select = null;
+	protected ?Select $select = null;
 
 	/**
 	 * INSERT INTO {$this->into}
@@ -58,9 +57,9 @@ class Database_Query_Insert extends Database_Query_Edit {
 	/**
 	 * Construct a new insert query
 	 *
-	 * @param Database $db
+	 * @param Base $db
 	 */
-	public function __construct(Database $db) {
+	public function __construct(Base $db) {
 		parent::__construct('INSERT', $db);
 	}
 
@@ -106,7 +105,7 @@ class Database_Query_Insert extends Database_Query_Edit {
 	/**
 	 * Set to insert mode
 	 *
-	 * @return Database_Query_Insert
+	 * @return self
 	 */
 	public function insert(): self {
 		$this->replace = false;
@@ -116,10 +115,10 @@ class Database_Query_Insert extends Database_Query_Edit {
 	/**
 	 * Insert from a SELECT query
 	 *
-	 * @param Database_Query_Select $query
-	 * @return Database_Query_Insert
+	 * @param Select $query
+	 * @return self
 	 */
-	public function select(Database_Query_Select $query): self {
+	public function select(Select $query): self {
 		$this->select = $query;
 		return $this;
 	}
@@ -153,16 +152,17 @@ class Database_Query_Insert extends Database_Query_Edit {
 		}
 
 		if ($this->select) {
-			return $this->sql()->insert_select($this->into, $this->select->what(), strval($this->select), $options);
+			return $this->sql()->insertSelect($this->into, $this->select->what(), strval($this->select), $options);
 		}
 		return $this->sql()->insert($this->into, $this->values(), $options);
 	}
 
 	/**
 	 * @return int|QueryResult
-	 * @throws Database_Exception_Duplicate
-	 * @throws Database_Exception_SQL
-	 * @throws Database_Exception_Table_NotFound|Database_Exception
+	 * @throws Duplicate
+	 * @throws NoResults
+	 * @throws SQLException
+	 * @throws TableNotFound
 	 */
 	private function _execute(): QueryResult|int {
 		if ($this->select) {
@@ -183,27 +183,28 @@ class Database_Query_Insert extends Database_Query_Edit {
 	 * Execute the insert and retrieve the ID created
 	 *
 	 * @return int
-	 * @throws Database_Exception_Duplicate
-	 * @throws Database_Exception_SQL
-	 * @throws Database_Exception_Table_NotFound
-	 * @throws Exception_Semantics|Database_Exception
+	 * @throws Duplicate
+	 * @throws Semantics
+	 * @throws NoResults
+	 * @throws SQLException
+	 * @throws TableNotFound
 	 */
 	public function id(): int {
 		if ($this->low_priority) {
-			throw new Exception_Semantics('Can not execute query as low priority and retrieve id: ' . $this->__toString());
+			throw new Semantics('Can not execute query as low priority and retrieve id: ' . $this->__toString());
 		}
 		if ($this->select) {
-			throw new Exception_Semantics('Can not execute query as select and retrieve id: ' . $this->__toString());
+			throw new Semantics('Can not execute query as select and retrieve id: ' . $this->__toString());
 		}
 		return $this->_execute();
 	}
 
 	/**
 	 * @return $this
-	 * @throws Database_Exception_Duplicate
-	 * @throws Database_Exception_SQL
-	 * @throws Database_Exception_Table_NotFound
-	 * @throws Database_Exception
+	 * @throws Duplicate
+	 * @throws NoResults
+	 * @throws SQLException
+	 * @throws TableNotFound
 	 */
 	public function execute(): self {
 		$this->_execute();

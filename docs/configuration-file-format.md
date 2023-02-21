@@ -10,7 +10,7 @@ The Zesk configuration file format allows for diverse structures to be embedded 
 
 Added August 2016:
 
-	new zesk\Configuration_Parser_CONF(...)
+	new zesk\Configuration\Parser\CONF(...)
 	
 The main workhorse of the configuration file processing is `conf::parse` which takes a list of file lines and a set of options. 
 

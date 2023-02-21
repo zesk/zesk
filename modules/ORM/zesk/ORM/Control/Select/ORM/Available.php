@@ -17,7 +17,7 @@ class Control_Select_ORM_Available extends Control_Select_ORM {
 	 * @see Control_Select_ORM::hook_options()
 	 */
 	protected function hook_options() {
-		$sql = $this->class_object->database()->sql();
+		$sql = $this->class_object->database()->sqlDialect();
 
 		$column = $this->queryColumn();
 		$column = StringTools::right($column, '.', $column);

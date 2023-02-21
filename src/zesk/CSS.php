@@ -9,6 +9,8 @@ declare(strict_types=1);
 
 namespace zesk;
 
+use zesk\Exception\SyntaxException;
+
 /**
  * Abstraction for CSS operations
  *
@@ -20,7 +22,7 @@ class CSS {
 	 *
 	 * @return string[]
 	 */
-	public static function color_table(): array {
+	public static function colorTable(): array {
 		return [
 			'aliceblue' => 'f0f8ff',
 			'antiquewhite' => 'faebd7',
@@ -209,7 +211,7 @@ class CSS {
 	 * @return string
 	 */
 	public static function colorLookup(string $text, string $default = ''): string {
-		$colors = self::color_table();
+		$colors = self::colorTable();
 		return $colors[strtolower($text)] ?? $default;
 	}
 
@@ -222,7 +224,7 @@ class CSS {
 	public static function rgbToHex(array $rgb): string {
 		$color = '';
 		foreach ($rgb as $c) {
-			$c = clamp(0, $c, 255);
+			$c = Number::clamp(0, $c, 255);
 			$c = strtoupper(dechex($c));
 			if (strlen($c) === 1) {
 				$c = "0$c";
@@ -236,7 +238,6 @@ class CSS {
 	 * Convert an RGB value to a hex code, including the # prefix
 	 *
 	 * @param array $rgb Array of three between 0 and 255
-	 * @param mixed $default
 	 * @return string
 	 */
 	public static function colorFormat(array $rgb): string {
@@ -247,11 +248,10 @@ class CSS {
 	 * Parse a color and convert it to hexadecimal color
 	 *
 	 * @param string $text Color value
-	 * @param string $default
 	 * @return string
-	 * @throws Exception_Syntax
+	 * @throws SyntaxException
 	 */
-	public static function colorNormalize(string $text, string $default): string {
+	public static function colorNormalize(string $text): string {
 		$x = self::colorParse($text) + [0, 0, 0];
 		return self::rgbToHex($x);
 	}
@@ -266,7 +266,7 @@ class CSS {
 		try {
 			self::colorParse($text);
 			return true;
-		} catch (Exception_Syntax) {
+		} catch (SyntaxException) {
 			return false;
 		}
 	}
@@ -277,13 +277,13 @@ class CSS {
 	 * @param string $text
 	 * @return array ($r, $g, $b) returned as a list
 	 * @return array
-	 * @throws Exception_Syntax
+	 * @throws SyntaxException
 	 * @todo Does not support rgba
 	 */
 	public static function colorParse(string $text): array {
 		$text = trim($text);
 		if (strlen($text) == 0) {
-			throw new Exception_Syntax('Blank color');
+			throw new SyntaxException('Blank color');
 		}
 		$matches = [];
 		if (preg_match('/^rgb\(([0-9,]+)\)$/', $text, $matches)) {
@@ -291,7 +291,7 @@ class CSS {
 			if (count($colors) === 3) {
 				foreach ($colors as $i => $c) {
 					if ($c <= 0 || $c >= 255) {
-						$c = clamp(0, $c, 255);
+						$c = Number::clamp(0, $c, 255);
 						// TODO Warn or something
 					}
 					$colors[$i] = intval($c);
@@ -306,11 +306,11 @@ class CSS {
 		}
 		$text_len = strlen($text);
 		if ($text_len !== 3 && $text_len !== 6) {
-			throw new Exception_Syntax('Invalid color text length "{text}" (3 or 6 chars)', ['text' => $text]);
+			throw new SyntaxException('Invalid color text length "{text}" (3 or 6 chars)', ['text' => $text]);
 		}
 		$text = strtolower($text);
 		if (!preg_match('/^[0-9a-f]+$/', $text)) {
-			throw new Exception_Syntax('Invalid color text characters "{text}" (hex only)', ['text' => $text]);
+			throw new SyntaxException('Invalid color text characters "{text}" (hex only)', ['text' => $text]);
 		}
 		$text_len = intval($text_len / 3);
 		$result = [];

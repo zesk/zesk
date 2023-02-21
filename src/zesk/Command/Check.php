@@ -237,7 +237,7 @@ class Command_Check extends Command_Iterator_File {
 	 * @param string $contents
 	 * @param string $term
 	 * @return DocComment
-	 * @throws Exception_NotFound
+	 * @throws NotFoundException
 	 */
 	private function firstComment(string $contents, string $term): DocComment {
 		$comments = DocComment::extract($contents);
@@ -248,7 +248,7 @@ class Command_Check extends Command_Iterator_File {
 			}
 		}
 
-		throw new Exception_NotFound($term);
+		throw new NotFoundException($term);
 	}
 
 	private function fix_copyright(string $value): string {
@@ -466,7 +466,7 @@ class Command_Check extends Command_Iterator_File {
 		$locale = $this->application->locale;
 		$verbose = $this->optionBool('verbose');
 		if ($verbose) {
-			echo '# ' . $locale->plural_word('error', $n_found) . " found\n";
+			echo '# ' . $locale->pluralWord('error', $n_found) . " found\n";
 		}
 		$results = [];
 		if ($this->optionBool('verbose')) {
@@ -479,7 +479,7 @@ class Command_Check extends Command_Iterator_File {
 			}
 		}
 		if ($verbose) {
-			echo $locale->plural_word('file', $this->changed) . " changed\n";
+			echo $locale->pluralWord('file', $this->changed) . " changed\n";
 		}
 		echo implode("\n", $results) . "\n";
 		return 1;

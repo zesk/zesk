@@ -3,10 +3,19 @@
  *
  */
 {namespace_line}
+use zesk\Module as BaseModule;
+use zesk\Request;
+use zesk\Response;
+use zesk\Router;
+use zesk\Theme;
+use zesk\Interface\Module\Head;
+use zesk\Interface\Module\Foot;
+use zesk\Interface\Module\Routes;
+
 /**
  *
  */
-class {module_class} extends \zesk\Module /* implements \zesk\Interface_Module_Head, \zesk\Interface_Module_Foot, \zesk\Interface_Module_Routes */ {
+class {module_class} extends BaseModule /* implements Head, Foot, Routes */ {
 
 	/**
 	 * List of associated classes
@@ -33,17 +42,17 @@ class {module_class} extends \zesk\Module /* implements \zesk\Interface_Module_H
 */
 
 /*
-	protected function hook_foot(zesk\Request $request, zesk\Response $response, zesk\Template $template): void {
+	protected function hook_foot(Request $request, Response $response, Theme $template): void {
 	}
 */
 
 /*
-	protected function hook_head(zesk\Request $request, zesk\Response $response, zesk\Template $template): void {
+	protected function hook_head(Request $request, Response $response, Theme $template): void {
 	}
 */
 
 /*
-	public function hook_routes(zesk\Router $router): void {
+	public function hook_routes(Router $router): void {
 	}
 */
 }

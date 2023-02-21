@@ -4,26 +4,25 @@ declare(strict_types=1);
  *
  */
 
-namespace zesk\ORM;
+namespace zesk\ORM\Database\Query;
 
 use Throwable;
-use zesk\Database;
-use zesk\Database_Exception;
-use zesk\Database_Exception_Duplicate;
-use zesk\Database_Exception_SQL;
-use zesk\Database_Exception_Table_NotFound;
-use zesk\Exception_Class_NotFound;
-use zesk\Exception_Deprecated;
-use zesk\Exception_Semantics;
-use zesk\ORM\QueryTrait\Affected;
-use zesk\ORM\QueryTrait\Where;
+use zesk\Database\Base;
+use zesk\Database\Exception\Duplicate;
+use zesk\Database\Exception\NoResults;
+use zesk\Database\Exception\TableNotFound;
+use zesk\Exception\Semantics;
+use zesk\ORM\Database\Query;
+use zesk\ORM\Database\QueryTrait\Affected;
+use zesk\ORM\Database\QueryTrait\Where;
+use zesk\PHP;
 
 /**
  *
  * @author kent
  *
  */
-class Database_Query_Delete extends Database_Query {
+class Delete extends Query {
 	use Where;
 	use Affected;
 
@@ -43,40 +42,37 @@ class Database_Query_Delete extends Database_Query {
 	/**
 	 * Construct a delete query
 	 *
-	 * @param Database $db
+	 * @param Base $db
 	 */
-	public function __construct(Database $db) {
+	public function __construct(Base $db) {
 		parent::__construct('DELETE', $db);
 	}
 
 	/**
 	 * @param bool $set
 	 * @return $this
-	 * @throws Exception_Semantics
+	 * @throws Semantics
 	 */
 	public function setTruncate(bool $set): self {
 		$this->truncate = $set;
-		$this->_validate_truncate();
+		$this->_validateTruncate();
 		return $this;
 	}
 
 	/**
 	 * @return void
-	 * @throws Exception_Semantics
+	 * @throws Semantics
 	 */
-	private function _validate_truncate(): void {
+	private function _validateTruncate(): void {
 		if ($this->truncate === true && count($this->where) > 0) {
-			throw new Exception_Semantics('Truncate not allowed with a where clause {where}', [
+			throw new Semantics('Truncate not allowed with a where clause {where}', [
 				'where' => $this->where,
 			]);
 		}
 	}
 
 	/**
-	 * @param $set
 	 * @return bool
-	 * @throws Exception_Deprecated
-	 * @throws Exception_Semantics
 	 */
 	public function truncate(): bool {
 		return $this->truncate;
@@ -116,14 +112,13 @@ class Database_Query_Delete extends Database_Query {
 
 	/**
 	 * @return mixed
-	 * @throws Database_Exception
-	 * @throws Database_Exception_Duplicate
-	 * @throws Database_Exception_SQL
-	 * @throws Database_Exception_Table_NotFound
-	 * @throws Exception_Semantics
+	 * @throws Semantics
+	 * @throws Duplicate
+	 * @throws NoResults
+	 * @throws TableNotFound
 	 */
 	public function execute(): self {
-		$this->_validate_truncate();
+		$this->_validateTruncate();
 		$db = $this->database();
 		$sql = $this->__toString();
 		$this->result = $db->query($sql);

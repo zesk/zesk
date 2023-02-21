@@ -8,7 +8,8 @@ declare(strict_types=1);
  */
 namespace zesk;
 
-use Symfony\Component\Process\Pipes\UnixPipes;
+use zesk\Exception\DirectoryCreate;
+use zesk\Exception\DirectoryNotFound;
 
 /**
  * TODO NOT Implemented 2023
@@ -103,7 +104,7 @@ class Net_SFTP_Client extends Net_Client implements Net_FileSystem {
 
 	private function lcd($path): void {
 		if (!is_dir($path)) {
-			throw new Exception_Directory_NotFound("No such path $path");
+			throw new DirectoryNotFound("No such path $path");
 		}
 		$path = $this->quote_path($path);
 		$this->command("lcd $path");
@@ -112,7 +113,7 @@ class Net_SFTP_Client extends Net_Client implements Net_FileSystem {
 	public function ls($dir = null) {
 		if ($dir !== null) {
 			if (!$this->cd($dir)) {
-				throw new Exception_Directory_NotFound($dir);
+				throw new DirectoryNotFound($dir);
 			}
 		}
 		$lines = $this->command('ls -la');
@@ -135,7 +136,7 @@ class Net_SFTP_Client extends Net_Client implements Net_FileSystem {
 		$path = $this->quote_path($path);
 		$result = trim($this->command("mkdir $path"));
 		if ($result !== '') {
-			throw new Exception_Directory_Create($path);
+			throw new DirectoryCreate($path);
 		}
 		return true;
 	}
@@ -144,7 +145,7 @@ class Net_SFTP_Client extends Net_Client implements Net_FileSystem {
 		$path = $this->quote_path($path);
 		$result = trim($this->command("mkdir $path"));
 		if ($result !== '') {
-			throw new Exception_Directory_NotFound($path);
+			throw new DirectoryNotFound($path);
 		}
 		return true;
 	}

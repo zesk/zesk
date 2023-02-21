@@ -10,15 +10,16 @@ namespace zesk\Locale;
 
 use Throwable;
 use zesk\Application;
-use zesk\Exception_Class_NotFound;
-use zesk\Exception_File_Format;
-use zesk\Exception_File_NotFound;
-use zesk\Exception_File_Permission;
-use zesk\Exception_Parse;
-use zesk\Exception_Unsupported;
+use zesk\Directory;
+use zesk\Exception\ClassNotFound;
+use zesk\Exception\FileNotFound;
+use zesk\Exception\FileParseException;
+use zesk\Exception\FilePermission;
+use zesk\Exception\ParseException;
+use zesk\Exception\Unsupported;
 use zesk\File;
 use zesk\JSON;
-use zesk\Locale;
+use zesk\Types;
 
 /**
  * @author kent
@@ -134,7 +135,7 @@ class Reader {
 	 * @param Application $application
 	 * @param array $options
 	 * @return Locale
-	 * @throws Exception_Class_NotFound
+	 * @throws ClassNotFound
 	 */
 	public function locale(Application $application, array $options = []): Locale {
 		return Locale::factory($application, $this->id, $options)->setTranslations($this->execute());
@@ -182,7 +183,7 @@ class Reader {
 		foreach ($this->paths as $path) {
 			foreach ($prefixes as $prefix) {
 				foreach ($this->extensions as $ext) {
-					$files[] = path($path, "$prefix.$ext");
+					$files[] = Directory::path($path, "$prefix.$ext");
 				}
 			}
 		}
@@ -194,11 +195,11 @@ class Reader {
 	 *
 	 * @param string $file
 	 * @return array
-	 * @throws Exception_File_Format
-	 * @throws Exception_Unsupported
-	 * @throws Exception_File_NotFound
-	 * @throws Exception_File_Permission
-	 * @throws Exception_Parse
+	 * @throws FileParseException
+	 * @throws Unsupported
+	 * @throws FileNotFound
+	 * @throws FilePermission
+	 * @throws ParseException
 	 */
 	private function load(string $file): array {
 		$extension = File::extension($file);
@@ -210,13 +211,13 @@ class Reader {
 		} elseif ($extension === 'json') {
 			$result = JSON::decode(File::contents($file));
 		} else {
-			throw new Exception_Unsupported('Locale file {file} extension {extension} not supported', [
+			throw new Unsupported('Locale file {file} extension {extension} not supported', [
 				'file' => $file,
 				'extension' => $extension,
 			]);
 		}
 		if (!is_array($result)) {
-			throw new Exception_File_Format($file, 'Should result in an array {type} loaded', ['type' => type($result)]);
+			throw new FileParseException($file, 'Should result in an array {type} loaded', ['type' => Types::type($result)]);
 		}
 		return $result;
 	}

@@ -1,35 +1,44 @@
 <?php
 declare(strict_types=1);
 
-namespace zesk;
+namespace zesk\Route;
+
+use zesk\ArrayTools;
+use zesk\Exception\NotFoundException;
+use zesk\JSON;
+use zesk\Route;
+
+use zesk\Request;
+use zesk\Response;
+use zesk\Exception\FileNotFound;
+use zesk\StringTools;
 
 /**
  *
  * @author kent
  *
  */
-class Route_Content extends Route {
+class Content extends Route {
 	/**
 	 * @param Request $request
-	 * @param Response $response
 	 * @return Response
-	 * @throws Exception_NotFound
+	 * @throws NotFoundException
 	 */
-	protected function _execute(Request $request, Response $response): Response {
+	protected function internalExecute(Request $request): Response {
 		$file = $this->optionString('file');
 		if ($file) {
-			if (mapClean($file) !== $file) {
-				$file = $this->_mapVariables($request, $response, $file);
+			if (StringTools::cleanTokens($file) !== $file) {
+				$file = $this->_mapVariables($request, $file);
 				if (!is_string($file)) {
-					throw new Exception_NotFound($request->uri(), ['file' => $file, 'badType' => gettype($file)], 0);
+					throw new NotFoundException($request->uri(), ['file' => $file, 'badType' => gettype($file)], 0);
 				}
 			}
 
 			try {
 				$file = $this->application->paths->expand($file);
-				return $response->setRawFile($file);
-			} catch (Exception_File_NotFound $f) {
-				throw new Exception_NotFound($f->getRawMessage(), $f->variables(), 0, $f);
+				return $this->application->responseFactory($request)->setRawFile($file);
+			} catch (FileNotFound $f) {
+				throw new NotFoundException($f->getRawMessage(), $f->variables(), 0, $f);
 			}
 		}
 		$content = $this->option('content', $this->option('default content'));
@@ -37,19 +46,18 @@ class Route_Content extends Route {
 		foreach ($this->optionIterable('map') as $item) {
 			$map[$item] = match ($item) {
 				'request' => $request->variables(),
-				'response' => $response->toJSON(),
 				'route' => $this->options() + ['class' => get_class($this)],
 				default => [],
 			};
 		}
 		if (count($map)) {
 			$map = ArrayTools::keysFlatten($map, '.') + array_map(JSON::encodePretty(...), $map);
-			$content = map($content, $map);
+			$content =  ArrayTools::map($content, $map);
 		}
 		if ($this->option('json')) {
-			return $response->json()->setData($content);
+			return $this->application->responseFactory($request)->json()->setData($content);
 		} else {
-			return $response->setContent($content);
+			return $this->application->responseFactory($request)->setContent($content);
 		}
 	}
 }

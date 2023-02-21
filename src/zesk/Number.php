@@ -9,6 +9,8 @@ declare(strict_types=1);
  */
 namespace zesk;
 
+use zesk\Locale\Locale;
+
 /**
  * Number formatting tools and functions
  *
@@ -21,7 +23,7 @@ class Number {
 	 *
 	 * @var array
 	 */
-	private static $magnitudes = [
+	private static array $magnitudes = [
 		'K' => 1024,
 		'M' => 1048576,
 		'G' => 1073741824,
@@ -123,5 +125,64 @@ class Number {
 		}
 		$total = array_sum($a);
 		return floatval($total) / count($a);
+	}
+
+	/**
+	 * Utility for comparing floating point numbers where inaccuracies and rounding in math
+	 * produces close numbers which are not actually equal.
+	 *
+	 * FKA real_equal
+	 *
+	 * @param float $a
+	 * @param float $b
+	 * @param float $epsilon
+	 * @return boolean
+	 */
+	public static function floatsEqual(float $a, float $b, float $epsilon = 1e-5): bool {
+		return abs($a - $b) <= $epsilon;
+	}
+
+	/**
+	 * Is this value close (enough) to zero? Handles rounding errors with double-precision values.
+	 *
+	 * @param float|int $value
+	 * @param float $epsilon
+	 * @return boolean
+	 */
+	public static function isZero(float|int $value, float $epsilon = 1e-5): bool {
+		return abs($value) < $epsilon;
+	}
+
+	/**
+	 * Simple integer comparison routine, syntactic sugar
+	 *
+	 * @param int $minimum
+	 * @param int $value
+	 * @param int $maximum
+	 * @return bool
+	 */
+	public static function intBetween(int $minimum, int $value, int $maximum): bool {
+		return ($value >= $minimum) && ($value <= $maximum);
+	}
+
+	/**
+	 * Clamps a numeric value to a minimum and maximum value.
+	 *
+	 * @param mixed $minValue
+	 *            The minimum value in the clamp range
+	 * @param mixed $value
+	 *            A scalar value which serves as the value to clamp
+	 * @param mixed $maxValue
+	 *            A scalar value which serves as the value to clamp
+	 * @return mixed
+	 */
+	public static function clamp(mixed $minValue, mixed $value, mixed $maxValue): mixed {
+		if ($value < $minValue) {
+			return $minValue;
+		}
+		if ($value > $maxValue) {
+			return $maxValue;
+		}
+		return $value;
 	}
 }

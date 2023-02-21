@@ -18,13 +18,13 @@ class Compatibility {
 	public const PHP_VERSION_MINIMUM = 80000;
 
 	/**
-	 * @throws Exception_Unsupported
+	 * @throws Unsupported
 	 * @codeCoverageIgnore
 	 */
 	public static function check(): void {
 		$v = self::PHP_VERSION_MINIMUM;
 		if (!defined('PHP_VERSION_ID') || PHP_VERSION_ID < $v) {
-			throw new Exception_Unsupported('Zesk requires PHP version {maj}.{min}.{patch} or greater', [
+			throw new Unsupported('Zesk requires PHP version {maj}.{min}.{patch} or greater', [
 				'maj' => intval($v / 10000),
 				'min' => ($v / 100) % 100,
 				'patch' => $v % 100,

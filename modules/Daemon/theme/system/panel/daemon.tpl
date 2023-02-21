@@ -5,10 +5,10 @@ declare(strict_types=1);
  */
 namespace zesk;
 
-/* @var $this \zesk\Template */
-/* @var $locale \zesk\Locale */
+/* @var $this \zesk\Theme */
+/* @var $locale \zesk\Locale\Locale */
 /* @var $application \zesk\Application */
-/* @var $locale \zesk\Locale */
+/* @var $locale \zesk\Locale\Locale */
 /* @var $session \zesk\Session */
 /* @var $router \zesk\Router */
 /* @var $route \zesk\Route */

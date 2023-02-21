@@ -9,8 +9,18 @@ namespace zesk;
 use ReflectionClass;
 use ReflectionException;
 use Throwable;
-use function apath_set;
-use function strtr;
+use zesk\Exception\ClassNotFound;
+use zesk\Exception\ConfigurationException;
+use zesk\Exception\DirectoryNotFound;
+use zesk\Exception\DirectoryPermission;
+use zesk\Exception\ExitedException;
+use zesk\Exception\FileNotFound;
+use zesk\Exception\NotFoundException;
+use zesk\Exception\ParameterException;
+use zesk\Exception\ParseException;
+use zesk\Exception\Semantics;
+use zesk\Exception\Unsupported;
+use zesk\Locale\Locale;
 use const STDERR;
 use const ZESK_ROOT;
 
@@ -138,18 +148,19 @@ class CommandLoader {
 	 * Run the command.
 	 * Main entry point into this class after initialization, normally.
 	 * @return int
-	 * @throws Exception_Exited
-	 * @throws Exception_Parameter
-	 * @throws Exception_Semantics
+	 * @throws ConfigurationException
+	 * @throws ExitedException
+	 * @throws ParameterException
+	 * @throws Semantics
+	 * @throws Unsupported
 	 */
 	public function run(): int {
 		if (!array_key_exists('argv', $_SERVER) || !is_array($_SERVER['argv'])) {
-			throw new Exception_Parameter('No argv in $_SERVER');
+			throw new ParameterException('No argv in $_SERVER');
 		}
 
 		$args = $_SERVER['argv'];
 		assert(is_array($args));
-		$args = $this->fix_zend_studio_arguments($args);
 		$args = $this->argumentSugar($args);
 		$this->command = array_shift($args);
 
@@ -207,8 +218,8 @@ class CommandLoader {
 
 			try {
 				$args = $this->runCommand($arg, $args);
-			} catch (Exception_NotFound $e) {
-				$this->error(map("{command} not found: {commands}\n", $e->variables()));
+			} catch (NotFoundException $e) {
+				$this->error(ArrayTools::map("{command} not found: {commands}\n", $e->variables()));
 				return self::EXIT_CODE_ARGUMENTS;
 			}
 		}
@@ -217,8 +228,8 @@ class CommandLoader {
 
 	/**
 	 * @return int
-	 * @throws Exception_Exited
-	 * @throws Exception_Semantics
+	 * @throws ExitedException
+	 * @throws Semantics
 	 */
 	private function bootstrapApplication(): int {
 		$first_command = $this->findApplication();
@@ -248,10 +259,10 @@ class CommandLoader {
 	 * @param string $arg
 	 * @param array $args
 	 * @return array
-	 * @throws Exception_Parse
-	 * @throws Exception_Directory_NotFound
-	 * @throws Exception_Directory_Permission
-	 * @throws Exception_Parameter
+	 * @throws ParseException
+	 * @throws DirectoryNotFound
+	 * @throws DirectoryPermission
+	 * @throws ParameterException
 	 */
 	private function handleCoreArguments(string $arg, array $args): array {
 		return match ($arg) {
@@ -279,7 +290,7 @@ class CommandLoader {
 	private function runIncludeCommand(string $arg): int {
 		try {
 			File::depends($arg);
-		} catch (Exception_File_NotFound) {
+		} catch (FileNotFound) {
 			$this->error("File not found: $arg");
 			return self::EXIT_CODE_ARGUMENTS;
 		}
@@ -287,7 +298,8 @@ class CommandLoader {
 		try {
 			require_once($arg);
 		} catch (Throwable $e) {
-			$this->error(map("require_once($arg) threw error: {class} {message}\n", ['arg' => $arg] + Exception::exceptionVariables($e)));
+			$this->error(ArrayTools::map("require_once($arg) threw error: {class} {message}\n", ['arg' => $arg] +
+				Exception::exceptionVariables($e)));
 			return self::EXIT_CODE_ARGUMENTS;
 		}
 		return 0;
@@ -359,7 +371,7 @@ class CommandLoader {
 							$failures[$commandInclude] = $e;
 						}
 					}
-				} catch (Exception_Parameter) {
+				} catch (ParameterException) {
 				}
 			}
 		}
@@ -423,14 +435,12 @@ class CommandLoader {
 	 * @param string $shortcut
 	 * @param array $args
 	 * @return array
-	 * @throws Exception_Configuration
-	 * @throws Exception_NotFound
-	 * @throws Exception_Unsupported
+	 * @throws NotFoundException
 	 */
 	public function runCommand(string $shortcut, array $args): array {
 		$commands = $this->collectCommandShortcuts();
 		if (!array_key_exists($shortcut, $commands)) {
-			throw new Exception_NotFound('Command {command} not found', [
+			throw new NotFoundException('Command {command} not found', [
 				'command' => $shortcut, 'commands' => array_keys($commands),
 			]);
 		}
@@ -444,14 +454,14 @@ class CommandLoader {
 			], $args), [
 				'debug' => $this->debug,
 			]);
-		} catch (Exception_Class_NotFound $e) {
-			throw new Exception_NotFound('Command {command} not found', ['command' => $shortcut], 404, $e);
+		} catch (ClassNotFound $e) {
+			throw new NotFoundException('Command {command} not found', ['command' => $shortcut], 404, $e);
 		}
 		$application->setCommand($command);
 
 		try {
 			$result = $command->parseArguments(array_merge([$shortcut], $args))->go();
-		} catch (Exception_Parameter $e) {
+		} catch (ParameterException $e) {
 			$command->usage($e->getRawMessage(), $e->variables() + ['exitCode' => Command::EXIT_CODE_ARGUMENTS]);
 			$result = Command::EXIT_CODE_ARGUMENTS;
 		}
@@ -460,7 +470,7 @@ class CommandLoader {
 
 		try {
 			$this->debug('Remaining class arguments: ' . JSON::encode($args));
-		} catch (Exception_Semantics) {
+		} catch (Semantics) {
 			// JSON failed, bah
 		}
 		if ($result !== 0) {
@@ -522,51 +532,8 @@ class CommandLoader {
 	}
 
 	/**
-	 * Handle running PHP commands via Zend Studio.
-	 *
-	 * Zend Studio places command-line arguments as part of the $_SERVER[argv] in a query
-	 * string format, simply appending them like
-	 *
-	 * &arg0&arg1&arg2&arg3
-	 *
-	 * Zend Studio also strips all "quotes" away (oddly), and includes all of the debugging
-	 * parameters beforehand.
-	 *
-	 * We scan for entries without a "=" (which will easily break many applications,
-	 * unfortunately)
-	 * and then fake out a real $args.
-	 *
-	 * For debugging only.
-	 *
-	 * @param array $args
-	 * @return array New argv
-	 */
-	private function fix_zend_studio_arguments(array $args) {
-		if (PHP_SAPI === 'cli') {
-			foreach ($args as $index => $arg) {
-				$args[$index] = rawurldecode($arg);
-			}
-			return $args;
-		}
-		if (count($args) === 1 && array_key_exists(0, $args)) {
-			$qs_argv = $args[0];
-		}
-		$qs_argv = explode('&', $qs_argv);
-		$args = [
-			__FILE__,
-		];
-		$found = false;
-		foreach ($qs_argv as $arg) {
-			if ($found || (str_starts_with($arg, '-')) || (strpos($arg, '=')) === false) {
-				$args[] = $arg;
-				$found = true;
-			}
-		}
-		return $args;
-	}
-
-	/**
 	 * Provide some syntactic sugar for input arguments, converting ___ to \
+	 * to avoid fugly command lines to escape backslashes.
 	 *
 	 * @param array $args
 	 * @return array
@@ -646,7 +613,7 @@ class CommandLoader {
 	 *
 	 * @param string $arg
 	 * @return int
-	 * @throws Exception_Exited
+	 * @throws ExitedException
 	 */
 	private function zeskLoaded(string $arg): int {
 		if ($this->application instanceof Application) {
@@ -669,8 +636,8 @@ class CommandLoader {
 
 			$this->commands = $this->collectCommandShortcuts();
 			return 0;
-		} catch (Exception_Semantics $e) {
-			throw new Exception_Exited('No application', [], 0, $e);
+		} catch (Semantics $e) {
+			throw new ExitedException('No application', [], 0, $e);
 		}
 	}
 
@@ -708,9 +675,9 @@ class CommandLoader {
 			$this->application->configuration->setPath($key, $value);
 		} else {
 			global $_ZESK;
-			$key = _zesk_global_key($key);
-			$this->global_context[implode(ZESK_GLOBAL_KEY_SEPARATOR, $key)] = $value;
-			apath_set($_ZESK, $key, $value, ZESK_GLOBAL_KEY_SEPARATOR);
+			$keyPath = Types::configurationKey($key);
+			$this->global_context[Types::keyToString($keyPath)] = $value;
+			ArrayTools::setPath($_ZESK, $keyPath, $value);
 		}
 		return $args;
 	}
@@ -730,12 +697,12 @@ class CommandLoader {
 		}
 		$this->debug("Unset global $key");
 		if ($this->zeskIsLoaded()) {
-			$this->application->configuration->setPath($key, null);
+			$this->application->configuration->setPath($key);
 		} else {
 			global $_ZESK;
-			$key = _zesk_global_key($key);
-			$this->global_context[implode(ZESK_GLOBAL_KEY_SEPARATOR, $key)] = null;
-			apath_unset($_ZESK, $key);
+			$keyPath = Types::configurationKey($key);
+			$this->global_context[Types::keyToString($keyPath)] = null;
+			ArrayTools::unsetPath($_ZESK, $key);
 		}
 		return $args;
 	}
@@ -745,20 +712,20 @@ class CommandLoader {
 	 *
 	 * @param array $args
 	 * @return array
-	 * @throws Exception_Parameter
-	 * @throws Exception_Directory_NotFound
-	 * @throws Exception_Directory_Permission
+	 * @throws ParameterException
+	 * @throws DirectoryNotFound
+	 * @throws DirectoryPermission
 	 */
 	private function handleCD(array $args): array {
 		$arg = array_shift($args);
 		if ($arg === null) {
-			throw new Exception_Parameter('--cd missing directory argument');
+			throw new ParameterException('--cd missing directory argument');
 		}
 		if (!is_dir($arg) && !is_link($arg)) {
-			throw new Exception_Directory_NotFound($arg, 'Not a directory "{path}"');
+			throw new DirectoryNotFound($arg, 'Not a directory "{path}"');
 		}
 		if (!@chdir($arg)) {
-			throw new Exception_Directory_Permission($arg, 'Unable to change directory to "{path}"');
+			throw new DirectoryPermission($arg, 'Unable to change directory to "{path}"');
 		}
 		return $args;
 	}
@@ -790,7 +757,7 @@ class CommandLoader {
 	 *
 	 * @param array $args
 	 * @return array
-	 * @throws Exception_Parse
+	 * @throws ParseException
 	 */
 	private function handleConfig(array $args): array {
 		$arg = array_shift($args);

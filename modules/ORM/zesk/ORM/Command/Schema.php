@@ -3,11 +3,12 @@ declare(strict_types=1);
 /**
  *
  */
-namespace zesk\ORM;
+namespace zesk\ORM\Command;
 
 use zesk\ArrayTools;
 use zesk\Command_Base;
 use zesk\Exception;
+use zesk\ORM\ORMBase;
 use zesk\URL;
 
 /**
@@ -17,7 +18,7 @@ use zesk\URL;
  *
  * @category Database
  */
-class Command_Schema extends Command_Base {
+class Schema extends Command_Base {
 	/**
 	 *
 	 * @var array
@@ -145,14 +146,6 @@ class Command_Schema extends Command_Base {
 	}
 
 	/**
-	 * @return void
-	 */
-	protected function initialize(): void {
-		parent::initialize();
-		$this->application->registerClass(Schema_File::class);
-	}
-
-	/**
 	 *
 	 * {@inheritdoc}
 	 *
@@ -162,7 +155,7 @@ class Command_Schema extends Command_Base {
 		$application = $this->application;
 
 		if ($this->optionBool('debug')) {
-			Schema::$debug = true;
+			\zesk\ORM\Schema::setSchemaDebugging($this->application, true);
 		}
 		$url = '';
 		if ($this->hasOption('url')) {

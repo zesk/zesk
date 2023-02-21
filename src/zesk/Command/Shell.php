@@ -7,6 +7,7 @@ declare(strict_types=1);
 namespace zesk;
 
 use Throwable;
+use zesk\Exception\FilePermission;
 
 /**
  * Run arbitrary PHP code in the application context. Use --interactive or -i to run in interactive mode.
@@ -67,9 +68,9 @@ class Command_Shell extends Command_Base {
 	 * Run our eval command
 	 *
 	 * @return int
-	 * @throws Exception_File_Permission
-	 * @throws Exception_Parameter
-	 * @throws Exception_Semantics
+	 * @throws FilePermission
+	 * @throws ParameterException
+	 * @throws Semantics
 	 */
 	public function run(): int {
 		if (!$this->optionBool('skip-configure')) {
@@ -113,8 +114,8 @@ class Command_Shell extends Command_Base {
 	 * Interactive evaluation of commands
 	 *
 	 * @return int
-	 * @throws Exception_File_Permission
-	 * @throws Exception_Semantics
+	 * @throws FilePermission
+	 * @throws Semantics
 	 */
 	public function interactive(): int {
 		$this->history_file_path = $this->application->paths->userHome('eval-history.log');
@@ -123,7 +124,7 @@ class Command_Shell extends Command_Base {
 		while (true) {
 			try {
 				$command = $this->prompt($name . '>');
-			} catch (Exception_Redirect) {
+			} catch (StopIteration) {
 				return 0;
 			}
 			if (feof(STDIN)) {

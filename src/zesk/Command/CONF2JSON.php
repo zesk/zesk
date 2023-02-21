@@ -3,6 +3,10 @@ declare(strict_types=1);
 namespace zesk;
 
 use SplFileInfo;
+use zesk\Adapter\SettingsArray;
+use zesk\Configuration\Parser;
+use zesk\Exception\ClassNotFound;
+use zesk\Exception\FilePermission;
 
 /**
  * Convert a .conf file to a .json configuration file
@@ -38,11 +42,11 @@ class Command_CONF2JSON extends Command_Iterator_File {
 		$target_name = File::setExtension($source_name, 'json');
 
 		$result = [];
-		$adapter = new Adapter_Settings_Array($result);
+		$adapter = new SettingsArray($result);
 
 		try {
-			Configuration_Parser::factory('conf', file_get_contents($source_name), $adapter)->process();
-		} catch (Exception_Class_NotFound $e) {
+			Parser::factory('conf', file_get_contents($source_name), $adapter)->process();
+		} catch (ClassNotFound $e) {
 		}
 
 		$target_exists = file_exists($target_name);
@@ -71,7 +75,7 @@ class Command_CONF2JSON extends Command_Iterator_File {
 
 			try {
 				File::put($target_name, JSON::encodePretty($result));
-			} catch (Exception_File_Permission $e) {
+			} catch (FilePermission $e) {
 				$this->error('Unable to put {target_name}, stopping', ['target_name' => $target_name]);
 				return false;
 			}

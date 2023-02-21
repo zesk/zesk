@@ -9,7 +9,9 @@
     "ext-calendar": "*",
     "ext-json": "*",
     "ext-posix": "*",
-    "ext-pcntl": "*"
+    "ext-pcntl": "*",
+    "ext-intl": "*",
+    "doctrine/orm": "*"
   },
   "suggest": {
     "ext-xdebug": "*",
@@ -52,8 +54,6 @@
   "homepage": "https://zesk.com",
   "autoload-dev": {
     "classmap": [
-      "modules/Database/classes/DatabaseUnitTest.php",
-      "modules/ORM/zesk/ORM/ORMUnitTest.php",
       "modules/PHPUnit/classes/PHPUnit/TestCase.php",
       "modules/Repository/zesk/Repository/TestCase.php"
     ]

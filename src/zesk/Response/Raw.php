@@ -3,24 +3,25 @@ declare(strict_types=1);
 
 namespace zesk\Response;
 
-use zesk\Exception_Semantics;
-use zesk\Response;
+use zesk\Exception\FileNotFound;
+use zesk\Exception\KeyNotFound;
+use zesk\Exception\Semantics;
 use zesk\File;
 use zesk\MIME;
-use zesk\Exception_File_NotFound;
+use zesk\Response;
 
 class Raw extends Type {
 	/**
 	 *
 	 * @var string
 	 */
-	private $file = null;
+	private string $file = '';
 
 	/**
 	 *
 	 * @var string
 	 */
-	private $binary = null;
+	private string $binary = '';
 
 	/**
 	 *
@@ -33,9 +34,12 @@ class Raw extends Type {
 	 */
 	public function headers(): void {
 		if ($this->file) {
-			$this->parent->setContentType(MIME::fromExtension($this->file));
+			try {
+				$this->parent->setContentType(MIME::fromExtension($this->file));
+			} catch (KeyNotFound) {
+			}
 			$this->parent->setHeader('Last-Modified', gmdate('D, d M Y H:i:s \G\M\T', filemtime($this->file)));
-			$this->parent->setHeader('Content-Length', filesize($this->file));
+			$this->parent->setHeader('Content-Length', strval(filesize($this->file)));
 		}
 	}
 
@@ -57,24 +61,28 @@ class Raw extends Type {
 	 *
 	 * @param string $file
 	 * @return Response
-	 * @throws Exception_File_NotFound
+	 * @throws FileNotFound
 	 */
 	public function setFile(string $file): Response {
 		if (!file_exists($file)) {
-			throw new Exception_File_NotFound($file);
+			throw new FileNotFound($file);
 		}
 		$this->parent->setOutputHandler(Response::CONTENT_TYPE_RAW);
-		$this->parent->setContentType(MIME::fromExtension($file));
+
+		try {
+			$this->parent->setContentType(MIME::fromExtension($file));
+		} catch (KeyNotFound) {
+		}
 		$this->file = $file;
 		return $this->parent;
 	}
 
 	/**
-	 * @throws Exception_Semantics
+	 * @throws Semantics
 	 */
 	public function file(): string {
 		if (empty($this->file)) {
-			throw new Exception_Semantics('file not set');
+			throw new Semantics('file not set');
 		}
 		return $this->file;
 	}
@@ -89,7 +97,7 @@ class Raw extends Type {
 	 * @param string $type
 	 *            Content disposition type (attachment)
 	 * @return Response
-	 * @throws Exception_File_NotFound
+	 * @throws FileNotFound
 	 */
 	final public function download(string $file, string $name = '', string $type = ''): Response {
 		if (!$name) {

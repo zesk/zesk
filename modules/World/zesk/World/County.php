@@ -10,11 +10,11 @@ declare(strict_types=1);
 namespace zesk\World;
 
 use zesk\Application;
-use zesk\Database_Exception_Duplicate;
-use zesk\Database_Exception_NoResults;
-use zesk\Database_Exception_Table_NotFound;
-use zesk\Exception_Key;
-use zesk\ORM\Exception_ORMEmpty;
+use zesk\Database\Exception\Duplicate;
+use zesk\Database\Exception\NoResults;
+use zesk\Database\Exception\TableNotFound;
+use zesk\Exception\KeyNotFound;
+use zesk\ORM\ORMEmpty;
 use zesk\ORM\ORMBase;
 
 /**
@@ -46,11 +46,11 @@ class County extends ORMBase {
 	 * @param string $targetClass
 	 * @param string $targetColumn
 	 * @return int
-	 * @throws Database_Exception_Duplicate
-	 * @throws Database_Exception_NoResults
-	 * @throws Database_Exception_Table_NotFound
-	 * @throws Exception_Key
-	 * @throws Exception_ORMEmpty
+	 * @throws Database\Exception\Duplicate
+	 * @throws Database\Exception\NoResults
+	 * @throws Database\Exception\TableNotFound
+	 * @throws KeyNotFound
+	 * @throws ORMEmpty
 	 */
 	public function usageStatistics(string $targetClass, string $targetColumn = 'county'): int {
 		$target = $this->application->ormRegistry($targetClass);

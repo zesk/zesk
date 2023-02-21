@@ -12,8 +12,8 @@ namespace zesk\GitHub;
 use Throwable;
 use zesk\Command_Base;
 use zesk\Exception;
-use zesk\Exception_File_NotFound;
-use zesk\Exception_NotFound;
+use zesk\Exception\FileNotFound;
+use zesk\Exception\NotFoundException;
 use zesk\File;
 
 /**
@@ -89,7 +89,7 @@ class Command extends Command_Base {
 
 		try {
 			$description = File::contents($file);
-		} catch (Exception_File_NotFound) {
+		} catch (FileNotFound) {
 			$description = $this->option(self::OPTION_DESCRIPTION);
 		}
 		if (!$description) {
@@ -105,7 +105,7 @@ class Command extends Command_Base {
 				return 0;
 			}
 			return self::EXIT_CODE_TAG_FAILED;
-		} catch (Exception_NotFound $not_found) {
+		} catch (NotFoundException $not_found) {
 			$this->error('Running {this_class} but GitHub module not loaded.', [
 				'this_class' => get_class($this),
 			]);

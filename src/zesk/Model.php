@@ -8,13 +8,17 @@ namespace zesk;
 
 use ArrayAccess;
 use TypeError;
+use zesk\Exception\ClassNotFound;
+use zesk\Exception\ParseException;
+use zesk\Exception\Redirect;
+use zesk\Interface\ModelFactory;
 
 /**
  *
  * @author kent
  *
  */
-class Model extends Hookable implements ArrayAccess, Interface_Factory {
+class Model extends Hookable implements ArrayAccess, ModelFactory {
 	public const OPTION_DEFAULT_THEME = 'default_theme';
 
 	/**
@@ -60,7 +64,7 @@ class Model extends Hookable implements ArrayAccess, Interface_Factory {
 	 * @param mixed $value
 	 * @param array $options
 	 * @return Model
-	 * @throws Exception_Class_NotFound
+	 * @throws ClassNotFound
 	 */
 	public static function factory(Application $application, string $class, mixed $value = null, array $options = []): Model {
 		$object = $application->factoryArguments($class, [$application, $value, $options]);
@@ -77,7 +81,7 @@ class Model extends Hookable implements ArrayAccess, Interface_Factory {
 	 * @param $options array
 	 *            Additional options for object
 	 * @return self
-	 * @throws Exception_Class_NotFound
+	 * @throws ClassNotFound
 	 * @see Interface_Factory::modelFactory()
 	 */
 	public function modelFactory(string $class, mixed $value = null, array $options = []): Model {
@@ -144,7 +148,7 @@ class Model extends Hookable implements ArrayAccess, Interface_Factory {
 	 * Convert values in this object with map
 	 */
 	public function map(array $map): self {
-		foreach (map($this->variables(), $map) as $key => $value) {
+		foreach (ArrayTools::map($this->variables(), $map) as $key => $value) {
 			if (!str_starts_with($key, '_')) {
 				$this->__set($key, $value);
 			}
@@ -162,7 +166,7 @@ class Model extends Hookable implements ArrayAccess, Interface_Factory {
 			return $name->map($this->variables());
 		}
 		if (is_string($name) || is_array($name)) {
-			return map($name, $this->variables());
+			return ArrayTools::map($name, $this->variables());
 		}
 		return $name;
 	}
@@ -174,7 +178,7 @@ class Model extends Hookable implements ArrayAccess, Interface_Factory {
 	 * @return boolean
 	 */
 	public function offsetExists(mixed $offset): bool {
-		return $this->__isset(toKey($offset));
+		return $this->__isset(Types::toKey($offset));
 	}
 
 	/**
@@ -184,7 +188,7 @@ class Model extends Hookable implements ArrayAccess, Interface_Factory {
 	 * @return mixed
 	 */
 	public function offsetGet(mixed $offset): mixed {
-		return $this->__get(toKey($offset));
+		return $this->__get(Types::toKey($offset));
 	}
 
 	/**
@@ -195,7 +199,7 @@ class Model extends Hookable implements ArrayAccess, Interface_Factory {
 	 * @return void
 	 */
 	public function offsetSet(mixed $offset, mixed $value): void {
-		$this->__set(toKey($offset), $value);
+		$this->__set(Types::toKey($offset), $value);
 	}
 
 	/**
@@ -205,7 +209,7 @@ class Model extends Hookable implements ArrayAccess, Interface_Factory {
 	 * @return void
 	 */
 	public function offsetUnset(mixed $offset): void {
-		$this->__unset(toKey($offset));
+		$this->__unset(Types::toKey($offset));
 	}
 
 	/**
@@ -245,8 +249,8 @@ class Model extends Hookable implements ArrayAccess, Interface_Factory {
 	 * @return bool
 	 */
 	public function hasAny(string|iterable $name): bool {
-		foreach (toIterable($name) as $k) {
-			if ($this->__isset(toKey($k))) {
+		foreach (Types::toIterable($name) as $k) {
+			if ($this->__isset(Types::toKey($k))) {
 				return true;
 			}
 		}
@@ -260,8 +264,8 @@ class Model extends Hookable implements ArrayAccess, Interface_Factory {
 	 * @return bool
 	 */
 	public function hasAll(string|iterable $name): bool {
-		foreach (toIterable($name) as $k) {
-			if (!$this->__isset(toKey($k))) {
+		foreach (Types::toIterable($name) as $k) {
+			if (!$this->__isset(Types::toKey($k))) {
 				return false;
 			}
 		}
@@ -309,7 +313,7 @@ class Model extends Hookable implements ArrayAccess, Interface_Factory {
 	}
 
 	/**
-	 * @param string $key
+	 * @param int|string $key
 	 * @return mixed
 	 */
 	public function __get(int|string $key): mixed {
@@ -327,14 +331,14 @@ class Model extends Hookable implements ArrayAccess, Interface_Factory {
 			$this->_initialized = true;
 		} catch (TypeError) {
 			PHP::log('Unable to set {class}::{key} to type {type}', [
-				'class' => $this::class, 'key' => $key, 'type' => type($value),
+				'class' => $this::class, 'key' => $key, 'type' => Types::type($value),
 			]);
 		}
 	}
 
 	/**
 	 *
-	 * @param string $key
+	 * @param int|string $key
 	 */
 	public function __unset(int|string $key): void {
 		try {
@@ -412,7 +416,7 @@ class Model extends Hookable implements ArrayAccess, Interface_Factory {
 	 * @param string $default
 	 *            Default value if no theme is found
 	 * @return ?string
-	 * @throws Exception_Redirect
+	 * @throws Redirect
 	 */
 	public function theme(array|string $theme_names = '', string|array $variables = [], string $default = ''): ?string {
 		$variables = is_string($variables) ? [
@@ -431,21 +435,21 @@ class Model extends Hookable implements ArrayAccess, Interface_Factory {
 	 *
 	 * @param $name mixed
 	 * @return int|string|array
-	 * @throws Exception_Convert
+	 * @throws ParseException
 	 */
 	public static function mixedToID(mixed $name): int|string|array {
 		if ($name instanceof Model) {
 			return $name->id();
 		}
 		if (is_numeric($name)) {
-			return toInteger($name);
+			return Types::toInteger($name);
 		}
 		if (is_string($name)) {
 			return $name;
 		}
 
-		throw new Exception_Convert('Unable to convert {mixed} ({type}) to ID', [
-			'mixed' => $name, 'type' => type($name),
+		throw new ParseException('Unable to convert {mixed} ({type}) to ID', [
+			'mixed' => $name, 'type' => Types::type($name),
 		]);
 	}
 }

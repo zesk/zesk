@@ -8,6 +8,8 @@ declare(strict_types=1);
  */
 namespace zesk;
 
+use zesk\Exception\Semantics;
+
 /**
  * Javascript tools
  *
@@ -19,7 +21,7 @@ class JavaScript {
 	 *
 	 * @var boolean
 	 */
-	private static $obfuscated = false;
+	private static bool $obfuscated = false;
 
 	/**
 	 * Convert passed arguments into a JavaScript argument list.
@@ -28,7 +30,7 @@ class JavaScript {
 	 *
 	 * @return string commas-separated list of arguments
 	 */
-	public static function arguments() {
+	public static function arguments(): string {
 		$args = func_get_args();
 		$json = [];
 		foreach ($args as $arg) {
@@ -41,11 +43,11 @@ class JavaScript {
 	 * Begin JavaScript obfuscation output capture
 	 *
 	 * Depends on output buffering
-	 * @throws Exception_Semantics
+	 * @throws Semantics
 	 */
 	public static function obfuscate_begin(): void {
 		if (self::$obfuscated) {
-			throw new Exception_Semantics('Already called obfuscate_begin');
+			throw new Semantics('Already called obfuscate_begin');
 		}
 		self::$obfuscated = true;
 		ob_start();
@@ -56,11 +58,11 @@ class JavaScript {
 	 *
 	 * @param array $function_map Apply string mapping at end
 	 * @return string
-	 * @throws Exception_Semantics
+	 * @throws Semantics
 	 */
-	public static function obfuscate_end(array $function_map = []) {
+	public static function obfuscate_end(array $function_map = []): string {
 		if (!self::$obfuscated) {
-			throw new Exception_Semantics('Need to call obfuscate_begin first');
+			throw new Semantics('Need to call obfuscate_begin first');
 		}
 		self::$obfuscated = false;
 		$formatting = [
@@ -92,9 +94,8 @@ class JavaScript {
 	 * @param string $name function name to clean
 	 * @return string
 	 */
-	public static function clean_function_name(string $name) {
-		$name = preg_replace('/[^A-Za-z0-9_]/', '', $name);
-		return $name;
+	public static function clean_function_name(string $name): string {
+		return preg_replace('/[^A-Za-z0-9_]/', '', $name);
 	}
 
 	/**
@@ -118,7 +119,7 @@ class JavaScript {
 	 * @return string
 	 */
 	public static function clean_code(array $javascript): string {
-		return implode(";\n", ArrayTools::valuesRemoveSuffix(ArrayTools::listTrimClean($javascript, ' ', ''), ';'));
+		return implode(";\n", ArrayTools::valuesRemoveSuffix(ArrayTools::listTrimClean($javascript, ' ', ['']), ';'));
 	}
 
 	/**

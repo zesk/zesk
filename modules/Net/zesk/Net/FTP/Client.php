@@ -8,6 +8,8 @@ declare(strict_types=1);
  */
 namespace zesk;
 
+use zesk\Exception\DirectoryCreate;
+
 /**
  *
  * @author kent
@@ -44,7 +46,7 @@ class Net_FTP_Client extends Net_Client implements Net_FileSystem {
 	 */
 	public function connect(): void {
 		if ($this->isConnected()) {
-			throw new Exception_Semantics('Already connected.');
+			throw new Semantics('Already connected.');
 		}
 		$host = null;
 		$port = 21;
@@ -134,7 +136,7 @@ class Net_FTP_Client extends Net_Client implements Net_FileSystem {
 
 	public function mkdir($path) {
 		if (!ftp_mkdir($this->ftp, $path)) {
-			throw new Exception_Directory_Create($path);
+			throw new DirectoryCreate($path);
 		}
 		return true;
 	}

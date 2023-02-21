@@ -7,25 +7,27 @@ declare(strict_types=1);
  * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  */
 
-namespace zesk;
+namespace zesk\Locale;
 
-class Locale_ES extends Locale {
-	public function date_format(): string {
+use zesk\StringTools;
+
+class ES extends Locale {
+	public function formatDate(): string {
 		// TODO
 		return 'el {DDD} {MMMM} {YYYY}';
 	}
 
-	public function datetime_format(): string {
+	public function formatDateTime(): string {
 		// TODO
 		return '{DDD} {MMMM} {YYYY}, {hh}:{mm}:{ss}';
 	}
 
-	public function time_format(bool $include_seconds = false): string {
+	public function formatTime(bool $include_seconds = false): string {
 		// TODO
 		return $include_seconds ? '{hh}:{mm}:{ss}' : '{hh}:{mm}';
 	}
 
-	public function noun_semantic_plural(string $noun, float $number = 2): string {
+	public function nounSemanticPlural(string $noun, float $number = 2): string {
 		if (str_ends_with($noun, 's')) {
 			return $noun . 'es';
 		}
@@ -55,10 +57,10 @@ class Locale_ES extends Locale {
 		}
 	}
 
-	public function negate_word(string $word, string $preferred_prefix = ''): string {
+	public function negateWord(string $word, string $preferred_prefix = ''): string {
 		if ($preferred_prefix === '') {
 			$preferred_prefix = 'pas de';
 		}
-		return StringTools::caseMatch('pas de ' . $word, $word);
+		return StringTools::caseMatch($preferred_prefix . $word, $word);
 	}
 }

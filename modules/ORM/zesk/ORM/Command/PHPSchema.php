@@ -1,17 +1,17 @@
 <?php
 declare(strict_types=1);
 
-namespace zesk\ORM;
+namespace zesk\ORM\Command;
 
 use zesk\Command;
-use zesk\Exception_Class_NotFound;
+use zesk\Exception\ClassNotFound;
 
 /**
  * Display a list of all included files so far
  *
  * @category Debugging
  */
-class Command_PHPSchema extends Command {
+class PHPSchema extends Command {
 	protected array $option_types = [
 		'class' => 'string',
 	];
@@ -28,7 +28,7 @@ class Command_PHPSchema extends Command {
 
 		try {
 			$object = $app->ormModule()->ormFactory($app, $class);
-		} catch (Exception_Class_NotFound) {
+		} catch (ClassNotFound) {
 			echo "/* $class: No such class $class */\n";
 			return self::EXIT_CODE_ENVIRONMENT;
 		}
@@ -42,7 +42,7 @@ class Command_PHPSchema extends Command {
 			echo "/* $class: Schema empty */\n";
 			return self::EXIT_CODE_ENVIRONMENT;
 		} else {
-			echo $this->application->theme('Command/PHPSchema', [
+			echo $this->application->themes->theme('Command/PHPSchema', [
 				'class_name' => 'Schema_' . $object::class,
 				'schema' => $schema,
 			]);

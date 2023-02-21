@@ -30,7 +30,7 @@ class Client extends NetClient implements FileSystem {
 	 */
 	public function connect(): self {
 		if ($this->connected) {
-			throw new Exception_Semantics('Already connected');
+			throw new Semantics('Already connected');
 		}
 		$this->connected = true;
 		return $this;
@@ -102,7 +102,7 @@ class Client extends NetClient implements FileSystem {
 			if (is_file($remote_path)) {
 				$temp = $remote_path . '.rename-' . $this->application->process->id();
 				if (!rename($remote_path, $temp)) {
-					throw new Exception_File_Permission($remote_path);
+					throw new FilePermission($remote_path);
 				}
 			}
 			$result = rename($local_path, $remote_path);
@@ -137,7 +137,7 @@ class Client extends NetClient implements FileSystem {
 
 		try {
 			$stats = File::stat($path);
-		} catch (Exception_File_NotFound $e) {
+		} catch (FileNotFound $e) {
 			return $entry + [
 				'type' => null,
 			];

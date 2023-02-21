@@ -5,22 +5,22 @@ declare(strict_types=1);
  * Walks through the dependencies of classes using ORM::dependencies and ensures all 'requires' values are
  * included as well.
  * Takes a command parameter afterwards which is the application class to instantiate
- * @global boolean debug.db Turn database debugging on or off
- * @global boolean verbose Output each object and method as it is invoked
- * @global string Application::class Set this to the application class to install (if not the default)
+ *
  * @category Management
  */
-namespace zesk\ORM;
+namespace zesk\ORM\Command;
 
 use zesk\Command_Base;
 use zesk\Application;
 use zesk\Hookable;
+use zesk\ORM\ORMBase;
+use zesk\ORM\Schema;
 
 /**
  * Install all application classes by running their installation code
  * @category BETA - Management
  */
-class Command_Install extends Command_Base {
+class Install extends Command_Base {
 	protected array $shortcuts = ['install', 'in'];
 
 	protected array $option_types = [];

@@ -4,18 +4,23 @@ declare(strict_types=1);
 namespace zesk\ORM;
 
 use zesk\Application;
+use zesk\Application\Paths;
 use zesk\ArrayTools;
-use zesk\Exception_Configuration;
-use zesk\Exception_Deprecated;
-use zesk\Exception_Directory_NotFound;
-use zesk\Exception_File_NotFound;
-use zesk\Exception_File_Permission;
-use zesk\Exception_Key;
-use zesk\Exception_Semantics;
-use zesk\Exception_Unimplemented;
+use zesk\Database\Exception\SQLException;
+use zesk\Exception\ClassNotFound;
+use zesk\Exception\ConfigurationException;
+use zesk\Exception\DirectoryNotFound;
+use zesk\Exception\FileNotFound;
+use zesk\Exception\FilePermission;
+use zesk\Exception\KeyNotFound;
+use zesk\Exception\ParameterException;
+use zesk\Exception\ParseException;
+use zesk\Exception\Semantics;
 use zesk\File;
 use zesk\Net\Sync;
-use zesk\Paths;
+use zesk\ORM\Exception\ORMEmpty;
+use zesk\ORM\Exception\ORMNotFound;
+use zesk\ORM\Interface\SchemaUpdatedInterface;
 use zesk\Text;
 
 /**
@@ -25,7 +30,7 @@ use zesk\Text;
  * @property string $name
  * @property string $tld
  */
-class Domain extends ORMBase {
+class Domain extends ORMBase implements SchemaUpdatedInterface {
 	/**
 	 *
 	 * @todo credit
@@ -44,13 +49,13 @@ class Domain extends ORMBase {
 	 * @todo credit
 	 * @var string
 	 */
-	public const URL_TLDS_BY_ALPHA = 'http://data.iana.org/TLD/tlds-alpha-by-domain.txt';
+	public const URL_TOP_LEVEL_DOMAINS = 'https://data.iana.org/TLD/tlds-alpha-by-domain.txt';
 
 	/**
 	 *
 	 * @var array
 	 */
-	private static array $public_tlds = [];
+	private static array $publicTopLevelDomains = [];
 
 	/**
 	 *
@@ -59,22 +64,23 @@ class Domain extends ORMBase {
 	public static function cron_hour(Application $application): void {
 		foreach ([
 			self::URL_PUBLIC_SUFFIX_LIST => self::publicSuffixListFile($application->paths),
-			self::URL_TLDS_BY_ALPHA => self::tldByAlphaFile($application->paths),
+			self::URL_TOP_LEVEL_DOMAINS => self::topLevelDomainsFile($application->paths),
 		] as $url => $path) {
 			try {
-				Sync::url_to_file($application, $url, $path);
-			} catch (Exception_File_Permission|Exception_Directory_NotFound $e) {
+				Sync::urlToFile($application, $url, $path);
+			} catch (FilePermission|DirectoryNotFound $e) {
 				$application->logger->error($e);
 			}
 		}
 	}
 
 	/**
-	 * @param Application $application
 	 * @return void
+	 * @throws DirectoryNotFound
+	 * @throws FilePermission
 	 */
-	public static function schema_updated(Application $application): void {
-		self::updateDataFiles($application);
+	public function hook_schema_updated(): void {
+		self::updateDataFiles($this->application);
 	}
 
 	/**
@@ -82,11 +88,14 @@ class Domain extends ORMBase {
 	 * @param Application $application
 	 * @param string $name
 	 * @return Domain
+	 * @throws FileNotFound
+	 * @throws FilePermission
 	 */
 	public static function domainFactory(Application $application, string $name): self {
 		$domain = $application->ormFactory(__CLASS__, [
 			'name' => $name,
 		]);
+		assert($domain instanceof self);
 		return $domain->nameChanged();
 	}
 
@@ -94,6 +103,8 @@ class Domain extends ORMBase {
 	 * Compute the TLD for a domain
 	 *
 	 * @return $this
+	 * @throws FileNotFound
+	 * @throws FilePermission
 	 */
 	protected function nameChanged(): self {
 		$this->tld = $this->computeTLD();
@@ -102,15 +113,19 @@ class Domain extends ORMBase {
 
 	/**
 	 * @return $this
-	 * @throws Exception_Configuration
-	 * @throws Exception_Deprecated
-	 * @throws Exception_Key
-	 * @throws Exception_ORMNotFound
-	 * @throws Exception_ORMDuplicate
-	 * @throws Exception_ORMEmpty
-	 * @throws Exception_Store
-	 * @throws Exception_Semantics
-	 * @throws Exception_Unimplemented
+	 * @throws ClassNotFound
+	 * @throws ConfigurationException
+	 * @throws Exception\ORMDuplicate
+	 * @throws Exception\StoreException
+	 * @throws FileNotFound
+	 * @throws FilePermission
+	 * @throws ORMEmpty
+	 * @throws ORMNotFound
+	 * @throws ParameterException
+	 * @throws ParseException
+	 * @throws Semantics
+	 * @throws SQLException
+	 * @throws KeyNotFound
 	 */
 	public function store(): self {
 		$this->tld = $this->computeTLD();
@@ -120,6 +135,8 @@ class Domain extends ORMBase {
 	/**
 	 *
 	 * @return string
+	 * @throws FileNotFound
+	 * @throws FilePermission
 	 */
 	public function computeCookieDomain(): string {
 		$domains = $this->_lazyLoadTLDs();
@@ -141,21 +158,21 @@ class Domain extends ORMBase {
 	}
 
 	/**
-	 * @throws Exception_File_Permission
-	 * @throws Exception_File_NotFound
+	 * @throws FilePermission
+	 * @throws FileNotFound
 	 */
 	private function _lazyLoadTLDs(): array {
-		if (!self::$public_tlds) {
-			self::$public_tlds = $this->loadPublicTLDs($this->application);
+		if (!self::$publicTopLevelDomains) {
+			self::$publicTopLevelDomains = $this->loadPublicTLDs($this->application);
 		}
-		return self::$public_tlds;
+		return self::$publicTopLevelDomains;
 	}
 
 	/**
 	 *
 	 * @return string
-	 * @throws Exception_File_Permission
-	 * @throws Exception_File_NotFound
+	 * @throws FilePermission
+	 * @throws FileNotFound
 	 */
 	public function computeTLD(): string {
 		$domains = $this->_lazyLoadTLDs();
@@ -187,25 +204,30 @@ class Domain extends ORMBase {
 	 * @param Paths $paths
 	 * @return string
 	 */
-	private static function tldByAlphaFile(Paths $paths): string {
+	private static function topLevelDomainsFile(Paths $paths): string {
 		return $paths->zesk('etc/db/tlds.txt');
 	}
 
 	/**
 	 * Update our data files from our remote URLs
+	 *
+	 * @param Application $application
+	 * @return void
+	 * @throws DirectoryNotFound
+	 * @throws FilePermission
 	 */
 	private static function updateDataFiles(Application $application): void {
 		foreach ([
 			self::URL_PUBLIC_SUFFIX_LIST => self::publicSuffixListFile($application->paths),
-			self::URL_TLDS_BY_ALPHA => self::tldByAlphaFile($application->paths),
+			self::URL_TOP_LEVEL_DOMAINS => self::topLevelDomainsFile($application->paths),
 		] as $url => $path) {
-			// TODO Net_Sync::url_to_file($application, $url, $path);
+			Sync::urlToFile($application, $url, $path);
 		}
 	}
 
 	/**
 	 * Load the public TLDs from the file
-	 * @throws Exception_File_NotFound|Exception_File_Permission
+	 * @throws FileNotFound|FilePermission
 	 */
 	private static function loadPublicTLDs(Application $application): array {
 		$contents = strtolower(File::contents(self::publicSuffixListFile($application->paths)));

@@ -4,7 +4,24 @@ declare(strict_types=1);
  *
  */
 
-namespace zesk;
+namespace zesk\Controller;
+
+use zesk\Exception\DirectoryCreate;
+use zesk\Exception\DirectoryNotFound;
+use zesk\Exception\DirectoryPermission;
+use zesk\Exception\FileNotFound;
+use zesk\Exception\FilePermission;
+
+use zesk\Controller;
+use zesk\Directory;
+use zesk\MIME;
+use zesk\PHP;
+use zesk\StringTools;
+use zesk\Request;
+use zesk\Response;
+use zesk\Exception\KeyNotFound;
+use zesk\HTTP;
+use zesk\HTML;
 
 /**
  * Main share controller
@@ -12,7 +29,7 @@ namespace zesk;
  * @author kent
  * @see docs/share.md
  */
-class Controller_Share extends Controller {
+class Share extends Controller {
 	/**
 	 * Paths to search for shared content
 	 *
@@ -51,6 +68,10 @@ class Controller_Share extends Controller {
 	protected array $afterMethods = [
 	];
 
+	/**
+	 * @return void
+	 * @throws DirectoryNotFound
+	 */
 	protected function initialize(): void {
 		parent::initialize();
 		// Share files for Controller_Share
@@ -68,11 +89,11 @@ class Controller_Share extends Controller {
 	 * @param string $add
 	 * @param string $name
 	 * @return self
-	 * @throws Exception_Directory_NotFound
+	 * @throws DirectoryNotFound
 	 */
 	final public function addSharePath(string $add, string $name): self {
 		if (!is_dir($add)) {
-			throw new Exception_Directory_NotFound($add);
+			throw new DirectoryNotFound($add);
 		}
 		$this->sharePath[$name] = $add;
 		return $this;
@@ -98,7 +119,7 @@ class Controller_Share extends Controller {
 	 * @return string
 	 */
 	private function defaultSharePath(): string {
-		return $this->paths->zesk('share');
+		return $this->application->zeskHome('share');
 	}
 
 	/**
@@ -114,14 +135,14 @@ class Controller_Share extends Controller {
 	 *
 	 * This could be used in say, a build step for an application.
 	 *
-	 * @throws Exception_Directory_Create
-	 * @throws Exception_Directory_NotFound
-	 * @throws Exception_Directory_Permission
-	 * @throws Exception_File_Permission
+	 * @throws DirectoryCreate
+	 * @throws DirectoryNotFound
+	 * @throws DirectoryPermission
+	 * @throws FilePermission
 	 */
 	public function build_directory(): void {
 		$app = $this->application;
-		$sharePaths = $this->application->sharePath();
+		$sharePaths = $this->sharePath();
 		$document_root = $app->documentRoot();
 		foreach ($sharePaths as $name => $path) {
 			$app->logger->info('Reviewing {name} => {path}', [
@@ -131,12 +152,12 @@ class Controller_Share extends Controller {
 			$files = Directory::ls($path);
 			foreach ($files as $file) {
 				$base = basename($file);
-				$source = path($path, $file);
+				$source = Directory::path($path, $file);
 				if (!str_starts_with($base, '.') && is_file($source)) {
-					$target_file = path($document_root, $this->option_share_prefix(), $name, $file);
+					$target_file = Directory::path($document_root, $this->option_share_prefix(), $name, $file);
 					Directory::depend(dirname($target_file), 0o777);
 					if (!copy($source, $target_file)) {
-						throw new Exception_File_Permission($target_file);
+						throw new FilePermission($target_file);
 					}
 					$app->logger->info("Copied $source to $target_file");
 				}
@@ -151,11 +172,11 @@ class Controller_Share extends Controller {
 	 */
 	public function pathToFile(string $path): ?string {
 		$uri = StringTools::removePrefix($path, '/');
-		$uri = pair($uri, '/', '', $uri)[1];
-		$sharePaths = $this->application->sharePath();
+		$uri = StringTools::pair($uri, '/', '', $uri)[1];
+		$sharePaths = $this->sharePath();
 		foreach ($sharePaths as $name => $path) {
 			if (empty($name) || str_starts_with($uri, "$name/")) {
-				$file = path($path, StringTools::removePrefix($uri, "$name/"));
+				$file = Directory::path($path, StringTools::removePrefix($uri, "$name/"));
 				if (!is_dir($file) && file_exists($file)) {
 					return $file;
 				}
@@ -165,9 +186,13 @@ class Controller_Share extends Controller {
 	}
 
 	/**
+	 * Invoked by $this->argumentsMethods.
+	 *
 	 * @param Request $request
 	 * @param Response $response
 	 * @return array
+	 * @see self::action_GET()
+	 * @see $this->argumentsMethods
 	 */
 	public function arguments_GET(Request $request, Response $response): array {
 		return [$request, $response];
@@ -175,15 +200,15 @@ class Controller_Share extends Controller {
 
 	/**
 	 *
-	 * {@inheritdoc}
-	 *
+	 * @see self::arguments_GET()
 	 * @see Controller::_action_default()
+	 * @see $this->actionsMethods
 	 */
 	public function action_GET(Request $request, Response $response): Response {
 		$original_uri = $request->path();
 		$uri = StringTools::removePrefix($original_uri, '/');
 		if ($this->application->development() && $uri === 'share/debug') {
-			$response->content = $this->share_debug();
+			$response->content = $this->share_debug($request, $response);
 			return $response;
 		}
 		$path = $request->path();
@@ -194,7 +219,7 @@ class Controller_Share extends Controller {
 
 		try {
 			$mod = $request->header('If-Modified-Since');
-		} catch (Exception_Key) {
+		} catch (KeyNotFound) {
 			$mod = null;
 		}
 		$fmod = filemtime($file);
@@ -203,7 +228,7 @@ class Controller_Share extends Controller {
 
 			try {
 				$response->setContentType(MIME::fromExtension($file));
-			} catch (Exception_Key) {
+			} catch (KeyNotFound) {
 				$this->application->logger->warning('No content type for {file}', ['file' => $file]);
 			}
 			$response->content = '';
@@ -221,7 +246,7 @@ class Controller_Share extends Controller {
 
 		try {
 			$response->raw()->setFile($file);
-		} catch (Exception_File_NotFound) {
+		} catch (FileNotFound) {
 			return $this->error_404($response, $path);
 		}
 		$this->_buildOption($original_uri, $file);
@@ -237,7 +262,7 @@ class Controller_Share extends Controller {
 		if ($this->optionBool(self::OPTION_BUILD)) {
 			try {
 				$this->build($original_uri, $file);
-			} catch (Exception_Directory_Permission|Exception_Directory_Create $e) {
+			} catch (DirectoryPermission|DirectoryCreate $e) {
 				$this->application->logger->error($e);
 			}
 		}
@@ -248,11 +273,11 @@ class Controller_Share extends Controller {
 	 *
 	 * @param string $path
 	 * @param string $file
-	 * @throws Exception_Directory_Create
-	 * @throws Exception_Directory_Permission
+	 * @throws DirectoryCreate
+	 * @throws DirectoryPermission
 	 */
 	private function build(string $path, string $file): void {
-		$target = path($this->application->documentRoot(), $path);
+		$target = Directory::path($this->application->documentRoot(), $path);
 		Directory::depend(dirname($target), 0o775);
 		$status = copy($file, $target);
 		$this->application->logger->notice('Copied {file} to {target} - {status}', [
@@ -265,30 +290,30 @@ class Controller_Share extends Controller {
 	/**
 	 * Output debug information during development
 	 */
-	private function share_debug(): string {
+	private function share_debug(Request $request, Response $response): string {
 		$content = HTML::tag('h1', 'Server') . HTML::tag('pre', PHP::dump($_SERVER));
 		$content .= HTML::tag('h1', 'Request headers') . HTML::tag('pre', PHP::dump($request->headers()));
-		$content .= HTML::tag('h1', 'Shares') . HTML::tag('pre', PHP::dump($this->application->sharePath()));
+		$content .= HTML::tag('h1', 'Response') . HTML::tag('pre', PHP::dump($response->toJSON()));
+		$content .= HTML::tag('h1', 'Shares') . HTML::tag('pre', PHP::dump($this->sharePath()));
 		return $content;
 	}
 
 	/**
 	 *
-	 * @param Application $application
 	 * @param string $path
 	 * @return string
-	 * @throws Exception_Key
+	 * @throws KeyNotFound
 	 */
-	public static function realpath(Application $application, string $path): string {
+	public function realpath(string $path): string {
 		$path = explode('/', trim($path, '/'));
 		array_shift($path);
 		$share = array_shift($path);
-		$shares = $application->sharePath();
+		$shares = $this->sharePath();
 		if (array_key_exists($share, $shares)) {
-			return path($shares[$share], implode('/', $path));
+			return Directory::path($shares[$share], implode('/', $path));
 		}
 
-		throw new Exception_Key($share);
+		throw new KeyNotFound($share);
 	}
 
 	/**
@@ -300,7 +325,7 @@ class Controller_Share extends Controller {
 		if (!$this->optionBool(self::OPTION_BUILD)) {
 			return;
 		}
-		$share_dir = path($this->application->documentRoot(), $this->option_share_prefix());
+		$share_dir = Directory::path($this->application->documentRoot(), $this->option_share_prefix());
 		if (is_dir($share_dir)) {
 			$logger->notice('{class}::hook_cache_clear - deleting {share_dir}', [
 				'class' => __CLASS__,
@@ -309,9 +334,9 @@ class Controller_Share extends Controller {
 
 			try {
 				Directory::delete($share_dir);
-			} catch (Exception_Directory_NotFound) {
+			} catch (DirectoryNotFound) {
 				// pass
-			} catch (Exception_File_Permission|Exception_Directory_Permission $e) {
+			} catch (FilePermission|DirectoryPermission $e) {
 				$logger->error($e);
 			}
 		} else {

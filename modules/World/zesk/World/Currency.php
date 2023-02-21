@@ -8,23 +8,21 @@ declare(strict_types=1);
  */
 namespace zesk\World;
 
-use zesk\Database_Exception_Connect;
-use zesk\Database_Exception_SQL;
-use zesk\Exception;
-use zesk\Exception_Class_NotFound;
-use zesk\Exception_Configuration;
-use zesk\Exception_Convert;
-use zesk\Exception_Key;
-use zesk\Exception_NotFound;
-use zesk\Exception_Parameter;
-use zesk\Exception_Parse;
-use zesk\Exception_Semantics;
-use zesk\ORM\Exception_ORMDuplicate;
-use zesk\ORM\Exception_ORMEmpty;
-use zesk\ORM\Exception_ORMNotFound;
-use zesk\ORM\Exception_Store;
-use zesk\ORM\ORMBase;
 use zesk\Application;
+use zesk\ArrayTools;
+use zesk\Exception;
+use zesk\Exception\ClassNotFound;
+use zesk\Exception\ConfigurationException;
+use zesk\Exception\KeyNotFound;
+use zesk\Exception\NotFoundException;
+use zesk\Exception\ParameterException;
+use zesk\Exception\ParseException;
+use zesk\Exception\Semantics;
+use zesk\ORM\ORMBase;
+use zesk\ORM\Exception\ORMDuplicate;
+use zesk\ORM\Exception\ORMEmpty;
+use zesk\ORM\Exception\ORMNotFound;
+use zesk\ORM\Exception\StoreException;
 
 /**
  * Currency represents a world currency.
@@ -88,17 +86,17 @@ class Currency extends ORMBase {
 	 *
 	 * @param float|int $value
 	 * @return string
-	 * @throws Exception_Class_NotFound
-	 * @throws Exception_Key
-	 * @throws Exception_ORMEmpty
-	 * @throws Exception_ORMNotFound
-	 * @throws Exception_Semantics
+	 * @throws ClassNotFound
+	 * @throws KeyNotFound
+	 * @throws ORMEmpty
+	 * @throws ORMNotFound
+	 * @throws Semantics
 	 */
 	public function format(float|int $value = 0): string {
 		$locale = $this->application->locale;
 		$decimals = $this->option('decimal_point', $locale->__('Currency::decimal_point:=.'));
 		$thousands = $this->option('thousands_separator', $locale->__('Currency::thousands_separator:=.'));
-		return map($this->format, [
+		return ArrayTools::map($this->format, [
 			'value_raw' => $value,
 			'value_decimal' => $intValue = intval($value),
 			'value_fraction' => substr(strval(abs($value - $intValue)), 2),
@@ -115,19 +113,19 @@ class Currency extends ORMBase {
 	 *
 	 * @param Application $application
 	 * @return self
-	 * @throws Database_Exception_SQL
-	 * @throws Exception_Configuration
-	 * @throws Exception_Convert
-	 * @throws Exception_Key
-	 * @throws Exception_ORMDuplicate
-	 * @throws Exception_ORMEmpty
-	 * @throws Exception_ORMNotFound
-	 * @throws Exception_Parameter
-	 * @throws Exception_Semantics
-	 * @throws Exception_Store
-	 * @throws Exception_Class_NotFound
-	 * @throws Exception_NotFound
-	 * @throws Exception_Parse
+	 * @throws Database\Exception\SQLException
+	 * @throws ConfigurationException
+	 * @throws ParseException
+	 * @throws KeyNotFound
+	 * @throws ORMDuplicate
+	 * @throws ORMEmpty
+	 * @throws ORMNotFound
+	 * @throws ParameterException
+	 * @throws Semantics
+	 * @throws StoreException
+	 * @throws ClassNotFound
+	 * @throws NotFoundException
+	 * @throws ParseException
 	 */
 	public static function euro(Application $application): self {
 		$cached = $application->ormFactory(self::class, [
@@ -149,20 +147,20 @@ class Currency extends ORMBase {
 	 *
 	 * @param Application $application
 	 * @return self
-	 * @throws Database_Exception_SQL
-	 * @throws Exception_Class_NotFound
-	 * @throws Exception_Configuration
-	 * @throws Exception_Convert
-	 * @throws Exception_Key
-	 * @throws Exception_NotFound
-	 * @throws Exception_ORMDuplicate
-	 * @throws Exception_ORMEmpty
-	 * @throws Exception_ORMNotFound
-	 * @throws Exception_Parameter
-	 * @throws Exception_Parse
-	 * @throws Exception_Semantics
-	 * @throws Exception_Store
-	 * @throws Database_Exception_Connect
+	 * @throws Database\Exception\SQLException
+	 * @throws ClassNotFound
+	 * @throws ConfigurationException
+	 * @throws ParseException
+	 * @throws KeyNotFound
+	 * @throws NotFoundException
+	 * @throws ORMDuplicate
+	 * @throws ORMEmpty
+	 * @throws ORMNotFound
+	 * @throws ParameterException
+	 * @throws ParseException
+	 * @throws Semantics
+	 * @throws StoreException
+	 * @throws Database\Exception\Connect
 	 */
 	public static function USD(Application $application): self {
 		$cached = $application->ormFactory(self::class, [
@@ -196,8 +194,8 @@ class Currency extends ORMBase {
 	 * @param Application $application
 	 * @param string $code
 	 * @return Currency
-	 * @throws Exception_ORMEmpty
-	 * @throws Exception_ORMNotFound
+	 * @throws ORMEmpty
+	 * @throws ORMNotFound
 	 */
 	public static function fromCode(Application $application, string $code): Currency {
 		$result = $application->ormFactory(self::class)->find([

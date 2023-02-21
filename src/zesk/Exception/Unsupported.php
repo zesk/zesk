@@ -2,14 +2,16 @@
 declare(strict_types=1);
 /**
  * @package zesk
- * @subpackage system
+ * @subpackage Exception
  * @author kent
  * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  */
-namespace zesk;
+namespace zesk\Exception;
+
+use zesk\Exception;
 
 /**
  *
  */
-class Exception_Unsupported extends Exception {
+class Unsupported extends Exception {
 }

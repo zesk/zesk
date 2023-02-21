@@ -9,12 +9,13 @@ declare(strict_types=1);
 
 namespace zesk\CSV;
 
-use zesk\Exception_Semantics;
-use zesk\Exception_Key;
-use zesk\Exception_File_NotFound;
-use zesk\Exception_File_Permission;
-use zesk\Hooks;
+use zesk\Application\Hooks;
+use zesk\Exception\FileNotFound;
+use zesk\Exception\FilePermission;
+use zesk\Exception\KeyNotFound;
+use zesk\Exception\Semantics;
 use zesk\JSON;
+use zesk\Types;
 
 /**
  * CSV_Writer
@@ -100,8 +101,8 @@ class Writer extends Base {
 	/**
 	 * @param string $f
 	 * @return self
-	 * @throws Exception_File_NotFound
-	 * @throws Exception_File_Permission
+	 * @throws FileNotFound
+	 * @throws FilePermission
 	 */
 	public function setFile(string $f): self {
 		return parent::_setFile($f, 'w', true);
@@ -123,29 +124,29 @@ class Writer extends Base {
 	/**
 	 * Add a mapping from an object member names to CSV file header names.
 	 *
-	 * The values passed in must exist as headers in the CSV file, otherwise an Exception_Key is
+	 * The values passed in must exist as headers in the CSV file, otherwise an Exception\KeyNotFound is
 	 * thrown.
 	 *
 	 * @param string $name
 	 * @param array $map
 	 * @param array|null $defaultMap
 	 * @return self
-	 * @throws Exception_Key
-	 * @throws Exception_Semantics
+	 * @throws KeyNotFound
+	 * @throws Semantics
 	 */
 	public function add_object_map(string $name, array $map, array $defaultMap = null): self {
 		if (!count($this->HeadersToIndex)) {
-			throw new Exception_Semantics("Need to set headers prior to setting a translation map ($name)");
+			throw new Semantics("Need to set headers prior to setting a translation map ($name)");
 		}
 		$this->headers();
 		$mapGroup = [];
 		foreach ($map as $member => $column) {
 			if (!is_string($column)) {
-				throw new Exception_Key('Column {column} is not a string', ['column' => $column]);
+				throw new KeyNotFound('Column {column} is not a string', ['column' => $column]);
 			}
 			$column = strtolower($column);
 			if (!isset($this->HeadersToIndex[strtolower($column)])) {
-				throw new Exception_Key('{method}({name},...): {column} not found in headers {headers}', ['method' => __METHOD__, 'name' => $name, 'headers' => JSON::encode($this->HeadersToIndex), 'column' => $column, ]);
+				throw new KeyNotFound('{method}({name},...): {column} not found in headers {headers}', ['method' => __METHOD__, 'name' => $name, 'headers' => JSON::encode($this->HeadersToIndex), 'column' => $column, ]);
 			} else {
 				$indexes = $this->HeadersToIndex[$column];
 				$mapGroup[strtolower($member)] = $indexes;
@@ -192,21 +193,21 @@ class Writer extends Base {
 	 * @param array $map
 	 *            A list of values to map to and from upon writing
 	 * @return self
-	 * @throws Exception_Key
-	 * @throws Exception_Semantics
+	 * @throws KeyNotFound
+	 * @throws Semantics
 	 */
 	public function add_translation_map(array|string $column_names, array $map): self {
 		if (!count($this->HeadersToIndex)) {
-			throw new Exception_Semantics("Need to set headers prior to setting a translation map ($column_names)");
+			throw new Semantics("Need to set headers prior to setting a translation map ($column_names)");
 		}
-		$column_names = toList($column_names);
+		$column_names = Types::toList($column_names);
 		foreach ($column_names as $column_name) {
 			$column_name = strtolower($column_name);
 			$index = $this->HeadersToIndex[$column_name] ?? null;
 			if ($index === null) {
-				throw new Exception_Key("CSV_Writer::add_translation_map($column_name, ...) Column not found");
+				throw new KeyNotFound("CSV_Writer::add_translation_map($column_name, ...) Column not found");
 			}
-			foreach (toList($index) as $index) {
+			foreach (Types::toList($index) as $index) {
 				$this->WriteTranslationMap[$index] = $map;
 			}
 		}
@@ -218,13 +219,13 @@ class Writer extends Base {
 	 * @param string $name Name of an existing object map
 	 * @param array $fields ORM to write to row (name/value pairs)
 	 * @return array Written row
-	 * @throws Exception_Key
+	 * @throws KeyNotFound
 	 * @see createORMMap
 	 */
 	public function setObject(string $name, array $fields): array {
 		$lowName = strtolower($name);
 		if (!isset($this->WriteMapGroup[$lowName])) {
-			throw new Exception_Key("CSV::set_object($name) doesn't exist");
+			throw new KeyNotFound("CSV::set_object($name) doesn't exist");
 		}
 
 
@@ -298,7 +299,7 @@ class Writer extends Base {
 		if ($i === null) {
 			return false;
 		}
-		foreach (toList($i) as $i) {
+		foreach (Types::toList($i) as $i) {
 			$this->Row[$i] = $data;
 		}
 		return true;
@@ -306,21 +307,21 @@ class Writer extends Base {
 
 	/**
 	 * @return void
-	 * @throws Exception_Semantics
+	 * @throws Semantics
 	 */
 	public function writeRow(): void {
 		$this->_check_file();
 		if (!count($this->Row)) {
-			throw new Exception_Semantics('CSV_Writer:writeRow: Must set row values first');
+			throw new Semantics('CSV_Writer:writeRow: Must set row values first');
 		}
 		$headers = $this->headers();
-		if (!$this->WroteHeaders && $this->optionBool('write_header', true) && is_array($headers)) {
+		if (!$this->WroteHeaders && $this->optionBool('write_header', true)) {
 			fwrite($this->File, $this->_formatRow($headers));
 			$this->RowIndex = 0;
 			$this->WroteHeaders = true;
 		}
 		foreach ($this->WriteTranslationMap as $k => $v) {
-			$values = toList($this->Row[$k] ?? '');
+			$values = Types::toList($this->Row[$k] ?? '');
 			$result = [];
 			foreach ($values as $value) {
 				$result[] = $v[$value] ?? $value;

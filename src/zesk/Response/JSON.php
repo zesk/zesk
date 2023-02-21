@@ -2,10 +2,11 @@
 declare(strict_types=1);
 namespace zesk\Response;
 
-use zesk\Exception_Semantics;
+use zesk\Exception\Semantics;
 use zesk\JSON as zeskJSON;
 use zesk\ORM\JSONWalker;
 use zesk\Response;
+use zesk\Types;
 
 class JSON extends Type {
 	/**
@@ -51,12 +52,12 @@ class JSON extends Type {
 
 	/**
 	 *
-	 * @param array $set
+	 * @param array $data
 	 * @return Response
 	 */
 	public function appendData(array $data): Response {
 		$this->parent->setContentType(Response::CONTENT_TYPE_JSON);
-		$this->json = $data + toArray($this->json);
+		$this->json = $data + Types::toArray($this->json);
 		return $this->parent;
 	}
 
@@ -71,7 +72,7 @@ class JSON extends Type {
 	/**
 	 *
 	 * @return mixed
-	 * @throws Exception_Semantics
+	 * @throws Semantics
 	 */
 	public function toJSON(): mixed {
 		return zeskJSON::prepare($this->json, $this->json_serializer_methods, $this->json_serializer_arguments);
@@ -80,7 +81,7 @@ class JSON extends Type {
 	/**
 	 * @param array|string|null $content
 	 * @return string
-	 * @throws Exception_Semantics
+	 * @throws Semantics
 	 */
 	public function render(array|string|null $content): string {
 		if (is_array($content)) {
@@ -99,7 +100,7 @@ class JSON extends Type {
 	/**
 	 * @param $content
 	 * @return void
-	 * @throws Exception_Semantics
+	 * @throws Semantics
 	 */
 	public function output($content): void {
 		echo $this->render($content);

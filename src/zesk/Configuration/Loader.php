@@ -1,9 +1,15 @@
 <?php
 declare(strict_types=1);
 
-namespace zesk;
+namespace zesk\Configuration;
 
-class Configuration_Loader {
+use zesk\Exception\ClassNotFound;
+use zesk\Exception\FileParseException;
+use zesk\Exception\ParseException;
+use zesk\File;
+use zesk\Interface\SettingsInterface;
+
+class Loader {
 	/**
 	 *
 	 * @var string
@@ -58,15 +64,15 @@ class Configuration_Loader {
 
 	/**
 	 *
-	 * @var Interface_Settings
+	 * @var SettingsInterface
 	 */
-	private Interface_Settings $settings;
+	private SettingsInterface $settings;
 
 	/**
 	 *
-	 * @var Configuration_Dependency
+	 * @var Dependency
 	 */
-	private Configuration_Dependency $dependency;
+	private Dependency $dependency;
 
 	/**
 	 * Current file being processed
@@ -78,12 +84,12 @@ class Configuration_Loader {
 	/**
 	 *
 	 * @param array $files
-	 * @param Interface_Settings $settings
+	 * @param SettingsInterface $settings
 	 */
-	public function __construct(array $files, Interface_Settings $settings) {
+	public function __construct(array $files, SettingsInterface $settings) {
 		$this->settings = $settings;
 		$this->files = $files;
-		$this->dependency = new Configuration_Dependency();
+		$this->dependency = new Dependency();
 	}
 
 	/**
@@ -115,7 +121,7 @@ class Configuration_Loader {
 			try {
 				$this->current = $file;
 				$this->loadFile($file);
-			} catch (Exception_Parse) {
+			} catch (ParseException) {
 				// Logged to $this->>skippedFiles
 			}
 			$this->current = '';
@@ -128,7 +134,7 @@ class Configuration_Loader {
 	 * @param string $file Path to file to load
 	 * @param string $handler Extension to use to load class (CONF, SH, JSON)
 	 * @return self
-	 * @throws Exception_Parse
+	 * @throws ParseException
 	 */
 	public function loadFile(string $file, string $handler = ''): self {
 		if (!file_exists($file)) {
@@ -145,8 +151,9 @@ class Configuration_Loader {
 	 *
 	 * @param string $content Content to load
 	 * @param string $handler Extension to use to load class (CONF, SH, JSON)
+	 * @param string $file_name
 	 * @return self
-	 * @throws Exception_Parse
+	 * @throws FileParseException
 	 */
 	public function loadContent(string $content, string $handler, string $file_name = ''): self {
 		if (!$file_name) {
@@ -154,13 +161,13 @@ class Configuration_Loader {
 		}
 
 		try {
-			$parser = Configuration_Parser::factory($handler, $content, $this->settings);
-		} catch (Exception_Class_NotFound $e) {
+			$parser = Parser::factory($handler, $content, $this->settings);
+		} catch (ClassNotFound $e) {
 			$this->skippedFiles[] = $file_name;
 
-			throw new Exception_File_Format($file_name, 'Unable to parse configuration handler {handler} - no parser', [
+			throw new FileParseException($file_name, 'Unable to parse configuration handler {handler} - no parser', [
 				'handler' => $handler,
-			]);
+			], 0, $e);
 		}
 		$parser->setConfigurationDependency($this->dependency);
 		$parser->setConfigurationLoader($this);
@@ -168,7 +175,7 @@ class Configuration_Loader {
 		try {
 			$parser->process();
 			$this->processedFiles[] = $file_name;
-		} catch (Exception_Parse $e) {
+		} catch (ParseException $e) {
 			$this->skippedFiles[] = $file_name;
 
 			throw $e;
@@ -187,7 +194,7 @@ class Configuration_Loader {
 
 	/**
 	 *
-	 * @return string[string]
+	 * @return array
 	 */
 	public function variables(): array {
 		return [

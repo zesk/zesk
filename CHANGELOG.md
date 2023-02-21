@@ -29,7 +29,7 @@ We anticipate a few small releases before a full 1.0 release.
 Many breaking changes:
 
 - `zesk\Options` and `zesk\Configuration` keys are case-sensitive
-- `zesk\Exception_Key` is used in cases where the key should exist more often
+- `zesk\Exception\KeyNotFound` is used in cases where the key should exist more often
 - `zesk\ORM\ORMBase` and `zesk\ORM\Class_Base` are current ORM base classes
 - Module names are case-sensitive
 - Module JSONs are now loaded via glob `*.module.json` to avoid case-sensitivity issues
@@ -96,7 +96,7 @@ Many breaking changes:
 - **MySQL Module**: PHP 5.5+ support for timestamp
 - **ORM Module**: Capture database not found exception in Settings load to allow misconfigured app to still run.
 - **ORM Module**: Minor fix to documentation
-- **ORM Module**: `zesk\Class_Base::link_many` now throws `zesk\Exception_Key` instead of `zesk\Exception_Semantics` to disambiguate error codes as well as to support catching already-added linkages. Added support to **Permission Module**.
+- **ORM Module**: `zesk\Class_Base::link_many` now throws `zesk\Exception\KeyNotFound` instead of `zesk\Semantics` to disambiguate error codes as well as to support catching already-added linkages. Added support to **Permission Module**.
 - **Polyglot Module**: `zesk\Controller_Polyglot::action_update` explicit route added; no longer covered by catch-all `controller/action/param` global route.
 - **Zesk Kernel**: Adding `zesk\Application->id()` to allow application instance cron tasks
 - **Zesk Kernel**: Improved application reconfigure
@@ -155,7 +155,7 @@ Version added to support modern MySQL docker containers enforcement of `Timestam
 - **Net Module**: Adding comments to POP iterator
 - **ORM Module**: Added `zesk\Server->alive_ips()` to fetch known valid IPs of alive servers
 - **ORM Module**: Adding better handling of ORM Not found exceptions
-- **ORM Module**: Refactored `zesk\Exception_ORM_NotFound` handling to support common mechanism for interception.
+- **ORM Module**: Refactored `zesk\ORM_NotFound` handling to support common mechanism for interception.
 - **ORM Module**: Reset global settings upon reset hook
 - **ORM Module**: `zesk\Class_Foo::name` now works to set the name in an ORM `Class_Base` object - ONLY when not explicitly set by the code in `$this->name`
 - **ORM Module**: `zesk\Controller_ORM->widget_control_classes()` properly generates class names using the correct parsing of namespace/class
@@ -164,9 +164,9 @@ Version added to support modern MySQL docker containers enforcement of `Timestam
 - **Selection Module**: Updated strings to `::class` constants
 - **Tag Module**: Removing references to `zesk\Tag_Label` -> `zesk\Tag\Label`
 - **Tag Module**: Updated version
-- **Widget Module**: Deprecating `zesk\Widget->orm_class` for `zesk\Widget->orm_class_name` as it's a string. **Widget Module**: Added `zesk\Widget->find_parent_class_orm` to find any valid parent class which contains an `orm_class_name()` which is non-empty and returns the `->class_orm()` of type `zesk\Class_Base` **Widget Module**: `zesk\Control_Filter` will not override user-set names in `->initialize()` **Widget Module**: `zesk\Control_Order` uses `zesk\Exception_RedirectTemporary` now **Widget Module**: `nav/tabs` theme now adds an `id` to the `li` used in the main tabs to allow tooltips. **World Module**: Updated country info, download URL
+- **Widget Module**: Deprecating `zesk\Widget->orm_class` for `zesk\Widget->orm_class_name` as it's a string. **Widget Module**: Added `zesk\Widget->find_parent_class_orm` to find any valid parent class which contains an `orm_class_name()` which is non-empty and returns the `->class_orm()` of type `zesk\Class_Base` **Widget Module**: `zesk\Control_Filter` will not override user-set names in `->initialize()` **Widget Module**: `zesk\Control_Order` uses `zesk\RedirectTemporary` now **Widget Module**: `nav/tabs` theme now adds an `id` to the `li` used in the main tabs to allow tooltips. **World Module**: Updated country info, download URL
 - **World Module**: Logging missing currency codes as `debug` not `error`
-- **Zesk Kernel**: Added a new redirect called `zesk\Exception_RedirectTemporary`
+- **Zesk Kernel**: Added a new redirect called `zesk\RedirectTemporary`
 - **Zesk Kernel**: Adding `zesk\ArrayTools::extract` as a better name than `zesk\ArrayTools::key_value` for extracting key values from an array. Deprecating `zesk\ArrayTools::key_value`.
 - **Zesk Kernel**: Adding more stack frames to output exceptions
 - **Zesk Kernel**: Better support for `reset` hooks to clear out global data based on configuration context.
@@ -219,9 +219,9 @@ Version added to support modern MySQL docker containers enforcement of `Timestam
 - **Zesk Kernel**: Theme `bytes` now correctly uses the current locale
 - **Zesk Kernel**: `actions` template now correctly outputs `ref`
 - **Zesk Kernel**: `zesk database-dump` adding non-blocking to database dump command
-- **Zesk Kernel**: `zesk\Controller_Theme::after` only runs `auto_render` when it is HTML output.
+- **Zesk Kernel**: `zesk\ThemeController::after` only runs `auto_render` when it is HTML output.
 - **Zesk Kernel**: `zesk\JSON::prepare` now takes optional arguments parameter for serializing JSON objects and passing arguments to serializer functions
-- **Zesk Kernel**: `zesk\Request->urlComponents()` no longer throws `zesk\Exception_Key` - returns a default value if key not found
+- **Zesk Kernel**: `zesk\Request->urlComponents()` no longer throws `zesk\Exception\KeyNotFound` - returns a default value if key not found
 - **Zesk Kernel**: `zesk\Response\JSON` now supports `zesk\JSON::prepare` arguments
 - **Zesk Kernel**: `zesk\Response` now logs a debug message when the `output_handler` is modified to help debug issues with responses.
 - **Zesk Kernel**: adding missing forgot template
@@ -296,7 +296,7 @@ Version added to support modern MySQL docker containers enforcement of `Timestam
 - **Zesk Kernel**: `zesk\Application` now runs `->inheritConfiguration` if hook `configured_files` is run.
 - **Zesk Kernel**: `zesk\Configuration_Loader` now returns null from `->load_one` if file is not found.
 - **Zesk Kernel**: `zesk\Controller->render()` was removed, deprecated.
-- **Zesk Kernel**: `zesk\Exception_Configuration` now includes configuration name in message.
+- **Zesk Kernel**: `zesk\ConfigurationException` now includes configuration name in message.
 - **Zesk Kernel**: `zesk\Hookable` no longer allows hooks to be stored as options, instead, they are stored as private members of `zesk\Hookable`. Also added new method ->add_hook to add object-specific hooks. As well, hook names were cleaned previously using `zesk\PHP::cleanFunction` but now are cleaned using `zesk\Hooks::clean_name`
 - **Zesk Kernel**: `zesk\Hooks` now adds final shutdown function to log to PHP error log if exists with a failure.
 - **Zesk Kernel**: `zesk\JSON::encode` was modified so it can be used as a general purpose call, and uses commonly-desired options (largely do not escape slashes ... what's up with that?). Also added `zesk\JSON::zencode` which is the **Zesk** JSON encoding written in PHP and supports object conversion as well as special keys prefixed with a star.
@@ -319,7 +319,7 @@ Version added to support modern MySQL docker containers enforcement of `Timestam
 
 **Mon Mar 25 21:16:05 EDT 2019**
 
-- **Content Module**: `zesk\Content_Data::copy_file` now throws `zesk\Exception_File_NotFound` if unable to find file locally, minor fix.
+- **Content Module**: `zesk\Content_Data::copy_file` now throws `zesk\FileNotFound` if unable to find file locally, minor fix.
 - **Content Module**: `zesk\Content_Image::_force_to_disk()` now catches `zesk\Exception_Not_Found` and handles it correctly.
 - **MySQL Database**: Fixing `database-dump` command to properly order parameters such that `--defaults-extra-file` is first in parameter list
 - **ORM Module**: Default generation of polymorphic class name upon load does not lowercase the class anymore.
@@ -349,7 +349,7 @@ Version added to support modern MySQL docker containers enforcement of `Timestam
 - **Zesk Kernel**: `zesk\Configure\Engine` fixing prompt for files differ
 - **Zesk Kernel**: `zesk\Deploy` now catches all `\Exception`s
 - **Zesk Kernel**: `zesk\Directory::delete` now throws a permission error if it is unable to delete the final directory
-- **Zesk Kernel**: `zesk\Image_Libary_GD` now returns a more specific string in the `zesk\Exception_Semantics` containing the file name when unable to create an image from a file.
+- **Zesk Kernel**: `zesk\Image_Libary_GD` now returns a more specific string in the `zesk\Semantics` containing the file name when unable to create an image from a file.
 - **Zesk Kernel**: `zesk\Locale` now supports durations up to millenium for `->now_string(...)`
 - **Zesk Kernel**: `zesk\Request` supports `multipart/form-data` posts by pulling in raw PHP `$_REQUEST`.
 - **Zesk Kernel**: `zesk\Response\JSON` calls `zesk\JSON::prepare` on output content before converting to JSON
@@ -399,7 +399,7 @@ Version added to support modern MySQL docker containers enforcement of `Timestam
 
 - Pre-commit hook was not handling renamed files correctly, fixed.
 - `daemon-bouncer.sh` Made less verbose way to redirect stdout -> stderr
-- `zesk configure`: Moved the majority of the configuration engine into `zesk\Configure\Engine` and connected back to command via `zesk\Interface_Prompt` and `zesk\Logger\Handler`. The idea here is that configuration requirements can be specified using the simple configure meta-language by web applications in `zesk\WebApp\Instance`. Also has applications elsewhere.
+- `zesk configure`: Moved the majority of the configuration engine into `zesk\Configure\Engine` and connected back to command via `zesk\Promptable` and `zesk\Logger\Handler`. The idea here is that configuration requirements can be specified using the simple configure meta-language by web applications in `zesk\WebApp\Instance`. Also has applications elsewhere.
 - `zesk eval` now outputs results by default and supports multi-statement arguments a little better.
 - `zesk\Autoloader` - Adding `OPTION_FOO` constants for Autoloader path options
 - `zesk\Command_Loader` no longer strips `+` characters from command-line arguments, but does a `rawurldecode` instead
@@ -407,10 +407,10 @@ Version added to support modern MySQL docker containers enforcement of `Timestam
 - `zesk\Configuration\Loader` making variable constants
 - `zesk\Directory::listRecursive` now modifies directory strings to ensure they **MUST** end with a trailing slash prior to being matched against the listing rules. So you can better match against directories by enforcing a trailing slash; regular files will **NEVER** have a trailing slash.
 - `zesk\Directory` updated documentation
-- `zesk\Exception_Class_NotFound` now reports the name of the class as part of the default message.
+- `zesk\ClassNotFound` now reports the name of the class as part of the default message.
 - `zesk\Hookable::combine_hook_results` used to catenate strings which were passed through a filter, it now returns the new string back. The only mechanism which modifies hook results is `Arrays`: list-style arrays are catenated, key-value arrays are merged with later values overriding earlier values.
 - `zesk\Hookable` removing old documentation
-- `zesk\Interface_Prompt` defined to support interactivity connectivity between code. `zesk\Command` implements `zesk\Interface_Prompt`.
+- `zesk\Interface\Promptable` defined to support interactivity connectivity between code. `zesk\Command` implements `zesk\Interface\Promptable`.
 - `zesk\Kernel` - changed to using __DIR__ constant to include instead of variable
 - `zesk\ORM` catches all `\Exception`s now
 - `zesk\System::ifconfig` returns a generic localhost set of settings if a system error occurs (which probably is a mistake), but the structure was invalid for `zesk\System::ip_addresses` which parsed the structure. The default structure has been redesigned so it is now processed correctly.
@@ -472,11 +472,11 @@ Largely refactoring constants to follow **PSR-1** 4.1 (Class constanst upper cas
 - Autoloader, by default, does not throw exceptions anymore to be compatible with standard autoloader behavior
 - Added compatibility for `is_countable` Fixed last(array $x) to work when indexed with numbers and strings which happen to match the number of keys - 1
 - Massive coding style updates using PHPCS
-- Adding @see comment to `zesk\Color_RGB`
+- Adding @see comment to `zesk\ColorRGB`
 - Breaking off `zesk\Application::determine_route` to make debugging steps simpler
 - Display more detailed errors in console
 - Adding `zesk\Kernel::create_application` hook
-- Fix `zesk\Controller_Theme::error` to return self
+- Fix `zesk\ThemeController::error` to return self
 - Fixed `zesk info` to properly call `zesk\Version::string($locale)`
 - Ensuring operation with PHP 7.2 issue. (support array-only count)
 - Support Zesk built-in etc/cacert.pem or no verify peer on SSL connections
@@ -492,7 +492,7 @@ Largely refactoring constants to follow **PSR-1** 4.1 (Class constanst upper cas
 - `zesk\Hooks` updating constant values to be ALL_CAPS
 - `zesk\Mail::RFC2047HEADER` Change constants to capitals only
 - `zesk\Mail::mulitpart_send` has been removed. `zesk\Mail::header_foo` also removed (used uppercase versions of same constants)
-- `zesk\Options::optionPath` wasn't working well, converted it to use `apath()`
+- `zesk\Options::optionPath` wasn't working well, converted it to use `ArrayTools::path()`
 - `zesk\PHP::autotype` now supports a 2nd parameter `$throw` (boolean) which will throw an error (default behavior) when an invalid JSON structure is passed in. If set to `false`, the raw string is returned for invalid JSON entries.
 - `zesk\Response::to_json` should correctly convert `zesk\Reponse\Type` to JSON
 - `zesk\Response\Type::to_json` is now a required abstract function
@@ -515,7 +515,7 @@ Largely refactoring constants to follow **PSR-1** 4.1 (Class constanst upper cas
 
 - Fixed an issue with `zesk\ORMIterators` improperly initializing `zesk\ORMIterator::$object`
 - `zesk\Class_Base` Removed deprecated call to `$app->object`, and instead use `$app->orm_registry`
-- `zesk\Exception_ORM_Empty` message now passes back class name which is missing primary keys
+- `zesk\ORM_Empty` message now passes back class name which is missing primary keys
 - `zesk\Server` does not require `name_external` to be set to insert into the database
 - `zesk\User::password()` now supports internal hashing, hash upgrading, and `$plaintext` flag.
 - `zesk\User` support password binary hash storage and inherit from class settings. Internalizing password hashing as part of `zesk\User` class.
@@ -632,7 +632,7 @@ Largely refactoring constants to follow **PSR-1** 4.1 (Class constanst upper cas
 ## [v0.19.1][]
 
 - `Server::DISK_UNITS_FOO` is now captialized
-- `zesk\Application::hook_main` can throw a `zesk\Exception_Redirect` now
+- `zesk\Application::hook_main` can throw a `zesk\Redirect` now
 - For `zesk version` do not require a tag value (eliminated warning)
 - Fixing issue with `zesk\Controller_Search` not displaying content
 
@@ -641,7 +641,7 @@ Largely refactoring constants to follow **PSR-1** 4.1 (Class constanst upper cas
 ### Core issues
 
 - Added `Directory::must` to require a directory to exist
-- Adding `$context` to `zesk\Exception_File_NotFound` to give ... context to exception
+- Adding `$context` to `zesk\FileNotFound` to give ... context to exception
 - Adding lots of comments to `zesk\Net_HTTP`
 - Fixing no locks to delete
 - Fixing zesk app when composer not run
@@ -721,7 +721,7 @@ Enhancements to the `zesk\Repository` and `Subversion` modules were related to t
 
 ### Deprecated functionality 
 
-- `zesk\Kernel::singleton()` now throws a `zesk\Exception_Semantics` if `zesk\Kernel::factory($options)` is not called first.
+- `zesk\Kernel::singleton()` now throws a `zesk\Semantics` if `zesk\Kernel::factory($options)` is not called first.
 
 ### Bugs fixed
 
@@ -877,7 +877,7 @@ Fixed some issues with the system/debug theme.
 - Using `Widget::class` for `->widgetFactory()` calls instead of strings.
 - Removing deprecated `$account` in `zesk\Controller_Authenticated`
 - Having `zesk\Route` with a `template` option will no longer create a route of type `zesk\Route_Theme` - please update your code accordingly and use `theme` option instead.
-- Fixing `zesk\Route_Redirect` to throw `zesk\Exception_Redirect`
+- Fixing `zesk\Route_Redirect` to throw `zesk\Redirect`
 - `zesk\Class_Base`: The `$column_types` values are automatically initialized to `self::TYPE_OBJECT` by `$has_one` entries
 - Allow `zesk\Route::arguments_by_class()` before route execution
 - `zesk\Timestamp::add_unit` no longer supports `("second", 1)` argument syntax
@@ -947,7 +947,7 @@ Fixed some issues with the system/debug theme.
 
 ## [v0.16.4][]
 
-- `zesk\Widget::initialize` now throws an `Exception_Semantics` if called without a `zesk\Response` set up in the widget for 
+- `zesk\Widget::initialize` now throws an `Semantics` if called without a `zesk\Response` set up in the widget for
 - `zesk\Command_Configure` enhanced ability to compare and skip identical files
 - `daemon` layout panel was added
 - `daemon` system status was added
@@ -1050,7 +1050,7 @@ We're migrating away from storing request/response state in the `zesk\Applicatio
 - Add ability to add a class to the main `markdown` theme `div`
 - Adding version to `TinyMCE` module share path to avoid caching issues between library versions. Should make this a standard practice among modules which load their own JavaScript via relative paths.
 - Better PUT/POST JSON handling
-- `zesk\Exception_Redirect` can be used anywhere to redirect the current `zesk\Response`
+- `zesk\Redirect` can be used anywhere to redirect the current `zesk\Response`
 - Refactored `zesk\Locale` into `zesk\Locale\Module` and related classes
 
 ### Broken functionality
@@ -1138,7 +1138,7 @@ We're migrating away from storing request/response state in the `zesk\Applicatio
 - <strike>`zesk\` namespace for all `classes` in the system</strike>
 - <strike> Merging of `Response` and `Response_Text_HTML` into a single, unified polymorphic `Response` which changes behavior depending on content-type but allows typed API calls for specific response handling. May move `Response_Text_HTML` into a sub-object (e.g. `$response->html()->add_body_class()` for example)</strike>
 - <strike>Support for `Psr/Cache` for caching within Zesk - **needs to be tested**</strike>
-- <strike>Migrate `Database_Result_Iterator` to remove dependency on `Database_Query_Select_Base`</strike>
+- <strike>Migrate `ResultIterator` to remove dependency on `Database_Query_Select_Base`</strike>
 - <strike>Migration of `zesk\Locale` to be object-based and not-static-based invocation</strike>
 
 
@@ -1450,7 +1450,7 @@ The cleaner module cleans files or log files after a certain period of time elap
 
 ### Changed functionality
 
-- `Controller_Forgot`, `Controller_ORM`, ``, `` and `` all now inherit from `Controller_Theme`
+- `Controller_Forgot`, `Controller_ORM`, ``, `` and `` all now inherit from `ThemeController`
 - Zesk will now adopt the usage of using `ClassName::class` instead of the more complex `__NAMESPACE__ . "\\" . "ClassName"` or strings.
 - `zesk\Timestamp::parse` would **fail** for dates before 1970 as `strtotime` returned a negative number for those dates.
 - `zesk\Application::themePath` now supports a prefix for each theme to prevent deep directories for classes which override sections of the theme tree.
@@ -1479,7 +1479,7 @@ The cleaner module cleans files or log files after a certain period of time elap
 - `zesk\Application::theme_variable` added to set state of current `Template` stack
 - `zesk\Application::theme_find` added to find final path for a theme
 - Adding `zesk\Application::theme_variable` and `zesk\Controller::theme_variable`
-- Deprecating `zesk\Controller_Template` and subclass `zesk\Controller_Template_Login`. Use `zesk\Controller_Theme` and `zesk\Controller_Authenticated` instead.
+- Deprecating `zesk\Controller_Template` and subclass `zesk\Controller_Template_Login`. Use `zesk\ThemeController` and `zesk\Controller_Authenticated` instead.
 
 ### Module changes
 
@@ -1510,7 +1510,7 @@ The cleaner module cleans files or log files after a certain period of time elap
 - Enhanced `zesk\Object::json()` to support `class_info` and `members` options to modify JSON output
 - Fixed some `zesk\Router` sleep issues
 - Fixing `zesk help` command
-- Fixing issues with `zesk\Adapter_Settings_Array`
+- Fixing issues with `zesk\SettingsArray`
 - Initialize `$application` in `zesk\Hookable:__wakeup`
 - Minor refactoring of `zesk\Paths`
 - Reformatted `AWS_SQS`
@@ -1521,7 +1521,7 @@ The cleaner module cleans files or log files after a certain period of time elap
 - Various upgrades and missed deprecated calls
 - Working on `zesk test-generate` functionality
 - `zesk configure` fixing message {old_file} message
-- `zesk\Adapter_Settings_Array` should properly handle hierarchical sets/gets like `zesk\Configuration` etc.
+- `zesk\SettingsArray` should properly handle hierarchical sets/gets like `zesk\Configuration` etc.
 - `zesk\Application::$classes` now defaults to `array()`
 - `zesk\Controller` now calls hook `initialize` upon construction
 - `zesk\Options` takes an `array` in constructor
@@ -1535,7 +1535,7 @@ The cleaner module cleans files or log files after a certain period of time elap
 - Removed instances of `global $zesk` from `zesk configure` command
 - Removed warnings generated by Zend Studio
 - Worked on `zesk\Command_Test_Generate` - still not finished
-- `zesk\Adapter_Settings_Array` should properly handle hierarchical sets/gets like `zesk\Configuration`
+- `zesk\SettingsArray` should properly handle hierarchical sets/gets like `zesk\Configuration`
 - `zesk\Command_Iterator_File`: Fix parameter types and allow for early termination by returning `false` from `process_file` call
 - `zesk\Session_Mock` fixed construction to require `array $options = array()`
 - `zesk\Session_PHP` fixed construction to require `array $options = array()`
@@ -1583,7 +1583,7 @@ The cleaner module cleans files or log files after a certain period of time elap
 
 ## [v0.12.6][]
 
-- Adding `zesk\Adapter_Settings_ArrayNoCase` class
+- Adding `zesk\SettingsArrayNoCase` class
 - Fixing issue with `zesk\Command_Configure and case-insensitive variables in global conf`
 
 
@@ -1602,7 +1602,7 @@ The cleaner module cleans files or log files after a certain period of time elap
 
 ## [v0.12.2][]
 
-- Fixing `zesk\Database_SQL::function_max` and `zesk\Database_SQL::function_min`
+- Fixing `zesk\SQLDialect::function_max` and `zesk\SQLDialect::function_min`
 - Fixing and removing references to `zesk()` and `global $zesk`
 - Handle default `zesk\Preference`s better
 - Passing `null` instead of `false` to some `zesk\Database::query` functions
@@ -1624,7 +1624,7 @@ The cleaner module cleans files or log files after a certain period of time elap
 ## [v0.12.2][]
 
 - Increase `$application` passing around
-- Fixing `zesk\Database_SQL::function_max` and `zesk\Database_SQL::function_min`
+- Fixing `zesk\SQLDialect::function_max` and `zesk\SQLDialect::function_min`
 - Fixing and removing references to `zesk()` and `global $zesk`
 - Handle default `zesk\Preference`s better
 - Passing `null` instead of `false` to some `zesk\Database::query` functions
@@ -1642,7 +1642,7 @@ The cleaner module cleans files or log files after a certain period of time elap
 
 ## [v0.12.1][]
 
-- Fixing `MySQL\Database_Parser` of `COLLATE` in tables to support `_` in names
+- Fixing `MySQL\SQLParser` of `COLLATE` in tables to support `_` in names
 - `zesk\Database::createDatabase` now contains `$hosts` and uses less assumptions
 - `zesk\World_Bootstrap_Country` now quieter unless `::debug` option is set
 
@@ -1738,7 +1738,7 @@ The cleaner module cleans files or log files after a certain period of time elap
 ## v0.10.11
 
 - `zesk\Configuration_Loader::load_one` does not emit error with file name which does not exist is passed in.
-- Adding `Exception_Parameter` in `zesk\Objects::resolve`
+- Adding `ParameterException` in `zesk\Objects::resolve`
 - `zesk\Command`: Outputting head of backtrace in command exception
 - Release v0.10.10
 - Text::format_pairs uses JSON instead of PHP::dump
@@ -1762,7 +1762,7 @@ The cleaner module cleans files or log files after a certain period of time elap
 
 - `MySQL\Database`: `@@storage_engine` is deprecated https://github.com/pimcore/pimcore/issues/490
 - Conditional debugging
-- `zesk\Database_Parser`: Fixing `splitSQLStatements` to actually work
+- `zesk\SQLParser`: Fixing `splitSQLStatements` to actually work
 - `Deploy` constructor takes `$application`
 - `zesk\Command_Update`: Pass through `--quiet` flag to `composer.phar` as `-q`
 - `zesk\Module_ReactJS`: Better warning when `.env` file is missing
@@ -1838,7 +1838,7 @@ The cleaner module cleans files or log files after a certain period of time elap
 - Fixed issue with `Server::singleton` returning void
 - Fixing tests
 - Selenium tests: If no host, do not run selenium tests
-- Interface_Settings: Added comments
+- SettingsInterface: Added comments
 - Major test suite updates, support for fewer references to `app()` global
 - Perhaps add a deprecated common.sh toolset?
 - Release v0.10.0
@@ -1863,7 +1863,7 @@ The cleaner module cleans files or log files after a certain period of time elap
 - `Controller::factory` is deprecated
 - `Controls_Test` rename and fixes
 - `File::put` now throws exception if contents is non-scalar
-- `Interface_Session` fixing `__construct` parameter order (application first)
+- `SessionInterface` fixing `__construct` parameter order (application first)
 - `Language::clean_table` now requires `$application` as first parameter
 - `Module_Permission`: Avoid global usage, API change in `Configuration_Loader`
 - `Preference`: Global reduction, pass `$application` around to static calls

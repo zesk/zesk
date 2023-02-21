@@ -8,8 +8,13 @@ namespace zesk;
 
 use Psr\Cache\InvalidArgumentException;
 use ReflectionClass;
-use stdClass;
+use ReflectionException;
 use Throwable;
+use zesk\Exception\ClassNotFound;
+use zesk\Exception\NotFoundException;
+use zesk\Exception\ParameterException;
+use zesk\Exception\Redirect;
+use zesk\Interface\Themeable;
 
 /**
  *
@@ -19,7 +24,7 @@ use Throwable;
  * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  *            Created on Fri Apr 02 21:04:09 EDT 2010 21:04:09
  */
-class Controller extends Hookable implements Interface_Theme {
+class Controller extends Hookable implements Themeable {
 	/**
 	 * Default content type for Response generated upon instantiation.
 	 *
@@ -81,10 +86,10 @@ class Controller extends Hookable implements Interface_Theme {
 	 * @param array $arguments
 	 * @param array $options
 	 * @return string
-	 * @throws Exception_Redirect
+	 * @throws Redirect
 	 */
 	public function theme(array|string $types, array $arguments = [], array $options = []): string {
-		return $this->application->theme($types, $arguments, $options);
+		return $this->application->themes->theme($types, $arguments, $options);
 	}
 
 	/**
@@ -107,7 +112,7 @@ class Controller extends Hookable implements Interface_Theme {
 	 * @param string $action
 	 * @param array $arguments
 	 * @return Response
-	 * @throws Exception_NotFound
+	 * @throws NotFoundException
 	 */
 	final public function execute(Request $request, Response $response, string $action = '', array $arguments = []): Response {
 		$wrapperArguments = [$request, $response, $arguments, $action];
@@ -133,7 +138,7 @@ class Controller extends Hookable implements Interface_Theme {
 		}
 		$arguments = $this->optionalMethod($argumentsMethod, $wrapperArguments, $arguments);
 		if (!is_array($arguments)) {
-			throw new Exception_NotFound("$argumentsMethod did not return an array", [
+			throw new NotFoundException("$argumentsMethod did not return an array", [
 				'argumentsMethod' => $argumentsMethod,
 			]);
 		}
@@ -156,7 +161,7 @@ class Controller extends Hookable implements Interface_Theme {
 			if ($contentsLength) {
 				$app->logger->warning("Incorrect controller semantics: output + return array, output ignored\n$message", $__);
 			}
-			$response->setResponseData($result, true);
+			$response->setResponseData($result);
 		} elseif ($contentsLength) {
 			if (!$this->optionBool('captureOutput')) {
 				$app->logger->warning("{class}::captureOutput is not enabled: $message", $__);
@@ -196,7 +201,7 @@ class Controller extends Hookable implements Interface_Theme {
 	 *
 	 * @param Request $request
 	 * @param Response $response
-	 * @return void
+	 * @return Response
 	 */
 	protected function after(Request $request, Response $response): Response {
 		return $response;
@@ -257,10 +262,11 @@ class Controller extends Hookable implements Interface_Theme {
 	 *
 	 * @param array|string $names
 	 * @param array $arguments
+	 * @param mixed|null $default
 	 * @return mixed
 	 */
 	final public function optionalMethod(array|string $names, array $arguments, mixed $default = null): mixed {
-		foreach (toList($names) as $name) {
+		foreach (Types::toList($names) as $name) {
 			if ($this->hasMethod($name)) {
 				return $this->invokeMethod($name, $arguments);
 			}
@@ -311,7 +317,7 @@ class Controller extends Hookable implements Interface_Theme {
 	 * @param mixed $mixed Model initialization parameter (id, array, etc.)
 	 * @param array $options Creation options and initial options for model
 	 * @return Model
-	 * @throws Exception_Class_NotFound
+	 * @throws ClassNotFound
 	 */
 	public function modelFactory(string $class, mixed $mixed = null, array $options = []): Model {
 		return $this->application->modelFactory($class, $mixed, $options);
@@ -331,7 +337,7 @@ class Controller extends Hookable implements Interface_Theme {
 			$map['method'] = strtolower($method);
 			$map['METHOD'] = strtoupper($method);
 			foreach ($this->actionMethods as $actionMethod) {
-				$method = map($actionMethod, $map);
+				$method = ArrayTools::map($actionMethod, $map);
 				if ($this->hasMethod($method)) {
 					$options[$method] = true;
 				}
@@ -352,7 +358,6 @@ class Controller extends Hookable implements Interface_Theme {
 	 *
 	 * @param Application $application
 	 * @return array
-	 *
 	 */
 	final public static function all(Application $application): array {
 		$paths = $application->autoloader->path();
@@ -373,24 +378,34 @@ class Controller extends Hookable implements Interface_Theme {
 			Directory::LIST_RULE_DIRECTORY_WALK => ['#/\.#' => false, true], Directory::LIST_RULE_DIRECTORY => false,
 		];
 		foreach ($paths as $path => $options) {
-			$allIncludes = Directory::listRecursive($path, $list_options);
+			try {
+				$allIncludes = Directory::listRecursive($path, $list_options);
+			} catch (ParameterException) {
+				$allIncludes = []; // never
+			}
 			foreach ($allIncludes as $controllerInclude) {
 				if (!StringTools::contains($controllerInclude, ['/Controller', 'Controller/'])) {
 					continue;
 				}
-				$application->logger->debug('Found controller {controller_inc}', compact('controller_inc'));
+				$args = ['controllerInclude' => $controllerInclude];
+				$application->logger->debug('Found controller {controllerInclude}', $args);
 
 				try {
 					$application->load($controllerInclude);
 				} catch (Throwable $e) {
-					$application->logger->error('Exception creating controller {controller_inc} {e}', compact('controller_inc', 'e'));
+					$args += Exception::exceptionVariables($e);
+					$application->logger->error('Exception creating controller {controller_inc} {throwableClass}', $args);
 				}
 			}
 		}
 		$application->classes->register(get_declared_classes());
 		$controllers = $application->classes->register(Controller::class);
 		foreach ($controllers as $controllerClass) {
-			$reflectionClass = new ReflectionClass($controllerClass);
+			try {
+				$reflectionClass = new ReflectionClass($controllerClass);
+			} catch (ReflectionException) {
+				continue;
+			}
 			if ($reflectionClass->isAbstract()) {
 				continue;
 			}
@@ -420,17 +435,17 @@ class Controller extends Hookable implements Interface_Theme {
 	 * @param array $requestMap
 	 * @param bool $require
 	 * @return string
-	 * @throws Exception_NotFound
+	 * @throws NotFoundException
 	 */
 	private function determineMethod(array $methods, array $requestMap, bool $require): string {
 		foreach ($methods as $argumentMethod) {
-			$argumentMethod = map($argumentMethod, $requestMap);
+			$argumentMethod = ArrayTools::map($argumentMethod, $requestMap);
 			if ($this->hasMethod($argumentMethod)) {
 				return $argumentMethod;
 			}
 		}
 		if ($require) {
-			throw new Exception_NotFound('{path} ({method}) not found', $requestMap);
+			throw new NotFoundException('{path} ({method}) not found', $requestMap);
 		}
 		return '';
 	}

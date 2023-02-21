@@ -9,9 +9,14 @@ declare(strict_types=1);
 
 namespace zesk;
 
-use stdClass;
-use zesk\Router\Parser;
 use Psr\Cache\InvalidArgumentException;
+use stdClass;
+use zesk\Exception\ClassNotFound;
+use zesk\Exception\KeyNotFound;
+use zesk\Exception\NotFoundException;
+use zesk\Exception\Semantics;
+use zesk\Exception\SyntaxException;
+use zesk\Router\Parser;
 
 /**
  * @see Route
@@ -56,7 +61,7 @@ use Psr\Cache\InvalidArgumentException;
  * "content" type Set the response content type to this
  * "status code" Set the response status code
  * "status message" Set the response status message
- * "redirect" After invokation, redirect to here
+ * "redirect" After invocation, redirect to here
  *
  * The pattern syntax is:
  *
@@ -178,7 +183,7 @@ class Router extends Hookable {
 	 * @param Application $application
 	 * @param array $options
 	 * @return self
-	 * @throws Exception_Class_NotFound
+	 * @throws ClassNotFound
 	 */
 	public static function factory(Application $application, array $options = []): self {
 		$result = $application->factory(__CLASS__, $application, $options);
@@ -198,13 +203,13 @@ class Router extends Hookable {
 
 	/**
 	 * Cache this router
-	 * @throws Exception_NotFound
+	 * @throws NotFoundException
 	 */
 	public function cache(string $id): self {
 		try {
 			$item = $this->application->cacheItemPool()->getItem(__CLASS__);
 		} catch (InvalidArgumentException $e) {
-			throw new Exception_NotFound($e->getMessage());
+			throw new NotFoundException($e->getMessage());
 		}
 		$value = new stdClass();
 		$value->id = $id;
@@ -218,21 +223,21 @@ class Router extends Hookable {
 	 *
 	 * @param string $id
 	 * @return Router
-	 * @throws Exception_NotFound
+	 * @throws NotFoundException
 	 */
 	public function cached(string $id = ''): Router {
 		try {
 			$item = $this->application->cacheItemPool()->getItem(__CLASS__);
 		} catch (InvalidArgumentException $e) {
-			throw new Exception_NotFound($e->getMessage());
+			throw new NotFoundException($e->getMessage());
 		}
 		if (!$item->isHit()) {
-			throw new Exception_NotFound('Not cached');
+			throw new NotFoundException('Not cached');
 		}
 		$value = $item->get();
 		if ($id !== '') {
 			if ($id !== $value->id) {
-				throw new Exception_NotFound('Cache invalid');
+				throw new NotFoundException('Cache invalid');
 			}
 		}
 		return $value->router;
@@ -250,7 +255,7 @@ class Router extends Hookable {
 	 *
 	 * @param string $id
 	 * @return Route
-	 * @throws Exception_Key
+	 * @throws KeyNotFound
 	 */
 	public function route(string $id): Route {
 		$key = strtolower($id);
@@ -258,7 +263,7 @@ class Router extends Hookable {
 			return $this->byId[$key];
 		}
 
-		throw new Exception_Key('Route not found {id} (key: {key})', ['id' => $id, 'key' => $key]);
+		throw new KeyNotFound('Route not found {id} (key: {key})', ['id' => $id, 'key' => $key]);
 	}
 
 	/**
@@ -321,7 +326,7 @@ class Router extends Hookable {
 	 * @param string $path
 	 * @param string $method
 	 * @return Route
-	 * @throws Exception_NotFound
+	 * @throws NotFoundException
 	 */
 	public function match(string $path, string $method = HTTP::METHOD_GET): Route {
 		if ($this->prefix) {
@@ -335,7 +340,7 @@ class Router extends Hookable {
 			}
 		}
 
-		throw new Exception_NotFound('No match for {path} ({method})', ['method' => $method, 'path' => $path]);
+		throw new NotFoundException('No match for {path} ({method})', ['method' => $method, 'path' => $path]);
 	}
 
 	/**
@@ -343,7 +348,7 @@ class Router extends Hookable {
 	 *
 	 * @param Request $request
 	 * @return Route
-	 * @throws Exception_NotFound
+	 * @throws NotFoundException
 	 */
 	public function matchRequest(Request $request): Route {
 		return $this->match($request->path(), $request->method());
@@ -355,6 +360,8 @@ class Router extends Hookable {
 	 * @param string $path
 	 * @param array $options
 	 * @return Route
+	 * @throws ClassNotFound
+	 * @throws Semantics
 	 */
 	public function addRoute(string $path, array $options): Route {
 		if ($path === '.') {
@@ -372,6 +379,7 @@ class Router extends Hookable {
 	 *
 	 * @param Route $route
 	 * @return Route
+	 * @throws Semantics
 	 */
 	private function _addRouteID(Route $route): Route {
 		$id = $route->id();
@@ -389,7 +397,7 @@ class Router extends Hookable {
 	 * @param string $contents
 	 * @param array $add_options
 	 * @return void
-	 * @throws Exception_Syntax
+	 * @throws SyntaxException
 	 * @see Parser
 	 */
 	public function import(string $contents, array $add_options = []): void {
@@ -421,10 +429,10 @@ class Router extends Hookable {
 	 * @param Model|null $object
 	 * @param array $options
 	 * @return Route
-	 * @throws Exception_NotFound
+	 * @throws NotFoundException
 	 */
 	private function _findRoute(array $routes, string $action, Model $object = null, array $options = []): string {
-		$options = toArray($options);
+		$options = Types::toArray($options);
 		foreach ($routes as $route) {
 			assert($route instanceof Route);
 			$url = $route->getRoute($action, $object, $options);
@@ -436,7 +444,7 @@ class Router extends Hookable {
 			}
 		}
 
-		throw new Exception_NotFound('Can not find route for {action} {object}', [
+		throw new NotFoundException('Can not find route for {action} {object}', [
 			'action' => $action, 'object' => $object,
 		]);
 	}
@@ -465,7 +473,7 @@ class Router extends Hookable {
 	 *            generating this route.
 	 *
 	 * @return string
-	 * @throws Exception_NotFound
+	 * @throws NotFoundException
 	 */
 	public function getRoute(string $action, string|array|Model $object = null, string|array $options = []): string {
 		$original_action = $action;
@@ -524,7 +532,7 @@ class Router extends Hookable {
 						$action, $object, $options,
 					], $url);
 					return $this->prefix . $url;
-				} catch (Exception_NotFound) {
+				} catch (NotFoundException) {
 					/* Pass */
 				}
 			}
@@ -533,8 +541,8 @@ class Router extends Hookable {
 			$action, $object, $options,
 		]);
 		if (empty($url)) {
-			throw new Exception_NotFound('No reverse route for {classes}->{action} {backtrace}', [
-				'classes' => $try_classes, 'action' => $original_action, 'backtrace' => _backtrace(),
+			throw new NotFoundException('No reverse route for {classes}->{action} {backtrace}', [
+				'classes' => $try_classes, 'action' => $original_action, 'backtrace' => Kernel::backtrace(),
 			]);
 		}
 		return URL::queryAppend($this->prefix . $url, $options ['query'] ?? []);
@@ -544,12 +552,12 @@ class Router extends Hookable {
 	 * Retrieve a list of all controllers in the router
 	 *
 	 * @return array
-	 * @throws Exception_Class_NotFound
+	 * @throws ClassNotFound
 	 */
 	public function controllers(): array {
 		$controllers = [];
 		foreach ($this->routes as $route) {
-			if ($route instanceof Route_Controller || method_exists($route, 'controller')) {
+			if (method_exists($route, 'controller')) {
 				$controllers[] = $route->controller();
 			}
 		}

@@ -1,9 +1,11 @@
 <?php
 declare(strict_types=1);
 
-namespace zesk;
+namespace zesk\Configuration;
 
-abstract class Configuration_Editor extends Options {
+use zesk\Options;
+
+abstract class Editor extends Options {
 	protected string $content;
 
 	public function __construct($content = '', array $options = []) {

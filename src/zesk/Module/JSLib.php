@@ -1,13 +1,20 @@
 <?php
 declare(strict_types=1);
-namespace zesk;
+namespace zesk\Module;
+
+use zesk\Interface\Module\Head;
+
+use zesk\Module;
+use zesk\Request;
+use zesk\Response;
+use zesk\Theme;
 
 /**
  * For modules which install and use a JavaScript library
  *
  * @author kent
  */
-abstract class Module_JSLib extends Module implements Interface_Module_Head {
+abstract class JSLib extends Module implements Head {
 	/**
 	 * Array of css paths for this page
 	 *
@@ -126,9 +133,9 @@ abstract class Module_JSLib extends Module implements Interface_Module_Head {
 	 *
 	 * @param Request $request
 	 * @param Response $response
-	 * @param Template $template
+	 * @param Theme $template
 	 */
-	public function hook_head(Request $request, Response $response, Template $template): void {
+	public function hook_head(Request $request, Response $response, Theme $template): void {
 		if (!$this->optionBool('disabled')) {
 			$this->javascript_settings['enabled'] = true;
 			$this->compute_javascript_settings();

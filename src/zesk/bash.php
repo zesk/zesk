@@ -2,6 +2,8 @@
 declare(strict_types=1);
 namespace zesk;
 
+use zesk\Interface\SettingsInterface;
+
 /**
  * Utilities for bash-related emulation
  *
@@ -9,7 +11,7 @@ namespace zesk;
  *
  */
 class bash {
-	public static function substitute($value, Interface_Settings $settings, array &$dependencies = null, $lower_dependencies = false) {
+	public static function substitute($value, SettingsInterface $settings, array &$dependencies = null, $lower_dependencies = false) {
 		if (!is_array($dependencies)) {
 			$dependencies = [];
 		}
@@ -31,7 +33,7 @@ class bash {
 				] as $sep) {
 					if (str_contains($variable, $sep)) {
 						[$variable, $default_value] = explode($sep, $variable, 2);
-						$default_value = unquote($default_value, '\'\'""');
+						$default_value = StringTools::unquote($default_value, self::UNQUOTE_PAIRS);
 						break;
 					}
 				}
@@ -63,4 +65,9 @@ class bash {
 		}
 		return $value;
 	}
+
+	/**
+	 *
+	 */
+	private const UNQUOTE_PAIRS = '\'\'""';
 }

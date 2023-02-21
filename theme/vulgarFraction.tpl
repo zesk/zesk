@@ -7,7 +7,9 @@ declare(strict_types=1);
  */
 namespace zesk;
 
-/* @var $this Template */
+use zesk\Locale\Locale;
+
+/* @var $this Theme */
 /* @var $application Application */
 /* @var $locale Locale */
 $number = $this->content;
@@ -24,7 +26,7 @@ if ($number < 0) {
 $integer = intval($number);
 $decimal = $number - $integer;
 
-$integer_html = $sign . ($integer === 0 ? '' : $locale->number_format($integer));
+$integer_html = $sign . ($integer === 0 ? '' : $locale->formatNumber($integer));
 $map = [
 	// 2 denominator
 	'&#189;' => 0.5,
@@ -75,7 +77,7 @@ $map = [
 	'<sup>7</sup>&frasl;<sub>10</sub>' => 0.7,
 	'<sup>9</sup>&frasl;<sub>10</sub>' => 0.9,
 ];
-if (real_equal($decimal, 0)) {
+if (Number::floatsEqual($decimal, 0)) {
 	echo($integer === 0 ? '0' : $integer_html);
 	return;
 }
@@ -88,7 +90,7 @@ if (!$epsilon) {
 $closest = null;
 $closest_delta = 0;
 foreach ($map as $entity => $fraction) {
-	if (real_equal($fraction, $decimal, $epsilon)) {
+	if (Number::floatsEqual($fraction, $decimal, $epsilon)) {
 		$delta = abs($fraction - $decimal);
 		if ($closest === null || $delta < $closest_delta) {
 			$closest = $entity;
@@ -105,7 +107,7 @@ $result = trim(number_format($decimal, $decimals), '0');
 if ($result === '.') {
 	echo $integer_html;
 } elseif ($result === '1.') {
-	echo $sign . $locale->number_format($integer + 1);
+	echo $sign . $locale->formatNumber($integer + 1);
 } else {
 	echo $integer_html . ($integer === 0 ? '0' : '') . $result;
 }

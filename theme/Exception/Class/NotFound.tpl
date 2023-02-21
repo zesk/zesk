@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace zesk;
 
-/* @var $this Template */
+/* @var $this Theme */
 /* @var $application Application */
 
 echo $this->theme('Exception', [

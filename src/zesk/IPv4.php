@@ -108,7 +108,7 @@ class IPv4 {
 	 * @return integer
 	 */
 	public static function subnet_mask(int $ip_bits): int {
-		$ip_bits = clamp(0, $ip_bits, self::BITS);
+		$ip_bits = Number::clamp(0, $ip_bits, self::BITS);
 		return bindec(str_repeat('1', $ip_bits) . str_repeat('0', self::BITS - $ip_bits));
 	}
 
@@ -120,7 +120,7 @@ class IPv4 {
 	 * @return integer
 	 */
 	public static function subnet_mask_not(int $ip_bits): int {
-		$ip_bits = clamp(0, $ip_bits, self::BITS);
+		$ip_bits = Number::clamp(0, $ip_bits, self::BITS);
 		return bindec(str_repeat('1', self::BITS - $ip_bits));
 	}
 
@@ -145,8 +145,8 @@ class IPv4 {
 	 * @return boolean
 	 */
 	public static function is_mask(string $string): bool {
-		[$ip, $bits] = pair($string, '/', $string, strval(self::BITS));
-		if (integer_between(8, intval($bits), self::BITS) && self::_valid($ip)) {
+		[$ip, $bits] = StringTools::pair($string, '/', $string, strval(self::BITS));
+		if (Number::intBetween(8, intval($bits), self::BITS) && self::_valid($ip)) {
 			return true;
 		}
 		$x = explode('.', $string);
@@ -154,11 +154,11 @@ class IPv4 {
 			return false;
 		}
 		$last = array_pop($x);
-		if ($last !== '*' && (!is_numeric($last) || !integer_between(0, intval($last), 255))) {
+		if ($last !== '*' && (!is_numeric($last) || !Number::intBetween(0, intval($last), 255))) {
 			return false;
 		}
 		foreach ($x as $ipi) {
-			if (!integer_between(0, intval($ipi), 255)) {
+			if (!Number::intBetween(0, intval($ipi), 255)) {
 				return false;
 			}
 		}
@@ -178,14 +178,14 @@ class IPv4 {
 				null,
 			];
 		}
-		[$ip, $bits] = pair($string, '/', $string, strval(self::BITS));
+		[$ip, $bits] = StringTools::pair($string, '/', $string, strval(self::BITS));
 
 		if (is_numeric($bits) && self::_valid($ip)) {
-			$bits = clamp(8, intval($bits), self::BITS);
+			$bits = Number::clamp(8, intval($bits), self::BITS);
 		} else {
 			$x = explode('.', $string);
 			$last = array_pop($x);
-			if (is_numeric($last) && integer_between(0, intval($last), 255)) {
+			if (is_numeric($last) && Number::intBetween(0, intval($last), 255)) {
 				$x[] = $last;
 			}
 			$n = count($x);
@@ -205,7 +205,7 @@ class IPv4 {
 	/**
 	 * Convert an integer IP and number of bits to its equivalent string representation
 	 *
-	 * @param int $ip
+	 * @param int|float $ip
 	 *            An IP integer
 	 * @param int $ip_bits
 	 *            An IP number of bits in the mask (from 0 to 32)
@@ -214,8 +214,9 @@ class IPv4 {
 	 *            "192.168.*"
 	 * @return string An IP and subnet notation string
 	 */
-	public static function mask_to_string(float $ip, int $ip_bits = self::BITS, bool $star_notation = true): string {
-		$ip_bits = toInteger($ip_bits, self::BITS);
+	public static function mask_to_string(int|float $ip, int $ip_bits = self::BITS, bool $star_notation = true):
+	string {
+		$ip_bits = Types::toInteger($ip_bits, self::BITS);
 		$ip = floatval($ip);
 		if ($ip_bits === self::BITS) {
 			return self::from_integer($ip);
@@ -324,7 +325,7 @@ class IPv4 {
 	 * @return bool
 	 */
 	public static function valid(string $string): bool {
-		return is_ip4($string);
+		return Types::isIP4($string);
 	}
 
 	/**
@@ -334,7 +335,7 @@ class IPv4 {
 	 * @return boolean
 	 */
 	private static function _valid(string $string): bool {
-		return preg_match('#^' . PREG_PATTERN_IP4_0 . '$#i', $string) !== 0;
+		return preg_match('#^' . Types::PREG_PATTERN_IP4_0 . '$#i', $string) !== 0;
 	}
 
 	/**

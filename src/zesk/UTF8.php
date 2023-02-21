@@ -9,6 +9,10 @@ declare(strict_types=1);
 
 namespace zesk;
 
+use zesk\Exception\FileParseException;
+use zesk\Exception\ParseException;
+use zesk\Exception\KeyNotFound;
+
 /**
  * 8-bit UTF utilities
  *
@@ -17,16 +21,17 @@ namespace zesk;
 class UTF8 {
 	/**
 	 * @param string $mixed Data to convert
-	 * @param string $charset Charset string to use (see ... for examples)
-	 * @return array|string
-	 * @throws Exception_Convert
-	 * @throws Exception_File_Format
+	 * @param string $characterSet Charset string to use (see ... for examples)
+	 * @return string
+	 * @throws ParseException
+	 * @throws KeyNotFound
+	 * @throws FileParseException
 	 */
-	public static function from_charset(string $mixed, string $charset) {
-		return charset::to_utf8($mixed, $charset);
+	public static function fromCharacterSet(string $mixed, string $characterSet): string {
+		return CharacterSet::toUTF8($mixed, $characterSet);
 	}
 
-	public static function to_iso8859(string $mixed): string {
+	public static function toISO8859(string $mixed): string {
 		return utf8_decode($mixed);
 	}
 }

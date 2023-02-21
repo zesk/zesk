@@ -5,6 +5,8 @@ namespace zesk;
 
 use Closure;
 use Throwable;
+use zesk\Exception\FileNotFound;
+use zesk\Exception\FilePermission;
 
 /**
  * Version editor allows you to modify and bump version numbers easily for releases.
@@ -85,9 +87,9 @@ class Command_Version extends Command_Base {
 	 * Written using functional form as an experiment to see how it feels. Not bad.
 	 *
 	 * @return int
-	 * @throws Exception_File_NotFound
-	 * @throws Exception_File_Permission
-	 * @throws Exception_Semantics
+	 * @throws FileNotFound
+	 * @throws FilePermission
+	 * @throws Semantics
 	 */
 	public function run(): int {
 		if ($this->optionBool('init')) {
@@ -101,7 +103,7 @@ class Command_Version extends Command_Base {
 
 		try {
 			$schema = JSON::decode(File::contents($schema_path));
-		} catch (Exception_Parse) {
+		} catch (ParseException) {
 			$this->error('{schema_path} not found, invoke with --init to create default version configuration', [
 				'schema_path' => $schema_path,
 			]);
@@ -110,7 +112,7 @@ class Command_Version extends Command_Base {
 
 		try {
 			$parser = $this->versionParser($schema['parser'] ?? []);
-		} catch (Exception_Semantics) {
+		} catch (Semantics) {
 			$this->error('Unable to geneate parser for version');
 			return self::EXIT_CODE_INVALID_PARSER;
 		}
@@ -277,7 +279,7 @@ class Command_Version extends Command_Base {
 	 *
 	 * @param array $__parser
 	 * @return Closure
-	 * @throws Exception_Semantics
+	 * @throws Semantics
 	 */
 	private function versionParser(array $__parser): Closure {
 		$pattern = $__parser['pattern'] ?? '/([0-9]+)\\.([0-9]+)\\.([0-9]+)(?:\\.([0-9]+))?([a-z][a-z0-9]*)?/i';
@@ -285,10 +287,10 @@ class Command_Version extends Command_Base {
 			'version', 'major', 'minor', 'maintenance', 'patch', 'tag',
 		];
 		if (!$pattern) {
-			throw new Exception_Semantics('Missing pattern');
+			throw new Semantics('Missing pattern');
 		}
 		if (!is_array($matches)) {
-			throw new Exception_Semantics('parser should have `pattern` and `matches` set, `matches` is missing');
+			throw new Semantics('parser should have `pattern` and `matches` set, `matches` is missing');
 		}
 		return function ($content) use ($pattern, $matches) {
 			$found = [];
@@ -322,7 +324,7 @@ class Command_Version extends Command_Base {
 				$file = File::isAbsolute($schema['file']) ? $schema['file'] : path($application_root, $schema['file']);
 				File::depends($file);
 				$json_structure = JSON::decode(File::contents($file));
-				return apath($json_structure, $path, '', '::');
+				return ArrayTools::path($json_structure, $path, '', '::');
 			};
 		}
 		return function ($schema) use ($application_root) {
@@ -335,7 +337,7 @@ class Command_Version extends Command_Base {
 	/**
 	 * @param array $__generator
 	 * @return Closure
-	 * @throws Exception_Semantics
+	 * @throws Semantics
 	 */
 	private function versionGenerator(array $__generator): Closure {
 		$map = $__generator['map'] ?? null;
@@ -343,7 +345,7 @@ class Command_Version extends Command_Base {
 			return fn (array $version_structure): string|array => map($map, $version_structure);
 		}
 
-		throw new Exception_Semantics('{schema_path} `generator` must have key `map`', [
+		throw new Semantics('{schema_path} `generator` must have key `map`', [
 			'schema_path' => $this->versionSchemaPath(),
 		]);
 	}
@@ -359,7 +361,7 @@ class Command_Version extends Command_Base {
 			return function ($schema, $new_version) use ($json, $application_root): void {
 				$file = File::isAbsolute($schema['file']) ? $schema['file'] : path($application_root, $schema['file']);
 				$json_structure = JSON::decode(File::contents($file));
-				apath_set($json_structure, $json, $new_version);
+				ArrayTools::setPath($json_structure, $json, $new_version);
 				File::put($file, JSON::encodePretty($json_structure));
 			};
 		}

@@ -7,8 +7,9 @@ use zesk\JSON;
 use zesk\Route;
 use zesk\Router;
 use zesk\StringTools;
-use zesk\Exception_Parse;
-use zesk\Exception_Syntax;
+use zesk\Exception\ParseException;
+use zesk\Exception\SyntaxException;
+use zesk\Types;
 
 /**
  *
@@ -61,7 +62,7 @@ class Parser {
 	 * @param Router $router
 	 * @param array $add_options
 	 * @return Route[]
-	 * @throws Exception_Syntax
+	 * @throws SyntaxException
 	 */
 	public function execute(Router $router, array $add_options = []): array {
 		$app = $router->application;
@@ -70,7 +71,7 @@ class Parser {
 		$lines = explode("\n", $this->contents);
 		$paths = [];
 		$options = [];
-		$whites = toList(" ;\t");
+		$whites = Types::toList(" ;\t");
 		$tr = [
 			'$zesk_root' => $app->zeskHome(), '$zesk_application_root' => $app->path(),
 		];
@@ -93,12 +94,12 @@ class Parser {
 					if ($value_trimmed === 'null') {
 						$value = null;
 					} elseif ($value_trimmed === 'true' || $value_trimmed === 'false') {
-						$value = toBool($value_trimmed);
-					} elseif (StringTools::begins($value_trimmed, str_split('"\'{[', 1))) {
+						$value = Types::toBool($value_trimmed);
+					} elseif (StringTools::begins($value_trimmed, str_split('"\'{['))) {
 						try {
-							$decoded = JSON::decode($value, true);
+							$decoded = JSON::decode($value);
 							$value = $decoded;
-						} catch (Exception_Parse $e) {
+						} catch (ParseException $e) {
 							$logger->error('Error parsing {id}:{lineno} decoding JSON failed', [
 								'id' => $this->id, 'lineno' => $lineno1,
 							]);
@@ -106,7 +107,7 @@ class Parser {
 						}
 					}
 					if (is_string($value) || is_array($value)) {
-						$value = tr($value, $tr);
+						$value = Types::replaceSubstrings($value, $tr);
 					}
 					if (str_ends_with($name, '[]')) {
 						$options[strtolower(substr($name, 0, -2))][] = $value;
@@ -117,7 +118,7 @@ class Parser {
 			} else {
 				// Transition to new tag
 				if (count($options) === 0 || count($paths) === 0) {
-					$paths[] = unquote($line);
+					$paths[] = StringTools::unquote($line);
 				} else {
 					if ($add_options) {
 						$options += $add_options;
@@ -127,13 +128,13 @@ class Parser {
 					}
 					$options = [];
 					$paths = [
-						unquote($line),
+						StringTools::unquote($line),
 					];
 				}
 			}
 		}
 		if (count($paths) > 0 && count($options) === 0) {
-			throw new Exception_Syntax('Final router {paths} has no valid options', [
+			throw new SyntaxException('Final router {paths} has no valid options', [
 				'paths' => $paths,
 			]);
 		} else {

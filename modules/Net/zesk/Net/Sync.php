@@ -8,15 +8,14 @@ namespace zesk\Net;
 
 use zesk\Application;
 use zesk\Directory;
-use zesk\Exception_Directory_Create;
-use zesk\Exception_Directory_NotFound;
-use zesk\Exception_File_Permission;
+use zesk\Exception\DirectoryCreate;
+use zesk\Exception\DirectoryNotFound;
+use zesk\Exception\FilePermission;
 use zesk\File;
+use zesk\Net\Client as Net_Client;
+use zesk\Net\HTTP\Client as Net_HTTP_Client;
 use zesk\Options;
 use zesk\Timestamp;
-
-use zesk\Net\HTTP\Client as Net_HTTP_Client;
-use zesk\Net\Client as Net_Client;
 
 /**
  *
@@ -57,10 +56,10 @@ class Sync extends Options {
 	 *            - user_agent - User agent to use
 	 *
 	 * @return bool|null true if file has changed, false if not, null if time-to-live has not expired
-	 * @throws Exception_Directory_NotFound
-	 * @throws Exception_File_Permission
+	 * @throws DirectoryNotFound
+	 * @throws FilePermission
 	 */
-	public static function url_to_file(Application $application, string $url, string $path, array $options = []): ?bool {
+	public static function urlToFile(Application $application, string $url, string $path, array $options = []): ?bool {
 		if (!isset($options['timeout'])) {
 			$options['timeout'] = 2 * 60 * 1000;
 		}
@@ -264,8 +263,8 @@ class Sync extends Options {
 	/**
 	 * Synchronize two URLs, recursively.
 	 *
-	 * @throws Exception_Directory_NotFound
-	 * @throws Exception_Directory_Create
+	 * @throws DirectoryNotFound
+	 * @throws DirectoryCreate
 	 * @throws Exception
 	 */
 	public function go() {
@@ -282,11 +281,11 @@ class Sync extends Options {
 		$dst_root = Directory::addSlash($dst->urlComponent('path'));
 
 		if (!$src->cd($src_root)) {
-			throw new Exception_Directory_NotFound("Source \"$src_url\" directory \"$src_root\" not found");
+			throw new DirectoryNotFound("Source \"$src_url\" directory \"$src_root\" not found");
 		}
 		if (!$dst->cd($dst_root)) {
 			if (!$dst->mkdir($dst_root)) {
-				throw new Exception_Directory_Create($dst_root, $dst_url);
+				throw new DirectoryCreate($dst_root, $dst_url);
 			}
 		}
 		$dir_queue = [
@@ -318,7 +317,7 @@ class Sync extends Options {
 					$stats['dirs']++;
 					if ($dst_type === null) {
 						if (!$dst->mkdir($full_dst_path)) {
-							throw new Exception_Directory_Create($full_dst_path, $dst_url);
+							throw new DirectoryCreate($full_dst_path, $dst_url);
 						} else {
 							$stats['mkdir']++;
 							$logger->debug("mkdir $full_dst_path at $dst_url");

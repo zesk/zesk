@@ -10,11 +10,16 @@ declare(strict_types=1);
 namespace zesk;
 
 use Psr\Log\LoggerInterface;
+use zesk\Exception\DirectoryNotFound;
+use zesk\Exception\NotFoundException;
+use zesk\Exception\Redirect;
+use zesk\Exception\Semantics;
+use zesk\Interface\Themeable;
 
 /**
  * Everything theme-related
  */
-class Themes implements Interface_Theme {
+class Themes implements Themeable {
 	/**
 	 * @var bool
 	 */
@@ -23,17 +28,17 @@ class Themes implements Interface_Theme {
 	/**
 	 * Top template
 	 *
-	 * @var Template
+	 * @var Theme
 	 */
-	public Template $template;
+	public Theme $template;
 
 	/**
 	 * Template stack. public so it can be copied in Template::__construct
 	 *
-	 * @see Template::__construct
-	 * @var Template_Stack
+	 * @see Theme::__construct
+	 * @var ThemeStack
 	 */
-	public Template_Stack $template_stack;
+	public ThemeStack $template_stack;
 
 	/**
 	 * Paths to search for themes
@@ -52,8 +57,8 @@ class Themes implements Interface_Theme {
 		$this->themePath = [];
 		$this->theme_stack = [];
 
-		$this->template = new Template($this);
-		$this->template_stack = new Template_Stack();
+		$this->template = new Theme($this);
+		$this->template_stack = new ThemeStack();
 
 		$this->template_stack->push($this->template);
 	}
@@ -76,7 +81,7 @@ class Themes implements Interface_Theme {
 	 *            (Optional) Handle theme requests which begin with this prefix. Saves having deep
 	 *            directories.
 	 * @return self
-	 * @throws Exception_Directory_NotFound
+	 * @throws DirectoryNotFound
 	 */
 	final public function addThemePath(array|string $paths, string $prefix = ''): self {
 		if (is_array($paths)) {
@@ -115,11 +120,11 @@ class Themes implements Interface_Theme {
 	 * @param ?string $content Default content
 	 * @param string $extension
 	 * @return ?string
-	 * @throws Exception_Redirect
+	 * @throws Redirect
 	 */
 	private function _themeArguments(string $type, array $args, string $content = null, string $extension = '.tpl'): ?string {
 		$this->theme_stack[] = $type;
-		$t = new Template($this, $this->cleanTemplatePath($type) . $extension, $args);
+		$t = new Theme($this, $this->cleanTemplatePath($type) . $extension, $args);
 		if ($t->exists()) {
 			$content = $t->render();
 		}
@@ -143,7 +148,7 @@ class Themes implements Interface_Theme {
 	 * @param $theme
 	 * @param array $options
 	 * @return string
-	 * @throws Exception_NotFound
+	 * @throws NotFoundException
 	 */
 	final public function themeFind($theme, array $options = []): string {
 		[$result] = $this->themeFindAll($theme, $options);
@@ -151,7 +156,7 @@ class Themes implements Interface_Theme {
 			return $result[0];
 		}
 
-		throw new Exception_NotFound($theme);
+		throw new NotFoundException($theme);
 	}
 
 	/**
@@ -162,8 +167,8 @@ class Themes implements Interface_Theme {
 	 * @return array[]
 	 */
 	final public function themeFindAll($theme, array $options = []): array {
-		$extension = toBool($options['no_extension'] ?? false) ? '' : ($options['theme_extension'] ?? '.tpl');
-		$all = toBool($options['all'] ?? true);
+		$extension = Types::toBool($options['no_extension'] ?? false) ? '' : ($options['theme_extension'] ?? '.tpl');
+		$all = Types::toBool($options['all'] ?? true);
 		$theme = $this->cleanTemplatePath($theme) . $extension;
 		$themePath = $this->themePath();
 		$prefixes = array_keys($themePath);
@@ -174,7 +179,7 @@ class Themes implements Interface_Theme {
 			if ($prefix === '' || str_starts_with($theme, $prefix)) {
 				$suffix = substr($theme, strlen($prefix));
 				foreach ($themePath[$prefix] as $path) {
-					$path = path($path, $suffix);
+					$path = Directory::path($path, $suffix);
 					if (file_exists($path)) {
 						$result[] = $path;
 						if (!$all) {
@@ -211,7 +216,7 @@ class Themes implements Interface_Theme {
 	 * @param array $arguments
 	 * @param array $options
 	 * @return string|null
-	 * @throws Exception_Redirect
+	 * @throws Redirect
 	 */
 	final public function theme(string|array $types, array $arguments = [], array $options = []): ?string {
 		if (!is_array($arguments)) {
@@ -219,10 +224,10 @@ class Themes implements Interface_Theme {
 				'content' => $arguments,
 			];
 		} elseif (ArrayTools::isList($arguments) && count($arguments) > 0) {
-			$arguments['content'] = first($arguments);
+			$arguments['content'] = ArrayTools::first($arguments);
 		}
 
-		$types = toList($types);
+		$types = Types::toList($types);
 		$extension = ($options['no_extension'] ?? false) ? null : '.tpl';
 		if (count($types) === 1) {
 			$result = $this->_themeArguments($types[0], $arguments, null, $extension);
@@ -267,7 +272,7 @@ class Themes implements Interface_Theme {
 		}
 		if (!$has_output) {
 			$this->logger?->warning('Theme {types} had no output ({details})', [
-				'types' => $types, 'details' => _backtrace(),
+				'types' => $types, 'details' => Kernel::backtrace(),
 			]);
 		}
 		return $content;
@@ -278,14 +283,14 @@ class Themes implements Interface_Theme {
 	 * @return ?string
 	 */
 	final public function themeCurrent(): ?string {
-		return last($this->theme_stack);
+		return ArrayTools::last($this->theme_stack);
 	}
 
 	/**
-	 * @param Template $t
-	 * @return Template parent template
+	 * @param Theme $t
+	 * @return Theme parent template
 	 */
-	public function pushTemplate(Template $t): Template {
+	public function pushTemplate(Theme $t): Theme {
 		$top = $this->template_stack->top();
 		if ($this->debug) {
 			$this->logger?->debug('Push {path}', [
@@ -297,17 +302,17 @@ class Themes implements Interface_Theme {
 	}
 
 	/**
-	 * @return Template
+	 * @return Theme
 	 */
-	public function topTemplate(): Template {
+	public function topTemplate(): Theme {
 		return $this->template_stack->top();
 	}
 
 	/**
-	 * @return Template
-	 * @throws Exception_Semantics
+	 * @return Theme
+	 * @throws Semantics
 	 */
-	public function popTemplate(): Template {
+	public function popTemplate(): Theme {
 		$top = $this->template_stack->pop();
 		if ($this->debug) {
 			$this->logger?->debug('Pop {path}', [
@@ -338,11 +343,11 @@ class Themes implements Interface_Theme {
 	/**
 	 * Setter for top theme variable
 	 *
-	 * @param array|string|int|Template $key
+	 * @param array|string|int|Theme $key
 	 * @param mixed|null $value
 	 * @return $this
 	 */
-	final public function setThemeVariable(array|string|int|Template $key, mixed $value = null): self {
+	final public function setThemeVariable(array|string|int|Theme $key, mixed $value = null): self {
 		$this->template_stack->top()->set($key, $value);
 		return $this;
 	}
@@ -358,7 +363,7 @@ class Themes implements Interface_Theme {
 		if (empty($types)) {
 			return false;
 		}
-		foreach (toList($types) as $type) {
+		foreach (Types::toList($types) as $type) {
 			if (!$this->_themeExists($type, $args)) {
 				return false;
 			}
@@ -385,7 +390,7 @@ class Themes implements Interface_Theme {
 			if ($this->themeFind($type)) {
 				return true;
 			}
-		} catch (Exception_NotFound) {
+		} catch (NotFoundException) {
 		}
 		return false;
 	}

@@ -78,7 +78,7 @@ EOF;
 	}
 
 	public function test_parse_pattern(): void {
-		class_exists("\mysql\Database_Parser");
+		class_exists("\zesk\MySQL\SQLParser");
 		foreach ([
 			'CREATE TABLE `TestTable` (
 				`report` int(10) unsigned NOT NULL,

@@ -1,8 +1,8 @@
 <?php
 declare(strict_types=1);
-namespace zesk\Response;
 
-use zesk\Response;
+
+namespace zesk\Response;
 
 /**
  * The simplest of types

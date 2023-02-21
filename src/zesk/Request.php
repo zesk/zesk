@@ -9,6 +9,10 @@ declare(strict_types=1);
 
 namespace zesk;
 
+use zesk\Exception\ClassNotFound;
+use zesk\Exception\FileNotFound;
+use zesk\Exception\KeyNotFound;
+
 /**
  * Abstraction for web requests
  *
@@ -104,6 +108,11 @@ class Request extends Hookable {
 	protected ?array $data;
 
 	/**
+	 * @var string
+	 */
+	protected string $rawData;
+
+	/**
 	 * Where to retrieve the data from
 	 *
 	 * @var string
@@ -182,8 +191,8 @@ class Request extends Hookable {
 	 * @param Application $application
 	 * @param string|array|self|null $settings If NULL, uses PHP globals to initialize
 	 * @return self
-	 * @throws Exception_File_NotFound
-	 * @throws Exception_Parameter|Exception_Parse|Exception_Class_NotFound
+	 * @throws FileNotFound
+	 * @throws ParameterException|ParseException|ClassNotFound
 	 */
 	public static function factory(Application $application, string|array|self $settings = null): self {
 		$request = $application->factoryArguments(self::class, [$application, $settings]);
@@ -207,12 +216,12 @@ class Request extends Hookable {
 	}
 
 	/**
-	 * Create a Request from PHP Superglobals $_SERVER, $_COOKIE, $_GET, $_REQUEST
+	 * Create a Request from PHP globals $_SERVER, $_COOKIE, $_GET, $_REQUEST
 	 *
 	 * Supports PUT, POST, GET and POST with application/json Content-Type parsing of JSON
 	 *
 	 * @return self
-	 * @throws Exception_Parameter|Exception_Parse
+	 * @throws ParameterException|ParseException
 	 */
 	public function initializeFromGlobals(): self {
 		$this->dataFile = self::DATA_FILE_DEFAULT;
@@ -274,12 +283,12 @@ class Request extends Hookable {
 	}
 
 	/**
-	 * Initialze the object from settings (for mock objects)
+	 * Initialize the object from settings (for mock objects)
 	 *
 	 * @param string|array|Request $settings
 	 * @return self
-	 * @throws Exception_File_NotFound
-	 * @throws Exception_Parameter|Exception_Parse
+	 * @throws FileNotFound
+	 * @throws ParameterException|ParseException
 	 */
 	public function initializeFromSettings(string|array|Request $settings): self {
 		if (is_string($settings)) {
@@ -297,9 +306,9 @@ class Request extends Hookable {
 			}
 		}
 		$this->userAgent = $settings[self::OPTION_USER_AGENT] ?? null;
-		$this->cookies = toArray($settings[self::OPTION_COOKIES] ?? []);
-		$this->requestData = toArray($settings[self::OPTION_REQUEST_DATA] ?? []);
-		$this->files = toArray($settings[self::OPTION_FILES] ?? []);
+		$this->cookies = Types::toArray($settings[self::OPTION_COOKIES] ?? []);
+		$this->requestData = Types::toArray($settings[self::OPTION_REQUEST_DATA] ?? []);
+		$this->files = Types::toArray($settings[self::OPTION_FILES] ?? []);
 		$this->url = $settings[self::OPTION_URL] ?? '';
 		$this->urlParts = [];
 		if (!$this->uri) {
@@ -308,7 +317,7 @@ class Request extends Hookable {
 		$data_file = $settings[self::OPTION_DATA_FILE] ?? null;
 		if ($data_file) {
 			if (!is_file($data_file)) {
-				throw new Exception_File_NotFound($data_file, 'Passed {filename} as settings to new Request {settings}', [
+				throw new FileNotFound($data_file, 'Passed {filename} as settings to new Request {settings}', [
 					'settings' => $settings,
 				]);
 			}
@@ -348,7 +357,7 @@ class Request extends Hookable {
 	 * Retrieve the content type of the request
 	 *
 	 * @return string
-	 * @throws Exception_Key
+	 * @throws KeyNotFound
 	 */
 	public function contentType(): string {
 		$type = explode(';', $this->header(HTTP::REQUEST_CONTENT_TYPE));
@@ -372,7 +381,7 @@ class Request extends Hookable {
 			$result = $this->_parseAccept($accept);
 			$this->_setParsedHeader($name, $result);
 			return $result;
-		} catch (Exception_Key) {
+		} catch (KeyNotFound) {
 			return [
 				'*/*' => [
 					'q' => 1, 'pattern' => '#[^/]+/[^/]+#',
@@ -390,10 +399,6 @@ class Request extends Hookable {
 		foreach ($items as $item_index => $item) {
 			$item_parts = explode(';', $item);
 			$type = $subtype = '*';
-			$attr = [
-				'weight' => 1,
-			];
-
 			$attr = [];
 			foreach ($item_parts as $item_part) {
 				if (str_contains($item_part, '/')) {
@@ -426,7 +431,7 @@ class Request extends Hookable {
 			]) . '#';
 			$result[$key] = $attr;
 		}
-		uasort($result, fn ($a, $b) => zesk_sort_weight_array($a, $b));
+		uasort($result, Types::weightCompare(...));
 		return $result;
 	}
 
@@ -439,7 +444,7 @@ class Request extends Hookable {
 	public function acceptPriority(string|array $available_responses): ?string {
 		$result = [];
 		$accept = $this->parseAccept();
-		foreach (toList($available_responses) as $mime_type) {
+		foreach (Types::toList($available_responses) as $mime_type) {
 			if (isset($accept[$mime_type])) {
 				$result[$mime_type] = $accept[$mime_type];
 				continue;
@@ -455,23 +460,23 @@ class Request extends Hookable {
 			return null;
 		}
 		if (count($result) > 1) {
-			uasort($result, 'zesk_sort_weight_array_reverse');
+			uasort($result, Types::weightCompareReverse(...));
 		}
-		return first(array_keys($result));
+		return ArrayTools::first(array_keys($result));
 	}
 
 	/**
 	 * Retrieve raw POST or PUT data from this request
 	 *
 	 * @return void
-	 * @throws Exception_Parse
+	 * @throws ParseException
 	 */
 	private function _initializeData(): void {
 		$this->data = [];
 		if (!$this->dataFile) {
 			return;
 		}
-		$rawData = file_get_contents($this->dataFile);
+		$this->rawData = $rawData = file_get_contents($this->dataFile);
 		if ($rawData === '') {
 			return;
 		}
@@ -492,7 +497,7 @@ class Request extends Hookable {
 				default:
 					break;
 			}
-		} catch (Exception_Key) {
+		} catch (KeyNotFound) {
 			/* No content type, set to empty */
 		}
 	}
@@ -525,7 +530,7 @@ class Request extends Hookable {
 	 *
 	 * @param string $key
 	 * @return array|string
-	 * @throws Exception_Key
+	 * @throws KeyNotFound
 	 */
 	public function header(string $key): string|array {
 		$low_key = strtolower($key);
@@ -533,7 +538,7 @@ class Request extends Hookable {
 			return $this->headers[$low_key];
 		}
 
-		throw new Exception_Key($key);
+		throw new KeyNotFound($key);
 	}
 
 	/**
@@ -595,12 +600,12 @@ class Request extends Hookable {
 	 *
 	 * @param string $method
 	 * @return $this
-	 * @throws Exception_Parameter
+	 * @throws ParameterException
 	 */
 	public function setMethod(string $method): self {
 		$method = strtoupper($method);
 		if (!array_key_exists($method, HTTP::$methods)) {
-			throw new Exception_Parameter('Unknown method in {method_name}({method}', [
+			throw new ParameterException('Unknown method in {method_name}({method}', [
 				'method_name' => __METHOD__, 'method' => $method,
 			]);
 		}
@@ -663,12 +668,12 @@ class Request extends Hookable {
 	 * @param string $name
 	 * @param int $index
 	 * @return array
-	 * @throws Exception_Key
-	 * @throws Exception_Upload
+	 * @throws KeyNotFound
+	 * @throws UploadException
 	 */
 	public function file(string $name, int $index = 0): array {
 		if (!array_key_exists($name, $this->files)) {
-			throw new Exception_Key($name);
+			throw new KeyNotFound($name);
 		}
 		$files = $this->files[$name];
 		$error = $files['error'] ?? null;
@@ -682,11 +687,11 @@ class Request extends Hookable {
 			$error = $files['error'] ?? null;
 		}
 		if ($error !== null && $error !== UPLOAD_ERR_OK) {
-			throw new Exception_Upload($error);
+			throw new UploadException($error);
 		}
 		$path = $files['tmp_name'];
 		if (!is_uploaded_file($path) && !($files['zesk-daemon'] ?? false)) {
-			throw new Exception_Upload('invalid upload');
+			throw new UploadException('invalid upload');
 		}
 		return $files;
 	}
@@ -759,7 +764,7 @@ class Request extends Hookable {
 	public function path(): string {
 		try {
 			return $this->urlVariables('path');
-		} catch (Exception_Key) {
+		} catch (KeyNotFound) {
 			return '';
 		}
 	}
@@ -850,14 +855,14 @@ class Request extends Hookable {
 	 * Retrieve the URL component
 	 * @param string $component
 	 * @return array|string
-	 * @throws Exception_Key
+	 * @throws KeyNotFound
 	 */
 	public function urlComponent(string $component): ?string {
 		if (array_key_exists($component, $this->urlParts)) {
 			return $this->urlParts[$component];
 		}
 
-		throw new Exception_key($component);
+		throw new KeyNotFound($component);
 	}
 
 	/**
@@ -866,7 +871,7 @@ class Request extends Hookable {
 	 * @param ?string $component
 	 * @param mixed $default
 	 * @return array|string
-	 * @throws Exception_Key
+	 * @throws KeyNotFound
 	 */
 	public function urlVariables(string $component = null, mixed $default = ''): string|array {
 		$this->_validURLParts();
@@ -879,8 +884,8 @@ class Request extends Hookable {
 	/**
 	 * Parse the range value
 	 *
-	 * @todo make this an object, maybe?
-	 * @throws Exception_Key
+	 * @throws KeyNotFound
+	 *@todo make this an object, maybe?
 	 */
 	public function range_parse(): string {
 		$range = $this->header('Range');
@@ -899,7 +904,7 @@ class Request extends Hookable {
 	public function isBrowser(): bool {
 		try {
 			return $this->header(HTTP::REQUEST_USER_AGENT) !== null;
-		} catch (Exception_Key) {
+		} catch (KeyNotFound) {
 			return false;
 		}
 	}
@@ -913,7 +918,7 @@ class Request extends Hookable {
 		if (!$this->userAgent instanceof UserAgent) {
 			try {
 				$uaString = $this->header(HTTP::REQUEST_USER_AGENT);
-			} catch (Exception_Key) {
+			} catch (KeyNotFound) {
 				$uaString = '';
 			}
 			$this->userAgent = new UserAgent($uaString);
@@ -956,7 +961,7 @@ class Request extends Hookable {
 	public function referrer(): string {
 		try {
 			return $this->header(HTTP::REQUEST_REFERRER);
-		} catch (Exception_Key) {
+		} catch (KeyNotFound) {
 			return '';
 		}
 	}
@@ -986,7 +991,7 @@ class Request extends Hookable {
 	public static function maxUploadSizes(): array {
 		$result = [];
 		foreach (['upload_max_filesize', 'post_max_size', 'memory_limit'] as $iniSetting) {
-			$result[$iniSetting] = toBytes(ini_get($iniSetting));
+			$result[$iniSetting] = Types::toBytes(ini_get($iniSetting));
 		}
 		$min_key = $min_value = null;
 		foreach ($result as $key => $value) {
@@ -1014,14 +1019,14 @@ class Request extends Hookable {
 	 *
 	 * @param string $name
 	 * @return string
-	 * @throws Exception_Key
+	 * @throws KeyNotFound
 	 */
 	public function cookie(string $name): string {
 		if (array_key_exists($name, $this->cookies)) {
 			return $this->cookies[$name];
 		}
 
-		throw new Exception_Key($name);
+		throw new KeyNotFound($name);
 	}
 
 	/**
@@ -1043,7 +1048,7 @@ class Request extends Hookable {
 
 		try {
 			$parts = URL::parse($this->url);
-		} catch (Exception_Syntax) {
+		} catch (SyntaxException) {
 			$parts = ['error' => 'syntax'];
 		}
 		$this->urlParts = $parts + [
@@ -1124,7 +1129,7 @@ class Request extends Hookable {
 		// Amazon load balancers
 		try {
 			return $this->header('X-Forwarded-Proto');
-		} catch (Exception_Key) {
+		} catch (KeyNotFound) {
 			return ($server['HTTPS'] ?? null) === 'on' ? 'https' : 'http';
 		}
 	}
@@ -1136,7 +1141,7 @@ class Request extends Hookable {
 		try {
 			$host = $this->header('Host');
 			return strtolower(StringTools::left($host, ':', $host));
-		} catch (Exception_Key) {
+		} catch (KeyNotFound) {
 			return '';
 		}
 	}
@@ -1155,7 +1160,7 @@ class Request extends Hookable {
 			if ($port) {
 				return intval($port);
 			}
-		} catch (Exception_Key) {
+		} catch (KeyNotFound) {
 		}
 		return intval($server['SERVER_PORT'] ?? 80);
 	}
@@ -1208,30 +1213,5 @@ class Request extends Hookable {
 			}
 		}
 		return self::DEFAULT_IP;
-	}
-
-	/**
-	 *
-	 * @param string $check Check value for user agent
-	 * @return bool
-	 * @deprecated 2022-12
-	 */
-	public function user_agent_is(string $check): bool {
-		$this->application->deprecated(__METHOD__);
-		return $this->userAgentIs($check);
-	}
-
-	/**
-	 * Is this used anywhere?
-	 *
-	 * @return bool
-	 * @deprecated 2022-12
-	 */
-	public function isAjax(): bool {
-		$this->application->deprecated(__METHOD__);
-		if ($this->getBool('ajax')) {
-			return true;
-		}
-		return $this->get('ajax_id', null) !== null;
 	}
 }

@@ -4,16 +4,26 @@ declare(strict_types=1);
  * @copyright &copy; 2023, Market Acumen, Inc.
  */
 
-namespace zesk;
+namespace zesk\Image\Library;
+
+use zesk\ArrayTools;
+use zesk\CSS;
+use zesk\Exception\KeyNotFound;
+use zesk\Exception\Semantics;
+use zesk\Exception\SyntaxException;
+use zesk\Image\Library;
 
 use GdImage;
+use zesk\Exception\FileNotFound;
+use zesk\Exception\ParseException;
+use zesk\MIME;
 
 /**
  *
  * @author kent
  *
  */
-class Image_Library_GD extends Image_Library {
+class GD extends Library {
 	private static array $output_map = [
 		'png' => 'png', 'gif' => 'gif', 'jpeg' => 'jpeg', 'jpg' => 'jpeg',
 	];
@@ -28,12 +38,13 @@ class Image_Library_GD extends Image_Library {
 
 	/**
 	 *
-	 * @param resource $src
+	 * @param GdImage $src
 	 * @param mixed $dest file to write to, or null to return raw data
 	 * @param array $options
-	 * @return boolean|string
+	 * @return string|bool
+	 * @throws ParseException
 	 */
-	private function _image_scale_resource(GdImage $src, string $dest, array $options): string {
+	private function _image_scale_resource(GdImage $src, string $dest, array $options): string|bool {
 		// Must convert to int to ensure "divide by zero" test below works
 		$actual_width = intval(imagesx($src));
 		$actual_height = intval(imagesy($src));
@@ -46,7 +57,11 @@ class Image_Library_GD extends Image_Library {
 
 		// Yeah, right. Avoid divide by zero below as well.
 		if (($actual_width === $width && $actual_height === $height) || $actual_width === 0 || $actual_height === 0) {
-			return $this->_imageOutput($src, $dest);
+			if ($dest === '') {
+				return $this->_imageOutputDirect($src, '');
+			}
+			$this->_imageOutputFile($src, $dest);
+			return true;
 		}
 
 		// Basic save values, compute aspect ratio
@@ -104,7 +119,7 @@ class Image_Library_GD extends Image_Library {
 
 		$dst = $this->_imageCreate($width, $height);
 
-		if ($antialias && function_exists('imageantialias')) {
+		if ($antialias) {
 			imageantialias($src, $antialias);
 			imageantialias($dst, $antialias);
 		}
@@ -115,7 +130,11 @@ class Image_Library_GD extends Image_Library {
 		//	imagefill($dst, 0, 0, $bg_color);
 		// 	imagefill($dst, $dst_x + $dst_width, $dst_y + $dst_height, $bg_color);
 		//}
-		return $this->_imageOutput($dst, $dest);
+		if ($dest === '') {
+			return $this->_imageOutputDirect($src, '');
+		}
+		$this->_imageOutputFile($src, $dest);
+		return true;
 	}
 
 	/**
@@ -123,28 +142,33 @@ class Image_Library_GD extends Image_Library {
 	 * @param string $data
 	 * @param array $options
 	 * @return string
-	 * @throws Exception_Semantics
+	 * @throws Semantics
+	 * @throws ParseException
 	 */
 	public function imageScaleData(string $data, array $options): string {
 		if (empty($data)) {
-			throw new Exception_Semantics('{method} passed an empty string', [
+			throw new Semantics('{method} passed an empty string', [
 				'method' => __METHOD__,
 			]);
 		}
 		$src = @imagecreatefromstring($data);
-		if (!is_resource($src)) {
-			throw new Exception_Semantics('{method} passed an invalid string of {n} bytes', [
+		if ($src) {
+			throw new Semantics('{method} passed an invalid string of {n} bytes', [
 				'n' => strlen($data), 'method' => __METHOD__,
 			]);
 		}
-		return $this->_image_scale_resource($src, null, $options);
+		return $this->_image_scale_resource($src, '', $options);
 	}
 
 	/**
 	 *
-	 * @throws Exception_File_NotFound
-	 * @throws Exception_Semantics
-	 * {@inheritDoc}
+	 * @param string $source
+	 * @param string $dest
+	 * @param array $options
+	 * @return bool
+	 * @throws FileNotFound
+	 * @throws ParseException
+	 * @throws Semantics
 	 * @see Image_Library::imageScale()
 	 */
 	public function imageScale(string $source, string $dest, array $options): bool {
@@ -157,17 +181,17 @@ class Image_Library_GD extends Image_Library {
 	 *
 	 * @param string $source image file path to load
 	 * @return GdImage
-	 * @throws Exception_File_NotFound
-	 * @throws Exception_Semantics
+	 * @throws FileNotFound
+	 * @throws Semantics
 	 */
 	private function _imageLoad(string $source): GdImage {
 		$contents = @file_get_contents($source);
 		if (!is_string($contents)) {
-			throw new Exception_File_NotFound($source, __METHOD__);
+			throw new FileNotFound($source, __METHOD__);
 		}
 		$src = imagecreatefromstring($contents);
 		if (!$src instanceof GdImage) {
-			throw new Exception_Semantics('{method} passed an invalid string from {source} of {n} bytes', [
+			throw new Semantics('{method} passed an invalid string from {source} of {n} bytes', [
 				'n' => strlen($contents), 'source' => $source, 'method' => __METHOD__,
 			]);
 		}
@@ -185,7 +209,7 @@ class Image_Library_GD extends Image_Library {
 			$res = imagecreate($width, $height);
 		}
 		imagesavealpha($res, true);
-		$bg_color = $bg_color = imagecolorallocatealpha($res, 255, 255, 255, 127);
+		$bg_color = imagecolorallocatealpha($res, 255, 255, 255, 127);
 		imagefill($res, 0, 0, $bg_color);
 		return $res;
 	}
@@ -194,35 +218,58 @@ class Image_Library_GD extends Image_Library {
 	 * Output image
 	 *
 	 * @param GdImage $dst
-	 * @param mixed $dest Filename to output to, or if blank, returns image data
-	 * @return string|bool
-	 * @throws Exception_System
+	 * @param string $type
+	 * @param string|null $dest
+	 * @return void
+	 * @throws ParseException
 	 */
-	private function _imageOutput(GdImage $dst, string $dest = ''): string|bool {
-		$type = MIME::fromExtension($dest);
+	private function _imageExecute(GdImage $dst, string $type, null|string $dest): void {
 		$output = self::$output_map[$type] ?? 'png';
 		$method = "image$output";
-		if ($dest === '') {
-			ob_start();
-			$dest = null;
-		}
-		switch ($method) {
-			case 'imagejpeg':
-				$result = $method($dst, $dest, 100);
-
-				break;
-			default:
-				$result = $method($dst, $dest);
-
-				break;
-		}
-		if ($dest === null) {
-			$data = ob_get_clean();
-		}
+		$result = match ($method) {
+			'imagejpeg' => imagejpeg($dst, null, 100),
+			default => $method($dst, null),
+		};
 		if ($result === false) {
-			throw new Exception_System('{method} returned false {dest}', ['method' => $method, 'dest' => $dest]);
+			throw new ParseException('{method} returned false {dest}', ['method' => $method, 'dest' => $dest]);
 		}
-		return $dest ? $result : $data;
+	}
+
+	/**
+	 * Output image
+	 *
+	 * @param GdImage $dst
+	 * @param string $type Image type to output
+	 * @return string
+	 * @throws ParseException
+	 */
+	private function _imageOutputDirect(GdImage $dst, string $type): string {
+		ob_start();
+
+		try {
+			self::_imageExecute($dst, $type, null);
+		} catch (ParseException $e) {
+			ob_end_clean();
+
+			throw $e;
+		}
+		return ob_get_clean();
+	}
+
+	/**
+	 * Output image
+	 *
+	 * @param GdImage $dst
+	 * @param mixed $dest Filename to output to, or if blank, returns image data
+	 * @throws ParseException
+	 */
+	private function _imageOutputFile(GdImage $dst, string $dest): void {
+		try {
+			$type = MIME::fromExtension($dest);
+		} catch (KeyNotFound) {
+			$type = '';
+		}
+		self::_imageExecute($dst, $type, $dest);
 	}
 
 	/**
@@ -243,15 +290,15 @@ class Image_Library_GD extends Image_Library {
 		} else {
 			try {
 				return CSS::colorParse($value);
-			} catch (Exception_Syntax $e) {
+			} catch (SyntaxException) {
 				return $defaultColor;
 			}
 		}
 	}
 
 	/**
-	 * @throws Exception_File_NotFound
-	 * @throws Exception_Semantics
+	 * @throws FileNotFound
+	 * @throws Semantics
 	 * {@inheritDoc}
 	 * @see Image_Library::imageRotate()
 	 */
@@ -269,8 +316,9 @@ class Image_Library_GD extends Image_Library {
 		}
 
 		try {
-			$result = $this->_imageOutput($rotate, $destination);
-		} catch (Exception_System) {
+			$this->_imageOutputFile($rotate, $destination);
+			$result = true;
+		} catch (ParseException) {
 			$result = false;
 		}
 		imagedestroy($source_resource);

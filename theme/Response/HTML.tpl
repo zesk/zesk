@@ -5,7 +5,7 @@ declare(strict_types=1);
  */
 namespace zesk;
 
-/* @var $this Template */
+/* @var $this Theme */
 /* @var $application Kernel */
 /* @var $application Application */
 /* @var $request Request */

@@ -9,7 +9,7 @@ declare(strict_types=1);
 
 namespace zesk\ORM;
 
-use zesk\Exception_Configuration;
+use zesk\Exception\ConfigurationException;
 use zesk\PHP;
 
 /**
@@ -35,14 +35,14 @@ class Class_Meta extends Class_Base {
 	 * Configure a class prior to instantiation
 	 *
 	 * Only thing set is "$this->class"
-	 * @throws Exception_ORMNotFound
+	 * @throws ORMNotFound
 	 */
 	protected function configure(ORMBase $object): void {
 		if (!$this->table) {
 			try {
 				$this->initializeDatabase($object);
-			} catch (Exception_Configuration $e) {
-				throw new Exception_ORMNotFound(self::class, __METHOD__, $e->variables(), $e);
+			} catch (ConfigurationException $e) {
+				throw new ORMNotFound(self::class, __METHOD__, $e->variables(), $e);
 			}
 			$this->table = $this->database()->tablePrefix() . PHP::parseClass($object::class);
 		}

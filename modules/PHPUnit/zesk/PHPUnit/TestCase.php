@@ -17,18 +17,18 @@ use ReflectionClass;
 use ReflectionException;
 use Throwable;
 use zesk\Application;
+use zesk\Exception\CommandFailed;
 use zesk\Configuration;
 use zesk\Directory;
 use zesk\Exception;
-use zesk\Exception_Class_NotFound;
-use zesk\Exception_Command;
-use zesk\Exception_Configuration;
-use zesk\Exception_Directory_NotFound;
-use zesk\Exception_File_Permission;
-use zesk\Exception_Invalid;
-use zesk\Exception_NotFound;
-use zesk\Exception_Semantics;
-use zesk\Exception_Unsupported;
+use zesk\Exception\ConfigurationException;
+use zesk\Exception\DirectoryNotFound;
+use zesk\Exception\DirectoryPermission;
+use zesk\Exception\FilePermission;
+use zesk\Exception\NotFoundException;
+use zesk\Exception\ParseException;
+use zesk\Exception\Semantics;
+use zesk\Exception\Unsupported;
 use zesk\File;
 use zesk\JSON;
 use zesk\Kernel;
@@ -36,6 +36,7 @@ use zesk\Module;
 use zesk\Number;
 use zesk\PHP;
 use zesk\Timer;
+use zesk\Types;
 use zesk\URL;
 use function random_int;
 
@@ -78,13 +79,11 @@ class TestCase extends BaseTestCase {
 	/**
 	 * Ensures our zesk variables above are properly populated
 	 * @return void
-	 * @throws Exception_Class_NotFound
-	 * @throws Exception_Configuration
-	 * @throws Exception_Directory_NotFound
-	 * @throws Exception_Invalid
-	 * @throws Exception_Semantics
-	 * @throws Exception_Unsupported
-	 * @throws Exception_NotFound
+	 * @throws ConfigurationException
+	 * @throws ParseException
+	 * @throws NotFoundException
+	 * @throws Semantics
+	 * @throws Unsupported
 	 */
 	public function setUp(): void {
 		/*
@@ -187,7 +186,7 @@ class TestCase extends BaseTestCase {
 	public function assertPostConditions(): void {
 		try {
 			File::unlink($this->lastTestCaseFile());
-		} catch (Exception_File_Permission) {
+		} catch (FilePermission) {
 		}
 	}
 
@@ -212,7 +211,7 @@ class TestCase extends BaseTestCase {
 	 * @return void
 	 */
 	public function assertArrayHasKeys(string|array $keys, array $array, string $message = ''): void {
-		$keys = toList($keys);
+		$keys = Types::toList($keys);
 		foreach ($keys as $key) {
 			$this->assertArrayHasKey($key, $array, $message);
 		}
@@ -228,7 +227,7 @@ class TestCase extends BaseTestCase {
 	public function pathCatenator(string $path, array $suffixes): array {
 		$result = [];
 		foreach ($suffixes as $suffix) {
-			$result[] = path($path, $suffix);
+			$result[] = Directory::path($path, $suffix);
 		}
 		return $result;
 	}
@@ -272,7 +271,7 @@ class TestCase extends BaseTestCase {
 	 * @param string $message
 	 */
 	public function assertIsInteger(mixed $expected, string $message = ''): void {
-		$this->assertTrue(is_int($expected), $message ?: 'Item expected to be an integer but is a ' . type($expected));
+		$this->assertTrue(is_int($expected), $message ?: 'Item expected to be an integer but is a ' . Types::type($expected));
 	}
 
 	/**
@@ -367,11 +366,14 @@ class TestCase extends BaseTestCase {
 				$this->cache_dir = $cache_dir;
 			}
 		}
-		return path($cache_dir, $file);
+		return Directory::path($cache_dir, $file);
 	}
 
 	/**
 	 * Delete cache dir after test runs
+	 * @return void
+	 * @throws DirectoryPermission
+	 * @throws FilePermission
 	 */
 	final public function _test_sandbox_shutdown(): void {
 		$cache_dir = $this->cache_dir;
@@ -380,7 +382,10 @@ class TestCase extends BaseTestCase {
 			return;
 		}
 		if (is_dir($cache_dir)) {
-			Directory::delete($cache_dir);
+			try {
+				Directory::delete($cache_dir);
+			} catch (DirectoryNotFound) {
+			}
 		}
 	}
 
@@ -399,12 +404,12 @@ class TestCase extends BaseTestCase {
 	}
 
 	public function optionBool(string $name, bool $default = false): bool {
-		return toBool($this->option($name, $default), null) ?? $default;
+		return Types::toBool($this->option($name, $default), null) ?? $default;
 	}
 
 	/**
 	 * @return Application
-	 * @throws Exception_Semantics
+	 * @throws Semantics
 	 */
 	public static function app(): Application {
 		return Kernel::singleton()->application();
@@ -438,12 +443,12 @@ class TestCase extends BaseTestCase {
 	 * @param array $args
 	 * @param bool $captureFail
 	 * @return array Lines output
-	 * @throws Exception_Command
+	 * @throws CommandFailed
 	 */
 	protected function zeskBinExecute(array $args, bool $captureFail = false): array {
 		try {
 			return $this->application->process->executeArguments($this->zeskBin(), $args);
-		} catch (Exception_Command $e) {
+		} catch (CommandFailed $e) {
 			if ($captureFail) {
 				return $e->getOutput();
 			}
@@ -457,7 +462,7 @@ class TestCase extends BaseTestCase {
 	 *
 	 * @param string $includeFile
 	 * @return array
-	 * @throws Exception_Command
+	 * @throws CommandFailed
 	 */
 	public function zeskEvalFile(string $includeFile): array {
 		return $this->application->process->executeArguments($this->zeskBin(), $this->zeskBinIncludeArgs($includeFile));
@@ -468,7 +473,7 @@ class TestCase extends BaseTestCase {
 	 *
 	 * @param string $includeFile
 	 * @return int
-	 * @throws Exception_Command
+	 * @throws CommandFailed
 	 */
 	public function zeskEvalFileProcess(string $includeFile): int {
 		$output = $this->test_sandbox(basename($includeFile) . '.log');

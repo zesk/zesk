@@ -9,12 +9,42 @@ declare(strict_types=1);
 
 namespace zesk;
 
-use Closure;
 use Throwable;
+use Closure;
 use Psr\Cache\CacheItemPoolInterface;
 use Psr\Log\LoggerInterface;
+use zesk\Adapter\SettingsConfiguration;
+use zesk\Application\Classes;
+use zesk\Application\Hooks;
+use zesk\Application\Modules;
+use zesk\Application\Objects;
+use zesk\Application\Paths;
+use zesk\Configuration\Loader;
+use zesk\Database\Base as Database;
+use zesk\Database\Module as DatabaseModule;
+use zesk\Exception\Authentication;
+use zesk\Exception\ClassNotFound;
+use zesk\Exception\ConfigurationException;
+use zesk\Exception\Deprecated;
+use zesk\Exception\DirectoryNotFound;
+use zesk\Exception\DirectoryPermission;
+use zesk\Exception\FileNotFound;
+use zesk\Exception\FilePermission;
+use zesk\Exception\NotFoundException;
+use zesk\Exception\ParseException;
+use zesk\Exception\Redirect;
+use zesk\Exception\Semantics;
+use zesk\Exception\SyntaxException;
+use zesk\Exception\Unsupported;
+use zesk\Interface\MemberModelFactory;
+use zesk\Interface\ModelFactory;
+use zesk\Interface\SessionInterface;
+use zesk\Interface\SettingsInterface;
+use zesk\Interface\Userlike;
+use zesk\Locale\Locale;
 use zesk\Locale\Reader;
 use zesk\Router\Parser;
+use zesk\Settings\FileSystemSettings;
 use function str_ends_with;
 
 /**
@@ -32,7 +62,7 @@ use function str_ends_with;
  * @method ORM\ORMBase ormFactory(string $class, mixed $mixed = null, array $options = [])
  *
  * @method Database databaseRegistry(string $name = "", array $options = [])
- * @method Module_Database databaseModule()
+ * @method DatabaseModule databaseModule()
  *
  * @method Module_Permission permissionModule()
  *
@@ -44,10 +74,10 @@ use function str_ends_with;
  *
  * @method Mail\Module mailModule()
  *
- * @method Interface_Session sessionFactory()
+ * @method SessionInterface sessionFactory()
  * @method Session\Module sessionModule()
  */
-class Application extends Hookable implements Interface_Member_Model_Factory, Interface_Factory {
+class Application extends Hookable implements MemberModelFactory, ModelFactory {
 	/**
 	 * @desc Default option to store application version - may be stored differently in overridden classes, use
 	 * @see self::version()
@@ -149,6 +179,16 @@ class Application extends Hookable implements Interface_Member_Model_Factory, In
 	 * List of files for configureInclude
 	 */
 	public const OPTION_CONFIGURATION_FILES = 'configurationFiles';
+
+	/**
+	 * Contains a list of modules to load for this application;
+	 */
+	public const OPTION_MODULES = 'modules';
+
+	/**
+	 * Contains a list of modules which were loaded for this application
+	 */
+	public const OPTION_MODULES_LOADED = 'modulesLoaded';
 
 	public const OPTION_CACHE_POOL = 'cachePool';
 
@@ -324,9 +364,9 @@ class Application extends Hookable implements Interface_Member_Model_Factory, In
 
 	/**
 	 *
-	 * @var Configuration_Loader
+	 * @var Loader
 	 */
-	public Configuration_Loader $loader;
+	public Loader $loader;
 
 	/**
 	 * Primary logger for the application.
@@ -513,9 +553,9 @@ class Application extends Hookable implements Interface_Member_Model_Factory, In
 	 *
 	 * @param Configuration $configuration
 	 * @param CacheItemPoolInterface $cacheItemPool
-	 * @throws Exception_Class_NotFound
-	 * @throws Exception_Directory_NotFound
-	 * @throws Exception_System
+	 * @throws ClassNotFound
+	 * @throws DirectoryNotFound
+	 * @throws Semantics
 	 */
 	public function __construct(Configuration $configuration, CacheItemPoolInterface $cacheItemPool) {
 		/*
@@ -554,7 +594,7 @@ class Application extends Hookable implements Interface_Member_Model_Factory, In
 	 * @param string $reason
 	 * @param array $arguments
 	 * @return void
-	 * @throws Exception_Deprecated
+	 * @throws Deprecated
 	 */
 	public function deprecated(string $reason = '', array $arguments = []): void {
 		if ($this->deprecated === self::DEPRECATED_IGNORE) {
@@ -563,19 +603,19 @@ class Application extends Hookable implements Interface_Member_Model_Factory, In
 		$depth = $arguments['depth'] ?? 0;
 		switch ($this->deprecated) {
 			case self::DEPRECATED_EXCEPTION:
-				throw new Exception_Deprecated("{reason} Deprecated: {calling_function}\n{backtrace}", [
-					'reason' => $reason, 'calling_function' => calling_function(),
-					'backtrace' => _backtrace(4 + $depth),
+				throw new Deprecated("{reason} Deprecated: {calling_function}\n{backtrace}", [
+					'reason' => $reason, 'calling_function' => Kernel::callingFunction(),
+					'backtrace' => Kernel::backtrace(4 + $depth),
 				] + $arguments);
 			case self::DEPRECATED_LOG:
 				$this->application->logger->error("{reason} Deprecated: {calling_function}\n{backtrace}", [
-					'reason' => $reason ?: 'DEPRECATED', 'calling_function' => calling_function(),
-					'backtrace' => _backtrace(4 + $depth),
+					'reason' => $reason ?: 'DEPRECATED', 'calling_function' => Kernel::callingFunction(),
+					'backtrace' => Kernel::backtrace(4 + $depth),
 				] + $arguments);
 				break;
 			case self::DEPRECATED_BACKTRACE:
-				backtrace();
-				break;
+				echo Kernel::backtrace();
+				exit(1);
 		}
 	}
 
@@ -584,9 +624,10 @@ class Application extends Hookable implements Interface_Member_Model_Factory, In
 	 * @codeCoverageIgnore
 	 */
 	public function obsolete(): void {
-		$this->application->logger->alert('Obsolete function called {function}', ['function' => calling_function(2), ]);
+		$this->application->logger->alert('Obsolete function called {function}', ['function' => Kernel::callingFunction(2), ]);
 		if ($this->application->development()) {
-			backtrace();
+			echo Kernel::backtrace();
+			exit(1);
 		}
 	}
 
@@ -625,7 +666,7 @@ class Application extends Hookable implements Interface_Member_Model_Factory, In
 	 */
 	public function profiler(int $depth = 2): void {
 		$profiler = $this->_profiler();
-		$functionKey = calling_function($depth + 1);
+		$functionKey = Kernel::callingFunction($depth + 1);
 		if (array_key_exists($functionKey, $this->profiler->calls)) {
 			$profiler->calls[$functionKey]++;
 		} else {
@@ -657,9 +698,9 @@ class Application extends Hookable implements Interface_Member_Model_Factory, In
 	 * @param Configuration $configuration
 	 * @param CacheItemPoolInterface $pool
 	 * @return void
-	 * @throws Exception_Class_NotFound
-	 * @throws Exception_Directory_NotFound
-	 * @throws Exception_System
+	 * @throws ClassNotFound
+	 * @throws DirectoryNotFound
+	 * @throws Semantics
 	 */
 	protected function _initialize(Configuration $configuration, CacheItemPoolInterface $pool): void {
 		$this->configuration = $configuration;
@@ -690,7 +731,7 @@ class Application extends Hookable implements Interface_Member_Model_Factory, In
 		/*
 		 * Configuration loader
 		 */
-		$this->loader = new Configuration_Loader([], new Adapter_Settings_Configuration($this->configuration));
+		$this->loader = new Loader([], new SettingsConfiguration($this->configuration));
 
 		/*
 		 * Current process interface. Depends on ->hooks
@@ -751,10 +792,10 @@ class Application extends Hookable implements Interface_Member_Model_Factory, In
 			$this->addThemePath($this->defaultThemePath());
 			$function = 'addLocalePath';
 			$this->addLocalePath($this->defaultLocalePath());
-		} catch (Exception_Directory_NotFound $e) {
-			throw new Exception_System('Default {function} paths broken {message}', [
+		} catch (DirectoryNotFound $e) {
+			throw new DirectoryNotFound($e->path(), 'Default {function} paths broken {message}', [
 				'message' => $e->getMessage(), 'function' => $function,
-			], 0, $e);
+			], $e->getCode(), $e);
 		}
 	}
 
@@ -765,7 +806,7 @@ class Application extends Hookable implements Interface_Member_Model_Factory, In
 	 * @param array $extensions
 	 * @param array $options
 	 * @return Locale
-	 * @throws Exception_Class_NotFound
+	 * @throws ClassNotFound
 	 */
 	public function localeFactory(string $code = '', array $extensions = [], array $options = []): Locale {
 		return Reader::factory($this->localePath(), $code, $extensions)->locale($this, $options);
@@ -785,7 +826,7 @@ class Application extends Hookable implements Interface_Member_Model_Factory, In
 	 *
 	 * @param string $class
 	 * @return object
-	 * @throws Exception_Class_NotFound
+	 * @throws ClassNotFound
 	 */
 	public function factory(string $class): object {
 		$arguments = func_get_args();
@@ -797,7 +838,7 @@ class Application extends Hookable implements Interface_Member_Model_Factory, In
 	 * @param string $class
 	 * @param array $arguments
 	 * @return object
-	 * @throws Exception_Class_NotFound
+	 * @throws ClassNotFound
 	 */
 	public function factoryArguments(string $class, array $arguments = []): object {
 		return $this->objects->factoryArguments($class, $arguments);
@@ -829,7 +870,7 @@ class Application extends Hookable implements Interface_Member_Model_Factory, In
 	 *
 	 * Currently things which use this are: TODO
 	 *
-	 * @throws Exception_Directory_NotFound
+	 * @throws DirectoryNotFound
 	 *
 	 */
 	private function _initializeDocumentRoot(): void {
@@ -853,11 +894,11 @@ class Application extends Hookable implements Interface_Member_Model_Factory, In
 	 *            Optionally set the web root
 	 * @param string $prefix
 	 * @return self
-	 * @throws Exception_Directory_NotFound
+	 * @throws DirectoryNotFound
 	 */
 	final public function setDocumentRoot(string $set, string $prefix = ''): self {
 		if (!is_dir($set)) {
-			throw new Exception_Directory_NotFound($set);
+			throw new DirectoryNotFound($set);
 		}
 		$set = rtrim($set, '/');
 		$this->document = $set;
@@ -879,15 +920,15 @@ class Application extends Hookable implements Interface_Member_Model_Factory, In
 	/**
 	 * @param array|string $add A path or array of paths containing zesk command files (PHP files)
 	 * @return self
-	 * @throws Exception_Directory_NotFound
+	 * @throws DirectoryNotFound
 	 */
 	final public function addZeskCommandPath(array|string $add): self {
-		foreach (toList($add) as $path) {
+		foreach (Types::toList($add) as $path) {
 			if (!is_dir($path)) {
-				throw new Exception_Directory_NotFound($path);
+				throw new DirectoryNotFound($path);
 			}
 		}
-		foreach (toList($add) as $path) {
+		foreach (Types::toList($add) as $path) {
 			if (!in_array($path, $this->zeskCommandPath)) {
 				$this->zeskCommandPath[] = $path;
 			} else {
@@ -911,11 +952,11 @@ class Application extends Hookable implements Interface_Member_Model_Factory, In
 	 *
 	 * @param string $add
 	 * @return $this
-	 * @throws Exception_Directory_NotFound
+	 * @throws DirectoryNotFound
 	 */
 	final public function addModulePath(string $add): self {
 		if (!is_dir($add)) {
-			throw new Exception_Directory_NotFound($add);
+			throw new DirectoryNotFound($add);
 		}
 		$this->modulePaths[] = $add;
 		return $this;
@@ -939,7 +980,7 @@ class Application extends Hookable implements Interface_Member_Model_Factory, In
 	 *            (Optional) Handle theme requests which begin with this prefix. Saves having deep
 	 *            directories.
 	 * @return self
-	 * @throws Exception_Directory_NotFound
+	 * @throws DirectoryNotFound
 	 */
 	final public function addThemePath(array|string $paths, string $prefix = ''): self {
 		$this->themes->addThemePath($paths, $prefix);
@@ -962,12 +1003,12 @@ class Application extends Hookable implements Interface_Member_Model_Factory, In
 	 *
 	 * @param string $add Locale path to add
 	 * @return $this
-	 * @throws Exception_Directory_NotFound
+	 * @throws DirectoryNotFound
 	 */
 	final public function addLocalePath(string $add): self {
 		$add = $this->paths->expand($add);
 		if (!is_dir($add)) {
-			throw new Exception_Directory_NotFound($add);
+			throw new DirectoryNotFound($add);
 		}
 		$this->localePath[] = $add;
 		return $this;
@@ -1006,7 +1047,7 @@ class Application extends Hookable implements Interface_Member_Model_Factory, In
 		} else {
 			try {
 				$result = JSON::decode(file_get_contents($file));
-			} catch (Exception_Parse) {
+			} catch (ParseException) {
 				$result = [
 					'error' => 'Unable to parse maintenance file',
 				];
@@ -1088,18 +1129,18 @@ class Application extends Hookable implements Interface_Member_Model_Factory, In
 	/**
 	 * Settings are stateful and should persist across process and server boundaries.
 	 *
-	 * @return Interface_Settings
-	 * @throws Exception_Class_NotFound
+	 * @return SettingsInterface
+	 * @throws ClassNotFound
 	 */
-	public function settings(): Interface_Settings {
-		$settingsClass = $this->optionString('settingsClass', Settings_FileSystem::class);
+	public function settings(): SettingsInterface {
+		$settingsClass = $this->optionString('settingsClass', FileSystemSettings::class);
 		$settingsClassStaticMethods = $this->optionIterable('settingsClassStaticMethods');
 		if ($settingsClassStaticMethods) {
 			$result = $this->objects->singletonArgumentsStatic($settingsClass, [$this], $settingsClassStaticMethods);
 		} else {
 			$result = $this->objects->singletonArguments($settingsClass, [$this]);
 		}
-		assert($result instanceof Interface_Settings);
+		assert($result instanceof SettingsInterface);
 		return $result;
 	}
 
@@ -1107,7 +1148,7 @@ class Application extends Hookable implements Interface_Member_Model_Factory, In
 	 * @param string $class
 	 * @param array $arguments
 	 * @return object
-	 * @throws Exception_Class_NotFound
+	 * @throws ClassNotFound
 	 */
 	final public function singletonArguments(string $class, array $arguments = []): object {
 		$desiredClass = $this->objects->resolve($class);
@@ -1122,11 +1163,11 @@ class Application extends Hookable implements Interface_Member_Model_Factory, In
 	/**
 	 * @param string $class
 	 * @param array $arguments
+	 * @param array $staticMethods
 	 * @return object
-	 * @throws Exception_Class_NotFound
+	 * @throws ClassNotFound
 	 */
-	final public function singletonArgumentsStatic(string $class, array $arguments = [], array $staticMethods = ['singleton']):
-	object {
+	final public function singletonArgumentsStatic(string $class, array $arguments = [], array $staticMethods = ['singleton']): object {
 		$desiredClass = $this->objects->resolve($class);
 		return $this->objects->singletonArgumentsStatic($desiredClass, $arguments, $staticMethods);
 	}
@@ -1141,7 +1182,7 @@ class Application extends Hookable implements Interface_Member_Model_Factory, In
 	 *
 	 * @param string $class
 	 * @return Model
-	 * @throws Exception_Class_NotFound
+	 * @throws ClassNotFound
 	 */
 	final public function modelSingleton(string $class): Model {
 		$args = func_get_args();
@@ -1186,9 +1227,11 @@ class Application extends Hookable implements Interface_Member_Model_Factory, In
 	 * - Values are unquoted automatically, and assumed to be strings
 	 * - Unquoted values are coerced to an internal PHP type, if possible
 	 * @return Application
-	 * @throws Exception_Configuration
-	 * @throws Exception_NotFound
-	 * @throws Exception_Unsupported
+	 * @throws ConfigurationException
+	 * @throws NotFoundException
+	 * @throws ParseException
+	 * @throws Semantics
+	 * @throws Unsupported
 	 */
 	final public function configure(): self {
 		$this->applicationShutdown = false;
@@ -1200,9 +1243,11 @@ class Application extends Hookable implements Interface_Member_Model_Factory, In
 
 	/**
 	 * Complete configuration process
-	 * @throws Exception_Configuration
-	 * @throws Exception_NotFound
-	 * @throws Exception_Unsupported
+	 * @throws ConfigurationException
+	 * @throws NotFoundException
+	 * @throws ParseException
+	 * @throws Semantics
+	 * @throws Unsupported
 	 */
 	private function _configure(): void {
 		// Load hooks
@@ -1212,16 +1257,11 @@ class Application extends Hookable implements Interface_Member_Model_Factory, In
 		$this->hooks->add(Hooks::HOOK_EXIT, function () use ($application): void {
 			$application->cacheItemPool()->commit();
 		}, [
-			'id' => __METHOD__,
-			'overwrite' => true,
-			'last' => true,
+			'id' => __METHOD__, 'overwrite' => true, 'last' => true,
 		]);
 
 		$this->paths->configure($this->options([
-			self::OPTION_COMMAND_PATH,
-			self::OPTION_CACHE_PATH,
-			self::OPTION_DATA_PATH,
-			self::OPTION_HOME_PATH,
+			self::OPTION_COMMAND_PATH, self::OPTION_CACHE_PATH, self::OPTION_DATA_PATH, self::OPTION_HOME_PATH,
 			self::OPTION_USER_HOME_PATH,
 		]));
 
@@ -1268,13 +1308,10 @@ class Application extends Hookable implements Interface_Member_Model_Factory, In
 	 * Load configuration files
 	 */
 	private function _configureFiles(): void {
-		try {
-			if (count($this->includes) === 0) {
-				$this->configureInclude($this->defaultConfigurationFiles());
-			}
-			$this->configureFiles($this->includes());
-		} catch (Exception_Parse) {
+		if (count($this->includes) === 0) {
+			$this->configureInclude($this->defaultConfigurationFiles());
 		}
+		$this->configureFiles($this->includes());
 	}
 
 	/**
@@ -1356,12 +1393,13 @@ class Application extends Hookable implements Interface_Member_Model_Factory, In
 
 	/**
 	 * @return void
-	 * @throws Exception_Configuration
-	 * @throws Exception_NotFound
-	 * @throws Exception_Unsupported
+	 * @throws ConfigurationException
+	 * @throws NotFoundException
+	 * @throws ParseException
+	 * @throws Unsupported
 	 */
 	private function loadOptionModules(): void {
-		$modules = $this->optionArray('modules');
+		$modules = $this->optionArray(self::OPTION_MODULES);
 		if (count($modules) > 0) {
 			$this->modules->loadMultiple($modules);
 			$loaded = array_flip($this->optionArray(self::OPTION_MODULES_LOADED));
@@ -1371,19 +1409,10 @@ class Application extends Hookable implements Interface_Member_Model_Factory, In
 	}
 
 	/**
-	 * Contains a list of modules to load for this application;
-	 */
-	public const OPTION_MODULES = 'modules';
-
-	/**
-	 * Contains a list of modules which were loaded for this application
-	 */
-	public const OPTION_MODULES_LOADED = 'modulesLoaded';
-
-	/**
 	 * Run fini
 	 * @param bool $force
 	 * @return boolean
+	 * @throws ConfigurationException
 	 */
 	public function configured(bool $force = false): bool {
 		if ($force || !$this->configuredWasRun) {
@@ -1395,11 +1424,11 @@ class Application extends Hookable implements Interface_Member_Model_Factory, In
 
 	/**
 	 * @return void
-	 * @throws Exception_Configuration
+	 * @throws ConfigurationException
 	 */
 	private function _configured(): void {
 		// Now run all configurations: System, Modules, then Application
-		Template::configured($this);
+		Theme::configured($this);
 		$this->inheritConfiguration();
 		if ($this->hasOption(self::OPTION_DEPRECATED)) {
 			$this->setDeprecated($this->optionString(self::OPTION_DEPRECATED));
@@ -1413,7 +1442,7 @@ class Application extends Hookable implements Interface_Member_Model_Factory, In
 
 	/**
 	 * Load configuration
-	 * @throws Exception_Configuration
+	 * @throws ConfigurationException
 	 */
 	final public function configuredAssert(): void {
 		if (!$this->hasOption(self::OPTION_ASSERT)) {
@@ -1433,7 +1462,7 @@ class Application extends Hookable implements Interface_Member_Model_Factory, In
 				assert_options($ass_settings[$code], 1);
 				$anyActive = 1;
 			} else {
-				throw new Exception_Configuration([
+				throw new ConfigurationException([
 					__CLASS__, 'assert',
 				], 'Invalid assert option: {code}, valid options: {settings}', [
 					'code' => $code, 'settings' => array_keys($ass_settings),
@@ -1472,12 +1501,13 @@ class Application extends Hookable implements Interface_Member_Model_Factory, In
 	 * Runs configuration again
 	 *
 	 * @return $this
-	 * @throws Exception_Class_NotFound
-	 * @throws Exception_Configuration
-	 * @throws Exception_Directory_NotFound
-	 * @throws Exception_Invalid
-	 * @throws Exception_NotFound
-	 * @throws Exception_Unsupported
+	 * @throws ClassNotFound
+	 * @throws ConfigurationException
+	 * @throws DirectoryNotFound
+	 * @throws NotFoundException
+	 * @throws ParseException
+	 * @throws Semantics
+	 * @throws Unsupported
 	 * @see Application::configure
 	 */
 	public function reconfigure(): self {
@@ -1510,9 +1540,9 @@ class Application extends Hookable implements Interface_Member_Model_Factory, In
 
 	/**
 	 * Clear application cache
-	 * @throws Exception_Directory_Permission
-	 * @throws Exception_File_Permission
-	 * @throws Exception_Class_NotFound
+	 * @throws DirectoryPermission
+	 * @throws FilePermission
+	 * @throws ClassNotFound
 	 */
 	final public function cacheClear(): void {
 		$this->pool->clear();
@@ -1526,7 +1556,7 @@ class Application extends Hookable implements Interface_Member_Model_Factory, In
 			if ($size > 0) {
 				try {
 					Directory::deleteContents($path);
-				} catch (Exception_Directory_NotFound) {
+				} catch (DirectoryNotFound) {
 					continue;
 				}
 				$this->logger->notice('Deleted {size} bytes in {path}', compact('size', 'path'));
@@ -1557,7 +1587,7 @@ class Application extends Hookable implements Interface_Member_Model_Factory, In
 	 * @return string
 	 */
 	final public function cachePath(string|array $suffix = ''): string {
-		return path($this->cachePath, $suffix);
+		return Directory::path($this->cachePath, $suffix);
 	}
 
 	private function _formatHooks(array $hooks): array {
@@ -1574,7 +1604,7 @@ class Application extends Hookable implements Interface_Member_Model_Factory, In
 	 * Potentially slow.
 	 *
 	 * @return Controller[]
-	 * @throws Exception_Class_NotFound
+	 * @throws ClassNotFound
 	 */
 	final public function controllers(): array {
 		return $this->router()->controllers();
@@ -1610,7 +1640,7 @@ class Application extends Hookable implements Interface_Member_Model_Factory, In
 	 * @return bool
 	 */
 	final public function maintenance(): bool {
-		return toBool($this->optionPath(['maintenance', 'enabled'], false));
+		return Types::toBool($this->optionPath(['maintenance', 'enabled'], false));
 	}
 
 	/**
@@ -1650,11 +1680,11 @@ class Application extends Hookable implements Interface_Member_Model_Factory, In
 	private function _maintenanceEnabled(): void {
 		$context = [
 			'time' => date('Y-m-d H:i:s'),
-		] + toArray($this->callHookArguments('maintenanceEnabled', [[]], []));
+		] + Types::toArray($this->callHookArguments('maintenanceEnabled', [[]], []));
 
 		try {
 			file_put_contents($this->maintenanceFile(), JSON::encode($context));
-		} catch (Exception_Semantics) {
+		} catch (Semantics) {
 		}
 	}
 
@@ -1668,7 +1698,7 @@ class Application extends Hookable implements Interface_Member_Model_Factory, In
 
 	/**
 	 * Utility for index.php file for all public-served content.
-	 * @throws Exception_Semantics
+	 * @throws Semantics
 	 */
 	final public function content(string $path): string {
 		if (isset($this->contentRecursion[$path])) {
@@ -1680,21 +1710,17 @@ class Application extends Hookable implements Interface_Member_Model_Factory, In
 		$url = 'http://localhost/';
 
 		try {
-			$url = rtrim(URL::left_host($url), '/') . $path;
-		} catch (Exception_Syntax) {
+			$url = rtrim(URL::leftHost($url), '/') . $path;
+		} catch (SyntaxException) {
 		}
 
-		try {
-			$request = $this->requestFactory();
-		} catch (Exception_Parse $e) {
-			throw new Exception_Semantics($e->getMessage(), $e->variables(), $e->getCode(), $e);
-		}
+		$request = $this->requestFactory();
 
 		try {
 			$request->initializeFromSettings([
 				'url' => $url, 'method' => HTTP::METHOD_GET, 'data' => '', 'variables' => URL::queryParseURL($path),
 			]);
-		} catch (Exception_File_NotFound|Exception_Parameter|Exception_Parse) {
+		} catch (FileNotFound) {
 			/* No files passed, not ever thrown */
 		}
 		$response = $this->main($request);
@@ -1704,7 +1730,7 @@ class Application extends Hookable implements Interface_Member_Model_Factory, In
 			$response->output([
 				'skip_headers' => true,
 			]);
-		} catch (Exception_Semantics) {
+		} catch (Semantics) {
 		}
 		$content = ob_get_clean();
 		unset($this->contentRecursion[$path]);
@@ -1718,7 +1744,6 @@ class Application extends Hookable implements Interface_Member_Model_Factory, In
 	 *
 	 * @param Request|null $inherit
 	 * @return Request
-	 * @throws Exception_Parse
 	 */
 	public function requestFactory(Request $inherit = null): Request {
 		$request = new Request($this);
@@ -1731,7 +1756,7 @@ class Application extends Hookable implements Interface_Member_Model_Factory, In
 			} else {
 				$request->initializeFromGlobals();
 			}
-		} catch (Exception_File_NotFound|Exception_Parameter) {
+		} catch (FileNotFound) {
 			// pass
 		}
 		return $request;
@@ -1740,7 +1765,7 @@ class Application extends Hookable implements Interface_Member_Model_Factory, In
 	/**
 	 * @param Request $request
 	 * @return Response
-	 * @throws Exception_Semantics
+	 * @throws Semantics
 	 */
 	public function main(Request $request): Response {
 		try {
@@ -1761,7 +1786,7 @@ class Application extends Hookable implements Interface_Member_Model_Factory, In
 	 *
 	 * @param Request $request
 	 * @return Route
-	 * @throws Exception_NotFound
+	 * @throws NotFoundException
 	 */
 	private function determineRoute(Request $request): Route {
 		$router = $this->router();
@@ -1774,10 +1799,10 @@ class Application extends Hookable implements Interface_Member_Model_Factory, In
 
 		try {
 			$route = $router->matchRequest($request);
-		} catch (Exception_NotFound) {
+		} catch (NotFoundException) {
 			$this->routeNotFound($request);
 
-			throw new Exception_NotFound('The resource does not exist on this server: {url}', $request->urlComponents(), HTTP::STATUS_FILE_NOT_FOUND);
+			throw new NotFoundException('The resource does not exist on this server: {url}', $request->urlComponents(), HTTP::STATUS_FILE_NOT_FOUND);
 		}
 		$this->themes->setVariables([
 			'route' => $route,
@@ -1862,11 +1887,11 @@ class Application extends Hookable implements Interface_Member_Model_Factory, In
 			] + Exception::exceptionVariables($exception), [
 				'first' => true,
 			]);
-			if (!$exception instanceof Exception_Redirect) {
+			if (!$exception instanceof Redirect) {
 				$this->hooks->call('exception', $exception);
 			}
 			$this->callHook('mainException', $exception, $response);
-		} catch (Exception_Redirect $e) {
+		} catch (Redirect $e) {
 			$response->redirect()->handleException($e);
 		}
 		return $response;
@@ -1875,36 +1900,36 @@ class Application extends Hookable implements Interface_Member_Model_Factory, In
 	/**
 	 *
 	 * @param Request $request
-	 * @param null|string $content_type
+	 * @param string $content_type
 	 * @return Response
 	 */
-	final public function responseFactory(Request $request, string $content_type = null): Response {
+	final public function responseFactory(Request $request, string $content_type = ''): Response {
 		return Response::factory($this, $request, $content_type ? [
-			'content_type' => $content_type,
+			Response::OPTION_CONTENT_TYPE => $content_type,
 		] : []);
 	}
 
 	/**
 	 * @param Request $request
 	 * @return self
-	 * @throws Exception_Semantics
+	 * @throws Semantics
 	 */
 	final public function popRequest(Request $request): self {
 		$starting_depth = $request->optionInt('stack_index');
 		$ending_depth = count($this->requestStack);
 		if ($ending_depth === 0) {
-			throw new Exception_Semantics('Nothing to pop (attempted to pop {url})', [
+			throw new Semantics('Nothing to pop (attempted to pop {url})', [
 				'request' => $request->url(),
 			]);
 		}
 		if ($ending_depth !== $starting_depth) {
-			throw new Exception_Semantics('Request ending depth mismatch start {starting_depth} !== end {ending_depth}', [
+			throw new Semantics('Request ending depth mismatch start {starting_depth} !== end {ending_depth}', [
 				'starting_depth' => $starting_depth, 'ending_depth' => $ending_depth,
 			]);
 		}
-		$popped = last($this->requestStack);
+		$popped = ArrayTools::last($this->requestStack);
 		if ($popped !== $request) {
-			throw new Exception_Semantics('Request changed between push and pop? {original} => {popped}', [
+			throw new Semantics('Request changed between push and pop? {original} => {popped}', [
 				'original' => $request->variables(), 'popped' => $popped->variables(),
 			]);
 		}
@@ -1927,8 +1952,7 @@ class Application extends Hookable implements Interface_Member_Model_Factory, In
 	 * Utility for index.php file for all public-served content.
 	 *
 	 * KMD 2018-01 Made this more Response-centric and less content-centric
-	 * @throws Exception_Parse
-	 * @throws Exception_Semantics
+	 * @throws Semantics
 	 */
 	public function index(): Response {
 		$final_map = [];
@@ -1988,7 +2012,7 @@ class Application extends Hookable implements Interface_Member_Model_Factory, In
 	 * @param array $extensions
 	 * @param array $options
 	 * @return Locale
-	 * @throws Exception_Class_NotFound
+	 * @throws ClassNotFound
 	 */
 	public function localeRegistry(string $code, array $extensions = [], array $options = []): Locale {
 		$code = Locale::normalize($code);
@@ -2041,7 +2065,7 @@ class Application extends Hookable implements Interface_Member_Model_Factory, In
 	 * @param mixed $add
 	 * @param array|bool|string $options
 	 * @return self
-	 * @throws Exception_Directory_NotFound
+	 * @throws DirectoryNotFound
 	 */
 	final public function addAutoloadPath(string $add, array|bool|string $options = []): self {
 		$this->autoloader->addPath($add, $options);
@@ -2060,14 +2084,14 @@ class Application extends Hookable implements Interface_Member_Model_Factory, In
 	/**
 	 *
 	 * @return Command
-	 * @throws Exception_Semantics
+	 * @throws Semantics
 	 */
 	public function command(): Command {
 		if ($this->command) {
 			return $this->command;
 		}
 
-		throw new Exception_Semantics('No command set');
+		throw new Semantics('No command set');
 	}
 
 	/**
@@ -2105,7 +2129,7 @@ class Application extends Hookable implements Interface_Member_Model_Factory, In
 	 * @return string Path relative to document root
 	 */
 	final public function documentRoot(null|string|array $suffix = ''): string {
-		return path($this->document, $suffix);
+		return Directory::path($this->document, $suffix);
 	}
 
 	/**
@@ -2145,7 +2169,7 @@ class Application extends Hookable implements Interface_Member_Model_Factory, In
 	 * @return self
 	 */
 	public function setDevelopment(bool $set): self {
-		return $this->setOption(self::OPTION_DEVELOPMENT, toBool($set));
+		return $this->setOption(self::OPTION_DEVELOPMENT, $set);
 	}
 
 	/**
@@ -2155,7 +2179,7 @@ class Application extends Hookable implements Interface_Member_Model_Factory, In
 	 * @param mixed|null $mixed
 	 * @param array $options
 	 * @return Model
-	 * @throws Exception_Class_NotFound
+	 * @throws ClassNotFound
 	 */
 	public function modelFactory(string $class, mixed $mixed = null, array $options = []): Model {
 		return Model::factory($this, $class, $mixed, $options);
@@ -2169,7 +2193,7 @@ class Application extends Hookable implements Interface_Member_Model_Factory, In
 	 * @param mixed|null $mixed
 	 * @param array $options
 	 * @return Model
-	 * @throws Exception_Class_NotFound
+	 * @throws ClassNotFound
 	 */
 	public function memberModelFactory(string $member, string $class, mixed $mixed = null, array $options = []): Model {
 		return Model::factory($this, $class, $mixed, [
@@ -2181,9 +2205,9 @@ class Application extends Hookable implements Interface_Member_Model_Factory, In
 	 *
 	 * @param Request $request
 	 * @param bool $require
-	 * @return Interface_Session|null
+	 * @return SessionInterface|null
 	 */
-	public function session(Request $request, bool $require = true): ?Interface_Session {
+	public function session(Request $request, bool $require = true): ?SessionInterface {
 		return $require ? $this->requireSession($request) : $this->optionalSession($request);
 	}
 
@@ -2196,21 +2220,21 @@ class Application extends Hookable implements Interface_Member_Model_Factory, In
 	/**
 	 * Require a session
 	 * @param Request $request
-	 * @return Interface_Session
+	 * @return SessionInterface
 	 */
-	public function requireSession(Request $request): Interface_Session {
+	public function requireSession(Request $request): SessionInterface {
 		$session = $this->requestGetSession($request);
 		return $session ?: $this->sessionRequestFactory($request);
 	}
 
 	/**
 	 * @param Request $request
-	 * @return Interface_Session|null
+	 * @return SessionInterface|null
 	 */
-	private function requestGetSession(Request $request): ?Interface_Session {
+	private function requestGetSession(Request $request): ?SessionInterface {
 		if ($request->hasOption(self::REQUEST_OPTION_SESSION)) {
 			$session = $request->option(self::REQUEST_OPTION_SESSION);
-			if ($session instanceof Interface_Session) {
+			if ($session instanceof SessionInterface) {
 				return $session;
 			}
 		}
@@ -2221,9 +2245,9 @@ class Application extends Hookable implements Interface_Member_Model_Factory, In
 	 * Create a session and attach it to the request
 	 *
 	 * @param Request $request
-	 * @return Interface_Session
+	 * @return SessionInterface
 	 */
-	private function sessionRequestFactory(Request $request): Interface_Session {
+	private function sessionRequestFactory(Request $request): SessionInterface {
 		$session = $this->sessionFactory();
 		$session->initializeSession($request);
 		$request->setOption(self::REQUEST_OPTION_SESSION, $session);
@@ -2234,9 +2258,9 @@ class Application extends Hookable implements Interface_Member_Model_Factory, In
 	 * Get a session if it has been created already
 	 *
 	 * @param Request $request
-	 * @return ?Interface_Session
+	 * @return ?SessionInterface
 	 */
-	public function optionalSession(Request $request): ?Interface_Session {
+	public function optionalSession(Request $request): ?SessionInterface {
 		return $this->requestGetSession($request);
 	}
 
@@ -2306,8 +2330,8 @@ class Application extends Hookable implements Interface_Member_Model_Factory, In
 	 *            Method called
 	 * @param array $args
 	 * @return object
-	 * @throws Exception_NotFound
-	 * @throws Exception_Unsupported
+	 * @throws NotFoundException
+	 * @throws Unsupported
 	 */
 	final public function __call(string $name, array $args): mixed {
 		if (isset($this->factories[$name])) {
@@ -2320,8 +2344,8 @@ class Application extends Hookable implements Interface_Member_Model_Factory, In
 			}
 		}
 
-		throw new Exception_Unsupported("Application call {method} is not supported.\n\n\tCalled from: {calling}\n\nDo you ned to register the module which adds this functionality?\n\nAvailable: {available}", [
-			'method' => $name, 'calling' => calling_function(),
+		throw new Unsupported("Application call {method} is not supported.\n\n\tCalled from: {calling}\n\nDo you ned to register the module which adds this functionality?\n\nAvailable: {available}", [
+			'method' => $name, 'calling' => Kernel::callingFunction(),
 			'available' => implode(', ', array_keys($this->factories)),
 		]);
 	}
@@ -2331,21 +2355,20 @@ class Application extends Hookable implements Interface_Member_Model_Factory, In
 	 */
 	protected function __clone() {
 		$this->configuration = clone $this->configuration;
-		$this->loader = new Configuration_Loader($this->includes(), new Adapter_Settings_Configuration($this->configuration));
+		$this->loader = new Loader($this->includes(), new SettingsConfiguration($this->configuration));
 		$this->router = clone $this->router;
 	}
 
 	/**
 	 *
 	 * @return void
-	 * @throws Exception_NotFound
-	 * @throws Exception_Syntax
+	 * @throws NotFoundException
+	 * @throws SyntaxException
 	 */
 	protected function hook_router(): void {
 		if (!$this->file) {
 			$this->logger->debug('{class}->file is not set ({method})', [
-				'class' => self::class,
-				'method' => __METHOD__,
+				'class' => self::class, 'method' => __METHOD__,
 			]);
 			return;
 		}
@@ -2364,7 +2387,7 @@ class Application extends Hookable implements Interface_Member_Model_Factory, In
 
 			try {
 				$result = $router->cached($mtime);
-			} catch (Exception_NotFound) {
+			} catch (NotFoundException) {
 				$parser = new Parser(file_get_contents($router_file), $router_file);
 				$parser->execute($router, [
 					'_source' => $router_file,
@@ -2380,12 +2403,12 @@ class Application extends Hookable implements Interface_Member_Model_Factory, In
 
 	/**
 	 * @param Request $request
-	 * @return Interface_UserLike
-	 * @throws Exception_Authentication
+	 * @return Userlike
+	 * @throws Authentication
 	 */
-	private function sessionUser(Request $request): Interface_UserLike {
+	private function sessionUser(Request $request): Userlike {
 		$user = $this->requireSession($request)->user();
-		assert($user instanceof Interface_UserLike);
+		assert($user instanceof Userlike);
 		return $user;
 	}
 
@@ -2394,10 +2417,10 @@ class Application extends Hookable implements Interface_Member_Model_Factory, In
 	 *
 	 * @param ?Request $request Request to use for session
 	 * @param boolean $require Force object creation if not found. May have side effect of creating a Session_Interface within the Request.
-	 * @return Interface_UserLike|null
-	 * @throws Exception_Class_NotFound
+	 * @return Userlike|null
+	 * @throws ClassNotFound
 	 */
-	public function user(Request $request = null, bool $require = true): Interface_UserLike|null {
+	public function user(Request $request = null, bool $require = true): Userlike|null {
 		return $require ? $this->requireUser($request) : $this->optionalUser($request);
 	}
 
@@ -2405,22 +2428,22 @@ class Application extends Hookable implements Interface_Member_Model_Factory, In
 	 * Uses current application Request for authentication if not supplied.
 	 *
 	 * @param ?Request $request Request to use for
-	 * @return Interface_UserLike
-	 * @throws Exception_Class_NotFound
+	 * @return Userlike
+	 * @throws ClassNotFound
 	 */
-	public function requireUser(Request $request = null): Interface_UserLike {
+	public function requireUser(Request $request = null): Userlike {
 		try {
 			if (!$request) {
 				$request = $this->request();
 			}
 			assert($request instanceof Request);
-		} catch (Exception_Semantics) {
+		} catch (Semantics) {
 			return $this->userFactory();
 		}
 
 		try {
 			return $this->sessionUser($request);
-		} catch (Exception_Authentication) {
+		} catch (Authentication) {
 			return $this->userFactory();
 		}
 	}
@@ -2431,29 +2454,29 @@ class Application extends Hookable implements Interface_Member_Model_Factory, In
 	 * If performing sub-requests, this reflects the most-recent request state (a stack).
 	 *
 	 * @return Request
-	 * @throws Exception_Semantics
+	 * @throws Semantics
 	 */
 	final public function request(): Request {
-		$request = last($this->requestStack);
+		$request = ArrayTools::last($this->requestStack);
 		if ($request) {
 			return $request;
 		}
 
-		throw new Exception_Semantics('No request');
+		throw new Semantics('No request');
 	}
 
 	/**
-	 * The user class for the application. Should be of Interface_UserLike
+	 * The user class for the application. Should implement `zesk\Interface\Userlike`
 	 */
 	public const OPTION_USER_CLASS = 'userClass';
 
 	/**
-	 * @return Interface_UserLike
-	 * @throws Exception_Class_NotFound
+	 * @return Userlike
+	 * @throws ClassNotFound
 	 */
-	public function userFactory(): Interface_UserLike {
+	public function userFactory(): Userlike {
 		$user = $this->modelSingleton($this->optionString('userClass'));
-		assert($user instanceof Interface_UserLike);
+		assert($user instanceof Userlike);
 		return $user;
 	}
 
@@ -2461,12 +2484,12 @@ class Application extends Hookable implements Interface_Member_Model_Factory, In
 	 * Optionally fetch a user if authenticated
 	 *
 	 * @param Request|null $request
-	 * @return Interface_UserLike|null
+	 * @return Userlike|null
 	 */
-	public function optionalUser(Request $request = null): ?Interface_UserLike {
+	public function optionalUser(Request $request = null): ?Userlike {
 		try {
 			$request = $request ?: $this->request();
-		} catch (Exception_Semantics) {
+		} catch (Semantics) {
 			/* No session */
 			return null;
 		}
@@ -2474,9 +2497,9 @@ class Application extends Hookable implements Interface_Member_Model_Factory, In
 
 		try {
 			$user = $session?->user();
-			assert($user instanceof Interface_UserLike);
+			assert($user instanceof Userlike);
 			return $user;
-		} catch (Exception_Authentication) {
+		} catch (Authentication) {
 			return null;
 		}
 	}

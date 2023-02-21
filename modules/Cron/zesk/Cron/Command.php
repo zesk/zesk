@@ -6,7 +6,7 @@ declare(strict_types=1);
 namespace zesk\Cron;
 
 use zesk\Command_Base;
-use zesk\Exception_NotFound;
+use zesk\Exception\NotFoundException;
 use zesk\Text;
 use zesk\Timestamp;
 
@@ -37,7 +37,7 @@ class Command extends Command_Base {
 		try {
 			$cron = $this->application->modules->object('Cron');
 			assert($cron instanceof Module);
-		} catch (Exception_NotFound) {
+		} catch (NotFoundException) {
 			$this->error('Cron module is not enabled');
 			return 1;
 		}

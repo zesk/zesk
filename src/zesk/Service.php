@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace zesk;
 
+use zesk\Exception\ClassNotFound;
+
 class Service extends Hookable {
 	/**
 	 *
@@ -55,12 +57,12 @@ class Service extends Hookable {
 	 * @param Application $application
 	 * @param string $type
 	 * @return self
-	 * @throws Exception_Class_NotFound
-	 * @throws Exception_Semantics
+	 * @throws ClassNotFound
+	 * @throws Semantics
 	 */
 	public static function factory(Application $application, string $type, array $arguments = []): self {
 		if (!self::validType($application, $type)) {
-			throw new Exception_Semantics('Invalid service type {type}', [
+			throw new Semantics('Invalid service type {type}', [
 				'type' => $type,
 			]);
 		}
@@ -69,7 +71,7 @@ class Service extends Hookable {
 		if (!$class) {
 			$classes = self::serviceClasses($application, $type);
 			if (count($classes) === 0) {
-				throw new Exception_Semantics('No service classes for {type}', [
+				throw new Semantics('No service classes for {type}', [
 					'type' => $type,
 				]);
 			}

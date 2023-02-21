@@ -8,10 +8,10 @@ namespace zesk\Cron;
 
 use zesk\ArrayTools;
 use zesk\Date;
-use zesk\Exception_Parse;
-use zesk\Exception_Semantics;
+use zesk\Exception\ParseException;
+use zesk\Exception\Semantics;
 use zesk\HTML;
-use zesk\Locale;
+use zesk\Locale\Locale;
 use zesk\StringTools;
 use zesk\Time;
 use zesk\Timestamp;
@@ -147,7 +147,7 @@ class Parser {
 	/**
 	 *
 	 * @param Timestamp $now
-	 * @throws Exception_Semantics
+	 * @throws Semantics
 	 * @return Timestamp
 	 */
 	public function compute_next(Timestamp $now): Timestamp {
@@ -273,7 +273,7 @@ class Parser {
 				}
 			}
 			if ($loops > 100) {
-				throw new Exception_Semantics('Infinite loop in Schedule next');
+				throw new Semantics('Infinite loop in Schedule next');
 			}
 		}
 		return $next;
@@ -302,8 +302,8 @@ class Parser {
 		//  September 2010
 		//  Every 10 minutes
 		//  Every 3 days
-		$short_months = Date::month_names($locale, true);
-		$short_dow = Date::weekday_names($locale, true);
+		$short_months = Date::monthNames($locale, true);
+		$short_dow = Date::weekdayNames($locale, true);
 		$short_months = ArrayTools::changeValueCase($short_months);
 		$short_dow = ArrayTools::changeValueCase($short_dow);
 		//		$original_text = $text;
@@ -322,9 +322,9 @@ class Parser {
 			'units-opt' => ' every ([0-9]+ |other )?(min|minute|sec|second|hr|hour|day|week|month)s?',
 			'month-days' => '([1-3]?[0-9])(?:nd|st|th|rd)',
 			'time' => '(?:at )?([0-9]{1,2})(?::([0-9]{2}))?( ?[ap]m?)?',
-			'months' => '(' . strtolower(implode('|', Date::month_names($locale))) . ')',
+			'months' => '(' . strtolower(implode('|', Date::monthNames($locale))) . ')',
 			'short-months' => '(' . strtolower(implode('|', $short_months)) . ')',
-			'dow' => '(' . strtolower(implode('|', Date::weekday_names($locale))) . ')',
+			'dow' => '(' . strtolower(implode('|', Date::weekdayNames($locale))) . ')',
 			'short-dow' => '(' . implode('|', $short_dow) . ')',
 			'years' => '([0-9]{4})',
 		];
@@ -549,7 +549,7 @@ class Parser {
 
 					break;
 				default:
-					throw new Exception_Parse("Unknown pattern in schedule: $item");
+					throw new ParseException("Unknown pattern in schedule: $item");
 			}
 		}
 		if (implode('', $cron) === '*****') {
@@ -589,7 +589,7 @@ class Parser {
 	private function months_to_language($code) {
 		$items = explode(',', $code);
 		$result = [];
-		$months = Date::month_names($this->locale);
+		$months = Date::monthNames($this->locale);
 		foreach ($items as $item) {
 			if (is_numeric($item)) {
 				$result[] = $months[$item];
@@ -610,7 +610,7 @@ class Parser {
 		}
 		$items = explode(',', $code);
 		$result = [];
-		$daysOfWeek = Date::weekday_names($locale);
+		$daysOfWeek = Date::weekdayNames($locale);
 		foreach ($items as $item) {
 			if (is_numeric($item)) {
 				if ($plural) {
@@ -661,7 +661,7 @@ class Parser {
 						$t->setMinute(intval($m));
 						$t->setHour(intval($h));
 					}
-					$times[] = $t->format($this->locale, $this->locale->time_format());
+					$times[] = $t->format($this->locale, $this->locale->formatTime());
 				}
 			}
 		}

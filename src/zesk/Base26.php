@@ -36,7 +36,7 @@ class Base26 {
 	}
 
 	/**
-	 * Convert an a base-26 alphabetic string to an integer (or double).
+	 * Convert a base-26 alphabetic string to an integer (or double).
 	 *
 	 * Strips any non-character values from the string first.
 	 *

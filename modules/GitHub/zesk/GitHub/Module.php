@@ -8,19 +8,19 @@ declare(strict_types=1);
  */
 namespace zesk\GitHub;
 
-use zesk\Exception_DomainLookup;
-use zesk\Exception_File_Permission;
-use zesk\Exception_Parameter;
-use zesk\Exception_Parse;
+use zesk\Exception\FilePermission;
+use zesk\Exception\DomainLookupFailed;
+use zesk\Exception\ParameterException;
+use zesk\Exception\ParseException;
 use zesk\Exception_Protocol;
-use zesk\Exception_Semantics;
-use zesk\Exception_Syntax;
-use zesk\Exception_Unsupported;
+use zesk\Exception\Semantics;
+use zesk\Exception\SyntaxException;
+use zesk\Exception\Unsupported;
 use zesk\HTTP;
 use zesk\JSON;
 use zesk\MIME;
-use zesk\Net\HTTP\Client as Net_HTTP_Client;
 use zesk\Module as BaseModule;
+use zesk\Net\HTTP\Client as Net_HTTP_Client;
 
 /**
  *
@@ -87,13 +87,13 @@ class Module extends BaseModule {
 	 * @param string $description
 	 * @return array
 	 * @throws Net_HTTP_Client\Exception
-	 * @throws Exception_DomainLookup
-	 * @throws Exception_File_Permission
-	 * @throws Exception_Parameter
-	 * @throws Exception_Parse
-	 * @throws Exception_Semantics
-	 * @throws Exception_Syntax
-	 * @throws Exception_Unsupported
+	 * @throws DomainLookupFailed
+	 * @throws FilePermission
+	 * @throws ParameterException
+	 * @throws ParseException
+	 * @throws Semantics
+	 * @throws SyntaxException
+	 * @throws Unsupported
 	 * @throws Exception_Protocol
 	 */
 	public function generateTag(string $name, string $commitish = '', string $description = ''): array {

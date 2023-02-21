@@ -6,7 +6,14 @@ declare(strict_types=1);
  */
 namespace zesk;
 
+use zesk\Adapter\SettingsArray;
+use zesk\Configuration\Parser;
 use zesk\Configure\Engine;
+use zesk\Exception\ClassNotFound;
+use zesk\Exception\DirectoryNotFound;
+use zesk\Exception\FileNotFound;
+use zesk\Exception\FilePermission;
+use zesk\Exception\ParseException;
 
 /**
  * Automatically keep a series of files and directories in sync between users, with security checks
@@ -143,9 +150,9 @@ class Command_Configure extends Command_Base {
 	 * If the environment_file option is not set, interactively set it
 	 *
 	 * @return string
-	 * @throws Exception_Directory_NotFound
-	 * @throws Exception_Redirect
-	 * @throws Exception_Semantics
+	 * @throws DirectoryNotFound
+	 * @throws Redirect
+	 * @throws Semantics
 	 */
 	private function determineEnvironmentFile(): string {
 		$locale = $this->application->locale;
@@ -173,9 +180,9 @@ class Command_Configure extends Command_Base {
 	 * Determine the environment files for configuration
 	 *
 	 * @return string[]
-	 * @throws Exception_Directory_NotFound
-	 * @throws Exception_Redirect
-	 * @throws Exception_Semantics
+	 * @throws DirectoryNotFound
+	 * @throws Redirect
+	 * @throws Semantics
 	 */
 	private function determineEnvironmentFiles():array {
 		$files = $this->optionIterable(self::OPTION_ENVIRONMENT_FILES);
@@ -230,14 +237,14 @@ class Command_Configure extends Command_Base {
 	 * @param string $path
 	 * @param string $extension
 	 * @return array
-	 * @throws Exception_Class_NotFound
-	 * @throws Exception_File_NotFound
-	 * @throws Exception_File_Permission
-	 * @throws Exception_Parse
+	 * @throws ClassNotFound
+	 * @throws FileNotFound
+	 * @throws FilePermission
+	 * @throws ParseException
 	 */
 	private function load_conf(string $path, string $extension = ''): array {
 		$conf = [];
-		Configuration_Parser::factory($extension ?: File::extension($path), File::contents($path), new Adapter_Settings_Array($conf), [
+		Parser::factory($extension ?: File::extension($path), File::contents($path), new SettingsArray($conf), [
 			'lower' => false,
 		])->process();
 		return $conf;
@@ -253,7 +260,7 @@ class Command_Configure extends Command_Base {
 	private function save_conf(string $path, array $settings): void {
 		$conf = [];
 		$contents = File::contents($path);
-		$parser = Configuration_Parser::factory(File::extension($path), $contents, new Adapter_Settings_Array($conf));
+		$parser = Configuration_Parser::factory(File::extension($path), $contents, new SettingsArray($conf));
 		$editor = $parser->editor($contents);
 		File::put($path, $editor->edit($settings));
 	}
@@ -348,7 +355,8 @@ class Command_Configure extends Command_Base {
 			$message .= $locale->__('Enter a list of configurations separated by space') . "\n";
 			$host_configurations = $this->prompt("$message\n> ");
 			$host_configurations = explode(' ', preg_replace("/\s+/", ' ', trim($host_configurations)));
-		} while (count(array_diff($host_configurations, $possible_host_configurations)) !== 0);
+			$diff = array_diff($host_configurations, $possible_host_configurations);
+		} while (count($diff) !== 0);
 		$this->log('Will add host configuration for host {host}: {host_configurations}', [
 			'host' => $this->host,
 			'host_configurations' => implode(' ', $host_configurations),

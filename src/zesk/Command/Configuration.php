@@ -3,6 +3,7 @@ declare(strict_types=1);
 namespace zesk;
 
 use Throwable;
+use zesk\Configuration\Loader;
 
 /**
  * List configuration files which are examined and loaded for the application.
@@ -59,10 +60,10 @@ class Command_Configuration extends Command_Base {
 
 		$result = [];
 		foreach ([
-			'show_loaded' => ['Loaded', Configuration_Loader::PROCESSED],
-			'show_not_loaded' => ['Missing', Configuration_Loader::MISSING],
-			'show_skipped' => ['Skipped', Configuration_Loader::SKIPPED],
-			'show_externals' => ['External variables', Configuration_Loader::EXTERNALS],
+			'show_loaded' => ['Loaded', Loader::PROCESSED],
+			'show_not_loaded' => ['Missing', Loader::MISSING],
+			'show_skipped' => ['Skipped', Loader::SKIPPED],
+			'show_externals' => ['External variables', Loader::EXTERNALS],
 			'show_missing_classes' => ['Missing classes', '-missing-classes-'],
 			'show_top_level_scalar' => ['Top-level variables which are scalar', '-warning-top-'],
 		] as $flag => [$key, $variablesKey]) {

@@ -6,12 +6,12 @@ declare(strict_types=1);
  * @author kent
  * @copyright &copy; 2023, Market Acumen, Inc.
  */
-namespace zesk;
+namespace zesk\Configuration\Parser;
 
 /**
  * Just inherit from parent using this name. Behavior is similar.
  *
  * @author kent
  */
-class Configuration_Parser_SH extends Configuration_Parser_CONF {
+class SH extends CONF {
 }

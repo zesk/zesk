@@ -3,12 +3,14 @@ declare(strict_types=1);
 /**
  *
  */
-namespace zesk\ORM;
+namespace zesk\ORM\Exception;
+
+use zesk\ORM\Exception;
 
 /**
  *
  * @author kent
  *
  */
-class Exception_ORMNotFound extends Exception {
+class ORMNotFound extends Exception {
 }

@@ -10,12 +10,12 @@ declare(strict_types=1);
 namespace zesk\Login;
 
 use zesk\Controller as zeskController;
-use zesk\Exception_Authentication;
-use zesk\Exception_Key;
-use zesk\Exception_Semantics;
-use zesk\Exception_Unsupported;
+use zesk\Authentication;
+use zesk\Exception\KeyNotFound;
+use zesk\Exception\Semantics;
+use zesk\Exception\Unsupported;
 use zesk\HTTP;
-use zesk\ORM\Exception_ORMNotFound;
+use zesk\ORM\ORMNotFound;
 use zesk\ORM\User;
 use zesk\Request;
 use zesk\Response;
@@ -100,7 +100,7 @@ class Controller extends zeskController {
 			if ($loginHookResult instanceof Response) {
 				return $response;
 			}
-		} catch (Exception_Authentication $e) {
+		} catch (Authentication $e) {
 			$response->setStatus(HTTP::STATUS_UNAUTHORIZED, 'Unauthorized');
 			// Done calling hooks
 			return $response->json()->setData([
@@ -118,7 +118,7 @@ class Controller extends zeskController {
 			return $response->json()->appendData([
 				'authenticated' => true, 'user' => $user->id(),
 			] + $data + $this->_baseResponseData());
-		} catch (Exception_Authentication $e) {
+		} catch (Authentication $e) {
 			$response->setStatus(HTTP::STATUS_UNAUTHORIZED, 'Unauthorized');
 			$data = toArray($this->callHookArguments('loginFailed', [$this], []));
 
@@ -132,7 +132,7 @@ class Controller extends zeskController {
 	 * @param Request $request
 	 * @param Response $response
 	 * @return Response
-	 * @throws Exception_Semantics
+	 * @throws Semantics
 	 */
 	public function action_DELETE_index(Request $request, Response $response): Response {
 		$this->callHook('logout');
@@ -160,19 +160,19 @@ class Controller extends zeskController {
 	 * @param string $userName
 	 * @param string $password
 	 * @return User
-	 * @throws Exception_Authentication
-	 * @throws Exception_Unsupported
+	 * @throws Authentication
+	 * @throws Unsupported
 	 */
 	private function handleLogin(string $userName, string $password): User {
 		$user = $this->application->ormFactory(User::class);
-		$column_login = $this->option('ormIdColumn', $user->column_login());
+		$column_login = $this->option('ormIdColumn', $user->columnLogin());
 		if ($this->option('no_password')) {
 			try {
 				$user = $this->application->ormRegistry(User::class)->querySelect()->addWhere($column_login, $user)->orm();
 				assert($user instanceof User);
 				return $user;
-			} catch (Exception_Key|Exception_ORMNotFound $e) {
-				throw new Exception_Authentication($userName, [], 0, $e);
+			} catch (KeyNotFound|ORMNotFound $e) {
+				throw new Authentication($userName, [], 0, $e);
 			}
 		}
 		/* @var $user User */
@@ -180,7 +180,7 @@ class Controller extends zeskController {
 
 		try {
 			return $user->authenticate($hashed_password, false, false);
-		} catch (Exception_Authentication $e) {
+		} catch (Authentication $e) {
 			/* 2nd chance */
 			if ($this->callHookArguments('authenticate', [
 				$user, $userName, $password,

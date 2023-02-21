@@ -48,7 +48,7 @@ class Net_Whois_Servers {
 	/**
 	 * @param string $tld
 	 * @return string
-	 * @throws Exception_NotFound
+	 * @throws NotFoundException
 	 */
 	public static function fromTLD(string $tld): string {
 		$clean = preg_replace('/[^a-z]/', '', strtolower(StringTools::right($tld, '.')));
@@ -56,7 +56,7 @@ class Net_Whois_Servers {
 			return self::$servers[$clean];
 		}
 
-		throw new Exception_NotFound('No server found for TLD in:"{tld}"->"{clean}"', [
+		throw new NotFoundException('No server found for TLD in:"{tld}"->"{clean}"', [
 			'tld' => $tld,
 			'clean' => $clean,
 		]);

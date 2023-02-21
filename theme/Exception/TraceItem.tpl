@@ -6,7 +6,7 @@ declare(strict_types=1);
 
 namespace zesk;
 
-/* @var $this Template */
+/* @var $this Theme */
 
 $trace_item = $this->getArray('content');
 $file = $trace_item['file'] ?? '-no-file-';

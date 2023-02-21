@@ -7,22 +7,33 @@ declare(strict_types=1);
  * @copyright &copy; 2023, Market Acumen, Inc.
  */
 
-namespace zesk;
+namespace zesk\Route;
+
+use zesk\HTTP;
+use zesk\Route;
+use zesk\Request;
+use zesk\Response;
+use zesk\Exception\Redirect as RedirectException;
 
 /**
  * Allow a route which redirects
  *
- * whatevs
+ * path
  *     redirect=/go-here
  *     temporary=true
  *     message=Not here now, come back later.
  *
  * @author kent
  */
-class Route_Redirect extends Route {
-	protected function _execute(Request $request, Response $response): Response {
-		throw new Exception_Redirect($this->option('redirect'), $this->option('message'), $this->optionBool('temporary') ? [
-			Exception_Redirect::RESPONSE_STATUS_CODE => HTTP::STATUS_TEMPORARY_REDIRECT,
+class Redirect extends Route {
+	/**
+	 * @param Request $request
+	 * @return Response
+	 * @throws RedirectException
+	 */
+	protected function internalExecute(Request $request): Response {
+		throw new RedirectException($this->option('redirect'), $this->option('message'), $this->optionBool('temporary') ? [
+			RedirectException::RESPONSE_STATUS_CODE => HTTP::STATUS_TEMPORARY_REDIRECT,
 		] : []);
 	}
 }

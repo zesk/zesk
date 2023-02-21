@@ -1,9 +1,14 @@
 <?php
 declare(strict_types=1);
 
-namespace zesk;
+namespace zesk\Service;
 
-abstract class Service_Translate extends Service {
+use zesk\Service;
+use zesk\Application;
+
+use zesk\Exception\ClassNotFound;
+
+abstract class Translate extends Service {
 	/**
 	 * @param string $phrase
 	 * @return string
@@ -16,7 +21,7 @@ abstract class Service_Translate extends Service {
 	 * @param string $target_language
 	 * @param string $source_language
 	 * @param array $options
-	 * @return Service_Translate
+	 * @return Translate
 	 */
 	/**
 	 * @param Application $application
@@ -24,11 +29,10 @@ abstract class Service_Translate extends Service {
 	 * @param string|null $source_language
 	 * @param array $options
 	 * @return self
-	 * @throws Exception_Class_NotFound
-	 * @throws Exception_Semantics
+	 * @throws ClassNotFound
 	 */
 	public static function translateFactory(Application $application, string $target_language, string $source_language =
-	null, array                                         $options = []) {
+	null, array                                         $options = []): self {
 		$result = self::factory($application, 'translate', [
 			'target' => $target_language,
 			'source' => $source_language,

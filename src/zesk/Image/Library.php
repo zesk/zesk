@@ -1,8 +1,16 @@
 <?php
 declare(strict_types=1);
-namespace zesk;
+namespace zesk\Image;
 
-abstract class Image_Library {
+use Throwable;
+use zesk\Application;
+use zesk\ArrayTools;
+use zesk\Exception;
+use zesk\Exception\ConfigurationException;
+use zesk\Image\Library\GD;
+use zesk\Image\Library\ImageMagick;
+
+abstract class Library {
 	/**
 	 *
 	 * @var string
@@ -19,7 +27,7 @@ abstract class Image_Library {
 	 *
 	 * @var Application
 	 */
-	public $application = null;
+	public Application $application;
 
 	final public function __construct(Application $application) {
 		$this->application = $application;
@@ -36,24 +44,24 @@ abstract class Image_Library {
 	/**
 	 * Create one of the available image libraries to manipulate images
 	 *
-	 * @return Image_Library
-	 * @throws Exception_Configuration
+	 * @param Application $application
+	 * @return self
+	 * @throws ConfigurationException
 	 */
-	public static function factory(Application $application): Image_Library {
+	public static function factory(Application $application): self {
 		$libraries= [
-			'GD',
-			'imagick',
+			GD::class,
+			ImageMagick::class,
 		];
-		foreach ($libraries as $type) {
+		foreach ($libraries as $class) {
 			try {
-				$class = __CLASS__ . '_' . $type;
 				$singleton = $application->factory($class, $application);
 				if (!$singleton->installed()) {
 					continue;
 				}
-				assert($singleton instanceof Image_Library);
+				assert($singleton instanceof self);
 				return $singleton;
-			} catch (\Exception $e) {
+			} catch (Throwable $e) {
 				$application->logger->error('{class} creation resulted in {e.class}: {e.message}', [
 					'class' => $class,
 				] + ArrayTools::prefixKeys(Exception::exceptionVariables($e), 'e.'));
@@ -62,7 +70,7 @@ abstract class Image_Library {
 			}
 		}
 
-		throw new Exception_Configuration(__CLASS__, 'Need one of {libraries} installed', ['libraries' => $libraries]);
+		throw new ConfigurationException(__CLASS__, 'Need one of {libraries} installed', ['libraries' => $libraries]);
 	}
 
 	/**
@@ -91,10 +99,11 @@ abstract class Image_Library {
 	abstract public function imageScaleData(string $data, array $options): string;
 
 	/**
-	 * Rotate
-	 * @param unknown $source
-	 * @param unknown $destination
-	 * @param unknown $degrees
+	 * Rotate image degrees
+	 *
+	 * @param string $source
+	 * @param string $destination
+	 * @param float $degrees
 	 * @param array $options
 	 */
 	abstract public function imageRotate(string $source, string $destination, float $degrees, array $options = []):

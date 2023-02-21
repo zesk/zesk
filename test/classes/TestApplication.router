@@ -12,6 +12,6 @@ dump/route
     map=["route"]
     id="dumpRoute"
 cache
-    controller="zesk\\Controller_Cache"
+    controller="zesk\\Controller\\Cache"
 share
-    controller="zesk\\Controller_Share"
+    controller="zesk\\Controller\\Share"

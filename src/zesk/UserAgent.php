@@ -1,13 +1,20 @@
 <?php
 declare(strict_types=1);
 /**
+ * Browser user agent specification. Simplistic and uses simple pattern matching and boolean logic.
  *
+ * Look at browscap.ini and related services.
+ *
+ * @package zesk
+ * @subpackage core
+ * @author kent
+ * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  */
 
 namespace zesk;
 
 /**
- *
+ * @see UserAgentTest
  * @author kent
  *
  */
@@ -38,7 +45,7 @@ class UserAgent {
 	 *
 	 * @var array
 	 */
-	private static array $langClassifcationNames = [
+	private static array $langClassificationNames = [
 		'platform' => 'Platform',
 		'browser' => 'Web Browser',
 		'mobile' => 'Mobile/Desktop',
@@ -151,7 +158,7 @@ class UserAgent {
 	}
 
 	/**
-	 * Classify user agent and return classificiation
+	 * Classify user agent and return classification
 	 */
 	public function classify(): array {
 		if (count($this->classify) === 0) {
@@ -176,9 +183,8 @@ class UserAgent {
 	 *
 	 * @return array
 	 */
-	public function classify_EN(): array {
-		$translations = self::$langClassifications;
-		return ArrayTools::keysMap(ArrayTools::valuesMap($this->classify(), $translations), self::$langClassifcationNames);
+	public function classifyEN(): array {
+		return ArrayTools::keysMap(ArrayTools::valuesMap($this->classify(), self::$langClassifications), self::$langClassificationNames);
 	}
 
 	/**
@@ -204,7 +210,7 @@ class UserAgent {
 	 * - ie6/ie7/ie8/ie9/ie10 - Specific version of IE.
 	 * - firefox - The FireFox browser.
 	 * - safari - Safari browser from Apple (any platform - including Windows.)
-	 * - mac - A browser running on a Macintosh computer running Mac OS.
+	 * - mac - A browser running on a Macintosh computer running macOS.
 	 * - linux - A browser running on the Linux operating system.
 	 * - windows - A browser running on a Microsoft Windows system
 	 * - macIntel - Intel-based Mac
@@ -228,7 +234,7 @@ class UserAgent {
 		foreach (['5', '6', '7', '8', '9', '10'] as $v) {
 			$result["ios$v"] = $result['ios'] && (str_contains($ua, "os ${v}_"));
 		}
-		$result['webkit'] = str_contains($ua, 'applewebkit');
+		$result['webkit'] = str_contains($ua, 'apple' . 'webkit');
 		$result['chrome'] = str_contains($ua, 'chrome/');
 
 		$result['ie10'] = !$result['opera'] && (str_contains($ua, 'msie 10'));

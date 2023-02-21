@@ -2,21 +2,23 @@
 declare(strict_types=1);
 /**
  * @package zesk
- * @subpackage exception
+ * @subpackage Exception
  * @author kent
- * @copyright &copy; 2023, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  */
 
-namespace zesk;
+namespace zesk\Exception;
 
 use Throwable;
+use zesk\Exception;
+use zesk\Types;
 
 /**
  * @see
  * @author kent
- * @see Exception_RedirectTemporary
+ * @see RedirectTemporary
  */
-class Exception_Redirect extends Exception {
+class Redirect extends Exception {
 	/**
 	 *
 	 * @var string
@@ -41,6 +43,8 @@ class Exception_Redirect extends Exception {
 	 *
 	 * @param string $url
 	 * @param string $message
+	 * @param array $arguments
+	 * @param Throwable|null $previous
 	 */
 	public function __construct(string $url, string $message = '', array $arguments = [], Throwable $previous = null) {
 		$this->url = $url;
@@ -49,13 +53,9 @@ class Exception_Redirect extends Exception {
 
 	/**
 	 *
-	 * @param mixed $set
 	 * @return string
 	 */
-	public function url(mixed $set = null): string {
-		if ($set !== null) {
-			$this->parent->application->deprecated(__METHOD__ . ' setter');
-		}
+	public function url(): string {
 		return $this->url;
 	}
 
@@ -82,6 +82,6 @@ class Exception_Redirect extends Exception {
 	 * @return int
 	 */
 	public function statusCode(): int {
-		return toInteger($this->arguments[self::RESPONSE_STATUS_CODE] ?? -1, -1);
+		return Types::toInteger($this->arguments[self::RESPONSE_STATUS_CODE] ?? -1, -1);
 	}
 }

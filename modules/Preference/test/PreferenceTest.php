@@ -6,8 +6,8 @@ declare(strict_types=1);
 
 namespace zesk\Preference;
 
-use zesk\Exception_Parameter;
-use zesk\ORM\Exception_ORMNotFound;
+use zesk\Exception\ParameterException;
+use zesk\ORM\ORMNotFound;
 use zesk\ORM\ORMUnitTest;
 use zesk\ORM\User;
 
@@ -56,7 +56,7 @@ class PreferenceTest extends ORMUnitTest {
 	 *
 	 */
 	public function test_get_blank(): void {
-		$this->expectException(Exception_Parameter::class);
+		$this->expectException(ParameterException::class);
 		$user = $this->emptyUser();
 		Value::userGet($user, '');
 	}
@@ -100,7 +100,7 @@ class PreferenceTest extends ORMUnitTest {
 		$name = '-missing-';
 		$this->assertFalse(Value::userHas($user, $name));
 
-		$this->expectException(Exception_ORMNotFound::class);
+		$this->expectException(ORMNotFound::class);
 		Value::userGet($user, $name);
 	}
 }

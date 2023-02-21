@@ -8,56 +8,117 @@ declare(strict_types=1);
  */
 namespace zesk\ORM;
 
+use zesk\ArrayTools;
+use zesk\Exception\Semantics;
+use zesk\JSON;
+use zesk\Database\ResultIterator;
+use zesk\ORM\Database\Query\SelectBase;
+use zesk\ORM\Exception\ORMEmpty;
+
 /**
  * @see ORMIterator
  * @see ORMIterators
  */
-class ORMIterators extends ORMIterator {
+class ORMIterators extends ResultIterator {
+	/**
+	 * @var string
+	 */
+	private string $name;
+
+	/**
+	 * Options for creating classes
+	 *
+	 * @var array
+	 */
+	private array $classOptions;
+
 	/**
 	 * Class we're iterating over
 	 * @var array
 	 */
-	private $objects_prefixes = [];
+	private array $objects_prefixes;
+
+	/**
+	 * Our row ID
+	 *
+	 * @var string
+	 */
+	private string $id = '';
+
+	/**
+	 * @var array
+	 */
+	private array $objects;
 
 	/**
 	 * Create an object iterator
-	 * @param string $class Class to iterate over
-	 * @param Database_Query_Select $query Executed query to iterate
+	 * @param SelectBase $query Executed query to iterate
 	 */
-	public function __construct($class, Database_Query_Select_Base $query, array $objects_prefixes, array $options = []) {
-		parent::__construct($class, $query, $options);
+	public function __construct(string $name, SelectBase $query, array $objects_prefixes, array $classOptions =
+	[]) {
+		parent::__construct($query);
+		$this->name = $name;
 		$this->objects_prefixes = $objects_prefixes;
-		$self = $this;
+		$this->classOptions = $classOptions;
 	}
 
 	/**
 	 * Next object in results
-	 * @see Database_Result_Iterator::next()
+	 * @see ResultIterator::next()
 	 * @see ORMIterator::next
 	 */
 	public function next(): void {
-		// Skip ORMIterator::next
-		$this->dbnext();
+		$this->databaseNext();
 		if ($this->_valid) {
 			$result = [];
-			$first = null;
+			$ids = [];
 			foreach ($this->objects_prefixes as $prefix => $class_name) {
 				[$alias, $class] = $class_name;
 				$members = ArrayTools::keysRemovePrefix($this->_row, $prefix, true);
-				$object = $result[$alias] = $this->query->memberModelFactory($this->parent_member . '.' . $prefix, $class, $members, [
-					'initialize' => true,
-				] + $this->class_options);
-				if (!$first) {
-					$first = $object;
+				$object = $result[$alias] = $this->query->memberModelFactory(
+					$this->name . '.' . $prefix,
+					$class,
+					$members,
+					[
+						'initialize' => true,
+					] + $this->classOptions
+				);
+				assert($object instanceof ORMBase);
+
+				try {
+					$ids[$prefix] = $object->id();
+				} catch (ORMEmpty) {
+					$ids[$prefix] = null;
 				}
 			}
-			// We do create, then fetch to support polymorphism - if ORM supports factory polymorphism, then shorten this to single factory call
-			$this->id = $first->id();
-			$this->object = $result + $this->_row;
-			$this->parent_support($first);
+			ksort($ids);
+
+			try {
+				$this->id = JSON::encode($ids);
+			} catch (Semantics) {
+				$this->id = serialize($ids);
+			}
+			$this->objects = $result;
 		} else {
-			$this->id = null;
-			$this->object = null;
+			$this->id = '';
 		}
+	}
+
+	/**
+	 * Current object row
+	 *
+	 * @return array
+	 */
+	public function current(): array {
+		return $this->objects;
+	}
+
+	/**
+	 * Return current row key (ID or index)
+	 *
+	 * @return mixed
+	 */
+	public function key(): string {
+		return $this->id;
 	}
 }

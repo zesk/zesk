@@ -2,24 +2,27 @@
 declare(strict_types=1);
 /**
  * Base class for all exceptions in Zesk.
- * Maybe add some tracking/reporting or some other functionality to it later.
- * @version $URL$
+ *
  * @package zesk
- * @subpackage system
- * @author $Author: kent $
+ * @subpackage Exception
+ * @author kent
  * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  */
 
 namespace zesk;
 
 use Error;
+use Exception as BaseException;
 use Throwable;
 
-class Exception extends \Exception {
+/**
+ *
+ */
+abstract class Exception extends BaseException {
 	use Exceptional;
 
 	/**
-	 * @param \Exception $e
+	 * @param BaseException $e
 	 * @return array
 	 */
 	public static function exceptionVariables(Throwable $e): array {
@@ -28,7 +31,8 @@ class Exception extends \Exception {
 	}
 
 	/**
-	 * @param \Exception $e
+	 * @param Throwable $e
+	 * @param string $prefix
 	 * @return array
 	 */
 	public static function phpExceptionVariables(Throwable $e, string $prefix = 'exception'): array {

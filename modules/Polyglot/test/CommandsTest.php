@@ -3,10 +3,10 @@ declare(strict_types=1);
 
 namespace zesk\Polyglot;
 
-use zesk\Exception_Configuration;
-use zesk\Exception_NotFound;
-use zesk\Exception_Parameter;
-use zesk\Exception_Unsupported;
+use zesk\Exception\ConfigurationException;
+use zesk\Exception\NotFoundException;
+use zesk\Exception\ParameterException;
+use zesk\Exception\Unsupported;
 use zesk\Polyglot\Command\Export;
 use zesk\Polyglot\Command\Translate;
 use zesk\Polyglot\Command\Update;
@@ -33,10 +33,10 @@ class CommandsTest extends TestApplicationUnitTest {
 	 * @param int $expectedStatus
 	 * @param string $expectedOutputOrPattern
 	 * @return void
-	 * @throws Exception_Configuration
-	 * @throws Exception_NotFound
-	 * @throws Exception_Parameter
-	 * @throws Exception_Unsupported
+	 * @throws ConfigurationException
+	 * @throws NotFoundException
+	 * @throws ParameterException
+	 * @throws Unsupported
 	 * @dataProvider dataCommands
 	 */
 	public function test_commands(string $class, array $testArguments, int $expectedStatus, string

@@ -5,9 +5,9 @@ namespace zesk\Job;
 
 use Throwable;
 use zesk\Controller as BaseController;
-use zesk\Exception_Authentication;
-use zesk\Exception_NotFound;
-use zesk\ORM\Exception_ORMEmpty;
+use zesk\Authentication;
+use zesk\Exception\NotFoundException;
+use zesk\ORM\ORMEmpty;
 use zesk\Request;
 use zesk\Response;
 
@@ -35,8 +35,8 @@ class Controller extends BaseController {
 	 * @param Response $response
 	 * @param array $arguments
 	 * @return array
-	 * @throws Exception_Authentication
-	 * @throws Exception_NotFound
+	 * @throws Authentication
+	 * @throws NotFoundException
 	 */
 	public function arguments_GET_monitor(Request $request, Response $response, array $arguments): array {
 		$id = $arguments[0];
@@ -47,20 +47,20 @@ class Controller extends BaseController {
 				$job = new Job($this->application, $id);
 				$job = $job->fetch();
 			} catch (Throwable $t) {
-				throw new Exception_NotFound('No job of {id} found', ['id' => $id], 0, $t);
+				throw new NotFoundException('No job of {id} found', ['id' => $id], 0, $t);
 			}
 		} else {
-			throw new Exception_NotFound('No job id');
+			throw new NotFoundException('No job id');
 		}
 		if ($this->optionBool(self::OPTION_REQUIRE_USER)) {
 			try {
 				$user = $this->application->requireUser($request);
 			} catch (Throwable $t) {
-				throw new Exception_NotFound('No job of {id} found', ['id' => $id], 0, $t);
+				throw new NotFoundException('No job of {id} found', ['id' => $id], 0, $t);
 			}
 			$permission = $this->optionString(self::OPTION_USER_PERMISSION, self::DEFAULT_USER_PERMISSION);
 			if ($permission && !$user->can($permission, $job)) {
-				throw new Exception_Authentication('Not allowed to {permission} {id}', [
+				throw new Authentication('Not allowed to {permission} {id}', [
 					'permission' => $permission, 'id' => $id,
 				]);
 			}
@@ -72,15 +72,15 @@ class Controller extends BaseController {
 	 * @param Job $job
 	 * @param Response $response
 	 * @return Response
-	 * @throws Exception_NotFound
+	 * @throws NotFoundException
 	 */
 	public function action_GET_monitor(Job $job, Response $response): Response {
 		try {
 			$result = [
 				'id' => $job->id(), 'message' => $job->status,
 			];
-		} catch (Exception_ORMEmpty $e) {
-			throw new Exception_NotFound('Job id fetch', [], 0, $e);
+		} catch (ORMEmpty $e) {
+			throw new NotFoundException('Job id fetch', [], 0, $e);
 		}
 		$progress = $job->progress;
 		if ($progress) {

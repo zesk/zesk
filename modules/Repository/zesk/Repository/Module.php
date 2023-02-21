@@ -5,8 +5,9 @@ declare(strict_types=1);
  */
 namespace zesk\Repository;
 
-use zesk\Exception_Class_NotFound;
-use zesk\Exception_NotFound;
+use zesk\ArrayTools;
+use zesk\Exception\ClassNotFound;
+use zesk\Exception\NotFoundException;
 use zesk\Module as zeskModule;
 
 /**
@@ -54,7 +55,7 @@ class Module extends zeskModule {
 	 *
 	 * @param string $type
 	 * @return string
-	 * @throws Exception_NotFound
+	 * @throws NotFoundException
 	 */
 	public function findRepository(string $type): string {
 		$lowType = strtolower($type);
@@ -62,7 +63,7 @@ class Module extends zeskModule {
 			return $this->repository_types[$lowType];
 		}
 
-		throw new Exception_NotFound($type);
+		throw new NotFoundException($type);
 	}
 
 	/**
@@ -87,7 +88,7 @@ class Module extends zeskModule {
 				if ($repo->validate()) {
 					$repos[$repo->code()] = $repo;
 				}
-			} catch (Exception_Class_NotFound) {
+			} catch (ClassNotFound) {
 			}
 		}
 		return $repos;
@@ -97,7 +98,7 @@ class Module extends zeskModule {
 	 *
 	 * @param string $directory
 	 * @return Base
-	 * @throws Exception_NotFound
+	 * @throws NotFoundException
 	 */
 	public function factory(string $directory): Base {
 		$repos = $this->determineRepository($directory);
@@ -105,15 +106,15 @@ class Module extends zeskModule {
 			$this->application->logger->warning('{method} multiple repositories detected ({repos}), using first {repo}', [
 				'method' => __METHOD__,
 				'repos' => array_keys($repos),
-				'repo' => first(array_keys($repos)),
+				'repo' => ArrayTools::first(array_keys($repos)),
 			]);
-			return first($repos);
+			return ArrayTools::first($repos);
 		}
 		if (count($repos) > 0) {
-			return first($repos);
+			return ArrayTools::first($repos);
 		}
 
-		throw new Exception_NotFound('No repository marker found at {directory}', [
+		throw new NotFoundException('No repository marker found at {directory}', [
 			'directory' => $directory,
 		]);
 	}

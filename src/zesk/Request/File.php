@@ -3,13 +3,13 @@ declare(strict_types=1);
 namespace zesk\Request;
 
 use zesk\Application;
-use zesk\Exception_Directory_Create;
-use zesk\Exception_Directory_Permission;
-use zesk\Exception_File_NotFound;
-use zesk\File as zeskFile;
 use zesk\Directory;
-use zesk\Exception_File_Permission;
-use zesk\Exception_Parameter;
+use zesk\Exception\DirectoryCreate;
+use zesk\Exception\DirectoryPermission;
+use zesk\Exception\FileNotFound;
+use zesk\Exception\FilePermission;
+use zesk\Exception\ParameterException;
+use zesk\File as zeskFile;
 
 class File {
 	/**
@@ -44,12 +44,12 @@ class File {
 	/**
 	 *
 	 * @param array $upload_array
-	 * @throws Exception_File_Permission
-	 * @throws Exception_Parameter
+	 * @throws FilePermission
+	 * @throws ParameterException
 	 */
 	public function __construct(array $upload_array) {
 		if (!isset($upload_array['tmp_name'])) {
-			throw new Exception_Parameter('{method} must have keys tmp_name (keys passed: {keys})', [
+			throw new ParameterException('{method} must have keys tmp_name (keys passed: {keys})', [
 				'method' => __METHOD__,
 				'keys' => array_keys($upload_array),
 			]);
@@ -57,7 +57,7 @@ class File {
 		$this->upload_array = $upload_array;
 		$this->tmp_path = $upload_array['tmp_name'];
 		if (!is_uploaded_file($this->tmp_path)) {
-			throw new Exception_File_Permission($this->tmp_path, 'Not an uploaded file');
+			throw new FilePermission($this->tmp_path, 'Not an uploaded file');
 		}
 		$this->name = $upload_array['name'] ?? basename($this->tmp_path);
 		$this->ext = zeskFile::extension($this->name);
@@ -75,8 +75,8 @@ class File {
 	 *
 	 * @return self
 	 * @param array $upload_array
-	 * @throws Exception_File_Permission
-	 * @throws Exception_Parameter
+	 * @throws FilePermission
+	 * @throws ParameterException
 	 */
 	public static function instance(array $upload_array): self {
 		return new self($upload_array);
@@ -94,7 +94,7 @@ class File {
 	 *
 	 * @param string $dest_path
 	 * @param array $options
-	 * @throws Exception_Parameter
+	 * @throws ParameterException
 	 * @return string
 	 */
 	/**
@@ -102,14 +102,14 @@ class File {
 	 * @param string $dest_path
 	 * @param array $options
 	 * @return string
-	 * @throws Exception_Parameter
-	 * @throws Exception_Directory_Create
-	 * @throws Exception_Directory_Permission
-	 * @throws Exception_File_NotFound
+	 * @throws ParameterException
+	 * @throws DirectoryCreate
+	 * @throws DirectoryPermission
+	 * @throws FileNotFound|FilePermission
 	 */
 	public function migrate(Application $application, string $dest_path, array $options = []): string {
 		if (empty($dest_path)) {
-			throw new Exception_Parameter('$dest_path is required to be a valid path or filename ({dest_path})', [
+			throw new ParameterException('$dest_path is required to be a valid path or filename ({dest_path})', [
 				'dest_path' => $dest_path,
 			]);
 		}
@@ -120,7 +120,7 @@ class File {
 
 		if ($options['hash'] ?? false) {
 			$x = md5_file($this->tmp_path);
-			$dest_path = path($dest_dir, "$x." . $this->ext);
+			$dest_path = Directory::path($dest_dir, "$x." . $this->ext);
 		}
 		move_uploaded_file($this->tmp_path, $dest_path);
 		if ($options['file_mode'] ?? false) {

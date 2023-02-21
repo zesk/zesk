@@ -8,10 +8,10 @@ namespace zesk\Session;
 
 use Throwable;
 use zesk\Application;
-use zesk\Exception_Authentication;
+use zesk\Authentication;
 use zesk\Hookable;
-use zesk\Interface_UserLike;
-use zesk\Interface_Session;
+use zesk\Userlike;
+use zesk\Interface\SessionInterface;
 use zesk\ORM\ORMBase;
 use zesk\ORM\User;
 use zesk\Request;
@@ -19,7 +19,7 @@ use zesk\Response;
 
 /**
  */
-class SessionMock extends Hookable implements Interface_Session {
+class SessionMock extends Hookable implements SessionInterface {
 	/**
 	 *
 	 * @var string
@@ -62,7 +62,7 @@ class SessionMock extends Hookable implements Interface_Session {
 	 *
 	 * {@inheritdoc}
 	 *
-	 * @see Interface_Session::id()
+	 * @see SessionInterface::id()
 	 */
 	public function id(): int|string|array {
 		return $this->id;
@@ -80,7 +80,7 @@ class SessionMock extends Hookable implements Interface_Session {
 	 *
 	 * {@inheritdoc}
 	 *
-	 * @see Interface_Settings::get()
+	 * @see SettingsInterface::get()
 	 */
 	public function get(int|string|null $name = null, mixed $default = null): mixed {
 		if ($name === null) {
@@ -93,7 +93,7 @@ class SessionMock extends Hookable implements Interface_Session {
 	 *
 	 * {@inheritdoc}
 	 *
-	 * @see Interface_Settings::__get()
+	 * @see SettingsInterface::__get()
 	 */
 	public function __get(int|string $key): mixed {
 		return $this->data[$key] ?? null;
@@ -103,7 +103,7 @@ class SessionMock extends Hookable implements Interface_Session {
 	 *
 	 * {@inheritdoc}
 	 *
-	 * @see Interface_Settings::__set()
+	 * @see SettingsInterface::__set()
 	 */
 	public function __set(int|string $key, mixed $value): void {
 		$this->data[$key] = $value;
@@ -113,7 +113,7 @@ class SessionMock extends Hookable implements Interface_Session {
 	 *
 	 * {@inheritdoc}
 	 *
-	 * @see Interface_Settings::set()
+	 * @see SettingsInterface::set()
 	 */
 	public function set(int|string $name, mixed $value = null): self {
 		$this->__set($name, $value);
@@ -132,7 +132,7 @@ class SessionMock extends Hookable implements Interface_Session {
 	 *
 	 * {@inheritdoc}
 	 *
-	 * @see Interface_Session::userId()
+	 * @see SessionInterface::userId()
 	 */
 	public function userId(): int {
 		return $this->__get($this->global_session_userId());
@@ -142,22 +142,22 @@ class SessionMock extends Hookable implements Interface_Session {
 	 *
 	 * {@inheritdoc}
 	 *
-	 * @see Interface_Session::user()
+	 * @see SessionInterface::user()
 	 */
-	public function user(): Interface_UserLike {
+	public function user(): Userlike {
 		$user_id = $this->userId();
 		if (empty($user_id)) {
-			throw new Exception_Authentication('No user ID');
+			throw new Authentication('No user ID');
 		}
 
 		try {
 			$user = $this->application->ormFactory(User::class, $user_id)->fetch();
-			assert($user instanceof Interface_UserLike);
+			assert($user instanceof Userlike);
 			return $user;
 		} catch (Throwable $e) {
 			$this->__set($this->global_session_userId(), null);
 
-			throw new Exception_Authentication('User not found {user_id}', ['user_id' => $user_id], 0, $e);
+			throw new Authentication('User not found {user_id}', ['user_id' => $user_id], 0, $e);
 		}
 	}
 
@@ -165,16 +165,16 @@ class SessionMock extends Hookable implements Interface_Session {
 	 *
 	 * {@inheritdoc}
 	 *
-	 * @see Interface_Session::authenticate()
+	 * @see SessionInterface::authenticate()
 	 */
-	public function authenticate(Interface_UserLike $user, Request $request, Response $response): void {
+	public function authenticate(Userlike $user, Request $request, Response $response): void {
 		$this->__set($this->global_session_userId(), ORMBase::mixedToID($user));
 		$this->__set($this->global_session_userId() . '_IP', $request->remoteIP());
 	}
 
 	/**
 	 *
-	 * @see Interface_Session::isAuthenticated()
+	 * @see SessionInterface::isAuthenticated()
 	 * @return bool
 	 */
 	public function isAuthenticated(): bool {
@@ -186,7 +186,7 @@ class SessionMock extends Hookable implements Interface_Session {
 	 *
 	 * {@inheritdoc}
 	 *
-	 * @see Interface_Session::relinquish()
+	 * @see SessionInterface::relinquish()
 	 */
 	public function relinquish(): void {
 		$this->__set($this->global_session_userId(), null);
@@ -196,7 +196,7 @@ class SessionMock extends Hookable implements Interface_Session {
 	 *
 	 * {@inheritdoc}
 	 *
-	 * @see Interface_Settings::variables()
+	 * @see SettingsInterface::variables()
 	 */
 	public function variables(): array {
 		return $this->data;
@@ -206,7 +206,7 @@ class SessionMock extends Hookable implements Interface_Session {
 	 *
 	 * {@inheritdoc}
 	 *
-	 * @see Interface_Session::delete()
+	 * @see SessionInterface::delete()
 	 */
 	public function delete(): void {
 		$this->data = [];

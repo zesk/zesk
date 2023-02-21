@@ -4,19 +4,18 @@ declare(strict_types=1);
 
 namespace zesk\Net;
 
+use zesk\Exception\ClassNotFound;
+use zesk\Exception\ConfigurationException;
+use zesk\Exception\SyntaxException;
+use zesk\Exception\Unsupported;
 use zesk\Module as BaseModule;
 use zesk\URL;
-
-use zesk\Exception_Syntax;
-use zesk\Exception_Configuration;
-use zesk\Exception_Class_NotFound;
-use zesk\Exception_Unsupported;
 
 class Module extends BaseModule {
 	/**
 	 * @return void
-	 * @throws Exception_Configuration
-	 * @throws Exception_Unsupported
+	 * @throws ConfigurationException
+	 * @throws Unsupported
 	 */
 	public function initialize(): void {
 		parent::initialize();
@@ -27,8 +26,8 @@ class Module extends BaseModule {
 	 * @param string $url
 	 * @param array $options
 	 * @return Client
-	 * @throws Exception_Syntax
-	 * @throws Exception_Class_NotFound
+	 * @throws SyntaxException
+	 * @throws ClassNotFound
 	 */
 	public function clientFactory(string $url, array $options = []): Client {
 		$scheme = strtolower(URL::scheme($url));

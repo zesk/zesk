@@ -7,6 +7,8 @@ declare(strict_types=1);
  */
 namespace zesk;
 
+use zesk\Exception\SyntaxException;
+
 /**
  *
  * @author kent
@@ -25,8 +27,8 @@ class TimeSpan extends Temporal {
 	protected bool $invert = false;
 
 	/**
-	 * @throws Exception_Syntax
 	 * @param int|float|string $seconds
+	 * @throws SyntaxException
 	 */
 	public function __construct(int|float|string $seconds = 0) {
 		$this->setSeconds($seconds);
@@ -35,7 +37,7 @@ class TimeSpan extends Temporal {
 	/**
 	 * @param int|float|string $seconds
 	 * @return self
-	 * @throws Exception_Syntax
+	 * @throws SyntaxException
 	 */
 	public static function factory(int|float|string $seconds = 0): self {
 		return new self($seconds);
@@ -47,8 +49,8 @@ class TimeSpan extends Temporal {
 	 * Returns negative numbers.
 	 *
 	 * @param string|mixed $mixed
-	 * @throws Exception_Syntax if it can't conver mixed into a time
 	 * @return int
+	 * @throws SyntaxException if it can't convert mixed into a time
 	 */
 	public static function parse(int|float|string $mixed): int {
 		if (is_numeric($mixed)) {
@@ -64,7 +66,7 @@ class TimeSpan extends Temporal {
 			}
 		}
 
-		throw new Exception_Syntax('{method} can not parse {mixed}', [
+		throw new SyntaxException('{method} can not parse {mixed}', [
 			'method' => __METHOD__,
 			'mixed' => $mixed,
 		]);
@@ -96,7 +98,7 @@ class TimeSpan extends Temporal {
 	 *
 	 * @param int|float|string $set
 	 * @return $this
-	 * @throws Exception_Syntax
+	 * @throws SyntaxException
 	 */
 	public function setSeconds(int|float|string $set): self {
 		$this->duration = $this->parse($set);
@@ -121,26 +123,24 @@ class TimeSpan extends Temporal {
 	/**
 	 * Format time span
 	 *
-	 * @param Locale|null $locale
-	 * @param string $format_string
+	 * @param string $format
 	 * @param array $options
 	 * @return string
 	 */
-	public function format(Locale $locale = null, string $format_string = '', array $options = []): string {
-		if (!$format_string) {
-			$format_string = '{seconds}';
+	public function format(string $format = '', array $options = []): string {
+		if (!$format) {
+			$format = '{seconds}';
 		}
-		return map($format_string, $this->formatting($locale, $options));
+		return ArrayTools::map($format, $this->formatting($options));
 	}
 
 	/**
 	 * Fetch formatting for this object
 	 *
-	 * @param Locale|null $locale
 	 * @param array $options
 	 * @return array
 	 */
-	public function formatting(Locale $locale = null, array $options = []): array {
+	public function formatting(array $options = []): array {
 		$seconds = $this->seconds();
 		$ss = $seconds % 60;
 		$minutes = floor($seconds / 60);
@@ -148,17 +148,16 @@ class TimeSpan extends Temporal {
 		$hours = floor($seconds / 3600);
 		$hh = $hours % 24;
 		$days = intval(floor($seconds / 86400));
-
 		return [
 			'negative' => $this->invert ? '-' : '',
 			'seconds' => $seconds,
-			'ss' => StringTools::zeroPad($ss, 2),
+			'ss' => StringTools::zeroPad($ss),
 			'minutes' => $minutes,
-			'mm' => StringTools::zeroPad($mm, 2),
+			'mm' => StringTools::zeroPad($mm),
 			'hours' => $hours,
-			'hh' => StringTools::zeroPad($hh, 2),
+			'hh' => StringTools::zeroPad($hh),
 			'days' => $days,
-			'dd' => StringTools::zeroPad($days, 2),
+			'dd' => StringTools::zeroPad($days),
 			'ddd' => StringTools::zeroPad($days % 365, 3),
 		];
 	}

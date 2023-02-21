@@ -13,35 +13,29 @@ namespace zesk\SQLite3;
 use DateTimeZone;
 use Exception;
 use SQLite3 as NativeSQLite3;
-use zesk\Exception_Syntax;
 use SQLite3Result;
 use SQLite3Stmt;
 use SQLiteException;
 use Throwable;
 use zesk\ArrayTools;
-use zesk\Database as BaseDatabase;
+use zesk\Database\Base as BaseDatabase;
+use zesk\Database\Column;
+use zesk\Database\DatabaseInterface;
+use zesk\Database\Index;
 use zesk\Database\QueryResult as BaseQueryResult;
-use zesk\Database_Column;
-use zesk\Database_Exception;
-use zesk\Database_Exception_Connect;
-use zesk\Database_Exception_Duplicate;
-use zesk\Database_Exception_NoResults;
-use zesk\Database_Exception_SQL;
-use zesk\Database_Exception_Table_NotFound;
-use zesk\Database_Index;
-use zesk\Database_Interface;
-use zesk\Database_Table;
+use zesk\Database\Table;
 use zesk\Directory;
-use zesk\Exception_Directory_NotFound;
-use zesk\Exception_File_NotFound;
-use zesk\Exception_Key;
-use zesk\Exception_NotFound;
-use zesk\Exception_Parameter;
-use zesk\Exception_Timeout;
-use zesk\Exception_Unimplemented;
-use zesk\Exception_Unsupported;
+use zesk\Exception\DirectoryNotFound;
+use zesk\Exception\FileNotFound;
+use zesk\Exception\Unimplemented;
+use zesk\Exception\NotFoundException;
+use zesk\Exception\ParameterException;
+use zesk\Exception\SyntaxException;
+use zesk\TimeoutExpired;
+use zesk\Exception\Unsupported;
 use zesk\File;
 use zesk\PHP;
+use zesk\StringTools;
 use zesk\Timer;
 use function strtr;
 
@@ -59,7 +53,7 @@ use function strtr;
  * @author kent
  *
  */
-class Database extends BaseDatabase implements Database_Interface {
+class Database extends BaseDatabase implements DatabaseInterface {
 	/**
 	 * Options is a list of keys to bind to the sql (in options)
 	 * @var string
@@ -80,9 +74,9 @@ class Database extends BaseDatabase implements Database_Interface {
 	private array $locks = [];
 
 	protected function initialize(): void {
-		$this->parser = new Database_Parser($this);
-		$this->sql = new Database_SQL($this);
-		$this->data_type = new Database_Type($this);
+		$this->_sqlParser = new SQLParser($this);
+		$this->_sqlDialect = new SQLDialect($this);
+		$this->_types = new Type($this);
 	}
 
 	/**
@@ -95,7 +89,7 @@ class Database extends BaseDatabase implements Database_Interface {
 				break;
 		}
 
-		throw new Exception_Unimplemented('Database {type} does not support feature {feature}', [
+		throw new Unimplemented('Database {type} does not support feature {feature}', [
 			'type' => $this->type(), 'feature' => $feature,
 		]);
 	}
@@ -104,10 +98,10 @@ class Database extends BaseDatabase implements Database_Interface {
 	 * @param string $feature
 	 * @param bool|string $set
 	 * @return $this
-	 * @throws Exception_Unsupported
+	 * @throws Unsupported
 	 */
 	public function setFeature(string $feature, bool|int|string $set): self {
-		throw new Exception_Unsupported(__METHOD__);
+		throw new Unsupported(__METHOD__);
 	}
 
 	/*========================================================================================\
@@ -120,19 +114,19 @@ class Database extends BaseDatabase implements Database_Interface {
 	 * Connect to the database
 	 *
 	 * @return void
-	 * @throws Database_Exception_Connect
-	 * @throws Exception_Syntax
-	 * @throws Exception_Directory_NotFound
+	 * @throws Database\Exception\Connect
+	 * @throws SyntaxException
+	 * @throws DirectoryNotFound
 	 */
 	public function internalConnect(): void {
 		$path = $this->url_parts['path'];
 		if (!$path) {
-			throw new Exception_Syntax('No database path for {class}', ['class' => __CLASS__, ]);
+			throw new SyntaxException('No database path for {class}', ['class' => __CLASS__, ]);
 		}
 		$path = $this->application->paths->expand(map($path, $this->application->paths->variables()));
 		$dir = dirname($path);
 		if (!is_dir($dir)) {
-			throw new Exception_Directory_NotFound($dir, '{path} not found', ['path' => $path, ]);
+			throw new DirectoryNotFound($dir, '{path} not found', ['path' => $path, ]);
 		}
 		$flags = 0;
 		$flags |= ($this->optionBool('create', true) ? SQLITE3_OPEN_CREATE : 0);
@@ -143,7 +137,7 @@ class Database extends BaseDatabase implements Database_Interface {
 		try {
 			$this->conn = new NativeSQLite3($path, $flags, $encryption_key);
 		} catch (Throwable $t) {
-			throw new Database_Exception_Connect($this->URL, 'Unable to open file', [], $t->getCode(), $t);
+			throw new Database\Exception\Connect($this->URL, 'Unable to open file', [], $t->getCode(), $t);
 		}
 		$this->conn->enableExceptions(true);
 	}
@@ -170,7 +164,7 @@ class Database extends BaseDatabase implements Database_Interface {
 	 *
 	 * @see Database::columnDifferences()
 	 */
-	public function columnDifferences(Database_Column $self, Database_Column $that): array {
+	public function columnDifferences(Column $self, Column $that): array {
 		return [];
 	}
 
@@ -226,7 +220,7 @@ class Database extends BaseDatabase implements Database_Interface {
 	 *
 	 * @param string $table_name
 	 * @return array
-	 * @throws Database_Exception_NoResults
+	 * @throws Database\Exception\NoResults
 	 */
 	public function tableInformation(string $table_name): array {
 		$safeSQL = map('SELECT * FROM sqlite_master WHERE type=\'table\' AND name=\'{name}\'', [
@@ -235,8 +229,8 @@ class Database extends BaseDatabase implements Database_Interface {
 
 		try {
 			$result = $this->queryOne($safeSQL);
-		} catch (Exception_Key $key) {
-			throw new Database_Exception_NoResults($this, $safeSQL, 'Key error {message}', [
+		} catch (KeyNotFound $key) {
+			throw new Database\Exception\NoResults($this, $safeSQL, 'Key error {message}', [
 				'message' => $key->getMessage(),
 			], $key->getCode(), $key);
 		}
@@ -251,19 +245,19 @@ class Database extends BaseDatabase implements Database_Interface {
 	/**
 	 * @param string $table_name
 	 * @return array
-	 * @throws Database_Exception_Table_NotFound
+	 * @throws Database\Exception\TableNotFound
 	 */
 	public function tableColumns(string $table_name): array {
-		throw new Exception_Unimplemented(__METHOD__);
+		throw new Unimplemented(__METHOD__);
 	}
 
 	/**
 	 *
 	 * @param string $table_name
-	 * @return Database_Table
-	 * @throws Database_Exception_SQL
+	 * @return Table
+	 * @throws Database\Exception\SQLException
 	 */
-	public function databaseTable(string $tableName): Database_Table {
+	public function databaseTable(string $tableName): Table {
 		$conn = $this->conn;
 
 		$statement_sql = 'SELECT sql FROM sqlite_master WHERE name=:name AND type=:type';
@@ -293,10 +287,10 @@ class Database extends BaseDatabase implements Database_Interface {
 	/**
 	 * @param string $tableName
 	 * @return int
-	 * @throws Exception_Unimplemented
+	 * @throws Unimplemented
 	 */
 	public function bytesUsed(string $tableName = ''): int {
-		throw new Exception_Unimplemented(__METHOD__);
+		throw new Unimplemented(__METHOD__);
 	}
 
 	/*========================================================================================\
@@ -317,7 +311,7 @@ class Database extends BaseDatabase implements Database_Interface {
 	}
 
 	public function unquoteTable(string $text): string {
-		return strtr(unquote($text, '""'), ['""' => '"']);
+		return strtr(StringTools::unquote($text, '""'), ['""' => '"']);
 	}
 
 	/*========================================================================================\
@@ -338,7 +332,7 @@ class Database extends BaseDatabase implements Database_Interface {
 	}
 
 	public function selectDatabase(string $name): self {
-		throw new Exception_Unsupported('One database per connection');
+		throw new Unsupported('One database per connection');
 	}
 
 	/**
@@ -346,8 +340,8 @@ class Database extends BaseDatabase implements Database_Interface {
 	 *
 	 * @param string $name
 	 * @param int $wait_seconds
-	 * @theows Exception_Timeout
-	 * @theows Exception_Directory_NotFound
+	 * @theows TimeoutExpired
+	 * @theows DirectoryNotFound
 	 */
 	public function getLock(string $name, int $wait_seconds = 0): void {
 		$lock_path = $this->_lock_path();
@@ -370,7 +364,7 @@ class Database extends BaseDatabase implements Database_Interface {
 		} while ($timer->elapsed() < $wait_seconds);
 		fclose($f);
 
-		throw new Exception_Timeout('{method}({name}, {wait_seconds})', [
+		throw new TimeoutExpired('{method}({name}, {wait_seconds})', [
 			'name' => $name, 'wait_seconds' => $wait_seconds,
 		]);
 	}
@@ -386,7 +380,7 @@ class Database extends BaseDatabase implements Database_Interface {
 		Directory::depend($lock_path);
 		$name = File::nameClean($name);
 		if (!array_key_exists($name, $this->locks)) {
-			throw new Exception_Key('No such lock');
+			throw new KeyNotFound('No such lock');
 		}
 		$f = $this->locks[$name];
 		flock($f, LOCK_UN);
@@ -398,9 +392,9 @@ class Database extends BaseDatabase implements Database_Interface {
 	 * Begin a transaction in the database
 	 *
 	 * @return void
-	 * @throws Database_Exception_Duplicate
-	 * @throws Database_Exception_SQL
-	 * @throws Database_Exception_Table_NotFound
+	 * @throws Database\Exception\Duplicate
+	 * @throws Database\Exception\SQLException
+	 * @throws Database\Exception\TableNotFound
 	 */
 	public function transactionStart(): void {
 		$this->query('BEGIN TRANSACTION')->free();
@@ -411,9 +405,9 @@ class Database extends BaseDatabase implements Database_Interface {
 	 *
 	 * @param bool $success Whether to commit (true) or roll back (false)
 	 * @return void
-	 * @throws Database_Exception_SQL
-	 * @throws Database_Exception_Table_NotFound
-	 * @throws Database_Exception_Duplicate
+	 * @throws Database\Exception\SQLException
+	 * @throws Database\Exception\TableNotFound
+	 * @throws Database\Exception\Duplicate
 	 */
 	public function transactionEnd(bool $success = true): void {
 		$sql = $success ? 'COMMIT TRANSACTION' : 'ROLLBACK TRANSACTION';
@@ -446,28 +440,28 @@ class Database extends BaseDatabase implements Database_Interface {
 	/**
 	 * @param array $options
 	 * @return array
-	 * @throws Exception_NotFound
+	 * @throws NotFoundException
 	 */
 	public function shellCommand(array $options = []): array {
 		static $try_commands = ['sqlite3', 'sqlite', ];
 		foreach ($try_commands as $try) {
 			try {
 				return [$this->application->paths->which($try), [$this->url_parts['path'], ], ];
-			} catch (Exception_NotFound) {
+			} catch (NotFoundException) {
 			}
 		}
 
-		throw new Exception_NotFound('sqlite3');
+		throw new NotFoundException('sqlite3');
 	}
 
 	/**
 	 * @param string $filename
 	 * @param array $options
 	 * @return void
-	 * @throws Exception_Unimplemented
+	 * @throws Unimplemented
 	 */
 	public function dump(string $filename, array $options = []): void {
-		throw new Exception_Unimplemented(__CLASS__ . '::' . __METHOD__);
+		throw new Unimplemented(__CLASS__ . '::' . __METHOD__);
 	}
 
 	/**
@@ -476,10 +470,10 @@ class Database extends BaseDatabase implements Database_Interface {
 	 * @param string $filename A file to restore the database from
 	 * @param array $options Options for dumping the database - dependent on database type
 	 * @return void
-	 * @throws Exception_Unimplemented
+	 * @throws Unimplemented
 	 */
 	public function restore(string $filename, array $options = []): void {
-		throw new Exception_Unimplemented(__CLASS__ . '::' . __METHOD__);
+		throw new Unimplemented(__CLASS__ . '::' . __METHOD__);
 	}
 
 	/*========================================================================================\
@@ -512,7 +506,7 @@ class Database extends BaseDatabase implements Database_Interface {
 	/**
 	 * @param SQLite3Stmt $statement
 	 * @return SQLite3Result
-	 * @throws Database_Exception_SQL
+	 * @throws Database\Exception\SQLException
 	 */
 	private function executeStatement(SQLite3Stmt $statement): SQLite3Result {
 		try {
@@ -521,22 +515,22 @@ class Database extends BaseDatabase implements Database_Interface {
 				return $result;
 			}
 		} catch (SQLiteException $e) {
-			throw new Database_Exception_SQL($this, $statement->getSQL(true));
+			throw new Database\Exception\SQLException($this, $statement->getSQL(true));
 		}
 
-		throw new Database_Exception_SQL($this, $statement->getSQL(true));
+		throw new Database\Exception\SQLException($this, $statement->getSQL(true));
 	}
 
 	/**
 	 * @param SQLite3Result $result
 	 * @param bool $assoc
 	 * @return array
-	 * @throws Exception_NotFound
+	 * @throws NotFoundException
 	 */
 	private function resultRow(SQLite3Result $result, bool $assoc = true): array {
 		$row = $result->fetchArray($assoc ? SQLITE3_ASSOC : SQLITE3_NUM);
 		if ($row === false) {
-			throw new Exception_NotFound('No more rows for {class}', ['class' => SQLite3Result::class]);
+			throw new NotFoundException('No more rows for {class}', ['class' => SQLite3Result::class]);
 		}
 		return $row;
 	}
@@ -545,13 +539,13 @@ class Database extends BaseDatabase implements Database_Interface {
 	 * @param SQLite3Result $result
 	 * @param int|string $column
 	 * @return mixed
-	 * @throws Exception_Key
-	 * @throws Exception_NotFound
+	 * @throws KeyNotFound
+	 * @throws NotFoundException
 	 */
 	private function resultRowColumn(SQLite3Result $result, int|string $column): mixed {
 		$one = $this->resultRow($result, !is_int($column));
 		if (!array_key_exists($column, $one)) {
-			throw new Exception_Key('Missing column {column} in row {keys}', [
+			throw new KeyNotFound('Missing column {column} in row {keys}', [
 				'column' => $column, 'keys' => array_keys($one),
 			]);
 		}
@@ -566,16 +560,16 @@ class Database extends BaseDatabase implements Database_Interface {
 		return '';
 	}
 
-	public function parser(): Database_Parser {
-		return new Database_Parser($this);
+	public function sqlParser(): \zesk\Database\SQLParser {
+		return new SQLParser($this);
 	}
 
 	/**
 	 *
 	 * {@inheritdoc}
 	 *
-	 * @see Database::free()
 	 * @param SQLIte3Result $result
+	 *@see Database::free()
 	 */
 	final public function free($result): void {
 	}
@@ -587,11 +581,11 @@ class Database extends BaseDatabase implements Database_Interface {
 	/**
 	 *
 	 * @param $result SQLite3Result
-	 * @throws Exception_Parameter
+	 * @throws ParameterException
 	 */
 	final public function fetchAssoc(mixed $result): ?array {
 		if (!$result instanceof SQLite3Result) {
-			throw new Exception_Parameter('Requires a SQLite3Result {class} (of {type}) given', [
+			throw new ParameterException('Requires a SQLite3Result {class} (of {type}) given', [
 				'class' => $result::class, 'type' => type($result),
 			]);
 		}
@@ -639,17 +633,17 @@ class Database extends BaseDatabase implements Database_Interface {
 		$sql = "SHOW CREATE TABLE `$table`";
 		$result = $this->query($sql);
 
-		throw new Exception_Unimplemented(__METHOD__);
+		throw new Unimplemented(__METHOD__);
 //		$this->free($result);
 //		return $result;
 	}
 
-	public function sql_create_table(Database_Table $dbTableObject) {
+	public function sql_create_table(Table $dbTableObject) {
 		$columns = $dbTableObject->columns();
 
 		$types = [];
 		foreach ($columns as $dbCol) {
-			if (!$dbCol->hasSQLType() && !$this->data_type()->type_set_sql_type($dbCol)) {
+			if (!$dbCol->hasSQLType() && !$this->types()->type_set_sql_type($dbCol)) {
 				die(__CLASS__ . "::sql_create_table: no SQL Type for column $dbCol");
 			} else {
 				$types[] = $this->quoteColumn($dbCol->name()) . ' ' . $dbCol->sql_type($dbCol, true);
@@ -659,10 +653,10 @@ class Database extends BaseDatabase implements Database_Interface {
 		$alters = [];
 		if ($indexes) {
 			foreach ($indexes as $index) {
-				/* @var $index Database_Index */
+				/* @var $index Index */
 				$typeSQL = $index->typeSQL();
 				if ($typeSQL) {
-					if ($index->type() === Database_Index::TYPE_PRIMARY) {
+					if ($index->type() === Index::TYPE_PRIMARY) {
 						$columns = $index->columns();
 						if (count($columns) == 1) {
 							$col = $dbTableObject->column(key($columns));
@@ -708,7 +702,7 @@ class Database extends BaseDatabase implements Database_Interface {
 	private function exception(Exception $e): void {
 		$message = $e->getMessage();
 		if (preg_match('/no such table: (.*)/', $message, $matches)) {
-			throw new Database_Exception_Table_NotFound($this, $matches[1]);
+			throw new Database\Exception\TableNotFound($this, $matches[1]);
 		}
 		die($e::class . "\n" . $e->getMessage() . '<br />' . $e->getTraceAsString());
 	}
@@ -722,7 +716,7 @@ class Database extends BaseDatabase implements Database_Interface {
 			return $result;
 		}
 		if (!$this->Connection) {
-			throw new Database_Exception(null, __CLASS__ . '::query: Not connected');
+			throw new Exception(null, __CLASS__ . '::query: Not connected');
 		}
 		if (is_string($query) && str_starts_with($query, '-- ')) {
 			return true;
@@ -763,7 +757,7 @@ class Database extends BaseDatabase implements Database_Interface {
 	 * @deprecated 2022 use ->sql()->now()
 	 */
 	public function sql_nowUTC(): string {
-		return $this->sql()->nowUTC();
+		return $this->sqlDialect()->nowUTC();
 	}
 
 	/**
@@ -789,7 +783,7 @@ class Database extends BaseDatabase implements Database_Interface {
 
 			try {
 				$reserved = ArrayTools::changeValueCase(File::lines($path));
-			} catch (Exception_File_NotFound) {
+			} catch (FileNotFound) {
 				$this->application->logger->critical('Unable to load reserved word list at {path}', ['path' => $path]);
 				$reserved = [];
 			}
@@ -912,10 +906,10 @@ class Database extends BaseDatabase implements Database_Interface {
 		];
 		$func = strtolower(trim($func));
 		if (!array_key_exists($func, $funcs)) {
-			throw new Exception_Key("No function $func");
+			throw new KeyNotFound("No function $func");
 		}
 		$sqlFunc = $funcs[$func];
-		return $this->sql()->table_as("$sqlFunc($memberName)", $alias);
+		return $this->sqlDialect()->table_as("$sqlFunc($memberName)", $alias);
 	}
 
 	/**
@@ -938,7 +932,7 @@ class Database extends BaseDatabase implements Database_Interface {
 
 	/**
 	 * @return void
-	 * @throws Exception_Key
+	 * @throws KeyNotFound
 	 */
 	public function release_all_locks(): void {
 		foreach ($this->locks as $name => $file) {

@@ -9,6 +9,13 @@ declare(strict_types=1);
 
 namespace zesk;
 
+use zesk\Application\Modules;
+use zesk\Exception\ClassNotFound;
+use zesk\Exception\ConfigurationException;
+use zesk\Exception\FileNotFound;
+use zesk\Exception\NotFoundException;
+use zesk\Exception\Unsupported;
+
 /**
  * Module base class for all extensions to Zesk
  *
@@ -71,13 +78,13 @@ class Module extends Hookable {
 	 * @return string
 	 */
 	final public function path(string $suffix = ''): string {
-		return path($this->path, $suffix);
+		return Directory::path($this->path, $suffix);
 	}
 
 	/**
 	 * @return void
-	 * @throws Exception_Configuration
-	 * @throws Exception_Unsupported
+	 * @throws ConfigurationException
+	 * @throws Unsupported
 	 */
 	public function __wakeup(): void {
 		parent::__wakeup();
@@ -103,7 +110,7 @@ class Module extends Hookable {
 	 * @param Application $application
 	 * @param array $options
 	 * @param array $moduleFactoryState
-	 * @throws Exception_Unsupported
+	 * @throws Unsupported
 	 */
 	final public function __construct(Application $application, array $options = [], array $moduleFactoryState = []) {
 		parent::__construct($application, $options);
@@ -115,7 +122,7 @@ class Module extends Hookable {
 			'class', 'path', 'name', 'configuration', 'configurationFile', 'configurationData', 'optionsPath',
 		]);
 		if (count($moduleFactoryState)) {
-			throw new Exception_Unsupported('Need to support module fields: {keys}', [
+			throw new Unsupported('Need to support module fields: {keys}', [
 				'keys' => array_keys($moduleFactoryState),
 			]);
 		}
@@ -171,15 +178,15 @@ class Module extends Hookable {
 
 	/**
 	 * Override in subclasses - called upon load
-	 * @throws Exception_Configuration
-	 * @throws Exception_Unsupported
+	 * @throws ConfigurationException
+	 * @throws Unsupported
 	 */
 	public function initialize(): void {
 		if ($this->optionBool('fakeConfigurationException')) {
-			throw new Exception_Configuration([$this::class, 'fake'], 'Fake exception for testing');
+			throw new ConfigurationException([$this::class, 'fake'], 'Fake exception for testing');
 		}
 		if ($this->optionBool('fakeUnsupportedException')) {
-			throw new Exception_Unsupported(__METHOD__);
+			throw new Unsupported(__METHOD__);
 		}
 	}
 
@@ -224,6 +231,7 @@ class Module extends Hookable {
 	 * @param mixed $mixed
 	 * @param array $options
 	 * @return Model
+	 * @throws ClassNotFound
 	 */
 	final public function modelFactory(string $class, mixed $mixed = null, array $options = []): Model {
 		return $this->application->modelFactory($class, $mixed, $options);
@@ -236,7 +244,7 @@ class Module extends Hookable {
 	public function version(): string {
 		try {
 			$version = $this->option('version') ?? $this->configuration['version'] ?? \zesk\Module\Version::extractVersion($this->configuration);
-		} catch (Exception_NotFound|Exception_File_NotFound) {
+		} catch (NotFoundException|FileNotFound) {
 			return '';
 		}
 		return $version;

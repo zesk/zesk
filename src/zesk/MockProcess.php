@@ -6,12 +6,14 @@ declare(strict_types=1);
 
 namespace zesk;
 
+use zesk\Interface\SystemProcess;
+
 /**
  * Mock Process for testing
  *
  * @author kent
  */
-class MockProcess extends Hookable implements Interface_Process {
+class MockProcess extends Hookable implements SystemProcess {
 	/**
 	 * Done yet?
 	 *

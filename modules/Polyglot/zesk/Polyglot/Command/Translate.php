@@ -9,10 +9,11 @@ namespace zesk\Polyglot\Command;
 use zesk\ArrayTools;
 use zesk\Command_Base;
 use zesk\Exception;
-use zesk\Locale;
+use zesk\Locale\Locale;
 use zesk\Polyglot\Module;
 use zesk\Service;
 use zesk\Service_Translate;
+use zesk\StringTools;
 
 /**
  *
@@ -95,7 +96,7 @@ class Translate extends Command_Base {
 		$target_language = strtolower($target_language);
 		$source_language = strtolower($source_language);
 
-		$default_class = first($classes);
+		$default_class = ArrayTools::first($classes);
 		/* @var $service_object Service_Translate */
 		try {
 			$service_object = $this->service_object = Service_Translate::translateFactory($app, $target_language, $source_language);
@@ -150,7 +151,7 @@ class Translate extends Command_Base {
 	 * @return array 2-item array with [$phrase, $context]
 	 */
 	private function preprocessPhrase(string $phrase): array {
-		$tokens = mapExtractTokens($phrase);
+		$tokens = StringTools::extractTokens($phrase);
 		$map = [];
 		foreach ($tokens as $index => $token) {
 			$map[$token] = '{' . $index . '}';

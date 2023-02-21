@@ -3,21 +3,22 @@ declare(strict_types=1);
 /**
  *
  */
-namespace zesk\ORM;
+namespace zesk\ORM\Command;
 
 use zesk\ArrayTools;
 use zesk\Command_Base;
 use zesk\Date;
+use zesk\ORM\Class_Base;
 use zesk\Time;
 use zesk\Timestamp;
 
 /**
- * Generate doccomment at-property lists for any ORM/Class_Base pair in the system
+ * Generate DocComment at-property lists for any ORM/Class_Base pair in the system
  *
  * @category ORM Module
  * @author kent
  */
-class Command_ClassProperties extends Command_Base {
+class ClassProperties extends Command_Base {
 	/**
 	 *
 	 * @var array

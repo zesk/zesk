@@ -7,13 +7,13 @@ declare(strict_types=1);
 namespace zesk\Preference;
 
 use Throwable;
+use zesk\Application\Hooks;
 use zesk\ArrayTools;
 use zesk\Controller as BaseController;
-use zesk\Exception_File_NotFound;
-use zesk\Exception_File_Permission;
-use zesk\Exception_Parameter;
+use zesk\Exception\FileNotFound;
+use zesk\Exception\FilePermission;
+use zesk\Exception\ParameterException;
 use zesk\File;
-use zesk\Hooks;
 use zesk\HTTP;
 use zesk\PHP;
 use zesk\Request;
@@ -61,13 +61,13 @@ class Controller extends BaseController {
 
 	/**
 	 * @return array
-	 * @throws Exception_File_Permission
+	 * @throws FilePermission
 	 */
 	private function _whitelist(): array {
 		if (count($this->whitelist) === 0) {
 			try {
 				$this->whitelist = array_flip(ArrayTools::clean(explode("\n", File::contents($this->_whitelistFile())), ''));
-			} catch (Exception_File_NotFound $e) {
+			} catch (FileNotFound $e) {
 				$this->whitelist = [];
 			}
 			if ($this->optionBool('autoRegister')) {
@@ -82,7 +82,7 @@ class Controller extends BaseController {
 	 *
 	 * @param string $name
 	 * @return void
-	 * @throws Exception_File_Permission
+	 * @throws FilePermission
 	 */
 	private function _addToWhitelist(string $name): void {
 		$this->_whitelist();
@@ -94,12 +94,12 @@ class Controller extends BaseController {
 	 * @param Response $response
 	 * @param array $arguments
 	 * @return array
-	 * @throws Exception_Parameter
-	 * @throws Exception_File_Permission
+	 * @throws ParameterException
+	 * @throws FilePermission
 	 */
 	public function arguments(Request $request, Response $response, array $arguments): array {
 		if (count($arguments) === 0) {
-			throw new Exception_Parameter('Need a name');
+			throw new ParameterException('Need a name');
 		}
 		$name = $arguments[0];
 		$whitelist = $this->_whitelist();

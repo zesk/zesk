@@ -9,13 +9,12 @@ declare(strict_types=1);
 
 namespace zesk\CSV;
 
+use zesk\Exception\FileNotFound;
+use zesk\Exception\FilePermission;
+use zesk\Exception\KeyNotFound;
+use zesk\Exception\Semantics;
 use zesk\Options;
 use zesk\StringTools;
-use zesk\Exception_File_NotFound;
-use zesk\Exception_File_Permission;
-use zesk\Exception_Parameter;
-use zesk\Exception_Key;
-use zesk\Exception_Semantics;
 
 /**
  * CSV
@@ -119,17 +118,17 @@ abstract class Base extends Options {
 	 * @param string $mode File mode (fopen)
 	 * @param boolean $create Create the file if it doesn't exist
 	 * @return self
-	 * @throws Exception_File_NotFound
-	 * @throws Exception_File_Permission
+	 * @throws FileNotFound
+	 * @throws FilePermission
 	 * @see fopen
 	 */
 	protected function _setFile(string $filename, string $mode, bool $create = false): self {
 		if (!$create && !file_exists($filename)) {
-			throw new Exception_File_NotFound($filename);
+			throw new FileNotFound($filename);
 		}
 		$this->File = fopen($filename, $mode);
 		if (!$this->File) {
-			throw new Exception_File_Permission("Can't open $filename with mode $mode");
+			throw new FilePermission("Can't open $filename with mode $mode");
 		}
 
 		$this->FileName = $filename;
@@ -156,6 +155,7 @@ abstract class Base extends Options {
 	 * @param array $headers
 	 * @param boolean $is_map The passed in array is a map from internal name => label name
 	 * @return Base
+	 * @throws KeyNotFound
 	 */
 	public function addHeaders(array $headers, bool $is_map = true): self {
 		if ($is_map) {
@@ -175,7 +175,7 @@ abstract class Base extends Options {
 				}
 				foreach ($mixed as $name) {
 					if (!is_string($name)) {
-						throw new Exception_Key('Invalid key {name}');
+						throw new KeyNotFound('Invalid key {name}');
 					}
 					$lowName = strtolower($name);
 					if (array_key_exists($lowName, $this->HeadersToIndex)) {
@@ -193,7 +193,7 @@ abstract class Base extends Options {
 	 * @param array $headers
 	 * @param bool $is_map
 	 * @return $this
-	 * @throws Exception_Key
+	 * @throws KeyNotFound
 	 */
 	public function setHeaders(array $headers, bool $is_map = true): self {
 		$this->Headers = [];
@@ -259,11 +259,11 @@ abstract class Base extends Options {
 	/**
 	 * Check to make sure we have a valid file open and ready for operations
 	 *
-	 * @throws Exception_Semantics
+	 * @throws Semantics
 	 */
 	protected function _check_file(): void {
 		if (!is_resource($this->File)) {
-			throw new Exception_Semantics('Must set a file first.');
+			throw new Semantics('Must set a file first.');
 		}
 	}
 

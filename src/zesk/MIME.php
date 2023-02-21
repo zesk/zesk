@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace zesk;
 
+use zesk\Exception\KeyNotFound;
+
 class MIME {
 	/**
 	 *
@@ -366,7 +368,7 @@ class MIME {
 			return;
 		}
 		foreach (self::$mimeToExtensions as $mime => $extensions) {
-			$extensions = toList($extensions, [], ' ');
+			$extensions = Types::toList($extensions, [], ' ');
 			self::$mimeToExtensions[$mime] = $extensions;
 			foreach ($extensions as $ext) {
 				self::$extensionToMIME[$ext] = $mime;
@@ -377,7 +379,7 @@ class MIME {
 	/**
 	 * @param string $filename
 	 * @return string
-	 * @throws Exception_Key
+	 * @throws KeyNotFound
 	 */
 	public static function fromExtension(string $filename): string {
 		self::_init();
@@ -387,21 +389,21 @@ class MIME {
 			return self::$extensionToMIME[$key];
 		}
 
-		throw new Exception_Key('No such MIME type for {key}', ['key' => $key]);
+		throw new KeyNotFound('No such MIME type for {key}', ['key' => $key]);
 	}
 
 	/**
 	 * @param string $mime_type
 	 * @return string
-	 * @throws Exception_Key
+	 * @throws KeyNotFound
 	 */
 	public static function toExtension(string $mime_type): string {
 		self::_init();
 		$key = strtolower($mime_type);
 		if (array_key_exists($key, self::$mimeToExtensions)) {
-			return first(self::$mimeToExtensions[$key]);
+			return ArrayTools::first(self::$mimeToExtensions[$key]);
 		}
 
-		throw new Exception_Key('No such MIME type found {type}', ['type' => $mime_type]);
+		throw new KeyNotFound('No such MIME type found {type}', ['type' => $mime_type]);
 	}
 }

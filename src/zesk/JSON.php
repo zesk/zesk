@@ -10,11 +10,10 @@ declare(strict_types=1);
 namespace zesk;
 
 use __PHP_Incomplete_Class;
+use Exception;
 use stdClass;
-
-if (!defined('JSON_INVALID_UTF8_IGNORE')) {
-	define('JSON_INVALID_UTF8_IGNORE', 0);
-}
+use zesk\Exception\ParseException;
+use zesk\Exception\Semantics;
 
 /**
  *
@@ -83,7 +82,7 @@ class JSON {
 	 * @param ?array $methods List of methods to try in objects to convert to JSON form (array)
 	 * @param array $arguments Optional arguments passed to $methods
 	 * @return mixed
-	 * @throws Exception_Semantics
+	 * @throws Semantics
 	 */
 	public static function prepare(mixed $mixed, array $methods = null, array $arguments = []): mixed {
 		if ($mixed === null) {
@@ -116,7 +115,7 @@ class JSON {
 			}
 			return $result;
 		}
-		return flatten($mixed);
+		return Types::flatten($mixed);
 	}
 
 	/**
@@ -125,12 +124,12 @@ class JSON {
 	 * @param mixed $mixed
 	 *            Item to encode using JSON
 	 * @return string JSON string of encoded item
-	 * @throws Exception_Semantics
+	 * @throws Semantics
 	 */
 	public static function encode(mixed $mixed): string {
 		$result = json_encode($mixed, JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_IGNORE);
 		if ($result === false) {
-			throw new Exception_Semantics('JSON encode failed');
+			throw new Semantics('JSON encode failed');
 		}
 		return $result;
 	}
@@ -138,7 +137,7 @@ class JSON {
 	/**
 	 * Like json_encode, except handles special variable name cases to NOT encode JavaScript
 	 *
-	 * JSON::zencode(array('*method' => 'open_window', 'count' => 5)) =
+	 * JSON::encodeSpecial(array('*method' => 'open_window', 'count' => 5)) =
 	 * "{'method':open_window,'count':5}"
 	 *
 	 * Useful when you want to pass JS code, variables, or anything JavaScript via JSON
@@ -151,7 +150,7 @@ class JSON {
 		static $recursion = 0;
 		if (is_array($mixed) || is_object($mixed)) {
 			if ($recursion > 10) {
-				return '"Recursion ' . type($mixed) . '"';
+				return '"Recursion ' . Types::type($mixed) . '"';
 			}
 			$result = [];
 			if (!is_object($mixed) && !ArrayTools::isAssoc($mixed)) {
@@ -262,7 +261,7 @@ class JSON {
 	 *            A JSON string to decode
 	 * @param bool $assoc
 	 * @return mixed the decoded JSON string, or the default value if it fails
-	 * @throws Exception_Parse
+	 * @throws ParseException
 	 */
 	public static function decode(string $string, bool $assoc = true): mixed {
 		$string = trim($string);
@@ -298,11 +297,11 @@ class JSON {
 	}
 
 	/**
-	 * @return Exception_Parse
+	 * @return ParseException
 	 */
-	private static function lastError(): Exception_Parse {
+	private static function lastError(): ParseException {
 		$code = json_last_error();
-		return new Exception_Parse(self::errorToString($code), [
+		return new ParseException(self::errorToString($code), [
 			'json_last_error' => $code,
 		], $code);
 	}
@@ -310,9 +309,9 @@ class JSON {
 	/**
 	 * Used to track state for internal JSON decoder
 	 *
-	 * @var ?\Exception
+	 * @var ?Exception
 	 */
-	public static ?\Exception $last_error = null;
+	public static ?Exception $last_error = null;
 
 	/**
 	 * Like json_decode except use internal parser (slow)
@@ -330,7 +329,7 @@ class JSON {
 			if ($length === strlen($string)) {
 				return $result;
 			}
-		} catch (\Exception $e) {
+		} catch (Exception $e) {
 			// Not worthy of a hook here, methinks - KMD 2018-02
 			// Kernel::singleton()->hooks->call("exception", $e);
 			self::$last_error = $e;
@@ -348,7 +347,7 @@ class JSON {
 	 * @param boolean $assoc
 	 *            Whether arrays should be created as associative arrays, or objects
 	 * @return array
-	 * @throws Exception_Parse
+	 * @throws ParseException
 	 */
 	private static function _decode_white_value(string $string, int $offset, bool $assoc = false): array {
 		if (!preg_match("/^\s+/", $string, $match)) {
@@ -372,7 +371,7 @@ class JSON {
 	 *            Current offset in the total string - for debugging only
 	 * @param boolean $assoc
 	 * @return array
-	 * @throws Exception_Parse
+	 * @throws ParseException
 	 */
 	private static function _decode_value(string $string, int $offset, bool $assoc = false): array {
 		static $begins = [
@@ -381,7 +380,7 @@ class JSON {
 			'false' => false,
 		];
 		if ($string === '') {
-			throw new Exception_Parse('Invalid empty JSON string at offset {offset}', [
+			throw new ParseException('Invalid empty JSON string at offset {offset}', [
 				'offset' => $offset,
 			]);
 		}
@@ -406,7 +405,7 @@ class JSON {
 			return self::_decode_number($string, $offset);
 		}
 
-		throw new Exception_Parse('Invalid JSON token "{char}" at position {offset}', [
+		throw new ParseException('Invalid JSON token "{char}" at position {offset}', [
 			'char' => $c,
 			'offset' => $offset,
 		]);
@@ -419,7 +418,7 @@ class JSON {
 	 * @param int $offset
 	 *            Current offset in the total string - for debugging only
 	 * @return array
-	 * @throws Exception_Parse
+	 * @throws ParseException
 	 */
 	private static function _decode_number(string $string, int $offset): array {
 		$match = null;
@@ -436,7 +435,7 @@ class JSON {
 			];
 		}
 
-		throw new Exception_Parse('Invalid JSON numeric token "{string}..." at position {offset}', [
+		throw new ParseException('Invalid JSON numeric token "{string}..." at position {offset}', [
 			'string' => substr($string, 16),
 			'offset' => $offset,
 		]);
@@ -449,7 +448,7 @@ class JSON {
 	 * @param int $offset Current offset in the total string - for debugging only
 	 * @param bool $assoc
 	 * @return array
-	 * @throws Exception_Parse
+	 * @throws ParseException
 	 */
 	private static function _decode_array(string $string, int $offset, bool $assoc): array {
 		$len = strlen($string);
@@ -490,13 +489,13 @@ class JSON {
 					break;
 				}
 
-				throw new Exception_Parse('Invalid JSON array at offset {offset} expecting comma or end bracket', [
+				throw new ParseException('Invalid JSON array at offset {offset} expecting comma or end bracket', [
 					'offset' => $offset + $i,
 				]);
 			}
 		}
 
-		throw new Exception_Parse('Unterminated array structure at offset {offset}', [
+		throw new ParseException('Unterminated array structure at offset {offset}', [
 			'offset' => $offset,
 		]);
 	}
@@ -509,7 +508,7 @@ class JSON {
 	 * @param int $offset
 	 *            Current offset in the total string - for debugging only
 	 * @return array
-	 * @throws Exception_Parse
+	 * @throws ParseException
 	 */
 	private static function _decode_object(string $string, int $offset, bool $assoc): array {
 		$len = strlen($string);
@@ -529,7 +528,7 @@ class JSON {
 				];
 			}
 			if ($c !== '"') {
-				throw new Exception_Parse('Invalid object key at offset {offset}', [
+				throw new ParseException('Invalid object key at offset {offset}', [
 					'offset' => $offset + $i,
 				]);
 			}
@@ -538,14 +537,14 @@ class JSON {
 			do {
 				++$i;
 				if ($i > $len) {
-					throw new Exception_Parse('Unterminated object value looking for : at offset {offset}', [
+					throw new ParseException('Unterminated object value looking for : at offset {offset}', [
 						'offset' => $offset + $i,
 					]);
 				}
 				$c = $string[$i];
 			} while (str_contains(" \r\n\t", $c));
 			if ($c !== ':') {
-				throw new Exception_Parse('Missing : value at offset {offset}', [
+				throw new ParseException('Missing : value at offset {offset}', [
 					'offset' => $offset + $i,
 				]);
 			}
@@ -573,14 +572,14 @@ class JSON {
 					break;
 				}
 
-				throw new Exception_Parse('Invalid JSON object at offset {offset} expecting comma or end bracket, found "{char}"', [
+				throw new ParseException('Invalid JSON object at offset {offset} expecting comma or end bracket, found "{char}"', [
 					'char' => $c,
 					'offset' => $offset + $i,
 				]);
 			}
 		}
 
-		throw new Exception_Parse('Unterminated array structure at offset {offset}', [
+		throw new ParseException('Unterminated array structure at offset {offset}', [
 			'offset' => $offset,
 		]);
 	}
@@ -592,7 +591,7 @@ class JSON {
 	 * @param int $offset
 	 *            Current offset in the total string - for debugging only
 	 * @return array
-	 * @throws Exception_Parse
+	 * @throws ParseException
 	 */
 	private static function _decode_string(string $string, int $offset): array {
 		static $string_characters = [
@@ -625,7 +624,7 @@ class JSON {
 			}
 
 			if ($i >= $len) {
-				throw new Exception_Parse('Unterminated string at offset {offset}', [
+				throw new ParseException('Unterminated string at offset {offset}', [
 					'offset' => $offset + $i,
 				]);
 			}
@@ -635,21 +634,21 @@ class JSON {
 			} elseif ($c === 'u') {
 				++$i;
 				if ($i + 4 >= $len) {
-					throw new Exception_Parse('Invalid unterminated hex code at string {offset}', [
+					throw new ParseException('Invalid unterminated hex code at string {offset}', [
 						'offset' => $offset + $i,
 					]);
 				}
 				$result .= Hexadecimal::decode(substr($string, $i, $i + 3));
 				$i += 4;
 			} else {
-				throw new Exception_Parse('Invalid escape sequence {char} at offset {offset}', [
+				throw new ParseException('Invalid escape sequence {char} at offset {offset}', [
 					'char' => $c,
 					'offset' => $offset + $i,
 				]);
 			}
 		}
 
-		throw new Exception_Parse('Invalid unterminated string at end of JSON string {offset}', [
+		throw new ParseException('Invalid unterminated string at end of JSON string {offset}', [
 			'offset' => $offset + $i,
 		]);
 	}

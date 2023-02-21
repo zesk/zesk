@@ -8,16 +8,18 @@ declare(strict_types=1);
  */
 namespace zesk;
 
+use zesk\Exception\ClassNotFound;
+
 /**
  *
  * @author kent
  *
  */
-class Controller_Search extends Controller_Theme {
+class Controller_Search extends ThemeController {
 	/**
 	 *
 	 * @return string
-	 * @throws Exception_Class_NotFound|Exception_Redirect
+	 * @throws ClassNotFound|Redirect
 	 */
 	protected function action_index(): string {
 		$query = $this->request->get($this->option('search_query_variable', 'q'));
@@ -45,9 +47,9 @@ class Controller_Search extends Controller_Theme {
 						]);
 					}
 				} else {
-					throw new Exception_Class_NotFound($class);
+					throw new ClassNotFound($class);
 				}
-			} catch (Exception_Class_NotFound $e) {
+			} catch (ClassNotFound $e) {
 				$this->application->hooks->call('exception', $e);
 				$this->application->logger->error('Controller_Search::action_index {class} does not exist', [
 					'class' => $class,

@@ -7,14 +7,27 @@ declare(strict_types=1);
  * @copyright &copy; 2023, Market Acumen, Inc.
  */
 
-namespace zesk;
+namespace zesk\Configuration\Parser;
+
+use zesk\bash;
+use zesk\Configuration\Editor;
+use zesk\Configuration\Parser;
+
+use zesk\Configuration\Editor\CONFEditor;
+use zesk\Directory;
+use zesk\Exception\ParseException;
+use zesk\Exception\Semantics;
+use zesk\File;
+use zesk\PHP;
+use zesk\StringTools;
+use zesk\Types;
 
 /**
  *
  * @author kent
  *
  */
-class Configuration_Parser_CONF extends Configuration_Parser {
+class CONF extends Parser {
 	public const OPTION_AUTO_TYPE = 'autoType';
 
 	public const OPTION_UNQUOTE = 'unquote';
@@ -73,25 +86,24 @@ class Configuration_Parser_CONF extends Configuration_Parser {
 
 	/**
 	 *
-	 * {@inheritDoc}
-	 * @see Configuration_Parser::editor
+	 * @see Parser::editor
 	 */
-	public function editor(string $content = '', array $options = []): Configuration_Editor {
-		return new Configuration_Editor_CONF($content, $options);
+	public function editor(string $content = '', array $options = []): Editor {
+		return new CONFEditor($content, $options);
 	}
 
 	/**
 	 *
 	 * @return void
-	 * @throws Exception_Parse
-	 * @throws Exception_Semantics
-	 * @see Configuration_Parser::process
+	 * @throws Semantics
+	 * @throws ParseException
+	 * @see Parser::process
 	 */
 	public function process(): void {
-		$autoType = toBool($this->options[self::OPTION_AUTO_TYPE]);
+		$autoType = Types::toBool($this->options[self::OPTION_AUTO_TYPE]);
 		$unquote = strval($this->options[self::OPTION_UNQUOTE]);
-		$multiline = toBool($this->options[self::OPTION_MULTILINE]);
-		$overwrite = toBool($this->options[self::OPTION_OVERWRITE]);
+		$multiline = Types::toBool($this->options[self::OPTION_MULTILINE]);
+		$overwrite = Types::toBool($this->options[self::OPTION_OVERWRITE]);
 		$settings = $this->settings;
 		$dependency = $this->dependency;
 
@@ -127,7 +139,7 @@ class Configuration_Parser_CONF extends Configuration_Parser {
 			 */
 			$found_quote = '';
 			if ($unquote) {
-				$value = unquote($value, $unquote, $found_quote);
+				$value = StringTools::unquote($value, $unquote, $found_quote);
 			}
 			$dependencies = [];
 			if ($found_quote !== '\'') {
@@ -145,7 +157,7 @@ class Configuration_Parser_CONF extends Configuration_Parser {
 			if ($this->loader && strtolower($key) === 'include') {
 				$this->handleInclude($value);
 			} elseif ($append) {
-				$append_value = toArray($settings->get($key));
+				$append_value = Types::toArray($settings->get($key));
 				$append_value[] = $value;
 				$settings->set($key, $append_value);
 				$dependency?->defines($key, array_keys($dependencies));
@@ -172,7 +184,7 @@ class Configuration_Parser_CONF extends Configuration_Parser {
 			]);
 		} else {
 			$path = dirname($this->loader->current());
-			$this->loader->appendFiles([path($path, $file)]);
+			$this->loader->appendFiles([Directory::path($path, $file)]);
 		}
 	}
 
@@ -217,7 +229,7 @@ class Configuration_Parser_CONF extends Configuration_Parser {
 		if (preg_match('/^export\s+/', $line, $matches)) {
 			$line = substr($line, strlen($matches[0]));
 		}
-		[$key, $value] = pair($line, $separator);
+		[$key, $value] = StringTools::pair($line, $separator);
 		if (!$key) {
 			return null;
 		}

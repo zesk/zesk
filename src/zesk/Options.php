@@ -331,7 +331,7 @@ class Options {
 			return $default;
 		}
 		$path[0] = self::_optionKey($path[0]);
-		return apath($this->options, $path, $default);
+		return ArrayTools::path($this->options, $path, $default);
 	}
 
 	/**
@@ -343,7 +343,7 @@ class Options {
 	 */
 	public function setOptionPath(array $path, mixed $value): self {
 		$path[0] = self::_optionKey($path[0]);
-		apath_set($this->options, $path, $value);
+		ArrayTools::setPath($this->options, $path, $value);
 		return $this;
 	}
 
@@ -355,7 +355,7 @@ class Options {
 	 */
 	public function unsetOptionPath(array $path): self {
 		$path[0] = self::_optionKey($path[0]);
-		apath_unset($this->options, $path);
+		ArrayTools::unsetPath($this->options, $path);
 		return $this;
 	}
 

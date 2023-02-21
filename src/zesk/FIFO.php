@@ -9,6 +9,9 @@ declare(strict_types=1);
 namespace zesk;
 
 use aws\classes\Hookable;
+use zesk\Exception\DirectoryNotFound;
+use zesk\Exception\FileNotFound;
+use zesk\Exception\FilePermission;
 
 /**
  * FIFO is a simple mechanism to support inter-process communication
@@ -55,8 +58,8 @@ class FIFO {
 	 * @param string $path Full path name
 	 * @param bool $create Create the FIFO if it doesn't exist (assumes READER)
 	 * @param int $mode File mode to create the FIFO (uses umask)
-	 * @throws Exception_Directory_NotFound
-	 * @throws Exception_File_Permission
+	 * @throws DirectoryNotFound
+	 * @throws FilePermission
 	 */
 	public function __construct(string $path, bool $create = false, int $mode = 384 /* 0o600 */) {
 		$this->path = $path;
@@ -65,13 +68,13 @@ class FIFO {
 		}
 		$dir = dirname($this->path);
 		if (!is_dir($dir)) {
-			throw new Exception_Directory_NotFound($dir, 'Creating fifo {path}', [
+			throw new DirectoryNotFound($dir, 'Creating fifo {path}', [
 				'path' => $this->path,
 			]);
 		}
 		File::unlink($this->path);
 		if (!posix_mkfifo($this->path, $mode)) {
-			throw new Exception_File_Permission($this->path, 'posix_mkfifo {path}');
+			throw new FilePermission($this->path, 'posix_mkfifo {path}');
 		}
 		$this->created = true;
 		$this->_beforeRead();
@@ -103,8 +106,8 @@ class FIFO {
 	 *
 	 * @param mixed $message
 	 * @return bool
-	 * @throws Exception_File_NotFound
-	 * @throws Exception_File_Permission
+	 * @throws FileNotFound
+	 * @throws FilePermission
 	 */
 	public function write(mixed $message = null): bool {
 		$this->_beforeWrite();
@@ -120,8 +123,8 @@ class FIFO {
 	 *
 	 * @param float $timeout in seconds
 	 * @return mixed
-	 * @throws Exception_File_NotFound
-	 * @throws Exception_Syntax
+	 * @throws FileNotFound
+	 * @throws SyntaxException
 	 */
 	public function read(float $timeout): mixed {
 		$readers = [
@@ -135,18 +138,18 @@ class FIFO {
 			return PHP::unserialize(fread($this->r, $n));
 		}
 
-		throw new Exception_File_NotFound($this->path, 'FIFO closed');
+		throw new FileNotFound($this->path, 'FIFO closed');
 	}
 
 	/**
 	 * Open write FIFO
 	 *
-	 * @throws Exception_File_NotFound
-	 * @throws Exception_File_Permission
+	 * @throws FileNotFound
+	 * @throws FilePermission
 	 */
 	private function _beforeWrite(): void {
 		if (!file_exists($this->path)) {
-			throw new Exception_File_NotFound($this->path, __METHOD__);
+			throw new FileNotFound($this->path, __METHOD__);
 		}
 		$this->w = File::open($this->path, 'wb');
 	}
@@ -154,12 +157,12 @@ class FIFO {
 	/**
 	 * Open read FIFO (used by parent process only)
 	 *
-	 * @throws Exception_File_Permission
+	 * @throws FilePermission
 	 */
 	private function _beforeRead(): void {
 		$this->r = fopen($this->path, 'r+b');
 		if (!$this->r) {
-			throw new Exception_File_Permission($this->path, 'fopen(\'{path}\', \'r\')');
+			throw new FilePermission($this->path, 'fopen(\'{path}\', \'r\')');
 		}
 	}
 

@@ -8,16 +8,15 @@ namespace zesk\Session;
 
 use Throwable;
 use zesk\Application;
-use zesk\Exception_Authentication;
-use zesk\Interface_Session;
-use zesk\Interface_UserLike;
+use zesk\Exception\Authentication;
+use zesk\Interface\SessionInterface;
+use zesk\Interface\Userlike;
 use zesk\ORM\User;
 use zesk\Request;
-use zesk\Response;
 
 /**
  */
-class SessionPHP implements Interface_Session {
+class SessionPHP implements SessionInterface {
 	/**
 	 * Have we started the session yet?
 	 *
@@ -31,6 +30,9 @@ class SessionPHP implements Interface_Session {
 	 */
 	private Application $application;
 
+	/**
+	 * @var array
+	 */
 	private array $init;
 
 	/**
@@ -73,9 +75,8 @@ class SessionPHP implements Interface_Session {
 
 	/**
 	 *
-	 * {@inheritdoc}
 	 *
-	 * @see Interface_Session::id()
+	 * @see SessionInterface::id()
 	 */
 	public function id(): int|string|array {
 		return session_id();
@@ -92,9 +93,7 @@ class SessionPHP implements Interface_Session {
 
 	/**
 	 *
-	 * {@inheritdoc}
-	 *
-	 * @see Interface_Settings::get()
+	 * @see SettingsInterface::get()
 	 */
 	public function get(int|string $name, mixed $default = null): mixed {
 		$this->need();
@@ -103,21 +102,21 @@ class SessionPHP implements Interface_Session {
 
 	/**
 	 *
-	 * @param string $name
+	 * @param int|string $name
 	 * @return mixed
-	 * @see Interface_Settings::__get()
+	 * @see SettingsInterface::__get()
 	 */
-	public function __get(string $name): mixed {
+	public function __get(int|string $name): mixed {
 		$this->need();
 		return $_SESSION[$name] ?? null;
 	}
 
 	/**
 	 *
-	 * @param string $name
+	 * @param int|string $name
 	 * @param mixed $value
 	 * @return void
-	 * @see Interface_Settings::__set()
+	 * @see SettingsInterface::__set()
 	 */
 	public function __set(int|string $name, mixed $value): void {
 		$this->need();
@@ -128,7 +127,7 @@ class SessionPHP implements Interface_Session {
 	 *
 	 * {@inheritdoc}
 	 *
-	 * @see Interface_Settings::set()
+	 * @see SettingsInterface::set()
 	 */
 	public function set(int|string $name, $value = null): self {
 		$this->__set($name, $value);
@@ -146,8 +145,8 @@ class SessionPHP implements Interface_Session {
 	/**
 	 *
 	 * @return int
-	 * @throws Exception_Authentication
-	 * @see Interface_Session::userId()
+	 * @throws Authentication
+	 * @see SessionInterface::userId()
 	 */
 	public function userId(): int {
 		$result = $this->__get($this->globalSessionUserId());
@@ -155,30 +154,30 @@ class SessionPHP implements Interface_Session {
 			return $result;
 		}
 
-		throw new Exception_Authentication('No session ID');
+		throw new Authentication('No session ID');
 	}
 
 	/**
 	 *
 	 *
-	 * @return Interface_UserLike
-	 * @throws Exception_Authentication
-	 * @see Interface_Session::user()
+	 * @return Userlike
+	 * @throws Authentication
+	 * @see SessionInterface::user()
 	 */
-	public function user(): Interface_UserLike {
+	public function user(): Userlike {
 		$userId = $this->userId();
 		if (empty($userId)) {
-			throw new Exception_Authentication('Not authenticated');
+			throw new Authentication('Not authenticated');
 		}
 
 		try {
 			$result = $this->application->ormFactory(User::class, $userId)->fetch();
-			assert($result instanceof Interface_UserLike);
+			assert($result instanceof Userlike);
 			return $result;
 		} catch (Throwable $e) {
 			$this->__set($this->globalSessionUserId(), null);
 
-			throw new Exception_Authentication(
+			throw new Authentication(
 				'No user fetched for user id "{userId}"',
 				['userId' => $userId],
 				0,
@@ -189,26 +188,26 @@ class SessionPHP implements Interface_Session {
 
 	/**
 	 *
-	 * @param User $user
-	 * @param string $ip
-	 * @throws Exception_Authentication
+	 * @param Userlike $user
+	 * @param Request $request
+	 * @throws Authentication
 	 * @return void
-	 * @see Interface_Session::authenticate()
+	 * @see SessionInterface::authenticate()
 	 */
-	public function authenticate(Interface_UserLike $user, Request $request, Response $response): void {
+	public function authenticate(Userlike $user, Request $request): void {
 		try {
 			$this->__set($this->globalSessionUserId(), $user->id());
 		} catch (Throwable $t) {
-			throw new Exception_Authentication('Unable to authenticate user - no ID', [], 0, $t);
+			throw new Authentication('Unable to authenticate user - no ID', [], 0, $t);
 		}
-		$this->__set($this->globalSessionUserId() . '_IP', $ip);
+		$this->__set($this->globalSessionUserId() . '_IP', $request->remoteIP());
 	}
 
 	/**
 	 *
 	 * {@inheritdoc}
 	 *
-	 * @see Interface_Session::isAuthenticated()
+	 * @see SessionInterface::isAuthenticated()
 	 */
 	public function isAuthenticated(): bool {
 		$user = $this->__get($this->globalSessionUserId());
@@ -219,7 +218,7 @@ class SessionPHP implements Interface_Session {
 	 *
 	 * {@inheritdoc}
 	 *
-	 * @see Interface_Session::relinquish()
+	 * @see SessionInterface::relinquish()
 	 */
 	public function relinquish(): void {
 		$this->__set($this->globalSessionUserId(), null);
@@ -229,7 +228,7 @@ class SessionPHP implements Interface_Session {
 	 *
 	 * {@inheritdoc}
 	 *
-	 * @see Interface_Settings::variables()
+	 * @see SettingsInterface::variables()
 	 */
 	public function variables(): array {
 		return $_SESSION;
@@ -239,7 +238,7 @@ class SessionPHP implements Interface_Session {
 	 *
 	 * {@inheritdoc}
 	 *
-	 * @see Interface_Session::delete()
+	 * @see SessionInterface::delete()
 	 */
 	public function delete(): void {
 		if (!$this->application->console()) {

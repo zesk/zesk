@@ -52,7 +52,7 @@ class Command_Latest extends Command_Base {
 				]);
 			}
 			return 0;
-		} catch (Exception_NotFound) {
+		} catch (NotFoundException) {
 		}
 		$old = "$vendor_zesk/zesk.COMPOSER";
 		$new = "$vendor_zesk/zesk.GIT";

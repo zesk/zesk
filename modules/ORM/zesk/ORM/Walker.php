@@ -15,17 +15,18 @@ namespace zesk\ORM;
 
 use Psr\Log\LoggerInterface;
 use zesk\ArrayTools;
-use zesk\Database_Exception_SQL;
-use zesk\Exception_Class_NotFound;
-use zesk\Exception_Configuration;
-use zesk\Exception_Convert;
-use zesk\Exception_Key;
-use zesk\Exception_NotFound;
-use zesk\Exception_Parameter;
-use zesk\Exception_Parse;
-use zesk\Exception_Semantics;
+use zesk\Exception\ClassNotFound;
+use zesk\Exception\ConfigurationException;
+use zesk\Exception\KeyNotFound;
+use zesk\Exception\ParseException;
+use zesk\Exception\NotFoundException;
+use zesk\Exception\ParameterException;
+use zesk\Exception\Semantics;
+use zesk\ORM\Exception\ORMEmpty;
+use zesk\ORM\Exception\ORMNotFound;
 use zesk\StringTools;
 use zesk\Timestamp;
+use zesk\Types;
 
 /**
  * Traverse ORM objects to convert into various output formats
@@ -319,17 +320,16 @@ class Walker {
 	 *
 	 * @param ORMBase $orm
 	 * @return int|string|array
-	 * @throws Database_Exception_SQL
-	 * @throws Exception_Class_NotFound
-	 * @throws Exception_Configuration
-	 * @throws Exception_Convert
-	 * @throws Exception_Key
-	 * @throws Exception_NotFound
-	 * @throws Exception_ORMEmpty
-	 * @throws Exception_ORMNotFound
-	 * @throws Exception_Parameter
-	 * @throws Exception_Parse
-	 * @throws Exception_Semantics
+	 * @throws ClassNotFound
+	 * @throws ConfigurationException
+	 * @throws ParseException
+	 * @throws KeyNotFound
+	 * @throws NotFoundException
+	 * @throws ORMEmpty
+	 * @throws ORMNotFound
+	 * @throws ParameterException
+	 * @throws ParseException
+	 * @throws Semantics
 	 */
 	public function walk(ORMBase $orm): int|string|array {
 		if ($this->preprocess_hook) {
@@ -388,7 +388,7 @@ class Walker {
 			if (is_array($allow_resolve_objects) && count($allow_resolve_objects) !== 0 && !StringTools::begins($allow_resolve_objects, $member_path)) {
 				$logger->warning('Not allowed to traverse {member_path} as it is not included in {allow_resolve_objects}', compact('allow_resolve_objects', 'member_path'));
 			} else {
-				[$member, $remaining_path] = pair($member_path, '.', $member_path);
+				[$member, $remaining_path] = StringTools::pair($member_path, '.', $member_path);
 				if (!array_key_exists($member, $resolve_object_match)) {
 					$resolve_object_match[$member] = [];
 				}
@@ -407,17 +407,16 @@ class Walker {
 	 *
 	 * @param ORMBase $orm
 	 * @return int|string|array
-	 * @throws Exception_ORMEmpty
-	 * @throws Exception_ORMNotFound
-	 * @throws Database_Exception_SQL
-	 * @throws Exception_Class_NotFound
-	 * @throws Exception_Configuration
-	 * @throws Exception_Convert
-	 * @throws Exception_Key
-	 * @throws Exception_NotFound
-	 * @throws Exception_Parameter
-	 * @throws Exception_Parse
-	 * @throws Exception_Semantics
+	 * @throws ORMEmpty
+	 * @throws ORMNotFound
+	 * @throws ClassNotFound
+	 * @throws ConfigurationException
+	 * @throws ParseException
+	 * @throws KeyNotFound
+	 * @throws NotFoundException
+	 * @throws ParameterException
+	 * @throws ParseException
+	 * @throws Semantics
 	 */
 	private function _walk(ORMBase $orm): int|string|array {
 		/* Convert to JSON structure */
@@ -471,15 +470,14 @@ class Walker {
 	 * @param array $resolve_object_match
 	 * @param LoggerInterface $logger
 	 * @return int|string|null|ORMBase|Timestamp
-	 * @throws Database_Exception_SQL
-	 * @throws Exception_Class_NotFound
-	 * @throws Exception_Configuration
-	 * @throws Exception_Convert
-	 * @throws Exception_Key
-	 * @throws Exception_NotFound
-	 * @throws Exception_Parameter
-	 * @throws Exception_Parse
-	 * @throws Exception_Semantics
+	 * @throws ClassNotFound
+	 * @throws ConfigurationException
+	 * @throws ParseException
+	 * @throws KeyNotFound
+	 * @throws NotFoundException
+	 * @throws ParameterException
+	 * @throws ParseException
+	 * @throws Semantics
 	 */
 	private function _walk_member(
 		ORMBase $orm,
@@ -497,7 +495,7 @@ class Walker {
 		if (array_key_exists($member, $resolve_object_match)) {
 			try {
 				$value = $orm->get($member);
-			} catch (Exception_ORMEmpty|Exception_ORMNotFound) {
+			} catch (ORMEmpty|ORMNotFound) {
 				$value = null;
 			}
 			$child_options->setResolveObjects($resolve_object_match[$member]);
@@ -537,7 +535,7 @@ class Walker {
 				return $resolve_method($object, $member, $value, $child_options);
 			}
 			$logger->warning('Invalid resolve method passed into {class} walker: {type}', [
-				'class' => $object::class, 'type' => type($resolve_method),
+				'class' => $object::class, 'type' => Types::type($resolve_method),
 			]);
 		}
 		return $value->__toString();

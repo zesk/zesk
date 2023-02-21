@@ -1,14 +1,20 @@
 <?php
 declare(strict_types=1);
 
-namespace zesk;
+namespace zesk\Route;
+
+use zesk\ArrayTools;
+use zesk\Exception\CommandFailed;
+use zesk\Route;
+use zesk\Request;
+use zesk\Response;
 
 /**
  *
  * @author kent
  *
  */
-class Route_Command extends Route {
+class Command extends Route {
 	/**
 	 * The CLI command to run
 	 */
@@ -48,16 +54,15 @@ class Route_Command extends Route {
 	 */
 	public const DEFAULT_OPTION_FAILED_THEME = 'route/command/failed';
 
-	protected function _execute(Request $request, Response $response): Response {
-		$app = $response->application;
-
+	protected function internalExecute(Request $request): Response {
+		$app = $this->application;
 		$debug = $this->optionBool(self::OPTION_DEBUG);
 
 		$command = $this->original_options[self::OPTION_COMMAND] ?? '';
 		$args = $this->optionArray(self::OPTION_ARGUMENTS);
 
-		$command = map($command, $this->named);
-		$args = map($args, $this->args + $this->named);
+		$command = ArrayTools::map($command, $this->named);
+		$args = ArrayTools::map($args, $this->args + $this->named);
 		if ($debug) {
 			$app->logger->debug('{class}: executing: command={command}, args={args}', [
 				'command' => $command, 'class' => get_class($this), 'args' => $args,
@@ -76,13 +81,13 @@ class Route_Command extends Route {
 			$content = $app->themes->theme($resultTheme, [
 				'content' => $result, 'failed' => false, 'exitCode' => 0,
 			] + $theme_arguments);
-		} catch (Exception_Command $e) {
+		} catch (CommandFailed $e) {
 			$app->hooks->call('exception', $e);
 			$failedTheme = $this->option(self::OPTION_FAILED_THEME, self::DEFAULT_OPTION_FAILED_THEME);
 			$content = $app->themes->theme($failedTheme, [
 				'content' => $e->getOutput(), 'failed' => true,
 			] + $e->variables() + $theme_arguments);
 		}
-		return $response->setContent($content);
+		return $app->responseFactory($request)->setContent($content);
 	}
 }

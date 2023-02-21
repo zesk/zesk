@@ -5,12 +5,9 @@
 		"Database"
 	],
 	"autoload": {
-		"classPrefix": "MySQL\\",
-		"extensions": [
-			"php"
-		],
-		"path": "MySQL/"
+		"classPrefix": "zesk\\MySQL\\",
+		"path": "zesk/MySQL/"
 	},
-	"moduleClass": "MySQL\\Module",
+	"moduleClass": "zesk\\MySQL\\Module",
 	"copyright": "Copyright &copy; 2023, Market Acumen, Inc."
 }

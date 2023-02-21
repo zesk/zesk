@@ -1,18 +1,30 @@
 <?php
 declare(strict_types=1);
 
-namespace zesk;
+namespace zesk\Route;
 
 use Closure;
 use ReflectionMethod;
 use Throwable;
+use zesk\Application\Hooks;
+use zesk\ArrayTools;
+use zesk\Exception;
+use zesk\Exception\FileNotFound;
+use zesk\Exception\ParameterException;
+use zesk\Exception\Redirect;
+use zesk\File;
+use zesk\HTTP;
+use zesk\Request;
+use zesk\Response;
+use zesk\Route;
+use zesk\StringTools;
 
 /**
  *
  * @author kent
  *
  */
-class Route_Method extends Route {
+class Method extends Route {
 	/**
 	 * Method to call
 	 */
@@ -32,7 +44,7 @@ class Route_Method extends Route {
 	/**
 	 * Value is bool
 	 *
-	 * Always use the buffer as content.
+	 * Use the buffer for content
 	 *
 	 * @var string
 	 */
@@ -41,7 +53,7 @@ class Route_Method extends Route {
 	/**
 	 * Value is bool
 	 *
-	 * Never use buffer as content. Beats `buffer`.
+	 * Do not use buffer for content. Beats `buffer`.
 	 *
 	 * @var string
 	 */
@@ -71,7 +83,7 @@ class Route_Method extends Route {
 
 	/**
 	 * @return bool
-	 * @throws Exception_Parameter|Exception_File_NotFound
+	 * @throws ParameterException|FileNotFound
 	 */
 	public function validate(): bool {
 		$function = $this->option(self::OPTION_METHOD);
@@ -81,43 +93,43 @@ class Route_Method extends Route {
 	/**
 	 * @param array|string|callable|Closure $function
 	 * @return bool
-	 * @throws Exception_File_NotFound
-	 * @throws Exception_Parameter
+	 * @throws FileNotFound
+	 * @throws ParameterException
 	 */
 	private function validateMethod(array|string|callable|Closure $function): bool {
 		$class = $method = '';
 		if (is_string($function)) {
-			[$class, $method] = pair($function, '::', '', $function);
+			[$class, $method] = StringTools::pair($function, '::', '', $function);
 		} elseif (is_array($function)) {
 			[$class, $method] = $function;
 		}
 		[$include, $require] = $this->_includeFiles();
 		if (is_string($class)) {
 			if (!class_exists($class, $this->optionBool(self::OPTION_AUTOLOAD, true))) {
-				throw new Exception_Parameter('No such class found {class}', [
+				throw new ParameterException('No such class found {class}', [
 					'class' => $class,
 				]);
 			}
 			if (!method_exists($class, $method)) {
-				throw new Exception_Parameter("No such method {class}::{method} exists in $require or $include for {pattern}", $this->variables() + [
+				throw new ParameterException("No such method {class}::{method} exists in $require or $include for {pattern}", $this->variables() + [
 					'require' => $require, 'include' => $include, 'method' => $method,
 				]);
 			}
 		} elseif (is_object($class)) {
 			if (!method_exists($class, $method)) {
-				throw new Exception_Parameter("No such method {objectClass}::{method} exists in $require or $include for {pattern}", $this->variables() + [
+				throw new ParameterException("No such method {objectClass}::{method} exists in $require or $include for {pattern}", $this->variables() + [
 					'require' => $require, 'include' => $include, 'method' => $method,
 					'objectClass' => $class::class,
 				]);
 			}
 		} elseif (is_string($function)) {
 			if (!function_exists($function)) {
-				throw new Exception_Parameter('No such function exists in {require} or {include} for {pattern}', $this->variables() + [
+				throw new ParameterException('No such function exists in {require} or {include} for {pattern}', $this->variables() + [
 					'require' => $require, 'include' => $include,
 				]);
 			}
 		} elseif (!is_callable($function)) {
-			throw new Exception_Parameter('Not callable: {callable} for {pattern}', $this->variables() + [
+			throw new ParameterException('Not callable: {callable} for {pattern}', $this->variables() + [
 				'callable' => Hooks::callable_string($function), 'pattern' => $this->pattern,
 			]);
 		}
@@ -128,7 +140,7 @@ class Route_Method extends Route {
 	 * Perform includes if specified
 	 *
 	 * @return array
-	 * @throws Exception_File_NotFound
+	 * @throws FileNotFound
 	 */
 	private function _includeFiles(): array {
 		$includes = $this->optionIterable(self::OPTION_INCLUDE);
@@ -139,7 +151,7 @@ class Route_Method extends Route {
 			try {
 				require_once($require);
 			} catch (Throwable $t) {
-				throw new Exception_File_NotFound($require, 'Loading route {pattern} require: {require}', [
+				throw new FileNotFound($require, 'Loading route {pattern} require: {require}', [
 					'require' => $require,
 				] + $this->variables(), 0, $t);
 			}
@@ -148,7 +160,7 @@ class Route_Method extends Route {
 			try {
 				$this->application->load($include);
 			} catch (Throwable $t) {
-				throw new Exception_File_NotFound($include, '{throwableClass} {message} Loading route {pattern} include: {include}', [
+				throw new FileNotFound($include, '{throwableClass} {message} Loading route {pattern} include: {include}', [
 					'include' => $include,
 				] + Exception::exceptionVariables($t) + $this->variables(), 0, $t);
 			}
@@ -162,23 +174,23 @@ class Route_Method extends Route {
 	 * @param string|callable|Closure $method
 	 * @param array $arguments
 	 * @return mixed
-	 * @throws Exception_Redirect
+	 * @throws Redirect
 	 */
 	private function executeMethod(Request $request, Response $response, string|callable|Closure $method, array $arguments): mixed {
 		$app = $this->application;
 
 		try {
 			if (is_string($method) && str_contains($method, '::')) {
-				[$class, $method] = pair($method, '::', 'stdClass', $method);
+				[$class, $method] = StringTools::pair($method, '::', 'stdClass', $method);
 				$method = new ReflectionMethod($class, $method);
 				$construct_arguments = $this->_mapVariables($request, $response, $this->optionArray('construct arguments'));
 				$object = $method->isStatic() ? null : $app->objects->factoryArguments($class, $construct_arguments);
-				/** @throws Exception_Redirect */
+				/** @throws Redirect */
 				$content = $method->invokeArgs($object, $arguments);
 			} else {
 				$content = call_user_func_array($method, $arguments);
 			}
-		} catch (Exception_Redirect $e) {
+		} catch (Redirect $e) {
 			throw $e;
 		} catch (Throwable $e) {
 			$content = null;
@@ -201,10 +213,12 @@ class Route_Method extends Route {
 	 * @param Request $request
 	 * @param Response $response
 	 * @return Response
-	 * @throws Exception_File_NotFound
-	 * @throws Exception_Redirect
+	 * @throws FileNotFound
+	 * @throws ParameterException
+	 * @throws Redirect
+	 * @throws Throwable
 	 */
-	protected function _execute(Request $request, Response $response): Response {
+	protected function internalExecute(Request $request, Response $response): Response {
 		$response->setContent();
 
 		$this->_includeFiles();

@@ -9,8 +9,8 @@ declare(strict_types=1);
 
 namespace zesk\Net\HTTP\Client;
 
-use zesk\Exception as BaseException;
 use Throwable;
+use zesk\Exception as BaseException;
 
 /**
  * @todo subclass of zesk\Exception

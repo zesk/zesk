@@ -8,7 +8,7 @@ declare(strict_types=1);
  */
 namespace zesk\Diff;
 
-use zesk\Exception_NotFound;
+use zesk\Exception\NotFoundException;
 
 /**
  *
@@ -33,7 +33,7 @@ class Binary extends Base {
 	 * @param string $left
 	 * @param string $right
 	 * @param int $distanceMaximum Max difference
-	 * @throws Exception_NotFound
+	 * @throws NotFoundException
 	 */
 	public function __construct(string $left, string $right, int $distanceMaximum = 0) {
 		parent::__construct(str_split($left), str_split($right), $distanceMaximum);

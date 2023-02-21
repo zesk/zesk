@@ -2,16 +2,19 @@
 declare(strict_types=1);
 /**
  * @package zesk
- * @subpackage exception
+ * @subpackage Exception
  * @author kent
- * @copyright &copy; 2023, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  */
-namespace zesk;
+
+namespace zesk\Exception;
+
+use zesk\HTTP;
 
 /**
  * @author kent
  */
-class Exception_RedirectTemporary extends Exception_Redirect {
+class RedirectTemporary extends Redirect {
 	public function __construct($url, $message = null, array $arguments = []) {
 		parent::__construct($url, $message, [
 			self::RESPONSE_STATUS_CODE => HTTP::STATUS_TEMPORARY_REDIRECT,

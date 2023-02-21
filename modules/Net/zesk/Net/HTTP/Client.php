@@ -12,29 +12,26 @@ namespace zesk\Net\HTTP;
 use zesk\Application;
 use zesk\ArrayTools;
 use zesk\Command;
-use zesk\Exception_Connect;
-use zesk\Exception_Directory_NotFound;
-use zesk\Exception_DomainLookup;
-use zesk\Exception_File_Permission;
-use zesk\Exception_Key;
-use zesk\Exception_NotFound;
-use zesk\Exception_Parameter;
-use zesk\Exception_Semantics;
-use zesk\Exception_Syntax;
-use zesk\Exception_Unsupported;
+use zesk\Exception\DirectoryNotFound;
+use zesk\Exception\FilePermission;
+use zesk\Exception\ConnectionFailed;
+use zesk\Exception\DomainLookupFailed;
+use zesk\Exception\NotFoundException;
+use zesk\Exception\ParameterException;
+use zesk\Exception\Semantics;
+use zesk\Exception\SyntaxException;
+use zesk\Exception\Unsupported;
 use zesk\File;
 use zesk\Hookable;
 use zesk\HTTP;
-use zesk\Kernel;
 use zesk\Net\HTTP\Client\Cookie;
+use zesk\Net\HTTP\Client\Exception as ClientException;
 use zesk\Request;
 use zesk\Response;
 use zesk\StringTools;
 use zesk\Timestamp;
 use zesk\URL;
 use zesk\Version;
-
-use zesk\Net\HTTP\Client\Exception as ClientException;
 
 /**
  *
@@ -335,8 +332,8 @@ class Client extends Hookable {
 	 *
 	 * @param string $set
 	 * @return self
-	 * @throws Exception_File_Permission
-	 * @throws Exception_Directory_NotFound
+	 * @throws FilePermission
+	 * @throws DirectoryNotFound
 	 */
 	public function setDestination(string $set): self {
 		$this->destination = File::validateWritable($set);
@@ -436,7 +433,7 @@ class Client extends Hookable {
 	/**
 	 * @param string $name
 	 * @return string
-	 * @throws Exception_Key
+	 * @throws KeyNotFound
 	 */
 	public function requestHeader(string $name): string {
 		$lowName = strtolower($name);
@@ -444,7 +441,7 @@ class Client extends Hookable {
 			return $this->requestHeaders[$lowName];
 		}
 
-		throw new Exception_Key($name);
+		throw new KeyNotFound($name);
 	}
 
 	/**
@@ -645,7 +642,7 @@ class Client extends Hookable {
 			$this->curl_opts[CURLOPT_TIMECONDITION] = CURL_TIMECOND_IFMODSINCE;
 			$this->curl_opts[CURLOPT_TIMEVALUE] = $value;
 			$this->skip_request_header('If-Modified-Since');
-		} catch (Exception_Key $e) {
+		} catch (KeyNotFound $e) {
 		}
 	}
 
@@ -656,7 +653,7 @@ class Client extends Hookable {
 		try {
 			$this->curl_opts[CURLOPT_USERAGENT] = $this->requestHeader(HTTP::REQUEST_USER_AGENT);
 			$this->skip_request_header(HTTP::REQUEST_USER_AGENT);
-		} catch (Exception_Key $e) {
+		} catch (KeyNotFound $e) {
 		}
 	}
 
@@ -710,7 +707,7 @@ class Client extends Hookable {
 			$range = $this->requestHeader('Range');
 			$this->curl_opts[CURLOPT_RANGE] = substr($range, 6);
 			$this->skip_request_header('Range');
-		} catch (Exception_Key $e) {
+		} catch (KeyNotFound $e) {
 		}
 	}
 
@@ -735,7 +732,7 @@ class Client extends Hookable {
 	 * Update CURL settings for a target file to store headers
 	 *
 	 * @return string
-	 * @throws Exception_File_Permission
+	 * @throws FilePermission
 	 */
 	private function _curlOptionsDestination(): string {
 		if (!$this->destination) {
@@ -743,7 +740,7 @@ class Client extends Hookable {
 		}
 		$dest_fp = fopen($this->destination, 'wb');
 		if (!$dest_fp) {
-			throw new Exception_File_Permission($this->destination, 'Not writable');
+			throw new FilePermission($this->destination, 'Not writable');
 		}
 		$this->curl_opts[CURLOPT_FILE] = $dest_fp;
 		$dest_headers_name = $this->destination . '-headers';
@@ -776,19 +773,19 @@ class Client extends Hookable {
 
 	/**
 	 * @return bool|string
-	 * @throws Exception_DomainLookup
-	 * @throws Exception_File_Permission
-	 * @throws Exception_Parameter
-	 * @throws Exception_Syntax
-	 * @throws Exception_Unsupported
+	 * @throws DomainLookupFailed
+	 * @throws FilePermission
+	 * @throws ParameterException
+	 * @throws SyntaxException
+	 * @throws Unsupported
 	 * @throws ClientException
 	 */
 	public function go() {
 		if (!function_exists('curl_init')) {
-			throw new Exception_Unsupported('Net_HTTP_Client::go(): CURL not integrated!');
+			throw new Unsupported('Net_HTTP_Client::go(): CURL not integrated!');
 		}
 		if (empty($this->url)) {
-			throw new Exception_Parameter('Net_HTTP_Client::go called with no URL specified');
+			throw new ParameterException('Net_HTTP_Client::go called with no URL specified');
 		}
 		$url = $this->url;
 
@@ -830,7 +827,7 @@ class Client extends Hookable {
 			if ($errno === CURLE_COULDNT_RESOLVE_HOST) {
 				$host = $this->urlParts['host'] ?? '';
 
-				throw new Exception_DomainLookup($host, 'Retrieving URL {url}', [
+				throw new DomainLookupFailed($host, 'Retrieving URL {url}', [
 					'url' => $this->url(),
 				], $errno);
 			}
@@ -851,19 +848,19 @@ class Client extends Hookable {
 	/**
 	 * @param string $url
 	 * @return string
-	 * @throws Exception_Semantics
-	 * @throws Exception_Connect
+	 * @throws Semantics
+	 * @throws ConnectionFailed
 	 */
 	public static function simpleGet(string $url): string {
 		if (!$url) {
-			throw new Exception_Semantics('Require non-blank URL');
+			throw new Semantics('Require non-blank URL');
 		}
 		$parts = parse_url($url);
 		$protocol = $parts['scheme'] ?? '';
 		if (!in_array($protocol, [
 			'http', 'https',
 		])) {
-			throw new Exception_Semantics('Require valid HTTP URL {protocol} ({url})', [
+			throw new Semantics('Require valid HTTP URL {protocol} ({url})', [
 				'protocol' => $protocol, 'url' => $url,
 			]);
 		}
@@ -887,7 +884,7 @@ class Client extends Hookable {
 		if (!$f) {
 			$host = $parts['host'] ?? '';
 
-			throw new Exception_Connect($host);
+			throw new ConnectionFailed($host);
 		}
 		$contents = '';
 		while (!feof($f)) {
@@ -925,7 +922,7 @@ class Client extends Hookable {
 			return $data;
 		}
 		if (!is_array($data)) {
-			throw new Exception_Semantics('Data is not a string or array?');
+			throw new Semantics('Data is not a string or array?');
 		}
 		return http_build_query($data);
 	}
@@ -1014,7 +1011,7 @@ class Client extends Hookable {
 	 * @param string $domain
 	 * @param string $path
 	 * @return Cookie
-	 * @throws Exception_NotFound
+	 * @throws NotFoundException
 	 */
 	private function findCookie(string $cookieName, string $domain, string $path): Cookie {
 		if (isset($this->responseCookies[$cookieName])) {
@@ -1035,7 +1032,7 @@ class Client extends Hookable {
 			}
 		}
 
-		throw new Exception_NotFound('Cookie {cookieName}', [
+		throw new NotFoundException('Cookie {cookieName}', [
 			'cookieName' => $cookieName, 'domain' => $domain, 'path' => $path,
 		]);
 	}
@@ -1105,7 +1102,7 @@ class Client extends Hookable {
 					if ($expires->before($now)) {
 						$deleteCookie = true;
 					}
-				} catch (Exception_Semantics) {
+				} catch (Semantics) {
 				}
 			}
 			if ($deleteCookie) {
@@ -1113,7 +1110,7 @@ class Client extends Hookable {
 			} else {
 				try {
 					$this->findCookie($cookieName, $domain, $path)->update($cookieValue, $expires);
-				} catch (Exception_NotFound) {
+				} catch (NotFoundException) {
 					$this->addCookie($cookieName, $cookieValue, $domain, $path, $expires, $secure);
 				}
 			}
@@ -1235,7 +1232,7 @@ class Client extends Hookable {
 		while (($disposition = array_shift($dispositions)) !== null) {
 			[$name, $value] = pair($disposition, '=');
 			if ($name === 'filename') {
-				return unquote($value);
+				return StringTools::unquote($value);
 			}
 		}
 		return basename(URL::path($this->url()));

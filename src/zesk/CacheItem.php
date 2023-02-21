@@ -142,8 +142,8 @@ class CacheItem implements CacheItemInterface {
 	 *
 	 * @return static
 	 *   The called object.
-	 * @throws Exception_Key
-	 * @throws Exception_Semantics
+	 * @throws KeyNotFound
+	 * @throws Semantics
 	 */
 	public function expiresAfter(int|NativeDateInterval|null $time): static {
 		$this->expiration = $time ? Timestamp::now()->addUnit($time) : null;

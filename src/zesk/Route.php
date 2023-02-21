@@ -7,6 +7,18 @@ declare(strict_types=1);
 namespace zesk;
 
 use Throwable;
+use zesk\Exception\ClassNotFound;
+use zesk\Exception\NotFoundException;
+use zesk\Exception\PermissionDenied;
+use zesk\Exception\Redirect;
+use zesk\Exception\Semantics;
+use zesk\Exception\SyntaxException;
+use zesk\Route\Command as CommandRoute;
+use zesk\Route\Content as ContentRoute;
+use zesk\Route\Controller as ControllerRoute;
+use zesk\Route\Method as MethodRoute;
+use zesk\Route\Redirect as RedirectRoute;
+use zesk\Route\Theme as ThemeRoute;
 
 /**
  *
@@ -14,6 +26,12 @@ use Throwable;
  * @author kent
  */
 abstract class Route extends Hookable {
+	public const DELIMITER_SEMICOLON = ';';
+
+	public const DELIMITER_COMMA = ',';
+
+	public const DELIMITER_DASH = ',';
+
 	/**
 	 * A unique ID for this route
 	 */
@@ -25,6 +43,11 @@ abstract class Route extends Hookable {
 	 * @var string
 	 */
 	public const OPTION_ALIASES = 'aliases';
+
+	/**
+	 *
+	 */
+	public const OPTION_CONTENT_TYPE = 'contentType';
 
 	/**
 	 * When a list, the alias value
@@ -225,17 +248,8 @@ abstract class Route extends Hookable {
 	 */
 	public function __sleep() {
 		return array_merge(parent::__sleep(), [
-			'originalOptions',
-			'originalPattern',
-			'cleanPattern',
-			'methods',
-			'pattern',
-			'types',
-			'urlParts',
-			'args',
-			'argsValid',
-			'named',
-			'byClass',
+			'originalOptions', 'originalPattern', 'cleanPattern', 'methods', 'pattern', 'types', 'urlParts', 'args',
+			'argsValid', 'named', 'byClass',
 		]);
 	}
 
@@ -250,16 +264,10 @@ abstract class Route extends Hookable {
 	 */
 	public function variables(): array {
 		return [
-			'class' => get_class($this),
-			'originalOptions' => $this->originalOptions,
-			'originalPattern' => $this->originalPattern,
-			'cleanPattern' => $this->cleanPattern,
-			'pattern' => $this->pattern,
-			'methods' => array_keys($this->methods),
-			'types' => $this->types,
-			'urlParts' => $this->urlParts,
-			'named' => $this->named,
-			'byClass' => $this->byClass,
+			'class' => get_class($this), 'originalOptions' => $this->originalOptions,
+			'originalPattern' => $this->originalPattern, 'cleanPattern' => $this->cleanPattern,
+			'pattern' => $this->pattern, 'methods' => array_keys($this->methods), 'types' => $this->types,
+			'urlParts' => $this->urlParts, 'named' => $this->named, 'byClass' => $this->byClass,
 			'options' => $this->options,
 		];
 	}
@@ -335,7 +343,7 @@ abstract class Route extends Hookable {
 	 * @return int
 	 */
 	public static function compareWeight(Route $a, Route $b): int {
-		return zesk_sort_weight_array($a->options(), $b->options());
+		return Types::weightCompare($a->options(), $b->options());
 	}
 
 	/**
@@ -352,12 +360,12 @@ abstract class Route extends Hookable {
 		]));
 		foreach ($parts as $index => $part) {
 			/* If it has variables, remove it */
-			if (count(mapExtractTokens($part)) !== 0) {
+			if (count(StringTools::extractTokens($part)) !== 0) {
 				unset($parts[$index]);
 			}
 		}
 		/* Map our {0} {1} {2} fields to options once for items which are static in the pattern */
-		return map($options, $parts);
+		return ArrayTools::map($options, $parts);
 	}
 
 	/**
@@ -367,7 +375,7 @@ abstract class Route extends Hookable {
 	 * @param string $pattern
 	 * @param array $options
 	 * @return Route
-	 * @throws Exception_Class_NotFound - Means code has been deleted on disk, I assume.
+	 * @throws ClassNotFound - Means code has been deleted on disk, I assume.
 	 */
 	public static function factory(Router $router, string $pattern, array $options): Route {
 		/**
@@ -377,8 +385,9 @@ abstract class Route extends Hookable {
 		 * @var array $types
 		 */
 		$types = [
-			'controller' => Route_Controller::class, 'command' => Route_Command::class, 'theme' => Route_Theme::class,
-			'method' => Route_Method::class, 'file' => Route_Content::class, 'redirect' => Route_Redirect::class,
+			'controller' => ControllerRoute::class, 'command' => CommandRoute::class, 'theme' =>
+				ThemeRoute::class,
+			'method' => MethodRoute::class, 'file' => ContentRoute::class, 'redirect' => RedirectRoute::class,
 		];
 		$options = self::preprocessOptions($pattern, $options);
 		foreach ($types as $k => $class) {
@@ -388,7 +397,7 @@ abstract class Route extends Hookable {
 				return $route;
 			}
 		}
-		return new Route_Content($router, $pattern, $options);
+		return new ContentRoute($router, $pattern, $options);
 	}
 
 	/**
@@ -413,8 +422,8 @@ abstract class Route extends Hookable {
 		$C_WILDCARD = chr(0x03);
 		$C_QUOTED_WILDCARD = chr(0x04);
 
-		[$methods, $pattern] = pair($pattern, ':', 'OPTIONS|GET|POST', $pattern);
-		$this->methods = ArrayTools::keysFromValues(toList($methods, [], '|'), true);
+		[$methods, $pattern] = StringTools::pair($pattern, ':', 'OPTIONS|GET|POST', $pattern);
+		$this->methods = ArrayTools::keysFromValues(Types::toList($methods, [], '|'), true);
 		$replace = [];
 		$re_pattern = $pattern;
 		$re_pattern = str_replace('\\*', $C_QUOTED_WILDCARD, $re_pattern);
@@ -471,8 +480,8 @@ abstract class Route extends Hookable {
 	 * @param null|string $class Single class to retrieve
 	 * @param null|string|int $index Optional index of argument to fetch
 	 * @return array
-	 * @throws Exception_NotFound
-	 * @throws Exception_Syntax
+	 * @throws NotFoundException
+	 * @throws SyntaxException
 	 */
 	public function argumentsByClass(string $class = null, int|string $index = null): array {
 		$this->_processArguments();
@@ -524,7 +533,7 @@ abstract class Route extends Hookable {
 		} else {
 			$named = [];
 		}
-		return map($this->cleanPattern, $named + $this->named);
+		return ArrayTools::map($this->cleanPattern, $named + $this->named);
 	}
 
 	/**
@@ -553,8 +562,8 @@ abstract class Route extends Hookable {
 	 * @param int $index
 	 * @param array $type_name
 	 * @return void
-	 * @throws Exception_NotFound
-	 * @throws Exception_Syntax
+	 * @throws NotFoundException
+	 * @throws SyntaxException
 	 */
 	private function _handleArgument(int $index, array $type_name): void {
 		$object = null;
@@ -570,13 +579,13 @@ abstract class Route extends Hookable {
 				case 'list':
 				case 'semicolon_list':
 				case 'array':
-					$arg = toList($arg, [], ';');
+					$arg = Types::toList($arg, [], self::DELIMITER_SEMICOLON);
 					break;
 				case 'comma_list':
-					$arg = toList($arg, [], ',');
+					$arg = Types::toList($arg, [], self::DELIMITER_COMMA);
 					break;
 				case 'dash_list':
-					$arg = toList($arg, [], '-');
+					$arg = Types::toList($arg, [], self::DELIMITER_DASH);
 					break;
 				case 'float':
 				case 'double':
@@ -604,8 +613,8 @@ abstract class Route extends Hookable {
 	 * Handle arguments from URL
 	 *
 	 * @return void
-	 * @throws Exception_Syntax
-	 * @throws Exception_NotFound
+	 * @throws SyntaxException
+	 * @throws NotFoundException
 	 */
 	private function _processArguments(): void {
 		if ($this->argsValid) {
@@ -633,11 +642,11 @@ abstract class Route extends Hookable {
 	 *
 	 * @param string $x
 	 * @return number
-	 * @throws Exception_Syntax
+	 * @throws SyntaxException
 	 */
 	final protected function convertInteger(string $x): int {
 		if (!is_numeric($x)) {
-			throw new Exception_Syntax('Invalid integer format {value}', ['value' => $x]);
+			throw new SyntaxException('Invalid integer format {value}', ['value' => $x]);
 		}
 		return intval($x);
 	}
@@ -647,7 +656,7 @@ abstract class Route extends Hookable {
 	 * @param string $arg
 	 * @param string $name
 	 * @return Model
-	 * @throws Exception_NotFound
+	 * @throws NotFoundException
 	 */
 	final protected function convertModel(string $type, string $arg, string $name): Model {
 		$save = null;
@@ -662,7 +671,7 @@ abstract class Route extends Hookable {
 			$save = $e;
 		}
 		if (!$object instanceof Model) {
-			throw new Exception_NotFound('{name} ({type}) model not found with value "{arg}"', [
+			throw new NotFoundException('{name} ({type}) model not found with value "{arg}"', [
 				'type' => $type, 'arg' => $arg, 'name' => $name,
 			], 0, $save);
 		}
@@ -674,11 +683,11 @@ abstract class Route extends Hookable {
 	 *
 	 * @param string $x
 	 * @return number
-	 * @throws Exception_Syntax
+	 * @throws SyntaxException
 	 */
 	final protected function convertFloat(string $x): float {
 		if (!is_numeric($x)) {
-			throw new Exception_Syntax('Invalid float format {value}', ['value' => $x]);
+			throw new SyntaxException('Invalid float format {value}', ['value' => $x]);
 		}
 		return floatval($x);
 	}
@@ -695,17 +704,15 @@ abstract class Route extends Hookable {
 		return $x;
 	}
 
-	private function _stringToObjectMapping(Request $request, Response $response): array {
+	private function _stringToObjectMapping(Request $request): array {
 		return [
-			'{application}' => $this->application, '{request}' => $request, '{response}' => $response,
-			'{route}' => $this, '{router}' => $this->router,
+			'{application}' => $this->application, '{request}' => $request, '{route}' => $this,
+			'{router}' => $this->router,
 		];
 	}
 
 	protected function _requestMap(Request $request): array {
-		return
-			ArrayTools::prefixKeys($request->variables(), 'request.') +
-			ArrayTools::prefixKeys($request->urlComponents(), 'url.');
+		return ArrayTools::prefixKeys($request->variables(), 'request.') + ArrayTools::prefixKeys($request->urlComponents(), 'url.');
 	}
 
 	/**
@@ -713,15 +720,14 @@ abstract class Route extends Hookable {
 	 *
 	 * @param mixed $mixed
 	 * @param Request $request
-	 * @param Response $response
 	 * @return string|array
 	 */
-	protected function _mapVariables(Request $request, Response $response, string|array $mixed): string|array {
+	protected function _mapVariables(Request $request, string|array $mixed): string|array {
 		if (is_array($mixed)) {
 			/**
 			 * Replace the tokens found here with the objects if the strings match exactly
 			 */
-			$mixed = ArrayTools::valuesMap($mixed, $this->_stringToObjectMapping($request, $response));
+			$mixed = ArrayTools::valuesMap($mixed, $this->_stringToObjectMapping($request));
 		}
 		/**
 		 * Replace tokens in the strings with variables here
@@ -733,7 +739,7 @@ abstract class Route extends Hookable {
 	 * @return ?string
 	 */
 	private function guess_content_type(): ?string {
-		$content_type = $this->option('content_type');
+		$content_type = $this->option(self::OPTION_CONTENT_TYPE);
 		if ($content_type) {
 			return $content_type;
 		}
@@ -751,14 +757,14 @@ abstract class Route extends Hookable {
 		if ($this->hasOption(self::OPTION_CACHE)) {
 			$cache = $this->option(self::OPTION_CACHE);
 			if (is_scalar($cache)) {
-				if (toBool($cache)) {
+				if (Types::toBool($cache)) {
 					$response->setCacheForever();
 				}
 			} elseif (is_array($cache)) {
 				$response->setCache($cache);
 			} else {
 				$application->logger->warning('Invalid cache setting for route {route}: {cache}', [
-					'route' => $this->cleanPattern, 'cache' => _dump($cache),
+					'route' => $this->cleanPattern, 'cache' => Debug::dump($cache),
 				]);
 			}
 		}
@@ -786,32 +792,28 @@ abstract class Route extends Hookable {
 	 * Overridable method before execution
 	 *
 	 * @param Request $request
-	 * @return Response
-	 * @throws Exception_NotFound
-	 * @throws Exception_Syntax
+	 * @return void
+	 * @throws NotFoundException
+	 * @throws SyntaxException
 	 */
-	protected function _before(Request $request): Response {
-		$response = $this->responseFactory($request);
+	protected function _before(Request $request): void {
 		$this->_processArguments();
-		$this->args = $this->_mapVariables($request, $response, $this->args);
-		return $response;
+		$this->args = $this->_mapVariables($request, $this->args);
 	}
 
 	/**
 	 * Execute the route
 	 *
 	 * @param Request $request
-	 * @param Response $response
 	 * @return Response
-	 * @throws Exception_NotFound
-	 * @throws Exception_Redirect
-	 * @throws Exception_System
+	 * @throws NotFoundException
+	 * @throws Redirect
 	 */
-	abstract protected function _execute(Request $request, Response $response): Response;
+	abstract protected function internalExecute(Request $request): Response;
 
 	/**
 	 * Overridable method after execution
-	 * @throws Exception_Redirect
+	 * @throws Redirect
 	 */
 	protected function _after(Response $response): void {
 		if (array_key_exists('redirect', $this->options)) {
@@ -820,10 +822,10 @@ abstract class Route extends Hookable {
 	}
 
 	/**
-	 * @throws Exception_Permission
-	 * @throws Exception_Class_NotFound
+	 * @throws PermissionDenied
+	 * @throws ClassNotFound
 	 */
-	protected function _permissions(Request $request, Response $response): void {
+	protected function _permissions(Request $request): void {
 		$permission = $this->option('permission');
 		$permissions = [];
 		if ($permission) {
@@ -833,7 +835,7 @@ abstract class Route extends Hookable {
 			];
 		}
 		$permissions = array_merge($permissions, $this->optionArray('permissions'));
-		$permissions = $this->_mapVariables($request, $response, $permissions);
+		$permissions = $this->_mapVariables($request, $permissions);
 		$app = $this->router->application;
 		foreach ($permissions as $permission) {
 			$action = '';
@@ -842,13 +844,13 @@ abstract class Route extends Hookable {
 			if (is_array($permission)) {
 				$context = $permission['context'] ?? null;
 				$action = $permission['action'] ?? '';
-				$options = toArray($permission['options'] ?? []);
+				$options = Types::toArray($permission['options'] ?? []);
 			} elseif (is_string($permission)) {
 				$action = $permission;
 			}
 			if (!$context instanceof Model && $context !== null) {
 				$app->logger->warning('Invalid permission context in route {url}, permission {action}, type={type}, value={value}', [
-					'url' => $this->cleanPattern, 'action' => $action, 'type' => type($context),
+					'url' => $this->cleanPattern, 'action' => $action, 'type' => Types::type($context),
 					'value' => strval($context),
 				]);
 				$context = null;
@@ -863,7 +865,7 @@ abstract class Route extends Hookable {
 	 */
 	final protected function _mapOptions(): self {
 		$this->originalOptions = $this->options;
-		$this->options = map($this->options, $this->urlParts + ($this->named ?? []));
+		$this->options = ArrayTools::map($this->options, $this->urlParts + ($this->named ?? []));
 		return $this;
 	}
 
@@ -882,37 +884,37 @@ abstract class Route extends Hookable {
 	 *
 	 * @param Request $request
 	 * @return Response
-	 * @throws Exception_Permission
-	 * @throws Exception_Redirect
-	 * @throws Exception_Class_NotFound
+	 * @throws PermissionDenied
+	 * @throws Redirect
+	 * @throws ClassNotFound
 	 */
 	final public function execute(Request $request): Response {
 		$this->_mapOptions();
 
 		try {
-			$response = $this->_before($request);
+			$this->_before($request);
 			$this->_processArguments();
-		} catch (Exception_NotFound|Exception_Syntax $e) {
+		} catch (NotFoundException|SyntaxException $e) {
 			return $this->responseFactory($request)->setStatus(HTTP::STATUS_FILE_NOT_FOUND, $e->codeName());
 		}
-		$this->_permissions($request, $response);
-		$template = Template::factory($this->application->themes, '', [
-			'response' => $response, 'route' => $this, 'request' => $request, 'routeVariables' => $this->variables(),
+		$this->_permissions($request);
+		$template = Theme::factory($this->application->themes, '', [
+			'route' => $this, 'request' => $request, 'routeVariables' => $this->variables(),
 		])->push();
 
 		try {
-			$response = $this->_execute($request, $response);
-		} catch (Exception_System $e) {
-			$response->setStatus($e->getCode() ?: HTTP::STATUS_INTERNAL_SERVER_ERROR);
-		} catch (Exception_NotFound $e) {
-			$response->setStatus(HTTP::STATUS_FILE_NOT_FOUND, $e->getMessage());
+			$response = $this->internalExecute($request);
+		} catch (NotFoundException $e) {
+			$response = $this->responseFactory($request)->setStatus(HTTP::STATUS_FILE_NOT_FOUND, $e->getMessage());
+		} catch (Exception $e) {
+			$response = $this->responseFactory($request)->setStatus($e->getCode() ?: HTTP::STATUS_INTERNAL_SERVER_ERROR);
 		}
 		$this->_after($response);
 		$this->_unmapOptions();
 
 		try {
 			$template->pop();
-		} catch (Exception_Semantics) {
+		} catch (Semantics) {
 			$response->setStatus(HTTP::STATUS_INTERNAL_SERVER_ERROR, 'Template pop');
 		}
 		return $response;
@@ -961,7 +963,7 @@ abstract class Route extends Hookable {
 	 */
 	protected function getRouteMap(string $action, Model $object = null, array $options = []): array {
 		$object_hierarchy = is_object($object) ? $this->application->classes->hierarchy($object, Model::class) : [];
-		$derived_classes = toArray($options['derivedClasses'] ?? []);
+		$derived_classes = Types::toArray($options['derivedClasses'] ?? []);
 		$map = [
 			'action' => $action,
 		] + $options;
@@ -1007,13 +1009,13 @@ abstract class Route extends Hookable {
 		$map = $this->callHookArguments('getRouteMap', [
 			$route_map,
 		], $route_map);
-		return rtrim(mapClean(map($this->cleanPattern, $map), '/'));
+		return rtrim(StringTools::cleanTokens(ArrayTools::map($this->cleanPattern, $map), '/'));
 	}
 
 	/**
 	 * @param Router $router
 	 * @return $this
-	 * @throws Exception_Semantics
+	 * @throws Semantics
 	 */
 	public function wasAdded(Router $router): self {
 		if (!$this->hasOption(self::OPTION_ALIASES)) {
@@ -1022,7 +1024,7 @@ abstract class Route extends Hookable {
 		$defaultAlias = $this->optionString(self::OPTION_ALIAS_TARGET, $this->getPattern());
 		foreach ($this->optionArray(self::OPTION_ALIASES) as $alias => $aliasId) {
 			if (!is_string($aliasId)) {
-				throw new Exception_Semantics('{option} in route must be an object with string keys and values {alias} and {id} provided', [
+				throw new Semantics('{option} in route must be an object with string keys and values {alias} and {id} provided', [
 					'option' => self::OPTION_ALIASES, 'alias' => gettype($alias), 'id' => gettype($aliasId),
 				]);
 			}

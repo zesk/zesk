@@ -10,19 +10,18 @@ namespace zesk\Daemon;
 
 use Psr\Cache\InvalidArgumentException;
 use zesk\Directory;
-use zesk\Exception_Configuration;
-use zesk\Exception_Directory_Create;
-use zesk\Exception_Directory_Permission;
-use zesk\Exception_Key;
-use zesk\Exception_Semantics;
-use zesk\Exception_Syntax;
-use zesk\Exception_Unsupported;
+use zesk\Exception\DirectoryCreate;
+use zesk\Exception\DirectoryPermission;
+use zesk\Exception\FilePermission;
+use zesk\Exception\ConfigurationException;
+use zesk\Exception\Semantics;
+use zesk\Exception\SyntaxException;
+use zesk\Exception\Unsupported;
+use zesk\JSON;
 use zesk\ORM\Server;
 use zesk\PHP;
-use zesk\Template;
-use zesk\JSON;
+use zesk\Theme;
 use zesk\Timestamp;
-use zesk\Exception_File_Permission;
 
 /**
  *
@@ -42,10 +41,10 @@ class Module extends \zesk\Module {
 	 *
 	 *
 	 * @return void
-	 * @throws Exception_Configuration
-	 * @throws Exception_Directory_Create
-	 * @throws Exception_Directory_Permission
-	 * @throws Exception_Unsupported
+	 * @throws ConfigurationException
+	 * @throws DirectoryCreate
+	 * @throws DirectoryPermission
+	 * @throws Unsupported
 	 */
 	public function initialize(): void {
 		parent::initialize();
@@ -56,10 +55,10 @@ class Module extends \zesk\Module {
 
 	/**
 	 *
-	 * @param Template $template
+	 * @param Theme $template
 	 * @return string[][]
 	 */
-	protected function hook_system_panel(Template $template) {
+	protected function hook_system_panel(Theme $template) {
 		$locale = $template->locale;
 		return [
 			'system/panel/daemon' => [
@@ -83,7 +82,7 @@ class Module extends \zesk\Module {
 			}
 			$server->setMeta(__CLASS__ . '::process_database', $database);
 			$server->setMeta(__CLASS__ . '::process_database_updated', Timestamp::now());
-		} catch (Exception_Syntax|Exception_File_Permission|Exception_Semantics|Exception_Key
+		} catch (SyntaxException|FilePermission|Semantics|KeyNotFound
 		|InvalidArgumentException $e) {
 			$this->application->logger->error($e->getRawMessage(), $e->variables());
 		}
@@ -107,8 +106,8 @@ class Module extends \zesk\Module {
 	 *
 	 * @param array|null $database
 	 * @return array
-	 * @throws Exception_File_Permission
-	 * @throws Exception_Semantics
+	 * @throws FilePermission
+	 * @throws Semantics
 	 */
 	public function saveProcessDatabase(array $database): void {
 		$path = $this->_databasePath();
@@ -117,7 +116,7 @@ class Module extends \zesk\Module {
 				return;
 			}
 			if (!file_put_contents($path, serialize($database))) {
-				throw new Exception_File_Permission($path, 'write');
+				throw new FilePermission($path, 'write');
 			}
 		} else {
 			if (count($database) === 0) {
@@ -142,7 +141,7 @@ class Module extends \zesk\Module {
 	 * Get daemon database
 	 *
 	 * @return array
-	 * @throws Exception_File_Permission|Exception_Syntax
+	 * @throws FilePermission|SyntaxException
 	 */
 	public function loadProcessDatabase(): array {
 		$path = $this->_databasePath();
@@ -151,18 +150,18 @@ class Module extends \zesk\Module {
 		}
 		$fp = fopen($path, 'rb');
 		if (!$fp) {
-			throw new Exception_File_Permission($path, "fopen($path) returned false-ish");
+			throw new FilePermission($path, "fopen($path) returned false-ish");
 		}
 		if (!flock($fp, LOCK_SH)) {
 			fclose($fp);
 
-			throw new Exception_File_Permission($path, "flock($path, LOCK_SH) returned false-ish");
+			throw new FilePermission($path, "flock($path, LOCK_SH) returned false-ish");
 		}
 		$result = fread($fp, 1024 * 1024);
 		if ($result === false) {
 			fclose($fp);
 
-			throw new Exception_File_Permission($path, "fread($path) returned false");
+			throw new FilePermission($path, "fread($path) returned false");
 		}
 		$database = PHP::unserialize($result);
 		if ($this->db_debug) {
@@ -170,14 +169,14 @@ class Module extends \zesk\Module {
 				$this->application->logger->debug('Read database: {data}', [
 					'data' => JSON::encode($database),
 				]);
-			} catch (Exception_Semantics $e) {
+			} catch (Semantics $e) {
 				PHP::log($e);
 			}
 		}
 		if (!flock($fp, LOCK_UN)) {
 			fclose($fp);
 
-			throw new Exception_File_Permission($path, "flock($path, LOCK_UN) returned false-ish");
+			throw new FilePermission($path, "flock($path, LOCK_UN) returned false-ish");
 		}
 		fclose($fp);
 		return is_array($database) ? $database : [];
@@ -188,8 +187,8 @@ class Module extends \zesk\Module {
 	 *
 	 * @param array|null $database
 	 * @return array
-	 * @throws Exception_File_Permission
-	 * @throws Exception_Semantics
+	 * @throws FilePermission
+	 * @throws Semantics
 	 */
 	public function process_database(array $database = null): array {
 		if ($database === null) {

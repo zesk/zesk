@@ -158,3 +158,60 @@ trait AutoTables {
 		return $this->autoTableRename($sql, $options);
 	}
 }
+
+/*
+ *
+	public function test_unstring(): void {
+		$db = $this->application->databaseRegistry();
+
+		$sql = "UPDATE `Metric` SET
+	`Model` = '1',
+	`CodeName` = 'hypoglycemia',
+	`Name` = 'Side Effect 2: Hypoglycemia',
+	`Label` = 'Side Effect 2: Hypoglycemia',
+	`Subhead` = '',
+	`Metric_Category` = '1',
+	`AutoFormula` = 'true',
+	`Formula` = '{hypoglycemia}\n(value < 0) ? (value * {significance-ratings}) : value',
+	`Benefit_Min` = '-25',
+	`Benefit_Max` = '0',
+	`Scaling` = '1.7',
+	`OrderIndex` = '4',
+	`IsActive` = 'true',
+	Modified=UTC_TIMESTAMP()	 WHERE `ID` = '4';";
+		$state = null;
+		//echo "OLD: $sql\n";
+		$sql = Database::removeStringTokens($sql, $state);
+		$sql = strtr($sql, [
+			'\'\'' => 'empty-string',
+		]);
+		//echo "NEW: $sql\n";
+		$this->assertStringNotContainsString('\'', $sql);
+
+		$state = null;
+		$this->assertEquals(Database::replaceStringTokens(Database::removeStringTokens($sql, $state), $state), $sql);
+		$sql = "UPDATE `Metric` SET
+	`Model` = '1',
+	`CodeName` = 'hypog\\'lycemia',
+	`Name` = 'Side Effect 2: Hypoglycemia',
+	`Label` = 'Side Effect 2: Hypoglycemia',
+	`Subhead` = '',
+	`Metric_Category` = '1',
+	`AutoFormula` = 'true',
+	`Formula` = '{hypoglycemia}\n(value < 0) ? (value * {significance-ratings}) : value',
+	`Benefit_Min` = '-25',
+	`Benefit_Max` = '0',
+	`Scaling` = '1.7',
+	`OrderIndex` = '4',
+	`IsActive` = 'true',
+	Modified=UTC_TIMESTAMP()	 WHERE `ID` = '4';";
+		$state = null;
+		//echo "OLD: $sql\n";
+		$new_sql = Database::removeStringTokens($sql, $state);
+		//echo "NEW: $new_sql\n";
+		$this->assertStringNotContainsString('\'', $new_sql);
+		$state = null;
+		$this->assertEquals(Database::replaceStringTokens(Database::removeStringTokens($sql, $state), $state), $sql);
+	}
+
+ */

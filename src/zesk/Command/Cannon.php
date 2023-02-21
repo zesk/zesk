@@ -153,8 +153,8 @@ class Command_Cannon extends Command_Base {
 			$this->verboseLog('Backing up files with matches');
 		}
 		$locale = $this->application->locale;
-		$this->log(" Search: $search (" . $locale->plural_word('character', strlen($search)) . ')');
-		$this->log("Replace: $replace (" . $locale->plural_word('character', strlen($replace)) . ')');
+		$this->log(" Search: $search (" . $locale->pluralWord('character', strlen($search)) . ')');
+		$this->log("Replace: $replace (" . $locale->pluralWord('character', strlen($replace)) . ')');
 		$stats = [
 			'files' => 0,
 			'lines' => 0,
@@ -244,7 +244,7 @@ class Command_Cannon extends Command_Base {
 		}
 		$locale = $this->application->locale;
 		if ($dry_run || $show) {
-			echo "$file: " . $locale->plural_word('match', count($lines)) . "\n";
+			echo "$file: " . $locale->pluralWord('match', count($lines)) . "\n";
 			$carrotSearch = [
 				$rabbit => str_repeat('^', strlen($search)),
 			];
@@ -271,7 +271,7 @@ class Command_Cannon extends Command_Base {
 		if ($duplicate) {
 			$ext = File::extension($file);
 			$dupfile = File::setExtension($file, ".cannon.$ext");
-			$this->verboseLog("Writing $dupfile: " . $locale->plural_word('change', count($lines)));
+			$this->verboseLog("Writing $dupfile: " . $locale->pluralWord('change', count($lines)));
 			file_put_contents($dupfile, strtr($contents, [
 				$search => $replace,
 			]));

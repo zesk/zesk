@@ -17,4 +17,9 @@ docker-php-ext-configure gd --with-freetype --with-jpeg
 docker-php-ext-install gd
 docker-php-ext-enable gd
 
+# for intl
+apt-get install -y libicu-dev
+docker-php-ext-install intl
+docker-php-ext-enable intl
+
 # docker-php-ext-install readline json opcache

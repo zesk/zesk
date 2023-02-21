@@ -40,7 +40,7 @@ class TestApplication extends Application {
 			if ($set) {
 				$value = $app->option('preventMaintenance');
 				if ($value === 'throw') {
-					throw new Exception_Authentication();
+					throw new Authentication();
 				}
 				if ($value === true) {
 					return false;

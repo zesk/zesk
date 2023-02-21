@@ -12,6 +12,9 @@ declare(strict_types=1);
 namespace zesk;
 
 use Psr\Cache\InvalidArgumentException;
+use zesk\Exception\CommandFailed;
+use zesk\Exception\FileNotFound;
+use zesk\Exception\FilePermission;
 
 /**
  * @author kent
@@ -78,7 +81,7 @@ class System {
 		$ips = [];
 		foreach ($interfaces as $interface => $values) {
 			if (array_key_exists('inet', $values)) {
-				$ip = first(array_keys($values['inet']));
+				$ip = ArrayTools::first(array_keys($values['inet']));
 				if (IPv4::valid($ip)) {
 					$ips[$interface] = $ip;
 				}
@@ -107,18 +110,18 @@ class System {
 	/**
 	 * @param string $userFile
 	 * @return array
-	 * @throws Exception_File_NotFound
-	 * @throws Exception_File_Permission
+	 * @throws FileNotFound
+	 * @throws FilePermission
 	 */
 	public static function users(string $userFile = ''): array {
 		if ($userFile === '') {
 			$userFile = self::DEFAULT_USERS_FILE;
 		}
 		if (!is_file($userFile)) {
-			throw new Exception_File_NotFound($userFile);
+			throw new FileNotFound($userFile);
 		}
 		if (!is_readable($userFile)) {
-			throw new Exception_File_Permission($userFile);
+			throw new FilePermission($userFile);
 		}
 		$result = [];
 		foreach (File::lines($userFile) as $line) {
@@ -184,7 +187,7 @@ class System {
 			$result = [];
 			foreach ($command as $line) {
 				if (preg_match('/^\S/', $line)) {
-					[$interface, $flags] = pair($line, ' ');
+					[$interface, $flags] = StringTools::pair($line, ' ');
 					$interface = rtrim($interface, ':');
 					$result[$interface] = ['flags' => ltrim($flags), ];
 				} else {
@@ -203,7 +206,7 @@ class System {
 				}
 			}
 			return $result;
-		} catch (Exception_Command) {
+		} catch (CommandFailed) {
 			return [
 				'localhost' => [
 					'inet' => [
@@ -224,11 +227,11 @@ class System {
 
 	/**
 	 * @return array
-	 * @throws Exception_File_Permission
+	 * @throws FilePermission
 	 */
 	private static function uptimeBinary(): array {
 		if (!is_executable(self::BINARY_UPTIME)) {
-			throw new Exception_File_Permission(self::BINARY_UPTIME, 'No access to load averages');
+			throw new FilePermission(self::BINARY_UPTIME, 'No access to load averages');
 		}
 		ob_start();
 		system(self::BINARY_UPTIME);
@@ -236,7 +239,7 @@ class System {
 		$pattern = ':';
 		$pos = strrpos($uptime, $pattern);
 		if ($pos === false) {
-			throw new Exception_File_Permission(self::BINARY_UPTIME, 'Invalid response: {results}', [
+			throw new FilePermission(self::BINARY_UPTIME, 'Invalid response: {results}', [
 				'results' => $uptime,
 			]);
 		}
@@ -248,12 +251,12 @@ class System {
 	 *
 	 * @return array Uptime averages for the past 1 minute, 5 minutes, and 15 minutes
 	 *         (typically)
-	 * @throws Exception_File_Permission
+	 * @throws FilePermission
 	 */
 	public static function loadAverages(): array {
 		try {
 			$uptime_string = explode(' ', File::contents('/proc/loadavg'));
-		} catch (Exception_File_NotFound|Exception_File_Permission) {
+		} catch (FileNotFound|FilePermission) {
 			$uptime_string = self::uptimeBinary();
 		}
 		return [floatval($uptime_string[0]), floatval($uptime_string[1]), floatval($uptime_string[2]), ];
@@ -367,7 +370,7 @@ class System {
 			'arch' => php_uname('m'),
 		];
 		foreach (self::$distroTips as $distro => $files) {
-			foreach (toList($files) as $file) {
+			foreach (Types::toList($files) as $file) {
 				if (file_exists($file)) {
 					return $result + [
 						'brand' => $distro,

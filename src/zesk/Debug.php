@@ -43,7 +43,7 @@ class Debug {
 	 * @return string
 	 * @see debug_backtrace()
 	 */
-	public static function calling_file(): string {
+	public static function callingFile(): string {
 		$bt = debug_backtrace();
 		$top = array_shift($bt);
 		return $top['file'];

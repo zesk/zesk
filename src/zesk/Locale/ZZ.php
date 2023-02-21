@@ -7,7 +7,11 @@ declare(strict_types=1);
  * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  * Created on Thu Apr 15 17:19:28 EDT 2010 17:19:28
  */
-namespace zesk;
+
+namespace zesk\Locale;
+
+use zesk\Exception\Semantics;
+use zesk\JSON;
 
 /**
  * Debugging Locale
@@ -15,31 +19,31 @@ namespace zesk;
  * @author kent
  *
  */
-class Locale_ZZ extends Locale {
+class ZZ extends Locale {
 	/**
 	 *
 	 *
-	 * @see Locale::date_format()
+	 * @see Locale::formatDate()
 	 */
-	public function date_format(): string {
+	public function formatDate(): string {
 		return '{YYYY}-{MM}-{DD}';
 	}
 
 	/**
 	 *
 	 *
-	 * @see Locale::datetime_format()
+	 * @see Locale::formatDateTime()
 	 */
-	public function datetime_format(): string {
+	public function formatDateTime(): string {
 		return '{YYYY}-{MM}-{DD} {hh}:{mm}:{ss} {Z}';
 	}
 
 	/**
 	 *
 	 *
-	 * @see Locale::time_format()
+	 * @see Locale::formatTime()
 	 */
-	public function time_format(bool $include_seconds = false): string {
+	public function formatTime(bool $include_seconds = false): string {
 		return $include_seconds ? '{h}:{mm}:{ss}' : '{h}:{mm}';
 	}
 
@@ -56,13 +60,19 @@ class Locale_ZZ extends Locale {
 	 * Given a noun, compute the plural given cues from the language
 	 *
 	 *
-	 * @see Locale::noun_semantic_plural()
+	 * @see Locale::nounSemanticPlural()
 	 */
-	public function noun_semantic_plural(string $noun, float|int $number = 2): string {
+	public function nounSemanticPlural(string $noun, float|int $number = 2): string {
 		if ($number > 0 && $number <= 1) {
 			return $noun;
 		}
-		return '{plural(' . JSON::encode($noun) . ", $number)}";
+
+		try {
+			$noun = JSON::encode($noun);
+		} catch (Semantics $e) {
+			$noun = $e->getMessage();
+		}
+		return '{plural(' . $noun . ", $number)}";
 	}
 
 	/**
@@ -74,8 +84,16 @@ class Locale_ZZ extends Locale {
 		if (strlen($word) === 0) {
 			return '';
 		}
-		$word = JSON::encode($word);
+		$word = self::encode($word);
 		return "{indefinite_article($word)}";
+	}
+
+	public static function encode(string $word): string {
+		try {
+			return JSON::encode($word);
+		} catch (Semantics $e) {
+			return $e->getMessage();
+		}
 	}
 
 	/**
@@ -91,9 +109,9 @@ class Locale_ZZ extends Locale {
 	 * @todo Probably should remove this 2018-01
 	 *
 	 *
-	 * @see Locale::negate_word()
+	 * @see Locale::negateWord()
 	 */
-	public function negate_word(string $word, string $preferred_prefix = null): string {
-		return '{negate_word(' . JSON::encode($word) . JSON::encode($preferred_prefix) . '}';
+	public function negateWord(string $word, string $preferred_prefix = null): string {
+		return '{negate_word(' . self::encode($word) . self::encode($preferred_prefix) . '}';
 	}
 }

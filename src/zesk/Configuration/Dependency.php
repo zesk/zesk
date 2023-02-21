@@ -1,32 +1,35 @@
 <?php
 declare(strict_types=1);
-namespace zesk;
+namespace zesk\Configuration;
+
+use zesk\ArrayTools;
+use zesk\Exception\Semantics;
 
 /**
  * A class dedicated to determining: In a series of configuration files, what external dependencies do we have?
  *
  * @author kent
  */
-class Configuration_Dependency {
+class Dependency {
 	/**
 	 * Stack of contexts we're loading
 	 *
 	 * @var array (Stack)
 	 */
-	protected $context = [];
+	protected array $context = [];
 
 	/**
 	 * Key of variable => dependencies
 	 *
 	 * @var array
 	 */
-	protected $definitions = [];
+	protected array $definitions = [];
 
 	/**
 	 * Current list of external variables which affect final state
 	 * @var array
 	 */
-	protected $externals = [];
+	protected array $externals = [];
 
 	/**
 	 *
@@ -40,11 +43,11 @@ class Configuration_Dependency {
 
 	/**
 	 * @return self
-	 * @throws Exception_Semantics
+	 * @throws Semantics
 	 */
 	public function pop(): self {
 		if (count($this->context) === 0) {
-			throw new Exception_Semantics('Popped once to many times?');
+			throw new Semantics('Popped once to many times?');
 		}
 		array_pop($this->context);
 		return $this;
@@ -56,7 +59,7 @@ class Configuration_Dependency {
 	 * @return $this
 	 */
 	public function defines(string $variable, array $dependencies = []): self {
-		$context = last($this->context);
+		$context = ArrayTools::last($this->context);
 		if (count($dependencies) === 0) {
 			unset($this->externals[$variable]);
 		} else {

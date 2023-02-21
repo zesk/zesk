@@ -215,7 +215,7 @@ As an application hook:
 
 ## `zesk\Controller::initialize`
 
-## `zesk\Controller_Theme::control_execute` (* can be renamed using an option)
+## `zesk\ThemeController::control_execute` (* can be renamed using an option)
 
 ## `zesk\Deploy::extension_php`
 ## `zesk\Deploy::extension_sql`

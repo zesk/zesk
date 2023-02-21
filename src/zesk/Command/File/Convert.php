@@ -6,6 +6,7 @@ declare(strict_types=1);
 namespace zesk;
 
 use Throwable;
+use zesk\Exception\FilePermission;
 
 /**
  * Abstract class for iterating on a series of files and converting them from one syntax to another
@@ -77,7 +78,7 @@ abstract class Command_File_Convert extends Command_Base {
 	}
 
 	/**
-	 * @throws Exception_Syntax
+	 * @throws SyntaxException
 	 */
 	private function target_filename(string $file): string {
 		$extension = trim($this->option('extension', $this->destination_extension), '.');
@@ -222,7 +223,7 @@ abstract class Command_File_Convert extends Command_Base {
 	 * @param string $file
 	 * @param string $new_file
 	 * @return void
-	 * @throws Exception_File_Permission
+	 * @throws FilePermission
 	 */
 	final protected function default_convert_file(string $file, string $new_file): void {
 		$this->application->logger->notice('Writing {new_file}', compact('new_file'));
@@ -232,8 +233,8 @@ abstract class Command_File_Convert extends Command_Base {
 	/**
 	 *
 	 * @param unknown $content
-	 * @throws Exception_Syntax
 	 * @return string
+	 * @throws SyntaxException
 	 */
 	final protected function default_convert_raw($content) {
 		$src = File::temporary($this->application->paths->temporary(), '.source');
@@ -247,6 +248,6 @@ abstract class Command_File_Convert extends Command_Base {
 			return $contents;
 		}
 
-		throw new Exception_Syntax('Unable to convert file - ambigious');
+		throw new SyntaxException('Unable to convert file - ambigious');
 	}
 }
