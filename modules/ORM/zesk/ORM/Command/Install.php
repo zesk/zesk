@@ -10,8 +10,8 @@ declare(strict_types=1);
  */
 namespace zesk\ORM\Command;
 
-use zesk\Command_Base;
 use zesk\Application;
+use zesk\Command\SimpleCommand;
 use zesk\Hookable;
 use zesk\ORM\ORMBase;
 use zesk\ORM\Schema;
@@ -20,7 +20,7 @@ use zesk\ORM\Schema;
  * Install all application classes by running their installation code
  * @category BETA - Management
  */
-class Install extends Command_Base {
+class Install extends SimpleCommand {
 	protected array $shortcuts = ['install', 'in'];
 
 	protected array $option_types = [];

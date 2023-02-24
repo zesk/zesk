@@ -49,7 +49,7 @@ class ResponseTest extends TestApplicationUnitTest {
 
 		/* setApplicationRoot */
 
-		$newApplication->modules->loadMultiple(['PHPUnit', 'MySQL', 'Database']);
+		$newApplication->modules->loadMultiple(['PHPUnit', 'Doctrine', 'World']);
 
 		$this->assertFalse($newApplication->isConfigured());
 		$newApplication->configure();
@@ -261,7 +261,7 @@ class ResponseTest extends TestApplicationUnitTest {
 		$shortcuts = ['test-command', $randomShortcut];
 		$testCommand = [];
 		$testCommand[] = '<?' . "php\n namespace zesk;";
-		$testCommand[] = "class $className extends Command_Base {";
+		$testCommand[] = "class $className extends SimpleCommand {";
 		$testCommand[] = '	protected array $shortcuts = ' . PHP::dump($shortcuts) . ';';
 		$testCommand[] = '	function run(): int {';
 		$testCommand[] = '		echo getcwd();';

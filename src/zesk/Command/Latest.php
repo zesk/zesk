@@ -2,18 +2,19 @@
 declare(strict_types=1);
 /**
  * @package zesk
- * @subpackage command
+ * @subpackage Command
  * @author kent
- * @copyright &copy; 2023, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  */
-namespace zesk;
+
+namespace zesk\Command;
 
 use zesk\Repository\Base as Repository;
 
 /**
  * @author kent
  */
-class Command_Latest extends Command_Base {
+class Latest extends SimpleCommand {
 	protected array $shortcuts = ['latest'];
 
 	protected array $load_modules = [

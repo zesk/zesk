@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace zesk;
 
+use zesk\CacheItemPool\FileCacheItemPool;
 use zesk\Logger\FileHandler;
 
 require_once __DIR__ . '/xdebug.php';
@@ -23,7 +24,7 @@ class TestApplicationFactory {
 		try {
 			$fileCache = __DIR__ . '/fileCache';
 			Directory::depend($fileCache);
-			$pool = new CacheItemPool_File($fileCache);
+			$pool = new FileCacheItemPool($fileCache);
 
 			$application = Kernel::createApplication([
 				Application::OPTION_PATH => __DIR__, Application::OPTION_CACHE_POOL => $pool,
@@ -52,13 +53,13 @@ class TestApplicationFactory {
 				$application->modules->load('PHPUnit');
 			}
 			if (isset($_SERVER['ZESK_EXTRA_MODULES'])) {
-				$application->modules->loadMultiple(toList($_SERVER['ZESK_EXTRA_MODULES']));
+				$application->modules->loadMultiple(Types::toList($_SERVER['ZESK_EXTRA_MODULES']));
 			}
 			$application->setOption('version', Version::release());
 
 			return $application->configure();
 		} catch (Exception $e) {
-			die(__CLASS__ . ' is incorrectly configured: ' . $e->getMessage());
+			die(__CLASS__ . " is incorrectly configured:\n" . $e->getMessage() . "\n" . $e->getTraceAsString());
 		}
 	}
 }

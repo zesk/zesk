@@ -1,6 +1,15 @@
 <?php
 declare(strict_types=1);
-namespace zesk;
+/**
+ * @package zesk
+ * @subpackage Command
+ * @author kent
+ * @copyright Copyright &copy; 2023, Market Acumen, Inc.
+ */
+namespace zesk\Command;
+
+use zesk\System;
+use zesk\Command;
 
 /**
  * Display the hostname according to Zesk
@@ -8,7 +17,7 @@ namespace zesk;
  * @category Debugging
  * @alias uname
  */
-class Command_Host extends Command_Base {
+class Host extends Command {
 	/**
 	 * @var array
 	 */

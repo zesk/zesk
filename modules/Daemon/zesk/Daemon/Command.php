@@ -11,7 +11,7 @@ namespace zesk\Daemon;
 
 use zesk\Application;
 use zesk\ArrayTools;
-use zesk\Command_Base;
+use zesk\Command\SimpleCommand;
 use zesk\Exception\ConfigurationException;
 use zesk\Exception\FilePermission;
 use zesk\Exception\Semantics;
@@ -34,7 +34,7 @@ use zesk\Timestamp;
  * @author kent
  * @category Management
  */
-class Command extends Command_Base implements SystemProcess {
+class Command extends SimpleCommand implements SystemProcess {
 	protected array $shortcuts = ['daemon'];
 
 	/**
@@ -164,7 +164,7 @@ class Command extends Command_Base implements SystemProcess {
 	/**
 	 * Command MAIN
 	 *
-	 * @see Command::run()
+	 * @see \zesk\Doctrine\Command\Command::run()
 	 */
 	public function run(): int {
 		$daemon = $this->application->modules->object('Daemon');

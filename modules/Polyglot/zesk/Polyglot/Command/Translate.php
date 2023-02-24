@@ -7,7 +7,8 @@ declare(strict_types=1);
 namespace zesk\Polyglot\Command;
 
 use zesk\ArrayTools;
-use zesk\Command_Base;
+use zesk\Command\SimpleCommand;
+use zesk\Doctrine\Command\Command;
 use zesk\Exception;
 use zesk\Locale\Locale;
 use zesk\Polyglot\Module;
@@ -20,7 +21,7 @@ use zesk\StringTools;
  * @author kent
  *
  */
-class Translate extends Command_Base {
+class Translate extends SimpleCommand {
 	/**
 	 *
 	 * @var integer

@@ -54,7 +54,7 @@
   "homepage": "https://zesk.com",
   "autoload-dev": {
     "classmap": [
-      "modules/PHPUnit/classes/PHPUnit/TestCase.php",
+      "modules/PHPUnit/zesk/PHPUnit/TestCase.php",
       "modules/Repository/zesk/Repository/TestCase.php"
     ]
   },

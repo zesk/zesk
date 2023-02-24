@@ -9,18 +9,18 @@ namespace zesk\World;
 
 use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Entity;
-use Doctrine\ORM\Mapping\Id;
-use Doctrine\ORM\Mapping\SequenceGenerator;
+use Throwable;
 use zesk\Application;
+use zesk\Doctrine\Model;
+use zesk\Doctrine\Trait\AutoID;
 use zesk\Exception\NotFoundException;
 
 /**
  * @see Country
  */
 #[Entity]
-class Country {
-	#[Id, Column(type: 'integer'), SequenceGenerator]
-	public null|int $id = null;
+class Country extends Model {
+	use AutoID;
 
 	#[Column(type: 'string', length: 2)]
 	public string $code;
@@ -35,21 +35,20 @@ class Country {
 	 * @throws NotFoundException
 	 */
 	public static function findCountry(Application $application, string|int $mixed): self {
+		$em = $application->entityManager();
+
 		try {
-			if (is_numeric($mixed)) {
-				$c = new Country($application, $mixed);
-				return $c->fetch();
+			if (is_int($mixed)) {
+				$result = $em->find(self::class, $mixed);
 			} else {
-				$c = new Country($application, [
-				]);
-				$country = $c->find();
-				assert($country instanceof self);
-				return $country;
+				$result = $em->getRepository(self::class)->findOneBy(['code' => $mixed]);
 			}
-		} catch (Database\Exception\Connect|ORMNotFound $e) {
-			throw $e;
-		} catch (Exception $e) {
-			throw new NotFoundException(self::class, $e->getMessage(), $e->variables(), $e);
+			if ($result) {
+				return $result;
+			}
+		} catch (Throwable) {
 		}
+
+		throw new NotFoundException(self::class);
 	}
 }

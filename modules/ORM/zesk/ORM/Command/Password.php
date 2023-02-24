@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace zesk;
 
+use zesk\Command\SimpleCommand;
 use zesk\ORM\User;
 
 /**
@@ -12,7 +13,7 @@ use zesk\ORM\User;
  * @author kent
  * @category Management
  */
-class Command_Password extends Command_Base {
+class Command_Password extends SimpleCommand {
 	protected array $option_types = [
 		'user' => 'string', 'password' => 'string', 'list' => 'boolean',
 	];

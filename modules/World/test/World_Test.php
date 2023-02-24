@@ -7,7 +7,7 @@ use zesk\ORM\ORMUnitTest;
 
 class World_Test extends ORMUnitTest {
 	protected array $load_modules = [
-		'World', 'MySQL',
+		'World',
 	];
 
 	public static function sampleCountry(): Country {

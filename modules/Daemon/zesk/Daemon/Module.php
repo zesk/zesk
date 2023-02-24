@@ -8,7 +8,9 @@ declare(strict_types=1);
  */
 namespace zesk\Daemon;
 
-use Psr\Cache\InvalidArgumentException;
+use Doctrine\ORM\Exception\ORMException;
+
+use zesk\Cron\Attributes\CronMinute;
 use zesk\Directory;
 use zesk\Exception\DirectoryCreate;
 use zesk\Exception\DirectoryPermission;
@@ -18,9 +20,8 @@ use zesk\Exception\Semantics;
 use zesk\Exception\SyntaxException;
 use zesk\Exception\Unsupported;
 use zesk\JSON;
-use zesk\ORM\Server;
+use zesk\Doctrine\Server;
 use zesk\PHP;
-use zesk\Theme;
 use zesk\Timestamp;
 
 /**
@@ -49,27 +50,27 @@ class Module extends \zesk\Module {
 	public function initialize(): void {
 		parent::initialize();
 		$runPath = $this->application->dataPath('run');
-		$this->runPath = path($runPath, 'daemon');
+		$this->runPath = Directory::path($runPath, 'daemon');
 		Directory::depend($this->runPath, 0o700);
 	}
 
 	/**
+	 * @todo This is not doing anything
 	 *
-	 * @param Theme $template
 	 * @return string[][]
 	 */
-	protected function hook_system_panel(Theme $template) {
-		$locale = $template->locale;
+	protected function hook_system_panel(): array {
 		return [
 			'system/panel/daemon' => [
-				'title' => $locale->__('Daemons'),
-				'module_class' => __CLASS__,
+				'title' => $this->application->locale->__('Daemons'),
+				'moduleClass' => __CLASS__,
 				'server_data_key' => __CLASS__ . '::process_database',
 				'server_updated_key' => __CLASS__ . '::process_database_updated',
 			],
 		];
 	}
 
+	#[CronMinute]
 	protected function hook_cron(): void {
 		$application = $this->application;
 
@@ -82,9 +83,8 @@ class Module extends \zesk\Module {
 			}
 			$server->setMeta(__CLASS__ . '::process_database', $database);
 			$server->setMeta(__CLASS__ . '::process_database_updated', Timestamp::now());
-		} catch (SyntaxException|FilePermission|Semantics|KeyNotFound
-		|InvalidArgumentException $e) {
-			$this->application->logger->error($e->getRawMessage(), $e->variables());
+		} catch (ORMException $e) {
+			$this->application->logger->error($e->getMessage());
 		}
 	}
 
@@ -94,7 +94,7 @@ class Module extends \zesk\Module {
 	 * @return string
 	 */
 	private function _databasePath(): string {
-		return path($this->runPath, 'daemon.db');
+		return Directory::path($this->runPath, 'daemon.db');
 	}
 
 	public function unlink_database(): void {
@@ -102,10 +102,8 @@ class Module extends \zesk\Module {
 	}
 
 	/**
-	 * Get/set daemon database
-	 *
-	 * @param array|null $database
-	 * @return array
+	 * @param array $database
+	 * @return void
 	 * @throws FilePermission
 	 * @throws Semantics
 	 */
@@ -180,22 +178,5 @@ class Module extends \zesk\Module {
 		}
 		fclose($fp);
 		return is_array($database) ? $database : [];
-	}
-
-	/**
-	 * Get/set daemon database
-	 *
-	 * @param array|null $database
-	 * @return array
-	 * @throws FilePermission
-	 * @throws Semantics
-	 */
-	public function process_database(array $database = null): array {
-		if ($database === null) {
-			return $this->loadProcessDatabase();
-		} else {
-			$this->saveProcessDatabase($database);
-			return $database;
-		}
 	}
 }

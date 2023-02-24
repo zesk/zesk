@@ -5,14 +5,20 @@ declare(strict_types=1);
  * @subpackage Command
  * @copyright @copy; 2023 Market Acumen, Inc.
  */
-namespace zesk;
+namespace zesk\Command;
+
+use zesk\Directory;
+use zesk\File;
+use zesk\Number;
+use zesk\Text;
+use zesk\StringTools;
 
 /**
  * Global search and replace tool for code
  *
  * @category Tools
  */
-class Command_Cannon extends Command_Base {
+class Cannon extends SimpleCommand {
 	protected array $shortcuts = ['cannon'];
 
 	protected array $option_types = [
@@ -37,7 +43,7 @@ class Command_Cannon extends Command_Base {
 		'dir' => 'Synonym for --directory',
 		'list' => 'List files which would be scanned',
 		'show' => 'Output files and matched lines',
-		'dry-run' => 'Show what files would match without changing anythiing (implies --show)',
+		'dry-run' => 'Show what files would match without changing anything (implies --show)',
 		'backup' => 'Backup files before changing',
 		'duplicate' => 'Create a copy of the file next to the original which has changes',
 		'extensions' => 'List of extensions separated by commas to look for',
@@ -96,7 +102,7 @@ class Command_Cannon extends Command_Base {
 			}
 			$extensions = $this->firstOption(
 				['extensions', 'extension'],
-				'php|inc|php4|php5|tpl|html|htm|sql|phpt|module|install|conf|md|markdown|css|less|js'
+				'php|inc|tpl|html|htm|sql|module|install|conf|md|markdown|css|less|js'
 			);
 			$extensions = explode(',', strtr($extensions, [
 				'|' => ',',
@@ -270,9 +276,9 @@ class Command_Cannon extends Command_Base {
 		}
 		if ($duplicate) {
 			$ext = File::extension($file);
-			$dupfile = File::setExtension($file, ".cannon.$ext");
-			$this->verboseLog("Writing $dupfile: " . $locale->pluralWord('change', count($lines)));
-			file_put_contents($dupfile, strtr($contents, [
+			$duplicateFile = File::setExtension($file, ".cannon.$ext");
+			$this->verboseLog("Writing $duplicateFile: " . $locale->pluralWord('change', count($lines)));
+			file_put_contents($duplicateFile, strtr($contents, [
 				$search => $replace,
 			]));
 		} else {

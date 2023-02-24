@@ -1,7 +1,14 @@
 <?php
 declare(strict_types=1);
+/**
+ * @package zesk
+ * @subpackage Command
+ * @author kent
+ * @copyright Copyright &copy; 2023, Market Acumen, Inc.
+ */
 
-namespace zesk;
+
+namespace zesk\Command;
 
 /**
  * Turn maintenance on or off, with an optional message.
@@ -10,7 +17,7 @@ namespace zesk;
  * @author kent
  *
  */
-class Command_Maintenance extends Command_Base {
+class Maintenance extends SimpleCommand {
 	protected array $shortcuts = ['maintenance'];
 
 	protected array $option_types = [

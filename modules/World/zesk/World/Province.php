@@ -2,26 +2,26 @@
 declare(strict_types=1);
 /**
  * @package zesk
- * @subpackage objects
- * @see Class_Province
+ * @subpackage World
  */
 namespace zesk\World;
 
-use zesk\ORM\ORMBase;
+use Doctrine\ORM\Mapping\Entity;
+use Doctrine\ORM\Mapping\JoinColumn;
+use Doctrine\ORM\Mapping\ManyToOne;
+use zesk\Doctrine\Model;
+use zesk\Doctrine\Trait\CodeName;
+use zesk\Doctrine\Trait\AutoID;
 
 /**
- * @see Class_Province
- * @property int $id
- * @property string $code
- * @property Country $country
- * @property string $name
+ *
  */
-class Province extends ORMBase {
-	public const MEMBER_ID = 'id';
+#[Entity]
+class Province extends Model {
+	use AutoID;
+	use CodeName;
 
-	public const MEMBER_CODE = 'code';
-
-	public const MEMBER_COUNTRY = 'country';
-
-	public const MEMBER_NAME = 'name';
+	#[ManyToOne]
+	#[JoinColumn(name: 'country')]
+	public Country $country;
 }

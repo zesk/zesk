@@ -321,9 +321,15 @@ class KernelTest extends TestCase {
 	 */
 	public static function data_has(): array {
 		return [
-			[true, Application::class], [true, [Application::class, 'modules']], [true, Kernel::class], [
-				true, [Application::class, Application::OPTION_HOME_PATH],
-			], [true, Options::class], [false, md5('HOME')], [true, 'HOME'], [false, 'HoMe'], [false, '0192830128301283123'],
+			[true, Application::class],
+			[true, [Application::class, 'deprecated']],
+			[true, Kernel::class],
+			[true, [Application::class, Application::OPTION_HOME_PATH], ],
+			[true, Options::class],
+			[false, md5('HOME')],
+			[true, 'HOME'],
+			[false, 'HoMe'],
+			[false, '0192830128301283123'],
 		];
 	}
 

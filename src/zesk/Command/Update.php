@@ -1,10 +1,13 @@
 <?php
 declare(strict_types=1);
 /**
- *
+ * @package zesk
+ * @subpackage Command
+ * @author kent
+ * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  */
 
-namespace zesk;
+namespace zesk\Command;
 
 use zesk\Exception\ClassNotFound;
 use zesk\Exception\ConnectionFailed;
@@ -20,7 +23,7 @@ use zesk\Repository\Base as Repository;
  *
  * @category Management
  */
-class Command_Update extends Command_Base {
+class Command_Update extends SimpleCommand {
 	protected array $app_data;
 
 	protected array $option_types = [

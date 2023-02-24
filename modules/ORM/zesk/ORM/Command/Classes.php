@@ -6,7 +6,7 @@ declare(strict_types=1);
 namespace zesk\ORM\Command;
 
 use zesk\ArrayTools;
-use zesk\Command_Base;
+use zesk\Command\SimpleCommand;
 use zesk\Text;
 
 /**
@@ -14,7 +14,7 @@ use zesk\Text;
  *
  * @category Database
  */
-class Classes extends Command_Base {
+class Classes extends SimpleCommand {
 	protected array $shortcuts = ['classes'];
 
 	protected array $option_types = [

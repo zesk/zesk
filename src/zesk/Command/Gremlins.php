@@ -1,6 +1,12 @@
 <?php
 declare(strict_types=1);
-namespace zesk;
+/**
+ * @package zesk
+ * @subpackage Command
+ * @author kent
+ * @copyright Copyright &copy; 2023, Market Acumen, Inc.
+ */
+namespace zesk\Command;
 
 use SplFileInfo;
 
@@ -9,7 +15,7 @@ use SplFileInfo;
  * @category Debugging
  * @author kent
  */
-class Command_Gremlins extends Command_Iterator_File {
+class Gremlins extends FileIterator {
 	protected array $shortcuts = ['gremlins'];
 
 	protected array $extensions = [

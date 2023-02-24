@@ -1,12 +1,26 @@
 <?php
 declare(strict_types=1);
+/**
+ * @package zesk
+ * @subpackage Command
+ * @author kent
+ * @copyright Copyright &copy; 2023, Market Acumen, Inc.
+ */
 
-namespace zesk;
+namespace zesk\Command;
 
 use Closure;
 use Throwable;
+use zesk\Application;
+use zesk\ArrayTools;
+use zesk\Exception;
 use zesk\Exception\FileNotFound;
 use zesk\Exception\FilePermission;
+use zesk\File;
+use zesk\JSON;
+use zesk\Exception\ParseException;
+use zesk\Exception\Semantics;
+use zesk\Version as ZeskVersion;
 
 /**
  * Version editor allows you to modify and bump version numbers easily for releases.
@@ -19,7 +33,7 @@ use zesk\Exception\FilePermission;
  * @author kent
  * @category Management
  */
-class Command_Version extends Command_Base {
+class Version extends SimpleCommand {
 	protected array $shortcuts = ['version', 'v'];
 
 	protected array $option_types = [
@@ -96,7 +110,7 @@ class Command_Version extends Command_Base {
 			return $this->_commandInitializeSchema();
 		}
 		if ($this->optionBool('zesk')) {
-			echo Version::release();
+			echo ZeskVersion::release();
 			return 0;
 		}
 		$schema_path = $this->versionSchemaPath();

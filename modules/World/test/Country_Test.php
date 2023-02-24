@@ -10,7 +10,7 @@ use zesk\ORM\ORMNotFound;
 
 class Country_Test extends ORMUnitTest {
 	protected array $load_modules = [
-		'World', 'MySQL',
+		'World',
 	];
 
 	public function initialize(): void {

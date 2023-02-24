@@ -8,8 +8,8 @@ namespace zesk;
  */
 class IPv4Test extends UnitTest {
 	public function test_from_integer(): void {
-		$this->assertEquals('192.168.0.200', IPv4::from_integer(3232235720));
-		$this->assertEquals('192.168.0.200', IPv4::from_integer('3232235720'));
+		$this->assertEquals('192.168.0.200', IPv4::fromInteger(3232235720));
+		$this->assertEquals('192.168.0.200', IPv4::fromInteger('3232235720'));
 	}
 
 	public function test_is_mask(): void {
@@ -75,7 +75,7 @@ class IPv4Test extends UnitTest {
 
 		$ip = '192.168.0.248';
 		[$a, $b] = IPv4::mask_to_integers("$ip/29");
-		$this->assertEquals("$ip/29", IPv4::from_integer($a) . "/$b");
+		$this->assertEquals("$ip/29", IPv4::fromInteger($a) . "/$b");
 
 		foreach ($ips as $ip) {
 			$ip = trim($ip);
@@ -109,7 +109,7 @@ class IPv4Test extends UnitTest {
 		$this->assertEquals('192.168.0.200/29', IPv4::mask_to_string(3232235720, 29));
 		$this->assertEquals('192.168.0.200/29', IPv4::mask_to_string(3232235720, 29));
 
-		$all_ones = IPv4::to_integer('255.255.255.255');
+		$all_ones = IPv4::toInteger('255.255.255.255');
 		$n = 1;
 		$m = 0;
 		for ($i = 31; $i > 16; $i--) {
@@ -132,8 +132,8 @@ class IPv4Test extends UnitTest {
 			}
 		}
 
-		$this->assertEquals('76.12.128.128/29', IPv4::mask_to_string(IPv4::to_integer('76.12.128.129'), 29));
-		$this->assertEquals('76.12.128.128/29', IPv4::mask_to_string(IPv4::to_integer('76.12.128.129'), 29));
+		$this->assertEquals('76.12.128.128/29', IPv4::mask_to_string(IPv4::toInteger('76.12.128.129'), 29));
+		$this->assertEquals('76.12.128.128/29', IPv4::mask_to_string(IPv4::toInteger('76.12.128.129'), 29));
 	}
 
 	public static function data_network(): array {
@@ -185,14 +185,14 @@ class IPv4Test extends UnitTest {
 	 */
 	public function test_network($ipmask, $ip_check_low, $ip_check_high): void {
 		if (is_string($ip_check_low)) {
-			$ip_check_low = IPv4::to_integer($ip_check_low);
+			$ip_check_low = IPv4::toInteger($ip_check_low);
 		}
 		if (is_string($ip_check_high)) {
-			$ip_check_high = IPv4::to_integer($ip_check_high);
+			$ip_check_high = IPv4::toInteger($ip_check_high);
 		}
 		[$ip_low, $ip_high] = IPv4::network($ipmask);
-		$this->assertEquals($ip_low, $ip_check_low, 'Low Check: ' . IPv4::from_integer($ip_low) . ' !== ' . IPv4::from_integer($ip_check_low));
-		$this->assertEquals($ip_high, $ip_check_high, 'High Check: ' . IPv4::from_integer($ip_high) . ' !== ' . IPv4::from_integer($ip_check_high));
+		$this->assertEquals($ip_low, $ip_check_low, 'Low Check: ' . IPv4::fromInteger($ip_low) . ' !== ' . IPv4::fromInteger($ip_check_low));
+		$this->assertEquals($ip_high, $ip_check_high, 'High Check: ' . IPv4::fromInteger($ip_high) . ' !== ' . IPv4::fromInteger($ip_check_high));
 	}
 
 	public static function data_to_integer(): array {
@@ -226,9 +226,9 @@ class IPv4Test extends UnitTest {
 	 * @dataProvider data_to_integer
 	 */
 	public function test_to_integer(float $expected, $mixed): void {
-		$this->assertEquals($expected, IpV4::to_integer($mixed));
+		$this->assertEquals($expected, IpV4::toInteger($mixed));
 		if (is_string($mixed) && !empty($mixed) && !empty($expected)) {
-			$this->assertEquals($mixed, IpV4::from_integer($expected));
+			$this->assertEquals($mixed, IpV4::fromInteger($expected));
 		}
 	}
 
@@ -245,7 +245,7 @@ class IPv4Test extends UnitTest {
 				continue;
 			}
 			// echo "$ip\n";
-			$ipi = IPv4::to_integer($ip);
+			$ipi = IPv4::toInteger($ip);
 			$this->assertEquals($ipi, IPv4::subnet_bits($ipi, 32));
 			$delta = ($ipi & 1) ? 1 : 0;
 			$this->assertEquals($ipi - $delta, IPv4::subnet_bits($ipi, 31));

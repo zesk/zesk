@@ -1,10 +1,18 @@
 <?php
 declare(strict_types=1);
 /**
- *
+ * @package zesk
+ * @subpackage Command
+ * @author kent
+ * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  */
 
-namespace zesk;
+namespace zesk\Command;
+
+use zesk\Application;
+use zesk\ArrayTools;
+use zesk\Kernel;
+use zesk\PHP;
 
 /**
  * Output useful globals and settings which affect Zesk runtime.
@@ -12,7 +20,7 @@ namespace zesk;
  * @param array $arguments
  * @category Debugging
  */
-class Command_Info extends Command_Base {
+class Info extends SimpleCommand {
 	/**
 	 * @var array
 	 */

@@ -923,9 +923,11 @@ abstract class Command extends Hookable implements Logger\Handler, Promptable {
 				}
 			}
 			if (!array_key_exists($arg, $this->option_types)) {
-				$this->usage("Unknown argument: $saveArg");
 				array_unshift($this->argv, $saveArg);
-
+				if ($optional_arguments) {
+					break;
+				}
+				$this->usage("Unknown argument: $saveArg");
 				break;
 			}
 
@@ -1434,6 +1436,9 @@ abstract class Command extends Hookable implements Logger\Handler, Promptable {
 	private function docCommentHelp(): string {
 		$reflection_class = new ReflectionClass(get_class($this));
 		$comment = $reflection_class->getDocComment();
+		if (!is_string($comment)) {
+			return '';
+		}
 		$parsed = DocComment::instance($comment)->variables();
 		return implode("\n", array_filter([
 			$parsed['desc'] ?? null, $parsed['description'] ?? null,

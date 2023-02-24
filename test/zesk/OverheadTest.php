@@ -20,8 +20,7 @@ namespace zesk;
  */
 class OverheadTest extends UnitTest {
 	protected array $load_modules = [
-		'MySQL',
-		'ORM',
+		'Doctrine',
 	];
 
 	public function test_usage(): void {

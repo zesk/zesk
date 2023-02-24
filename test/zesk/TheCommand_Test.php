@@ -8,6 +8,8 @@ declare(strict_types=1);
 
 namespace zesk;
 
+use zesk\Command\SimpleCommand;
+
 /**
  *
  * @author kent
@@ -26,7 +28,7 @@ class TheCommand_Test extends UnitTest {
 			__CLASS__, '--no-ansi', '--file', $f, '--dir', $d, '--', 'ignored', '--', 'another',
 		];
 
-		$testObject = new Command_Base_Test($this->application, ['stdout' => true, 'no-ansi' => false]);
+		$testObject = new SimpleCommand_Test($this->application, ['stdout' => true, 'no-ansi' => false]);
 
 		$testObject->parseArguments($argv);
 
@@ -67,7 +69,7 @@ class TheCommand_Test extends UnitTest {
  * @author kent
  *
  */
-class Command_Base_Test extends Command_Base {
+class SimpleCommand_Test extends SimpleCommand {
 	public function initialize(): void {
 		parent::initialize();
 		$this->option_types += [

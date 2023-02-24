@@ -1,22 +1,21 @@
 <?php
+declare(strict_types=1);
 /**
- * @author kent
  * @package zesk
  * @subpackage Command
- * @copyright &copy; 2023
- * @copyright &copy; 2023 Market Acumen, Inc.
+ * @author kent
+ * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  */
 
-declare(strict_types=1);
 
-namespace zesk;
+namespace zesk\Command;
 
 /**
  * Output license information for any modules
  *
  * @category Tools
  */
-class Command_Licenses extends Command_Base {
+class Licenses extends SimpleCommand {
 	protected array $shortcuts = ['licenses'];
 
 	protected array $option_types = [

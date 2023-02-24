@@ -18,7 +18,7 @@ use zesk\ORM\User;
  */
 class PreferenceTest extends ORMUnitTest {
 	protected array $load_modules = [
-		'Preference', 'MySQL',
+		'Preference',
 	];
 
 	protected function initialize(): void {

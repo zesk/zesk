@@ -5,7 +5,7 @@ declare(strict_types=1);
  */
 namespace zesk\ORM\Command;
 
-use zesk\Command_Base as CommandBase;
+use zesk\Command\SimpleCommand as CommandBase;
 use zesk\Exception;
 use zesk\Exception\ClassNotFound;
 use zesk\Exception\Unimplemented;

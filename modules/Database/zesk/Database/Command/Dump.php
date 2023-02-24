@@ -6,7 +6,7 @@ declare(strict_types=1);
 namespace zesk\Database\Command;
 
 use zesk\ArrayTools;
-use zesk\Command_Base;
+use zesk\Command\SimpleCommand;
 use zesk\Directory;
 use zesk\File;
 use zesk\PHP;
@@ -16,7 +16,7 @@ use zesk\Timestamp;
  * Dump the database to a file for this application.
  * @category Database
  */
-class Dump extends Command_Base {
+class Dump extends SimpleCommand {
 	protected array $load_modules = [
 		'database',
 	];

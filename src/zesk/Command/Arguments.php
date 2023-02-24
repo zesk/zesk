@@ -1,19 +1,21 @@
 <?php
 declare(strict_types=1);
 /**
- *
- *
+ * @package zesk
+ * @subpackage Command
+ * @author kent
+ * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  */
-namespace zesk;
+namespace zesk\Command;
+
+use zesk\Command;
 
 /**
  * Output all command arguments as a JSON-encoded array
  *
  * @category Debugging
- * @param array $arguments
- * @return unknown
  */
-class Command_Arguments extends Command {
+class Arguments extends Command {
 	protected array $shortcuts = ['arguments'];
 
 	public array $option_types = [

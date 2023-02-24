@@ -5,9 +5,9 @@ declare(strict_types=1);
  */
 namespace zesk\ORM\Command;
 
-use zesk\Database\Base;
 use zesk\ArrayTools;
-use zesk\Command_Base as CommandBase;
+use zesk\Command\SimpleCommand as CommandBase;
+use zesk\Database\Base;
 use zesk\Debug;
 use zesk\Exception\ClassNotFound;
 use zesk\Exception\NotFoundException;

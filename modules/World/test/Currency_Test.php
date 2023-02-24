@@ -7,7 +7,7 @@ use zesk\ORM\ORMUnitTest;
 
 class Currency_Test extends ORMUnitTest {
 	protected array $load_modules = [
-		'World', 'ORM', 'MySQL',
+		'World',
 	];
 
 	public function initialize(): void {

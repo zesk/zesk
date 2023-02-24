@@ -52,10 +52,6 @@ Zesk is an application development platform which solves many problems found in 
 
 - [Sharing resources](share.md)
 
-## Objects and Databases
-
-- [Objects](objects.md)
-
 ## Command-line Tools
 
 - [About zesk.sh](zesk.sh.md)

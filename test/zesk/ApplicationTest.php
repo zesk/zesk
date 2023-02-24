@@ -37,7 +37,7 @@ class ApplicationTest extends TestApplicationUnitTest {
 	public function initialize(): void {
 	}
 
-	protected function acmeWidgetRegistry(Application $application, string $arg): ACMETest {
+	protected function acmeWidgetRegistry(string $arg): ACMETest {
 		return new ACMETest($arg);
 	}
 
@@ -214,13 +214,13 @@ class ApplicationTest extends TestApplicationUnitTest {
 			'/zesk/modules/CSV/zesk/CSV/',
 		], array_keys($newApplication->autoloadPath()));
 
-		$newApplication->modules->loadMultiple(['PHPUnit', 'MySQL', 'Database']);
+		$newApplication->modules->loadMultiple(['PHPUnit', 'Doctrine', 'Repository']);
 		$paths = [];
 		$paths[] = $newApplication->zeskHome('modules/Diff/zesk/Diff/');
 		$paths[] = $newApplication->zeskHome('modules/CSV/zesk/CSV/');
 		$paths[] = $newApplication->zeskHome('modules/PHPUnit/zesk/PHPUnit/');
-		$paths[] = $newApplication->zeskHome('modules/MySQL/zesk/MySQL/');
-		$paths[] = $newApplication->zeskHome('modules/Database/zesk/Database/');
+		$paths[] = $newApplication->zeskHome('modules/Doctrine/zesk/Doctrine/');
+		$paths[] = $newApplication->zeskHome('modules/Repository/zesk/Repository/');
 		$this->assertEquals($paths, array_keys($newApplication->autoloadPath()));
 
 		/* maintenance Loading */
@@ -416,8 +416,8 @@ class ApplicationTest extends TestApplicationUnitTest {
 		$randomShortcut = $this->randomHex();
 		$shortcuts = ['test-command', $randomShortcut];
 		$testCommand = [];
-		$testCommand[] = '<?' . "php\n namespace zesk;";
-		$testCommand[] = "class $className extends Command_Base {";
+		$testCommand[] = '<?' . "php\n namespace zesk\Command;";
+		$testCommand[] = "class $className extends SimpleCommand {";
 		$testCommand[] = '	protected array $shortcuts = ' . PHP::dump($shortcuts) . ';';
 		$testCommand[] = '	function run(): int {';
 		$testCommand[] = '		echo getcwd();';
@@ -429,7 +429,8 @@ class ApplicationTest extends TestApplicationUnitTest {
 		$allShortcuts = $loader->collectCommandShortcuts();
 
 		$this->assertArrayHasKeys($shortcuts, $allShortcuts);
-		$this->assertEquals(__NAMESPACE__ . '\\' . $className, $allShortcuts['test-command']);
-		$this->assertEquals(__NAMESPACE__ . '\\' . $className, $allShortcuts[$randomShortcut]);
+		$namespaceClass = "zesk\\Command\\$className";
+		$this->assertEquals($namespaceClass, $allShortcuts['test-command']);
+		$this->assertEquals($namespaceClass, $allShortcuts[$randomShortcut]);
 	}
 }

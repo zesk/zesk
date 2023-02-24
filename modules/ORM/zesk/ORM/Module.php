@@ -22,6 +22,7 @@ use zesk\Exception\Semantics;
 use zesk\Exception\SyntaxException;
 use zesk\Exception\TimeoutExpired;
 use zesk\Exception\Unsupported;
+use zesk\Interface\SettingsInterface;
 use zesk\Module as BaseModule;
 use zesk\ORM\Database\MySQLAdapter;
 use zesk\ORM\Exception\ORMNotFound;
@@ -146,15 +147,14 @@ class Module extends BaseModule {
 
 	/**
 	 *
-	 * @param Application $application
 	 * @param string $class
 	 * @param mixed|null $mixed
 	 * @param array $options
 	 * @return ORMBase
 	 * @throws ClassNotFound
 	 */
-	public function ormRegistry(Application $application, string $class, mixed $mixed = null, array $options = []): ORMBase {
-		$class = $application->objects->resolve($class);
+	public function ormRegistry(string $class, mixed $mixed = null, array $options = []): ORMBase {
+		$class = $this->application->objects->resolve($class);
 		if ($mixed === null && is_array($options) && count($options) > 0) {
 			$result = $this->_classCacheComponent($class, $mixed, $options, 'object');
 			if (!$result) {
@@ -162,7 +162,7 @@ class Module extends BaseModule {
 			}
 			return $result;
 		} else {
-			$model = ORMBase::factory($application, $class, $mixed, $options);
+			$model = ORMBase::factory($this->application, $class, $mixed, $options);
 			assert($model instanceof ORMBase);
 			return $model;
 		}
@@ -170,10 +170,10 @@ class Module extends BaseModule {
 
 	/**
 	 * @param string $class
-	 * @return Settings
+	 * @return SettingsInterface
 	 * @throws ClassNotFound
 	 */
-	public function settingsRegistry(string $class = ''): Settings {
+	public function settingsRegistry(string $class = ''): SettingsInterface {
 		if ($class === '') {
 			$class = $this->option('settings_class', Settings::class);
 		}
@@ -194,9 +194,9 @@ class Module extends BaseModule {
 	 * @return ORMBase
 	 * @throws ClassNotFound
 	 */
-	public function ormFactory(Application $application, string $class, mixed $mixed = null, array $options = []): ORMBase {
+	public function ormFactory(string $class, mixed $mixed = null, array $options = []): ORMBase {
 		// $class is resolved deeper
-		$orm = ORMBase::factory($application, $class, $mixed, $options);
+		$orm = ORMBase::factory($this->application, $class, $mixed, $options);
 		assert($orm instanceof ORMBase);
 		return $orm;
 	}
@@ -210,8 +210,8 @@ class Module extends BaseModule {
 	 * @return Class_Base
 	 * @throws ClassNotFound
 	 */
-	public function classORMRegistry(Application $application, string $class, mixed $mixed = null, array $options = []): Class_Base {
-		$class = $application->objects->resolve($class);
+	public function classORMRegistry(string $class, mixed $mixed = null, array $options = []): Class_Base {
+		$class = $this->application->objects->resolve($class);
 		$result = $this->_classCacheComponent($class, $mixed, $options, 'class');
 		if (!$result) {
 			throw new ClassNotFound($class);

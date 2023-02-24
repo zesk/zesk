@@ -1,10 +1,14 @@
 <?php
 declare(strict_types=1);
 /**
- *
- *
+ * @package zesk
+ * @subpackage Command
+ * @author kent
+ * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  */
-namespace zesk;
+namespace zesk\Command;
+
+use zesk\Command;
 
 /**
  * Output the elapsed time of the script so far. Useful when doing:
@@ -14,7 +18,7 @@ namespace zesk;
  * @category Optimization
  * @author kent
  */
-class Command_RunTime extends Command {
+class RunTime extends Command {
 	protected array $shortcuts = ['runtime'];
 
 	public function run(): int {

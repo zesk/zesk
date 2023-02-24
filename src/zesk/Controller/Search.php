@@ -6,23 +6,25 @@ declare(strict_types=1);
  * @author kent
  * @copyright &copy; 2023, Market Acumen, Inc.
  */
-namespace zesk;
+namespace zesk\Controller;
 
+use zesk\Controller\ThemeController;
 use zesk\Exception\ClassNotFound;
+use zesk\Request;
 
 /**
  *
  * @author kent
  *
  */
-class Controller_Search extends ThemeController {
+class Search extends ThemeController {
 	/**
 	 *
 	 * @return string
 	 * @throws ClassNotFound|Redirect
 	 */
-	protected function action_index(): string {
-		$query = $this->request->get($this->option('search_query_variable', 'q'));
+	protected function action_index(Request $request): string {
+		$query = $request->get($this->option('search_query_variable', 'q'));
 		$results = [];
 		$total = $shown = 0;
 		foreach ($this->optionIterable('search_classes') as $class) {

@@ -170,28 +170,24 @@ class Method extends Route {
 
 	/**
 	 * @param Request $request
-	 * @param Response $response
 	 * @param string|callable|Closure $method
 	 * @param array $arguments
 	 * @return mixed
-	 * @throws Redirect
 	 */
-	private function executeMethod(Request $request, Response $response, string|callable|Closure $method, array $arguments): mixed {
+	private function executeMethod(Request $request, string|callable|Closure $method, array $arguments): mixed {
 		$app = $this->application;
 
 		try {
 			if (is_string($method) && str_contains($method, '::')) {
 				[$class, $method] = StringTools::pair($method, '::', 'stdClass', $method);
 				$method = new ReflectionMethod($class, $method);
-				$construct_arguments = $this->_mapVariables($request, $response, $this->optionArray('construct arguments'));
+				$construct_arguments = $this->_mapVariables($request, $this->optionArray('construct arguments'));
 				$object = $method->isStatic() ? null : $app->objects->factoryArguments($class, $construct_arguments);
 				/** @throws Redirect */
 				$content = $method->invokeArgs($object, $arguments);
 			} else {
 				$content = call_user_func_array($method, $arguments);
 			}
-		} catch (Redirect $e) {
-			throw $e;
 		} catch (Throwable $e) {
 			$content = null;
 			$app->hooks->call('exception', $e);
@@ -211,22 +207,20 @@ class Method extends Route {
 	/**
 	 *
 	 * @param Request $request
-	 * @param Response $response
 	 * @return Response
 	 * @throws FileNotFound
 	 * @throws ParameterException
 	 * @throws Redirect
 	 * @throws Throwable
 	 */
-	protected function internalExecute(Request $request, Response $response): Response {
-		$response->setContent();
-
+	protected function internalExecute(Request $request): Response {
 		$this->_includeFiles();
 		foreach ($this->optionIterable(self::OPTION_BEFORE_METHODS) as $beforeMethod) {
-			$beforeMethod = $this->_mapVariables($request, $response, $beforeMethod);
+			$beforeMethod = $this->_mapVariables($request, $beforeMethod);
 			if ($this->validateMethod($beforeMethod)) {
-				$result = $this->executeMethod($request, $response, $beforeMethod, [$request, $response]);
+				$result = $this->executeMethod($request, $beforeMethod, [$request]);
 				if (!$result) {
+					$response = $this->application->responseFactory($request);
 					$response->setStatus($this->optionInt(self::OPTION_BEFORE_METHOD_STATUS, HTTP::STATUS_UNAUTHORIZED));
 					$response->setContent($this->optionString(self::OPTION_BEFORE_METHOD_CONTENT, 'Not allowed'));
 					return $response;
@@ -235,9 +229,9 @@ class Method extends Route {
 		}
 
 		try {
-			$method = $this->_mapVariables($request, $response, $this->options[self::OPTION_METHOD]);
+			$method = $this->_mapVariables($request, $this->options[self::OPTION_METHOD]);
 			ob_start();
-			$content = $this->executeMethod($request, $response, $method, $this->_mapVariables($request, $response, $this->args));
+			$content = $this->executeMethod($request, $method, $this->_mapVariables($request, $this->args));
 			$buffer = ob_get_clean();
 		} catch (Throwable $t) {
 			ob_get_clean();
@@ -246,12 +240,14 @@ class Method extends Route {
 		}
 		if ($content instanceof Response) {
 			$response = $content;
+			if ($response->content() !== null) {
+				return $response;
+			}
 			$content = null;
+		} else {
+			$response = $this->application->responseFactory($request);
 		}
 		/* Content was set, just return */
-		if ($response->content() !== null) {
-			return $response;
-		}
 		if (!$this->optionBool(self::OPTION_NO_BUFFER)) {
 			if ($content === null && !empty($buffer)) {
 				$content = $buffer;

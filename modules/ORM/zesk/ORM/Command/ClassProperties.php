@@ -6,7 +6,7 @@ declare(strict_types=1);
 namespace zesk\ORM\Command;
 
 use zesk\ArrayTools;
-use zesk\Command_Base;
+use zesk\Command\SimpleCommand;
 use zesk\Date;
 use zesk\ORM\Class_Base;
 use zesk\Time;
@@ -18,7 +18,7 @@ use zesk\Timestamp;
  * @category ORM Module
  * @author kent
  */
-class ClassProperties extends Command_Base {
+class ClassProperties extends SimpleCommand {
 	/**
 	 *
 	 * @var array

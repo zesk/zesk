@@ -11,6 +11,7 @@ namespace zesk\Repository;
 
 use zesk\Application;
 use zesk\Directory;
+use zesk\Doctrine\Command\Command;
 use zesk\Exception\ClassNotFound;
 use zesk\Exception\NotFoundException;
 use zesk\Exception\Semantics;

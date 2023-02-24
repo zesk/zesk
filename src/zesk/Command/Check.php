@@ -11,13 +11,14 @@ declare(strict_types=1);
 namespace zesk;
 
 use SplFileInfo;
+use zesk\Command\FileIterator;
 
 /**
  * Check PHP code, and repair comments.
  *
  * @category Debugging
  */
-class Command_Check extends Command_Iterator_File {
+class Command_Check extends FileIterator {
 	public const CODE_STRICT_TYPES = "declare(strict_types=1);\n";
 
 	/**

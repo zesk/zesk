@@ -54,7 +54,9 @@ class Model extends Hookable implements ArrayAccess, ModelFactory {
 				}
 			}
 		}
-		$this->callHook('construct');
+		if (method_exists($this, 'initialize')) {
+			$this->initialize();
+		}
 	}
 
 	/**

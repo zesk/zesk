@@ -10,7 +10,7 @@ declare(strict_types=1);
 namespace zesk\GitHub;
 
 use Throwable;
-use zesk\Command_Base;
+use zesk\Command\SimpleCommand;
 use zesk\Exception;
 use zesk\Exception\FileNotFound;
 use zesk\Exception\NotFoundException;
@@ -21,7 +21,7 @@ use zesk\File;
  * @author kent
  *
  */
-class Command extends Command_Base {
+class Command extends SimpleCommand {
 	protected array $shortcuts = ['github'];
 
 	/**

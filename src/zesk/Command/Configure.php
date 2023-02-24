@@ -1,14 +1,18 @@
 <?php
 declare(strict_types=1);
 /**
- * @copyright &copy; 2023 Market Acumen, Inc.
  * @package zesk
+ * @subpackage core
+ * @author kent
+ * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  */
-namespace zesk;
+namespace zesk\Command;
 
 use zesk\Adapter\SettingsArray;
+use zesk\Command\SimpleCommand;
 use zesk\Configuration\Parser;
 use zesk\Configure\Engine;
+use zesk\Doctrine\Command\Command;
 use zesk\Exception\ClassNotFound;
 use zesk\Exception\DirectoryNotFound;
 use zesk\Exception\FileNotFound;
@@ -31,7 +35,7 @@ use zesk\Exception\ParseException;
  * @author kent
  * @category Management
  */
-class Command_Configure extends Command_Base {
+class Command_Configure extends SimpleCommand {
 	protected array $shortcuts = ['configure'];
 
 	/**

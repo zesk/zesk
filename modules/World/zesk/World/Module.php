@@ -12,6 +12,8 @@ namespace zesk\World;
 use zesk\Module as BaseModule;
 use zesk\ORM\Interface\SchemaUpdatedInterface;
 
+use zesk\Doctrine\Module as DoctrineModule;
+
 /**
  *
  * @author kent
@@ -38,6 +40,11 @@ class Module extends BaseModule implements SchemaUpdatedInterface {
 		Language::class,
 		Province::class,
 	];
+
+	public function initialize(): void {
+		parent::initialize();
+		$this->application->doctrineModule()->addPath($this->path('zesk/World'));
+	}
 
 	public function hook_schema_updated(): void {
 		$__ = [

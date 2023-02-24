@@ -1094,7 +1094,6 @@ class Class_Base extends Hookable {
 	 * Only thing set is "$this->class"
 	 */
 	protected function configure(ORMBase $object): void {
-
 		// pass
 	}
 
@@ -2135,7 +2134,7 @@ class Class_Base extends Hookable {
 				break;
 			case self::TYPE_IP:
 			case self::TYPE_IP4:
-				$data[$column] = $v === null ? null : IPv4::from_integer($v);
+				$data[$column] = $v === null ? null : IPv4::fromInteger($v);
 
 				break;
 			case self::TYPE_POLYMORPH:
@@ -2188,7 +2187,7 @@ class Class_Base extends Hookable {
 			case self::TYPE_IP:
 			case self::TYPE_IP4:
 				if (is_int($data[$column])) {
-					$data[$column] = IPv4::from_integer($data[$column]);
+					$data[$column] = IPv4::fromInteger($data[$column]);
 				}
 
 				break;

@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace zesk\World;
 
-use zesk\Command_Base;
+use zesk\Command\SimpleCommand;
 
 /**
  * Register default Country, Currency, Language, and Province data in the database.
@@ -12,7 +12,7 @@ use zesk\Command_Base;
  * @author kent
  *
  */
-class Command_Bootstrap extends Command_Base {
+class Command_Bootstrap extends SimpleCommand {
 	protected array $shortcuts = ['world-bootstrap'];
 
 	protected array $option_types = [

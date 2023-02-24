@@ -11,14 +11,14 @@ namespace zesk\Database\Command;
 
 use Throwable;
 use zesk\ArrayTools;
-use zesk\Command_Base;
+use zesk\Command\SimpleCommand;
 use zesk\CommandFailed;
+use zesk\Database\Exception\Connect as ConnectException;
+use zesk\Database\SQLDialect;
 use zesk\Exception\KeyNotFound;
 use zesk\Exception\NotFoundException;
 use zesk\Exception\Unsupported;
 use zesk\PHP;
-use zesk\Database\SQLDialect;
-use zesk\Database\Exception\Connect as ConnectException;
 
 /**
  * Connect to the database for this application.
@@ -31,7 +31,7 @@ use zesk\Database\Exception\Connect as ConnectException;
  *         (--set debug.db-connect=1)
  * @global boolean db-connect Set this global to alternate database
  */
-class Connect extends Command_Base {
+class Connect extends SimpleCommand {
 	protected array $shortcuts = ['connect'];
 
 	/**

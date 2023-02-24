@@ -24,80 +24,23 @@ Your application file solely handles setting up the context (configuration) for 
 	namespace awesome;
 
 	use zesk\Kernel;
+	use zesk\Application;
+	use zesk\Kernel;
 
 	require_once __DIR__ . '/vendor/autoload.php';
 
 	/*
 	 * Load Zesk
 	 */
-	$kernel = Kernel::singleton();
-
-	/*
-	 * Allow our application to be found
-	 */
-	$kernel->autoloader->path(__DIR__ . '/classes', array("classPrefix" => "awesome\\"));
+	$application = Kernel::singleton()->createApplication(MyApplicationClass::class, [
+        Application::OPTION_PATH => __DIR__,
+    ]);
 	
-	return $kernel
-		->applicationClass(Application::class)
-		->create_application()
-		->set_application_root(__DIR__)
-		->configure();
-
-Let's walk through this section by section. First off, we define our namespace for our application. In our case we'll use the namespace `awesome` - all classes will use this as the root namespace:
-
-	namespace awesome;
-
-Next, we load composer dependencies:
-
-	require_once __DIR__ . '/vendor/autoload.php';
-
-Setting up `Zesk` does a few things, but largely sets up the basics of any web application:
-
-	$kernel = Kernel::singleton();
-	
-We then tell the kernel that any class which begins with "awesome\\" should be found in the `classes/` directory. The autoloader will use standard PSR-4 loading for our classes.
-
-The final lines do the following, in order:
-
-	return $kernel
-		->applicationClass(Application::class)
-		->create_application()
-		->set_application_root(__DIR__)
-		->configure();
-
-1. Tell Zesk kernel that our main application object is of the class `awesome\Application`
-2. Create our application
-3. Tell the application the current application root directory (where this file resides)
-4. Runs the configuration steps for the application (basically, loading configuration files and modules needed)
-
-As your application evolves, these steps may change depending on your needs.
+	return $application->configure();
 
 ### Determining which files will configure an application
 
-Zesk application configuration was built to simplify the complexities of multiple environments where an application will run. Development, staging, and live configuration are inherently different, and particularly when development spans multiple developers on different hardware.
-
-> Documentation TODO 2017-11: This is too complex to configure the app - remove the global options which are never used and remove `APPLICATION_NAME`
-
-Configuration of your application should be easily customizable within all of these environments. As such, default configuration of Zesk applications will load [configuration files](/configuration-file-format), by default as follows:
-
-- Using the zesk global `Application::configuration_path`, an array of absolute file paths to scan
-- Using the zesk global `Application::configuration_file`, an array of configuration file names (including the .conf)
-
-The default values for `Application::configuration_path` are 
-
-1. "/etc"
-2. `$zesk->path("etc")` (e.g. "/usr/local/zesk/etc", "/publish/live/zesk/etc")
-3`$application->path("etc")` (e.g. "/var/www/awesome/etc", "/publish/live/sites/awesome/etc")
-
-The default values for `Application::configuration_file` are:
-
-1. `application.conf`
-2. If the constant `APPLICATION_NAME` is defined, APPLICATION_NAME.conf
-3. The unique name of the system. In short, the result `zesk\System::uname()`, converted to lowercase, and then concatenated with the ".conf" extension
-
-Both default values can be overridden by setting `zesk` globals to different values, or by passing in TODO
-
-So, how would you use this?
+TODO
 
 #### Development
 

@@ -197,7 +197,7 @@ class IPv4 {
 			$bits = $n * 8;
 		}
 		return [
-			self::subnet_bits(self::to_integer($ip), $bits),
+			self::subnet_bits(self::toInteger($ip), $bits),
 			intval($bits),
 		];
 	}
@@ -219,14 +219,14 @@ class IPv4 {
 		$ip_bits = Types::toInteger($ip_bits, self::BITS);
 		$ip = floatval($ip);
 		if ($ip_bits === self::BITS) {
-			return self::from_integer($ip);
+			return self::fromInteger($ip);
 		}
 		if ($star_notation) {
 			if ($ip_bits === 24 || $ip_bits === 16 || $ip_bits === 8) {
-				return implode('.', array_slice(explode('.', self::from_integer($ip)), 0, ($ip_bits / 8))) . '.*';
+				return implode('.', array_slice(explode('.', self::fromInteger($ip)), 0, ($ip_bits / 8))) . '.*';
 			}
 		}
-		return self::from_integer(self::subnet_bits($ip, $ip_bits)) . "/$ip_bits";
+		return self::fromInteger(self::subnet_bits($ip, $ip_bits)) . "/$ip_bits";
 	}
 
 	/**
@@ -266,7 +266,7 @@ class IPv4 {
 	 * @return bool
 	 */
 	public static function within_network(string $ip, string $network): bool {
-		$ip = self::to_integer($ip);
+		$ip = self::toInteger($ip);
 		[$low_ip, $high_ip] = self::network($network);
 		return ($ip >= $low_ip && $ip <= $high_ip);
 	}
@@ -275,14 +275,14 @@ class IPv4 {
 	 * Convert an IP address to a big-endian integer
 	 *
 	 * @param mixed $mixed
-	 * @return double
+	 * @return int
 	 */
-	public static function to_integer(mixed $mixed): float {
+	public static function toInteger(mixed $mixed): int {
 		if (is_int($mixed)) {
 			return $mixed;
 		}
 		if (is_float($mixed)) {
-			return $mixed;
+			return intval($mixed);
 		}
 		if (empty($mixed)) {
 			return 0;
@@ -296,7 +296,7 @@ class IPv4 {
 			}
 			$ip = ($ip * 256.0) + $octet;
 		}
-		return $ip;
+		return intval($ip);
 	}
 
 	/**
@@ -306,7 +306,7 @@ class IPv4 {
 	 *            A long integer
 	 * @return string An ip address
 	 */
-	public static function from_integer(mixed $ip_integer): string {
+	public static function fromInteger(mixed $ip_integer): string {
 		$ip_integer = floatval($ip_integer);
 		$d = fmod($ip_integer, 256);
 		$ip_integer = intval($ip_integer / 256);
@@ -346,7 +346,7 @@ class IPv4 {
 	 * @return boolean
 	 */
 	public static function is_private(mixed $ip): bool {
-		$ipi = self::to_integer($ip);
+		$ipi = self::toInteger($ip);
 		foreach (self::$private_addresses as $address) {
 			if ($ipi >= $address[1] && $ipi <= $address[2]) {
 				return true;

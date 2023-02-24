@@ -1,8 +1,16 @@
 <?php
 declare(strict_types=1);
-namespace zesk;
+/**
+ * @package zesk
+ * @subpackage core
+ * @author kent
+ * @copyright Copyright &copy; 2023, Market Acumen, Inc.
+ */
+namespace zesk\Command;
 
 use SplFileInfo;
+use zesk\File;
+use zesk\JSON;
 use zesk\Adapter\SettingsArray;
 use zesk\Configuration\Parser;
 use zesk\Exception\ClassNotFound;
@@ -15,7 +23,7 @@ use zesk\Exception\FilePermission;
  * @author kent
  *
  */
-class Command_CONF2JSON extends Command_Iterator_File {
+class CONF2JSON extends FileIterator {
 	protected array $shortcuts = ['conf2json'];
 
 	protected array $extensions = [

@@ -6,7 +6,8 @@ declare(strict_types=1);
 namespace zesk\ORM\Command;
 
 use zesk\ArrayTools;
-use zesk\Command_Base;
+use zesk\Command\SimpleCommand;
+use zesk\Doctrine\Command\Command;
 use zesk\Exception;
 use zesk\ORM\ORMBase;
 use zesk\URL;
@@ -18,7 +19,7 @@ use zesk\URL;
  *
  * @category Database
  */
-class Schema extends Command_Base {
+class Schema extends SimpleCommand {
 	/**
 	 *
 	 * @var array

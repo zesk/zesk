@@ -1,8 +1,15 @@
 <?php
 declare(strict_types=1);
-namespace zesk;
+/**
+ * @package zesk
+ * @subpackage core
+ * @author kent
+ * @copyright Copyright &copy; 2023, Market Acumen, Inc.
+ */
+namespace zesk\Command;
 
 use Throwable;
+use zesk\ArrayTools;
 use zesk\Configuration\Loader;
 
 /**
@@ -23,7 +30,7 @@ use zesk\Configuration\Loader;
  * @author kent
  *
  */
-class Command_Configuration extends Command_Base {
+class Configuration extends SimpleCommand {
 	protected array $shortcuts = ['conf', 'config', 'configuration'];
 
 	protected array $option_types = [

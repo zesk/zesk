@@ -8,19 +8,17 @@ namespace zesk\World;
 
 use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Entity;
-use Doctrine\ORM\Mapping\Id;
 use Doctrine\ORM\Mapping\JoinColumn;
 use Doctrine\ORM\Mapping\OneToOne;
-use Doctrine\ORM\Mapping\SequenceGenerator;
+use zesk\Doctrine\Trait\AutoID;
 
 /**
  */
 #[Entity]
 class City {
-	#[Id, Column(type: 'integer'), SequenceGenerator]
-	public null|int $id = null;
+	use AutoID;
 
-	#[Column(type: 'string')]
+	#[Column(type: 'string', nullable: false)]
 	public string $name;
 
 	#[OneToOne(targetEntity: County::class)]

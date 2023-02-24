@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace zesk;
 
+use Doctrine\ORM\EntityManager;
 use Throwable;
 use Closure;
 use Psr\Cache\CacheItemPoolInterface;
@@ -20,8 +21,6 @@ use zesk\Application\Modules;
 use zesk\Application\Objects;
 use zesk\Application\Paths;
 use zesk\Configuration\Loader;
-use zesk\Database\Base as Database;
-use zesk\Database\Module as DatabaseModule;
 use zesk\Exception\Authentication;
 use zesk\Exception\ClassNotFound;
 use zesk\Exception\ConfigurationException;
@@ -45,6 +44,14 @@ use zesk\Locale\Locale;
 use zesk\Locale\Reader;
 use zesk\Router\Parser;
 use zesk\Settings\FileSystemSettings;
+
+use zesk\Doctrine\Module as DoctrineModule;
+use zesk\Module_Permission as PermissionModule;
+use zesk\Job\Module as JobModule;
+use zesk\Cron\Module as CronModule;
+use zesk\Mail\Module as MailModule;
+use zesk\Session\Module as SessionModule;
+
 use function str_ends_with;
 
 /**
@@ -54,28 +61,21 @@ use function str_ends_with;
  *
  * Methods below require you to actually load the modules for them to work.
  *
- * @method Widget widgetFactory(string $class, array $options = [])
+ * @method EntityManager entityManager(string $name = '');
+ * @method DoctrineModule doctrineModule()
  *
- * @method ORM\Module ormModule()
- * @method ORM\Class_Base class_ormRegistry(string $class)
- * @method ORM\ORMBase ormRegistry(string $class, mixed $mixed = null, array $options = [])
- * @method ORM\ORMBase ormFactory(string $class, mixed $mixed = null, array $options = [])
+ * @method PermissionModule permissionModule()
  *
- * @method Database databaseRegistry(string $name = "", array $options = [])
- * @method DatabaseModule databaseModule()
- *
- * @method Module_Permission permissionModule()
- *
- * @method Job\Module jobModule()
+ * @method JobModule jobModule()
  *
  * @method Repository\Module repositoryModule()
  *
- * @method Cron\Module cronModule()
+ * @method CronModule cronModule()
  *
- * @method Mail\Module mailModule()
+ * @method MailModule mailModule()
  *
  * @method SessionInterface sessionFactory()
- * @method Session\Module sessionModule()
+ * @method SessionModule sessionModule()
  */
 class Application extends Hookable implements MemberModelFactory, ModelFactory {
 	/**
@@ -495,7 +495,7 @@ class Application extends Hookable implements MemberModelFactory, ModelFactory {
 	 *
 	 * @var Closure[]
 	 */
-	private array $factories = [];
+	private array $callables = [];
 
 	/**
 	 * Zesk Command paths for loading zesk-command.php commands
@@ -1029,7 +1029,7 @@ class Application extends Hookable implements MemberModelFactory, ModelFactory {
 		// These two calls mess up reconfigure and do not reset state correctly.
 		// Need a robust globals monitor to ensure reconfigure resets state back to default
 		// Difficult issue is that the class loader modifies state (sort of)
-		$this->factories = [];
+		$this->callables = [];
 		$this->modules = new Modules($this);
 	}
 
@@ -2288,10 +2288,31 @@ class Application extends Hookable implements MemberModelFactory, ModelFactory {
 	 * @return callable|Closure|null
 	 */
 	final public function registerFactory(string $code, callable|Closure $callable): null|callable|Closure {
-		// Ideally this method will become deprecated
-		$this->_registerFactory($code . '_factory', $callable);
-		// camelCase Factory method
-		return $this->_registerFactory($code . 'Factory', $callable);
+		return $this->_registerCallable($code . 'Factory', $callable);
+	}
+
+	/**
+	 * Register a registry function.
+	 * Returns previous factory registered if you want to use it.
+	 *
+	 * @param string $code
+	 * @param callable|Closure $callable $callable
+	 * @return callable|Closure|null
+	 */
+	final public function registerRegistry(string $code, callable|Closure $callable): null|callable|Closure {
+		return $this->_registerCallable($code . 'Registry', $callable);
+	}
+
+	/**
+	 * Register a manager function.
+	 * Returns previous manager registered if you want to use it.
+	 *
+	 * @param string $code Function will be "${code}Manager"
+	 * @param callable|Closure $callable $callable
+	 * @return callable|Closure|null
+	 */
+	final public function registerManager(string $code, callable|Closure $callable): null|callable|Closure {
+		return $this->_registerCallable($code . 'Manager', $callable);
 	}
 
 	/**
@@ -2301,26 +2322,13 @@ class Application extends Hookable implements MemberModelFactory, ModelFactory {
 	 * @param callable|Closure $callable
 	 * @return null|callable|Closure
 	 */
-	private function _registerFactory(string $code, callable|Closure $callable): null|callable|Closure {
-		$old_factory = $this->factories[$code] ?? null;
-		$this->factories[$code] = $callable;
+	private function _registerCallable(string $code, callable|Closure $callable): null|callable|Closure {
+		$old_factory = $this->callables[$code] ?? null;
+		$this->callables[$code] = $callable;
 		$this->application->logger->debug('Adding factory for {code}', [
 			'code' => $code,
 		]);
 		return $old_factory;
-	}
-
-	/**
-	 * Register a factory function.
-	 * Returns previous factory registered if you want to use it.
-	 *
-	 * @param string $code
-	 * @param callable|Closure $callable $callable
-	 * @return callable|Closure|null
-	 */
-	final public function registerRegistry(string $code, callable|Closure $callable): null|callable|Closure {
-		$this->_registerFactory($code . '_registry', $callable);
-		return $this->_registerFactory($code . 'Registry', $callable);
 	}
 
 	/**
@@ -2334,9 +2342,8 @@ class Application extends Hookable implements MemberModelFactory, ModelFactory {
 	 * @throws Unsupported
 	 */
 	final public function __call(string $name, array $args): mixed {
-		if (isset($this->factories[$name])) {
-			array_unshift($args, $this);
-			return call_user_func_array($this->factories[$name], $args);
+		if (isset($this->callables[$name])) {
+			return call_user_func_array($this->callables[$name], $args);
 		}
 		foreach (['_module', 'Module'] as $suffix) {
 			if (str_ends_with($name, $suffix)) {
@@ -2346,7 +2353,7 @@ class Application extends Hookable implements MemberModelFactory, ModelFactory {
 
 		throw new Unsupported("Application call {method} is not supported.\n\n\tCalled from: {calling}\n\nDo you ned to register the module which adds this functionality?\n\nAvailable: {available}", [
 			'method' => $name, 'calling' => Kernel::callingFunction(),
-			'available' => implode(', ', array_keys($this->factories)),
+			'available' => implode(', ', array_keys($this->callables)),
 		]);
 	}
 

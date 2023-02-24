@@ -16,6 +16,10 @@ Specific examples of cron tasks which run within Zesk:
 - `zesk\Application` - Checks if the schema needs to be updated
 - `zesk\Session_ORM` - Deletes old sessions every minute
 
+## Upcoming features
+
+Instead of hooks we'll use the Attribute system in PHP to add tags to Cron functions.
+
 ## Cron features
 
 Cron will run any **static function** in any class of type `zesk\Module`, `zesk\Application`, or `zesk\ORM` which has the one of the following function names:

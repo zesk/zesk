@@ -1,7 +1,12 @@
 <?php
 declare(strict_types=1);
-
-namespace zesk;
+/**
+ * @package zesk
+ * @subpackage core
+ * @author kent
+ * @copyright Copyright &copy; 2023, Market Acumen, Inc.
+ */
+namespace zesk\Command;
 
 /**
  * Cache commands. Takes a single argument: "clear" or "print" to print the class in the application.
@@ -10,7 +15,7 @@ namespace zesk;
  * @author kent
  *
  */
-class Command_Cache extends Command_Base {
+class Cache extends SimpleCommand {
 	protected array $shortcuts = ['cache'];
 
 	protected array $option_types = [

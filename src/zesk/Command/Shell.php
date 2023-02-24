@@ -1,13 +1,24 @@
 <?php
 declare(strict_types=1);
 /**
- *
+ * @package zesk
+ * @subpackage Command
+ * @author kent
+ * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  */
 
-namespace zesk;
+namespace zesk\Command;
 
 use Throwable;
 use zesk\Exception\FilePermission;
+use zesk\Exception\Semantics;
+use zesk\Exception\ParameterException;
+use zesk\PHP;
+use zesk\StopIteration;
+use zesk\StringTools;
+
+use function str_contains;
+use function str_starts_with;
 
 /**
  * Run arbitrary PHP code in the application context. Use --interactive or -i to run in interactive mode.
@@ -26,7 +37,7 @@ use zesk\Exception\FilePermission;
  *
  * @category Management
  */
-class Command_Shell extends Command_Base {
+class Shell extends SimpleCommand {
 	protected array $shortcuts = ['shell', 'eval', 'evaluate'];
 
 	protected array $option_types = [
@@ -114,7 +125,6 @@ class Command_Shell extends Command_Base {
 	 * Interactive evaluation of commands
 	 *
 	 * @return int
-	 * @throws FilePermission
 	 * @throws Semantics
 	 */
 	public function interactive(): int {

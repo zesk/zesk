@@ -6,6 +6,7 @@ declare(strict_types=1);
 namespace zesk;
 
 use SplFileInfo;
+use zesk\Command\FileIterator;
 
 /**
  * Convert file names using a search/replace string
@@ -14,7 +15,7 @@ use SplFileInfo;
  * @author kent
  *
  */
-class Command_File_Rename extends Command_Iterator_File {
+class Command_File_Rename extends FileIterator {
 	protected array $shortcuts = ['file-rename', 'mv'];
 
 	/**

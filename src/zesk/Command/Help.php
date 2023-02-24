@@ -1,20 +1,27 @@
 <?php
 declare(strict_types=1);
 /**
- *
+ * @package zesk
+ * @subpackage Command
+ * @author kent
+ * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  */
-
-namespace zesk;
+namespace zesk\Command;
 
 use ReflectionClass;
 use ReflectionException;
+use zesk\Command;
+use zesk\CommandLoader;
+use zesk\Directory;
+use zesk\DocComment;
+use zesk\Types;
 
 /**
  * This help.
  *
  * @category Documentation
  */
-class Command_Help extends Command_Base {
+class Help extends SimpleCommand {
 	protected array $shortcuts = ['help'];
 
 	protected array $option_types = [
@@ -41,7 +48,7 @@ class Command_Help extends Command_Base {
 		$loader = CommandLoader::factory()->setApplication($this->application);
 		$commands = $loader->collectCommands();
 		$this->collectHelp($commands);
-		echo $this->application->themes->theme(path(__CLASS__, 'content'), [
+		echo $this->application->themes->theme(Directory::path(__CLASS__, 'content'), [
 			'categories' => $this->categories, 'aliases' => $this->aliases,
 		]);
 		return 0;
@@ -61,7 +68,7 @@ class Command_Help extends Command_Base {
 			/* @var $commandObject Command */
 			$commandObject = $reflection_class->newInstanceArgs([$this->application]);
 			assert($commandObject instanceof Command);
-		} catch (ReflectionException $e) {
+		} catch (ReflectionException) {
 			$this->verboseLog('{class} can not be loaded, skipping', [
 				'class' => $class,
 			]);
@@ -75,7 +82,7 @@ class Command_Help extends Command_Base {
 		}
 		$docCommentAliases = [];
 		if (array_key_exists('shortcuts', $docComment)) {
-			$docCommentAliases = toList($docComment['shortcuts'], [], ' ');
+			$docCommentAliases = Types::toList($docComment['shortcuts'], [], ' ');
 		}
 		$shortcuts = array_merge($commandObject->shortcuts(), $docCommentAliases);
 		if (!count($shortcuts)) {

@@ -21,7 +21,6 @@ use zesk;
  */
 class SessionORMTest extends ORMUnitTest {
 	protected array $load_modules = [
-		'MySQL',
 		'Session',
 	];
 

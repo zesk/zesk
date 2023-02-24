@@ -11,23 +11,6 @@ declare(strict_types=1);
 namespace zesk;
 
 class ProcessTools_Test extends UnitTest {
-	protected array $load_modules = [
-		'MySQL',
-	];
-
-	/**
-	 * @todo this
-	 */
-	public function DISABLED_test_reset_dead_processes(): void {
-		$db = $this->application->databaseRegistry();
-		$db->query('DROP TABLE IF EXISTS test_PGT');
-		$db->query('CREATE TABLE test_PGT ( ID int(11) unsigned PRIMARY KEY NOT NULL AUTO_INCREMENT, PID int(11) NOT NULL )');
-		$table = 'test_PGT';
-		$where = [];
-		$pid_field = 'PID';
-		//		ProcessTools::reset_dead_processes($this->application, $table, $where, $pid_field);
-	}
-
 	/**
 	 * @todo this
 	 */

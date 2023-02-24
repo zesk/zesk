@@ -1,15 +1,21 @@
 <?php
 declare(strict_types=1);
 /**
- *
+ * @package zesk
+ * @subpackage Command
+ * @author kent
+ * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  */
-namespace zesk;
+namespace zesk\Command;
+
+use zesk\ArrayTools;
+use zesk\PHP;
 
 /**
  * Output all globals
  * @category Debugging
  */
-class Command_Globals extends Command_Base {
+class Globals extends SimpleCommand {
 	protected array $shortcuts = ['globals', 'g'];
 
 	/**

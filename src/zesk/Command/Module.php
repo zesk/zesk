@@ -1,14 +1,20 @@
 <?php
 declare(strict_types=1);
+/**
+ * @package zesk
+ * @subpackage Command
+ * @author kent
+ * @copyright Copyright &copy; 2023, Market Acumen, Inc.
+ */
 
-namespace zesk;
+namespace zesk\Command;
 
 /**
  * Load a module or list all modules available.
  *
  * @category Modules
  */
-class Command_Module extends Command_Base {
+class Module extends SimpleCommand {
 	protected array $shortcuts = ['module', 'm'];
 
 	protected array $option_types = [
