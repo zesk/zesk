@@ -16,7 +16,7 @@ use zesk\Exception\ConfigurationException;
 use zesk\Exception\FilePermission;
 use zesk\Exception\Semantics;
 use zesk\Exception\SyntaxException;
-use zesk\Exception_System;
+use zesk\SystemException;
 use zesk\FileMonitor\FilesMonitor;
 use zesk\Interface\SystemProcess;
 use zesk\PHP;
@@ -313,7 +313,7 @@ class Command extends SimpleCommand implements SystemProcess {
 	 *
 	 * @param array $daemons
 	 * @return string[]
-	 * @throws Exception_System
+	 * @throws SystemException
 	 */
 	private function daemons_expand(array $daemons): array {
 		$total_process_count = 0;

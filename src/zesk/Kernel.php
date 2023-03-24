@@ -236,7 +236,7 @@ class Kernel {
 			$reflectionClass = new ReflectionClass($applicationClass);
 			$app = $reflectionClass->newInstanceArgs([$configuration, $cacheItemPool]);
 		} catch (ReflectionException $e) {
-			throw new ClassNotFound($applicationClass, $e->getMessage(), $e->getCode(), $e);
+			throw new ClassNotFound($applicationClass, $e->getMessage(), Exception::exceptionVariables($e));
 		}
 		assert($app instanceof Application);
 		if (!self::$singleton) {

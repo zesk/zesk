@@ -524,7 +524,7 @@ class Command_Update extends SimpleCommand {
 	 * @throws DomainLookupFailed
 	 * @throws NotFoundException
 	 * @throws ParameterException
-	 * @throws Exception_System
+	 * @throws SystemException
 	 * @throws Unsupported
 	 * @throws Net_HTTP_Client_Exception
 	 */

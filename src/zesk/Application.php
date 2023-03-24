@@ -564,7 +564,7 @@ class Application extends Hookable implements MemberModelFactory, ModelFactory {
 		$this->initializationMicrotime = $configuration['init'] ?? microtime(true);
 		parent::__construct($this, $configuration->path(self::class)->toArray());
 		$this->setOption(self::OPTION_APPLICATION_CLASS, self::class);
-		$this->_initialize($configuration, $cacheItemPool); /* throws Exception_System */
+		$this->_initialize($configuration, $cacheItemPool); /* throws SystemException */
 		$this->_initialize_fixme();
 		$this->_loadMaintenance();
 	}

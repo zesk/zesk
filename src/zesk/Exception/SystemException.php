@@ -7,12 +7,14 @@ declare(strict_types=1);
  * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  */
 
-namespace zesk;
+namespace zesk\Exception;
+
+use zesk\Exception;
 
 /**
  *
  * @author kent
  *
  */
-class Exception_System extends Exception {
+class SystemException extends Exception {
 }
