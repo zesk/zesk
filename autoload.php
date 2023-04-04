@@ -14,14 +14,14 @@ namespace zesk;
 if (!is_file(__DIR__ . '/vendor/autoload.php')) {
 	spl_autoload_register(function ($class) {
 		if (str_starts_with($class, __NAMESPACE__ . '\\')) {
-			$file = strtr($class, ['_' => '/', '\\' => '/']) . '.php';
-			if (is_file(__DIR__ . "/$file")) {
+			$file = __DIR__ . "/src/" . strtr($class, ['_' => '/', '\\' => '/']) . '.php';
+			if (is_file($file)) {
 				require_once($file);
 				return true;
 			}
 		}
 		return false;
-	}, false);
+	});
 } else {
 	require_once __DIR__ . '/vendor/autoload.php';
 }
