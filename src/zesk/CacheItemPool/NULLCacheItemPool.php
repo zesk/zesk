@@ -3,7 +3,7 @@ declare(strict_types=1);
 /**
  * @copyright &copy; 2023, Market Acumen, Inc.
  */
-namespace zesk;
+namespace zesk\CacheItemPool;
 
 use Psr\Cache\CacheItemInterface;
 use Psr\Cache\CacheItemPoolInterface;
@@ -13,7 +13,7 @@ use Psr\Cache\CacheItemPoolInterface;
  * @author kent
  *
  */
-class CacheItemPool_NULL implements CacheItemPoolInterface {
+class NULL implements CacheItemPoolInterface {
 	/**
 	 * Returns a Cache Item representing the specified key.
 	 *

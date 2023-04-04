@@ -7,12 +7,12 @@ declare(strict_types=1);
  * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  */
 
-namespace zesk\Exception;
+namespace zesk\Doctrine\Exception;
 
 use Throwable;
+use zesk\Doctrine\Interface\Userlike;
+use zesk\Doctrine\Model;
 use zesk\Exception;
-use zesk\Interface\Userlike;
-use zesk\ORM\ORMBase;
 
 /**
  *
@@ -20,7 +20,7 @@ use zesk\ORM\ORMBase;
  *
  */
 class PermissionDenied extends Exception {
-	public function __construct(Userlike $user, $action, ORMBase $object = null, array $options = [], Throwable
+	public function __construct(Userlike $user, $action, Model $object = null, array $options = [], Throwable
 	$previous =
 	null) {
 		parent::__construct('User {user.name} has no permission action={action} class={class} type={type}', [

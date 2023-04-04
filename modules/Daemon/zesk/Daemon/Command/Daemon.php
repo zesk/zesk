@@ -34,7 +34,7 @@ use zesk\Timestamp;
  * @author kent
  * @category Management
  */
-class Command extends SimpleCommand implements SystemProcess {
+class Daemon extends SimpleCommand implements SystemProcess {
 	protected array $shortcuts = ['daemon'];
 
 	/**
