@@ -365,10 +365,10 @@ class Settings extends Model implements MetaInterface, SettingsInterface {
 	/**
 	 * Same as __get with a default
 	 *
-	 * @see ORMBase::get()
 	 * @param int|string $name
 	 * @param mixed|null $default
 	 * @return mixed
+	 *@see Model::get()
 	 */
 	public function get(int|string $name, mixed $default = null): mixed {
 		return $this->application->configuration->getPath($name, $default);
@@ -386,7 +386,7 @@ class Settings extends Model implements MetaInterface, SettingsInterface {
 	/**
 	 * Global to save
 	 *
-	 * @see ORMBase::__set($member, $value)
+	 * @see Model::__set($member, $value)
 	 */
 	public function __set(int|string $name, mixed $value): void {
 		$old_value = $this->application->configuration->getPath($name);
@@ -404,7 +404,7 @@ class Settings extends Model implements MetaInterface, SettingsInterface {
 	 * @param int|string $name
 	 * @param mixed|null $value
 	 * @return self
-	 * @see ORMBase::set($member, $value)
+	 * @see Model::set($member, $value)
 	 */
 	public function set(int|string $name, mixed $value = null): self {
 		$this->__set($name, $value);

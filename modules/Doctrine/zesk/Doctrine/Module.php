@@ -11,12 +11,10 @@ declare(strict_types=1);
 
 namespace zesk\Doctrine;
 
-use Doctrine\DBAL\Exception;
-use Doctrine\DBAL\Exception\MalformedDsnException;
-use Doctrine\DBAL\Tools\DsnParser;
-use Doctrine\ORM\Exception\MissingMappingDriverImplementation;
+use zesk\Types;
 use zesk\CacheItemPool\FileCacheItemPool;
 use zesk\Directory;
+use zesk\Doctrine\Types\EnumBoolean;
 use zesk\Doctrine\Types\Timestamp;
 use zesk\Exception\ConfigurationException;
 use zesk\Exception\DirectoryCreate;
@@ -25,11 +23,14 @@ use zesk\Exception\DirectoryPermission;
 use zesk\Exception\NotFoundException;
 use zesk\Exception\Unsupported;
 use zesk\Module as BaseModule;
+use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\Exception\MalformedDsnException;
+use Doctrine\DBAL\Tools\DsnParser;
+use Doctrine\ORM\Exception\MissingMappingDriverImplementation;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Configuration;
 use Doctrine\ORM\ORMSetup;
-use zesk\Types;
 use Doctrine\DBAL\Types\Type;
 
 class Module extends BaseModule {
@@ -52,9 +53,10 @@ class Module extends BaseModule {
 
 	private static array $zeskTypes = [
 		Timestamp::TYPE => Timestamp::class,
+		EnumBoolean::TYPE => EnumBoolean::class,
 	];
 
-	private static $added = false;
+	private static bool $added = false;
 
 	/**
 	 * @return void
@@ -153,6 +155,11 @@ class Module extends BaseModule {
 	/**
 	 * @param string $name
 	 * @return EntityManager
+	 * @throws ConfigurationException
+	 * @throws DirectoryCreate
+	 * @throws DirectoryNotFound
+	 * @throws DirectoryPermission
+	 * @throws Exception
 	 * @throws NotFoundException
 	 */
 	public function entityManager(string $name = ''): EntityManager {
