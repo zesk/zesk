@@ -7,21 +7,22 @@ declare(strict_types=1);
  * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  */
 
-namespace zesk\Daemon;
+namespace zesk\Daemon\Command;
 
 use zesk\Application;
 use zesk\ArrayTools;
 use zesk\Command\SimpleCommand;
+use zesk\Daemon\Module;
 use zesk\Exception\ConfigurationException;
 use zesk\Exception\FilePermission;
 use zesk\Exception\Semantics;
 use zesk\Exception\SyntaxException;
-use zesk\SystemException;
 use zesk\FileMonitor\FilesMonitor;
 use zesk\Interface\SystemProcess;
 use zesk\PHP;
 use zesk\ProcessTools;
 use zesk\StringTools;
+use zesk\Exception\SystemException;
 use zesk\Text;
 use zesk\Timer;
 use zesk\Timestamp;
@@ -171,7 +172,7 @@ class Daemon extends SimpleCommand implements SystemProcess {
 		assert($daemon instanceof Module);
 		$this->module = $daemon;
 
-		PHP::requires(PHP::FEATURE_PROCESS_CONTROLL, true);
+		PHP::requires(PHP::FEATURE_PROCESS_CONTROL, true);
 
 		$this->configure('daemon', true);
 
@@ -350,7 +351,7 @@ class Daemon extends SimpleCommand implements SystemProcess {
 	 */
 	final public function commandList(): int {
 		$daemons = $this->daemons();
-		echo Command . phpimplode(PHP_EOL, $daemons) . PHP_EOL;
+		echo implode(PHP_EOL, $daemons) . PHP_EOL;
 		return 0;
 	}
 

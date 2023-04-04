@@ -9,6 +9,6 @@
 	"requires": [
 		"Doctrine"
 	],
-	"zeskCommandPath": "classes/Command",
+	"zeskCommandPath": "zesk/Daemon/Command",
 	"copyright": "Copyright &copy; 2023, Market Acumen, Inc."
 }

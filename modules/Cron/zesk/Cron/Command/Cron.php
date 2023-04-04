@@ -3,7 +3,7 @@ declare(strict_types=1);
 /**
  *
  */
-namespace zesk\Cron;
+namespace zesk\Cron\Command;
 
 use zesk\Command\SimpleCommand;
 use zesk\Exception\NotFoundException;
@@ -16,7 +16,7 @@ use zesk\Timestamp;
  * @category Management
  * @author kent
  */
-class Command extends SimpleCommand {
+class Cron extends SimpleCommand {
 	protected array $shortcuts = ['cron'];
 
 	protected string $help = 'Run zesk cron hooks';

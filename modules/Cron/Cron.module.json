@@ -5,7 +5,7 @@
 		"classPrefix": "zesk\\Cron\\",
 		"path": "zesk/Cron/"
 	},
-	"zeskCommandPath": "command",
+	"zeskCommandPath": "zesk/Cron/Command/",
 	"requires": [
 		"Doctrine"
 	],
