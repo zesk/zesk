@@ -3,9 +3,9 @@
   "description": "The Zesk Application Framework",
   "require": {
     "php": ">=8.1",
-    "psr/log": ">=3",
+    "psr/log": "^3",
     "components/jquery": "^3.2",
-    "psr/cache": ">=3",
+    "psr/cache": "^3",
     "ext-calendar": "*",
     "ext-json": "*",
     "ext-posix": "*",
