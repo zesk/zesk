@@ -6,8 +6,10 @@ namespace zesk\Configuration;
 use zesk\Exception\ClassNotFound;
 use zesk\Exception\FileParseException;
 use zesk\Exception\ParseException;
+use zesk\Exception\SystemException;
 use zesk\File;
 use zesk\Interface\SettingsInterface;
+use zesk\Types;
 
 class Loader {
 	/**
@@ -117,7 +119,10 @@ class Loader {
 	public function load(): void {
 		while (count($this->files) > 0) {
 			$file = array_shift($this->files);
-
+			if (!is_string($file)) {
+				throw new SystemException("File is not a string {type} {file}", ['type' => Types::type($file), 'file' => strval
+				($file)]);
+			}
 			try {
 				$this->current = $file;
 				$this->loadFile($file);

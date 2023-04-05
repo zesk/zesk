@@ -10,7 +10,7 @@ declare(strict_types=1);
 namespace zesk;
 
 use zesk\CacheItemPool\FileCacheItemPool;
-use zesk\Logger\FileHandler;
+use zesk\Logger\FileLogger;
 
 require_once __DIR__ . '/xdebug.php';
 
@@ -31,8 +31,8 @@ class TestApplicationFactory {
 				Application::OPTION_DEPRECATED => Application::DEPRECATED_EXCEPTION,
 			]);
 
-			$application->logger = $logger = new Logger();
-			$logger->registerHandler('log', new FileHandler(__DIR__ . '/test.log'));
+			$logger = new FileLogger(__DIR__ . '/test.log');
+			$application->logger = $logger->setChild($application->logger);
 
 			$application->configuration->set(ArrayTools::filterKeyPrefixes($_SERVER, ['DATABASE']));
 

@@ -51,8 +51,8 @@ class DirectoryTest extends TestCase {
 			['foo/.bar/..dotted', ['foo', [[['.bar']]], '..dotted']], ['a/b', ['a/', 'b']], ['a/b', ['a', '/b']],
 			['a/b', ['a/', '/b']], ['/a/b', ['/a/', '/b']], ['/a/b/', ['/a/', '/b/']],
 			['/a/b/', ['/a/', '/./', ['/./', '////', '/././', ], '/b/']], [
-				'/publish/nfs/monitor-services/control/ruler-reader',
-				['/publish/nfs/monitor-services', ['control', 'ruler-reader', ]],
+				'/what/monitor-services/control/ruler-reader',
+				['/what/monitor-services', ['control', 'ruler-reader', ]],
 			],
 		];
 	}

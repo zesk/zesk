@@ -62,11 +62,9 @@ class Share extends Controller {
 		'action_{METHOD}',
 	];
 
-	protected array $beforeMethods = [
-	];
+	protected array $beforeMethods = [];
 
-	protected array $afterMethods = [
-	];
+	protected array $afterMethods = [];
 
 	/**
 	 * @return void
@@ -146,8 +144,7 @@ class Share extends Controller {
 		$document_root = $app->documentRoot();
 		foreach ($sharePaths as $name => $path) {
 			$app->logger->info('Reviewing {name} => {path}', [
-				'name' => $name,
-				'path' => $path,
+				'name' => $name, 'path' => $path,
 			]);
 			$files = Directory::ls($path);
 			foreach ($files as $file) {
@@ -281,9 +278,7 @@ class Share extends Controller {
 		Directory::depend(dirname($target), 0o775);
 		$status = copy($file, $target);
 		$this->application->logger->notice('Copied {file} to {target} - {status}', [
-			'file' => $file,
-			'target' => $target,
-			'status' => $status ? 'true' : 'false',
+			'file' => $file, 'target' => $target, 'status' => $status ? 'true' : 'false',
 		]);
 	}
 
@@ -328,8 +323,7 @@ class Share extends Controller {
 		$share_dir = Directory::path($this->application->documentRoot(), $this->option_share_prefix());
 		if (is_dir($share_dir)) {
 			$logger->notice('{class}::hook_cache_clear - deleting {share_dir}', [
-				'class' => __CLASS__,
-				'share_dir' => $share_dir,
+				'class' => __CLASS__, 'share_dir' => $share_dir,
 			]);
 
 			try {
@@ -341,8 +335,7 @@ class Share extends Controller {
 			}
 		} else {
 			$logger->notice('{class}::hook_cache_clear - would delete {share_dir} but it is not found', [
-				'class' => __CLASS__,
-				'share_dir' => $share_dir,
+				'class' => __CLASS__, 'share_dir' => $share_dir,
 			]);
 		}
 	}

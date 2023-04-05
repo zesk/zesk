@@ -9,11 +9,12 @@ declare(strict_types=1);
 
 namespace zesk;
 
-use Doctrine\ORM\EntityManager;
-use Throwable;
 use Closure;
+use Doctrine\ORM\EntityManager;
 use Psr\Cache\CacheItemPoolInterface;
 use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
+use Throwable;
 use zesk\Adapter\SettingsConfiguration;
 use zesk\Application\Classes;
 use zesk\Application\Hooks;
@@ -21,6 +22,8 @@ use zesk\Application\Modules;
 use zesk\Application\Objects;
 use zesk\Application\Paths;
 use zesk\Configuration\Loader;
+use zesk\Cron\Module as CronModule;
+use zesk\Doctrine\Module as DoctrineModule;
 use zesk\Exception\Authentication;
 use zesk\Exception\ClassNotFound;
 use zesk\Exception\ConfigurationException;
@@ -40,18 +43,14 @@ use zesk\Interface\ModelFactory;
 use zesk\Interface\SessionInterface;
 use zesk\Interface\SettingsInterface;
 use zesk\Interface\Userlike;
+use zesk\Job\Module as JobModule;
 use zesk\Locale\Locale;
 use zesk\Locale\Reader;
-use zesk\Router\Parser;
-use zesk\Settings\FileSystemSettings;
-
-use zesk\Doctrine\Module as DoctrineModule;
-use zesk\Module_Permission as PermissionModule;
-use zesk\Job\Module as JobModule;
-use zesk\Cron\Module as CronModule;
 use zesk\Mail\Module as MailModule;
+use zesk\Module_Permission as PermissionModule;
+use zesk\Router\Parser;
 use zesk\Session\Module as SessionModule;
-
+use zesk\Settings\FileSystemSettings;
 use function str_ends_with;
 
 /**
@@ -581,10 +580,10 @@ class Application extends Hookable implements MemberModelFactory, ModelFactory {
 	public function setDeprecated(string $set): string {
 		$old = $this->deprecated;
 		$this->deprecated = [
-			self::DEPRECATED_BACKTRACE => self::DEPRECATED_BACKTRACE,
-			self::DEPRECATED_EXCEPTION => self::DEPRECATED_EXCEPTION,
-			self::DEPRECATED_LOG => self::DEPRECATED_LOG,
-		][$set] ?? self::DEPRECATED_IGNORE;
+								self::DEPRECATED_BACKTRACE => self::DEPRECATED_BACKTRACE,
+								self::DEPRECATED_EXCEPTION => self::DEPRECATED_EXCEPTION,
+								self::DEPRECATED_LOG => self::DEPRECATED_LOG,
+							][$set] ?? self::DEPRECATED_IGNORE;
 		return $old;
 	}
 
@@ -595,6 +594,7 @@ class Application extends Hookable implements MemberModelFactory, ModelFactory {
 	 * @param array $arguments
 	 * @return void
 	 * @throws Deprecated
+	 * @see self::obsolete()
 	 */
 	public function deprecated(string $reason = '', array $arguments = []): void {
 		if ($this->deprecated === self::DEPRECATED_IGNORE) {
@@ -604,14 +604,14 @@ class Application extends Hookable implements MemberModelFactory, ModelFactory {
 		switch ($this->deprecated) {
 			case self::DEPRECATED_EXCEPTION:
 				throw new Deprecated("{reason} Deprecated: {calling_function}\n{backtrace}", [
-					'reason' => $reason, 'calling_function' => Kernel::callingFunction(),
-					'backtrace' => Kernel::backtrace(4 + $depth),
-				] + $arguments);
+						'reason' => $reason, 'calling_function' => Kernel::callingFunction(),
+						'backtrace' => Kernel::backtrace(4 + $depth),
+					] + $arguments);
 			case self::DEPRECATED_LOG:
 				$this->application->logger->error("{reason} Deprecated: {calling_function}\n{backtrace}", [
-					'reason' => $reason ?: 'DEPRECATED', 'calling_function' => Kernel::callingFunction(),
-					'backtrace' => Kernel::backtrace(4 + $depth),
-				] + $arguments);
+						'reason' => $reason ?: 'DEPRECATED', 'calling_function' => Kernel::callingFunction(),
+						'backtrace' => Kernel::backtrace(4 + $depth),
+					] + $arguments);
 				break;
 			case self::DEPRECATED_BACKTRACE:
 				echo Kernel::backtrace();
@@ -624,7 +624,7 @@ class Application extends Hookable implements MemberModelFactory, ModelFactory {
 	 * @codeCoverageIgnore
 	 */
 	public function obsolete(): void {
-		$this->application->logger->alert('Obsolete function called {function}', ['function' => Kernel::callingFunction(2), ]);
+		$this->application->logger->alert('Obsolete function called {function}', ['function' => Kernel::callingFunction(2),]);
 		if ($this->application->development()) {
 			echo Kernel::backtrace();
 			exit(1);
@@ -722,7 +722,7 @@ class Application extends Hookable implements MemberModelFactory, ModelFactory {
 		}
 
 		$this->hooks = new Hooks($this);
-		$this->logger = new Logger();
+		$this->logger = new NullLogger();
 		$this->objects = new Objects();
 		$this->modules = new Modules($this);
 
@@ -1476,7 +1476,7 @@ class Application extends Hookable implements MemberModelFactory, ModelFactory {
 	 */
 	private function configuredHooks(): void {
 		foreach ([Hooks::HOOK_DATABASE_CONFIGURE, Hooks::HOOK_CONFIGURED] as $hook) {
-			$this->hooks->callArguments($hook, [$this, ]);
+			$this->hooks->callArguments($hook, [$this,]);
 			$this->modules->allHookArguments($hook); // Modules
 			$this->callHookArguments($hook); // Application level
 			$this->modules->addLoadHook($hook);
@@ -1662,8 +1662,8 @@ class Application extends Hookable implements MemberModelFactory, ModelFactory {
 			}
 		} catch (Throwable $t) {
 			$this->logger->error('{applicationClass}::setMaintenance({value}) hook threw {exceptionClass} {message}', [
-				'applicationClass' => get_class($this), 'value' => $set ? 'true' : 'false',
-			] + Exception::phpExceptionVariables($t));
+					'applicationClass' => get_class($this), 'value' => $set ? 'true' : 'false',
+				] + Exception::phpExceptionVariables($t));
 			return false;
 		}
 
@@ -1679,8 +1679,8 @@ class Application extends Hookable implements MemberModelFactory, ModelFactory {
 
 	private function _maintenanceEnabled(): void {
 		$context = [
-			'time' => date('Y-m-d H:i:s'),
-		] + Types::toArray($this->callHookArguments('maintenanceEnabled', [[]], []));
+				'time' => date('Y-m-d H:i:s'),
+			] + Types::toArray($this->callHookArguments('maintenanceEnabled', [[]], []));
 
 		try {
 			file_put_contents($this->maintenanceFile(), JSON::encode($context));
@@ -1751,7 +1751,7 @@ class Application extends Hookable implements MemberModelFactory, ModelFactory {
 		try {
 			if ($inherit) {
 				$request->initializeFromRequest($inherit);
-			} elseif ($this->console()) {
+			} else if ($this->console()) {
 				$request->initializeFromSettings('http://console/');
 			} else {
 				$request->initializeFromGlobals();
@@ -1882,9 +1882,9 @@ class Application extends Hookable implements MemberModelFactory, ModelFactory {
 
 		try {
 			$response->content = $this->themes->theme($this->classes->hierarchy($exception), [
-				'application' => $this, 'request' => $request, 'response' => $response, 'exception' => $exception,
-				'content' => $exception,
-			] + Exception::exceptionVariables($exception), [
+					'application' => $this, 'request' => $request, 'response' => $response, 'exception' => $exception,
+					'content' => $exception,
+				] + Exception::exceptionVariables($exception), [
 				'first' => true,
 			]);
 			if (!$exception instanceof Redirect) {
@@ -1973,8 +1973,8 @@ class Application extends Hookable implements MemberModelFactory, ModelFactory {
 			'{page-render-time}' => sprintf('%.3f', microtime(true) - $this->initializationMicrotime),
 		];
 		if (!$response || $response->isContentType([
-			'text/', 'javascript',
-		])) {
+				'text/', 'javascript',
+			])) {
 			if ($response->content !== null) {
 				$response->content = strtr($response->content, $final_map);
 			}
@@ -2197,8 +2197,8 @@ class Application extends Hookable implements MemberModelFactory, ModelFactory {
 	 */
 	public function memberModelFactory(string $member, string $class, mixed $mixed = null, array $options = []): Model {
 		return Model::factory($this, $class, $mixed, [
-			'_member' => $member,
-		] + $options);
+				'_member' => $member,
+			] + $options);
 	}
 
 	/**

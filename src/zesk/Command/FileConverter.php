@@ -10,11 +10,10 @@ namespace zesk\Command;
 
 use Throwable;
 use zesk\Directory;
-use zesk\Doctrine\Command\Command;
 use zesk\Exception;
 use zesk\Exception\FilePermission;
-use zesk\File;
 use zesk\Exception\SyntaxException;
+use zesk\File;
 
 /**
  * Abstract class for iterating on a series of files and converting them from one syntax to another
@@ -98,8 +97,6 @@ abstract class FileConverter extends SimpleCommand {
 
 	/**
 	 *
-	 * {@inheritDoc}
-	 * @see Command::run()
 	 */
 	protected function run(): int {
 		$this->verboseLog('Configuring using config file: ' . $this->configuration_file);

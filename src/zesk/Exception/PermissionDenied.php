@@ -7,12 +7,12 @@ declare(strict_types=1);
  * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  */
 
-namespace zesk\Doctrine\Exception;
+namespace zesk\Exception;
 
 use Throwable;
-use zesk\Doctrine\Interface\Userlike;
-use zesk\Doctrine\Model;
+use zesk\Model;
 use zesk\Exception;
+use zesk\Interface\Userlike;
 
 /**
  *

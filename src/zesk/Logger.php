@@ -73,6 +73,28 @@ class Logger implements LoggerInterface {
 	}
 
 	/**
+	 * Ordered by urgency (most important first)
+	 *
+	 * @return array
+	 */
+	public static function logLevels(): array {
+		return array_keys(self::$levels);
+	}
+
+	/**
+	 * return [
+	 * "critical" => "critical",
+	 * "alert" => "alert",
+	 * ...
+	 * ];
+	 *
+	 * @return array
+	 */
+	public static function logMap(): array {
+		return self::$levels;
+	}
+
+	/**
 	 * Output configuration
 	 *
 	 * @return string

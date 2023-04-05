@@ -5,6 +5,7 @@ declare(strict_types=1);
  */
 namespace zesk\Interface;
 
+use zesk\Exception\PermissionDenied;
 use zesk\Model;
 
 /**
@@ -31,4 +32,14 @@ interface Userlike {
 	 * @return bool
 	 */
 	public function can(string|array $actions, Model $context = null, array $options = []): bool;
+
+
+	/**
+	 * @param string|array $actions
+	 * @param null|Model $context
+	 * @param array $options
+	 * @return void
+	 * @throws PermissionDenied
+	 */
+	public function must(string|array $actions, Model $context = null, array $options = []): void;
 }

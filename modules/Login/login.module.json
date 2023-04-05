@@ -6,7 +6,7 @@
 	},
 	"moduleClass": "zesk\\Login\\Module",
 	"requires": [
-		"Doctrine "
+		"Doctrine"
 	],
 	"copyright": "Copyright &copy; 2023, Market Acumen, Inc."
 }

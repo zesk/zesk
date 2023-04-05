@@ -9,14 +9,14 @@ declare(strict_types=1);
 
 namespace zesk\Login;
 
+use ruler\User;
 use zesk\Controller as zeskController;
-use zesk\Authentication;
+use zesk\Exception\Authentication;
 use zesk\Exception\KeyNotFound;
 use zesk\Exception\Semantics;
 use zesk\Exception\Unsupported;
 use zesk\HTTP;
-use zesk\ORM\ORMNotFound;
-use zesk\ORM\User;
+use zesk\Interface\Userlike;
 use zesk\Request;
 use zesk\Response;
 use zesk\Timestamp;
@@ -159,12 +159,12 @@ class Controller extends zeskController {
 	/**
 	 * @param string $userName
 	 * @param string $password
-	 * @return User
+	 * @return Userlike
 	 * @throws Authentication
 	 * @throws Unsupported
 	 */
-	private function handleLogin(string $userName, string $password): User {
-		$user = $this->application->ormFactory(User::class);
+	private function handleLogin(string $userName, string $password): Userlike {
+		$user = $this->application->entityManager()->getRepository($this->userClass);
 		$column_login = $this->option('ormIdColumn', $user->columnLogin());
 		if ($this->option('no_password')) {
 			try {

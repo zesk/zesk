@@ -7,7 +7,6 @@ namespace zesk\Database\Command;
 
 use zesk\ArrayTools;
 use zesk\Command\SimpleCommand;
-use zesk\Cron\Command\Command;
 use zesk\Directory;
 use zesk\File;
 use zesk\PHP;

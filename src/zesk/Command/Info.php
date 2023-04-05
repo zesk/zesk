@@ -13,6 +13,8 @@ use zesk\Application;
 use zesk\ArrayTools;
 use zesk\Kernel;
 use zesk\PHP;
+use zesk\Types;
+use zesk\Version;
 
 /**
  * Output useful globals and settings which affect Zesk runtime.
@@ -84,11 +86,12 @@ class Info extends SimpleCommand {
 
 		$info['PHP']['enable_dl'] = ini_get('enable_dl') ? 'true' : 'false';
 		$info['PHP']['ini_path'] = PHP::ini_path();
-		$info['PHP']['display_startup_errors'] = toBool(ini_get('display_startup_errors'));
+		$info['PHP']['display_startup_errors'] = Types::toBool(ini_get('display_startup_errors'));
 		$info['PHP']['error_log'] = ini_get('error_log');
 		$variables = $app->loader->variables();
-		$info[$appScope][self::CONFIGURATION_FILES_LOADED] = toArray($variables['processed'] ?? []);
+		$info[$appScope][self::CONFIGURATION_FILES_LOADED] = Types::toArray($variables['processed'] ?? []);
 
+		/* TODO Hook Defined Here */
 		$module_info = $app->modules->allHookArguments('info', [
 			[],
 		], []);
@@ -96,8 +99,9 @@ class Info extends SimpleCommand {
 
 		$format = $this->optionString('format', self::FORMAT_TEXT);
 		if ($format === self::FORMAT_TEXT) {
-			$info = ArrayTools::keysFlatten($info, '::', false);
+			$info = ArrayTools::keysFlatten($info, '::');
 		}
+		ksort($info);
 		$this->renderFormat($info, $format);
 		return 0;
 	}

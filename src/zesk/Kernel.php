@@ -13,6 +13,7 @@ namespace zesk;
 use ReflectionClass;
 use ReflectionException;
 use Throwable;
+use zesk\CacheItemPool\NULLCacheItemPool;
 use zesk\Exception\ClassNotFound;
 use zesk\Exception\Semantics;
 
@@ -223,7 +224,7 @@ class Kernel {
 	public static function createApplication(array $options = []): Application {
 		$options['application.php'] = self::caller()['file'];
 		$baseApplicationClass = Application::class;
-		$cacheItemPool = $options[Application::OPTION_CACHE_POOL] ?? new CacheItemPool_NULL();
+		$cacheItemPool = $options[Application::OPTION_CACHE_POOL] ?? new NULLCacheItemPool();
 		unset($options[Application::OPTION_CACHE_POOL]);
 
 		$configuration = Configuration::factory(self::$configurationDefaults)->merge(Configuration::factory()->setPath($baseApplicationClass, $options));

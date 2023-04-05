@@ -13,9 +13,8 @@ use Psr\Log\LogLevel;
 use zesk\Application\Hooks;
 use zesk\Command;
 use zesk\Exception\ExitedException;
-use zesk\Logger;
+use zesk\Logger\FileLogger;
 use zesk\Logger\Handler;
-
 use const STDOUT;
 
 /**
@@ -35,9 +34,7 @@ abstract class SimpleCommand extends Command implements Handler {
 	 * @var array
 	 */
 	private static array $quiet_levels = [
-		'info' => true,
-		'notice' => true,
-		'debug' => true,
+		'info' => true, 'notice' => true, 'debug' => true,
 	];
 
 	/**
@@ -109,27 +106,15 @@ abstract class SimpleCommand extends Command implements Handler {
 			$this->quiet = true;
 			return;
 		}
-		$debug = $this->optionBool('debug');
-		$severity = $this->option('severity', $this->option('log_level', $debug ? 'debug' : 'info'));
-		$logger = $this->application->logger;
-		$all_levels = $logger->levelsSelect($severity);
-
+		$levels = [
+			LogLevel::INFO => true, LogLevel::NOTICE => true, LogLevel::DEBUG => $this->optionBool('debug'),
+		];
 		if (($filename = $this->option('log')) !== null) {
-			$this->application->modules->load('Logger_File');
-			$log_file = new Logger\File();
-			if ($filename !== '-') {
-				$log_file->filename($filename);
-			} else {
-				$log_file->fp(self::stdout());
-			}
-			$logger->registerHandler('Command', $log_file, $all_levels);
+			$log_file = new FileLogger($filename !== '-' ? $filename : self::stdout());
+			$log_file->setLevels($levels);
+			$this->application->logger = $log_file->setChild($this->application->logger);
 			if ($this->option('debug_log_file')) {
-				$logger->info('Registered {log_file} for {all_levels}', compact('log_file', 'all_levels'));
-			}
-		} else {
-			$logger->registerHandler('Command', $this, $all_levels);
-			if ($this->option('debug_log_file')) {
-				$logger->info('Registered generic logger {all_levels}', compact('all_levels'));
+				$this->application->logger->info('Registered file logger {file}', ['file' => $filename]);
 			}
 		}
 	}
@@ -147,8 +132,7 @@ abstract class SimpleCommand extends Command implements Handler {
 		}
 		if ($this->optionBool('debug-config')) {
 			$this->application->addHook(Hooks::HOOK_CONFIGURED, [
-				$this,
-				'action_debug_configured',
+				$this, 'action_debug_configured',
 			]);
 		}
 	}

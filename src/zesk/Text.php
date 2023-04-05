@@ -275,7 +275,8 @@ class Text {
 		$r = [];
 		foreach ($map as $k => $v) {
 			$k = strval($k);
-			$r[] = $prefix . $k . self::fill_pattern($space, $n - strlen($k)) . $suffix . JSON::encodePretty($v);
+			$r[] = $prefix . $k . self::fill_pattern($space, $n - strlen($k)) . $suffix . (is_scalar($v) ? strval($v)
+				: JSON::encodePretty($v));
 		}
 		return implode($br, $r) . $br;
 	}

@@ -9,7 +9,6 @@ declare(strict_types=1);
 namespace zesk\Command;
 
 use zesk\Adapter\SettingsArray;
-use zesk\Command\SimpleCommand;
 use zesk\Configuration\Parser;
 use zesk\Configure\Engine;
 use zesk\Doctrine\Command\Command;
@@ -115,9 +114,6 @@ class Command_Configure extends SimpleCommand {
 
 	/**
 	 *
-	 * {@inheritdoc}
-	 *
-	 * @see Command::run()
 	 */
 	protected function run(): int {
 		$this->setCompletionFunction();

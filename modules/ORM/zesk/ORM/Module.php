@@ -30,7 +30,7 @@ use zesk\Types;
 
 /**
  * @see Class_Base
- * @see ORMBase
+ * @see Model
  * @author kent
  */
 class Module extends BaseModule {

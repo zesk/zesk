@@ -13,6 +13,7 @@ use Closure;
 use Throwable;
 use zesk\Application;
 use zesk\ArrayTools;
+use zesk\Directory;
 use zesk\Exception;
 use zesk\Exception\FileNotFound;
 use zesk\Exception\FilePermission;
@@ -20,6 +21,7 @@ use zesk\File;
 use zesk\JSON;
 use zesk\Exception\ParseException;
 use zesk\Exception\Semantics;
+use zesk\Types;
 use zesk\Version as ZeskVersion;
 
 /**
@@ -149,7 +151,7 @@ class Version extends SimpleCommand {
 			]);
 			return self::EXIT_CODE_PARSER_FAILED;
 		}
-		$generator = $this->versionGenerator(toArray($schema['generator'] ?? [
+		$generator = $this->versionGenerator(Types::toArray($schema['generator'] ?? [
 			'map' => '{major}.{minor}.{maintenance}.{patch}{tag}',
 		]));
 		$previousVersion = $generator($version_structure);
@@ -335,14 +337,15 @@ class Version extends SimpleCommand {
 				$path = $json;
 			}
 			return function ($schema) use ($path, $application_root) {
-				$file = File::isAbsolute($schema['file']) ? $schema['file'] : path($application_root, $schema['file']);
+				$file = File::isAbsolute($schema['file']) ? $schema['file'] : Directory::path($application_root,
+					$schema['file']);
 				File::depends($file);
 				$json_structure = JSON::decode(File::contents($file));
 				return ArrayTools::path($json_structure, $path, '', '::');
 			};
 		}
 		return function ($schema) use ($application_root) {
-			$file = File::isAbsolute($schema['file']) ? $schema['file'] : path($application_root, $schema['file']);
+			$file = File::isAbsolute($schema['file']) ? $schema['file'] : Directory::path($application_root, $schema['file']);
 			File::depends($file);
 			return File::contents($file);
 		};
@@ -356,7 +359,7 @@ class Version extends SimpleCommand {
 	private function versionGenerator(array $__generator): Closure {
 		$map = $__generator['map'] ?? null;
 		if (is_array($map) || is_string($map)) {
-			return fn (array $version_structure): string|array => map($map, $version_structure);
+			return fn (array $version_structure): string|array => ArrayTools::map($map, $version_structure);
 		}
 
 		throw new Semantics('{schema_path} `generator` must have key `map`', [
@@ -373,14 +376,14 @@ class Version extends SimpleCommand {
 		$application_root = $this->application->path();
 		if ($json) {
 			return function ($schema, $new_version) use ($json, $application_root): void {
-				$file = File::isAbsolute($schema['file']) ? $schema['file'] : path($application_root, $schema['file']);
+				$file = File::isAbsolute($schema['file']) ? $schema['file'] : Directory::path($application_root, $schema['file']);
 				$json_structure = JSON::decode(File::contents($file));
 				ArrayTools::setPath($json_structure, $json, $new_version);
 				File::put($file, JSON::encodePretty($json_structure));
 			};
 		}
 		return function ($schema, $new_version) use ($application_root): void {
-			$file = File::isAbsolute($schema['file']) ? $schema['file'] : path($application_root, $schema['file']);
+			$file = File::isAbsolute($schema['file']) ? $schema['file'] : Directory::path($application_root, $schema['file']);
 			File::put($file, $new_version);
 		};
 	}

@@ -7,13 +7,14 @@ namespace zesk\CacheItemPool;
 
 use Psr\Cache\CacheItemInterface;
 use Psr\Cache\CacheItemPoolInterface;
+use zesk\CacheItem\CacheItemNULL;
 
 /**
  *
  * @author kent
  *
  */
-class NULL implements CacheItemPoolInterface {
+class NULLCacheItemPool implements CacheItemPoolInterface {
 	/**
 	 * Returns a Cache Item representing the specified key.
 	 *
@@ -27,7 +28,7 @@ class NULL implements CacheItemPoolInterface {
 	 *   The corresponding Cache Item.
 	 */
 	public function getItem($key): CacheItemInterface {
-		return new CacheItem_NULL($key);
+		return new CacheItemNULL($key);
 	}
 
 	/**
