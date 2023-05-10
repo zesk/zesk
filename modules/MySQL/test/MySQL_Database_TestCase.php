@@ -4,9 +4,9 @@ declare(strict_types=1);
 namespace zesk;
 
 use zesk\Database\Base;
-use zesk\Database\DatabaseUnitTest;
+use zesk\Database\DatabaseTestCase;
 
-class MySQL_Database_Test extends DatabaseUnitTest {
+class MySQL_Database_TestCase extends DatabaseTestCase {
 	protected array $load_modules = [
 		'MySQL',
 	];

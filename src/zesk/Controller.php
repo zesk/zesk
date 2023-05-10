@@ -1,15 +1,22 @@
 <?php
 declare(strict_types=1);
 /**
+ * Created on Fri Apr 02 21:04:09 EDT 2010 21:04:09
  *
+ * @package zesk
+ * @subpackage objects
+ * @author kent
+ * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  */
 
 namespace zesk;
 
-use Psr\Cache\InvalidArgumentException;
+use Throwable;
 use ReflectionClass;
 use ReflectionException;
-use Throwable;
+
+use Psr\Cache\InvalidArgumentException;
+
 use zesk\Exception\ClassNotFound;
 use zesk\Exception\NotFoundException;
 use zesk\Exception\ParameterException;
@@ -17,12 +24,9 @@ use zesk\Exception\Redirect;
 use zesk\Interface\Themeable;
 
 /**
- *
- * @package zesk
- * @subpackage objects
- * @author kent
- * @copyright Copyright &copy; 2023, Market Acumen, Inc.
- *            Created on Fri Apr 02 21:04:09 EDT 2010 21:04:09
+ * @see Route
+ * @see Router
+ * @see Route\Controller
  */
 class Controller extends Hookable implements Themeable {
 	/**

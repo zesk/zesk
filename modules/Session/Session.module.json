@@ -2,11 +2,11 @@
 	"name": "Session",
 	"autoload": {
 		"classPrefix": "zesk\\Session\\",
-		"oath": "zesk/Session/"
+		"path": "zesk/Session/"
 	},
 	"moduleClass": "zesk\\Session\\Module",
 	"requires": [
-		"ORM "
+		"Doctrine"
 	],
 	"copyright": "Copyright &copy; 2023, Market Acumen, Inc."
 }

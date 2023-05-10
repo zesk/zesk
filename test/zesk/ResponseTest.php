@@ -238,7 +238,7 @@ class ResponseTest extends TestApplicationUnitTest {
 	}
 
 	public function test_pid(): void {
-		$this->testApplication->process->id();
+		$this->assertIsInteger($this->testApplication->process->id());
 	}
 
 	public function test_running(): void {
@@ -270,13 +270,13 @@ class ResponseTest extends TestApplicationUnitTest {
 		$testCommand[] = '}';
 
 		// Add testlike.php
-		$shortcuts[] = 'test-like';
+		// $shortcuts[] = 'test-like';
 
 		File::put($this->test_sandbox('testCommand.php'), implode("\n", $testCommand));
 		$allShortcuts = $loader->collectCommandShortcuts();
 
 		$this->assertArrayHasKeys(['test-like', 'test-command'], $allShortcuts);
-		$this->assertEquals(__NAMESPACE__ . '\\' . $className, $allShortcuts['test-command']);
+		$this->assertEquals(__NAMESPACE__ . '\\Command\\' . $className, $allShortcuts['test-command']);
 		//$this->assertEquals(__NAMESPACE__ . '\\' . $className, $allShortcuts[$randomShortcut]);
 	}
 }

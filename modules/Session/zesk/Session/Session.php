@@ -14,83 +14,102 @@ declare(strict_types=1);
 namespace zesk\Session;
 
 use Throwable;
+use TypeError;
+
+use Doctrine\Common\Collections\Criteria;
+use Doctrine\ORM\Exception\ORMException;
+use Doctrine\ORM\Mapping\Column;
+use Doctrine\ORM\Mapping\Entity;
+use Doctrine\ORM\Mapping\JoinColumn;
+use Doctrine\ORM\Mapping\OneToOne;
+use Doctrine\ORM\Mapping\PostLoad;
+use Doctrine\ORM\Mapping\PrePersist;
+use Doctrine\ORM\Mapping\UniqueConstraint;
+
 use zesk\Application;
-use zesk\Database\Exception\Duplicate;
-use zesk\Database\Exception\NoResults;
-use zesk\Database\Exception\SQLException;
-use zesk\Database\Exception\TableNotFound;
-use zesk\Exception;
+use zesk\Cron\Attributes\CronClusterMinute;
+use zesk\Doctrine\Model;
+use zesk\Doctrine\Trait\AutoID;
+use zesk\Doctrine\User;
 use zesk\Exception as zeskException;
 use zesk\Exception\Authentication;
-use zesk\Exception\ClassNotFound;
-use zesk\Exception\ConfigurationException;
+use zesk\Exception\NotFoundException;
 use zesk\Exception\KeyNotFound;
-use zesk\Exception\ParameterException;
-use zesk\Exception\ParseException;
 use zesk\Exception\Semantics;
 use zesk\HTTP;
 use zesk\Interface\SessionInterface;
-use zesk\IPv4;
-use zesk\ORM\ORMBase;
-use zesk\ORM\Exception\ORMDuplicate;
-use zesk\ORM\Exception\ORMEmpty;
-use zesk\ORM\Exception\ORMNotFound;
-use zesk\ORM\Exception\StoreException;
-use zesk\ORM\User;
-use zesk\PHP;
 use zesk\Request;
 use zesk\Response;
 use zesk\Timestamp;
 use zesk\Interface\Userlike;
 
 use zesk\Types;
+
 use function random_int;
 
 /**
- * Sessions inherit some options from the global Application object in the `initialize()` function
  *
- * @see Class_SessionORM
- * @property int $id
- * @property string $cookie
- * @property boolean $is_one_time
- * @property User $user
- * @property string $ip
- * @property Timestamp $created
- * @property Timestamp $modified
- * @property Timestamp $expires
- * @property Timestamp $seen
- * @property integer $sequence_index
- * @property array $data
- * @author kent
  */
-class SessionORM extends ORMBase implements SessionInterface {
+#[Entity]
+#[UniqueConstraint(name: 'tokenType', columns: ['token', 'type'])]
+class Session extends Model implements SessionInterface {
+	/**
+	 *
+	 */
+	public const DEFAULT_COOKIE_NAME = 'sessionToken';
+
 	public const OPTION_METHOD = 'method';
 
 	public const METHOD_COOKIE = 'cookie';
 
 	public const METHOD_AUTHORIZATION = 'authorization';
 
-	public const MEMBER_ID = 'id';
-
-	public const MEMBER_TOKEN = 'token';
-
-	public const MEMBER_SEEN = 'seen';
-
-	public const MEMBER_TYPE = 'type';
-
-	public const MEMBER_EXPIRES = 'expires';
-
-	public const MEMBER_IP = 'ip';
-
-	public const MEMBER_DATA = 'data';
-
-	public const MEMBER_USER = 'user';
-
 	public const TYPE_ONE_TIME = 'one-time';
 
 	public const TYPE_COOKIE = 'cookie';
 
 	public const TYPE_AUTHORIZATION_KEY = 'auth-key';
+
+	/*===============================================================================================================*\
+		 __  __           _      _
+		|  \/  | ___   __| | ___| |
+		| |\/| |/ _ \ / _` |/ _ \ |
+		| |  | | (_) | (_| |  __/ |
+		|_|  |_|\___/ \__,_|\___|_|
+
+	\*===============================================================================================================*/
+	use AutoID;
+
+	#[Column(type: 'string', length: 32, nullable: false)]
+	public string $token = '';
+
+	#[Column(type: 'string', length: 8, nullable: false)]
+	public string $type;
+
+	#[OneToOne]
+	#[JoinColumn(name: 'user', nullable: true)]
+	public null|User $user = null;
+
+	#[Column(type: 'ip', length: 40, nullable: false)]
+	public string $ip;
+
+	#[Column(type: 'timestamp', nullable: false)]
+	public Timestamp $created;
+
+	#[Column(type: 'timestamp', nullable: false)]
+	public Timestamp $modified;
+
+	#[Column(type: 'timestamp', nullable: false)]
+	public Timestamp $expires;
+
+	#[Column(type: 'timestamp', nullable: false)]
+	public Timestamp $seen;
+
+	#[Column(type: 'integer', nullable: false)]
+	public int $sequenceIndex = 0;
+
+	#[Column(type: 'json', nullable: false)]
+	public array $data = [];
 
 	/**
 	 * Original session data (to see if things change)
@@ -107,65 +126,92 @@ class SessionORM extends ORMBase implements SessionInterface {
 	private bool $changed = false;
 
 	/**
-	 *
-	 * {@inheritdoc}
-	 *
-	 * @see ORMBase::initialize()
+	 * @return void
 	 */
-	public function initialize(mixed $mixed, mixed $initialize = false): self {
-		$result = parent::initialize($mixed, $initialize);
+	public function initialize(): void {
 		$this->changed = false;
+	}
+
+	#[PostLoad]
+	public function justLoaded(): void {
+		$this->original = $this->data;
 		$this->setOptions($this->application->optionArray('session'));
-		return $result;
-	}
-
-	/**
-	 * @param array $name
-	 * @return $this
-	 * @throws ParseException
-	 * @throws KeyNotFound
-	 * @throws ORMEmpty
-	 * @throws ORMNotFound
-	 * @throws Semantics
-	 * @throws SQLException
-	 * @throws ClassNotFound
-	 * @throws ConfigurationException
-	 * @throws ParameterException
-	 * @throws ParseException
-	 */
-	public function fetch(array $name = []): self {
-		return parent::fetch($name)->seen();
 	}
 
 	/**
 	 * @return $this
-	 * @throws Duplicate
-	 * @throws SQLException
-	 * @throws TableNotFound
-	 * @throws KeyNotFound
-	 * @throws Semantics
+	 * @throws ORMException
 	 */
 	public function seen(): self {
-		$query = $this->queryUpdate();
-		$sql = $query->sql();
-		$query->value('*' . self::MEMBER_SEEN, $sql->now())->value(self::MEMBER_EXPIRES, $this->computeExpires())->value('*sequence_index', 'sequence_index+1')->addWhere(self::MEMBER_ID, $this)->setLowPriority(true)->execute();
-		$this->callHook('seen');
+		$this->seen = Timestamp::now();
+		$this->em->persist($this);
 		return $this;
 	}
 
 	/**
-	 * Called before actual store
-	 *
 	 * @return void
-	 * @throws KeyNotFound
-	 * @throws ORMNotFound
 	 */
-	public function hook_store(): void {
-		$ip = $this->member('ip');
-		if (!is_string($ip) || !IPv4::valid($ip)) {
-			$this->setMember('ip', '127.0.0.1');
+	#[PrePersist]
+	public function beforePersist(): void {
+		if (!$this->ip) {
+			$this->ip = '127.0.0.1';
 		}
 	}
+
+	/*===============================================================================================================*\
+	 ____                _             ___       _             __
+	/ ___|  ___  ___ ___(_) ___  _ __ |_ _|_ __ | |_ ___ _ __ / _| __ _  ___ ___
+	\___ \ / _ \/ __/ __| |/ _ \| '_ \ | || '_ \| __/ _ \ '__| |_ / _` |/ __/ _ \
+	 ___) |  __/\__ \__ \ | (_) | | | || || | | | ||  __/ |  |  _| (_| | (_|  __/
+	|____/ \___||___/___/_|\___/|_| |_|___|_| |_|\__\___|_|  |_|  \__,_|\___\___|
+	\*===============================================================================================================*/
+	/**
+	 * @return int|string|array
+	 */
+	public function id(): int|string|array {
+		return $this->id;
+	}
+
+	/**
+	 * @param int|string $key
+	 * @return bool
+	 */
+	public function has(int|string $key): bool {
+		return array_key_exists($key, $this->data);
+	}
+
+	/**
+	 * @param int|string $key
+	 * @return mixed
+	 * @throws KeyNotFound
+	 */
+	public function get(int|string $key): mixed {
+		if (array_key_exists($key, $this->data)) {
+			return $this->data[$key];
+		}
+
+		throw new KeyNotFound($key);
+	}
+
+	/**
+	 * @param int|string $key
+	 * @param mixed $value
+	 * @return $this
+	 * @throws TypeError Requires values to be serializable
+	 */
+	public function set(int|string $key, mixed $value): self {
+		$this->data[$key] = Types::simplify($value);
+		return $this;
+	}
+
+
+	/*===============================================================================================================*\
+		 ____                _
+		/ ___|  ___  ___ ___(_) ___  _ __
+		\___ \ / _ \/ __/ __| |/ _ \| '_ \
+		 ___) |  __/\__ \__ \ | (_) | | | |
+		|____/ \___||___/___/_|\___/|_| |_|
+	\*===============================================================================================================*/
 
 	/**
 	 *
@@ -202,10 +248,10 @@ class SessionORM extends ORMBase implements SessionInterface {
 	public function authenticate(Userlike $user, Request $request): void {
 		try {
 			$cookieExpire = $this->cookieExpire();
-			$this->setMember('user', ORMBase::mixedToID($user));
-			$this->setMember('ip', $request->remoteIP());
-			$this->setMember('expires', Timestamp::now()->addUnit($cookieExpire));
-			$this->store();
+			$this->user = $user;
+			$this->ip = $request->remoteIP();
+			$this->expires = Timestamp::now()->addUnit($cookieExpire);
+			$this->em->persist($this);
 		} catch (Throwable $t) {
 			throw new Authentication('Failed to store session {exceptionClass} {message}', zeskException::exceptionVariables($t), 0, $t);
 		}
@@ -218,46 +264,36 @@ class SessionORM extends ORMBase implements SessionInterface {
 	 * @see SessionInterface::isAuthenticated()
 	 */
 	public function isAuthenticated(): bool {
-		return !$this->memberIsEmpty('user');
+		return $this->user !== null;
 	}
 
 	/**
 	 * De-authenticate
 	 *
 	 * @return void
-	 * @throws StoreException
+	 * @throws Authentication
 	 */
 	public function relinquish(): void {
 		try {
 			$this->user()->callHook('logout');
 		} catch (Authentication) {
 		}
-		$this->setMember('user', null);
+		$this->user = null;
 
 		try {
-			$this->store();
-		} catch (StoreException $e) {
-			throw $e;
-		} catch (Throwable $e) {
-			throw new StoreException(
-				self::class,
-				'Unable to relinquish due to {throwableClass} {message}',
-				Exception::exceptionVariables($e),
-				$e
-			);
+			$this->em->persist($this);
+		} catch (ORMException) {
+			throw new Authentication('Unable to persist session');
 		}
 	}
 
 	/**
 	 * Has this session expired?
 	 *
-	 * @return Timestamp
-	 * @throws KeyNotFound
-	 * @throws ORMNotFound
-	 * @throws ParseException
+	 * @return bool
 	 */
-	public function expires(): Timestamp {
-		return $this->memberTimestamp(self::MEMBER_EXPIRES);
+	public function expired(): bool {
+		return $this->expires->before(Timestamp::now());
 	}
 
 	/**
@@ -275,37 +311,36 @@ class SessionORM extends ORMBase implements SessionInterface {
 
 	/**
 	 * Run once a minute
+	 * @see self::expireSessions
+	 * @see \zesk\Cron\Module
 	 */
-	public static function cron_cluster_minute(Application $application): void {
-		$where = [self::MEMBER_EXPIRES . '|<' => Timestamp::now()];
-		$iter = $application->ormRegistry(__CLASS__)->querySelect()->appendWhere($where)->ormIterator();
-		foreach ($iter as $session) {
-			/* @var $session SessionORM */
+	#[CronClusterMinute]
+	public static function expireSessions(Application $application): void {
+		$ex = Criteria::expr();
+		$criteria = Criteria::create()->where($ex->lt('expires', Timestamp::now()));
+		$em = $application->entityManager();
+		$sessions = $em->getRepository(self::class)->findBy([$criteria]);
+		foreach ($sessions as $session) {
+			/* @var $session Session */
 			$session->logoutExpire();
-		}
 
-		try {
-			$application->ormRegistry(__CLASS__)->queryDelete()->appendWhere($where)->execute();
-		} catch (TableNotFound|Duplicate|SQLException|Semantics $e) {
-			$application->logger->error('{method} {message}', $e->variables() + ['method' => __METHOD__]);
+			try {
+				$em->remove($session);
+			} catch (ORMException) {
+				// pass
+			}
 		}
+		$em->flush();
 	}
 
 	/**
 	 *
 	 * @return Timestamp
-	 * @throws KeyNotFound
-	 * @throws Semantics
 	 */
 	private function computeExpires(): Timestamp {
 		$expire = $this->cookieExpire();
 		return Timestamp::now()->addUnit($expire);
 	}
-
-	/**
-	 *
-	 */
-	public const DEFAULT_COOKIE_NAME = 'sessionToken';
 
 	/**
 	 *
@@ -326,21 +361,16 @@ class SessionORM extends ORMBase implements SessionInterface {
 	 *
 	 *
 	 * @return $this
-	 * @throws ORMNotFound
+	 * @throws NotFoundException
 	 * @see SessionInterface::initializeSession()
 	 */
 	public function fetchSession(string $token, string $type): self {
-		// Very important: Do not use $this->FOO to set variables; it sets the data instead.
-		try {
-			if ($token && ($session = $this->fetch([
-				self::MEMBER_TOKEN => $token, self::MEMBER_TYPE => $type,
-			]))) {
-				return $session->foundSession();
-			}
-		} catch (Throwable) {
+		$session = $this->em->getRepository(self::class)->findOneBy(['token' => $token, 'type' => $type]);
+		if (!$session) {
+			throw new NotFoundException("No session with $token and $type");
 		}
-
-		throw new ORMNotFound(self::class);
+		assert($session instanceof self);
+		return $session;
 	}
 
 	/**
@@ -363,14 +393,11 @@ class SessionORM extends ORMBase implements SessionInterface {
 	}
 
 	public function newSession(Request $request, string $type): self {
-		try {
-			$this->setMember(self::MEMBER_IP, $request->ip());
-			$this->setMember(self::MEMBER_TOKEN, $this->_generateToken());
-			$this->setMember(self::MEMBER_TYPE, $type);
-			$this->setMember(self::MEMBER_EXPIRES, $this->computeExpires());
-		} catch (Semantics|KeyNotFound $e) {
-			PHP::log($e, ['never' => true]);
-		}
+		$this->ip = $request->ip();
+		$this->token = $this->_generateToken();
+		assert($this->checkCookie($this->token) === true);
+		$this->type = $type;
+		$this->expires = $this->computeExpires();
 		return $this;
 	}
 
@@ -382,9 +409,12 @@ class SessionORM extends ORMBase implements SessionInterface {
 	}
 
 	/**
+	 *
+	 * @param Request $request
+	 * @return Session
 	 * @throws KeyNotFound
+	 * @throws ORMException
 	 * @throws Semantics
-	 * @throws ORMNotFound
 	 */
 	protected function initializeCookieSession(Request $request): self {
 		$type = self::TYPE_COOKIE;
@@ -395,23 +425,21 @@ class SessionORM extends ORMBase implements SessionInterface {
 			if ($this->checkCookie($cookie_value)) {
 				return $this->fetchSession($cookie_value, $type);
 			}
-		} catch (ORMNotFound|KeyNotFound) {
+		} catch (NotFoundException) {
 		}
 		$this->newSession($request, $type);
 
 		$cookie_options = $this->cookieOptions();
-		$cookie_value = $this->member(self::MEMBER_TOKEN);
-		$session = $this;
+		$cookie_value = $this->token;
 		$this->application->hooks->add(Response::class . '::headers', function (Response $response) use (
 			$cookie_name,
 			$cookie_value,
-			$cookie_options,
-			$session
+			$cookie_options
 		): void {
 			$response->setCookie($cookie_name, $cookie_value, $cookie_options);
-			$session->store();
 		});
-		return $session;
+		$this->em->persist($this);
+		return $this;
 	}
 
 	/**
@@ -426,44 +454,34 @@ class SessionORM extends ORMBase implements SessionInterface {
 		try {
 			$token = $request->header(HTTP::REQUEST_AUTHORIZATION);
 			return $this->fetchSession($token, $type);
-		} catch (ORMNotFound|KeyNotFound) {
+		} catch (KeyNotFound|NotFoundException) {
 		}
-		$this->setMember(self::MEMBER_IP, $request->ip());
+		$this->ip = $request->ip();
 		return $this;
 	}
 
 	/**
 	 * @param Request $request
 	 * @return $this
-	 * @throws Duplicate
-	 * @throws SQLException
-	 * @throws TableNotFound
-	 * @throws KeyNotFound
-	 * @throws ORMDuplicate
-	 * @throws ORMEmpty
-	 * @throws StoreException
 	 */
 	public function createAuthorizationSession(Request $request): self {
-		return $this->newSession($request, self::TYPE_AUTHORIZATION_KEY)->store();
+		$this->em->persist($this->newSession($request, self::TYPE_AUTHORIZATION_KEY));
+		return $this;
 	}
 
 	/**
 	 *
 	 * @return string
-	 * @throws KeyNotFound
-	 * @throws ORMNotFound
 	 */
 	public function hash(): string {
-		return $this->member(self::MEMBER_TOKEN);
+		return $this->token;
 	}
 
 	/**
 	 * @return string
-	 * @throws KeyNotFound
-	 * @throws ORMNotFound
 	 */
 	public function token(): string {
-		return $this->member(self::MEMBER_TOKEN);
+		return $this->token;
 	}
 
 	/**
@@ -473,16 +491,8 @@ class SessionORM extends ORMBase implements SessionInterface {
 	 * @param int $expire_seconds Expiration time in seconds, inherits from
 	 *    'zesk\SessionORM::one_time_expire_seconds' if not set. Defaults to 1 day (86400 seconds).
 	 *
-	 * @return SessionORM
-	 * @throws Duplicate
-	 * @throws KeyNotFound
-	 * @throws ORMDuplicate
-	 * @throws ORMEmpty
-	 * @throws SQLException
-	 * @throws Semantics
-	 * @throws StoreException
-	 * @throws TableNotFound
-	 * @throws NoResults
+	 * @return Session
+	 * @throws ORMException
 	 */
 	public static function oneTimeCreate(User $user, string $ip, int $expire_seconds = -1): self {
 		$app = $user->application;
@@ -492,16 +502,19 @@ class SessionORM extends ORMBase implements SessionInterface {
 			], 86400));
 		}
 		// Only one allowed at any time, I guess.
-		$app->ormRegistry(__CLASS__)->queryDelete()->appendWhere([
-			self::MEMBER_TYPE => self::TYPE_ONE_TIME, self::MEMBER_USER => $user,
-		])->execute();
-		$session = $app->ormFactory(__CLASS__);
+		$em = $app->entityManager();
+		$delete = $em->createQuery('DELETE FROM ' . self::class . ' WHERE type=:type and user=:user');
+		$delete->setParameters(['type' => self::TYPE_ONE_TIME, 'user' => $user]);
+		$delete->execute();
+
+		$session = new self($app);
 		assert($session instanceof self);
-		$session->setMembers([
-			self::MEMBER_TOKEN => self::_generateToken(), self::MEMBER_TYPE => self::TYPE_ONE_TIME,
-			self::MEMBER_EXPIRES => Timestamp::now()->addUnit($expire_seconds), self::MEMBER_USER => $user, $ip => $ip,
-		]);
-		$session->store();
+		$session->token = self::_generateToken();
+		$session->type = self::TYPE_ONE_TIME;
+		$session->expires = Timestamp::now()->addUnit($expire_seconds);
+		$session->user = $user;
+		$session->ip = $ip;
+		$app->entityManager()->persist($session);
 		return $session;
 	}
 
@@ -511,23 +524,23 @@ class SessionORM extends ORMBase implements SessionInterface {
 	 * @param Application $application
 	 * @param string $hash
 	 * @return self
-	 * @throws ORMNotFound
+	 * @throws NotFoundException
 	 */
 	public static function oneTimeFind(Application $application, string $hash): self {
 		$hash = trim($hash);
-		$onetime = $application->ormFactory(__CLASS__);
-		assert($onetime instanceof self);
-
-		try {
-			return $onetime->find([
-				self::MEMBER_TOKEN => $hash, self::MEMBER_TYPE => self::TYPE_ONE_TIME,
-			]);
-		} catch (Throwable $t) {
-			throw new ORMNotFound(__CLASS__, 'No session with hash {hash}', ['hash' => $hash], $t);
+		$criteria = [
+			'token' => $hash, 'type' => self::TYPE_ONE_TIME,
+		];
+		$oneTime = $application->entityManager()->getRepository(self::class)->findOneBy($criteria);
+		if ($oneTime instanceof self) {
+			return $oneTime;
 		}
+
+		throw new NotFoundException('No {type} found with token {token}', $criteria);
 	}
 
 	/**
+	 * Converts a 'one-time' to a regular cookie session with the same ID
 	 *
 	 * @param Userlike $user
 	 * @param Request $request
@@ -536,11 +549,11 @@ class SessionORM extends ORMBase implements SessionInterface {
 	 * @throws Semantics
 	 */
 	public function oneTimeAuthenticate(Userlike $user, Request $request): self {
-		if (!$this->is_one_time) {
+		if ($this->type !== self::TYPE_ONE_TIME) {
 			throw new Semantics('Not a one-time session');
 		}
-		$this->setMember(self::MEMBER_TOKEN, $this->_generateToken());
-		$this->setMember(self::MEMBER_TYPE, self::TYPE_COOKIE);
+		$this->token = $this->_generateToken();
+		$this->type = self::TYPE_COOKIE;
 		$this->authenticate($user, $request);
 		return $this;
 	}
@@ -550,58 +563,16 @@ class SessionORM extends ORMBase implements SessionInterface {
 	 *
 	 * @param int $nSeconds
 	 * @return integer
-	 * @throws SQLException
-	 * @throws KeyNotFound
-	 * @throws ORMEmpty
-	 * @throws Semantics
 	 */
 	public function sessionCount(int $nSeconds = 600): int {
-		$where['seen|>='] = Timestamp::now()->addUnit(-$nSeconds);
-		$where['id|!='] = $this->id();
-		return $this->querySelect()->addWhat('*X', 'COUNT(id)')->appendWhere($where)->integer('X');
-	}
-
-	/*
-	 * Get/Set session values from Object
-	 *
-	 */
-	protected function hook_initialized(): void {
-		if (!is_array($this->members['data'])) {
-			$this->members['data'] = [];
-		}
-		$this->original = $this->members['data'];
-	}
-
-	/**
-	 *
-	 * @return SessionORM
-	 * @throws ClassNotFound
-	 * @throws ConfigurationException
-	 * @throws Duplicate
-	 * @throws KeyNotFound
-	 * @throws ORMDuplicate
-	 * @throws ORMEmpty
-	 * @throws ORMNotFound
-	 * @throws ParameterException
-	 * @throws ParseException
-	 * @throws SQLException
-	 * @throws Semantics
-	 * @throws StoreException
-	 * @throws TableNotFound
-	 */
-	public function store(): self {
-		if ($this->memberIsEmpty('cookie')) {
-			$this->delete();
-			return $this;
-		} else {
-			return parent::store();
-		}
+		$ex = Criteria::expr();
+		$criteria = Criteria::create()->where($ex->gt('seen', Timestamp::now()->addUnit(-$nSeconds)))->andWhere($ex->neq('id', $this->id()));
+		return $this->em->getRepository(self::class)->count([$criteria]);
 	}
 
 	/**
 	 * @return int
 	 * @throws Authentication
-	 * @throws ORMEmpty
 	 */
 	public function userId(): int {
 		return $this->user()->id();
@@ -612,68 +583,10 @@ class SessionORM extends ORMBase implements SessionInterface {
 	 * @throws Authentication
 	 */
 	public function user(): User {
-		try {
-			$user = $this->memberObject(self::MEMBER_USER, $this->inheritOptions());
-			assert($user instanceof User);
-			return $user;
-		} catch (Throwable $t) {
-			throw new Authentication('Session user {message}', ['message' => $t->getMessage()], 0, $t);
+		if (!$this->user) {
+			throw new Authentication('Not authenticated session {token}', ['token' => $this->token]);
 		}
-	}
-
-	public function get(int|string $name, mixed $default = null): mixed {
-		return $this->members['data'][$name] ?? $default;
-	}
-
-	/**
-	 * Session variables are special
-	 *
-	 * @param int|string $key
-	 * @return mixed
-	 */
-	public function __get(int|string $key): mixed {
-		return $this->members['data'][$key] ?? null;
-	}
-
-	/**
-	 * @param int|string $key
-	 * @param mixed $value
-	 * @return void
-	 * @throws Duplicate
-	 * @throws KeyNotFound
-	 * @throws ORMDuplicate
-	 * @throws ORMEmpty
-	 * @throws SQLException
-	 * @throws StoreException
-	 * @throws TableNotFound
-	 */
-	public function __set(int|string $key, mixed $value): void {
-		if ($value === null) {
-			unset($this->members['data'][$key]);
-		} else {
-			$this->members['data'][$key] = $value;
-		}
-		if ($value !== ($this->original[$key] ?? null)) {
-			$this->changed = true;
-			$this->store();
-		}
-	}
-
-	/**
-	 * @param int|string $name
-	 * @param mixed|null $value
-	 * @return $this
-	 * @throws Duplicate
-	 * @throws KeyNotFound
-	 * @throws ORMDuplicate
-	 * @throws ORMEmpty
-	 * @throws SQLException
-	 * @throws StoreException
-	 * @throws TableNotFound
-	 */
-	public function set(int|string $name, mixed $value = null): self {
-		$this->__set($name, $value);
-		return $this;
+		return $this->user;
 	}
 
 	public function changed($members = null): bool {

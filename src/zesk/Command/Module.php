@@ -9,6 +9,8 @@ declare(strict_types=1);
 
 namespace zesk\Command;
 
+use zesk\Exception;
+
 /**
  * Load a module or list all modules available.
  *

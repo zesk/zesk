@@ -159,8 +159,8 @@ class Cannon extends SimpleCommand {
 			$this->verboseLog('Backing up files with matches');
 		}
 		$locale = $this->application->locale;
-		$this->log(" Search: $search (" . $locale->pluralWord('character', strlen($search)) . ')');
-		$this->log("Replace: $replace (" . $locale->pluralWord('character', strlen($replace)) . ')');
+		$this->info(" Search: $search (" . $locale->pluralWord('character', strlen($search)) . ')');
+		$this->info("Replace: $replace (" . $locale->pluralWord('character', strlen($replace)) . ')');
 		$stats = [
 			'files' => 0,
 			'lines' => 0,
@@ -177,7 +177,7 @@ class Cannon extends SimpleCommand {
 				$stats['skipped']++;
 			}
 		}
-		$this->log(Text::formatPairs($stats));
+		$this->info(Text::formatPairs($stats));
 		return 0;
 	}
 
@@ -211,7 +211,7 @@ class Cannon extends SimpleCommand {
 	 */
 	private function _replaceFile(string $file, string $search, string $replace): int {
 		if (($size = filesize($file)) > $this->optionInt('max_file_size')) {
-			$this->log('Skipping {size} {file}', [
+			$this->info('Skipping {size} {file}', [
 				'size' => Number::formatBytes($this->application->locale, $size),
 				'file' => $file,
 			]);

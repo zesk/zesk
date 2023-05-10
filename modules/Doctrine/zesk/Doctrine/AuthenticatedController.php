@@ -24,7 +24,6 @@ use zesk\Response;
  *
  */
 class AuthenticatedController extends Controller {
-
 	/**
 	 * Current logged in user
 	 *
@@ -40,6 +39,15 @@ class AuthenticatedController extends Controller {
 	public SessionInterface|null $session = null;
 
 	/**
+	 * @param string $message
+	 * @return void
+	 * @throws Authentication
+	 */
+	private function throwAuthentication(string $message): void {
+		throw new Authentication($message, [], HTTP::STATUS_UNAUTHORIZED);
+	}
+
+	/**
 	 * @param Request $request
 	 * @param Response $response
 	 * @return void
@@ -51,16 +59,18 @@ class AuthenticatedController extends Controller {
 
 		$this->session = $this->application->requireSession($request);
 		if (!$this->session->isAuthenticated()) {
-			throw new Authentication("Session not authorized");
+			$this->throwAuthentication('Session not authorized');
 		}
+
 		try {
 			$this->user = $this->application->requireUser($request);
 		} catch (ClassNotFound $e) {
-			$response->setStatus(HTTP::STATUS_INTERNAL_SERVER_ERROR, "No class");
+			$response->setStatus(HTTP::STATUS_INTERNAL_SERVER_ERROR, 'No class');
+
 			throw $e;
 		}
-		if (!$this->user->can(get_class($this) . "::*")) {
-			throw new Authentication("User not authorized");
+		if (!$this->user->can(get_class($this) . '::*')) {
+			$this->throwAuthentication('User does not have permission');
 		}
 	}
 
@@ -71,7 +81,7 @@ class AuthenticatedController extends Controller {
 	 */
 	public function variables(): array {
 		return [
-				'user' => $this->user, 'session' => $this->session,
-			] + parent::variables();
+			'user' => $this->user, 'session' => $this->session,
+		] + parent::variables();
 	}
 }

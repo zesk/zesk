@@ -275,7 +275,7 @@ class Options {
 	 * @return bool
 	 */
 	public function optionBool(string $name, bool $default = false): bool {
-		return toBool($this->options[self::_optionKey($name)] ?? $default);
+		return Types::toBool($this->options[self::_optionKey($name)] ?? $default);
 	}
 
 	/**
@@ -284,7 +284,7 @@ class Options {
 	 * @return int
 	 */
 	public function optionInt(string $name, int $default = 0): int {
-		return toInteger($this->options[self::_optionKey($name)] ?? $default, $default);
+		return Types::toInteger($this->options[self::_optionKey($name)] ?? $default, $default);
 	}
 
 	/**

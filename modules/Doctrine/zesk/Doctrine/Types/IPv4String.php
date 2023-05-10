@@ -12,9 +12,8 @@ use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use zesk\IPv4;
 
-
 class IPv4String extends Type {
-	public const TYPE = 'ipString'; // modify to match your type name
+	public const TYPE = 'ip4'; // modify to match your type name
 
 	public function getSQLDeclaration(array $column, AbstractPlatform $platform): string {
 		$column['options'] = ['unsigned' => true] + ($column['options'] ?? []);
@@ -22,7 +21,7 @@ class IPv4String extends Type {
 	}
 
 	public function convertToPHPValue($value, AbstractPlatform $platform): string {
-		return $value === null ? "0.0.0.0" : IPv4::fromInteger($value);
+		return $value === null ? '0.0.0.0' : IPv4::fromInteger($value);
 	}
 
 	public function convertToDatabaseValue($value, AbstractPlatform $platform): int {
@@ -30,7 +29,6 @@ class IPv4String extends Type {
 			throw new ConversionException("Can not convert $value to an integer IP address");
 		}
 		return IPv4::toInteger($value);
-
 	}
 
 	public function getName(): string {

@@ -4,66 +4,71 @@ declare(strict_types=1);
  * Unit tests for database tests
  */
 
-namespace zesk\Database;
+namespace zesk\Doctrine;
+
+use Doctrine\Persistence\ObjectRepository;
+use zesk\PHPUnit\TestCase;
 
 use Doctrine\ORM\EntityManager;
-use zesk\Doctrine\Model;
-use zesk\Exception\NotFoundException;
-use zesk\Exception\ParameterException;
-use zesk\Exception\Semantics;
-use zesk\Exception\SyntaxException;
-use zesk\Types as BaseTypes;
-use zesk\Database\Exception\Duplicate;
-use zesk\Database\Exception\TableNotFound;
-use zesk\Exception\KeyNotFound;
-use zesk\PHPUnit\TestCase;
+use zesk\Types;
 
 /**
  *
  * @author kent
  */
-class DatabaseUnitTest extends TestCase {
+class DatabaseTestCase extends TestCase {
 	public EntityManager $em;
 
 	public function initialize(): void {
+		$this->application->modules->load('Doctrine');
+		$this->application->setOption('userClass', User::class);
 		$this->em = $this->application->entityManager();
-
 	}
 
 	/**
-	 * @deprecated 2023-04
+	 * @return Module
+	 */
+	final protected function doctrineModule(): Module {
+		return $this->application->doctrineModule();
+	}
+
+	/**
+	 * @return ObjectRepository
+	 */
+	public function getRepository(string $name): ObjectRepository {
+		return $this->em->getRepository($name);
+	}
+
+	/**
 	 * @return EntityManager
+	 * @deprecated 2023-04
 	 */
 	public function getDatabase(): EntityManager {
 		return $this->em;
 	}
 
-//	/**
-//	 * @param string $name
-//	 * @param string $create_sql
-//	 * @return void
-//	 * @throws Duplicate
-//	 * @throws SQLException
-//	 * @throws TableNotFound
-//	 */
-//	final public function dropAndCreateTable(string $name, string $create_sql): void {
-//		$db = $this->data
-//
-//		$db->query("DROP TABLE IF EXISTS `$name`");
-//		$db->query($create_sql);
-//		if (!$this->optionBool('debug_keep_tables')) {
-//			register_shutdown_function([$db, 'query', ], "DROP TABLE IF EXISTS `$name`");
-//		}
-//	}
-//
+	//	/**
+	//	 * @param string $name
+	//	 * @param string $create_sql
+	//	 * @return void
+	//	 * @throws Duplicate
+	//	 * @throws SQLException
+	//	 * @throws TableNotFound
+	//	 */
+	//	final public function dropAndCreateTable(string $name, string $create_sql): void {
+	//		$db = $this->data
+	//
+	//		$db->query("DROP TABLE IF EXISTS `$name`");
+	//		$db->query($create_sql);
+	//		if (!$this->optionBool('debug_keep_tables')) {
+	//			register_shutdown_function([$db, 'query', ], "DROP TABLE IF EXISTS `$name`");
+	//		}
+	//	}
+	//
 	/**
 	 * @param int $expected
-	 * @param string|object $modelClass
+	 * @param string $modelClass
 	 * @return void
-	 * @throws Duplicate
-	 * @throws KeyNotFound
-	 * @throws NoResults
-	 * @throws TableNotFound
 	 */
 	final protected function assertRowCount(int $expected, string $modelClass): void {
 		$actual = $this->em->getRepository($modelClass)->count([]);
@@ -101,33 +106,24 @@ class DatabaseUnitTest extends TestCase {
 	/**
 	 * Synchronize the given classes with the database schema
 	 *
-	 * @param array|string $classes
-	 * @param array $options
-	 * @return array[classname]
-	 * @throws Duplicate
-	 * @throws NoResults
-	 * @throws SchemaException
-	 * @throws TableNotFound
-	 * @throws NotFoundException
-	 * @throws ParameterException
-	 * @throws Semantics
-	 * @throws SyntaxException
+	 * @return array
 	 */
-	public function schemaSynchronize(array|string $classes, array $options = []): array {
-		$app = $this->application;
-		$results = [];
-		foreach (BaseTypes::toList($classes) as $class) {
-			$class_object = $app->class_ormRegistry($class);
-			$db = $class_object->database();
-			$results[$class] = $db->queries($app->ormModule()->schemaSynchronize($db, [$class, ], $options + ['follow' => true, ]));
-		}
-		return $results;
+	public function schemaSynchronize(string|array $entities): array {
+		return $this->application->doctrineModule()->schemaSynchronize(Types::toList($entities));
 	}
 
 	final protected function sqlNormalizeTrim(string $sql): string {
 		return preg_replace('/\s+/', ' ', trim($sql));
 	}
 
+	/**
+	 * Compare SQL loosely
+	 *
+	 * @param string $expected
+	 * @param string $sql
+	 * @param string $message
+	 * @return void
+	 */
 	final protected function assertSQLEquals(string $expected, string $sql, string $message = ''): void {
 		$this->assertEquals($this->sqlNormalizeTrim($expected), $this->sqlNormalizeTrim($sql), $message);
 	}

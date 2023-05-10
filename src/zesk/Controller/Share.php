@@ -124,7 +124,7 @@ class Share extends Controller {
 	 *
 	 * @return string
 	 */
-	public function option_share_prefix(): string {
+	public function optionSharePrefix(): string {
 		return $this->optionString(self::OPTION_SHARE_PREFIX, self::SHARE_PREFIX_DEFAULT);
 	}
 
@@ -138,7 +138,7 @@ class Share extends Controller {
 	 * @throws DirectoryPermission
 	 * @throws FilePermission
 	 */
-	public function build_directory(): void {
+	public function buildDirectory(): void {
 		$app = $this->application;
 		$sharePaths = $this->sharePath();
 		$document_root = $app->documentRoot();
@@ -151,7 +151,7 @@ class Share extends Controller {
 				$base = basename($file);
 				$source = Directory::path($path, $file);
 				if (!str_starts_with($base, '.') && is_file($source)) {
-					$target_file = Directory::path($document_root, $this->option_share_prefix(), $name, $file);
+					$target_file = Directory::path($document_root, $this->optionSharePrefix(), $name, $file);
 					Directory::depend(dirname($target_file), 0o777);
 					if (!copy($source, $target_file)) {
 						throw new FilePermission($target_file);
@@ -316,11 +316,10 @@ class Share extends Controller {
 	 */
 	public function hook_cacheClear(): void {
 		$logger = $this->application->logger;
-		$logger->debug(__METHOD__);
 		if (!$this->optionBool(self::OPTION_BUILD)) {
 			return;
 		}
-		$share_dir = Directory::path($this->application->documentRoot(), $this->option_share_prefix());
+		$share_dir = Directory::path($this->application->documentRoot(), $this->optionSharePrefix());
 		if (is_dir($share_dir)) {
 			$logger->notice('{class}::hook_cache_clear - deleting {share_dir}', [
 				'class' => __CLASS__, 'share_dir' => $share_dir,

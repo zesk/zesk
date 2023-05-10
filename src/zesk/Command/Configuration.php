@@ -113,9 +113,9 @@ class Configuration extends SimpleCommand {
 		$config = $this->application->configuration;
 		$missing = $warning = [];
 		foreach ($config as $key => $next) {
-			if ($next instanceof Configuration) {
+			if ($next instanceof \zesk\Configuration) {
 				try {
-					if (!class_exists($key, true)) {
+					if (!class_exists($key)) {
 						$missing[] = $key;
 					}
 				} catch (Throwable $e) {

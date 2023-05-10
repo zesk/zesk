@@ -33,8 +33,8 @@ COPY docker/bin/*.sh /usr/local/bin/
 COPY docker/bin/*.php /usr/local/bin/
 COPY docker/bin/bash_profile /var/www/.bashrc
 
-RUN mkdir -v -m 0770 /var/www/.zesk /var/www/.ssh
-RUN chown www-data:www-data /var/www/.ssh /var/www/.zesk /var/www/.bashrc
+RUN mkdir -v -m 0700 /var/www/.zesk /var/www/.ssh /var/www/log/
+RUN chown www-data:www-data /var/www/.ssh /var/www/.zesk /var/www/.bashrc /var/www/log/
 
 ADD docker/bin/bash_profile /root/.bashrc
 RUN mkdir /root/.zesk/

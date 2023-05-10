@@ -15,7 +15,7 @@ use zesk\ORM\User;
 use zesk;
 
 /**
- * @see SessionORM
+ * @see Session
  * @author kent
  *
  */
@@ -32,7 +32,7 @@ class SessionORMTest extends ORMUnitTest {
 	 * @expectedException zesk\ParseException
 	 */
 	public function test_no_userId(): void {
-		$testx = new SessionORM($this->application);
+		$testx = new Session($this->application);
 		$testx->userId();
 	}
 
@@ -43,13 +43,13 @@ class SessionORMTest extends ORMUnitTest {
 	 * @throws KeyNotFound
 	 */
 	public function test_userId(): void {
-		$testx = new SessionORM($this->application);
+		$testx = new Session($this->application);
 		$testx->setMember('user', 2);
 		$testx->userId();
 	}
 
 	public function test_main(): void {
-		$testx = new SessionORM($this->application);
+		$testx = new Session($this->application);
 
 		$user = new User($this->application);
 		$user_table = $user->table();
@@ -62,7 +62,7 @@ class SessionORMTest extends ORMUnitTest {
 
 		$db->queries($this->application->ormModule()->schema_synchronize($db, [
 			User::class,
-			SessionORM::class,
+			Session::class,
 		], [
 			'follow' => true,
 		]));
@@ -79,14 +79,14 @@ class SessionORMTest extends ORMUnitTest {
 		$testx->hash();
 
 		$hash = 'ABC';
-		$find = SessionORM::one_time_find($this->application, $hash);
+		$find = Session::one_time_find($this->application, $hash);
 
 
 		$user = new User($this->application, 1);
 		$user->fetch();
 
 		$resx = $testx->one_time_create($user, 2);
-		$this->assert($resx instanceof SessionORM);
+		$this->assert($resx instanceof Session);
 		$this->assertTrue($resx->memberBool('is_one_time'));
 		$this->assertNotEquals($resx->member('cookie'), $testx->member('cookie'));
 

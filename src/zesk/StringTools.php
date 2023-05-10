@@ -172,7 +172,7 @@ class StringTools {
 	 * @param array $mixed List of path items, or array of path items to concatenate
 	 * @return string with a properly formatted path
 	 * @see glue
-	 * @see domain
+	 * @see Host
 	 * @inline_test self::joinArray("/", ["", "", ""]) === "/"
 	 * @inline_test self::joinArray("/", ["", null, false]) === "/"
 	 * @inline_test self::joinArray("/", ["", "", "", null, false, "a", "b"]) === "/a/b"

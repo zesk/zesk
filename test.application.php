@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace zesk;
 
+use Psr\Log\LogLevel;
 use zesk\CacheItemPool\FileCacheItemPool;
 use zesk\Logger\FileLogger;
 
@@ -32,6 +33,7 @@ class TestApplicationFactory {
 			]);
 
 			$logger = new FileLogger(__DIR__ . '/test.log');
+			$logger->setLevels([LogLevel::NOTICE => true, LogLevel::INFO => true, LogLevel::DEBUG => false]);
 			$application->logger = $logger->setChild($application->logger);
 
 			$application->configuration->set(ArrayTools::filterKeyPrefixes($_SERVER, ['DATABASE']));

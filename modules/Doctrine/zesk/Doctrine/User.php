@@ -15,6 +15,7 @@ use Doctrine\ORM\Mapping\Entity;
 use Throwable;
 use zesk\Application;
 use zesk\Exception;
+use zesk\Interface\SessionInterface;
 use zesk\Model as BaseModel;
 use zesk\Doctrine\Trait\AutoID;
 use zesk\Exception\Authentication;
@@ -39,7 +40,6 @@ use zesk\Types;
  */
 #[Entity]
 class User extends Model implements Userlike {
-
 	/**
 	 * Boolean value to enable debugging of permissions
 	 *
@@ -47,33 +47,52 @@ class User extends Model implements Userlike {
 	 */
 	public const OPTION_DEBUG_PERMISSION = 'debugPermission';
 
-	static array $allowedMethods = [
+	public static array $allowedMethods = [
 		'md5', 'sha1', 'sha512', 'sha256', 'ripemd128', 'ripemd160', 'ripemd320',
 	];
+
 	use AutoID;
 
 	#[Column(type: 'string', length: 128, nullable: false)]
 	public string $email;
+
 	#[Column(type: 'string', length: 16, nullable: false)]
 	public string $passwordMethod;
+
 	#[Column(type: 'string', length: 128, nullable: false)]
 	public string $passwordData;
+
 	#[Column(type: 'string', length: 64, nullable: false)]
 	public string $nameFirst;
+
 	#[Column(type: 'string', length: 64, nullable: false)]
 	public string $nameLast;
-	#[Column(type: 'tinyint', nullable: false)]
+
+	#[Column(type: 'smallint', nullable: false)]
 	public bool $isActive;
+
 	#[Column(type: 'timestamp', nullable: true)]
 	public Timestamp $lastLogin;
+
 	#[Column(type: 'timestamp', nullable: true)]
 	public Timestamp $validated;
+
 	#[Column(type: 'timestamp', nullable: true)]
 	public Timestamp $agreed;
+
 	#[Column(type: 'timestamp', nullable: true)]
 	public Timestamp $created;
+
 	#[Column(type: 'timestamp', nullable: true)]
 	public Timestamp $modified;
+
+	/**
+	 * @see SessionInterface::id()
+	 * @return int|string|array
+	 */
+	public function id(): int|string|array {
+		return $this->id;
+	}
 
 	/**
 	 */
@@ -108,7 +127,7 @@ class User extends Model implements Userlike {
 	 */
 	public function setPassword(string $set, string $method): self {
 		if (!in_array($method, self::$allowedMethods)) {
-			throw new ParameterException("Invalid method {method}", ['method' => $method]);
+			throw new ParameterException('Invalid method {method}', ['method' => $method]);
 		}
 		$this->passwordMethod = $method;
 		$this->passwordData = $this->_generate_hash($set);
@@ -137,6 +156,7 @@ class User extends Model implements Userlike {
 		if (strcasecmp($this->_generate_hash($password), $this->passwordData) === 0) {
 			return $this;
 		}
+
 		throw new Authentication($this->email);
 	}
 
@@ -247,8 +267,8 @@ class User extends Model implements Userlike {
 			} catch (Throwable $e) {
 				$skipLog = true;
 				$this->application->logger->error("User::can({action},{context}) = {result} (Roles {roles}): Exception {throwableClass} {message}\n{backtrace}", [
-						'action' => $action, 'context' => $context, 'result' => false, 'roles' => $this->_roles,
-					] + Exception::exceptionVariables($e));
+					'action' => $action, 'context' => $context, 'result' => false, 'roles' => $this->_roles,
+				] + Exception::exceptionVariables($e));
 			}
 			if ($this->optionBool(self::OPTION_DEBUG_PERMISSION) && !$skipLog) {
 				$this->application->logger->debug('User::can({action},{context}) = {result} (Roles {roles}) ({extra})', [
@@ -280,7 +300,7 @@ class User extends Model implements Userlike {
 			]);
 		}
 
-		return (bool)$result;
+		return (bool) $result;
 	}
 
 	/**
@@ -330,10 +350,10 @@ class User extends Model implements Userlike {
 	 */
 	public static function permissions(Application $application): array {
 		return parent::default_permissions($application, __CLASS__) + [
-				__CLASS__ . '::become' => [
-					'title' => $application->locale->__('Become another user'), 'class' => 'User',
-				],
-			];
+			__CLASS__ . '::become' => [
+				'title' => $application->locale->__('Become another user'), 'class' => 'User',
+			],
+		];
 	}
 
 	/**
@@ -361,7 +381,7 @@ class User extends Model implements Userlike {
 					if ($this->can($a_permission, $a_context, $a_options)) {
 						$actions_passed[$href] = $attributes;
 					}
-				} else if ($this->can($permission, $context, $options)) {
+				} elseif ($this->can($permission, $context, $options)) {
 					$actions_passed[$href] = $attributes;
 				}
 			} else {

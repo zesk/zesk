@@ -215,14 +215,14 @@ class Version extends SimpleCommand {
 					'previousVersion' => $previousVersion, 'version' => $new_version_raw, 'command' => $this,
 				];
 				if ($hooks) {
-					$this->log('Calling hooks {hooks}', [
+					$this->info('Calling hooks {hooks}', [
 						'hooks' => $this->application->hooks->callable_strings($hooks),
 					]);
 					$params = $this->application->modules->allHookArguments('version_updated', [
 						$params,
 					], $params);
 				}
-				$this->log('Updated version from {previousVersion} to {version}', $params);
+				$this->info('Updated version from {previousVersion} to {version}', $params);
 				return 0;
 			}
 		}
@@ -263,20 +263,20 @@ class Version extends SimpleCommand {
 					'json' => $json_path,
 				],
 			]));
-			$this->log('wrote {schema_file_path}', [
+			$this->info('wrote {schema_file_path}', [
 				'schema_file_path' => $schema_file_path,
 			]);
 
 			$fullPath = $this->application->path($version_file_path);
 			if (file_exists($fullPath)) {
-				$this->log('{fullPath} exists already, not overwriting', ['fullPath' => $fullPath]);
+				$this->info('{fullPath} exists already, not overwriting', ['fullPath' => $fullPath]);
 			} else {
 				File::put($fullPath, JSON::encodePretty([
 					Application::class => [
 						'version' => '0.0.0.0',
 					],
 				]));
-				$this->log('wrote {fullPath}', [
+				$this->info('wrote {fullPath}', [
 					'fullPath' => $fullPath,
 				]);
 			}
@@ -337,11 +337,13 @@ class Version extends SimpleCommand {
 				$path = $json;
 			}
 			return function ($schema) use ($path, $application_root) {
-				$file = File::isAbsolute($schema['file']) ? $schema['file'] : Directory::path($application_root,
-					$schema['file']);
+				$file = File::isAbsolute($schema['file']) ? $schema['file'] : Directory::path(
+					$application_root,
+					$schema['file']
+				);
 				File::depends($file);
 				$json_structure = JSON::decode(File::contents($file));
-				return ArrayTools::path($json_structure, $path, '', '::');
+				return ArrayTools::path($json_structure, $path, '');
 			};
 		}
 		return function ($schema) use ($application_root) {

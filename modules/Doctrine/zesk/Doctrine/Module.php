@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace zesk\Doctrine;
 
+use Doctrine\ORM\Tools\SchemaTool;
 use zesk\Types;
 use zesk\CacheItemPool\FileCacheItemPool;
 use zesk\Directory;
@@ -175,5 +176,43 @@ class Module extends BaseModule {
 		}
 
 		throw new NotFoundException('No entityManager with name {name}', ['name' => $name]);
+	}
+
+	/**
+	 * @param array $entities
+	 * @param string $name
+	 * @return array
+	 * @throws ConfigurationException
+	 * @throws DirectoryCreate
+	 * @throws DirectoryNotFound
+	 * @throws DirectoryPermission
+	 * @throws Exception
+	 * @throws NotFoundException
+	 */
+	public function schemaSynchronizeSQL(array $entities, string $name = ''): array {
+		$tool = new SchemaTool($this->entityManager($name));
+		$sql = $tool->getUpdateSchemaSql($entities);
+		return $sql;
+	}
+
+	/**
+	 * @param array $entities
+	 * @param string $name
+	 * @return array
+	 * @throws ConfigurationException
+	 * @throws DirectoryCreate
+	 * @throws DirectoryNotFound
+	 * @throws DirectoryPermission
+	 * @throws Exception
+	 * @throws NotFoundException
+	 */
+	public function schemaSynchronize(array $entities, string $name = ''): array {
+		$sqls = $this->schemaSynchronizeSQL($entities, $name);
+		$connection = $this->entityManager($name)->getConnection();
+		$results = [];
+		foreach ($sqls as $sql) {
+			$results[$sql] = $connection->executeQuery($sql);
+		}
+		return $results;
 	}
 }

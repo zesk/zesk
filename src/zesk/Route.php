@@ -736,15 +736,10 @@ abstract class Route extends Hookable {
 	}
 
 	/**
-	 * @return ?string
+	 * @return string
 	 */
-	private function guess_content_type(): ?string {
-		$content_type = $this->option(self::OPTION_CONTENT_TYPE);
-		if ($content_type) {
-			return $content_type;
-		}
-		/* TODO more here */
-		return null;
+	private function guessContentType(): string {
+		return $this->optionString(self::OPTION_CONTENT_TYPE);
 	}
 
 	/**
@@ -753,7 +748,7 @@ abstract class Route extends Hookable {
 	 */
 	private function responseFactory(Request $request): Response {
 		$application = $this->application;
-		$response = $application->responseFactory($request, $this->guess_content_type());
+		$response = $application->responseFactory($request, $this->guessContentType());
 		if ($this->hasOption(self::OPTION_CACHE)) {
 			$cache = $this->option(self::OPTION_CACHE);
 			if (is_scalar($cache)) {
@@ -907,7 +902,8 @@ abstract class Route extends Hookable {
 		} catch (NotFoundException $e) {
 			$response = $this->responseFactory($request)->setStatus(HTTP::STATUS_FILE_NOT_FOUND, $e->getMessage());
 		} catch (Exception $e) {
-			$response = $this->responseFactory($request)->setStatus($e->getCode() ?: HTTP::STATUS_INTERNAL_SERVER_ERROR);
+			$response = $this->responseFactory($request)->setStatus($e->getCode() ?:
+				HTTP::STATUS_INTERNAL_SERVER_ERROR, $e->getMessage());
 		}
 		$this->_after($response);
 		$this->_unmapOptions();

@@ -28,8 +28,6 @@ use zesk\Doctrine\Trait\AutoID;
 #[Entity]
 #[UniqueConstraint(name: 'serverName', fields: ['server', 'name'])]
 class ServerMeta extends Model {
-	use AutoID;
-
 	#[ManyToOne(targetEntity: Server::class)]
 	#[JoinColumn(name: 'server')]
 	public Server $server;

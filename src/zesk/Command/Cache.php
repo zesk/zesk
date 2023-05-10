@@ -8,6 +8,10 @@ declare(strict_types=1);
  */
 namespace zesk\Command;
 
+use zesk\Exception\ClassNotFound;
+use zesk\Exception\DirectoryPermission;
+use zesk\Exception\FilePermission;
+
 /**
  * Cache commands. Takes a single argument: "clear" or "print" to print the class in the application.
  *
@@ -51,6 +55,12 @@ class Cache extends SimpleCommand {
 		return 0;
 	}
 
+	/**
+	 * @return int
+	 * @throws ClassNotFound
+	 * @throws DirectoryPermission
+	 * @throws FilePermission
+	 */
 	protected function _exec_clear(): int {
 		$this->application->cacheClear();
 		return 0;

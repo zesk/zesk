@@ -11,8 +11,11 @@ declare(strict_types=1);
 
 namespace zesk;
 
+use Stringable;
 use Traversable;
+use TypeError;
 use zesk\Exception\Semantics;
+use zesk\Interface\Simplifiable;
 
 class Types {
 	/**
@@ -173,7 +176,7 @@ class Types {
 	 * @return integer The integer value, or $def if it can not be converted to an integer
 	 */
 	public static function toInteger(mixed $s, int $default = 0): int {
-		return is_numeric($s) ? intval($s) : $default;
+		return is_scalar($s) ? intval($s) : $default;
 	}
 
 	/**
@@ -358,6 +361,31 @@ class Types {
 	}
 
 	/**
+	 * Converts to an object which can ultimately be represented as JSON or a related object
+	 *
+	 * @param mixed $mixed
+	 * @return bool|int|float|array|string
+	 */
+	public static function simplify(mixed $mixed): bool|int|float|array|string {
+		if (is_scalar($mixed)) {
+			return $mixed;
+		}
+		if (is_array($mixed)) {
+			return array_map(Types::simplify(...), $mixed);
+		}
+		if (is_object($mixed)) {
+			if ($mixed instanceof Simplifiable) {
+				return $mixed->simplify();
+			}
+			if ($mixed instanceof Stringable) {
+				return strval($mixed);
+			}
+		}
+
+		throw new TypeError('Unable to simplify ' . Types::type($mixed));
+	}
+
+	/**
 	 * Convert a deep object into a flat one (string)
 	 *
 	 * @param mixed $mixed
@@ -438,9 +466,7 @@ class Types {
 	 */
 	private static function _weight(string|float|int $weight): float {
 		static $weights = [
-			self::INTERNAL_WEIGHT_FIRST => -1e300,
-			self::WEIGHT_FIRST => -1e299,
-			self::WEIGHT_LAST => 1e299,
+			self::INTERNAL_WEIGHT_FIRST => -1e300, self::WEIGHT_FIRST => -1e299, self::WEIGHT_LAST => 1e299,
 			self::INTERNAL_WEIGHT_LAST => 1e300,
 		];
 		return floatval($weights[strval($weight)] ?? $weight);

@@ -16,17 +16,18 @@ use zesk\Exception\SyntaxException;
  */
 class TimeSpanTest extends UnitTest {
 	public static function data_TimeSpan(): array {
+		$days = Date::now()->setYear(Date::now()->year()+1)->isLeapYear() ? 366 : 365;
 		return [
-			['s:0 00 m:0 00 h:0 00 d:0 00 000', '0', 0, ], ['s:0 00 m:0 00 h:0 00 d:0 00 000', '0', 0.0, ],
-			['s:1 01 m:0 00 h:0 00 d:0 00 000', '1', 1.0, ], ['s:1 01 m:0 00 h:0 00 d:0 00 000', '1', -1.0, ],
-			['s:1 01 m:0 00 h:0 00 d:0 00 000', '1', -1, ], ['s:0 00 m:0 00 h:0 00 d:0 00 000', '0', '0', ],
+			['s:0 00 m:0 00 h:0 00 d:0 00 000', '0', 0, ],
+			['s:0 00 m:0 00 h:0 00 d:0 00 000', '0', 0.0, ],
+			['s:1 01 m:0 00 h:0 00 d:0 00 000', '1', 1.0, ],
+			['s:1 01 m:0 00 h:0 00 d:0 00 000', '1', -1.0, ],
+			['s:1 01 m:0 00 h:0 00 d:0 00 000', '1', -1, ],
+			['s:0 00 m:0 00 h:0 00 d:0 00 000', '0', '0', ],
 			['s:1 01 m:0 00 h:0 00 d:0 00 000', '1', '1', ],
 			['s:86400 00 m:1440 00 h:24 00 d:1 01 001', strval(Temporal::SECONDS_PER_DAY), '1 day', ],
 			['s:31622400 00 m:527040 00 h:8784 00 d:366 366 001', strval(Temporal::SECONDS_PER_DAY * 366), '366 days', ],
-			[
-				's:31536000 00 m:525600 00 h:8760 00 d:365 365 000', strval(Temporal::SECONDS_PER_DAY * 365),
-				'next year',
-			],
+			["s:31622400 00 m:527040 00 h:8784 00 d:$days $days 001", strval(Temporal::SECONDS_PER_DAY * $days), 'next year', ],
 		];
 	}
 
@@ -38,6 +39,7 @@ class TimeSpanTest extends UnitTest {
 	 * @param string|float|int $init
 	 * @return void
 	 * @dataProvider data_TimeSpan
+	 * @throws SyntaxException
 	 */
 	public function test_TimeSpan(string $expected_format, string $expected_sql, string|float|int $init): void {
 		$ts = TimeSpan::factory($init);

@@ -141,12 +141,11 @@ class TestApplicationUnitTest extends TestCase {
 		if ($hasTest) {
 			$foundQuote = '';
 			StringTools::unquote($expectedOutputOrPattern, '##//', $foundQuote);
+			$this->streamCapture(STDOUT);
+			$this->streamCapture(STDERR);
 			if ($foundQuote) {
 				$this->expectOutputRegex($expectedOutputOrPattern);
 			} else {
-				if ($expectedStatus !== 0) {
-					$this->streamCapture(STDERR);
-				}
 				$this->expectOutputString($expectedOutputOrPattern);
 			}
 			$exitStatus = $command->go();

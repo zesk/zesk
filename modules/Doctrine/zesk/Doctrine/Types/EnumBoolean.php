@@ -15,7 +15,7 @@ class EnumBoolean extends Type {
 	public const TYPE = 'enumBoolean'; // modify to match your type name
 
 	public function getSQLDeclaration(array $column, AbstractPlatform $platform): string {
-		return "ENUM('false','true')";
+		return 'ENUM(\'false\',\'true\')';
 	}
 
 	public function convertToPHPValue($value, AbstractPlatform $platform): ?bool {

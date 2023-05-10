@@ -14,8 +14,10 @@ class ShareControllerTest extends TestCase {
 	public function setUp(): void {
 		parent::setUp();
 		$router = $this->application->router();
-		$this->route = new ControllerRoute($router, '*', []);
-		$this->share = new Share($this->application, $this->route, []);
+		$this->route = new ControllerRoute($router, '*', ['controller' => Share::class]);
+		$share = $this->route->controller();
+		$this->assertInstanceOf(Share::class, $share);
+		$this->share = $share;
 	}
 
 	public function tearDown(): void {

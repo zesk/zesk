@@ -10,6 +10,9 @@ declare(strict_types=1);
 
 namespace zesk\Command;
 
+use zesk\Application;
+use zesk\Types;
+
 /**
  * Turn maintenance on or off, with an optional message.
  *
@@ -32,16 +35,16 @@ class Maintenance extends SimpleCommand {
 	public function run(): int {
 		if ($this->hasArgument()) {
 			$arg = $this->getArgument('message');
-			$bool = toBool($arg, null);
+			$bool = Types::toBool($arg, null);
 			if ($bool === null) {
 				$this->setOption('message', $arg);
 				$this->application->setMaintenance(true);
-				$this->log("Maintenance enabled with message \"$arg\"", [
+				$this->info("Maintenance enabled with message \"$arg\"", [
 					'arg' => $arg,
 				]);
 			} else {
 				$this->application->setMaintenance($bool);
-				$this->log('Maintenance ' . ($bool ? 'enabled' : 'disabled'));
+				$this->info('Maintenance ' . ($bool ? 'enabled' : 'disabled'));
 			}
 			return 0;
 		}

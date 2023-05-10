@@ -9,12 +9,16 @@ declare(strict_types=1);
 
 namespace zesk\Command;
 
+use Psr\Log\NullLogger;
+use Stringable;
 use Psr\Log\LogLevel;
 use zesk\Application\Hooks;
 use zesk\Command;
 use zesk\Exception\ExitedException;
+use zesk\Exception\KeyNotFound;
 use zesk\Logger\FileLogger;
-use zesk\Logger\Handler;
+use zesk\RuntimeException;
+use zesk\Logger\InterfaceAdapter;
 use const STDOUT;
 
 /**
@@ -22,7 +26,7 @@ use const STDOUT;
  * @author kent
  *
  */
-abstract class SimpleCommand extends Command implements Handler {
+abstract class SimpleCommand extends Command {
 	/**
 	 *
 	 * @var boolean
@@ -38,19 +42,21 @@ abstract class SimpleCommand extends Command implements Handler {
 	];
 
 	/**
+	 * Log a message to output or stderr.
+	 * Do not do anything if a theme is currently being rendered.
 	 *
-	 * @param mixed $message
+	 * @param $level
+	 * @param Stringable|string $message
 	 * @param array $context
-	 * @return void
 	 */
-	public function log(mixed $message, array $context = []): void {
+	public function log($level, Stringable|string $message, array $context = []): void {
 		if ($this->quiet) {
 			$severity = $context['severity'] ?? LogLevel::INFO;
 			if (array_key_exists($severity, self::$quiet_levels)) {
 				return;
 			}
 		}
-		parent::log($message, $context);
+		parent::log($level, $message, $context);
 	}
 
 	/**
@@ -101,22 +107,33 @@ abstract class SimpleCommand extends Command implements Handler {
 
 	/**
 	 */
-	protected function configure_logging(): void {
+	protected function configureLogger(): void {
 		if ($this->optionBool('quiet')) {
 			$this->quiet = true;
-			return;
-		}
-		$levels = [
-			LogLevel::INFO => true, LogLevel::NOTICE => true, LogLevel::DEBUG => $this->optionBool('debug'),
-		];
-		if (($filename = $this->option('log')) !== null) {
-			$log_file = new FileLogger($filename !== '-' ? $filename : self::stdout());
-			$log_file->setLevels($levels);
-			$this->application->logger = $log_file->setChild($this->application->logger);
-			if ($this->option('debug_log_file')) {
+			$logger = new NullLogger();
+		} elseif (($filename = $this->option('log')) !== null) {
+			if ($filename === '-') {
+				$logger = new InterfaceAdapter($this);
+			} else {
+				$debug = $this->optionBool('debug');
+				$logger = new FileLogger($filename);
+				$levels = [
+					LogLevel::INFO => true, LogLevel::NOTICE => true, LogLevel::DEBUG => $debug,
+				];
+
+				try {
+					$logger->setLevels($levels);
+				} catch (KeyNotFound $e) {
+					throw new RuntimeException('levels keys incorrect', [], 0, $e);
+				}
+			}
+			if ($this->option('debug')) {
 				$this->application->logger->info('Registered file logger {file}', ['file' => $filename]);
 			}
+		} else {
+			$logger = new InterfaceAdapter($this);
 		}
+		$this->application->logger = $logger; //->setChild($this->application->logger);
 	}
 
 	/**
@@ -124,7 +141,7 @@ abstract class SimpleCommand extends Command implements Handler {
 	 * @throws ExitedException
 	 */
 	protected function hook_runBefore(): void {
-		$this->configure_logging();
+		$this->configureLogger();
 		if ($this->optionBool('help')) {
 			$this->usage();
 
@@ -148,7 +165,7 @@ abstract class SimpleCommand extends Command implements Handler {
 	 */
 	public function action_debug_configured(bool $exit = true): int {
 		require_once($this->application->zeskHome('command/config.php'));
-		$config = new Command_Configuration($this->application, $this->options());
+		$config = new Configuration($this->application, $this->options());
 		$result = $config->parseArguments([])->run();
 		if ($exit) {
 			exit($result);

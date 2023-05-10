@@ -3,6 +3,7 @@ declare(strict_types=1);
 /**
  *
  */
+
 namespace zesk;
 
 use Psr\Log\LoggerInterface;
@@ -21,13 +22,9 @@ class Logger implements LoggerInterface {
 	 * @var array
 	 */
 	private static array $levels = [
-		LogLevel::EMERGENCY => LogLevel::EMERGENCY,
-		LogLevel::ALERT => LogLevel::ALERT,
-		LogLevel::CRITICAL => LogLevel::CRITICAL,
-		LogLevel::ERROR => LogLevel::ERROR,
-		LogLevel::WARNING => LogLevel::WARNING,
-		LogLevel::NOTICE => LogLevel::NOTICE,
-		LogLevel::INFO => LogLevel::INFO,
+		LogLevel::EMERGENCY => LogLevel::EMERGENCY, LogLevel::ALERT => LogLevel::ALERT,
+		LogLevel::CRITICAL => LogLevel::CRITICAL, LogLevel::ERROR => LogLevel::ERROR,
+		LogLevel::WARNING => LogLevel::WARNING, LogLevel::NOTICE => LogLevel::NOTICE, LogLevel::INFO => LogLevel::INFO,
 		LogLevel::DEBUG => LogLevel::DEBUG,
 	];
 
@@ -220,6 +217,28 @@ class Logger implements LoggerInterface {
 		$this->log(LogLevel::DEBUG, $message, $context);
 	}
 
+	public static function contextualize($level, string|\Stringable $message, array $context): array {
+		if (array_key_exists('_formatted', $context)) {
+			return $context;
+		}
+		$pid = intval(getmypid());
+		$time = microtime(true);
+		$int_time = intval($time);
+
+		$dateFunction = ($context['localDate'] ?? false) ? date(...) : gmdate(...);
+		$context['_date'] = $dateFunction('Y-m-d', $int_time);
+		$context['_time'] = $dateFunction('H:i:s', $int_time) . ltrim(sprintf('%.3f', $time - $int_time), '0');
+		$context['_microtime'] = $time;
+		$context['_pid'] = $pid;
+		$context['_level'] = $level;
+		$context['_levelString'] = $level;
+		$context['_severity'] = $level;
+		$context['_message'] = $message;
+		$context['_formatted'] = ArrayTools::map($message, $context);
+
+		return $context;
+	}
+
 	/**
 	 * Logs with an arbitrary level.
 	 *
@@ -230,7 +249,7 @@ class Logger implements LoggerInterface {
 	 */
 	public function log($level, $message, array $context = []): void {
 		if ($this->sending) {
-			// Doh.
+			// Doh. Recursion. Bad usually.
 			return;
 		}
 		if (!isset($this->handlers[$level])) {
@@ -256,23 +275,7 @@ class Logger implements LoggerInterface {
 		}
 		unset($context['_processor']);
 
-		$pid = intval(getmypid());
-		$time = microtime(true);
-		$int_time = intval($time);
-
-		$extras = [];
-		$dateFunction = $this->utc_time ? gmdate(...) : date(...);
-		$extras['_date'] = $dateFunction('Y-m-d', $int_time);
-		$extras['_time'] = $dateFunction('H:i:s', $int_time) . ltrim(sprintf('%.3f', $time - $int_time), '0');
-		$extras['_microtime'] = $time;
-		$extras['_pid'] = $pid;
-		$extras['_level'] = $level;
-		$extras['_levelString'] = $level;
-		$extras['_severity'] = $level;
-		$extras['_message'] = $message;
-		$extras['_formatted'] = map($message, $context);
-
-		$context += $extras;
+		$context = self::contextualize($level, $message, $context);
 
 		$this->sending = true;
 		$handlers = $this->handlers[$level];
@@ -284,8 +287,7 @@ class Logger implements LoggerInterface {
 				$handler->log($message, $context);
 			} catch (Throwable $e) {
 				PHP::log('{method} {handler} threw {class} at {file}:{line} {message} Backtrace: {backtrace}', [
-					'method' => __METHOD__,
-					'name' => $name,
+					'method' => __METHOD__, 'name' => $name,
 				] + Exception::exceptionVariables($e));
 			}
 		}

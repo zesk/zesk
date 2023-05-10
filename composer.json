@@ -54,6 +54,9 @@
   "homepage": "https://zesk.com",
   "autoload-dev": {
     "classmap": [
+      "modules/Doctrine/zesk/Doctrine/ModelTestCase.php",
+      "modules/Doctrine/zesk/Doctrine/DatabaseTestCase.php",
+      "modules/Doctrine/zesk/Doctrine/ControllerTestCase.php",
       "modules/PHPUnit/zesk/PHPUnit/TestCase.php",
       "modules/Repository/zesk/Repository/TestCase.php"
     ]

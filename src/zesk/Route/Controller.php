@@ -166,21 +166,21 @@ class Controller extends Route {
 	 * @throws ClassNotFound
 	 */
 	private function _controllerReflection(): ReflectionClass {
-		$class_name = $this->option('controller');
+		$className = $this->optionString('controller');
 
 		try {
-			$reflectionClass = new ReflectionClass($class_name);
+			$reflectionClass = new ReflectionClass($className);
 			$this->log('Controller {class_name} created', [
-				'class_name' => $class_name,
+				'class_name' => $className,
 			]);
 			if ($reflectionClass->isAbstract()) {
-				throw new ClassNotFound($class_name, 'Class {class_name} is abstract, can not instantiate', [
-					'class_name' => $class_name,
+				throw new ClassNotFound($className, 'Class {class_name} is abstract, can not instantiate', [
+					'class_name' => $className,
 				]);
 			}
 		} catch (ReflectionException $e) {
-			throw new ClassNotFound($class_name, 'Controller {controller} not found', [
-				'controller' => $class_name,
+			throw new ClassNotFound($className, 'Controller {controller} not found', [
+				'controller' => $className,
 			], $e);
 		}
 		return $reflectionClass;

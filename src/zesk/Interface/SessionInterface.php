@@ -18,14 +18,6 @@ use zesk\Request;
  */
 interface SessionInterface extends SettingsInterface {
 	/**
-	 *
-	 * @param mixed $mixed
-	 * @param array $options
-	 * @param Application $application
-	 */
-	public function __construct(Application $application, mixed $mixed = null, array $options = []);
-
-	/**
 	 * Configure session connected to the Request
 	 * @param Request $request
 	 * @return self

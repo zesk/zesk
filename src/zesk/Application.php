@@ -32,13 +32,13 @@ use zesk\Exception\DirectoryNotFound;
 use zesk\Exception\DirectoryPermission;
 use zesk\Exception\FileNotFound;
 use zesk\Exception\FilePermission;
+use zesk\Exception\KeyNotFound;
 use zesk\Exception\NotFoundException;
 use zesk\Exception\ParseException;
 use zesk\Exception\Redirect;
 use zesk\Exception\Semantics;
 use zesk\Exception\SyntaxException;
 use zesk\Exception\Unsupported;
-use zesk\Interface\MemberModelFactory;
 use zesk\Interface\ModelFactory;
 use zesk\Interface\SessionInterface;
 use zesk\Interface\SettingsInterface;
@@ -47,7 +47,6 @@ use zesk\Job\Module as JobModule;
 use zesk\Locale\Locale;
 use zesk\Locale\Reader;
 use zesk\Mail\Module as MailModule;
-use zesk\Module_Permission as PermissionModule;
 use zesk\Router\Parser;
 use zesk\Session\Module as SessionModule;
 use zesk\Settings\FileSystemSettings;
@@ -63,7 +62,6 @@ use function str_ends_with;
  * @method EntityManager entityManager(string $name = '');
  * @method DoctrineModule doctrineModule()
  *
- * @method PermissionModule permissionModule()
  *
  * @method JobModule jobModule()
  *
@@ -76,7 +74,7 @@ use function str_ends_with;
  * @method SessionInterface sessionFactory()
  * @method SessionModule sessionModule()
  */
-class Application extends Hookable implements MemberModelFactory, ModelFactory {
+class Application extends Hookable implements ModelFactory {
 	/**
 	 * @desc Default option to store application version - may be stored differently in overridden classes, use
 	 * @see self::version()
@@ -580,10 +578,10 @@ class Application extends Hookable implements MemberModelFactory, ModelFactory {
 	public function setDeprecated(string $set): string {
 		$old = $this->deprecated;
 		$this->deprecated = [
-								self::DEPRECATED_BACKTRACE => self::DEPRECATED_BACKTRACE,
-								self::DEPRECATED_EXCEPTION => self::DEPRECATED_EXCEPTION,
-								self::DEPRECATED_LOG => self::DEPRECATED_LOG,
-							][$set] ?? self::DEPRECATED_IGNORE;
+			self::DEPRECATED_BACKTRACE => self::DEPRECATED_BACKTRACE,
+			self::DEPRECATED_EXCEPTION => self::DEPRECATED_EXCEPTION,
+			self::DEPRECATED_LOG => self::DEPRECATED_LOG,
+		][$set] ?? self::DEPRECATED_IGNORE;
 		return $old;
 	}
 
@@ -604,14 +602,14 @@ class Application extends Hookable implements MemberModelFactory, ModelFactory {
 		switch ($this->deprecated) {
 			case self::DEPRECATED_EXCEPTION:
 				throw new Deprecated("{reason} Deprecated: {calling_function}\n{backtrace}", [
-						'reason' => $reason, 'calling_function' => Kernel::callingFunction(),
-						'backtrace' => Kernel::backtrace(4 + $depth),
-					] + $arguments);
+					'reason' => $reason, 'calling_function' => Kernel::callingFunction(),
+					'backtrace' => Kernel::backtrace(4 + $depth),
+				] + $arguments);
 			case self::DEPRECATED_LOG:
 				$this->application->logger->error("{reason} Deprecated: {calling_function}\n{backtrace}", [
-						'reason' => $reason ?: 'DEPRECATED', 'calling_function' => Kernel::callingFunction(),
-						'backtrace' => Kernel::backtrace(4 + $depth),
-					] + $arguments);
+					'reason' => $reason ?: 'DEPRECATED', 'calling_function' => Kernel::callingFunction(),
+					'backtrace' => Kernel::backtrace(4 + $depth),
+				] + $arguments);
 				break;
 			case self::DEPRECATED_BACKTRACE:
 				echo Kernel::backtrace();
@@ -624,7 +622,7 @@ class Application extends Hookable implements MemberModelFactory, ModelFactory {
 	 * @codeCoverageIgnore
 	 */
 	public function obsolete(): void {
-		$this->application->logger->alert('Obsolete function called {function}', ['function' => Kernel::callingFunction(2),]);
+		$this->application->logger->alert('Obsolete function called {function}', ['function' => Kernel::callingFunction(2), ]);
 		if ($this->application->development()) {
 			echo Kernel::backtrace();
 			exit(1);
@@ -1097,14 +1095,20 @@ class Application extends Hookable implements MemberModelFactory, ModelFactory {
 	 */
 	public function shutdown(): void {
 		if (!$this->applicationShutdown) {
-			$this->application->logger->debug(__METHOD__);
+			/* Ordering here matters */
+			/* Hooks - notify all other code first that we are shutting down */
 			$this->hooks->shutdown();
+			/* Shut down modules */
 			$this->modules->shutdown();
+			/* Shut down singleton objects */
 			$this->objects->shutdown();
+			/* Shut down localization and language options */
 			$this->locale->shutdown();
-			$this->paths->shutdown();
+			/* Shut down the autoloader, caching stuff */
 			$this->autoloader->shutdown();
+			/* Shut down file system connections */
 			$this->paths->shutdown();
+			/* Done */
 			$this->applicationShutdown = true;
 		}
 	}
@@ -1476,7 +1480,7 @@ class Application extends Hookable implements MemberModelFactory, ModelFactory {
 	 */
 	private function configuredHooks(): void {
 		foreach ([Hooks::HOOK_DATABASE_CONFIGURE, Hooks::HOOK_CONFIGURED] as $hook) {
-			$this->hooks->callArguments($hook, [$this,]);
+			$this->hooks->callArguments($hook, [$this, ]);
 			$this->modules->allHookArguments($hook); // Modules
 			$this->callHookArguments($hook); // Application level
 			$this->modules->addLoadHook($hook);
@@ -1567,12 +1571,12 @@ class Application extends Hookable implements MemberModelFactory, ModelFactory {
 		$this->callHook(self::HOOK_CACHE_CLEAR);
 		$hooks = $this->modules->listAllHooks(self::HOOK_CACHE_CLEAR);
 		if (count($hooks)) {
-			$this->logger->notice('Running {cache_clear_hooks}', [
-				'cache_clear_hooks' => $this->_formatHooks($hooks),
+			$this->logger->debug('Running {hookList}', [
+				'hookList' => $this->_formatHooks($hooks),
 			]);
 			$this->modules->allHook(self::HOOK_CACHE_CLEAR, $this);
 		} else {
-			$this->logger->notice('No module cache clear hooks');
+			$this->logger->debug('No module cache clear hooks');
 		}
 		$controllers = $this->controllers();
 		foreach ($controllers as $controller) {
@@ -1662,8 +1666,8 @@ class Application extends Hookable implements MemberModelFactory, ModelFactory {
 			}
 		} catch (Throwable $t) {
 			$this->logger->error('{applicationClass}::setMaintenance({value}) hook threw {exceptionClass} {message}', [
-					'applicationClass' => get_class($this), 'value' => $set ? 'true' : 'false',
-				] + Exception::phpExceptionVariables($t));
+				'applicationClass' => get_class($this), 'value' => $set ? 'true' : 'false',
+			] + Exception::phpExceptionVariables($t));
 			return false;
 		}
 
@@ -1679,8 +1683,8 @@ class Application extends Hookable implements MemberModelFactory, ModelFactory {
 
 	private function _maintenanceEnabled(): void {
 		$context = [
-				'time' => date('Y-m-d H:i:s'),
-			] + Types::toArray($this->callHookArguments('maintenanceEnabled', [[]], []));
+			'time' => date('Y-m-d H:i:s'),
+		] + Types::toArray($this->callHookArguments('maintenanceEnabled', [[]], []));
 
 		try {
 			file_put_contents($this->maintenanceFile(), JSON::encode($context));
@@ -1751,7 +1755,7 @@ class Application extends Hookable implements MemberModelFactory, ModelFactory {
 		try {
 			if ($inherit) {
 				$request->initializeFromRequest($inherit);
-			} else if ($this->console()) {
+			} elseif ($this->console()) {
 				$request->initializeFromSettings('http://console/');
 			} else {
 				$request->initializeFromGlobals();
@@ -1882,9 +1886,9 @@ class Application extends Hookable implements MemberModelFactory, ModelFactory {
 
 		try {
 			$response->content = $this->themes->theme($this->classes->hierarchy($exception), [
-					'application' => $this, 'request' => $request, 'response' => $response, 'exception' => $exception,
-					'content' => $exception,
-				] + Exception::exceptionVariables($exception), [
+				'application' => $this, 'request' => $request, 'response' => $response, 'exception' => $exception,
+				'content' => $exception,
+			] + Exception::exceptionVariables($exception), [
 				'first' => true,
 			]);
 			if (!$exception instanceof Redirect) {
@@ -1973,8 +1977,8 @@ class Application extends Hookable implements MemberModelFactory, ModelFactory {
 			'{page-render-time}' => sprintf('%.3f', microtime(true) - $this->initializationMicrotime),
 		];
 		if (!$response || $response->isContentType([
-				'text/', 'javascript',
-			])) {
+			'text/', 'javascript',
+		])) {
 			if ($response->content !== null) {
 				$response->content = strtr($response->content, $final_map);
 			}
@@ -2176,13 +2180,16 @@ class Application extends Hookable implements MemberModelFactory, ModelFactory {
 	 * Create a model
 	 *
 	 * @param string $class
-	 * @param mixed|null $mixed
+	 * @param mixed|null $value
 	 * @param array $options
 	 * @return Model
 	 * @throws ClassNotFound
+	 * @see ModelFactory
 	 */
-	public function modelFactory(string $class, mixed $mixed = null, array $options = []): Model {
-		return Model::factory($this, $class, $mixed, $options);
+	public function modelFactory(string $class, array $value = [], array $options = []): Model {
+		$model = $this->objects->factoryArguments($class, [$this, $options]);
+		assert($model instanceof Model);
+		return $model->initializeFromArray($value);
 	}
 
 	/**
@@ -2190,15 +2197,15 @@ class Application extends Hookable implements MemberModelFactory, ModelFactory {
 	 *
 	 * @param string $member
 	 * @param string $class
-	 * @param mixed|null $mixed
+	 * @param mixed|null $value
 	 * @param array $options
 	 * @return Model
 	 * @throws ClassNotFound
 	 */
-	public function memberModelFactory(string $member, string $class, mixed $mixed = null, array $options = []): Model {
-		return Model::factory($this, $class, $mixed, [
-				'_member' => $member,
-			] + $options);
+	public function memberModelFactory(string $member, string $class, array $value = [], array $options = []): Model {
+		$model = $this->application->factory($class, $this, $options);
+		assert($model instanceof Model);
+		return $model->initializeFromArray($value);
 	}
 
 	/**
@@ -2479,10 +2486,14 @@ class Application extends Hookable implements MemberModelFactory, ModelFactory {
 
 	/**
 	 * @return Userlike
-	 * @throws ClassNotFound
+	 * @throws ClassNotFound|KeyNotFound
 	 */
 	public function userFactory(): Userlike {
-		$user = $this->modelSingleton($this->optionString('userClass'));
+		$className = $this->optionString('userClass');
+		if (empty($className)) {
+			throw new KeyNotFound('No userClass configured');
+		}
+		$user = $this->modelSingleton($className);
 		assert($user instanceof Userlike);
 		return $user;
 	}

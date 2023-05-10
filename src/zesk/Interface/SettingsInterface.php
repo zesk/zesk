@@ -6,6 +6,8 @@ declare(strict_types=1);
 
 namespace zesk\Interface;
 
+use zesk\Exception\KeyNotFound;
+
 /**
  *
  * @author kent
@@ -14,52 +16,27 @@ namespace zesk\Interface;
 interface SettingsInterface {
 	/**
 	 * Is a value set in this object?
-	 * @param string|int $name
+	 * @param string|int $key
 	 * @return boolean
 	 */
-	public function has(string|int $name): bool;
+	public function has(string|int $key): bool;
 
 	/**
 	 * Retrieve a value from the settings, returning a default value if not set
-	 * @param mixed $name A string or key value (integer, float)
-	 * @param mixed $default A value to return if the session value is null
+	 * @param mixed $key A string or key value (integer, float)
 	 * @return mixed The value of the session variable, or $default if nothing set
+	 * @throws KeyNotFound
 	 */
-	public function get(string|int $name, mixed $default = null): mixed;
-
-	/**
-	 * Magic get method
-	 *
-	 * @param string|int $name
-	 * @return mixed
-	 */
-	public function __get(string|int $name): mixed;
-
-	/**
-	 * Magic isset method
-	 *
-	 * @param string|int $name
-	 * @return bool
-	 */
-	public function __isset(string|int $name): bool;
-
-	/**
-	 * Magic set method
-	 *
-	 * @param string|int $name
-	 * @param mixed $value
-	 * @return void
-	 */
-	public function __set(string|int $name, mixed $value): void;
+	public function get(string|int $key): mixed;
 
 	/**
 	 * Store a value to a settings
 	 *
-	 * @param mixed $name A string or key value (integer, float)
+	 * @param mixed $key A string or key value (integer, float)
 	 * @param mixed $value Value to save. As a general rule, best to use scalar types
 	 * @return self
 	 */
-	public function set(string|int $name, mixed $value): self;
+	public function set(string|int $key, mixed $value): self;
 
 	/**
 	 * Retrieve a list of all settings variables as an array

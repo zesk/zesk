@@ -56,8 +56,8 @@ World: false';
 			Arguments::class => [
 				[['a', 'b', 'c'], 0, "[\"a\",\"b\",\"c\"]\n"], [['a', 'b', 'dee'], 0, "[\"a\",\"b\",\"dee\"]\n"],
 			], Cache::class => [
-				[['print'], 0, "zesk\\CacheItemPool_File\n"],
-				[['clear'], 0, "NOTICE: /zesk/cache/testApp/cache/ is empty.\nNOTICE: No module cache clear hooks\n"],
+				[['print'], 0, "zesk\\CacheItemPool\\FileCacheItemPool\n"],
+				[['--log', '-', 'clear'], 0, "NOTICE: /zesk/cache/testApp/cache/ is empty.\nDEBUG: No module cache clear hooks\n"],
 			], Version::class => [
 				[[function () {
 					Directory::depend(self::testApplication()->path('etc'));

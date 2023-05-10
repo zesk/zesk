@@ -77,6 +77,16 @@ class TestCase extends BaseTestCase {
 	private bool $initialized = false;
 
 	/**
+	 * Must *not* call in dataProvider
+	 *
+	 * @return Application
+	 * @throws Semantics
+	 */
+	public static function app(): Application {
+		return Kernel::singleton()->application();
+	}
+
+	/**
 	 * Ensures our zesk variables above are properly populated
 	 * @return void
 	 * @throws ConfigurationException
@@ -405,14 +415,6 @@ class TestCase extends BaseTestCase {
 
 	public function optionBool(string $name, bool $default = false): bool {
 		return Types::toBool($this->option($name, $default), null) ?? $default;
-	}
-
-	/**
-	 * @return Application
-	 * @throws Semantics
-	 */
-	public static function app(): Application {
-		return Kernel::singleton()->application();
 	}
 
 	public function awaitFile(string $filename, float $timeout = 5.0): void {

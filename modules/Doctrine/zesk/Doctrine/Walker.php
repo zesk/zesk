@@ -11,25 +11,19 @@ declare(strict_types=1);
  * @author kent
  */
 
-namespace zesk\ORM;
+namespace zesk\Doctrine;
 
 use Psr\Log\LoggerInterface;
+use ReflectionClass;
+use ReflectionException;
 use zesk\ArrayTools;
-use zesk\Exception\ClassNotFound;
-use zesk\Exception\ConfigurationException;
-use zesk\Exception\KeyNotFound;
-use zesk\Exception\ParseException;
-use zesk\Exception\NotFoundException;
-use zesk\Exception\ParameterException;
-use zesk\Exception\Semantics;
-use zesk\ORM\Exception\ORMEmpty;
-use zesk\ORM\Exception\ORMNotFound;
+use zesk\RuntimeException;
 use zesk\StringTools;
 use zesk\Timestamp;
 use zesk\Types;
 
 /**
- * Traverse ORM objects to convert into various output formats
+ * Traverse Model objects to convert into various output formats
  *
  * @author kent
  */
@@ -209,6 +203,17 @@ class Walker {
 		return array_keys($this->include_members);
 	}
 
+	/**
+	 * @param string $member
+	 * @return bool
+	 */
+	public function included(string $member): bool {
+		if (count($this->include_members) === 0) {
+			return true;
+		}
+		return array_key_exists($member, $this->include_members);
+	}
+
 	public function setIncludeMembers(array $members, bool $append = false): self {
 		$this->include_members = $this->_set_unique($this->include_members, $members, $append, true);
 		return $this;
@@ -318,35 +323,18 @@ class Walker {
 	 * Convert an ORM into an array suitable to serialize into a variety of formats. Has recursion and
 	 * specific resolution options for complex structures in the database.
 	 *
-	 * @param ORMBase $orm
+	 * @param Model $model
 	 * @return int|string|array
-	 * @throws ClassNotFound
-	 * @throws ConfigurationException
-	 * @throws ParseException
-	 * @throws KeyNotFound
-	 * @throws NotFoundException
-	 * @throws ORMEmpty
-	 * @throws ORMNotFound
-	 * @throws ParameterException
-	 * @throws ParseException
-	 * @throws Semantics
 	 */
-	public function walk(ORMBase $orm): int|string|array {
+	public function walk(Model $model): int|string|array {
 		if ($this->preprocess_hook) {
-			$orm->class_orm()->callHookArguments($this->preprocess_hook, [
-				$this,
-			]);
-			$orm->callHookArguments($this->preprocess_hook, [
+			$model->callHookArguments($this->preprocess_hook, [
 				$this,
 			]);
 		}
-		$result = $this->_walk($orm);
-
+		$result = $this->_walk($model);
 		if ($this->postprocess_hook) {
-			$result = $orm->callHookArguments($this->postprocess_hook, [
-				$result, $this,
-			], $result);
-			$result = $orm->class_orm()->callHookArguments($this->postprocess_hook, [
+			$result = $model->callHookArguments($this->postprocess_hook, [
 				$result, $this,
 			], $result);
 		}
@@ -405,36 +393,37 @@ class Walker {
 	 * Convert an ORM into an array suitable to serialize into JSON. Has recursion and
 	 * specific resolution options for complex structures in the database.
 	 *
-	 * @param ORMBase $orm
+	 * @param Model $model
 	 * @return int|string|array
-	 * @throws ORMEmpty
-	 * @throws ORMNotFound
-	 * @throws ClassNotFound
-	 * @throws ConfigurationException
-	 * @throws ParseException
-	 * @throws KeyNotFound
-	 * @throws NotFoundException
-	 * @throws ParameterException
-	 * @throws ParseException
-	 * @throws Semantics
 	 */
-	private function _walk(ORMBase $orm): int|string|array {
+	private function _walk(Model $model): int|string|array {
 		/* Convert to JSON structure */
 		$class_data = $this->class_info ? [
 			'_class' => get_class($this), '_parent_class' => get_parent_class($this),
-			'_primary_keys' => $orm->members($orm->primaryKeys()),
 		] : [];
+		$reflectionClass = new ReflectionClass($model);
 		if ($this->depth === 0) {
-			$id = $orm->id();
-			if (is_scalar($id) && $this->class_info) {
-				return [
-					$orm->idColumn() => $id,
-				] + $class_data;
-			}
-			return $id;
-		}
+			$ids = $model->application->entityManager()->getClassMetadata($model::class)->getIdentifierColumnNames();
 
-		$logger = $orm->application->logger;
+			try {
+				if (count($ids) === 1) {
+					$idName = ArrayTools::first($ids);
+					return $reflectionClass->getProperty($idName);
+				}
+				$result = [];
+				foreach ($ids as $idColumn) {
+					$result += [
+						$idColumn => $reflectionClass->getProperty($idColumn),
+					];
+				}
+				return $result + $class_data;
+			} catch (ReflectionException $e) {
+				throw new RuntimeException('Invalid ids: {ids} for {class}', [
+					'ids' => $ids, 'class' => $model,
+				], $e->getCode(), $e);
+			}
+		}
+		$logger = $model->application->logger;
 
 		$members = [];
 		/* Handle "resolve_objects" list and "allow_resolve_objects" checks */
@@ -445,11 +434,14 @@ class Walker {
 		if (empty($include_members)) {
 			$include_members = null;
 		}
-		foreach ($orm->members($include_members) as $member => $value) {
+		foreach ($reflectionClass->getProperties() as $member => $value) {
+			if (!$this->included($member)) {
+				continue;
+			}
 			if (array_key_exists($member, $exclude_members)) {
 				continue;
 			}
-			$result = $this->_walk_member($orm, $member, $value, $resolve_object_match, $logger);
+			$result = $this->_walk_member($model, $member, $value, $resolve_object_match, $logger);
 			if ($result === null) {
 				if (!$this->skip_null) {
 					$members[$member] = $result;
@@ -464,39 +456,29 @@ class Walker {
 	/**
 	 * JSON a single member
 	 *
-	 * @param ORMBase $orm
+	 * @param Model $model
 	 * @param string $member
 	 * @param mixed $value
 	 * @param array $resolve_object_match
 	 * @param LoggerInterface $logger
-	 * @return int|string|null|ORMBase|Timestamp
-	 * @throws ClassNotFound
-	 * @throws ConfigurationException
-	 * @throws ParseException
-	 * @throws KeyNotFound
-	 * @throws NotFoundException
-	 * @throws ParameterException
-	 * @throws ParseException
-	 * @throws Semantics
+	 * @return int|string|null|Model|Timestamp
 	 */
-	private function _walk_member(
-		ORMBase $orm,
-		string $member,
-		mixed $value,
-		array $resolve_object_match,
-		LoggerInterface	$logger
-	): int|string|null|ORMBase|Timestamp {
+	private function _walk_member(Model $model, string $member, mixed $value, array $resolve_object_match, LoggerInterface $logger): int|string|null|Model|Timestamp {
 		$handler = $this->members_handler[$member] ?? null;
 		if (is_callable($handler) || function_exists($handler)) {
-			return $handler($value, $orm, $this);
+			return $handler($value, $model, $this);
 		}
 		// Inherit depth -1, and resolve_methods
 		$child_options = $this->child()->setDepth($this->depth - 1)->setResolveMethods($this->resolveMethods());
 		if (array_key_exists($member, $resolve_object_match)) {
+			$reflectionClass = new ReflectionClass($model);
+
 			try {
-				$value = $orm->get($member);
-			} catch (ORMEmpty|ORMNotFound) {
-				$value = null;
+				$value = $reflectionClass->getProperty($member);
+			} catch (ReflectionException $e) {
+				throw new RuntimeException('Invalid member {member} for class {class}', [
+					'member' => $member, 'class' => $model,
+				], $e->getCode(), $e);
 			}
 			$child_options->setResolveObjects($resolve_object_match[$member]);
 			// We null out "allow_resolve_objects" as those were checked once, above and are not necessary
@@ -511,7 +493,7 @@ class Walker {
 		if (is_scalar($value)) {
 			return $value;
 		} elseif (is_object($value)) {
-			return $this->resolve_object($orm, $member, $value, $child_options, $logger);
+			return $this->resolve_object($model, $member, $value, $child_options, $logger);
 		} else {
 			return null;
 		}
@@ -519,14 +501,14 @@ class Walker {
 
 	/**
 	 * Convert an object
-	 * @param ORMBase $object
+	 * @param Model $object
 	 * @param string $member
 	 * @param object $value
 	 * @param Walker $child_options
 	 * @param LoggerInterface $logger
 	 * @return mixed
 	 */
-	private function resolve_object(ORMBase $object, string $member, mixed $value, Walker $child_options, LoggerInterface $logger): string {
+	private function resolve_object(Model $object, string $member, mixed $value, Walker $child_options, LoggerInterface $logger): string {
 		foreach ($this->resolve_methods as $resolve_method) {
 			if (is_string($resolve_method) && method_exists($value, $resolve_method)) {
 				return $value->$resolve_method($child_options);

@@ -8,6 +8,7 @@ declare(strict_types=1);
 
 namespace zesk;
 
+use Stringable;
 use zesk\Command\SimpleCommand;
 
 /**
@@ -58,9 +59,20 @@ class TheCommand_Test extends UnitTest {
 		fprintf(STDOUT, "thisIsCaptured\n");
 		$message = 'Help';
 		$testObject->error($message);
-		$message = ['Help'];
-		$testObject->error($message);
-		$this->expectOutputString("thisIsCaptured\nERROR: Help\nERROR: Help\n");
+		$random = $this->randomHex();
+		$stringable = new class($random) implements Stringable {
+			private string $thing;
+
+			public function __construct(string $thing) {
+				$this->thing = $thing;
+			}
+
+			public function __toString(): string {
+				return $this->thing;
+			}
+		};
+		$testObject->error($stringable);
+		$this->expectOutputString("thisIsCaptured\nERROR: Help\nERROR: $random\n");
 	}
 }
 

@@ -9,15 +9,26 @@ declare(strict_types=1);
 
 namespace zesk\Doctrine;
 
+use Doctrine\Common\Collections\Criteria;
+use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Entity;
 use Doctrine\ORM\Mapping\JoinColumn;
 use Doctrine\ORM\Mapping\ManyToOne;
+use Doctrine\ORM\OptimisticLockException;
+use Doctrine\ORM\TransactionRequiredException;
 use Throwable;
 use zesk\Application;
 use zesk\Application\Hooks;
+use zesk\Cron\Attributes\Cron;
 use zesk\Doctrine\Trait\AutoID;
 use zesk\Doctrine\Trait\CodeName;
+use zesk\Exception;
+use zesk\Exception\LockedException;
+use zesk\Exception\Semantics;
+use zesk\Exception\TimeoutExpired;
+use zesk\Kernel;
+use zesk\PHP;
 use zesk\Temporal;
 use zesk\Timer;
 use zesk\Timestamp;
@@ -32,32 +43,25 @@ class Lock extends Model {
 	use CodeName;
 
 	#[Column(type: 'integer', nullable: true)]
-	private int $pid;
+	protected null|int $pid = null;
 
 	#[ManyToOne]
-	#[JoinColumn(name: 'server')]
-	private Server $server;
+	#[JoinColumn(name: 'server', nullable: true)]
+	protected null|Server $server = null;
 
-	#[Column(type: 'timestamp')]
-	private Timestamp $locked;
+	#[Column(type: 'timestamp', nullable: true)]
+	protected null|Timestamp $locked = null;
 
-	#[Column(type: 'timestamp')]
-	private Timestamp $used;
+	#[Column(type: 'timestamp', nullable: false)]
+	protected Timestamp $used;
 
 	private static int $serverLocks = 0;
-
-	/**
-	 *
-	 * @var array
-	 */
-	private static array $locks = [];
 
 	/**
 	 * Register all zesk hooks.
 	 * @throws Semantics
 	 */
 	public static function hooks(Application $application): void {
-		$application->hooks->add(Server::class . '::delete', self::server_delete(...));
 		$application->hooks->add(Hooks::HOOK_RESET, self::releaseAll(...));
 		$application->hooks->add(Hooks::HOOK_EXIT, self::releaseAll(...), ['first' => true]);
 	}
@@ -68,25 +72,16 @@ class Lock extends Model {
 	 * @param Application $application
 	 * @param string $code
 	 * @return Lock
-	 * @throws ClassNotFound
-	 * @throws ConfigurationException
-	 * @throws KeyNotFound
-	 * @throws ORMEmpty
-	 * @throws ParameterException
-	 * @throws ParseException
-	 * @throws Semantics
-	 * @throws SQLException
 	 */
 	public static function instance(Application $application, string $code): self {
-		/* @var $lock Lock */
-		$lock = self::$locks[strtolower($code)] ?? null;
+		$em = $application->entityManager();
+		$lock = $em->getRepository(Lock::class)->findOneBy(['code' => $code]);
 		if (!$lock) {
 			$lock = self::_create_lock($application, $code);
 		} elseif (!$lock->_isMine()) {
 			try {
-				$lock->fetch();
-			} catch (ORMNotFound) {
-				// Has since been deleted
+				$em->refresh($lock);
+			} catch (ORMException|TransactionRequiredException $e) {
 				$lock = self::_create_lock($application, $code);
 			}
 		}
@@ -95,8 +90,10 @@ class Lock extends Model {
 
 	/**
 	 * Once per hour, cull locks which are old
+	 * @see self::deleteUnusedLocks()
 	 */
-	public static function cron_cluster_hour(Application $application): void {
+	#[Cron(schedule: Temporal::UNIT_HOUR, scope: Cron::SCOPE_SERVER)]
+	public static function deleteUnusedLocks(Application $application): void {
 		try {
 			self::deleteUnused($application);
 		} catch (TableNotFound $e) {
@@ -109,34 +106,29 @@ class Lock extends Model {
 	 * or are associated with a dead server (no longer exists)
 	 * @param Application $application
 	 * @return void
-	 * @throws SQLException
-	 * @throws TableNotFound
+	 * @see self::cullDeadThings()
 	 */
-	public static function cron_cluster_minute(Application $application): void {
+	#[Cron(schedule: Temporal::UNIT_MINUTE, scope: Cron::SCOPE_SERVER)]
+	public static function cullDeadThings(Application $application): void {
 		self::deleteDeadProcesses($application);
 		self::deleteDangling($application);
 	}
 
 	/**
 	 * Delete Locks which have not been used in the past 24 hours
-	 * @throws TableNotFound
 	 */
 	public static function deleteUnused(Application $application): int {
-		$query = $application->ormRegistry(__CLASS__)->queryDelete();
-
-		try {
-			$n_rows = $query->appendWhere([
-				'used|<=' => Timestamp::now()->addUnit(-1, Temporal::UNIT_DAY), 'server' => null, 'pid' => null,
-			])->execute()->affectedRows();
-			if ($n_rows > 0) {
-				$application->logger->notice('Deleted {n_rows} {locks} which were unused in the past 24 hours.', [
-					'n_rows' => $n_rows, 'locks' => $application->locale->plural(__CLASS__, $n_rows),
-				]);
-			}
-			return $n_rows;
-		} catch (Semantics|KeyNotFound|SQLException|Duplicate $e) {
-			throw new TableNotFound($query->database(), strval($query), $e->getMessage(), $e->variables(), $e->getCode(), $e);
+		$em = $application->entityManager();
+		$ex = Criteria::expr();
+		$pastTimestamp = Timestamp::now()->addUnit(-1, Temporal::UNIT_DAY);
+		$crit = Criteria::create()->where($ex->isNull('server'))->andWhere($ex->isNull('pid'))->andWhere($ex->lte('expires', $pastTimestamp));
+		$n = 0;
+		foreach ($em->getRepository(Lock::class)->findBy([$crit]) as $lock) {
+			$em->remove($lock);
+			$n++;
 		}
+		$em->flush();
+		return $n;
 	}
 
 	/**
@@ -145,14 +137,13 @@ class Lock extends Model {
 	 * @return void
 	 */
 	private static function releaseLock(Lock $lock, string $context = ''): void {
-		try {
-			$server_id = $lock->memberInteger('server');
-		} catch (ParseException|ORMEmpty|KeyNotFound|ORMNotFound $e) {
-			$server_id = $e::class;
+		if ($context === '') {
+			$context = Kernel::callingFunction();
 		}
+		$id = $lock->server->id;
 		$lock->release();
-		$lock->application->logger->notice('Releasing lock #{id} {code} associated with defunct server # {server_id} (current server ids: {context})', $lock->variables() + [
-			'server_id' => $server_id, 'context' => $context,
+		$lock->application->logger->notice('Releasing lock #{id} {code} associated with defunct server # {serverId} (current server ids: {context})', [
+			'id' => $lock->id, 'code' => $lock->code, 'serverId' => $id, 'context' => $context,
 		]);
 	}
 
@@ -161,22 +152,23 @@ class Lock extends Model {
 	 * @param Application $application
 	 * @return int
 	 * @throws SQLException
-	 * @throws TableNotFound
+	 * @throws ORMException
 	 */
 	public static function deleteDangling(Application $application): int {
+		$em = $application->entityManager();
+		$query = $em->createQuery('SELECT DISTINCT server FROM ' . Lock::class);
+		$serverIDs = [];
+		foreach ($query->toIterable('server') as $server) {
+			$serverIDs[] = $server;
+		}
 		// Deleting unlinked locks
 		$rowCount = 0;
-
-		try {
-			$serverIDs = $application->ormRegistry(Server::class)->querySelect()->toArray(null, 'id');
-		} catch (Duplicate) {
-			$serverIDs = [];
-		}
 		if (count($serverIDs) === 0) {
 			return 0;
 		}
-		$iterator = $application->ormRegistry(__CLASS__)->querySelect()->addWhere('X.server|!=|AND', $serverIDs)->ormIterator();
-		foreach ($iterator as $lock) {
+		$ex = Criteria::expr();
+		$criteria = Criteria::create()->where($ex->notIn('server', $serverIDs));
+		foreach ($em->getRepository(Lock::class)->findBy([$criteria]) as $lock) {
 			/* @var $lock self */
 			self::releaseLock($lock, implode(',', $serverIDs));
 			++$rowCount;
@@ -218,7 +210,7 @@ class Lock extends Model {
 	 *
 	 * <code>
 	 * $lock = Lock::instance("foo")->acquire(); // Returns null immediately if can't get lock
-	 * $lock = Lock::instance("foo")->acquire(null); // Returns null immediately if can't get lock
+	 * $lock = Lock::instance("foo")->acquire(-1); // throws TimeoutExpired
 	 * $lock = Lock::instance("foo")->acquire(0); // Waits forever
 	 * $lock = Lock::instance("foo")->acquire(1); // Tries to get lock for one second, then throws
 	 * TimeoutExpired
@@ -263,22 +255,12 @@ class Lock extends Model {
 	 * Release all locks from my server/process
 	 */
 	public static function releaseAll(Application $application): void {
-		self::$locks = [];
-		$application->logger->debug(__METHOD__);
-
-		if (self::$serverLocks) {
-			try {
-				$query = $application->ormRegistry(__CLASS__)->queryUpdate();
-				$query->setValues([
-					'pid' => null, 'server' => null, 'locked' => null,
-				])->appendWhere([
-					'pid' => $application->process->id(), 'server' => self::$serverLocks,
-				])->execute();
-			} catch (ConfigurationException|ClassNotFound|Unsupported|ORMNotFound|NotFoundException|TableNotFound $e) {
-				// Ignore for now - likely database misconfigured
-			}
-			self::$serverLocks = 0;
-		}
+		$query = $application->entityManager()->createQuery('UPDATE ' . Lock::class . ' SET server=NULL, pid=NULL WHERE server=:server AND pid=:pid');
+		$server = Server::singleton($application);
+		$result = $query->execute(['server' => $server, 'pid' => $application->process->id()]);
+		$application->logger->debug(__METHOD__ . '{method} => {result}', [
+			'method' => __METHOD__, 'result' => $result,
+		]);
 	}
 
 	/**
@@ -287,14 +269,15 @@ class Lock extends Model {
 	 *
 	 * @param Server $server
 	 */
-	public static function server_delete(Server $server): void {
+	public static function releaseServer(Server $server): void {
 		$application = $server->application;
-		$query = $application->ormRegistry(__CLASS__)->queryDelete()->addWhere('server', $server);
-		$query->execute();
-		if (($n_rows = $query->affectedRows()) > 0) {
-			$application->logger->warning('Deleted {n} {locks} associated with server {name} (#{id})', [
-				'n' => $n_rows, 'locks' => $application->locale->plural(__CLASS__, $n_rows),
-			] + $server->members());
+		$query = $application->entityManager()->createQuery('UPDATE ' . Lock::class . ' SET server=NULL, pid=NULL WHERE server=:server');
+		$server = Server::singleton($application);
+		$result = $query->execute(['server' => $server]);
+		if ($result > 0) {
+			$application->logger->notice(__METHOD__ . 'Deleted {result} {locks} associated with server {name} (#{id})', [
+				'method' => __METHOD__, 'result' => $result, 'name' => $server->name, 'id' => $server->id,
+			]);
 		}
 	}
 
@@ -302,29 +285,22 @@ class Lock extends Model {
 	 * Break a lock.
 	 * PHP5 does not allow functions called "break", PHP7 does.
 	 *
-	 * @return self
-	 * @throws ClassNotFound
-	 * @throws ConfigurationException
-	 * @throws StoreException
-	 * @throws KeyNotFound
-	 * @throws ORMDuplicate
-	 * @throws ORMEmpty
-	 * @throws ORMNotFound
-	 * @throws ParameterException
-	 * @throws ParseException
-	 * @throws SQLException
-	 * @throws Semantics
+	 * @return $this
+	 * @throws ORMException
+	 * @throws OptimisticLockException
 	 */
 	public function crack(): self {
 		$this->pid = $this->server = null;
-		return $this->store();
+		$this->em->persist($this);
+		$this->em->flush();
+		return $this;
 	}
 
 	/**
 	 * Locked by SOMEONE ELSE
 	 */
 	public function isLocked(): bool {
-		if ($this->memberIsEmpty('pid') && $this->memberIsEmpty('server')) {
+		if (empty($this->pid) && empty($this->server)) {
 			return false;
 		}
 		return $this->_isLocked();
@@ -334,16 +310,15 @@ class Lock extends Model {
 	 * Release a lock I have
 	 *
 	 * @return Lock
+	 * @throws ORMException
+	 * @throws OptimisticLockException
 	 */
 	public function release(): self {
-		$this->queryUpdate()->setValues([
-			'pid' => null, 'server' => null, 'locked' => null,
-		])->appendWhere([
-			'id' => $this->id,
-		])->execute();
-		$this->application->logger->debug("Released lock $this->code");
-		$this->pid = null;
 		$this->server = null;
+		$this->pid = null;
+		$this->em->persist($this);
+		$this->em->flush();
+		$this->application->logger->debug("Released lock $this->code");
 		return $this;
 	}
 
@@ -353,19 +328,18 @@ class Lock extends Model {
 	 * @param string $code
 	 */
 	private static function _create_lock(Application $application, string $code): self {
-		$lock = $application->ormFactory(__CLASS__, [
-			'code' => $code,
-		]);
-		assert($lock instanceof self);
-
-		try {
-			if (!$lock->find()) {
-				$lock->store();
-			}
-		} catch (ORMDuplicate $dup) {
-			$lock->find();
+		$em = $application->entityManager();
+		$lock = $em->getRepository(Lock::class)->findBy(['code' => $code]);
+		if ($lock) {
+			assert($lock instanceof self);
+			$lock->used = Timestamp::now();
+			return $lock;
 		}
-		return self::$locks[strtolower($code)] = $lock;
+		$lock = new Lock($application);
+		$lock->code = $code;
+		$lock->used = Timestamp::now();
+		$em->persist($lock);
+		return $lock;
 	}
 
 	/**
@@ -385,9 +359,7 @@ class Lock extends Model {
 		// Each server is responsible for keeping locks clean.
 		// Allow a hook to enable inter-server connection, later
 		if (!$this->isMyServer()) {
-			return $this->application->hooks->callArguments(__CLASS__ . '::server_is_locked', [
-				$this->memberInteger('server'), $this->pid,
-			], true);
+			return $this->server->callHookArguments(__CLASS__ . '::isLocked', [$this], true);
 		}
 		if ($this->isMyPID()) {
 			// My process, so it's not locked
@@ -397,7 +369,9 @@ class Lock extends Model {
 		if ($this->application->process->alive($this->pid)) {
 			return true;
 		}
-		$this->application->logger->warning('Releasing lock from {server}:{pid} as process is dead', $this->members());
+		$this->application->logger->warning('Releasing lock from {server}:{pid} as process is dead', [
+			'server' => $this->server->id, 'pid' => $this->pid,
+		]);
 		$this->release();
 		return false;
 	}
@@ -405,35 +379,40 @@ class Lock extends Model {
 	/**
 	 * Acquire a lock with an optional where clause
 	 *
-	 * @param array $where
+	 * @param string $whereSQL
+	 * @return Lock
 	 * @throws LockedException
 	 */
-	private function _acquire_where(array $where = []): self {
-		$update = $this->queryUpdate();
-		$sql = $update->sql();
-		$server = Server::singleton($this->application);
-		$update->setValues([
-			'pid' => $this->application->process->id(), 'server' => $server,
-			'*locked' => $sql->now(), '*used' => $sql->now(),
-		])->appendWhere([
-			'id' => $this->id,
-		] + $where)->execute();
-		if ($this->fetch()->_isMine()) {
-			self::$serverLocks = $server->id();
-			$this->application->logger->debug("Acquired lock $this->code");
-			return $this;
+	private function _acquireWhere(string $whereSQL): self {
+		$app = $this->application;
+		$em = $this->em;
+		$query = $em->createQuery('UPDATE ' . self::class . " SET pid=:pid, server=:server, locked=:now, used=:now WHERE id=:id AND $whereSQL");
+		$query->setParameter('pid', $app->process->id());
+		$query->setParameter('server', Server::singleton($this->application)->id);
+		$query->setParameter('id', $this->id);
+		$query->setParameter('now', Timestamp::nowUTC());
+		if ($query->execute() !== 0) {
+			try {
+				$em->refresh($this);
+				if ($this->_isMine()) {
+					$this->application->logger->debug("Acquired lock $this->code");
+					return $this;
+				}
+			} catch (Throwable $t) {
+				PHP::log($t);
+
+				throw new LockedException('Failed {throwableClass} {message}', Exception::exceptionVariables($t), 0, $t);
+			}
 		}
 
-		throw new LockedException("Is locked $this->>code");
+		throw new LockedException("Is locked $this->>code", [], 0);
 	}
 
 	/**
 	 * Acquire an inactive lock
 	 */
 	private function _acquireOnce(): self {
-		return $this->_acquire_where([
-			'pid' => null,
-		]);
+		return $this->_acquireWhere('pid IS NULL');
 	}
 
 	/**
@@ -441,9 +420,7 @@ class Lock extends Model {
 	 * acquisition
 	 */
 	private function _acquireDead(): self {
-		return $this->_acquire_where([
-			'pid' => $this->pid, 'server' => $this->server,
-		]);
+		return $this->_acquireWhere('pid=:pid AND server=:server');
 	}
 
 	/**
@@ -473,7 +450,12 @@ class Lock extends Model {
 					return;
 				}
 			} else {
-				if (!$this->fetch()->_isLocked()) {
+				try {
+					$this->em->refresh($this);
+				} catch (Throwable $t) {
+					PHP::log($t);
+				}
+				if (!$this->_isLocked()) {
 					continue;
 				}
 			}
@@ -501,7 +483,7 @@ class Lock extends Model {
 	 */
 	private function isMyServer(): bool {
 		try {
-			return Server::singleton($this->application)->id() === $this->memberInteger('server');
+			return Server::singleton($this->application)->id === $this->server;
 		} catch (Throwable) {
 			return false;
 		}
@@ -513,11 +495,7 @@ class Lock extends Model {
 	 * @return boolean
 	 */
 	private function isMyPID(): bool {
-		try {
-			return $this->application->process->id() === $this->memberInteger('pid');
-		} catch (KeyNotFound|ParseException|ORMEmpty|ORMNotFound) {
-			return false;
-		}
+		return $this->application->process->id() === $this->pid;
 	}
 
 	/**
@@ -526,7 +504,7 @@ class Lock extends Model {
 	 * @return boolean
 	 */
 	private function isFree(): bool {
-		return $this->memberIsEmpty('pid') && $this->memberIsEmpty('server');
+		return empty($this->pid) && empty($this->server);
 	}
 
 	/**

@@ -11,6 +11,9 @@ declare(strict_types=1);
 
 namespace zesk;
 
+use Stringable;
+use zesk\Exception\Semantics;
+
 /**
  * Array tools for pretty much anything you can think of for arrays.
  *
@@ -134,14 +137,14 @@ class ArrayTools {
 	}
 
 	/**
-	 * @param array|string $mixed
+	 * @param Stringable|array|string $mixed
 	 * @param array $map
 	 * @param bool $insensitive
 	 * @param string $prefixChar
 	 * @param string $suffixChar
-	 * @return array|string
+	 * @return Stringable|array|string
 	 */
-	public static function map(array|string $mixed, array $map, bool $insensitive = false, string $prefixChar = '{', string $suffixChar = '}'): array|string {
+	public static function map(Stringable|array|string $mixed, array $map, bool $insensitive = false, string $prefixChar = '{', string $suffixChar = '}'): array|string|Stringable {
 		if ($insensitive) {
 			$map = array_change_key_case($map);
 		}
@@ -167,13 +170,10 @@ class ArrayTools {
 			$s[$prefixChar . $k . $suffixChar] = $v;
 		}
 		if ($insensitive) {
-			$mixed = preg::replaceCallback('#' . preg_quote($prefixChar, '/') . '([-:_ =,./\'"A-Za-z0-9]+)' . preg_quote(
-				$suffixChar,
-				'/'
-			) . '#i', fn ($matches) => strtolower($matches[0]), $mixed);
+			$mixed = preg::replaceCallback('#' . preg_quote($prefixChar, '/') . '([-:_ =,./\'"A-Za-z0-9]+)' . preg_quote($suffixChar, '/') . '#i', fn ($matches) => strtolower($matches[0]), $mixed);
 		}
 		// tr("{a}", array("{a} => null)) = "null"
-		return tr($mixed, $s);
+		return Types::replaceSubstrings($mixed, $s);
 	}
 
 	/**

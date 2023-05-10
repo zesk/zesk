@@ -24,6 +24,7 @@ use zesk\Types;
 
 class FileLogger implements LoggerInterface {
 	use LoggerTrait;
+
 	/**
 	 *
 	 * @var string
@@ -33,26 +34,27 @@ class FileLogger implements LoggerInterface {
 	/**
 	 * @var string
 	 */
-	protected string $filename_pattern = "";
+	protected string $filename_pattern = '';
 
 	/**
 	 *
 	 * @var string
 	 */
-	protected string $linkname = "";
+	protected string $linkname = '';
 
 	/**
 	 * When generating log file names, use this time zone
 	 *
 	 * @var string
 	 */
-	protected string $time_zone = "";
+	protected string $time_zone = '';
 
 	/**
+	 * File open mode
 	 *
-	 * @var int
+	 * @var string
 	 */
-	protected int $mode = 0;
+	protected string $mode;
 
 	/**
 	 *
@@ -105,30 +107,31 @@ class FileLogger implements LoggerInterface {
 	 * @var LoggerInterface|null
 	 */
 	protected LoggerInterface|null $child = null;
+
 	/**
 	 *
 	 * @param string $filename
 	 * @param array $options
 	 */
-	public function __construct(mixed $filename = "", array $options = []) {
+	public function __construct(mixed $filename = '', array $options = []) {
 		if (is_resource($filename)) {
 			$this->fp = $filename;
 			$this->opened = false;
-			$this->filename = "";
-			$this->filename_pattern = "";
+			$this->filename = '';
+			$this->filename_pattern = '';
 		} elseif (StringTools::hasTokens($filename)) {
-			$this->filename = "";
+			$this->filename = '';
 			$this->filename_pattern = $filename;
 			$this->fp = null;
 		} else {
-			$this->filename = $filename;
-			$this->filename_pattern = "";
+			$this->filename = strval($filename);
+			$this->filename_pattern = '';
 			$this->fp = null;
 		}
 		$this->levels = $this->defaultLevels();
-		$this->linkname = $options['linkname'] ?? null;
-		$this->time_zone = $options['time_zone'] ?? null;
-		$this->mode = $options['mode'] ?? 'a';
+		$this->linkname = strval($options['linkname'] ?? '');
+		$this->time_zone = strval($options['time_zone'] ?? '');
+		$this->mode = strval($options['mode'] ?? 'a');
 		$this->prefix = $options['prefix'] ?? '';
 		$this->suffix = $options['suffix'] ?? '';
 		$this->middle = $options['middle'] ?? '';
@@ -144,6 +147,7 @@ class FileLogger implements LoggerInterface {
 		$this->child = $child;
 		return $this;
 	}
+
 	/**
 	 * @param array $levels
 	 * @return $this
@@ -182,13 +186,14 @@ class FileLogger implements LoggerInterface {
 		}
 		return $result;
 	}
+
 	/**
 	 *
 	 * @param string $filename
 	 * @param array $options
 	 * @return self
 	 */
-	public static function factory(mixed $filename = "", array $options = []): self {
+	public static function factory(mixed $filename = '', array $options = []): self {
 		return new self($filename, $options);
 	}
 
@@ -200,12 +205,12 @@ class FileLogger implements LoggerInterface {
 	public function setFilename(string $filename): self {
 		$this->close();
 		if (StringTools::hasTokens($filename)) {
-			$this->filename = "";
+			$this->filename = '';
 			$this->filename_pattern = $filename;
 			$this->fp = null;
 		} else {
 			$this->filename = $filename;
-			$this->filename_pattern = "";
+			$this->filename_pattern = '';
 			$this->fp = null;
 		}
 		return $this;
@@ -218,7 +223,7 @@ class FileLogger implements LoggerInterface {
 	 * @throws ParameterException
 	 * @return self
 	 */
-	public function setFileDescriptor(mixed $fp, string $name = ""): self {
+	public function setFileDescriptor(mixed $fp, string $name = ''): self {
 		if (!is_resource($fp)) {
 			throw new ParameterException('{method} takes a file resource, {type} passed in', [
 				'method' => __METHOD__,
@@ -229,7 +234,7 @@ class FileLogger implements LoggerInterface {
 			$this->close();
 		}
 		$this->fp = $fp;
-		$this->filename = $name !== "" ? $name : "";
+		$this->filename = $name !== '' ? $name : '';
 		return $this;
 	}
 
@@ -237,9 +242,9 @@ class FileLogger implements LoggerInterface {
 	 * Generate filename from context `_microtime` field
 	 *
 	 * @param array $context
-	 * @return boolean
+	 * @return bool
 	 */
-	private function generate_filename(array $context) {
+	private function generateFilename(array $context): bool {
 		$locale = isset($context['locale']) && $context['locale'] instanceof Locale ? $context['locale'] : null;
 		$ts = Timestamp::factory(intval($context['_microtime']), $this->time_zone);
 		$new_filename = $ts->format($this->filename_pattern, [
@@ -256,15 +261,15 @@ class FileLogger implements LoggerInterface {
 	}
 
 	private function error_log($message, array $context = []): void {
-		error_log(map($message, $context));
+		error_log(ArrayTools::map($message, $context));
 	}
 
 	/**
 	 * Inside logging
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
-	private function update_link() {
+	private function updateLink(): bool {
 		$linkname = $this->linkname;
 		if (!File::isAbsolute($linkname)) {
 			$linkname = Directory::path(dirname($this->filename), $linkname);
@@ -347,9 +352,10 @@ class FileLogger implements LoggerInterface {
 		$this->child?->log($level, $message, $context);
 		$this->_fileLog($level, $message, $context);
 	}
+
 		/**
-	 *
-	 */
+		 *
+		 */
 	private function _fileLog(mixed $level, Stringable|string $message, array $context = []): void {
 		if (!($this->levels[strval($level)] ?? false)) {
 			return;
@@ -361,7 +367,7 @@ class FileLogger implements LoggerInterface {
 			return;
 		}
 		if ($this->filename_pattern) {
-			$this->generate_filename($context);
+			$this->generateFilename($context);
 		}
 		if (!$this->fp) {
 			if ($this->fp === false) {
@@ -376,14 +382,15 @@ class FileLogger implements LoggerInterface {
 				return;
 			}
 		}
-		$prefix = ArrayTools::map($this->prefix . '{_level_string} {_date} {_time}:{_pid}: ' . $this->middle, $context);
+		$context = Logger::contextualize($level, $message, $context);
+		$prefix = ArrayTools::map($this->prefix . '{_levelString} {_date} {_time}:{_pid}: ' . $this->middle, $context);
 		$suffix = $this->suffix ? ArrayTools::map($this->suffix, $context) : '';
 		$message = $prefix . ltrim(Text::indent($context['_formatted'] . $suffix, strlen($prefix), false, ' '));
 		fwrite($this->fp, $message);
 		fflush($this->fp);
 
 		if ($this->linkname) {
-			$this->update_link();
+			$this->updateLink();
 		}
 	}
 

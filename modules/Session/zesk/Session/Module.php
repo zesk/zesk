@@ -20,7 +20,7 @@ use zesk\Module as BaseModule;
  * @author kent
  */
 class Module extends BaseModule {
-	protected array $modelClasses = [SessionORM::class];
+	protected array $modelClasses = [Session::class];
 
 	/**
 	 *
@@ -49,19 +49,18 @@ class Module extends BaseModule {
 	 * @return string
 	 */
 	private function sessionClass(): string {
-		return $this->option(self::OPTION_SESSION_CLASS, SessionORM::class);
+		return $this->option(self::OPTION_SESSION_CLASS, Session::class);
 	}
 
 	/**
 	 * Returns initialized session. You should call initializeSession on result (2018-01).
 	 *
-	 * @param Application $application
 	 * @param string $class
 	 * @return SessionInterface
 	 * @throws ConfigurationException
 	 * @throws ClassNotFound
 	 */
-	public function sessionFactory(Application $application, string $class = ''): SessionInterface {
+	public function sessionFactory(string $class = ''): SessionInterface {
 		if ($class === '') {
 			$class = $this->sessionClass();
 			if (!$class) {
@@ -71,7 +70,7 @@ class Module extends BaseModule {
 		if (array_key_exists($class, $this->instances)) {
 			return $this->instances[$class];
 		}
-		$result = $this->instances[$class] = $this->application->factory($class, $application);
+		$result = $this->instances[$class] = $this->application->factory($class, $this->application);
 		assert($result instanceof SessionInterface);
 		return $result;
 	}

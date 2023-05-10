@@ -67,7 +67,7 @@ class CONF2JSON extends FileIterator {
 			} else {
 				$message = 'Would write {target_name} with {n} {entries}';
 			}
-			$this->log($message, [
+			$this->info($message, [
 				'source_name' => $source_name,
 				'target_name' => $target_name,
 				'n' => $n,
@@ -77,7 +77,7 @@ class CONF2JSON extends FileIterator {
 		}
 		if (count($result) > 0) {
 			if ($this->optionBool('noclobber') && $target_exists) {
-				$this->log('Will not overwrite {target_name}', ['target_name' => $target_name]);
+				$this->info('Will not overwrite {target_name}', ['target_name' => $target_name]);
 				return false;
 			}
 

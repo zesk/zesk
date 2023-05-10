@@ -247,8 +247,7 @@ class Text {
 	 *            Optional ending string - is preg_quoted
 	 * @return string
 	 */
-	public static function removeRangeComments(string $text, string $begin_comment = '/*', string $end_comment = '*/'):
-	string {
+	public static function removeRangeComments(string $text, string $begin_comment = '/*', string $end_comment = '*/'): string {
 		return preg_replace('#' . preg_quote($begin_comment) . '.*?' . preg_quote($end_comment) . '#s', '', $text);
 	}
 
@@ -273,10 +272,10 @@ class Text {
 	public static function formatPairs(array $map, string $prefix = '', string $space = ' ', string $suffix = ': ', string $br = PHP_EOL): string {
 		$n = array_reduce(array_keys($map), fn ($n, $k) => max(strlen(strval($k)), $n), 0);
 		$r = [];
-		foreach ($map as $k => $v) {
+		foreach ($map as $k => $value) {
 			$k = strval($k);
-			$r[] = $prefix . $k . self::fill_pattern($space, $n - strlen($k)) . $suffix . (is_scalar($v) ? strval($v)
-				: JSON::encodePretty($v));
+			$stringValue = (is_scalar($value) && !is_bool($value)) ? strval($value) : JSON::encodePretty($value);
+			$r[] = $prefix . $k . self::fill_pattern($space, $n - strlen($k)) . $suffix . $stringValue;
 		}
 		return implode($br, $r) . $br;
 	}

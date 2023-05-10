@@ -9,9 +9,12 @@ declare(strict_types=1);
 
 namespace zesk;
 
-use Psr\Log\LogLevel;
 use ReflectionClass;
 use Throwable;
+use Stringable;
+use Psr\Log\LoggerInterface;
+use Psr\Log\LoggerTrait;
+use Psr\Log\LogLevel;
 use zesk\Exception\ClassNotFound;
 use zesk\Exception\CommandFailed;
 use zesk\Exception\ConfigurationException;
@@ -31,7 +34,9 @@ use zesk\Interface\Promptable;
  *
  * @author kent
  */
-abstract class Command extends Hookable implements Logger\Handler, Promptable {
+abstract class Command extends Hookable implements LoggerInterface, Promptable {
+	use LoggerTrait;
+
 	public const OPTION_ANSI = 'ansi';
 
 	public const OPTION_NO_ANSI = 'no-ansi';
@@ -601,7 +606,7 @@ abstract class Command extends Hookable implements Logger\Handler, Promptable {
 			$result[] = '';
 			$result[] = 'Lists are delimited by semicolons: item1;item2;item3';
 		}
-		$this->error($result, $arguments);
+		$this->error(implode("\n", $result), $arguments);
 		if ($this->optionBool('exit')) {
 			exit(($message === null) ? 0 : $arguments['exitCode'] ?? self::EXIT_CODE_ENVIRONMENT);
 		}
@@ -654,25 +659,29 @@ abstract class Command extends Hookable implements Logger\Handler, Promptable {
 	 * Log a message to output or stderr.
 	 * Do not do anything if a theme is currently being rendered.
 	 *
-	 * @param string|array $message
+	 * @param $level
+	 * @param Stringable|string $message
 	 * @param array $context
 	 */
-	public function log(mixed $message, array $context = []): void {
+	public function log($level, Stringable|string $message, array $context = []): void {
 		if ($this->application->themes->themeCurrent() !== null) {
 			return;
 		}
-		if (is_array($message)) {
-			if (ArrayTools::isList($message)) {
-				foreach ($message as $m) {
-					$this->logLine($m, $context);
-				}
-				return;
-			}
-			$message = Text::formatPairs($message);
-		} else {
-			$message = strval($message);
+		$this->logLine($message, Logger::contextualize($level, $message, $context));
+	}
+
+	/**
+	 * Log a message to output or stderr.
+	 * Do not do anything if a theme is currently being rendered.
+	 *
+	 * @param $level
+	 * @param array $message
+	 * @param array $context
+	 */
+	public function logMany($level, array $message, array $context = []): void {
+		foreach ($message as $m) {
+			$this->logLine($m, $context);
 		}
-		$this->logLine($message, $context);
 	}
 
 	/**
@@ -681,9 +690,9 @@ abstract class Command extends Hookable implements Logger\Handler, Promptable {
 	 * @param string $message
 	 * @param array $context
 	 */
-	private function logLine(string $message, array $context = []): void {
+	private function logLine(Stringable|string $message, array $context = []): void {
 		$newline = Types::toBool($context['newline'] ?? true);
-		$message = rtrim(ArrayTools::map($message, $context));
+		$message = rtrim(strval(ArrayTools::map($message, $context)));
 		$suffix = '';
 		if ($newline) {
 			if (strlen($message) == 0 || $message[strlen($message) - 1] !== "\n") {
@@ -760,20 +769,6 @@ abstract class Command extends Hookable implements Logger\Handler, Promptable {
 	}
 
 	/**
-	 *
-	 * @param string|array $message
-	 * @param array $arguments
-	 */
-	public function error(string|array $message, array $arguments = []): void {
-		if (!$message) {
-			return;
-		}
-		$this->log($message, [
-			'severity' => LogLevel::ERROR,
-		] + $arguments);
-	}
-
-	/**
 	 * Debug message, only when debugging is turned on
 	 *
 	 * @param string|array $message
@@ -782,7 +777,7 @@ abstract class Command extends Hookable implements Logger\Handler, Promptable {
 	 */
 	protected function debugLog(string|array $message, array $arguments = []): void {
 		if ($this->optionBool('debug') || $this->debug) {
-			$this->log($message, $arguments);
+			$this->debug($message, $arguments);
 		}
 	}
 
@@ -794,7 +789,7 @@ abstract class Command extends Hookable implements Logger\Handler, Promptable {
 	 */
 	public function verboseLog(string|array $message, array $arguments = []): void {
 		if ($this->optionBool('verbose')) {
-			$this->log($message, $arguments);
+			$this->info($message, $arguments);
 		}
 	}
 

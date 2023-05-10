@@ -15,6 +15,7 @@ use Doctrine\ORM\AbstractQuery;
 use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Entity;
+use Doctrine\ORM\Mapping\JoinColumn;
 use Doctrine\ORM\Mapping\OneToMany;
 use Doctrine\ORM\OptimisticLockException;
 use Throwable;
@@ -159,7 +160,7 @@ class Server extends Model implements MetaInterface {
 	#[Column(type: 'timestamp', nullable: false)]
 	public Timestamp $alive;
 
-	#[OneToMany(targetEntity: ServerMeta::class, cascade: ['all'], indexBy: 'name', mappedBy: 'id')]
+	#[OneToMany(mappedBy: 'server', targetEntity: ServerMeta::class, cascade: ['all'], indexBy: 'name')]
 	public Collection $metas;
 
 	public function initialize(): void {

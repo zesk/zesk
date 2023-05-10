@@ -10,6 +10,12 @@ declare(strict_types=1);
 
 namespace zesk\Command;
 
+use zesk\ArrayTools;
+use zesk\Exception\ParseException;
+use zesk\File;
+use zesk\JSON;
+use zesk\Text;
+
 /**
  * Output license information for any modules
  *

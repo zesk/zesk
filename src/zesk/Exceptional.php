@@ -38,7 +38,7 @@ trait Exceptional {
 	public function __construct(string $message = '', array $arguments = [], int $code = 0, Throwable $previous = null) {
 		$this->arguments = $arguments;
 		$this->raw_message = $message;
-		$map_message = strval(map($this->raw_message, $this->arguments));
+		$map_message = strval(ArrayTools::map($this->raw_message, $this->arguments));
 		parent::__construct($map_message, $code, $previous);
 	}
 

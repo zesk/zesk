@@ -120,9 +120,9 @@ class Loader {
 		while (count($this->files) > 0) {
 			$file = array_shift($this->files);
 			if (!is_string($file)) {
-				throw new SystemException("File is not a string {type} {file}", ['type' => Types::type($file), 'file' => strval
-				($file)]);
+				throw new SystemException('File is not a string {type} {file}', ['type' => Types::type($file), 'file' => strval($file)]);
 			}
+
 			try {
 				$this->current = $file;
 				$this->loadFile($file);

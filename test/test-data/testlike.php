@@ -1,9 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace zesk;
-
-use zesk\Command\SimpleCommand;
+namespace zesk\Command;
 
 class Testlike extends SimpleCommand {
 	protected array $shortcuts = ['test-like'];

@@ -11,7 +11,7 @@ declare(strict_types=1);
  * @author kent
  */
 
-namespace zesk\ORM;
+namespace zesk\Doctrine;
 
 /**
  *
@@ -29,14 +29,14 @@ class JSONWalker extends Walker {
 	];
 
 	/**
-	 * Hook called on ORM class and object before running
+	 * Hook called on Model class and object before running
 	 *
 	 * @var string
 	 */
 	protected string $preprocess_hook = 'json_options';
 
 	/**
-	 * Hook called on ORM class and object after walked
+	 * Hook called on Model class and object after walked
 	 * @var string
 	 */
 	protected string $postprocess_hook = 'json';

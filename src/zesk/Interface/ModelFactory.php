@@ -12,15 +12,16 @@ use zesk\Model;
 
 /**
  * For things which support model factory calls
+ * @see Model
  */
 interface ModelFactory {
 	/**
 	 * Create a model
 	 *
 	 * @param string $class
-	 * @param mixed|null $value
+	 * @param array $value
 	 * @param array $options
 	 * @return Model
 	 */
-	public function modelFactory(string $class, mixed $value = null, array $options = []): Model;
+	public function modelFactory(string $class, array $value = [], array $options = []): Model;
 }

@@ -33,7 +33,6 @@ interface Userlike {
 	 */
 	public function can(string|array $actions, Model $context = null, array $options = []): bool;
 
-
 	/**
 	 * @param string|array $actions
 	 * @param null|Model $context

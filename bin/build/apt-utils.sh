@@ -23,12 +23,12 @@ if [ -f "$markerFile" ]; then
   exit 0
 fi
 
+[ -d "$(dirname "$quietLog")" ] || mkdir -p "$(dirname "$quietLog")"
+
 if [ -z "$apt" ]; then
   consoleMagenta "No apt, continuing"
   exit 0
 fi
-
-[ -d "$(dirname "$quietLog")" ] || mkdir -p "$(dirname "$quietLog")"
 
 export DEBIAN_FRONTEND=noninteractive
 

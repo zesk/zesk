@@ -219,7 +219,7 @@ class TypesTest extends UnitTest {
 	 * @dataProvider data_toList
 	 */
 	public function test_toList(mixed $mixed, array $default, string $delimiter, array $expected): void {
-		$this->assertEquals($expected, toList($mixed, $default, $delimiter));
+		$this->assertEquals($expected, Types::toList($mixed, $default, $delimiter));
 	}
 
 	/**
@@ -229,13 +229,21 @@ class TypesTest extends UnitTest {
 	 * @dataProvider data_to_integer
 	 */
 	public function test_to_integer(mixed $mixed, int $expected): void {
-		$this->assertEquals($expected, toInteger($mixed));
+		$this->assertEquals($expected, Types::toInteger($mixed));
 	}
 
 	public static function data_to_integer(): array {
 		return [
-			['124512', 124512], [124512, 124512], ['124512.7', 124512], [124512.7, 124512], [124512.999999, 124512],
-			['0.999999', 0], ['1.999999', 1], [false, 0], [true, 0], [true, 0], [[], 0],
+			['124512', 124512],
+			[124512, 124512],
+			['124512.7', 124512],
+			[124512.7, 124512],
+			[124512.999999, 124512],
+			['0.999999', 0],
+			['1.999999', 1],
+			[false, 0],
+			[true, 1],
+			[[], 0],
 		];
 	}
 
@@ -246,7 +254,7 @@ class TypesTest extends UnitTest {
 	 * @dataProvider data_toFloat
 	 */
 	public function test_toFloat(mixed $float_test, float $expected): void {
-		$this->assertEquals($expected, toFloat($float_test));
+		$this->assertEquals($expected, Types::toFloat($float_test));
 	}
 
 	public static function data_toFloat(): array {
@@ -264,7 +272,7 @@ class TypesTest extends UnitTest {
 	 * @dataProvider data_toBool
 	 */
 	public function test_toBool(mixed $test, ?bool $expected): void {
-		$this->assertEquals($expected, toBool($test));
+		$this->assertEquals($expected, Types::toBool($test));
 	}
 
 	public static function data_toBool(): array {
