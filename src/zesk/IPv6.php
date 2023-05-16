@@ -24,7 +24,7 @@ For example, IPv6 address 1050:0000:0000:0000:0005:0600:300c:326b can be written
 Double colon:
 
 Specify IPv6 addresses by using double colons (`::`) in place of a series of zeros.
-
+6
 For example, IPv6 address ff06:0:0:0:0:0:0:c3 can be written as ff06::c3. Double colons can be used only once in an IP address.
 
 An alternative format for IPv6 addresses combines the colon and dotted notation, so the IPv4 address can be embedded in the IPv6 address.
@@ -70,6 +70,15 @@ class IPv6 {
 		return filter_var($address, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6 | FILTER_NULL_ON_FAILURE) !== null;
 	}
 
+	/**
+	 * Cleans all non-address characters
+	 *
+	 * @param string $address
+	 * @return string
+	 */
+	public static function clean(string $address): string {
+		return preg_replace('/[^:.0-9a-f]/', '', strtolower($address));
+	}
 	/**
 	 * @param string $binary
 	 * @return string
@@ -126,7 +135,8 @@ class IPv6 {
 	 */
 	public static function simplify(string $address): string {
 		$address = strtolower($address);
-		$address = preg_replace('/:0+/', ':', $address);
-		return substr(preg_replace('/:(0:)+/', '::', ":$address"), 1);
+		$address = substr(preg_replace('/:0+([0-9a-f])/', ':$1', ":$address"), 1);
+		$address = preg_replace('/^(0:)+|:(0:)+/', '::', $address);
+		return $address;
 	}
 }
