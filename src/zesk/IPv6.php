@@ -79,6 +79,7 @@ class IPv6 {
 	public static function clean(string $address): string {
 		return preg_replace('/[^:.0-9a-f]/', '', strtolower($address));
 	}
+
 	/**
 	 * @param string $binary
 	 * @return string

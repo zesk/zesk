@@ -9,7 +9,7 @@ use zesk\Exception\ParameterException;
  *
  */
 class IPv6Test extends UnitTest {
-	static public function dataFromIPv4(): array {
+	public static function dataFromIPv4(): array {
 		return [
 			['::ffff:192.168.0.200', 3232235720], ['::ffff:127.0.0.1', ip2long('127.0.0.1')],
 			['::ffff:192.168.0.200', 3232235720],
@@ -26,7 +26,6 @@ class IPv6Test extends UnitTest {
 		$this->assertEquals($expected, IPv6::fromIPv4($ip4), "IPv6::fromIPv4($ip4)");
 		$this->assertTrue(IPv6::isIPv4($expected), "$expected MUST be a valid IP4 in IP6 address");
 	}
-
 
 	public static function dataValid(): array {
 		return [
@@ -56,11 +55,11 @@ class IPv6Test extends UnitTest {
 			];
 		}
 		$tests[0][0] = '::';
-		$tests[] = ["", str_repeat("a", $expectedLength + 1)];
-		$tests[] = ["", str_repeat("a", 1)];
-		$tests[] = ["", str_repeat("a", $expectedLength - 1)];
-		$tests[] = ["", str_repeat("a", $expectedLength * 2)];
-		$tests[] = ["", ""];
+		$tests[] = ['', str_repeat('a', $expectedLength + 1)];
+		$tests[] = ['', str_repeat('a', 1)];
+		$tests[] = ['', str_repeat('a', $expectedLength - 1)];
+		$tests[] = ['', str_repeat('a', $expectedLength * 2)];
+		$tests[] = ['', ''];
 		return $tests;
 	}
 
@@ -71,7 +70,7 @@ class IPv6Test extends UnitTest {
 	 * @dataProvider dataFromBinary
 	 */
 	public function testFromBinary(string $result, string $address): void {
-		if ($result === "") {
+		if ($result === '') {
 			$this->expectException(ParameterException::class);
 		}
 		$this->assertEquals($result, IPv6::fromBinary($address));
@@ -115,7 +114,7 @@ class IPv6Test extends UnitTest {
 		$this->assertEquals($expected, IPv6::isIPv4($ip6));
 	}
 
-	static public function dataSimplify(): array {
+	public static function dataSimplify(): array {
 		return [
 			['::ffff:192.168.0.200', '::ffff:192.168.0.200'], ['::ffff:127.0.0.1', '::ffff:127.0.0.1'],
 			['::ffff:192.168.0.200', '0:0:0:0:0:ffff:192.168.0.200'],

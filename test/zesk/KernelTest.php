@@ -49,6 +49,11 @@ class KernelTest extends TestCase {
 		$test->order++;
 	}
 
+	/**
+	 * @return void
+	 * @throws Exception\KeyNotFound
+	 * @throws Exception\Semantics
+	 */
 	public function test_hook_order(): void {
 		$hooks = $this->application->hooks;
 		// Nothing registered
