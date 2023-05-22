@@ -28,6 +28,7 @@ usage() {
   echo "$me: Run tests for zesk"
   echo
   echo "--coverage    Run coverage tests and output results into $coverage_path"
+  echo "--stop        Stop on any error"
   echo
   echo "Additional arguments passed directly through to PHPUnit"
   exit "$code"
@@ -54,12 +55,16 @@ fi
 need_paths=()
 args=("--disallow-test-output")
 doCoverage=
+doStop=
 coverage_cache=./.zesk-coverage
 cd "$top"
 while [ $# -ge 1 ]; do
   case $1 in
     --coverage)
       doCoverage=1
+      ;;
+    --stop)
+      doStop=1
       ;;
     *)
       break
@@ -68,9 +73,17 @@ while [ $# -ge 1 ]; do
   shift
 done
 
+args+=("--display-warnings" "--colors=auto")
 if test $doCoverage; then
   need_paths+=("$coverage_cache")
   args+=("--coverage-cache" "$coverage_cache")
+  export XDEBUG_MODE=coverage
+  echo "Enabling XDEBUG_MODE=coverage"
+else
+  args+=("--no-coverage")
+fi
+if test $doStop; then
+  args+=("--stop-on-defect" "--stop-on-failure")
   export XDEBUG_MODE=coverage
   echo "Enabling XDEBUG_MODE=coverage"
 else

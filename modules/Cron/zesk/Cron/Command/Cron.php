@@ -3,9 +3,12 @@ declare(strict_types=1);
 /**
  *
  */
+
 namespace zesk\Cron\Command;
 
 use zesk\Command\SimpleCommand;
+use zesk\Cron\Module;
+use zesk\Exception;
 use zesk\Exception\NotFoundException;
 use zesk\Text;
 use zesk\Timestamp;
@@ -22,14 +25,11 @@ class Cron extends SimpleCommand {
 	protected string $help = 'Run zesk cron hooks';
 
 	protected array $option_types = [
-		'list' => 'boolean',
-		'last' => 'boolean',
-		'reset' => 'boolean',
+		'list' => 'boolean', 'last' => 'boolean', 'reset' => 'boolean',
 	];
 
 	protected array $option_help = [
-		'list' => 'List cron functions which would be run',
-		'last' => 'Show last run times',
+		'list' => 'List cron functions which would be run', 'last' => 'Show last run times',
 		'reset' => 'Reset all cron state information, forcing all cron tasks to run next time cron is run.',
 	];
 
@@ -42,14 +42,20 @@ class Cron extends SimpleCommand {
 			return 1;
 		}
 		if ($this->optionBool('reset')) {
-			$result = $cron->reset();
-			$this->verboseLog($result ? 'Cron reset' : 'Cron reset failed');
-			return $result ? 0 : 1;
+			try {
+				$cron->reset();
+				$this->verboseLog('Cron reset');
+				return self::EXIT_CODE_SUCCESS;
+			} catch (Exception $e) {
+				$this->error('Failed to reset cron');
+				$this->error($e);
+				return self::EXIT_CODE_ENVIRONMENT;
+			}
 		}
 		if ($this->optionBool('list')) {
 			$list_status = $cron->listStatus();
 			$this->renderFormat($list_status);
-			return 0;
+			return self::EXIT_CODE_SUCCESS;
 		}
 		if ($this->optionBool('last')) {
 			$result = $cron->lastRun();
@@ -59,14 +65,13 @@ class Cron extends SimpleCommand {
 			foreach ($result as $key => $ts) {
 				if ($ts instanceof Timestamp) {
 					$rows[] = [
-						'key' => $key,
-						'value' => $ts->isEmpty() ? null : $ts->iso8601(),
+						'key' => $key, 'value' => $ts->isEmpty() ? null : $ts->iso8601(),
 						'seconds ago' => $ts->isEmpty() ? $locale->__('Never') : $now->difference($ts),
 					];
 				}
 			}
 			echo Text::formatTable($rows);
-			return 0;
+			return self::EXIT_CODE_SUCCESS;
 		}
 		$result = $cron->run();
 		if ($result === null) {
@@ -74,6 +79,6 @@ class Cron extends SimpleCommand {
 		} else {
 			$this->verboseLog('Cron run successfully: ' . implode(', ', $result));
 		}
-		return 0;
+		return self::EXIT_CODE_SUCCESS;
 	}
 }

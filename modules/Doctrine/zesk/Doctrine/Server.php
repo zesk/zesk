@@ -15,14 +15,12 @@ use Doctrine\ORM\AbstractQuery;
 use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Entity;
-use Doctrine\ORM\Mapping\JoinColumn;
 use Doctrine\ORM\Mapping\OneToMany;
 use Doctrine\ORM\OptimisticLockException;
 use Throwable;
 use zesk\Application;
 use zesk\ArrayTools;
-use zesk\Cron\Attributes\CronClusterMinute;
-use zesk\Cron\Attributes\CronMinute;
+use zesk\Cron\Attributes\Cron;
 use zesk\Doctrine\Trait\AutoID;
 use zesk\Doctrine\Trait\Name;
 use zesk\Exception\KeyNotFound;
@@ -173,7 +171,7 @@ class Server extends Model implements MetaInterface {
 	 * Run once per minute per cluster.
 	 * Delete servers who are not alive after `option_timeout_seconds` old.
 	 */
-	#[CronClusterMinute]
+	#[Cron(schedule: '* * * * *', scope: Cron::SCOPE_APPLICATION)]
 	public static function cronClusterMinute(Application $application): void {
 		$server = new self($application);
 		/* @var $server Server */
@@ -188,7 +186,7 @@ class Server extends Model implements MetaInterface {
 	 *
 	 * @param Application $application
 	 */
-	#[CronMinute]
+	#[Cron(schedule: '* * * * *', scope: Cron::SCOPE_SERVER)]
 	public static function cronMinute(Application $application): void {
 		try {
 			$server = self::singleton($application);
@@ -413,6 +411,17 @@ class Server extends Model implements MetaInterface {
 	}
 
 	/**
+	 *
+	 * @return $this
+	 * @throws ORMException
+	 */
+	public function clearMeta(): self {
+		$this->em->createQuery('DELETE FROM ' . ServerMeta::class . ' WHERE server=:id')->execute(['id' => $this->id]);
+		$this->em->getRepository(ServerMeta::class)->clear();
+		return $this;
+	}
+
+	/**
 	 * Delete data members of all servers which match this name.
 	 *
 	 * @param mixed $name
@@ -436,10 +445,7 @@ class Server extends Model implements MetaInterface {
 		$builder = $this->em->createQueryBuilder();
 		$query = $builder->select([
 			'ip4_internal', 'ip4_external',
-		])->from(self::class, 'X')
-			->where('X.alive > DATE_SUB(CURRENT_TIMESTAMP(), :delta, \'second\')')
-			->setParameter('delta', $within_seconds)
-			->getQuery();
+		])->from(self::class, 'X')->where('X.alive > DATE_SUB(CURRENT_TIMESTAMP(), :delta, \'second\')')->setParameter('delta', $within_seconds)->getQuery();
 		$ips = [];
 		foreach ($query->toIterable(hydrationMode: AbstractQuery::HYDRATE_ARRAY) as $row) {
 			$ips[$row['ip4_internal']] = true;

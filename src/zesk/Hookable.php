@@ -9,7 +9,13 @@ declare(strict_types=1);
 
 namespace zesk;
 
+use ReflectionClass;
+use ReflectionException;
+use ReflectionMethod;
 use zesk\Application\Hooks;
+use zesk\Exception\Deprecated;
+use zesk\Exception\DirectoryNotFound;
+use zesk\Exception\ParameterException;
 
 /**
  *
@@ -41,6 +47,63 @@ class Hookable extends Options {
 	}
 
 	/**
+	 * @param Application $application
+	 * @return void
+	 */
+	private static function loadApplication(Application $application): void {
+		try {
+			if (PHP::includePath($application->path())) {
+				$application->classes->register(get_declared_classes());
+			}
+		} catch (DirectoryNotFound|ParameterException $e) {
+			// "Never"
+			throw new RuntimeException('Exception should never occur', [], 0, $e);
+		}
+	}
+
+	/**
+	 * New attribute-based method
+	 *
+	 * @param Hookable $hookable
+	 * @param string $attributeClassName
+	 * @return array:HookableAttribute
+	 */
+	public static function findMethodsWithAttributes(Hookable $hookable, string $attributeClassName, bool $staticOnly = false): array {
+		$app = $hookable->application;
+		self::loadApplication($app);
+		$results = [];
+		$flags = ReflectionMethod::IS_PUBLIC;
+		if ($staticOnly) {
+			$flags |= ReflectionMethod::IS_STATIC;
+		}
+		foreach ($app->classes->subclasses(self::class) as $className) {
+			try {
+				$reflectionClass = new ReflectionClass($className);
+				foreach ($reflectionClass->getMethods($flags) as $method) {
+					foreach ($method->getAttributes($attributeClassName) as $reflectionAttribute) {
+						$attribute = $reflectionAttribute->newInstance();
+						assert($attribute instanceof HookableAttribute);
+						$attribute->setMethod($method);
+						$results[$className . '::' . $method->getName()] = $attribute;
+					}
+				}
+			} catch (ReflectionException $e) {
+				$app->logger->error($e);
+			}
+		}
+		return $results;
+	}
+
+	/**
+	 * @param Hookable $hookable
+	 * @param string $name
+	 * @return array:HookableAttribute
+	 */
+	public static function findHooksFor(Hookable $hookable, string $name, bool $staticOnly = false): array {
+		return array_filter(self::findMethodsWithAttributes($hookable, HookMethod::class, $staticOnly), fn (HookMethod $method) => $method->handles === $name);
+	}
+
+	/**
 	 * Save nothing herein. (Explicitly ignores $this->application)
 	 *
 	 * @return string[]
@@ -65,7 +128,6 @@ class Hookable extends Options {
 	 *
 	 * @param array|string $types
 	 * @return mixed
-	 * @see \aws\classes\Hookable::hook_array
 	 */
 	final public function callHook(array|string $types): mixed {
 		$args = func_get_args();
@@ -144,7 +206,7 @@ class Hookable extends Options {
 				$args,
 			];
 		}
-		$types = toList($types);
+		$types = Types::toList($types);
 		/*
 		 * Add $this for system hooks
 		 */
@@ -164,18 +226,15 @@ class Hookable extends Options {
 			if (method_exists($this, "hook_$method")) {
 				$hooks[] = [
 					[
-						$this,
-						"hook_$method",
-					],
-					$args,
+						$this, "hook_$method",
+					], $args,
 				];
 			}
 			$methods = $this->_hooks[$type] ?? null;
 			if (is_array($methods)) {
 				foreach ($methods as $method) {
 					$hooks[] = [
-						$method,
-						$zesk_hook_args,
+						$method, $zesk_hook_args,
 					];
 				}
 			}
@@ -221,7 +280,7 @@ class Hookable extends Options {
 	 */
 	final public function listHooks(string|array $types, bool $object_only = false): array {
 		$hooks = $this->application->hooks;
-		$types = toList($types);
+		$types = Types::toList($types);
 		$result = [];
 		foreach ($types as $type) {
 			$method = Hooks::cleanName($type);
@@ -229,8 +288,7 @@ class Hookable extends Options {
 			//echo get_class($this) . " checking for $hook_method\n";
 			if (method_exists($this, $hook_method)) {
 				$result[] = [
-					$this,
-					$hook_method,
+					$this, $hook_method,
 				];
 			}
 			$methods = $this->_hooks[$type] ?? null;
@@ -267,12 +325,10 @@ class Hookable extends Options {
 	 * @param ?callable $result_callback A function to process hook results. If false, returns last result unmodified.
 	 * @return mixed
 	 */
-	final public static function hookResults(mixed $previous_result, callable $callable, array $arguments, callable
-	$hook_callback = null, callable $result_callback = null): mixed {
+	final public static function hookResults(mixed $previous_result, callable $callable, array $arguments, callable $hook_callback = null, callable $result_callback = null): mixed {
 		if ($hook_callback) {
 			call_user_func_array($hook_callback, [
-				$callable,
-				$arguments,
+				$callable, $arguments,
 			]);
 		}
 		$new_result = call_user_func_array($callable, $arguments);

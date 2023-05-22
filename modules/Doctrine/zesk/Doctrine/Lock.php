@@ -94,11 +94,7 @@ class Lock extends Model {
 	 */
 	#[Cron(schedule: Temporal::UNIT_HOUR, scope: Cron::SCOPE_SERVER)]
 	public static function deleteUnusedLocks(Application $application): void {
-		try {
-			self::deleteUnused($application);
-		} catch (TableNotFound $e) {
-			$application->logger->error($e);
-		}
+		self::deleteUnused($application);
 	}
 
 	/**

@@ -198,11 +198,8 @@ class KernelTest extends TestCase {
 		return [
 			//			[ZESK_ROOT . 'zesk/Kernel.php', Kernel::class, ['php'], []],
 			//			[ZESK_ROOT . 'zesk/Controller/Theme.php', ThemeController::class, ['php', 'sql'], []],
-			[ZESK_ROOT . 'modules/ORM/zesk/ORM/Class/User.sql', 'zesk\\ORM\\Class_User', ['sql', 'php'], ['ORM']],
-			[ZESK_ROOT . 'modules/ORM/zesk/ORM/Class/User.php', 'zesk\\ORM\\Class_User', ['php', 'sql'], ['ORM']], [
-				ZESK_ROOT . 'modules/ORM/zesk/ORM/Class/User.sql', 'zesk\\ORM\\Class_User', ['other', 'inc', 'sql', ],
-				['ORM'],
-			], [null, 'zesk\\ORM\\User', ['other', 'none', ], ['ORM']],
+			[ZESK_ROOT . 'modules/Doctrine/zesk/Doctrine/User.php', 'zesk\\Doctrine\\User', ['php', 'sql'], ['Doctrine']],
+			[null, 'zesk\\Doctrine\\User', ['other', 'none', ], ['Doctrine']],
 		];
 	}
 
@@ -298,12 +295,15 @@ class KernelTest extends TestCase {
 
 	public function test_factory(): void {
 		$class = __NAMESPACE__ . '\\Model';
-		$object = $this->application->objects->factory($class, $this->application, [
+		$init = [
 			'a' => 123,
-		]);
-		$this->assertEquals(123, $object->a);
-		$this->assertEquals(null, $object->B);
-		$this->assertEquals(null, $object->A);
+		];
+		$object = $this->application->objects->factory($class, $this->application, $init);
+		/* @var $object Model */
+		$this->assertInstanceOf(Model::class, $object);
+
+		// 2023 Model no longer has initializer
+		$this->assertEquals(['application'], array_keys(get_object_vars($object)));
 	}
 
 	public function test_find_directory(): void {
@@ -351,7 +351,10 @@ class KernelTest extends TestCase {
 	 */
 	public static function data_hasHook(): array {
 		return [
-			[true, Hooks::HOOK_EXIT], [true, Hooks::HOOK_CONFIGURED], [false, 'HOME'], [false, md5('HOME')],
+			[true, Hooks::HOOK_EXIT],
+			[true, Hooks::HOOK_CONFIGURED],
+			[false, 'HOME'],
+			[false, md5('HOME')],
 			[false, '0192830128301283123'],
 		];
 	}

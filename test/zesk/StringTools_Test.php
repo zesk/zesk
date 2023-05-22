@@ -391,7 +391,7 @@ class StringTools_Test extends UnitTest {
 		$this->assertEquals(call_user_func_array([
 			HTML::class,
 			'wrap',
-		], $arguments), $expected, "HTML::wrap ${arguments[0]} => $expected failed");
+		], $arguments), $expected, "HTML::wrap {$arguments[0]} => $expected failed");
 	}
 
 	public function test_is_utf8(): void {

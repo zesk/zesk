@@ -8,10 +8,12 @@ namespace zesk;
 
 use ReflectionObject;
 use Throwable;
+use zesk\Exception\DirectoryNotFound;
 use zesk\Exception\KeyNotFound;
 use zesk\Exception\ParseException;
 use zesk\Exception\SyntaxException;
 use zesk\Exception\Unimplemented;
+use zesk\Exception\ParameterException;
 use zesk\Exception\Unsupported;
 
 /**
@@ -547,5 +549,34 @@ class PHP {
 			$message = "{class}: {message} at {file}:{line}\nBacktrace: {backtrace}";
 		}
 		error_log(ArrayTools::map($message, $arguments));
+	}
+
+	private static array $included = [];
+
+	/**
+	 * @param string $path
+	 * @param array $listOptions
+	 * @return bool true if include happened, false if already included
+	 * @throws DirectoryNotFound
+	 * @throws ParameterException
+	 */
+	public static function includePath(string $path, array $listOptions = []): bool {
+		$path = Directory::must(realpath($path));
+		if (self::$included[$path] ?? null) {
+			return false;
+		}
+		self::$included[$path] = true;
+		foreach (Directory::listRecursive($path, $listOptions + [
+			Directory::LIST_RULE_DIRECTORY_WALK => [
+				"/\/./" => false, "/\/vendor\//" => false, true,
+			], Directory::LIST_RULE_FILE => [
+				"/\.php$/" => true, false,
+			],
+		] + $listOptions + [
+			Directory::LIST_RULE_DIRECTORY => false, Directory::LIST_ADD_PATH => true,
+		]) as $phpFilePath) {
+			require_once "$phpFilePath";
+		}
+		return true;
 	}
 }

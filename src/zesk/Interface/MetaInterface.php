@@ -19,7 +19,7 @@ interface MetaInterface {
 	public function meta(string $name): mixed;
 
 	/**
-	 * Setter for named meta data
+	 * Set meta data by name
 	 *
 	 * This method should have immediate effect (in the database, on disk, etc.)
 	 *
@@ -30,7 +30,7 @@ interface MetaInterface {
 	public function setMeta(string $name, mixed $value): self;
 
 	/**
-	 * Delete data
+	 * Delete meta data by name
 	 *
 	 * This method should have immediate effect (in the database, on disk, etc.)
 	 *
@@ -38,4 +38,13 @@ interface MetaInterface {
 	 * @return $this
 	 */
 	public function deleteMeta(array|string $name): self;
+
+	/**
+	 * Remove all meta data
+	 *
+	 * This method should have immediate effect (in the database, on disk, etc.)
+	 *
+	 * @return $this
+	 */
+	public function clearMeta(): self;
 }

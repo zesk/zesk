@@ -76,6 +76,11 @@ use function str_ends_with;
  */
 class Application extends Hookable implements ModelFactory {
 	/**
+	 *
+	 */
+	public const HOOK_ROUTES = 'routes';
+
+	/**
 	 * @desc Default option to store application version - may be stored differently in overridden classes, use
 	 * @see self::version()
 	 * @var string
