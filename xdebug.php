@@ -27,3 +27,5 @@ $xdebug_break_if_enabled = function (): void {
 		}
 	}
 };
+
+$xdebug_break_if_enabled();
