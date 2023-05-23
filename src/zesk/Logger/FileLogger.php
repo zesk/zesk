@@ -3,6 +3,7 @@ declare(strict_types=1);
 /**
  *
  */
+
 namespace zesk\Logger;
 
 use Psr\Log\NullLogger;
@@ -40,14 +41,14 @@ class FileLogger implements LoggerInterface {
 	 *
 	 * @var string
 	 */
-	protected string $linkname = '';
+	protected string $linkName = '';
 
 	/**
 	 * When generating log file names, use this time zone
 	 *
 	 * @var string
 	 */
-	protected string $time_zone = '';
+	protected string $timeZone = '';
 
 	/**
 	 * File open mode
@@ -60,13 +61,13 @@ class FileLogger implements LoggerInterface {
 	 *
 	 * @var string[]
 	 */
-	protected array $include_patterns = [];
+	protected array $includePatterns = [];
 
 	/**
 	 *
 	 * @var string[]
 	 */
-	protected array $exclude_patterns = [];
+	protected array $excludePatterns = [];
 
 	/**
 	 *
@@ -129,14 +130,14 @@ class FileLogger implements LoggerInterface {
 			$this->fp = null;
 		}
 		$this->levels = $this->defaultLevels();
-		$this->linkname = strval($options['linkname'] ?? '');
-		$this->time_zone = strval($options['time_zone'] ?? '');
+		$this->linkName = strval($options['linkName'] ?? '');
+		$this->timeZone = strval($options['timeZone'] ?? '');
 		$this->mode = strval($options['mode'] ?? 'a');
-		$this->prefix = $options['prefix'] ?? '';
-		$this->suffix = $options['suffix'] ?? '';
-		$this->middle = $options['middle'] ?? '';
-		$this->include_patterns = Types::toArray($options['include_patterns'] ?? null);
-		$this->exclude_patterns = Types::toArray($options['exclude_patterns'] ?? null);
+		$this->prefix = strval($options['prefix'] ?? '');
+		$this->suffix = strval($options['suffix'] ?? '');
+		$this->middle = strval($options['middle'] ?? '');
+		$this->includePatterns = Types::toArray($options['includePatterns'] ?? null);
+		$this->excludePatterns = Types::toArray($options['excludePatterns'] ?? null);
 		$this->child = null;
 	}
 
@@ -199,7 +200,7 @@ class FileLogger implements LoggerInterface {
 
 	/**
 	 *
-	 * @param string $fp
+	 * @param string $filename
 	 * @return self
 	 */
 	public function setFilename(string $filename): self {
@@ -207,12 +208,11 @@ class FileLogger implements LoggerInterface {
 		if (StringTools::hasTokens($filename)) {
 			$this->filename = '';
 			$this->filename_pattern = $filename;
-			$this->fp = null;
 		} else {
 			$this->filename = $filename;
 			$this->filename_pattern = '';
-			$this->fp = null;
 		}
+		$this->fp = null;
 		return $this;
 	}
 
@@ -220,14 +220,13 @@ class FileLogger implements LoggerInterface {
 	 *
 	 * @param mixed $fp
 	 * @param string $name
-	 * @throws ParameterException
 	 * @return self
+	 * @throws ParameterException
 	 */
 	public function setFileDescriptor(mixed $fp, string $name = ''): self {
 		if (!is_resource($fp)) {
 			throw new ParameterException('{method} takes a file resource, {type} passed in', [
-				'method' => __METHOD__,
-				'type' => type($fp),
+				'method' => __METHOD__, 'type' => Types::type($fp),
 			]);
 		}
 		if ($fp !== $this->fp) {
@@ -246,7 +245,7 @@ class FileLogger implements LoggerInterface {
 	 */
 	private function generateFilename(array $context): bool {
 		$locale = isset($context['locale']) && $context['locale'] instanceof Locale ? $context['locale'] : null;
-		$ts = Timestamp::factory(intval($context['_microtime']), $this->time_zone);
+		$ts = Timestamp::factory(intval($context['_microtime']), $this->timeZone);
 		$new_filename = $ts->format($this->filename_pattern, [
 			'nohook' => true,
 		]);
@@ -270,7 +269,7 @@ class FileLogger implements LoggerInterface {
 	 * @return bool
 	 */
 	private function updateLink(): bool {
-		$linkname = $this->linkname;
+		$linkname = $this->linkName;
 		if (!File::isAbsolute($linkname)) {
 			$linkname = Directory::path(dirname($this->filename), $linkname);
 		}
@@ -299,14 +298,11 @@ class FileLogger implements LoggerInterface {
 		if (flock($lock, LOCK_EX | LOCK_NB)) {
 			if (!@unlink($linkname)) {
 				$this->error_log('Unable to delete {linkname} while attempting to link to {filename}', [
-					'linkname' => $linkname,
-					'filename' => $this->filename,
+					'linkname' => $linkname, 'filename' => $this->filename,
 				]);
 			} else {
 				$this->error_log('Created symlink {linkname} to {filename} ({time_zone})', [
-					'linkname' => $linkname,
-					'filename' => $this->filename,
-					'time_zone' => $this->time_zone,
+					'linkname' => $linkname, 'filename' => $this->filename, 'time_zone' => $this->timeZone,
 				]);
 				@symlink($this->filename, $linkname);
 				// This still throws PHP Warning:  symlink(): File exists in zesk/modules/logger_file/classes/zesk/logger/file.inc on line 214 ... why? Lock not working?
@@ -325,7 +321,7 @@ class FileLogger implements LoggerInterface {
 	 * @return boolean
 	 */
 	private function should_include(string $message): bool {
-		foreach ($this->include_patterns as $pattern) {
+		foreach ($this->includePatterns as $pattern) {
 			if (preg_match($pattern, $message)) {
 				return true;
 			}
@@ -340,7 +336,7 @@ class FileLogger implements LoggerInterface {
 	 * @return boolean
 	 */
 	private function should_exclude(string $message): bool {
-		foreach ($this->exclude_patterns as $pattern) {
+		foreach ($this->excludePatterns as $pattern) {
 			if (preg_match($pattern, $message)) {
 				return true;
 			}
@@ -353,17 +349,17 @@ class FileLogger implements LoggerInterface {
 		$this->_fileLog($level, $message, $context);
 	}
 
-		/**
-		 *
-		 */
+	/**
+	 *
+	 */
 	private function _fileLog(mixed $level, Stringable|string $message, array $context = []): void {
 		if (!($this->levels[strval($level)] ?? false)) {
 			return;
 		}
-		if ($this->include_patterns && !$this->should_include($message)) {
+		if ($this->includePatterns && !$this->should_include($message)) {
 			return;
 		}
-		if ($this->exclude_patterns && $this->should_exclude($message)) {
+		if ($this->excludePatterns && $this->should_exclude($message)) {
 			return;
 		}
 		if ($this->filename_pattern) {
@@ -389,7 +385,7 @@ class FileLogger implements LoggerInterface {
 		fwrite($this->fp, $message);
 		fflush($this->fp);
 
-		if ($this->linkname) {
+		if ($this->linkName) {
 			$this->updateLink();
 		}
 	}
@@ -419,15 +415,9 @@ class FileLogger implements LoggerInterface {
 	 */
 	public function variables(): array {
 		return [
-			'filename' => $this->filename,
-			'mode' => $this->mode,
-			'include_patterns' => $this->include_patterns,
-			'exclude_patterns' => $this->exclude_patterns,
-			'time_zone' => $this->time_zone,
-			'prefix' => $this->prefix,
-			'suffix' => $this->suffix,
-			'middle' => $this->middle,
-			'class' => __CLASS__,
+			'filename' => $this->filename, 'mode' => $this->mode, 'include_patterns' => $this->includePatterns,
+			'exclude_patterns' => $this->excludePatterns, 'time_zone' => $this->timeZone, 'prefix' => $this->prefix,
+			'suffix' => $this->suffix, 'middle' => $this->middle, 'class' => __CLASS__,
 		];
 	}
 }
