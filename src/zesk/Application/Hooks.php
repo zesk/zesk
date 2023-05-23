@@ -463,6 +463,7 @@ class Hooks {
 	 *
 	 * @param string|array $hooks Hooks to call
 	 * @return mixed
+	 * @deprecated 2023-05 Move to attribute-based system
 	 */
 	public function call(mixed $hooks): mixed {
 		$arguments = func_get_args();

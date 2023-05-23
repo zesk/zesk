@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
 # Run Zesk test interactively while debugging and fixing things
 # Run usually inside a container
@@ -98,4 +98,4 @@ for d in "${need_paths[@]}"; do
   [ -d "$d" ] || mkdir -p "$d"
 done
 echo "$phpunit_bin" "${args[@]}" "$@"
-"$phpunit_bin" "${args[@]}" "$@"
+exec "$phpunit_bin" "${args[@]}" "$@"

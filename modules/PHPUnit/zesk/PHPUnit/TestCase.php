@@ -42,6 +42,11 @@ use function random_int;
 
 class TestCase extends BaseTestCase {
 	/**
+	 * @var bool
+	 */
+	protected bool $configureApplication = false;
+
+	/**
 	 *
 	 * @var ?Application
 	 */
@@ -128,6 +133,9 @@ class TestCase extends BaseTestCase {
 				$this->initialize();
 			}
 			$this->initialized = true;
+		}
+		if ($this->configureApplication) {
+			$this->application->configure();
 		}
 	}
 

@@ -33,3 +33,4 @@
 /test-reports/
 /test/test-data/conf2json/conf2json.json
 /.env-*
+*.log

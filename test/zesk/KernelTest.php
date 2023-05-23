@@ -30,6 +30,11 @@ class SingletonSampler {
 
 class KernelTest extends TestCase {
 	/**
+	 * @var bool
+	 */
+	protected bool $configureApplication = true;
+
+	/**
 	 * @var int
 	 */
 	public int $order = 0;
