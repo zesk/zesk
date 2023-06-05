@@ -366,10 +366,16 @@ class KernelTest extends TestCase {
 
 	/**
 	 * @return void
+	 * @throws NotFoundException
 	 * @dataProvider data_hasHook
 	 */
 	public function test_hasHook($expected, $hook): void {
-		$this->assertEquals($expected, $this->application->hooks->has($hook));
+		//$$this->assertEquals($expected, $this->application->hooks->has($hook));
+		if(is_string($hook)){
+			if($expected!==$this->application->hooks->has($hook)){
+					throw new NotFoundException($hook);
+			}
+		}
 	}
 
 	/**

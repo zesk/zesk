@@ -314,7 +314,26 @@ class Hooks {
 	 */
 	public function has(string|array $hooks): bool {
 		if (is_string($hooks)) {
-			$hook = $this->_hookName($hooks);
+			$hooks=explode(';', $hooks);
+		} 
+			assert(is_array($hooks));
+			foreach ($hooks as $hook) {
+				$result = $this->checkHook($hook);
+				if ($result) {
+					return true;
+				}
+			}
+			return false;
+		
+	}
+	/**
+	 * @param string $hname
+	 * 					A hook name
+	 * @return bool 
+	 * 				True if the hook exsists, false otherwise.
+	 */
+	public function checkHook(string $hname): bool{
+		$hook = $this->_hookName($hname);
 			if ($this->profileHooks) {
 				$ding = microtime(true);
 				if (!isset($this->hookCache[$hook])) {
@@ -325,16 +344,14 @@ class Hooks {
 				}
 			}
 			return isset($this->hooks[$hook]);
-		} else {
-			assert(is_array($hooks));
-			foreach ($hooks as $hook) {
-				$result = $this->has($hook);
-				if ($result) {
-					return true;
-				}
-			}
-			return false;
+	}
+
+	public function getHooks(): array{
+		$arr1 = [];
+		foreach ($this->hooks as $key => $value) {
+			$arr1[] = "$key => $value";
 		}
+		return $arr1;
 	}
 
 	/**
