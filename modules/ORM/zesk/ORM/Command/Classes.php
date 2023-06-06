@@ -1,12 +1,12 @@
-<?php declare(strict_types=1);
-
+<?php
+declare(strict_types=1);
 /**
  * @copyright &copy; 2023, Market Acumen, Inc.
  */
-namespace zesk\ORM;
+namespace zesk\ORM\Command;
 
 use zesk\ArrayTools;
-use zesk\Command_Base;
+use zesk\Command\SimpleCommand;
 use zesk\Text;
 
 /**
@@ -14,7 +14,7 @@ use zesk\Text;
  *
  * @category Database
  */
-class Command_Classes extends Command_Base {
+class Classes extends SimpleCommand {
 	protected array $shortcuts = ['classes'];
 
 	protected array $option_types = [
@@ -30,7 +30,7 @@ class Command_Classes extends Command_Base {
 
 	public function run(): int {
 		$application = $this->application;
-		$classes = $application->ormModule()->all_classes();
+		$classes = $application->ormModule()->allClasses();
 		$objects_by_class = [];
 		$is_table = false;
 		$rows = [];
@@ -52,7 +52,7 @@ class Command_Classes extends Command_Base {
 		}
 		$format = $this->option('format');
 		if ($format === 'text' || empty($format)) {
-			echo Text::format_table($rows);
+			echo Text::formatTable($rows);
 		} else {
 			$this->renderFormat($rows);
 		}

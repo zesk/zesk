@@ -2,55 +2,53 @@
 declare(strict_types=1);
 /**
  * @package zesk
- * @subpackage objects
+ * @subpackage World
  */
 
 namespace zesk\World;
 
+use Doctrine\ORM\Mapping\Column;
+use Doctrine\ORM\Mapping\Entity;
+use Throwable;
 use zesk\Application;
-use zesk\Database_Exception_Connect;
-use zesk\Exception;
-use zesk\ORM\ORMBase;
-use zesk\ORM\Exception_ORMNotFound;
+use zesk\Doctrine\Model;
+use zesk\Doctrine\Trait\AutoID;
+use zesk\Exception\NotFoundException;
 
 /**
- * @author kent
- * @see Class_Country
- * @property int $id
- * @property string $code
- * @property string $name
+ * @see Country
  */
-class Country extends ORMBase {
-	public const MEMBER_ID = 'id';
+#[Entity]
+class Country extends Model {
+	use AutoID;
 
-	public const MEMBER_CODE = 'code';
+	#[Column(type: 'string', length: 2)]
+	public string $code;
 
-	public const MEMBER_NAME = 'name';
+	#[Column(type: 'string')]
+	public string $name;
 
 	/**
 	 * @param Application $application
 	 * @param string|int $mixed
 	 * @return self
-	 * @throws Exception_ORMNotFound
-	 * @throws Database_Exception_Connect
+	 * @throws NotFoundException
 	 */
 	public static function findCountry(Application $application, string|int $mixed): self {
+		$em = $application->entityManager();
+
 		try {
-			if (is_numeric($mixed)) {
-				$c = new Country($application, $mixed);
-				return $c->fetch();
+			if (is_int($mixed)) {
+				$result = $em->find(self::class, $mixed);
 			} else {
-				$c = new Country($application, [
-					self::MEMBER_CODE => $mixed,
-				]);
-				$country = $c->find();
-				assert($country instanceof self);
-				return $country;
+				$result = $em->getRepository(self::class)->findOneBy(['code' => $mixed]);
 			}
-		} catch (Database_Exception_Connect|Exception_ORMNotFound $e) {
-			throw $e;
-		} catch (Exception $e) {
-			throw new Exception_ORMNotFound(self::class, $e->getMessage(), $e->variables(), $e);
+			if ($result) {
+				return $result;
+			}
+		} catch (Throwable) {
 		}
+
+		throw new NotFoundException(self::class);
 	}
 }

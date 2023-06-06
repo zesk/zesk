@@ -1,0 +1,11 @@
+{
+	"name": "Database",
+	"description": "Database abstractions for Database, Table, Columns, Indexes, etc.",
+	"autoload": {
+		"classPrefix": "zesk\\Database\\",
+		"path": "zesk/Database/"
+	},
+	"moduleClass": "zesk\\Database\\Module",
+	"zeskCommandPath": "zesk/Database/Command/",
+	"copyright": "Copyright &copy; 2023, Market Acumen, Inc."
+}

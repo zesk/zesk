@@ -3,12 +3,15 @@
   "description": "The Zesk Application Framework",
   "require": {
     "php": ">=8.1",
-    "psr/log": "^1.0",
+    "psr/log": "^3",
     "components/jquery": "^3.2",
-    "psr/cache": "^1.0",
+    "psr/cache": "^3",
     "ext-calendar": "*",
     "ext-json": "*",
-    "ext-posix": "*"
+    "ext-posix": "*",
+    "ext-pcntl": "*",
+    "ext-intl": "*",
+    "doctrine/orm": "*"
   },
   "suggest": {
     "ext-xdebug": "*",
@@ -17,9 +20,9 @@
     "ext-readline": "*"
   },
   "require-dev": {
-    "phpunit/phpunit": "*",
+    "phpunit/phpunit": ">=10",
     "phpunit/php-invoker": "*",
-    "friendsofphp/php-cs-fixer": "^3.4"
+    "friendsofphp/php-cs-fixer": "*"
   },
   "authors": [
     {
@@ -36,7 +39,7 @@
   ],
   "autoload": {
     "psr-0": {
-      "zesk\\": "./"
+      "zesk\\": "./src"
     }
   },
   "bin": [
@@ -51,10 +54,11 @@
   "homepage": "https://zesk.com",
   "autoload-dev": {
     "classmap": [
-      "modules/Database/test/zesk/DatabaseUnitTest.php",
-      "modules/ORM/test/classes/ORMUnitTest.php",
-      "modules/PHPUnit/classes/PHPUnit/TestCase.php",
-      "modules/Repository/classes/TestCase.php"
+      "modules/Doctrine/zesk/Doctrine/ModelTestCase.php",
+      "modules/Doctrine/zesk/Doctrine/DatabaseTestCase.php",
+      "modules/Doctrine/zesk/Doctrine/ControllerTestCase.php",
+      "modules/PHPUnit/zesk/PHPUnit/TestCase.php",
+      "modules/Repository/zesk/Repository/TestCase.php"
     ]
   },
   "copyright": "Copyright &copy; 2023, Market Acumen, Inc."

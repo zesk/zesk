@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace zesk;
 
+use zesk\Command\SimpleCommand;
 use zesk\ORM\User;
 
 /**
@@ -12,7 +13,7 @@ use zesk\ORM\User;
  * @author kent
  * @category Management
  */
-class Command_Password extends Command_Base {
+class Command_Password extends SimpleCommand {
 	protected array $option_types = [
 		'user' => 'string', 'password' => 'string', 'list' => 'boolean',
 	];
@@ -24,14 +25,14 @@ class Command_Password extends Command_Base {
 
 	public function _optionIterable(): void {
 		$user = $this->application->ormFactory(User::class);
-		$col = $user->column_login();
+		$col = $user->columnLogin();
 		$iterator = $user->querySelect()->addWhat($col)->order_by($col)->iterator(null, $col);
 		$n = 0;
 		foreach ($iterator as $login) {
 			fprintf(STDOUT, "$login\n");
 			++$n;
 		}
-		fprintf(STDERR, '# ' . $this->application->locale->plural_word('user', $n) . "\n");
+		fprintf(STDERR, '# ' . $this->application->locale->pluralWord('user', $n) . "\n");
 	}
 
 	public function run(): int {
@@ -47,7 +48,7 @@ class Command_Password extends Command_Base {
 
 		try {
 			$foundUser = $this->application->ormFactory(User::class)->setLogin($login)->find();
-		} catch (Exception_NotFound) {
+		} catch (NotFoundException) {
 			$this->error("User \"$login\" not found\n");
 			return 1;
 		}

@@ -2,7 +2,12 @@
 
 ERR_ENV=1
 
-cd /usr/local/bin/
+cd /usr/local/bin/ || exit $ERR_ENV
+if [ -x composer ]; then
+  echo "$(composer -V) is already installed"
+  exit 0
+fi
+
 if [ ! -f composer-installer.php ]; then
   echo "No composer-installer.php" 1>&2
   exit $ERR_ENV

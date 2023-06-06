@@ -1,15 +1,21 @@
-<?php declare(strict_types=1);
-
+<?php
+declare(strict_types=1);
 /**
  *
  */
-namespace zesk\ORM;
+namespace zesk\ORM\Command;
 
 use zesk\ArrayTools;
-use zesk\Command_Base as CommandBase;
-use zesk\Database;
-use zesk\Exception_Class_NotFound;
-use zesk\Exception_Semantics;
+use zesk\Command\SimpleCommand as CommandBase;
+use zesk\Database\Base;
+use zesk\Debug;
+use zesk\Exception\ClassNotFound;
+use zesk\Exception\NotFoundException;
+use zesk\Exception\ParameterException;
+use zesk\Exception\Semantics;
+use zesk\ORM\Class_Base;
+use zesk\ORM\Exception\ORMNotFound;
+use zesk\ORM\ORMBase;
 
 /**
  * Checks \zesk\ORM descendants for issues with missing fields, etc.
@@ -17,7 +23,7 @@ use zesk\Exception_Semantics;
  * @category Debugging
  * @author kent
  */
-class Command_ClassCheck extends CommandBase {
+class ClassCheck extends CommandBase {
 	/**
 	 *
 	 * @var array
@@ -33,13 +39,17 @@ class Command_ClassCheck extends CommandBase {
 	 * @return array
 	 */
 	private function all_classes(): array {
-		return ArrayTools::extract($this->application->ormModule()->all_classes(), null, 'class');
+		return ArrayTools::extract($this->application->ormModule()->allClasses(), null, 'class');
 	}
 
 	/**
 	 *
 	 * @return int
-	 * @throws Exception_Semantics
+	 * @throws Semantics
+	 * @throws ClassNotFound
+	 * @throws NotFoundException
+	 * @throws ParameterException
+	 * @throws ORMNotFound
 	 */
 	public function run(): int {
 		$logger = $this->application->logger;
@@ -93,7 +103,7 @@ class Command_ClassCheck extends CommandBase {
 			if (!$table) {
 				$this->error('{class} does not have table ({table}) associated with schema: {tables} {debug}', $error_args + [
 					'tables' => array_keys($schema),
-					'debug' => _dump($schema),
+					'debug' => Debug::dump($schema),
 				]);
 
 				continue;
@@ -161,12 +171,12 @@ class Command_ClassCheck extends CommandBase {
 
 	/**
 	 *
-	 * @param Database $db
+	 * @param Base $db
 	 * @param string $name
 	 * @param string $type
 	 * @return string
 	 */
-	private function guessType(Database $db, string $name, string $type): string {
+	private function guessType(Base $db, string $name, string $type): string {
 		$schema_type = (self::$guess_names[strtoupper($type)] ?? [])[strtoupper($name)] ?? null;
 		if ($schema_type) {
 			return strtoupper($schema_type);
@@ -174,6 +184,6 @@ class Command_ClassCheck extends CommandBase {
 		if (array_key_exists($type, self::$guess_types)) {
 			return self::$guess_types[$type];
 		}
-		return $db->data_type()->native_type_to_data_type($type);
+		return $db->types()->native_type_to_data_type($type);
 	}
 }

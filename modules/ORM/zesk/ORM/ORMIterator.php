@@ -1,17 +1,26 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  *
  */
+
 namespace zesk\ORM;
 
-use zesk\Database_Result_Iterator;
+use zesk\Database\ResultIterator;
+use zesk\Exception\ParseException;
+use zesk\Exception\KeyNotFound;
+use zesk\Exception\Semantics;
+use zesk\JSON;
+use zesk\ORM\Database\Query\SelectBase;
+use zesk\ORM\Exception\ORMEmpty;
+use zesk\ORM\Exception\ORMNotFound;
 
 /**
  *
  * @author kent
  *
  */
-class ORMIterator extends Database_Result_Iterator {
+class ORMIterator extends ResultIterator {
 	/**
 	 * Class we're iterating over
 	 *
@@ -24,7 +33,7 @@ class ORMIterator extends Database_Result_Iterator {
 	 *
 	 * @var array
 	 */
-	protected array $class_options = [];
+	protected array $classOptions = [];
 
 	/**
 	 * Current parent
@@ -38,12 +47,12 @@ class ORMIterator extends Database_Result_Iterator {
 	 *
 	 * @var string
 	 */
-	protected string $parent_member = '';
+	protected string $parentMember = '';
 
 	/**
 	 * Current object
 	 *
-	 * @var ORMBase
+	 * @var null|ORMBase
 	 */
 	protected ?ORMBase $object = null;
 
@@ -57,56 +66,44 @@ class ORMIterator extends Database_Result_Iterator {
 	/**
 	 * Create an object iterator
 	 *
-	 * @param string $class
-	 *        	Class to iterate over
-	 * @param Database_Query_Select $query
-	 *        	Executed query to iterate
+	 * @param string $class Class to iterate over
+	 * @param SelectBase $query Executed query to iterate
 	 */
-	public function __construct(string $class, Database_Query_Select_Base $query, array $options = []) {
+	public function __construct(string $class, SelectBase $query, array $options = []) {
 		parent::__construct($query);
 		$this->class = $class;
 		$options['initialize'] = true;
-		$this->class_options = $options;
+		$this->classOptions = $options;
 	}
 
 	/**
 	 *
 	 * @param ORMBase $parent
 	 * @param string $member
-	 * @return \zesk\ORM_Iterator
-	 */
-	public function set_parent(ORMBase $parent, string $member = '') : self {
-		$this->db->application->deprecated('set_parent');
-		return $this->setParent($parent, $member);
-	}
-
-	/**
-	 *
-	 * @param ORMBase $parent
-	 * @param string $member
-	 * @return \zesk\ORM_Iterator
+	 * @return ORMIterator
 	 */
 	public function setParent(ORMBase $parent, string $member = ''): self {
 		$this->parent = $parent;
-		$this->parent_member = $member;
+		$this->parentMember = $member;
 		return $this;
 	}
 
 	/**
 	 * Current object
 	 *
-	 * @return ORMBase
-	 *@see Database_Result_Iterator::current()
+	 * @return null|ORMBase
+	 * @see ResultIterator::current()
 	 */
-	public function current(): mixed {
+	public function current(): null|ORMBase {
 		return $this->object;
 	}
 
 	/**
 	 * Current object ID
 	 *
-	 * @see Database_Result_Iterator::key()
 	 * @return string
+	 * @throws Semantics
+	 * @see ResultIterator::key()
 	 */
 	public function key(): mixed {
 		return is_array($this->id) ? JSON::encode($this->id) : $this->id;
@@ -120,17 +117,27 @@ class ORMIterator extends Database_Result_Iterator {
 	 *
 	 * @todo Decide on object system caching or this method.
 	 */
-	protected function parent_support(ORMBase $object): void {
+	protected function parentSupport(ORMBase $object): void {
 		if ($this->parent) {
-			$check_id = $this->object->memberInteger($this->parent_member);
-			if ($check_id === $this->parent->id()) {
-				$this->object->__set($this->parent_member, $this->parent);
-			} else {
-				$object->application->logger->error('ORM iterator for {class}, mismatched parent member {member} #{id} (expecting #{expect_id})', [
-					'class' => $this->class,
-					'member' => $this->parent_member,
-					'id' => $check_id,
-					'expect_id' => $this->parent->id(),
+			$message = '';
+			$check_id = '-';
+			$parentId = '-';
+
+			try {
+				$parentId = $this->parent->id();
+				$check_id = $this->object->memberInteger($this->parentMember);
+				if ($check_id === $parentId) {
+					$this->object->setMember($this->parentMember, $this->parent);
+				} else {
+					$message = 'mismatched';
+				}
+			} catch (ORMNotFound|ORMEmpty|KeyNotFound|ParseException $e) {
+				$message = $e->getMessage();
+			}
+			if ($message) {
+				$object->application->logger->error('ORM iterator for {class}, {message} {member} #{id} (expecting #{parentId})', [
+					'class' => $this->class, 'member' => $this->parentMember, 'message' => $message, 'id' => $check_id,
+					'parentId' => $parentId,
 				]);
 			}
 		}
@@ -141,37 +148,48 @@ class ORMIterator extends Database_Result_Iterator {
 	 *
 	 * BEWARE: ORMIterators::next jumps over this!
 	 *
-	 * @return ORMBase
-	 *@see ORMIterators::next
-	 * @see Database_Result_Iterator::next()
+	 * @return void
+	 * @see ORMIterators::next
+	 * @see ResultIterator::next()
 	 */
 	public function next(): void {
 		parent::next();
+		$this->_updateObjectAndId();
+	}
+
+	/**
+	 * @return void
+	 */
+	protected function _updateObjectAndId(): void {
 		if ($this->_valid) {
 			$members = $this->_row;
 			// We do create, then fetch to support polymorphism - if ORM supports factory polymorphism, then shorten this to single factory call
-			$this->object = $this->query->memberModelFactory($this->parent_member, $this->class, $members, [
-				'initialize' => true,
-			] + $this->class_options);
-			$this->id = $this->object->id();
-			$this->parent_support($this->object);
-		} else {
-			$this->id = null;
-			$this->object = null;
+			try {
+				$this->object = $this->query->memberModelFactory($this->parentMember, $this->class, $members, ['initialize' => true, ] + $this->classOptions);
+				$this->id = $this->object->id();
+				$this->parentSupport($this->object);
+				return;
+			} catch (ORMEmpty) {
+			}
 		}
+		$this->id = null;
+		$this->object = null;
 	}
 
 	/**
 	 * Convert to an array
 	 *
 	 * @return ORMBase[]
-	 *@see Database_Result_Iterator::toArray()
+	 * @see ResultIterator::toArray()
 	 */
 	public function toArray($key = null): array {
 		$result = [];
 		if ($key === null) {
 			foreach ($this as $object) {
-				$result[$object->id()] = $object;
+				try {
+					$result[$object->id()] = $object;
+				} catch (ORMEmpty) {
+				}
 			}
 		} elseif ($key === false) {
 			foreach ($this as $object) {
@@ -179,7 +197,10 @@ class ORMIterator extends Database_Result_Iterator {
 			}
 		} else {
 			foreach ($this as $object) {
-				$result[strval($object->member($key))] = $object;
+				try {
+					$result[strval($object->member($key))] = $object;
+				} catch (ORMNotFound|KeyNotFound) {
+				}
 			}
 		}
 		return $result;
@@ -190,7 +211,7 @@ class ORMIterator extends Database_Result_Iterator {
 	 *
 	 * @return ORMBase[]
 	 */
-	public function to_list(): array {
-		return $this->toArray(false);
+	public function toList(): array {
+		return $this->toArray();
 	}
 }

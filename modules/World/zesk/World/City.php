@@ -1,21 +1,31 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage objects
  */
 namespace zesk\World;
 
-use zesk\ORM\ORMBase;
+use Doctrine\ORM\Mapping\Column;
+use Doctrine\ORM\Mapping\Entity;
+use Doctrine\ORM\Mapping\JoinColumn;
+use Doctrine\ORM\Mapping\OneToOne;
+use zesk\Doctrine\Trait\AutoID;
 
 /**
- * @see Class_City
  */
-class City extends ORMBase {
-	public const MEMBER_ID = 'id';
+#[Entity]
+class City {
+	use AutoID;
 
-	public const MEMBER_NAME = 'name';
+	#[Column(type: 'string', nullable: false)]
+	public string $name;
 
-	public const MEMBER_COUNTY = 'county';
+	#[OneToOne(targetEntity: County::class)]
+	#[JoinColumn(name: 'county')]
+	public County $county;
 
-	public const MEMBER_PROVINCE = 'province';
+	#[OneToOne(targetEntity: Province::class)]
+	#[JoinColumn(name: 'province')]
+	public Province $province;
 }

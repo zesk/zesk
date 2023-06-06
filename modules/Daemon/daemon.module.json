@@ -7,8 +7,8 @@
 	},
 	"moduleClass": "zesk\\Daemon\\Module",
 	"requires": [
-		"ORM"
+		"Doctrine"
 	],
-	"zeskCommandPath": "classes/Command",
+	"zeskCommandPath": "zesk/Daemon/Command",
 	"copyright": "Copyright &copy; 2023, Market Acumen, Inc."
 }

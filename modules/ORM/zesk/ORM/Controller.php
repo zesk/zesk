@@ -11,26 +11,19 @@ declare(strict_types=1);
 namespace zesk\ORM;
 
 use zesk\ArrayTools;
-use zesk\Database_Exception_Duplicate;
-use zesk\Database_Exception_SQL;
-use zesk\Database_Exception_Table_NotFound;
-use zesk\Exception_Authentication;
-use zesk\Exception_Configuration;
-use zesk\Exception_Deprecated;
-use zesk\Exception_Key;
-use zesk\Exception_Parameter;
-use zesk\Exception_Permission;
-use zesk\Exception_Redirect;
-use zesk\Exception_Semantics;
-use zesk\Exception_Unimplemented;
-use zesk\Exception_Class_NotFound;
+use zesk\Exception\ClassNotFound;
+use zesk\Exception\NotFoundException;
+use zesk\Exception\ParameterException;
+use zesk\Exception\PermissionDenied;
+use zesk\Exception\Redirect;
+use zesk\Exception\Semantics;
 use zesk\HTML;
 use zesk\HTTP;
 use zesk\Model;
 use zesk\Request;
 use zesk\Response;
 use zesk\StringTools;
-use zesk\ORM\Exception_ORMNotFound as Exception_ORM_NotFound;
+use zesk\Types;
 
 /**
  *
@@ -110,7 +103,7 @@ abstract class Controller extends Controller_Authenticated {
 		parent::initialize();
 		if ($this->class) {
 			$controller_class = get_class($this);
-			[$ns, $cl] = reversePair($controller_class, '\\', '', $controller_class);
+			[$ns, $cl] = StringTools::reversePair($controller_class, '\\', '', $controller_class);
 			if ($ns) {
 				$ns .= '\\';
 			}
@@ -161,7 +154,7 @@ abstract class Controller extends Controller_Authenticated {
 		if ($action) {
 			try {
 				$url = $this->router->getRoute($action, $object);
-			} catch (\zesk\Exception_NotFound $e) {
+			} catch (NotFoundException $e) {
 			}
 		}
 		if (!$url) {
@@ -175,7 +168,7 @@ abstract class Controller extends Controller_Authenticated {
 	 * @param string $redirect_url
 	 * @param string $message
 	 * @param array $options
-	 * @throws Exception_Redirect
+	 * @throws Redirect
 	 */
 	private function _redirect_response(string $redirect_url, string $message, array $options): void {
 		$format = $this->request->get('format');
@@ -232,12 +225,13 @@ abstract class Controller extends Controller_Authenticated {
 	 * @param Response $response
 	 * @param array $arguments
 	 * @return array
-	 * @throws Exception_Parameter
+	 * @throws ParameterException
+	 * @see self::action_DELETE_index()
 	 */
 	public function arguments_DELETE_index(Request $request, Response $response, array $arguments): array {
-		$first = first($arguments);
+		$first = ArrayTools::first($arguments);
 		if (!$first instanceof ORMBase) {
-			throw new Exception_Parameter('Need ORMBase as first parameter {first} ({type})', [
+			throw new ParameterException('Need ORMBase as first parameter {first} ({type})', [
 				'type' => type($first), 'first' => $first,
 			]);
 		}
@@ -248,8 +242,9 @@ abstract class Controller extends Controller_Authenticated {
 	 *
 	 * @param ORMBase $object
 	 * @return mixed|void
-	 * @throws Exception_ORMNotFound
-	 * @throws Exception_Redirect
+	 * @throws ORMNotFound
+	 * @throws Redirect
+	 * @see self::arguments_DELETE_index()
 	 */
 	public function action_DELETE_index(ORMBase $object, Response $response): Response {
 		$user = $this->user;
@@ -260,9 +255,9 @@ abstract class Controller extends Controller_Authenticated {
 			try {
 				$object->delete();
 				$result = true;
-				$message = $object::class . ':=Deleted {class_name-context-object-singular} "{display_name}".';
-			} catch (Database_Exception_Duplicate|Database_Exception_Table_NotFound|Database_Exception_SQL|Exception_Key|Exception_ORMEmpty $e) {
-				$message = $object::class . ':=Unable to delete {class_name-context-object-singular} "{display_name}".';
+				$message = $object::class . ':=Deleted {class_name-context-object-singular} "{displayName}".';
+			} catch (Database\Exception\Duplicate|Database\Exception\TableNotFound|Database\Exception\SQLException|KeyNotFound|ORMEmpty $e) {
+				$message = $object::class . ':=Unable to delete {class_name-context-object-singular} "{displayName}".';
 				$result = false;
 			}
 		} else {
@@ -282,7 +277,7 @@ abstract class Controller extends Controller_Authenticated {
 	/**
 	 *
 	 * @param ORMBase $object
-	 * @throws Exception_Redirect
+	 * @throws Redirect
 	 */
 	public function action_POST_duplicate(ORMBase $object): void {
 		$user = $this->user;
@@ -290,14 +285,14 @@ abstract class Controller extends Controller_Authenticated {
 		if ($user->can('duplicate', $object)) {
 			try {
 				$new_object = $object->duplicate();
-				$message = "$class:=Duplicated {class_name-context-object-singular} \"{display_name}\".";
+				$message = "$class:=Duplicated {class_name-context-object-singular} \"{displayName}\".";
 				$result = true;
-			} catch (Exception_Deprecated|Exception_Key|Exception_Semantics $e) {
-				$message = "$class:=Unable to duplicate {class_name-context-object-singular} \"{display_name}\".";
+			} catch (Deprecated|KeyNotFound|Semantics $e) {
+				$message = "$class:=Unable to duplicate {class_name-context-object-singular} \"{displayName}\".";
 				$result = false;
 			}
 		} else {
-			$message = "$class:=You do not have permission to duplicate {class_name-context-object-singular} \"{display_name}\".";
+			$message = "$class:=You do not have permission to duplicate {class_name-context-object-singular} \"{displayName}\".";
 			$result = false;
 		}
 		$locale = $this->application->locale;
@@ -317,7 +312,7 @@ abstract class Controller extends Controller_Authenticated {
 	 * @return ORMBase
 	 */
 	protected function ormFactory(mixed $mixed = null, array $options = null): ORMBase {
-		return $this->application->ormFactory($this->class, $mixed, toArray($options))->fetch();
+		return $this->application->ormFactory($this->class, $mixed, Types::toArray($options))->fetch();
 	}
 
 	/**
@@ -326,7 +321,7 @@ abstract class Controller extends Controller_Authenticated {
 	 * @param string $class
 	 * @param mixed $id
 	 * @return ORMBase
-	 * @throws Exception_Parameter
+	 * @throws ParameterException
 	 */
 	protected function orm_from_id(string $class, int|string|array $id): ORMBase {
 		$object = $this->application->ormFactory($class, $id);
@@ -335,20 +330,20 @@ abstract class Controller extends Controller_Authenticated {
 			'name' => $name,
 		];
 		if (empty($id)) {
-			throw new Exception_Parameter('Invalid {name} ID', $__);
+			throw new ParameterException('Invalid {name} ID', $__);
 		}
 		if (!is_numeric($id) || $id < 0) {
-			throw new Exception_Parameter('Invalid {name} ID', $__);
+			throw new ParameterException('Invalid {name} ID', $__);
 		}
 
 		try {
 			return $object->fetch();
-		} catch (Exception_ORM_NotFound $e) {
-			throw new Exception_Parameter('{name} not found', $__);
-		} catch (Exception_ORM_NotFound $e) {
-			throw new Exception_Parameter('{name} is empty', $__);
+		} catch (ORM_NotFound $e) {
+			throw new ParameterException('{name} not found', $__);
+		} catch (ORMEmpty $e) {
+			throw new ParameterException('{name} is empty', $__);
 		} catch (\Exception $e) {
-			throw new Exception_Parameter('{name} unknown error {message}', $__ + [
+			throw new ParameterException('{name} unknown error {message}', $__ + [
 				'message' => $e->getMessage(),
 			]);
 		}
@@ -357,7 +352,7 @@ abstract class Controller extends Controller_Authenticated {
 	/**
 	 *
 	 * {@inheritDoc}
-	 * @throws Exception_ORMNotFound|Exception_Authentication|Exception_Permission
+	 * @throws ORMNotFound|Authentication|PermissionDenied
 	 * @see \zesk\Controller::_action_default()
 	 */
 	public function _action_default_object(string $action = null, mixed $object = null): mixed {
@@ -392,7 +387,7 @@ abstract class Controller extends Controller_Authenticated {
 					$perm_action = $this->actual_action;
 				}
 				if (!$this->user) {
-					throw new Exception_Authentication('Attempting to perform {action}', [
+					throw new Authentication('Attempting to perform {action}', [
 						'action' => $perm_action,
 					]);
 				}
@@ -403,7 +398,7 @@ abstract class Controller extends Controller_Authenticated {
 					$perm_actions = $widget->option('permission_actions', $this->class . '::' . $perm_action);
 					$this->user->must($perm_actions);
 				}
-			} catch (Exception_Permission $e) {
+			} catch (PermissionDenied $e) {
 				if ($ajax) {
 					$this->error(HTTP::STATUS_UNAUTHORIZED);
 					$this->json([
@@ -420,7 +415,7 @@ abstract class Controller extends Controller_Authenticated {
 					// Backwards compatibility: TODO is this needed anymore - corrupts truth of Request object
 					$this->request->set($object->idColumn(), $object);
 					if (!$this->user->can($this->actual_action, $object)) {
-						throw new Exception_Permission($this->user, $this->actual_action, $object);
+						throw new PermissionDenied($this->user, $this->actual_action, $object);
 					}
 				}
 			}
@@ -441,7 +436,7 @@ abstract class Controller extends Controller_Authenticated {
 			return $this->control($widget, $object, [
 				'title' => $title, 'action' => $action, 'route_action' => $action,
 			]);
-		} catch (Exception_Class_NotFound $e) {
+		} catch (ClassNotFound $e) {
 			$this->application->hooks->call('exception', $e);
 			if ($this->not_found_url) {
 				$this->response->redirect()->url($this->not_found_url, $this->not_found_message);

@@ -1,0 +1,14 @@
+{
+	"name": "Doctrine",
+	"description": "Doctrine abstractions for Database, ORM, etc.",
+	"autoload": {
+		"classPrefix": "zesk\\Doctrine\\",
+		"path": "zesk/Doctrine/"
+	},
+	"composer": {
+		"require": ["doctrine/orm"]
+	},
+	"moduleClass": "zesk\\Doctrine\\Module",
+	"zeskCommandPath": "zesk/Doctrine/Command",
+	"copyright": "Copyright &copy; 2023, Market Acumen, Inc."
+}

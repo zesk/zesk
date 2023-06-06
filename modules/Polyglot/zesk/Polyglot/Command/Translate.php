@@ -1,6 +1,5 @@
 <?php
 declare(strict_types=1);
-
 /**
  *
  */
@@ -8,19 +7,21 @@ declare(strict_types=1);
 namespace zesk\Polyglot\Command;
 
 use zesk\ArrayTools;
-use zesk\Command_Base;
+use zesk\Command\SimpleCommand;
+use zesk\Doctrine\Command\Command;
 use zesk\Exception;
-use zesk\Locale;
+use zesk\Locale\Locale;
 use zesk\Polyglot\Module;
 use zesk\Service;
 use zesk\Service_Translate;
+use zesk\StringTools;
 
 /**
  *
  * @author kent
  *
  */
-class Translate extends Command_Base {
+class Translate extends SimpleCommand {
 	/**
 	 *
 	 * @var integer
@@ -83,7 +84,7 @@ class Translate extends Command_Base {
 		}
 		$classes = Service::serviceClasses($app, 'translate');
 		if ($this->optionBool('list')) {
-			echo ArrayTools::suffixKeys($classes, "\n");
+			echo ArrayTools::joinSuffix($classes, "\n");
 			return 0;
 		}
 		$target_language = $this->option('target');
@@ -96,10 +97,10 @@ class Translate extends Command_Base {
 		$target_language = strtolower($target_language);
 		$source_language = strtolower($source_language);
 
-		$default_class = first($classes);
+		$default_class = ArrayTools::first($classes);
 		/* @var $service_object Service_Translate */
 		try {
-			$service_object = $this->service_object = Service_Translate::factory_translate($app, $target_language, $source_language);
+			$service_object = $this->service_object = Service_Translate::translateFactory($app, $target_language, $source_language);
 		} catch (Exception $e) {
 			$this->error($e->getMessage(), $e->arguments);
 			return 2;
@@ -151,7 +152,7 @@ class Translate extends Command_Base {
 	 * @return array 2-item array with [$phrase, $context]
 	 */
 	private function preprocessPhrase(string $phrase): array {
-		$tokens = mapExtractTokens($phrase);
+		$tokens = StringTools::extractTokens($phrase);
 		$map = [];
 		foreach ($tokens as $index => $token) {
 			$map[$token] = '{' . $index . '}';

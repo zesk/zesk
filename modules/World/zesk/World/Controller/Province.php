@@ -7,10 +7,10 @@
  */
 declare(strict_types=1);
 
-namespace zesk\World;
+namespace zesk\World\Controller;
 
-use zesk\ORM\Controller;
+use zesk\Doctrine\Controller;
 
-class Controller_Province extends Controller {
-	protected string $class = Province::class;
+class Province extends Controller {
+	protected string $repository = Province::class;
 }

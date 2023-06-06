@@ -1,4 +1,5 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage GitHub
@@ -7,11 +8,19 @@
  */
 namespace zesk\GitHub;
 
+use zesk\Exception\FilePermission;
+use zesk\Exception\DomainLookupFailed;
+use zesk\Exception\ParameterException;
+use zesk\Exception\ParseException;
+use zesk\Exception_Protocol;
+use zesk\Exception\Semantics;
+use zesk\Exception\SyntaxException;
+use zesk\Exception\Unsupported;
 use zesk\HTTP;
 use zesk\JSON;
 use zesk\MIME;
-use zesk\Net\HTTP\Client as Net_HTTP_Client;
 use zesk\Module as BaseModule;
+use zesk\Net\HTTP\Client as Net_HTTP_Client;
 
 /**
  *
@@ -42,14 +51,14 @@ class Module extends BaseModule {
 			$commitish = $this->option('commitish');
 		}
 		if ($version) {
-			if (!$this->has_credentials()) {
+			if (!$this->hasCredentials()) {
 				$this->application->logger->warning('{class} is not configured: need options owner, repository, and access_token to generate release for version {version}', [
 					'class' => get_class($this),
 					'version' => $version,
 				]);
 				return $settings;
 			}
-			if (!$this->generate_tag("v$version", $commitish)) {
+			if (!$this->generateTag("v$version", $commitish)) {
 				$this->application->logger->error('Unable to generate a tag for {version}', [
 					'version' => $version,
 				]);
@@ -63,19 +72,31 @@ class Module extends BaseModule {
 	}
 
 	/**
+	 * Do we have credentials for GitHub?
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
-	public function has_credentials() {
+	public function hasCredentials(): bool {
 		return $this->hasOption('owner') && $this->hasOption('repository') && $this->hasOption('access_token');
 	}
 
 	/**
 	 *
-	 * @param unknown $version
-	 * @return boolean
+	 * @param string $name
+	 * @param string $commitish
+	 * @param string $description
+	 * @return array
+	 * @throws Net_HTTP_Client\Exception
+	 * @throws DomainLookupFailed
+	 * @throws FilePermission
+	 * @throws ParameterException
+	 * @throws ParseException
+	 * @throws Semantics
+	 * @throws SyntaxException
+	 * @throws Unsupported
+	 * @throws Exception_Protocol
 	 */
-	public function generate_tag($name, $commitish = null, $description = null) {
+	public function generateTag(string $name, string $commitish = '', string $description = ''): array {
 		if (!$description) {
 			$description = "Release of version $name";
 		}
@@ -88,7 +109,7 @@ class Module extends BaseModule {
 			'name' => $name,
 			'body' => $description,
 			'draft' => false,
-			'prerelase' => false,
+			'prerelease' => false,
 		];
 		$missing = self::MISSING_TOKEN;
 		$url = map(self::API_ENDPOINT_RELEASE, $this->options + ['owner' => $missing, 'repository' => $missing, 'access_token' => $missing]);
@@ -98,10 +119,9 @@ class Module extends BaseModule {
 		$client->setRequestHeader(HTTP::REQUEST_CONTENT_TYPE, MIME::TYPE_APPLICATION_JSON);
 		$content = $client->go();
 		if ($client->response_code_type() === 2) {
-			$this->application->logger->info(JSON::encodePretty(JSON::decode($content)));
-			return true;
+			return JSON::decode($content);
 		}
-		$this->application->logger->error('Error with request: {response_code} {response_message} {response_data}', $client->responseVariables());
-		return false;
+
+		throw new Exception_Protocol('Error with request: {response_code} {response_message} {response_data}', $client->responseVariables());
 	}
 }

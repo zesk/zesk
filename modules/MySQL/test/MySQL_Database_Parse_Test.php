@@ -1,4 +1,5 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 namespace zesk;
 
 class MySQL_Database_Parse_Test extends UnitTest {
@@ -67,17 +68,17 @@ EOF;
 	public function test_schema(): void {
 		$db = $this->application->databaseRegistry();
 		$table = $db->parseCreateTable(self::$schema, __METHOD__);
-		$this->assert_instanceof($table, 'zesk\\Database_Table');
+		$this->assertInstanceOf(Database_Table::class, $table);
 		$week = $table->column('Week');
-		$this->assert_instanceof($week, 'zesk\\Database_Column');
-		$this->assertFalse($week->is_increment());
-		$this->assertFalse($week->is_index());
-		$this->assertTrue($week->is_text());
-		$this->assertEquals($week->size(), 64);
+		$this->assertInstanceOf(Database_Column::class, $week);
+		$this->assertFalse($week->isIncrement());
+		$this->assertFalse($week->isIndex());
+		$this->assertTrue($week->isText());
+		$this->assertEquals(64, $week->size());
 	}
 
 	public function test_parse_pattern(): void {
-		class_exists("\mysql\Database_Parser");
+		class_exists("\zesk\MySQL\SQLParser");
 		foreach ([
 			'CREATE TABLE `TestTable` (
 				`report` int(10) unsigned NOT NULL,

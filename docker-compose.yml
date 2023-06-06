@@ -5,6 +5,7 @@ services:
     env_file: docker/etc/env.sh
     environment:
       BUILD_CODE: php
+      DATABASE_HOST: mariadb
     build:
       context: ./
       dockerfile: ./docker/php.Dockerfile
@@ -17,8 +18,6 @@ services:
     environment:
       BUILD_CODE: mariadb
       MARIADB_ROOT_PASSWORD: hard-to-guess
-    volumes:
-      - database_data:/var/lib/mysql
     build:
       context: ./
       dockerfile: ./docker/mariadb.Dockerfile

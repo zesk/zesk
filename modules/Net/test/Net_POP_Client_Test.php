@@ -12,11 +12,13 @@ declare(strict_types=1);
 
 namespace zesk;
 
+use zesk\PHPUnit\TestCase;
+
 /**
  * @author kent
  *
  */
-class Net_POP_Client_Test extends UnitTest {
+class Net_POP_Client_Test extends TestCase {
 	/**
 	 *
 	 * @var string
@@ -112,7 +114,7 @@ class Net_POP_Client_Test extends UnitTest {
 	 * @depends test_outgoing_requirements
 	 */
 	public function test_bad_password(): void {
-		$this->expectException(Exception_Authentication::class);
+		$this->expectException(Authentication::class);
 		$parts = ArrayTools::filter($this->parts, 'scheme;host;user');
 		$parts['pass'] = 'bad-password';
 		$test_url = URL::stringify($parts);

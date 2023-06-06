@@ -1,9 +1,11 @@
 <?php
 declare(strict_types=1);
 
-namespace zesk;
+namespace zesk\Command;
 
-class Testlike extends Command_Base {
+class Testlike extends SimpleCommand {
+	protected array $shortcuts = ['test-like'];
+
 	public function run(): int {
 		return $this->application->development() ? 1 : 0;
 	}

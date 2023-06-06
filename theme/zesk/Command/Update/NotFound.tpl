@@ -1,4 +1,5 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 ?>Your system does not have the {command} utility in the path {path}. To fix:
 
 1. Check that it is installed

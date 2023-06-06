@@ -9,25 +9,23 @@ declare(strict_types=1);
  * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  */
 
-namespace zesk\ORM;
+namespace zesk\ORM\Database\Query;
 
 use Throwable;
-use zesk\Database;
-use zesk\Database_Exception_Duplicate;
-use zesk\Database_Exception_NoResults;
-use zesk\Database_Exception_SQL;
-use zesk\Database_Exception_Table_NotFound;
-use zesk\Exception_Deprecated;
-use zesk\Exception_Semantics;
-use zesk\ORM\QueryTrait\Affected;
-use zesk\ORM\QueryTrait\Where;
+use zesk\Database\Base;
+use zesk\Database\Exception\Duplicate;
+use zesk\Database\Exception\NoResults;
+use zesk\Database\Exception\TableNotFound;
+use zesk\Exception\Semantics;
+use zesk\ORM\Database\QueryTrait\Affected;
+use zesk\ORM\Database\QueryTrait\Where;
 
 /**
  *
  * @author kent
  *
  */
-class Database_Query_Update extends Database_Query_Edit {
+class Update extends Edit {
 	use Where;
 	use Affected;
 
@@ -46,9 +44,9 @@ class Database_Query_Update extends Database_Query_Edit {
 	/**
 	 * Create a new UPDATE query
 	 *
-	 * @param Database $db
+	 * @param Base $db
 	 */
-	public function __construct(Database $db) {
+	public function __construct(Base $db) {
 		parent::__construct('UPDATE', $db);
 	}
 
@@ -92,7 +90,7 @@ class Database_Query_Update extends Database_Query_Edit {
 	 * @return string
 	 */
 	public function toSQL(): string {
-		return $this->database()->sql()->update([
+		return $this->database()->sqlDialect()->update([
 			'table' => $this->table(), 'values' => $this->values, 'where' => $this->where,
 			'low_priority' => $this->low_priority, 'ignore_constraints' => $this->ignore_constraints,
 		]);
@@ -108,10 +106,10 @@ class Database_Query_Update extends Database_Query_Edit {
 
 	/**
 	 * @return $this
-	 * @throws Exception_Semantics
-	 * @throws Database_Exception_Duplicate
-	 * @throws Database_Exception_NoResults
-	 * @throws Database_Exception_Table_NotFound
+	 * @throws Semantics
+	 * @throws Duplicate
+	 * @throws NoResults
+	 * @throws TableNotFound
 	 */
 	public function execute(): self {
 		$this->result = $this->database()->update($this->table(), $this->values, $this->where, [

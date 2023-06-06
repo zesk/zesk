@@ -1,11 +1,12 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  *
  */
 namespace zesk\ORM;
 
 /**
- * @see Domain
+ * @see Host
  * @author kent
  *
  */

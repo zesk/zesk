@@ -1,5 +1,5 @@
-<?php declare(strict_types=1);
-
+<?php
+declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage test
@@ -8,12 +8,14 @@
  */
 namespace zesk;
 
+use zesk\PHPUnit\TestCase;
+
 /**
  *
  * @author kent
  *
  */
-class Net_SMTP_Client_Test extends UnitTest {
+class Net_SMTP_Client_Test extends TestCase {
 	public function test_main(): void {
 		$url = $this->option('url');
 		if (!$url) {

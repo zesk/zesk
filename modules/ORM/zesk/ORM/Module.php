@@ -6,21 +6,31 @@ declare(strict_types=1);
 
 namespace zesk\ORM;
 
+use Throwable;
 use zesk\Application;
 use zesk\ArrayTools;
 use zesk\Command;
-use zesk\Database;
-use zesk\Database_Column;
-use zesk\Database_Exception;
-use zesk\Database_Table;
-use zesk\Exception_Class_NotFound;
-use zesk\Exception_Configuration;
-use zesk\Exception_Unsupported;
+use zesk\Database\Base;
+use zesk\Database\Column;
+use zesk\Database\Exception\SchemaException;
+use zesk\Database\Table;
+use zesk\Exception\ClassNotFound;
+use zesk\Exception\ConfigurationException;
+use zesk\Exception\NotFoundException;
+use zesk\Exception\ParameterException;
+use zesk\Exception\Semantics;
+use zesk\Exception\SyntaxException;
+use zesk\Exception\TimeoutExpired;
+use zesk\Exception\Unsupported;
+use zesk\Interface\SettingsInterface;
 use zesk\Module as BaseModule;
+use zesk\ORM\Database\MySQLAdapter;
+use zesk\ORM\Exception\ORMNotFound;
+use zesk\Types;
 
 /**
  * @see Class_Base
- * @see ORMBase
+ * @see Model
  * @author kent
  */
 class Module extends BaseModule {
@@ -41,14 +51,22 @@ class Module extends BaseModule {
 	 *
 	 * @var array
 	 */
-	private array $database_adapters = [];
+	private array $databaseAdapters = [];
+
+	/**
+	 * Registry of settings, currently
+	 *
+	 * @var Settings[]
+	 */
+	private array $registry = [];
 
 	/**
 	 *
 	 * @return void
-	 * @throws Exception_Class_NotFound
-	 * @throws Exception_Configuration
-	 * @throws Exception_Unsupported
+	 * @throws ClassNotFound
+	 * @throws ConfigurationException
+	 * @throws Semantics
+	 * @throws Unsupported
 	 */
 	public function initialize(): void {
 		parent::initialize();
@@ -76,7 +94,7 @@ class Module extends BaseModule {
 		/**
 		 * Hook into database table
 		 */
-		$this->application->hooks->add(Database_Table::class . '::column_add', [$this, 'database_table_add_column', ]);
+		$this->application->hooks->add(Table::class . '::column_add', [$this, 'database_table_add_column', ]);
 
 		$this->application->hooks->add('zesk\\Command_Daemon::daemon_hooks', [$this, 'daemon_hooks', ]);
 
@@ -91,12 +109,12 @@ class Module extends BaseModule {
 					if ($member_object !== null && !$member_object instanceof ORMBase) {
 						$this->application->logger->error('Member {member} of object {class} should be an object of {expected_class}, returned {type} with value {value}', [
 							'member' => $member, 'class' => $object::class, 'expected_class' => $class,
-							'type' => type($member_object), 'value' => strval($member_object),
+							'type' => Types::type($member_object), 'value' => strval($member_object),
 						]);
 
 						continue;
 					}
-				} catch (Exception_ORMNotFound) {
+				} catch (ORMNotFound) {
 					$member_object = null;
 				}
 				if ($member_object) {
@@ -111,13 +129,14 @@ class Module extends BaseModule {
 		/**
 		 * Support MySQL database adapter
 		 */
-		$this->database_adapters['mysql'] = $mysql = $this->application->factory(Database_Adapter_MySQL::class);
-		$this->database_adapters['mysqli'] = $mysql;
+		$this->databaseAdapters['mysql'] = $mysql = $this->application->factory(MySQLAdapter::class);
+		$this->databaseAdapters['mysqli'] = $mysql;
 	}
 
 	/**
 	 * Collect hooks used to invoke daemons
 	 *
+	 * @param Command $daemon
 	 * @param array $daemon_hooks
 	 * @return array
 	 */
@@ -128,23 +147,22 @@ class Module extends BaseModule {
 
 	/**
 	 *
-	 * @param Application $application
 	 * @param string $class
 	 * @param mixed|null $mixed
 	 * @param array $options
 	 * @return ORMBase
-	 * @throws Exception_Class_NotFound
+	 * @throws ClassNotFound
 	 */
-	public function ormRegistry(Application $application, string $class, mixed $mixed = null, array $options = []): ORMBase {
-		$class = $application->objects->resolve($class);
+	public function ormRegistry(string $class, mixed $mixed = null, array $options = []): ORMBase {
+		$class = $this->application->objects->resolve($class);
 		if ($mixed === null && is_array($options) && count($options) > 0) {
 			$result = $this->_classCacheComponent($class, $mixed, $options, 'object');
 			if (!$result) {
-				throw new Exception_Class_NotFound($class);
+				throw new ClassNotFound($class);
 			}
 			return $result;
 		} else {
-			$model = ORMBase::factory($application, $class, $mixed, $options);
+			$model = ORMBase::factory($this->application, $class, $mixed, $options);
 			assert($model instanceof ORMBase);
 			return $model;
 		}
@@ -152,17 +170,17 @@ class Module extends BaseModule {
 
 	/**
 	 * @param string $class
-	 * @return Settings
+	 * @return SettingsInterface
+	 * @throws ClassNotFound
 	 */
-	public function settingsRegistry(string $class = ''): Settings {
+	public function settingsRegistry(string $class = ''): SettingsInterface {
 		if ($class === '') {
 			$class = $this->option('settings_class', Settings::class);
 		}
-		$low_class = strtolower($class);
-		if (isset($this->registry[$low_class])) {
-			return $this->registry[$low_class];
+		if (isset($this->registry[$class])) {
+			return $this->registry[$class];
 		}
-		$result = $this->registry[$low_class] = $this->ormFactory($this->application, $class);
+		$result = $this->registry[$class] = $this->ormFactory($this->application, $class);
 		assert($result instanceof Settings);
 		return $result;
 	}
@@ -174,28 +192,29 @@ class Module extends BaseModule {
 	 * @param mixed|null $mixed
 	 * @param array $options
 	 * @return ORMBase
-	 * @throws Exception_Class_NotFound
+	 * @throws ClassNotFound
 	 */
-	public function ormFactory(Application $application, string $class, mixed $mixed = null, array $options = []): ORMBase {
+	public function ormFactory(string $class, mixed $mixed = null, array $options = []): ORMBase {
 		// $class is resolved deeper
-		$orm = ORMBase::factory($application, $class, $mixed, $options);
+		$orm = ORMBase::factory($this->application, $class, $mixed, $options);
 		assert($orm instanceof ORMBase);
 		return $orm;
 	}
 
 	/**
 	 *
+	 * @param Application $application
 	 * @param string $class
 	 * @param mixed $mixed
 	 * @param array $options
 	 * @return Class_Base
-	 * @throws Exception_Class_NotFound
+	 * @throws ClassNotFound
 	 */
-	public function classORMRegistry(Application $application, string $class, mixed $mixed = null, array $options = []): Class_Base {
-		$class = $application->objects->resolve($class);
+	public function classORMRegistry(string $class, mixed $mixed = null, array $options = []): Class_Base {
+		$class = $this->application->objects->resolve($class);
 		$result = $this->_classCacheComponent($class, $mixed, $options, 'class');
 		if (!$result) {
-			throw new Exception_Class_NotFound($class);
+			throw new ClassNotFound($class);
 		}
 		assert($result instanceof Class_Base);
 		return $result;
@@ -206,7 +225,7 @@ class Module extends BaseModule {
 	 * in the system.
 	 */
 	public static function hooks(Application $application): void {
-		$application->hooks->add(ORMBase::class . '::register_all_hooks', __CLASS__ . '::object_register_all_hooks');
+		$application->hooks->add(ORMBase::class . '::register_all_hooks', self::object_register_all_hooks(...));
 	}
 
 	/**
@@ -214,7 +233,7 @@ class Module extends BaseModule {
 	 * @param Application $app
 	 */
 	public static function object_register_all_hooks(Application $app): void {
-		$classes = $app->ormModule()->all_classes();
+		$classes = $app->ormModule()->allClasses();
 		$app->classes->register(ArrayTools::collapse($classes, 'class'));
 	}
 
@@ -222,7 +241,7 @@ class Module extends BaseModule {
 	 *
 	 * @var string[]
 	 */
-	private ?array $cached_classes = null;
+	private ?array $_cachedClasses = null;
 
 	/**
 	 * Retrieve the list of classes associated with an application
@@ -253,20 +272,24 @@ class Module extends BaseModule {
 	/**
 	 * Synchronize the schema.
 	 *
-	 * @param Database|null $db
+	 * @param Base|null $db
 	 * @param array|null $classes
 	 * @param array $options
 	 * @return string[]
-	 * @throws Database_Exception
+	 * @throws NotFoundException
+	 * @throws SchemaException
+	 * @throws Semantics
+	 * @throws SyntaxException
+	 * @throws ParameterException
 	 */
-	public function schema_synchronize(Database $db = null, array $classes = null, array $options = []): array {
+	public function schemaSynchronize(Base $db = null, array $classes = null, array $options = []): array {
 		if (!$db) {
 			$db = $this->application->databaseRegistry();
 		}
 		if ($classes === null) {
 			$classes = $this->ormClasses();
 		} else {
-			$options['follow'] = toBool($options['follow'] ?? false);
+			$options['follow'] = Types::toBool($options['follow'] ?? false);
 		}
 		$logger = $this->application->logger;
 		$logger->debug('{method}: Synchronizing classes: {classes}', ['method' => __METHOD__, 'classes' => $classes, ]);
@@ -276,11 +299,6 @@ class Module extends BaseModule {
 		$follow = $options['follow'] ?? true;
 		while (count($classes) > 0) {
 			$class = array_shift($classes);
-			if (stripos($class, 'user_role')) {
-				$logger->debug('{method}: ORM map is: {map}', [
-					'method' => __METHOD__, 'map' => _dump($this->application->objects->mapping()), 'class' => $class,
-				]);
-			}
 			$resolved_class = $this->application->objects->resolve($class);
 			if ($resolved_class !== $class) {
 				$logger->debug('{resolved_class} resolved to {class}', [
@@ -298,16 +316,13 @@ class Module extends BaseModule {
 				$object = $this->application->ormRegistry($class);
 				$object_db_name = $object->database()->codeName();
 				$updates = Schema::update_object($object);
-			} catch (Exception_Class_NotFound $e) {
+			} catch (ClassNotFound) {
 				$logger->error('Unable to synchronize {class} because it can not be found', ['class' => $class, ]);
 				continue;
-			} catch (Database_Exception $e) {
-				$logger->error("Unable to synchronize {class} because of {exceptionClass} {message}\nTRACE: {trace}", [
-					'class' => $class, 'message' => $e->getMessage(), 'exception_class' => $e::class,
-					'trace' => $e->getTraceAsString(), 'exception' => $e,
-				]);
+			} catch (Exception $e) {
+				$message = 'Unable to synchronize {class} because of {throwableClass} {message}\nTRACE: {backtrace}';
 
-				throw $e;
+				throw new SchemaException($db, '', $message, Exception::exceptionVariables($e), $e->getCode(), $e);
 			}
 			if (count($updates) > 0) {
 				$updates = array_merge(["-- Synchronizing schema for class: $class", ], $updates);
@@ -349,10 +364,10 @@ class Module extends BaseModule {
 	 * @return array
 	 */
 	final public function ormClasses(): array {
-		if ($this->cached_classes === null) {
-			$this->cached_classes = $this->_classes();
+		if ($this->_cachedClasses === null) {
+			$this->_cachedClasses = $this->_classes();
 		}
-		return array_values($this->cached_classes);
+		return array_values($this->_cachedClasses);
 	}
 
 	/**
@@ -360,11 +375,11 @@ class Module extends BaseModule {
 	 * @param string|array $add List of classes to add
 	 */
 	final public function addORMClasses(string|array $add): self {
-		if ($this->cached_classes === null) {
-			$this->cached_classes = $this->_classes();
+		if ($this->_cachedClasses === null) {
+			$this->_cachedClasses = $this->_classes();
 		}
-		foreach (toList($add) as $class) {
-			$this->cached_classes[strtolower($class)] = $class;
+		foreach (Types::toList($add) as $class) {
+			$this->_cachedClasses[$class] = $class;
 		}
 		return $this;
 	}
@@ -376,11 +391,9 @@ class Module extends BaseModule {
 	 * @todo move ORM related to hooks
 	 *
 	 */
-	final public function all_classes() {
+	final public function allClasses(): array {
 		$classes = $this->ormClasses();
 		$objects_by_class = [];
-		$is_table = false;
-		$rows = [];
 		while (count($classes) > 0) {
 			$class = array_shift($classes);
 			if (array_key_exists($class, $objects_by_class)) {
@@ -394,7 +407,7 @@ class Module extends BaseModule {
 				$result['database'] = $object->databaseName();
 				$result['table'] = $object->table();
 				$result['class'] = $object::class;
-			} catch (\Exception $e) {
+			} catch (Throwable) {
 				$result['object'] = $object = null;
 			}
 			$objects_by_class[$class] = $result;
@@ -402,7 +415,6 @@ class Module extends BaseModule {
 				$dependencies = $object->dependencies();
 				if (is_array($dependencies['requires'] ?? null)) {
 					foreach ($dependencies['requires'] as $require) {
-						$require = strtolower($require);
 						if (array_key_exists($require, $objects_by_class)) {
 							continue;
 						}
@@ -433,9 +445,8 @@ class Module extends BaseModule {
 			$class = $class->class;
 		}
 		assert(is_string($class));
-		$low_class = strtolower($class);
-		if (array_key_exists($low_class, $this->class_cache)) {
-			unset($this->class_cache[$low_class]);
+		if (array_key_exists($class, $this->class_cache)) {
+			unset($this->class_cache[$class]);
 		}
 		return $this;
 	}
@@ -444,27 +455,23 @@ class Module extends BaseModule {
 	 * Retrieve object or classes from cache
 	 *
 	 * @param string $class
-	 * @return array
-	 */
-	/**
-	 * @param string $class
 	 * @param mixed|null $mixed
 	 * @param array $options
 	 * @return array
+	 * @throws ClassNotFound
 	 */
 	private function _classCache(string $class, mixed $mixed = null, array $options = []): array {
-		$low_class = strtolower($class);
-		if (!array_key_exists($low_class, $this->class_cache)) {
+		if (!array_key_exists($class, $this->class_cache)) {
 			$object = $this->modelFactory($class, $mixed, ['immutable' => true, ] + $options);
 			assert($object instanceof ORMBase);
 			$extras = ['keyed' => $object->hasPrimaryKeys(), 'generic' => count($options) === 0 && empty($mixed)];
-			$this->class_cache[$low_class] = [
+			$this->class_cache[$class] = [
 				'table' => $object->table(), 'dbname' => $object->databaseName(),
 				'database_name' => $object->databaseName(), 'object' => $object, 'class' => $object->class_orm(),
 				'id_column' => $object->idColumn(),
 			] + $extras;
 		}
-		return $this->class_cache[$low_class];
+		return $this->class_cache[$class];
 	}
 
 	/**
@@ -473,6 +480,7 @@ class Module extends BaseModule {
 	 * @param array $options
 	 * @param string $component
 	 * @return mixed
+	 * @throws ClassNotFound
 	 */
 	private function _classCacheComponent(string $class, mixed $mixed, array $options, string $component): mixed {
 		$result = $this->_classCache($class, $mixed, $options);
@@ -495,7 +503,7 @@ class Module extends BaseModule {
 	 * checking the database incessantly.
 	 */
 	public function cron_cluster_hour(Application $application): void {
-		if (!$this->application->development()) {
+		if (!$application->development()) {
 			$this->_schema_check();
 		}
 	}
@@ -505,14 +513,14 @@ class Module extends BaseModule {
 	 *
 	 * @todo some sort of communication, a hook?
 	 */
-	protected function _schema_check() {
+	protected function _schema_check(): array {
 		/* @var $application Application */
-		$results = $this->schema_synchronize();
+		$results = $this->schemaSynchronize();
 		if (count($results) === 0) {
-			return false;
+			return [];
 		}
 		$logger = $this->application->logger;
-		if ($this->optionBool('schema_sync')) {
+		if ($this->optionBool('schemaSynchronizeAutomatically')) {
 			$db = $this->application->databaseRegistry();
 			$logger->warning('The database schema was out of sync, updating: {sql}', ['sql' => implode(";\n", $results) . ";\n", ]);
 			$db->queries($results);
@@ -530,31 +538,24 @@ class Module extends BaseModule {
 	}
 
 	/**
-	 * Registry of settings, currently
-	 *
-	 * @var Settings[string]
-	 */
-	private $registry = [];
-
-	/**
 	 * Automatically set a SQL type for a database column if it just has a Class_Base::type_FOO set
 	 *
-	 * @param Database_Table $table
-	 * @param Database_Column $column
+	 * @param Table $table
+	 * @param Column $column
 	 */
-	public function database_table_add_column(Database_Table $table, Database_Column $column): void {
+	public function database_table_add_column(Table $table, Column $column): void {
 		if ($column->hasSQLType()) {
 			return;
 		}
 		$database = $table->database();
 		$code = strtolower($database->type());
-		if (!array_key_exists($code, $this->database_adapters)) {
+		if (!array_key_exists($code, $this->databaseAdapters)) {
 			$this->application->logger->error('{method} {table} {column} - no adapter for database {code}', [
 				'method' => __METHOD__, 'table' => $table, 'column' => $column, 'code' => $code,
 			]);
 			return;
 		}
-		$adapter = $this->database_adapters[$code];
+		$adapter = $this->databaseAdapters[$code];
 		$adapter->database_column_set_type($column);
 	}
 
@@ -565,6 +566,9 @@ class Module extends BaseModule {
 		$application = $this->application;
 		$server = $application->ormFactory(Server::class);
 		/* @var $server Server */
-		$server->bury_dead_servers();
+		try {
+			$server->buryDeadServers();
+		} catch (TimeoutExpired $e) {
+		}
 	}
 }

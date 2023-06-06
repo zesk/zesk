@@ -1,4 +1,5 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 namespace zesk\Preference\Preference\zesk\Preference;
 
 namespace zesk\Preference;

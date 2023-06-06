@@ -1,0 +1,9 @@
+INFO:  Search: Foo (3 characters)
+INFO: Replace: Blaze (5 characters)
+./test/test-data/cannon/foo.test: one match
+   5: This is line 5. It has the word Foo in it.
+                                      ^^^
+   5: This is line 5. It has the word Blaze in it.
+                                      ^^^^^
+INFO: files: 1
+      lines: 1

@@ -55,7 +55,7 @@ It will centrally log your deprecated calls in the `deprecated.log` so you can r
 
 ### `zesk\Kernel::DEPRECATED_EXCEPTION`
 
-Throw a `zesk\Exception_Deprecated` whenever a deprecated function is called. **Use only during development.** You may miss some issues when exceptions are caught and/or ignored. Useful if you are calling 3rd-party libraries which may use deprecated functionality and you need to know. This can cause a lot of strange errors in your code so switch to an alternate method if you find enabling this causes [WSOD][]s.
+Throw a `zesk\Deprecated` whenever a deprecated function is called. **Use only during development.** You may miss some issues when exceptions are caught and/or ignored. Useful if you are calling 3rd-party libraries which may use deprecated functionality and you need to know. This can cause a lot of strange errors in your code so switch to an alternate method if you find enabling this causes [WSOD][]s.
 
 ### `zesk\Kernel::DEPRECATED_BACKTRACE`
 

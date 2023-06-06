@@ -1,0 +1,12 @@
+{
+	"name": "Session",
+	"autoload": {
+		"classPrefix": "zesk\\Session\\",
+		"path": "zesk/Session/"
+	},
+	"moduleClass": "zesk\\Session\\Module",
+	"requires": [
+		"Doctrine"
+	],
+	"copyright": "Copyright &copy; 2023, Market Acumen, Inc."
+}

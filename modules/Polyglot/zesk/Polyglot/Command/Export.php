@@ -6,9 +6,9 @@ declare(strict_types=1);
 
 namespace zesk\Polyglot\Command;
 
-use zesk\Locale\Reader as LocaleReader;
-use zesk\Command_Base;
+use zesk\Command\SimpleCommand;
 use zesk\CSV\Writer as CSV_Writer;
+use zesk\Locale\Reader as LocaleReader;
 use zesk\Polyglot\Module;
 use zesk\Polyglot\Token;
 
@@ -17,7 +17,7 @@ use zesk\Polyglot\Token;
  * @author kent
  *
  */
-class Export extends Command_Base {
+class Export extends SimpleCommand {
 	protected array $shortcuts = ['polyglot-export'];
 
 	public array $option_types = [
@@ -46,7 +46,7 @@ class Export extends Command_Base {
 		$source_locale = $this->application->load($source_language_file) + LocaleReader::factory($this->application->localePath(), 'en_US')->execute();
 		$csv = new CSV_Writer();
 		$csv->setFile($destination);
-		$csv->set_headers([
+		$csv->setHeaders([
 			'phrase', 'translation',
 		]);
 		$n_excluded = $n_written = 0;

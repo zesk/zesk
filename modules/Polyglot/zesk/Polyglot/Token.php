@@ -1,4 +1,5 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * @author kent
  * @package zesk/modules
@@ -8,16 +9,12 @@
 namespace zesk\Polyglot;
 
 use zesk\Application;
-use zesk\Database_Exception_Duplicate;
-use zesk\Database_Exception_NoResults;
-use zesk\Database_Exception_Table_NotFound;
-use zesk\Exception_Configuration;
-use zesk\Exception_Key;
-use zesk\Exception_Semantics;
-use zesk\Locale;
+use zesk\Exception\ConfigurationException;
+use zesk\Exception\KeyNotFound;
+use zesk\Exception\Semantics;
+use zesk\Locale\Locale;
 use zesk\Locale\Validate;
-use zesk\ORM\Database_Query_Select;
-use zesk\ORM\Exception_ORMNotFound;
+use zesk\ORM\Exception\ORMNotFound;
 use zesk\ORM\JSONWalker;
 use zesk\ORM\ORMBase;
 use zesk\ORM\User;
@@ -108,7 +105,7 @@ class Token extends ORMBase {
 			try {
 				$request = $this->application->request();
 				$this->user = $this->application->user($request);
-			} catch (Exception_Semantics) {
+			} catch (Semantics) {
 			}
 		}
 		if ($this->memberIsEmpty('context')) {
@@ -154,7 +151,7 @@ class Token extends ORMBase {
 	 * @param string $language
 	 * @param string $dialect
 	 * @return array
-	 * @throws Exception_ORMNotFound
+	 * @throws ORMNotFound
 	 */
 	public static function fetchAll(Application $app, string $language, string $dialect = ''): array {
 		$where = [
@@ -199,15 +196,15 @@ class Token extends ORMBase {
 	 * @param Application $application
 	 * @param string $locale
 	 * @return Database_Query_Select
-	 * @throws Exception_ORMNotFound
+	 * @throws ORMNotFound
 	 */
 	public static function localeQuery(Application $application, string $locale): Database_Query_Select {
 		return $application->ormRegistry(__CLASS__)
 			->querySelect()
 			->ormWhat()
 			->appendWhere([
-				'dialect' => Locale::parse_dialect($locale),
-				'language' => Locale::parse_language($locale),
+				'dialect' => Locale::parseDialect($locale),
+				'language' => Locale::parseLanguage($locale),
 			]);
 	}
 
@@ -230,11 +227,11 @@ class Token extends ORMBase {
 	 * leave it here for now in case it's relevant in the future.
 	 *
 	 * @param Application $app
-	 * @throws Exception_Semantics
-	 * @throws Database_Exception_Duplicate
-	 * @throws Database_Exception_NoResults
-	 * @throws Database_Exception_Table_NotFound
-	 * @throws Exception_Key
+	 * @throws Semantics
+	 * @throws Database\Exception\Duplicate
+	 * @throws Database\Exception\NoResults
+	 * @throws Database\Exception\TableNotFound
+	 * @throws KeyNotFound
 	 */
 	public static function htmlentities_all(Application $app): void {
 		$iterator = $app->ormRegistry(__CLASS__)
@@ -264,7 +261,7 @@ class Token extends ORMBase {
 	/**
 	 *
 	 * @return array
-	 * @throws Exception_Configuration
+	 * @throws ConfigurationException
 	 */
 	public function validate(): array {
 		return $this->validator->checkTranslation($this->original, $this->translation);

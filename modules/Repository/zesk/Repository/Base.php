@@ -11,10 +11,11 @@ namespace zesk\Repository;
 
 use zesk\Application;
 use zesk\Directory;
-use zesk\Exception_Class_NotFound;
-use zesk\Exception_NotFound;
-use zesk\Exception_Semantics;
-use zesk\Exception_Syntax;
+use zesk\Doctrine\Command\Command;
+use zesk\Exception\ClassNotFound;
+use zesk\Exception\NotFoundException;
+use zesk\Exception\Semantics;
+use zesk\Exception\SyntaxException;
 use zesk\Hookable;
 use zesk\URL;
 
@@ -181,11 +182,11 @@ abstract class Base extends Hookable {
 	 *
 	 * @param string $suffix
 	 * @return string
-	 * @throws Exception_Semantics
+	 * @throws Semantics
 	 */
 	public function path(string $suffix = ''): string {
 		if (!$this->path) {
-			throw new Exception_Semantics('Need to set the path before using path call');
+			throw new Semantics('Need to set the path before using path call');
 		}
 		return path($this->path, $suffix);
 	}
@@ -195,7 +196,7 @@ abstract class Base extends Hookable {
 	 *
 	 * @param string $target
 	 * @return string
-	 * @throws Exception_Semantics
+	 * @throws Semantics
 	 */
 	protected function resolve_target(string $target = ''): string {
 		if (empty($target)) {
@@ -204,7 +205,7 @@ abstract class Base extends Hookable {
 		$final_path = Directory::isAbsolute($target) ? $target : $this->path($target);
 		$final_path = realpath($final_path);
 		if (!str_starts_with($this->path, $final_path)) {
-			throw new Exception_Semantics('Passed absolute path {target} (-> {final_path}) must be a subdirectory of {path}', [
+			throw new Semantics('Passed absolute path {target} (-> {final_path}) must be a subdirectory of {path}', [
 				'target' => $target, 'final_path' => $final_path, 'path' => $final_path,
 			]);
 		}
@@ -242,7 +243,7 @@ abstract class Base extends Hookable {
 	 * @param string|null $root
 	 * @param array $options
 	 * @return Base
-	 * @throws Exception_NotFound
+	 * @throws NotFoundException
 	 */
 	public static function factory(Application $application, string $type, string $root = null, array $options = []):
 	Base {
@@ -253,8 +254,8 @@ abstract class Base extends Hookable {
 			$object = $application->objects->factory($class, $application, $root, $options);
 			assert($object instanceof Base);
 			return $object;
-		} catch (Exception_Class_NotFound $e) {
-			throw new Exception_NotFound('{class} not found', ['class' => $class], 0, $e);
+		} catch (ClassNotFound $e) {
+			throw new NotFoundException('{class} not found', ['class' => $class], 0, $e);
 		}
 	}
 
@@ -273,12 +274,12 @@ abstract class Base extends Hookable {
 	 *
 	 * @param string $set
 	 * @return self
-	 * @throws Exception_Syntax
+	 * @throws SyntaxException
 	 */
 	public function setURL(string $set): self {
 		$set = URL::normalize($set);
 		if (!$this->validate_url($set)) {
-			throw new Exception_Syntax('Not a valid URL {url}', [
+			throw new SyntaxException('Not a valid URL {url}', [
 				'url' => $set,
 			]);
 		}
@@ -290,14 +291,14 @@ abstract class Base extends Hookable {
 	 * Setter/getter for the repository URL. Changing the URL does not update anything until update.
 	 *
 	 * @return string
-	 * @throws Exception_Semantics
+	 * @throws Semantics
 	 */
 	public function url(): string {
 		if ($this->url) {
 			return $this->url;
 		}
 		if (!$this->validate()) {
-			throw new Exception_Semantics('No repository configured, must manually set URL before calling {method}', [
+			throw new Semantics('No repository configured, must manually set URL before calling {method}', [
 				'method' => __METHOD__,
 			]);
 		}

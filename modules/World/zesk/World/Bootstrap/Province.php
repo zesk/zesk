@@ -1,6 +1,5 @@
 <?php
 declare(strict_types=1);
-
 /**
  * @package zesk
  * @subpackage system
@@ -13,8 +12,8 @@ namespace zesk\World;
 use zesk\Application;
 use zesk\ArrayTools;
 use zesk\Hookable;
-use zesk\ORM\Exception_ORMEmpty;
-use zesk\ORM\Exception_ORMNotFound;
+use zesk\ORM\ORMEmpty;
+use zesk\ORM\ORMNotFound;
 
 /**
  * ProvinceCode registers US State/Provinces.
@@ -74,22 +73,22 @@ class Bootstrap_Province extends Hookable {
 	/**
 	 * @param string $countryCode
 	 * @return Country
-	 * @throws Exception_ORMNotFound
+	 * @throws ORMNotFound
 	 */
 	private function findCountry(string $countryCode): Country {
 		try {
 			$country = $this->application->ormFactory(Country::class, [
 				Country::MEMBER_CODE => $countryCode,
 			])->find();
-		} catch (Exception_ORMEmpty $e) {
-			throw new Exception_ORMNotFound(Country::class, $e->getRawMessage(), $e->variables(), $e);
+		} catch (ORMEmpty $e) {
+			throw new ORMNotFound(Country::class, $e->getRawMessage(), $e->variables(), $e);
 		}
 		assert($country instanceof Country);
 		return $country;
 	}
 
 	/**
-	 * @throws Exception_ORMNotFound
+	 * @throws ORMNotFound
 	 */
 	public function bootstrap(): void {
 		$application = $this->application;

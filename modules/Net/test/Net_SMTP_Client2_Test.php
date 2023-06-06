@@ -1,16 +1,18 @@
-<?php declare(strict_types=1);
-
+<?php
+declare(strict_types=1);
 /**
  *
  */
 namespace zesk;
+
+use zesk\PHPUnit\TestCase;
 
 /**
  *
  * @author kent
  *
  */
-class Net_SMTP_Client2_Test extends UnitTest {
+class Net_SMTP_Client2_Test extends TestCase {
 	private string $url;
 
 	public function test_outgoing_requirements(): void {
@@ -24,8 +26,8 @@ class Net_SMTP_Client2_Test extends UnitTest {
 
 	/**
 	 * @return void
-	 * @throws Exception_Connect
-	 * @throws Exception_Syntax
+	 * @throws ConnectionFailed
+	 * @throws SyntaxException
 	 * @depends test_outgoing_requirements
 	 */
 	public function test_Net_SMTP_Client(): void {

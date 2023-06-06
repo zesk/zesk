@@ -1,8 +1,10 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
+
 namespace zesk;
 
-/* @var $this Template */
-/* @var $locale \zesk\Locale */
+/* @var $this Theme */
+/* @var $locale Locale\Locale */
 /* @var $application Application */
 /* @var $route Route */
 /* @var $request Request */
@@ -11,7 +13,7 @@ namespace zesk;
 // Setup
 $application->hooks->call('page.tpl', $this);
 
-$wrap_html = $response->content_type === Response::CONTENT_TYPE_HTML;
+$wrap_html = $response->contentType() === Response::CONTENT_TYPE_HTML;
 $page_template = $response->option('theme', 'Response/HTML');
 if (isset($route) && $route instanceof Route) {
 	$wrap_html = $response->optionBool('wrap_html', $route->optionBool('wrap_html', $wrap_html));
@@ -19,9 +21,9 @@ if (isset($route) && $route instanceof Route) {
 }
 // Output
 if ($wrap_html && $page_template) {
-	echo $this->theme($page_template);
+	echo $this->theme($page_template, ['content' => $this->getString('content')]);
 } else {
-	echo $this->content;
+	echo $this->getString('content');
 }
 
 $application->hooks->call('page.tpl-exit', $this);

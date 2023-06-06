@@ -2,7 +2,7 @@
 	"name": "Job",
 	"description": "Run background tasks which take a long time in a uniform manner.",
 	"requires": [
-		"ORM",
+		"Doctrine",
 		"Daemon"
 	],
 	"autoload": {

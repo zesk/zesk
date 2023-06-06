@@ -1,4 +1,5 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage GitHub
@@ -9,10 +10,10 @@
 namespace zesk\GitHub;
 
 use Throwable;
-use zesk\Command_Base;
+use zesk\Command\SimpleCommand;
 use zesk\Exception;
-use zesk\Exception_File_NotFound;
-use zesk\Exception_NotFound;
+use zesk\Exception\FileNotFound;
+use zesk\Exception\NotFoundException;
 use zesk\File;
 
 /**
@@ -20,7 +21,7 @@ use zesk\File;
  * @author kent
  *
  */
-class Command extends Command_Base {
+class Command extends SimpleCommand {
 	protected array $shortcuts = ['github'];
 
 	/**
@@ -43,7 +44,7 @@ class Command extends Command_Base {
 	 *
 	 * @var array
 	 */
-	protected array $option_defaults = [
+	protected array $options = [
 		'description' => 'Release of version {version}.',
 		'commitish' => 'master',
 	];
@@ -88,7 +89,7 @@ class Command extends Command_Base {
 
 		try {
 			$description = File::contents($file);
-		} catch (Exception_File_NotFound) {
+		} catch (FileNotFound) {
 			$description = $this->option(self::OPTION_DESCRIPTION);
 		}
 		if (!$description) {
@@ -100,11 +101,11 @@ class Command extends Command_Base {
 		try {
 			/* @var $github Module */
 			$github = $this->application->modules->object('GitHub');
-			if ($github->generate_tag('v' . $this->application->version(), $this->option('commitish'), $description)) {
+			if ($github->generateTag('v' . $this->application->version(), $this->option('commitish'), $description)) {
 				return 0;
 			}
 			return self::EXIT_CODE_TAG_FAILED;
-		} catch (Exception_NotFound $not_found) {
+		} catch (NotFoundException $not_found) {
 			$this->error('Running {this_class} but GitHub module not loaded.', [
 				'this_class' => get_class($this),
 			]);

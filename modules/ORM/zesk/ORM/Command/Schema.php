@@ -1,13 +1,15 @@
-<?php declare(strict_types=1);
-
+<?php
+declare(strict_types=1);
 /**
  *
  */
-namespace zesk\ORM;
+namespace zesk\ORM\Command;
 
 use zesk\ArrayTools;
-use zesk\Command_Base;
+use zesk\Command\SimpleCommand;
+use zesk\Doctrine\Command\Command;
 use zesk\Exception;
+use zesk\ORM\ORMBase;
 use zesk\URL;
 
 /**
@@ -17,7 +19,7 @@ use zesk\URL;
  *
  * @category Database
  */
-class Command_Schema extends Command_Base {
+class Schema extends SimpleCommand {
 	/**
 	 *
 	 * @var array
@@ -145,14 +147,6 @@ class Command_Schema extends Command_Base {
 	}
 
 	/**
-	 * @return void
-	 */
-	protected function initialize(): void {
-		parent::initialize();
-		$this->application->registerClass(Schema_File::class);
-	}
-
-	/**
 	 *
 	 * {@inheritdoc}
 	 *
@@ -162,7 +156,7 @@ class Command_Schema extends Command_Base {
 		$application = $this->application;
 
 		if ($this->optionBool('debug')) {
-			Schema::$debug = true;
+			\zesk\ORM\Schema::setSchemaDebugging($this->application, true);
 		}
 		$url = '';
 		if ($this->hasOption('url')) {
@@ -182,7 +176,7 @@ class Command_Schema extends Command_Base {
 		$this->synchronize_before();
 
 		$database = $application->databaseRegistry($url);
-		$this->results = $results = $application->ormModule()->schema_synchronize($database, $classes, [
+		$this->results = $results = $application->ormModule()->schemaSynchronize($database, $classes, [
 			'skip_others' => true,
 			'check' => $this->optionBool('check'),
 		]);

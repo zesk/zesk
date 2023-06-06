@@ -89,7 +89,7 @@ For example, a very simple command which loads modules could be saved to `$ZESK_
 	<?php
 	function zesk_command_module(array $arguments) {
 		if (count($arguments) === 0) {
-			throw new Exception_Parameter("Need at least one module to load");
+			throw new ParameterException("Need at least one module to load");
 		}
 		$module = array_shift($arguments);
 		zesk::module($module);

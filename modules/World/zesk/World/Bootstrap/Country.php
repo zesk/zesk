@@ -1,4 +1,5 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 
 /**
  * @package zesk
@@ -10,9 +11,11 @@ namespace zesk\World;
 
 use zesk\Application;
 use zesk\ArrayTools;
+use zesk\Exception\DirectoryNotFound;
+use zesk\Exception\FilePermission;
+use zesk\Exception\NotFoundException;
 use zesk\Hookable;
 use zesk\Net\Sync;
-use zesk\StringTools;
 
 /**
  *
@@ -84,12 +87,14 @@ class Bootstrap_Country extends Hookable {
 	 *
 	 * @param Application $application
 	 * @return array
-	 * @throws \zesk\Exception_NotFound
+	 * @throws DirectoryNotFound
+	 * @throws FilePermission
+	 * @throws NotFoundException
 	 */
 	private function load_countryinfo(Application $application): array {
 		$world_path = $application->modules->path('world');
 		$file = $this->option('geonames_country_cache_file', path($world_path, 'bootstrap-data/countryinfo.txt'));
-		Sync::url_to_file($application, self::url_geonames_country_file, $file, [
+		Sync::urlToFile($application, self::url_geonames_country_file, $file, [
 			'time_to_live' => $this->option('geonames_time_to_live', 86400 * 30),
 		]);
 		$fp = fopen($file, 'rb');

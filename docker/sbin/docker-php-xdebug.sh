@@ -14,3 +14,4 @@ pear config-set php_ini "$ini_path"
 
 echo "Installing xdebug ..."
 pecl install xdebug
+docker-php-ext-enable xdebug

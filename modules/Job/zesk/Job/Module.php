@@ -1,24 +1,24 @@
-<?php declare(strict_types=1);
-
+<?php
+declare(strict_types=1);
 /**
  *
  */
 namespace zesk\Job;
 
-use zesk\Exception_Unimplemented;
+use zesk\Exception\Unimplemented;
+use zesk\Interface\Module\Routes;
+use zesk\Interface\SystemProcess;
 use zesk\PHP;
 use zesk\Router;
-use zesk\Interface_Process;
 use zesk\MockProcess;
 use zesk\Module as BaseModule;
-use zesk\Interface_Module_Routes;
 
 /**
  * Job module for running background jobs in a somewhat reliable manner
  *
  * @author kent
  */
-class Module extends BaseModule implements Interface_Module_Routes {
+class Module extends BaseModule implements Routes {
 	/**
 	 *
 	 * @var array
@@ -36,7 +36,7 @@ class Module extends BaseModule implements Interface_Module_Routes {
 
 		try {
 			PHP::setFeature(PHP::FEATURE_TIME_LIMIT, $quit_after);
-		} catch (Exception_Unimplemented $e) {
+		} catch (Unimplemented $e) {
 			$this->application->logger->debug(PHP::FEATURE_TIME_LIMIT . ' reported as {message}', $e->variables());
 		}
 		$process = new MockProcess($application, [
@@ -48,9 +48,9 @@ class Module extends BaseModule implements Interface_Module_Routes {
 	/**
 	 * Run daemon
 	 *
-	 * @param Interface_Process $process
+	 * @param SystemProcess $process
 	 */
-	private function runDaemon(Interface_Process $process): void {
+	private function runDaemon(SystemProcess $process): void {
 		$has_hook = $this->hasHook('wait_for_job');
 		$seconds = $this->option('execute_jobs_wait', 10);
 		$app = $process->application();
@@ -76,9 +76,9 @@ class Module extends BaseModule implements Interface_Module_Routes {
 	/**
 	 * Daemon hook
 	 *
-	 * @param Interface_Process $process
+	 * @param SystemProcess $process
 	 */
-	public static function daemon(Interface_Process $process): void {
+	public static function daemon(SystemProcess $process): void {
 		$application = $process->application();
 		$module = $application->jobModule();
 		$module->runDaemon($process);
@@ -87,7 +87,7 @@ class Module extends BaseModule implements Interface_Module_Routes {
 	/**
 	 * Add routes to Router
 	 **
-	 * @see Interface_Module_Routes::hook_routes()
+	 * @see Routes::hook_routes()
 	 */
 	public function hook_routes(Router $router): void {
 		$router->addRoute('job/{zesk\\Job job}(/{option action})', [

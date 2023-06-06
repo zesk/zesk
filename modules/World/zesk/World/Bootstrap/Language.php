@@ -1,4 +1,5 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage default
@@ -42,7 +43,7 @@ class Bootstrap_Language extends Hookable {
 		$this->inheritConfiguration(Module::class);
 		$include_language = $this->option('include_language');
 		if ($include_language) {
-			$this->include_language = array_change_key_case(ArrayTools::keysFromValues(to_list($include_language), true));
+			$this->include_language = array_change_key_case(ArrayTools::keysFromValues(toList($include_language), true));
 		}
 	}
 

@@ -40,7 +40,7 @@ Usage with named arguments:
 
 	zesk()->process->execute("ls -laF {dir} > {target}", array("dir" => $directory, "target" => $target_file));
 
-If the command returns a non-zero result, `zesk\Exception_Command` is thrown and the available output and return status is included within that exception. Otherwise returns the output of the command, which may be blank.
+If the command returns a non-zero result, `zesk\CommandFailed` is thrown and the available output and return status is included within that exception. Otherwise returns the output of the command, which may be blank.
 
 Calling functions can assume the process execution was successful if no exception is thrown.
 	
@@ -52,13 +52,10 @@ Usage with named arguments:
 
 	zesk()->process->execute_arguments("ls -laF {dir} > {target}", array("dir" => $directory, "target" => $target_file));
 
-If the command returns a non-zero result, `zesk\Exception_Command` is thrown and the available output and return status is included within that exception. Otherwise returns the output of the command, which may be blank.
+If the command returns a non-zero result, `zesk\CommandFailed` is thrown and the available output and return status is included within that exception. Otherwise returns the output of the command, which may be blank.
 
 Calling functions can assume the process execution was successful if no exception is thrown.
 
 ## Logging
 
 ## State
-
-
-

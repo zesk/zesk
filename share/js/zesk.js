@@ -236,7 +236,7 @@
 
 	function object_path(object, path, def) {
 		var curr = object, k;
-		path = to_list(path, [], ".");
+		path = toList(path, [], ".");
 		for (k = 0; k < path.length; k++) {
 			if (k === path.length - 1) {
 				return curr[path[k]] || null;
@@ -254,7 +254,7 @@
 
 	function object_set_path(object, path, value) {
 		var curr = object, k, seg;
-		path = to_list(path, [], ".");
+		path = toList(path, [], ".");
 		for (k = 0; k < path.length; k++) {
 			seg = path[k];
 			if (typeof curr[seg] === "object") {
@@ -275,7 +275,7 @@
 
 	function hook_path(hook) {
 		hook = String(hook).toLowerCase();
-		hook = to_list(hook, [], "::");
+		hook = toList(hook, [], "::");
 		if (hook.length === 1) {
 			hook.push("*");
 		}
@@ -927,7 +927,7 @@
 		return d;
 	};
 
-	function to_list(x, def, delim) {
+	function toList(x, def, delim) {
 		def = def || [];
 		delim = delim || ".";
 		if (is_array(x)) {

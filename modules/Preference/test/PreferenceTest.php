@@ -6,8 +6,8 @@ declare(strict_types=1);
 
 namespace zesk\Preference;
 
-use zesk\Exception_Parameter;
-use zesk\ORM\Exception_ORMNotFound;
+use zesk\Exception\ParameterException;
+use zesk\ORM\ORMNotFound;
 use zesk\ORM\ORMUnitTest;
 use zesk\ORM\User;
 
@@ -18,7 +18,7 @@ use zesk\ORM\User;
  */
 class PreferenceTest extends ORMUnitTest {
 	protected array $load_modules = [
-		'Preference', 'MySQL',
+		'Preference',
 	];
 
 	protected function initialize(): void {
@@ -46,6 +46,7 @@ class PreferenceTest extends ORMUnitTest {
 	}
 
 	public function test_ORMClass(): void {
+		$this->truncateClassTables(Value::class);
 		$this->assertORMClass(Value::class, [
 			'user' => $this->validUser(), 'type' => Type::registerName($this->application, $this->randomHex(8)),
 		]);
@@ -55,7 +56,7 @@ class PreferenceTest extends ORMUnitTest {
 	 *
 	 */
 	public function test_get_blank(): void {
-		$this->expectException(Exception_Parameter::class);
+		$this->expectException(ParameterException::class);
 		$user = $this->emptyUser();
 		Value::userGet($user, '');
 	}
@@ -86,12 +87,12 @@ class PreferenceTest extends ORMUnitTest {
 		$result = $pref->find();
 		$this->assertEquals($result, $pref);
 		$this->assertInstanceOf(Value::class, $result);
-		$this->assertORMObject($pref);
 
 		$result = $this->application->ormRegistry($preference_class)->queryDelete()->addWhere('user', $user->id())->execute();
 		$this->log('Deleted {n} rows from {class}', [
 			'n' => $result->affectedRows(), 'class' => $preference_class,
 		]);
+		$this->assertORMObject($pref);
 	}
 
 	public function test_missing(): void {
@@ -99,7 +100,7 @@ class PreferenceTest extends ORMUnitTest {
 		$name = '-missing-';
 		$this->assertFalse(Value::userHas($user, $name));
 
-		$this->expectException(Exception_ORMNotFound::class);
+		$this->expectException(ORMNotFound::class);
 		Value::userGet($user, $name);
 	}
 }

@@ -1,4 +1,5 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage theme
@@ -7,7 +8,9 @@
  */
 namespace zesk;
 
-/* @var $this Template */
+use zesk\Locale\Locale;
+
+/* @var $this Theme */
 /* @var $application Application */
 $decimals = $this->getFirst('1;decimals');
 if ($decimals === null) {

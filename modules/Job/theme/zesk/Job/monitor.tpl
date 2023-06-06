@@ -5,12 +5,12 @@ namespace zesk\Job;
 use zesk\Response;
 use zesk\HTML;
 use zesk\Application;
-use zesk\Template;
+use zesk\Theme;
 
 /* @var $object Job */
 /* @var $response Response */
 /* @var $application Application */
-/* @var $this Template */
+/* @var $this Theme */
 $job = $object;
 
 $locale = $application->locale;

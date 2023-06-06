@@ -1,16 +1,17 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
+
 use zesk\HTML;
 use zesk\Timestamp;
 
-/* @var $this \zesk\Template */
-/* @var $locale \zesk\Locale */
+/* @var $this \zesk\Theme */
+/* @var $locale \zesk\Locale\Locale */
 /* @var $application \zesk\Application */
 /* @var $session \zesk\Session */
 /* @var $router \zesk\Router */
 /* @var $route \zesk\Route */
 /* @var $request \zesk\Request */
 /* @var $response \zesk\Response */
-/* @var $current_user \User */
 /* @var $module_class string */
 $service = $application->settings_registry();
 
