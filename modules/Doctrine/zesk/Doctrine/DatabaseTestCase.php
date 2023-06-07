@@ -47,6 +47,7 @@ class DatabaseTestCase extends TestCase {
 	public function entityTable(string $entity): string {
 		return $this->em->getClassMetadata($entity)->getTableName();
 	}
+
 	/**
 	 * @return EntityManager
 	 * @deprecated 2023-04

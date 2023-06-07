@@ -9,6 +9,7 @@ use zesk\Doctrine\ModelTestCase;
 
 class LockTest extends ModelTestCase {
 	public array $entities = [Lock::class];
+
 	public function test_Lock(): void {
 		$lock = Lock::instance($this->application, __METHOD__);
 

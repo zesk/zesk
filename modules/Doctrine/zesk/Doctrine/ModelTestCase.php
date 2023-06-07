@@ -14,7 +14,6 @@ namespace zesk\Doctrine;
 use Doctrine\Persistence\ObjectRepository;
 
 class ModelTestCase extends DatabaseTestCase {
-
 	protected array $entities = [];
 
 	public function initialize(): void {
