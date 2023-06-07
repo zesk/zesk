@@ -10,8 +10,8 @@ namespace zesk\Polyglot;
 
 use Throwable;
 use zesk\Application;
-use zesk\Database\Exception\SQLException;
 use zesk\Directory;
+use zesk\Doctrine\Model;
 use zesk\Exception\ClassNotFound;
 use zesk\Exception\ConfigurationException;
 use zesk\Exception\FileLocked;
@@ -25,14 +25,6 @@ use zesk\Exception\ParseException;
 use zesk\Exception\Semantics;
 use zesk\File;
 use zesk\Locale\Locale;
-use zesk\ORM\Lock;
-use zesk\ORM\ORMBase;
-use zesk\ORM\Exception\ORMDuplicate;
-use zesk\ORM\Exception\ORMEmpty;
-use zesk\ORM\Exception\ORMNotFound;
-use zesk\ORM\Server;
-use zesk\ORM\Exception\StoreException;
-use zesk\ORM\User;
 use zesk\PHP;
 use zesk\Exception\TimeoutExpired;
 use zesk\Timestamp;
@@ -44,7 +36,7 @@ use zesk\Timestamp;
  * @property User $user
  * @property Timestamp $updated
  */
-class Update extends ORMBase {
+class Update extends Model {
 	/**
 	 * @param Application $application
 	 * @param string $locale
@@ -77,6 +69,11 @@ class Update extends ORMBase {
 		$object->updated = 'now';
 		return $object->store();
 	}
+
+	/**
+	 *
+	 */
+	public const HOOK_UPDATE = __CLASS__ . '::update';
 
 	/**
 	 *
@@ -168,7 +165,7 @@ class Update extends ORMBase {
 			$server->setMeta($server_variable_name, time());
 		}
 		$lock->release();
-		$application->callHook('polyglot_update');
+		$application->invokeHook(self::HOOK_UPDATE);
 	}
 
 	/**

@@ -62,20 +62,17 @@ class Hookable extends Options {
 	}
 
 	/**
-	 * New attribute-based method
+	 * Finds static methods in any object in the system with the class attribute attached
 	 *
 	 * @param Hookable $hookable
 	 * @param string $attributeClassName
 	 * @return array:HookableAttribute
 	 */
-	public static function findMethodsWithAttributes(Hookable $hookable, string $attributeClassName, bool $staticOnly = false): array {
+	public static function staticAttributeMethods(Hookable $hookable, string $attributeClassName): array {
 		$app = $hookable->application;
 		self::loadApplication($app);
 		$results = [];
-		$flags = ReflectionMethod::IS_PUBLIC;
-		if ($staticOnly) {
-			$flags |= ReflectionMethod::IS_STATIC;
-		}
+		$flags = ReflectionMethod::IS_PUBLIC | ReflectionMethod::IS_STATIC;
 		foreach ($app->classes->subclasses(self::class) as $className) {
 			try {
 				$reflectionClass = new ReflectionClass($className);
@@ -95,12 +92,146 @@ class Hookable extends Options {
 	}
 
 	/**
-	 * @param Hookable $hookable
-	 * @param string $name
+	 * Finds methods in this object with the attribute annotation of class
+	 *
+	 * @param string $attributeClassName
 	 * @return array:HookableAttribute
 	 */
-	public static function findHooksFor(Hookable $hookable, string $name, bool $staticOnly = false): array {
-		return array_filter(self::findMethodsWithAttributes($hookable, HookMethod::class, $staticOnly), fn (HookMethod $method) => $method->handles === $name);
+	public function attributeMethods(string $attributeClassName): array {
+		$reflection = new ReflectionClass($this);
+		$flags = ReflectionMethod::IS_PROTECTED | ReflectionMethod::IS_PUBLIC;
+		$attributes = [];
+		foreach ($reflection->getMethods($flags) as $method) {
+			foreach ($method->getAttributes($attributeClassName) as $reflectionAttribute) {
+				$attribute = $reflectionAttribute->newInstance();
+				assert($attribute instanceof HookableAttribute);
+				$attribute->setMethod($method);
+				$attributes[] = $attribute;
+			}
+		}
+		return $attributes;
+	}
+
+	/**
+	 * Find methods in this object with a HookMethod attached with the name $hookName
+	 *
+	 * @param string $hookName
+	 * @return array:HookMethod
+	 */
+	public function hookMethods(string $hookName): array {
+		return array_filter($this->attributeMethods(HookMethod::class), fn(HookMethod $method) => $method->handlesHook($hookName));
+	}
+
+	/**
+	 * Run static hooks and object hooks
+	 *
+	 * @param string $hookName
+	 * @param array $arguments
+	 * @return void
+	 */
+	public function invokeHook(string $hookName, array $arguments = []): void {
+		$hooks = array_merge(self::staticHooksFor($this, $hookName, true), self::applicationHooksFor($this, $hookName));
+		foreach ($hooks as $method) {
+			$method->run($arguments);
+		}
+	}
+
+	/**
+	 * Finds the global hooks attached to objects in the application with $hookName
+	 *
+	 * @param Hookable $hookable
+	 * @param string $hookName
+	 * @return array:HookMethod
+	 */
+	public static function applicationHooksFor(Hookable $hookable, string $hookName): array {
+		$hookMethods = [];
+		foreach ($hookable->hookables() as $hookable) {
+			/* @var $hookable Hookable */
+			foreach ($hookable->hookMethods($hookName) as $hookMethod) {
+				/* @var $hookMethod HookMethod */
+				$hookMethod->setObject($hookable);
+				$hookMethods[] = $hookMethod;
+			}
+		}
+		return $hookMethods;
+	}
+
+	/**
+	 * @param string $hookName
+	 * @param mixed $mixed
+	 * @param array $arguments
+	 * @param int $filterArgumentIndex
+	 * @return mixed
+	 * @throws ParameterException
+	 * @throws ReflectionException
+	 */
+	public function invokeFilter(string $hookName, mixed $mixed, array $arguments = [], int $filterArgumentIndex = -1): mixed {
+		$hooks = array_merge(self::staticHooksFor($this, $hookName), self::applicationHooksFor($this, $hookName));
+		if ($filterArgumentIndex < 0) {
+			$filterArgumentIndex = count($arguments);
+		}
+		foreach ($hooks as $method) {
+			/* @var $method HookMethod */
+			$arguments[$filterArgumentIndex] = $mixed;
+			$mixed = $method->run($arguments);
+		}
+		return $mixed;
+	}
+
+	/**
+	 * @param string $hookName
+	 * @param mixed $mixed
+	 * @param array $arguments
+	 * @param int $filterArgumentIndex
+	 * @return mixed
+	 * @throws ParameterException
+	 * @throws ReflectionException
+	 */
+	public function invokeTypedFilter(string $hookName, mixed $mixed, array $arguments = [], int $filterArgumentIndex = -1): mixed {
+		$type = Types::type($mixed);
+		$hooks = array_merge(self::staticHooksFor($this, $hookName), self::applicationHooksFor($this, $hookName));
+		if ($filterArgumentIndex < 0) {
+			$filterArgumentIndex = count($arguments);
+		}
+		foreach ($hooks as $index => $method) {
+			/* @var $method HookMethod */
+			$arguments[$filterArgumentIndex] = $mixed;
+			$mixed = $method->run($arguments);
+			if (Types::type($mixed) !== $type) {
+				throw new RuntimeException('{hookName} failed on step {index} with mismatched type expected {type} !== actual {actual}. Method name is {name}', [
+					'hookName' => $hookName, 'index' => $index, 'type' => $type, 'actual' => Types::type($mixed),
+					'name' => $method->name(),
+				]);
+			}
+		}
+		return $mixed;
+	}
+
+	/**
+	 * List of application hookables which is, in order:
+	 *
+	 * - the application object
+	 * - the application modules manager
+	 * - the locale
+	 * - the router
+	 * - all modules
+	 * - any hookables in $application->objects
+	 *
+	 * @return array:self
+	 */
+	final public function hookables(): array {
+		return array_merge([
+			$this->application, $this->application->modules, $this->application->locale, $this->application->router,
+		], $this->application->modules->all(), $this->application->objects->hookables());
+	}
+
+	/**
+	 * @param Hookable $hookable
+	 * @param string $name
+	 * @return array:HookMethod
+	 */
+	public static function staticHooksFor(Hookable $hookable, string $name): array {
+		return array_filter(self::staticAttributeMethods($hookable, HookMethod::class), fn(HookMethod $method) => $method->handlesHook($name));
 	}
 
 	/**
@@ -128,6 +259,7 @@ class Hookable extends Options {
 	 *
 	 * @param array|string $types
 	 * @return mixed
+	 * @deprecated 2023-05
 	 */
 	final public function callHook(array|string $types): mixed {
 		$args = func_get_args();
@@ -164,6 +296,7 @@ class Hookable extends Options {
 	 *            Optional. A callable in the form `function ($callable, $previous_result,
 	 *            $new_result) { ... }`
 	 * @return mixed
+	 * @deprecated 2023-05
 	 */
 	final public function callHookArguments(array|string $types, array $args = [], mixed $default = null, callable $hook_callback = null, callable $result_callback = null): mixed {
 		$hooks = $this->collectHooks($types, $args);
@@ -196,6 +329,7 @@ class Hookable extends Options {
 	 * @param array $args Optional. An array of parameters to pass to the hook.
 	 * @return array
 	 * @throws Deprecated
+	 * @deprecated 2023-05
 	 */
 	final public function collectHooks(array|string $types, array $args = []): array {
 		if (empty($types)) {
@@ -249,6 +383,7 @@ class Hookable extends Options {
 	 * @param string $type
 	 * @param callable $callable
 	 * @return $this
+	 * @deprecated 2023-05
 	 */
 	final public function addHook(string $type, callable $callable): self {
 		$type = Hooks::cleanName($type);
@@ -262,6 +397,7 @@ class Hookable extends Options {
 	 * @param mixed $types
 	 * @param boolean $object_only
 	 * @return boolean
+	 * @deprecated 2023-05
 	 */
 	final public function hasHook(mixed $types, bool $object_only = false): bool {
 		$hooks = $this->listHooks($types, $object_only);
@@ -277,6 +413,7 @@ class Hookable extends Options {
 	 *            call
 	 * @param boolean $object_only
 	 * @return array
+	 * @deprecated 2023-05
 	 */
 	final public function listHooks(string|array $types, bool $object_only = false): array {
 		$hooks = $this->application->hooks;
@@ -324,6 +461,7 @@ class Hookable extends Options {
 	 * @param ?callable $hook_callback A function to call for each hook called.
 	 * @param ?callable $result_callback A function to process hook results. If false, returns last result unmodified.
 	 * @return mixed
+	 * @deprecated 2023-05
 	 */
 	final public static function hookResults(mixed $previous_result, callable $callable, array $arguments, callable $hook_callback = null, callable $result_callback = null): mixed {
 		if ($hook_callback) {
@@ -346,6 +484,7 @@ class Hookable extends Options {
 	 * @param mixed $previous_result
 	 * @param mixed $new_result
 	 * @return mixed
+	 * @deprecated 2023-05
 	 */
 	public static function combineHookResults(mixed $previous_result, mixed $new_result): mixed {
 		// If our old result was empty/void, then return new result

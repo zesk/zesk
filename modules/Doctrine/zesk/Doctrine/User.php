@@ -40,6 +40,10 @@ use zesk\Types;
  */
 #[Entity]
 class User extends Model implements Userlike {
+	public const HOOK_LOGOUT_EXPIRE = __CLASS__ . '::logoutExpire';
+
+	public const HOOK_LOGOUT = __CLASS__ . '::logout';
+
 	/**
 	 * Boolean value to enable debugging of permissions
 	 *
@@ -87,8 +91,8 @@ class User extends Model implements Userlike {
 	public Timestamp $modified;
 
 	/**
-	 * @see SessionInterface::id()
 	 * @return int|string|array
+	 * @see SessionInterface::id()
 	 */
 	public function id(): int|string|array {
 		return $this->id;
@@ -182,11 +186,13 @@ class User extends Model implements Userlike {
 		}
 		$session = $this->application->requireSession($request);
 		$session->authenticate($this, $request);
-		$this->callHook('authenticated', $request, $response, $session);
-		$this->application->callHook('userAuthenticated', $this, $request, $response, $session);
-		$this->application->modules->allHook('userAuthenticated', $this, $request, $response, $session);
+		$this->invokeHook(self::HOOK_AUTHENTICATED, [
+			'user' => $this, 'request' => $request, 'response' => $response, 'session' => $session,
+		]);
 		return $this;
 	}
+
+	public const HOOK_AUTHENTICATED = __CLASS__ . '::authenticated';
 
 	/**
 	 * Similar to $user->can(...) but instead throws an PermissionDenied on failure

@@ -32,6 +32,10 @@ use zesk\URL;
  *
  */
 class HTML extends Type {
+	public const HOOK_HEAD = __CLASS__ . '::head';
+
+	public const HOOK_FOOT = __CLASS__ . '::foot';
+
 	/**
 	 * Page title
 	 *

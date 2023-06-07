@@ -61,7 +61,7 @@ class Module extends BaseModule implements Routes {
 		declare(ticks = 1) {
 			while (!$process->done()) {
 				Job::executeJobs($process);
-				$hooks = Hookable::findHooksFor($this, self::HOOK_WAIT_FOR_JOB);
+				$hooks = Hookable::staticHooksFor($this, self::HOOK_WAIT_FOR_JOB);
 				if ($has_hook) {
 					$this->callHookArguments('wait_for_job', [
 						$process,

@@ -12,12 +12,15 @@ namespace zesk\Daemon\Command;
 use zesk\Application;
 use zesk\ArrayTools;
 use zesk\Command\SimpleCommand;
+use zesk\Daemon\Attributes\DaemonMethod;
 use zesk\Daemon\Module;
+use zesk\Directory;
 use zesk\Exception\ConfigurationException;
 use zesk\Exception\FilePermission;
 use zesk\Exception\Semantics;
 use zesk\Exception\SyntaxException;
 use zesk\FileMonitor\FilesMonitor;
+use zesk\Hookable;
 use zesk\Interface\SystemProcess;
 use zesk\PHP;
 use zesk\ProcessTools;
@@ -176,15 +179,11 @@ class Daemon extends SimpleCommand implements SystemProcess {
 
 		$this->configure('daemon', true);
 
-		if (!$this->application->isConfigured()) {
-			throw new ConfigurationException('Application is not configured', 'Application is not configured');
-		}
-
 		if ($this->optionBool('debug-log')) {
 			echo Text::formatPairs(ArrayTools::filterKeyPrefixes($this->application->configuration->toArray(), 'log'));
 		}
 
-		$this->fifo_path = path($this->module->runPath, 'daemon-controller');
+		$this->fifo_path = Directory::path($this->module->runPath, 'daemon-controller');
 
 		if ($this->optionBool('kill')) {
 			return $this->command_stop(SIGKILL);
@@ -296,47 +295,44 @@ class Daemon extends SimpleCommand implements SystemProcess {
 	 * @return Closure[]
 	 */
 	private function daemons(): array {
-		$daemon_hooks = [
-			"zesk\Application::daemon", "zesk\Module::daemon",
-		];
-		$daemon_hooks = $this->callHookArguments('daemon_hooks', [
-			$daemon_hooks,
-		], $daemon_hooks);
-		$this->debugLog('Daemon hooks are {daemon_hooks}', [
-			'daemon_hooks' => $daemon_hooks,
-		]);
-		$daemons = $this->application->hooks->findAll($daemon_hooks);
+		$daemons = Hookable::findMethodsWithAttributes($this, DaemonMethod::class, true);
 		$daemons = $this->daemons_expand($daemons);
 		return $daemons;
 	}
 
 	/**
 	 *
+	 */
+	public const OPTION_MAXIMUM_PROCESSES = 'maximumProcesses';
+
+	/**
 	 * @param array $daemons
-	 * @return string[]
-	 * @throws SystemException
+	 * @return array:DaemonMethod
+	 * @throws ConfigurationException
 	 */
 	private function daemons_expand(array $daemons): array {
 		$total_process_count = 0;
 		$configuration = $this->application->configuration;
 		$new_daemons = [];
-		$max = $this->option('maximum_processes', 100);
+		$max = $this->optionInt(self::OPTION_MAXIMUM_PROCESSES, 100);
 		foreach ($daemons as $daemon) {
-			$process_count = toInteger($configuration->getPath("$daemon::process_count"), 1);
-			if ($process_count <= 1) {
+			/* @var $daemon DaemonMethod */
+			$processCount = $daemon->processCount();
+			if ($processCount === 1) {
 				$total_process_count = $total_process_count + 1;
-				$new_daemons[] = $daemon;
+				$new_daemons[$daemon->id()] = $daemon;
 			} else {
-				$total_process_count = $total_process_count + $process_count;
-				for ($i = 0; $i < $process_count; $i++) {
-					$new_daemons[] = $daemon . '^' . $i;
+				assert($processCount > 1);
+				$total_process_count = $total_process_count + $processCount;
+				for ($i = 0; $i < $processCount; $i++) {
+					$new_daemons[$daemon->id() . '^' . $i] = $daemon;
 				}
 			}
 		}
 		// Prevent idiot errors
 		if ($total_process_count > $max) {
 			throw new ConfigurationException([
-				__CLASS__, 'maximum_processes',
+				__CLASS__, self::OPTION_MAXIMUM_PROCESSES,
 			], 'Total daemon processes are {total_process_count}, greater than {max} processes. Update {class}::process_count configuration or fix code so fewer processes are created.', [
 				'total_process_count' => $total_process_count, 'class' => __CLASS__, 'max' => $max,
 			]);
@@ -556,6 +552,7 @@ class Daemon extends SimpleCommand implements SystemProcess {
 	 * Send a message to parent process using FIFO
 	 *
 	 * @param string $message
+	 * @throws FilePermission
 	 */
 	private function send(mixed $message = ''): void {
 		if ($this->optionBool(self::OPTION_NO_FORK)) {
@@ -622,7 +619,7 @@ class Daemon extends SimpleCommand implements SystemProcess {
 		]);
 		$pid = pcntl_fork();
 		if ($pid === 0) {
-			$this->application->hooks->call('pcntl_fork-child');
+			Hookable::invokeFilter($this, 'pcntl_fork-child');
 			/* We are the child */
 			$sid = posix_setsid();
 			if ($sid < 0) {
@@ -636,10 +633,12 @@ class Daemon extends SimpleCommand implements SystemProcess {
 			fclose(STDOUT);
 			fclose(STDERR);
 		} else {
-			$this->application->hooks->call('pcntl_fork-parent');
+			Hookable::invokeFilter($this, 'pcntl_fork-parent');
 		}
 		return $pid;
 	}
+
+	public const OPTION_TIME_LIMIT = 'timeLimit';
 
 	/**
 	 * Main loop for daemon
@@ -673,7 +672,7 @@ class Daemon extends SimpleCommand implements SystemProcess {
 		$this->application->logger->notice('Daemon run successfully.');
 		self::instance($this);
 
-		PHP::setFeature('time_limit', $this->optionInt('time_limit', 0));
+		PHP::setFeature(PHP::FEATURE_TIME_LIMIT, $this->optionInt(self::OPTION_TIME_LIMIT, 0));
 		$daemons = $this->daemons();
 		$this->application->logger->debug('Daemons to run: ' . implode(', ', $daemons));
 
@@ -736,7 +735,7 @@ class Daemon extends SimpleCommand implements SystemProcess {
 		}
 	}
 
-	private function run_child($name) {
+	private function run_child(string $name, DaemonMethod $method) {
 		$pid = $this->application->process->id();
 		$this->application->logger->debug('FORKING for process {name} me={pid}', [
 			'name' => $name, 'pid' => $pid,
@@ -754,7 +753,7 @@ class Daemon extends SimpleCommand implements SystemProcess {
 			]);
 			return null;
 		} elseif ($child === 0) {
-			$this->application->hooks->call('pcntl_fork-child');
+			Hookable::invokeFilter($this, 'pcntl_fork-child');
 			$this->application->logger->notice('Running {name} as process id {pid}', [
 				'name' => $name, 'pid' => $this->application->process->id(),
 			]);
@@ -843,7 +842,8 @@ class Daemon extends SimpleCommand implements SystemProcess {
 	private function run_children(): void {
 		$daemons = $this->daemons();
 		$database = $this->loadProcessDatabase();
-		foreach ($daemons as $name) {
+		foreach ($daemons as $name => $daemon) {
+			/* @var $daemon DaemonMethod */
 			$settings = $database[$name] ?? null;
 			if ($settings === null) {
 				$settings = $this->run_child($name);
