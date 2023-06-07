@@ -276,7 +276,7 @@ class Session extends Model implements SessionInterface {
 	 */
 	public function relinquish(): void {
 		try {
-			$this->user()->invokeHook(User::HOOK_LOGOUT);
+			$this->user()->invokeHooks(User::HOOK_LOGOUT);
 		} catch (Authentication) {
 		}
 		$this->user = null;
@@ -303,7 +303,7 @@ class Session extends Model implements SessionInterface {
 	private function logoutExpire(): void {
 		try {
 			$user = $this->user();
-			$user->invokeHook(User::HOOK_LOGOUT_EXPIRE);
+			$user->invokeHooks(User::HOOK_LOGOUT_EXPIRE);
 		} catch (Throwable $e) {
 			// User deleted
 			$this->application->logger->error($e);

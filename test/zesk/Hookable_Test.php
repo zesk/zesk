@@ -4,16 +4,18 @@ declare(strict_types=1);
 namespace zesk;
 
 class hookable_test_a extends Hookable {
+	const HOOK_TEST = __CLASS__."::test";
+
 	public static Application $app;
 
 	public function hookit(array $data) {
 		$data['hookit'] = microtime(true);
-		$data = $this->callHook('test', $data);
+		$data = $this->invokeHooks(self::HOOK_TEST, $data);
 		return $data;
 	}
 
 	public static function appendTracking(string $whatever): void {
-		$calls = toArray(self::$app->configuration->get('hookable'));
+		$calls = Types::toArray(self::$app->configuration->get('hookable'));
 		$calls[] = $whatever;
 		self::$app->configuration->set('hookable', $calls);
 	}

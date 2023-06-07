@@ -113,7 +113,7 @@ class Controller extends zeskController {
 		 * Allow hooks to intercept and handle on their own.
 		 */
 		try {
-			$loginHookResult = $this->invokeFilter(self::HOOK_LOGIN, $response, [$request]);
+			$loginHookResult = $this->invokeFilters(self::HOOK_LOGIN, $response, [$request]);
 			if ($loginHookResult instanceof Response) {
 				return $response;
 			}
@@ -131,13 +131,13 @@ class Controller extends zeskController {
 			$user = $this->handleLogin($user, $password);
 			$user->authenticated($request, $response);
 
-			$data = Types::toArray($user->invokeFilter(self::HOOK_LOGIN_SUCCESS, [], [$this]));
+			$data = Types::toArray($user->invokeFilters(self::HOOK_LOGIN_SUCCESS, [], [$this]));
 			return $response->json()->appendData([
 				'authenticated' => true, 'user' => $user->id(),
 			] + $data + $this->_baseResponseData());
 		} catch (Authentication $e) {
 			$response->setStatus(HTTP::STATUS_UNAUTHORIZED, 'Unauthorized');
-			$data = Types::toArray($user->invokeFilter(self::HOOK_LOGIN_FAILED, [], [$this]));
+			$data = Types::toArray($user->invokeFilters(self::HOOK_LOGIN_FAILED, [], [$this]));
 
 			return $response->json()->setData([
 				'authenticated' => false, 'message' => 'user-or-password-mismatch',
@@ -152,7 +152,7 @@ class Controller extends zeskController {
 	 * @throws Semantics
 	 */
 	public function action_DELETE_index(Request $request, Response $response): Response {
-		$this->invokeHook(self::HOOK_LOGOUT);
+		$this->invokeHooks(self::HOOK_LOGOUT);
 		$session = $this->application->session($request, false);
 		if ($session) {
 			$id = $session->id();

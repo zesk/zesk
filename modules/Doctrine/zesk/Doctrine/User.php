@@ -186,7 +186,7 @@ class User extends Model implements Userlike {
 		}
 		$session = $this->application->requireSession($request);
 		$session->authenticate($this, $request);
-		$this->invokeHook(self::HOOK_AUTHENTICATED, [
+		$this->invokeHooks(self::HOOK_AUTHENTICATED, [
 			'user' => $this, 'request' => $request, 'response' => $response, 'session' => $session,
 		]);
 		return $this;

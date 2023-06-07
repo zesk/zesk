@@ -129,56 +129,51 @@ class Hookable extends Options {
 	 * @param array $arguments
 	 * @return void
 	 */
-	public function invokeHook(string $hookName, array $arguments = []): void {
-		$hooks = array_merge(self::staticHooksFor($this, $hookName, true), self::applicationHooksFor($this, $hookName));
+	public function invokeHooks(string $hookName, array $arguments = []): void {
+		$hooks = array_merge(self::staticHooksFor($this, $hookName, true), self::applicationHookMethods($this, $hookName, [$this]));
+		foreach ($hooks as $method) {
+			$method->run($arguments);
+		}
+	}
+
+
+	/**
+	 * Run static hooks and object hooks
+	 *
+	 * @param string $hookName
+	 * @param array $arguments
+	 * @return void
+	 */
+	public function invokeObjectHooks(string $hookName, array $arguments = []): void {
+		$hooks = self::objectHookMethods([$this], $hookName);
 		foreach ($hooks as $method) {
 			$method->run($arguments);
 		}
 	}
 
 	/**
-	 * Finds the global hooks attached to objects in the application with $hookName
-	 *
-	 * @param Hookable $hookable
-	 * @param string $hookName
-	 * @return array:HookMethod
-	 */
-	public static function applicationHooksFor(Hookable $hookable, string $hookName): array {
-		$hookMethods = [];
-		foreach ($hookable->hookables() as $hookable) {
-			/* @var $hookable Hookable */
-			foreach ($hookable->hookMethods($hookName) as $hookMethod) {
-				/* @var $hookMethod HookMethod */
-				$hookMethod->setObject($hookable);
-				$hookMethods[] = $hookMethod;
-			}
-		}
-		return $hookMethods;
-	}
-
-	/**
-	 * @param string $hookName
+	 * @param HookMethod[] $hookMethods
 	 * @param mixed $mixed
 	 * @param array $arguments
 	 * @param int $filterArgumentIndex
 	 * @return mixed
-	 * @throws ParameterException
-	 * @throws ReflectionException
 	 */
-	public function invokeFilter(string $hookName, mixed $mixed, array $arguments = [], int $filterArgumentIndex = -1): mixed {
-		$hooks = array_merge(self::staticHooksFor($this, $hookName), self::applicationHooksFor($this, $hookName));
+	private static function _invokeFilters(array $hookMethods, mixed $mixed, array $arguments = [], int $filterArgumentIndex = -1): mixed {
 		if ($filterArgumentIndex < 0) {
 			$filterArgumentIndex = count($arguments);
 		}
-		foreach ($hooks as $method) {
-			/* @var $method HookMethod */
+		foreach ($hookMethods as $hookMethod) {
+			/* @var $hookMethod HookMethod */
 			$arguments[$filterArgumentIndex] = $mixed;
-			$mixed = $method->run($arguments);
+			$mixed = $hookMethod->run($arguments);
 		}
 		return $mixed;
+
 	}
 
 	/**
+	 * Invokes a filter and ensures that $mixed remains the same type throughout
+	 *
 	 * @param string $hookName
 	 * @param mixed $mixed
 	 * @param array $arguments
@@ -187,13 +182,12 @@ class Hookable extends Options {
 	 * @throws ParameterException
 	 * @throws ReflectionException
 	 */
-	public function invokeTypedFilter(string $hookName, mixed $mixed, array $arguments = [], int $filterArgumentIndex = -1): mixed {
+	public function _invokeTypedFilters(string $hookName, array $hookMethods, mixed $mixed, array $arguments = [], int $filterArgumentIndex = -1): mixed {
 		$type = Types::type($mixed);
-		$hooks = array_merge(self::staticHooksFor($this, $hookName), self::applicationHooksFor($this, $hookName));
 		if ($filterArgumentIndex < 0) {
 			$filterArgumentIndex = count($arguments);
 		}
-		foreach ($hooks as $index => $method) {
+		foreach ($hookMethods as $index => $method) {
 			/* @var $method HookMethod */
 			$arguments[$filterArgumentIndex] = $mixed;
 			$mixed = $method->run($arguments);
@@ -205,6 +199,75 @@ class Hookable extends Options {
 			}
 		}
 		return $mixed;
+	}
+
+	/**
+	 * @param string $hookname
+	 * @return HookMethod[]
+	 */
+	private function _hooksFor(string $hookname): array {
+		return array_merge(self::staticHooksFor($this, $hookName), self::applicationHookMethods($this, $hookName));
+	}
+
+	/**
+	 * @param string $hookName
+	 * @param mixed $mixed
+	 * @param array $arguments
+	 * @param int $filterArgumentIndex
+	 * @return mixed
+	 * @throws ParameterException
+	 * @throws ReflectionException
+	 */
+	public function invokeFilters(string $hookName, mixed $mixed, array $arguments, int $filterArgumentIndex = -1): mixed {
+		$hooks = $this->_hooksFor($hookName);
+		return self::_invokeFilters($hooks, $mixed, $arguments, $filterArgumentIndex);
+	}
+
+	public function invokeTypedFilters(string $hookName, mixed $mixed, array $arguments, int $filterArgumentIndex = -1): mixed {
+		$hooks = $this->_hooksFor($hookName);
+		return self::_invokeTypedFilters($hookName, $hooks, $mixed, $arguments, $filterArgumentIndex);
+	}
+
+	/**
+	 * Run static hooks and object hooks
+	 *
+	 * @param string $hookName
+	 * @param array $arguments
+	 * @return void
+	 */
+	public function invokeObjectFilters(string $hookName, mixed $mixed, array $arguments = [], int $filterArgumentIndex = -1): void {
+		$hooks = self::objectHookMethods([$this], $hookName);
+		self::_invokeFilters($hooks, $mixed, $arguments, $filterArgumentIndex);
+	}
+
+
+	/**
+	 * Finds the HookMethod attached to Hookables and return them
+	 *
+	 * @param Hookable[] $hookables
+	 * @param string $hookName
+	 * @return HookMethod[]
+	 */
+	public static function objectHookMethods(array $hookables, string $hookName): array {
+		$hookMethods = [];
+		foreach ($hookables as $hookable) {
+			foreach ($hookable->hookMethods($hookName) as $hookMethod) {
+				/* @var $hookMethod HookMethod */
+				$hookMethod->setObject($hookable);
+				$hookMethods[] = $hookMethod;
+			}
+		}
+		return $hookMethods;
+	}
+
+	/**
+	 * @param Hookable $hookable
+	 * @param string $hookName
+	 * @param array $hookables
+	 * @return HookMethod[]
+	 */
+	public static function applicationHookMethods(Hookable $hookable, string $hookName, array $hookables = []): array {
+		return self::objectHookMethods(array_merge($hookable->hookables(), $hookables), $hookName);
 	}
 
 	/**

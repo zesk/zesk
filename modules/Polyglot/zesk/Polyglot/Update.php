@@ -165,7 +165,7 @@ class Update extends Model {
 			$server->setMeta($server_variable_name, time());
 		}
 		$lock->release();
-		$application->invokeHook(self::HOOK_UPDATE);
+		$application->invokeHooks(self::HOOK_UPDATE);
 	}
 
 	/**

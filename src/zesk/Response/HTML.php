@@ -505,8 +505,8 @@ class HTML extends Type {
 				} else {
 					$tag['name'] = 'style';
 					$tag['attributes'] = [
-						'type' => 'text/css',
-					] + ArrayTools::filter($attrs, 'media');
+							'type' => 'text/css',
+						] + ArrayTools::filter($attrs, 'media');
 					$tag['content'] = file_get_contents($dest);
 					$result[] = $tag;
 				}
@@ -566,8 +566,8 @@ class HTML extends Type {
 	 */
 	public function render(string $content): string {
 		return $this->application->themes->theme($this->pageTheme, [
-			'content' => $content,
-		] + $this->themeVariables());
+				'content' => $content,
+			] + $this->themeVariables());
 	}
 
 	/**
@@ -678,13 +678,13 @@ class HTML extends Type {
 				$this->application->logger->debug('root_dir (' . JSONTools::encode($root_dir) . ") check $_path");
 			}
 			return HTMLTools::href($this->application, Directory::path($root_dir, $_path));
-		} elseif ($share) {
+		} else if ($share) {
 			if ($debug) {
 				$this->application->logger->debug("share check $_path");
 			}
 			// TODO return Controller_Share::realpath($this->application, $_path);
 			return $this->application->router()->realPath($_path);
-		} elseif ($is_route) {
+		} else if ($is_route) {
 			if ($debug) {
 				$this->application->logger->debug("route check $_path");
 			}
@@ -746,7 +746,7 @@ class HTML extends Type {
 				$urlMatch = [];
 				if (preg_match('|^"[^"]+"$|', $import) || preg_match('|^\'[^\']+\'$|', $import)) {
 					$import = StringTools::unquote($import);
-				} elseif (preg_match('|^url\(([^)]+)\)$|', $import, $urlMatch)) {
+				} else if (preg_match('|^url\(([^)]+)\)$|', $import, $urlMatch)) {
 					$import = StringTools::unquote($urlMatch[1]);
 					if (URL::valid($import) || $import[0] === '/') {
 						continue;
@@ -774,8 +774,8 @@ class HTML extends Type {
 			[$full_match, $rel_image] = $match;
 			$rel_image = StringTools::unquote($rel_image);
 			if (URL::valid($rel_image) || StringTools::begins($rel_image, [
-				'/', 'data:',
-			])) {
+					'/', 'data:',
+				])) {
 				continue;
 			}
 			$rel_image = explode('/', $rel_image);
@@ -919,7 +919,7 @@ class HTML extends Type {
 					$sources[] = $src;
 				}
 			}
-			$content = $this->parent->callHook($hook, $content);
+			$content = $this->parent->invokeTypedFilters($hook, [$content], [$this]);
 			$this->application->logger->info('Created {cache_path} from {sources}', [
 				'cache_path' => $cache_path, 'sources' => $sources,
 			]);
@@ -1015,7 +1015,7 @@ class HTML extends Type {
 						$this->parent->option(Response::OPTION_NOCACHE_VARIABLE, Response::DEFAULT_NOCACHE_VARIABLE) => md5(microtime()),
 					]);
 					$script_attributes['src'] = $resource_path;
-				} elseif (URL::valid($attrs['src'])) {
+				} else if (URL::valid($attrs['src'])) {
 					$script_attributes['src'] = $attrs['src'];
 				} else {
 					[$resource_path, $file_path] = $this->resourceDate($attrs['src'], $attrs);
@@ -1188,8 +1188,8 @@ class HTML extends Type {
 			$id = $id . '-' . count($this->scripts);
 		}
 		return $this->scriptAdd($id, [
-			'content' => $script, 'browser' => $options['browser'] ?? null,
-		] + $options);
+				'content' => $script, 'browser' => $options['browser'] ?? null,
+			] + $options);
 	}
 
 	/**

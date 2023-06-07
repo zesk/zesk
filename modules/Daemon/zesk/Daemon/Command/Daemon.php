@@ -619,7 +619,7 @@ class Daemon extends SimpleCommand implements SystemProcess {
 		]);
 		$pid = pcntl_fork();
 		if ($pid === 0) {
-			Hookable::invokeFilter($this, 'pcntl_fork-child');
+			Hookable::invokeFilters($this, 'pcntl_fork-child');
 			/* We are the child */
 			$sid = posix_setsid();
 			if ($sid < 0) {
@@ -633,7 +633,7 @@ class Daemon extends SimpleCommand implements SystemProcess {
 			fclose(STDOUT);
 			fclose(STDERR);
 		} else {
-			Hookable::invokeFilter($this, 'pcntl_fork-parent');
+			Hookable::invokeFilters($this, 'pcntl_fork-parent');
 		}
 		return $pid;
 	}
@@ -753,7 +753,7 @@ class Daemon extends SimpleCommand implements SystemProcess {
 			]);
 			return null;
 		} elseif ($child === 0) {
-			Hookable::invokeFilter($this, 'pcntl_fork-child');
+			Hookable::invokeFilters($this, 'pcntl_fork-child');
 			$this->application->logger->notice('Running {name} as process id {pid}', [
 				'name' => $name, 'pid' => $this->application->process->id(),
 			]);

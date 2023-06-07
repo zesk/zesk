@@ -222,7 +222,7 @@ class SettingsModel extends Model {
 			}
 			$settings->set($key, $value);
 		}
-		$this->invokeHook(self::HOOK_STORED);
+		$this->invokeHooks(self::HOOK_STORED);
 		$this->_changed = [];
 		return parent::store();
 	}

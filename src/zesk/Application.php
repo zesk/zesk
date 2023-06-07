@@ -599,10 +599,10 @@ class Application extends Hookable implements ModelFactory {
 	public function setDeprecated(string $set): string {
 		$old = $this->deprecated;
 		$this->deprecated = [
-			self::DEPRECATED_BACKTRACE => self::DEPRECATED_BACKTRACE,
-			self::DEPRECATED_EXCEPTION => self::DEPRECATED_EXCEPTION,
-			self::DEPRECATED_LOG => self::DEPRECATED_LOG,
-		][$set] ?? self::DEPRECATED_IGNORE;
+								self::DEPRECATED_BACKTRACE => self::DEPRECATED_BACKTRACE,
+								self::DEPRECATED_EXCEPTION => self::DEPRECATED_EXCEPTION,
+								self::DEPRECATED_LOG => self::DEPRECATED_LOG,
+							][$set] ?? self::DEPRECATED_IGNORE;
 		return $old;
 	}
 
@@ -623,14 +623,14 @@ class Application extends Hookable implements ModelFactory {
 		switch ($this->deprecated) {
 			case self::DEPRECATED_EXCEPTION:
 				throw new Deprecated("{reason} Deprecated: {calling_function}\n{backtrace}", [
-					'reason' => $reason, 'calling_function' => Kernel::callingFunction(),
-					'backtrace' => Kernel::backtrace(4 + $depth),
-				] + $arguments);
+						'reason' => $reason, 'calling_function' => Kernel::callingFunction(),
+						'backtrace' => Kernel::backtrace(4 + $depth),
+					] + $arguments);
 			case self::DEPRECATED_LOG:
 				$this->application->logger->error("{reason} Deprecated: {calling_function}\n{backtrace}", [
-					'reason' => $reason ?: 'DEPRECATED', 'calling_function' => Kernel::callingFunction(),
-					'backtrace' => Kernel::backtrace(4 + $depth),
-				] + $arguments);
+						'reason' => $reason ?: 'DEPRECATED', 'calling_function' => Kernel::callingFunction(),
+						'backtrace' => Kernel::backtrace(4 + $depth),
+					] + $arguments);
 				break;
 			case self::DEPRECATED_BACKTRACE:
 				echo Kernel::backtrace();
@@ -643,7 +643,7 @@ class Application extends Hookable implements ModelFactory {
 	 * @codeCoverageIgnore
 	 */
 	public function obsolete(): void {
-		$this->application->logger->alert('Obsolete function called {function}', ['function' => Kernel::callingFunction(2), ]);
+		$this->application->logger->alert('Obsolete function called {function}', ['function' => Kernel::callingFunction(2),]);
 		if ($this->application->development()) {
 			echo Kernel::backtrace();
 			exit(1);
@@ -1144,10 +1144,8 @@ class Application extends Hookable implements ModelFactory {
 			if ($set === $this->command) {
 				return $this;
 			}
-			$this->command->callHook('replacedWith', $set);
 		}
 		$this->command = $set;
-		$this->callHook('command', $set);
 		return $this;
 	}
 
@@ -1501,9 +1499,7 @@ class Application extends Hookable implements ModelFactory {
 	 */
 	private function configuredHooks(): void {
 		foreach ([Hooks::HOOK_DATABASE_CONFIGURE, Hooks::HOOK_CONFIGURED] as $hook) {
-			$this->hooks->callArguments($hook, [$this, ]);
-			$this->modules->allHookArguments($hook); // Modules
-			$this->callHookArguments($hook); // Application level
+			$this->invokeHooks($hook, [$this]);
 			$this->modules->addLoadHook($hook);
 		}
 	}
@@ -1552,7 +1548,7 @@ class Application extends Hookable implements ModelFactory {
 	final public function setCacheItemPool(CacheItemPoolInterface $pool): self {
 		$this->pool = $pool;
 		$this->autoloader->setCache($pool);
-		$this->callHook(self::HOOK_SET_CACHE);
+		$this->invokeHooks(self::HOOK_SET_CACHE);
 		return $this;
 	}
 
@@ -1589,7 +1585,7 @@ class Application extends Hookable implements ModelFactory {
 				$this->logger->notice('{path} is empty.', compact('size', 'path'));
 			}
 		}
-		$this->invokeHook(self::HOOK_CACHE_CLEAR, [$this]);
+		$this->invokeHooks(self::HOOK_CACHE_CLEAR, [$this]);
 		$controllers = $this->controllers();
 		foreach ($controllers as $controller) {
 			$controller->in(self::HOOK_CACHE_CLEAR);
@@ -1647,9 +1643,9 @@ class Application extends Hookable implements ModelFactory {
 	 * @return void
 	 */
 	private function initializeRouter(): void {
-		$this->invokeHook(self::HOOK_ROUTER, [$this->router]);
-		$this->invokeHook(self::HOOK_ROUTES, [$this->router]);
-		$this->invokeHook(self::HOOK_ROUTES_POSTPROCESS, [$this->router]);
+		$this->invokeHooks(self::HOOK_ROUTER, [$this->router]);
+		$this->invokeHooks(self::HOOK_ROUTES, [$this->router]);
+		$this->invokeHooks(self::HOOK_ROUTES_POSTPROCESS, [$this->router]);
 	}
 
 	/**
@@ -1678,8 +1674,8 @@ class Application extends Hookable implements ModelFactory {
 			}
 		} catch (Throwable $t) {
 			$this->logger->error('{applicationClass}::setMaintenance({value}) hook threw {exceptionClass} {message}', [
-				'applicationClass' => get_class($this), 'value' => $set ? 'true' : 'false',
-			] + Exception::phpExceptionVariables($t));
+					'applicationClass' => get_class($this), 'value' => $set ? 'true' : 'false',
+				] + Exception::phpExceptionVariables($t));
 			return false;
 		}
 
@@ -1695,8 +1691,8 @@ class Application extends Hookable implements ModelFactory {
 
 	private function _maintenanceEnabled(): void {
 		$context = [
-			'time' => date('Y-m-d H:i:s'),
-		] + Types::toArray($this->callHookArguments('maintenanceEnabled', [[]], []));
+				'time' => date('Y-m-d H:i:s'),
+			] + Types::toArray($this->callHookArguments('maintenanceEnabled', [[]], []));
 
 		try {
 			file_put_contents($this->maintenanceFile(), JSON::encode($context));
@@ -1723,7 +1719,7 @@ class Application extends Hookable implements ModelFactory {
 			return '';
 		}
 		$this->contentRecursion[$path] = true;
-		$this->invokeHook(self::HOOK_CONTENT);
+		$this->invokeHooks(self::HOOK_CONTENT);
 
 		$url = 'http://localhost/';
 
@@ -1769,7 +1765,7 @@ class Application extends Hookable implements ModelFactory {
 		try {
 			if ($inherit) {
 				$request->initializeFromRequest($inherit);
-			} elseif ($this->console()) {
+			} else if ($this->console()) {
 				$request->initializeFromSettings('http://console/');
 			} else {
 				$request->initializeFromGlobals();
@@ -1787,7 +1783,7 @@ class Application extends Hookable implements ModelFactory {
 	 */
 	public function main(Request $request): Response {
 		try {
-			$response = $this->invokeFilter(self::HOOK_MAIN, null, [$request]);
+			$response = $this->invokeFilters(self::HOOK_MAIN, null, [$request]);
 			if ($response instanceof Response) {
 				return $response;
 			}
@@ -1900,20 +1896,23 @@ class Application extends Hookable implements ModelFactory {
 
 		try {
 			$response->content = $this->themes->theme($this->classes->hierarchy($exception), [
-				'application' => $this, 'request' => $request, 'response' => $response, 'exception' => $exception,
-				'content' => $exception,
-			] + Exception::exceptionVariables($exception), [
+					'application' => $this, 'request' => $request, 'response' => $response, 'exception' => $exception,
+					'content' => $exception,
+				] + Exception::exceptionVariables($exception), [
 				'first' => true,
 			]);
 			if (!$exception instanceof Redirect) {
-				$this->hooks->call('exception', $exception);
+				$this->invokeHooks(self::HOOK_EXCEPTION, [
+					'exception' => $exception, 'application' => $this, 'response' => $response,
+				]);
 			}
-			$this->callHook('mainException', $exception, $response);
 		} catch (Redirect $e) {
 			$response->redirect()->handleException($e);
 		}
 		return $response;
 	}
+
+	public const HOOK_EXCEPTION = __CLASS__ . '::exception';
 
 	/**
 	 *
@@ -1976,7 +1975,7 @@ class Application extends Hookable implements ModelFactory {
 		$final_map = [];
 
 		$request = $this->requestFactory();
-		$request = $this->invokeFilter(self::HOOK_REQUEST_PREPROCESS, $request);
+		$request = $this->invokeFilters(self::HOOK_REQUEST_PREPROCESS, $request);
 		$options = [];
 		if (($response = Response::cached($this->pool, $url = $request->url())) === null) {
 			$response = $this->main($request);
@@ -1991,8 +1990,8 @@ class Application extends Hookable implements ModelFactory {
 			'{page-render-time}' => sprintf('%.3f', microtime(true) - $this->initializationMicrotime),
 		];
 		if (!$response || $response->isContentType([
-			'text/', 'javascript',
-		])) {
+				'text/', 'javascript',
+			])) {
 			if ($response->content !== null) {
 				$response->content = strtr($response->content, $final_map);
 			}
@@ -2021,7 +2020,6 @@ class Application extends Hookable implements ModelFactory {
 	 */
 	public function setLocale(Locale $set): self {
 		$this->locale = $set;
-		$this->callHook('setLocale', $set);
 		return $this;
 	}
 

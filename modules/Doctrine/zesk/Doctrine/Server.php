@@ -292,7 +292,7 @@ class Server extends Model implements MetaInterface {
 	 */
 	private function registerDefaultServer(): self {
 		// Set up our names using hooks (may do nothing)
-		$this->invokeHook(self::HOOK_INITIALIZE_NAME);
+		$this->invokeHooks(self::HOOK_INITIALIZE_NAME);
 		// Set all blank values to defaults
 		$this->_initializeNameDefaults();
 		return $this;
