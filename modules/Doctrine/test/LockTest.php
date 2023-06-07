@@ -6,11 +6,9 @@ namespace test;
 
 use zesk\Doctrine\Lock;
 use zesk\Doctrine\ModelTestCase;
-use zesk\Doctrine\Server;
-use zesk\Doctrine\User;
-use zesk\HTTP;
 
 class LockTest extends ModelTestCase {
+	public array $entities = [Lock::class];
 	public function test_Lock(): void {
 		$lock = Lock::instance($this->application, __METHOD__);
 
