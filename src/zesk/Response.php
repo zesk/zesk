@@ -684,6 +684,8 @@ class Response extends Hookable {
 		return ob_get_clean();
 	}
 
+	const HOOK_OUTPUT_BEFORE = __CLASS__ . '::outputBefore';
+	const HOOK_OUTPUT_AFTER = __CLASS__ . '::outputBefore';
 	/**
 	 * Echo response
 	 *
@@ -698,16 +700,14 @@ class Response extends Hookable {
 		$this->rendering = true;
 		$skip_hooks = Types::toBool($options[self::OPTION_SKIP_HOOKS] ?? false);
 		if (!$skip_hooks) {
-			$this->application->callHook('response_output_before', $this);
-			$this->callHook('output_before');
+			$this->invokeHooks(self::HOOK_OUTPUT_BEFORE, [$this]);
 		}
 		if (!($options[self::OPTION_SKIP_HEADERS] ?? $this->optionBool(self::OPTION_SKIP_HEADERS))) {
 			$this->responseHeaders($skip_hooks);
 		}
 		$this->_output_handler()->output($this->content ?? '');
 		if (!$skip_hooks) {
-			$this->application->callHook('response_output_after', $this);
-			$this->callHook('output_after');
+			$this->invokeHooks(self::HOOK_OUTPUT_AFTER, [$this]);
 		}
 		$this->rendering = false;
 	}

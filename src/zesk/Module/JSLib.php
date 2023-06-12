@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+
 namespace zesk\Module;
 
 use zesk\Interface\Module\Head;
@@ -149,25 +150,25 @@ abstract class JSLib extends Module implements Head {
 			foreach ($this->css_paths as $key => $value) {
 				if (is_string($key) && is_array($value)) {
 					$response->css($key, $value + $this->css_options);
-				} elseif (is_numeric($key) && is_string($value)) {
+				} else if (is_numeric($key) && is_string($value)) {
 					$response->css($value, $this->css_options + [
-						'share' => true,
-					]);
-				} elseif (is_string($key) && is_string($value)) {
+							'share' => true,
+						]);
+				} else if (is_string($key) && is_string($value)) {
 					$response->css($key, [
-						$value => true,
-					] + $this->css_options);
+							$value => true,
+						] + $this->css_options);
 				}
 			}
 			foreach ($this->javascript_paths as $key => $value) {
 				if (is_numeric($key) && is_string($value)) {
 					$response->javascript($value, $this->javascript_options + [
-						'share' => true,
-					]);
-				} elseif (is_string($key) && is_array($value)) {
+							'share' => true,
+						]);
+				} else if (is_string($key) && is_array($value)) {
 					$response->javascript($key, $value + $this->javascript_options + [
-						'share' => true,
-					]);
+							'share' => true,
+						]);
 				}
 			}
 			$this->ready($response);
@@ -180,9 +181,11 @@ abstract class JSLib extends Module implements Head {
 	 * @param Response $response
 	 */
 	public function ready(Response $response): void {
-		$this->callHook('ready');
+		$this->invokeHooks(self::HOOK_READY);
 		foreach ($this->jquery_ready as $code) {
 			$response->jquery($code, $this->jquery_ready_weight);
 		}
 	}
+
+	public const HOOK_READY = __CLASS__ . "::ready";
 }

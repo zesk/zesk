@@ -130,9 +130,11 @@ class Module extends Hookable {
 		if (count($this->classAliases)) {
 			$this->application->objects->setMap($this->classAliases);
 		}
-		$this->callHook('construct');
+		$this->invokeHooks(self::HOOK_MODULE_INITIALIZE, [$this]);
 		$this->inheritConfiguration();
 	}
+
+	public const HOOK_MODULE_INITIALIZE = __CLASS__ .'::initialize';
 
 	final public function moduleConfiguration(): array {
 		return $this->configuration;

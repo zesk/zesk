@@ -7,6 +7,7 @@ declare(strict_types=1);
 namespace zesk\Doctrine;
 
 use Doctrine\Persistence\ObjectRepository;
+use zesk\ArrayTools;
 use zesk\PHPUnit\TestCase;
 
 use Doctrine\ORM\EntityManager;
@@ -37,6 +38,14 @@ class DatabaseTestCase extends TestCase {
 	 */
 	public function getRepository(string $name): ObjectRepository {
 		return $this->em->getRepository($name);
+	}
+
+	/**
+	 * @param string $entity
+	 * @return string
+	 */
+	public function entityTable(string $entity): string {
+		return $this->em->getClassMetadata($entity)->getTableName();
 	}
 
 	/**
@@ -109,7 +118,13 @@ class DatabaseTestCase extends TestCase {
 	 * @return array
 	 */
 	public function schemaSynchronize(string|array $entities): array {
-		return $this->application->doctrineModule()->schemaSynchronize(Types::toList($entities));
+		$doctrine = $this->doctrineModule();
+		$entities = Types::toList($entities);
+		$collection = array_flip($entities);
+		foreach ($entities as $entity) {
+			$collection += array_flip($doctrine->dependentEntities($entity));
+		}
+		return $this->application->doctrineModule()->schemaSynchronize(array_keys($collection));
 	}
 
 	final protected function sqlNormalizeTrim(string $sql): string {

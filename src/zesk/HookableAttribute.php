@@ -10,5 +10,5 @@ use ReflectionMethod;
 interface HookableAttribute {
 	public function setMethod(ReflectionMethod $method): self;
 
-	public function run(null|Hookable $object, array $arguments = []): mixed;
+	public function run(array $arguments = []): mixed;
 }

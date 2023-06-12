@@ -407,7 +407,10 @@ class Modules {
 
 		$module = $this->modules[$name] = $this->_moduleInitialize($this->_createModuleObject($name, $moduleFactoryState));
 		if (count($this->loadHooks)) {
-			$module->callHook(array_keys($this->loadHooks), $this->application);
+			foreach (array_keys($this->loadHooks) as $hookName) {
+				$module->invokeHooks($hookName, [$this->application]);
+				$module->invokeObjectHooks($hookName, [$this->application]);
+			}
 		}
 		return $module;
 	}

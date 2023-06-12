@@ -6,6 +6,7 @@ declare(strict_types=1);
 namespace zesk\Job;
 
 use zesk\Exception\Unimplemented;
+use zesk\Hookable;
 use zesk\Interface\Module\Routes;
 use zesk\Interface\SystemProcess;
 use zesk\PHP;
@@ -51,7 +52,6 @@ class Module extends BaseModule implements Routes {
 	 * @param SystemProcess $process
 	 */
 	private function runDaemon(SystemProcess $process): void {
-		$has_hook = $this->hasHook('wait_for_job');
 		$seconds = $this->option('execute_jobs_wait', 10);
 		$app = $process->application();
 		if (!$has_hook) {
@@ -61,6 +61,7 @@ class Module extends BaseModule implements Routes {
 		declare(ticks = 1) {
 			while (!$process->done()) {
 				Job::executeJobs($process);
+				$hooks = Hookable::staticHooksFor($this, self::HOOK_WAIT_FOR_JOB);
 				if ($has_hook) {
 					$this->callHookArguments('wait_for_job', [
 						$process,

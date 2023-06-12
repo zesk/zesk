@@ -10,6 +10,7 @@ namespace zesk\Daemon;
 
 use Doctrine\ORM\Exception\ORMException;
 
+use zesk\Cron\Attributes\Cron;
 use zesk\Cron\Attributes\CronMinute;
 use zesk\Directory;
 use zesk\Exception\DirectoryCreate;
@@ -19,9 +20,11 @@ use zesk\Exception\ConfigurationException;
 use zesk\Exception\Semantics;
 use zesk\Exception\SyntaxException;
 use zesk\Exception\Unsupported;
+use zesk\File;
 use zesk\JSON;
 use zesk\Doctrine\Server;
 use zesk\PHP;
+use zesk\Temporal;
 use zesk\Timestamp;
 
 /**
@@ -70,7 +73,7 @@ class Module extends \zesk\Module {
 		];
 	}
 
-	#[CronMinute]
+	#[Cron(schedule: Temporal::UNIT_MINUTE)]
 	protected function hook_cron(): void {
 		$application = $this->application;
 
@@ -97,8 +100,12 @@ class Module extends \zesk\Module {
 		return Directory::path($this->runPath, 'daemon.db');
 	}
 
+	/**
+	 * @return void
+	 * @throws FilePermission
+	 */
 	public function unlink_database(): void {
-		unlink($this->_databasePath());
+		File::unlink($this->_databasePath());
 	}
 
 	/**
@@ -113,12 +120,10 @@ class Module extends \zesk\Module {
 			if (count($database) === 0) {
 				return;
 			}
-			if (!file_put_contents($path, serialize($database))) {
-				throw new FilePermission($path, 'write');
-			}
+			File::put($path, serialize($database));
 		} else {
 			if (count($database) === 0) {
-				unlink($path);
+				File::unlink($path);
 				return;
 			}
 		}

@@ -14,6 +14,7 @@ use stdClass;
 use zesk\Exception;
 use zesk\Exception\ClassNotFound;
 use zesk\Exception\Semantics;
+use zesk\Hookable;
 use zesk\Kernel;
 use zesk\PHP;
 
@@ -61,6 +62,13 @@ class Objects {
 				PHP::log('{method} {message}}', ['method' => __METHOD__] + Exception::exceptionVariables($e));
 			}
 		}
+	}
+
+	/**
+	 * @return array:Hookable
+	 */
+	public function hookables(): array {
+		return array_filter($this->singletons, fn ($object) => $object instanceof Hookable);
 	}
 
 	/**
