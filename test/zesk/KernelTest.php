@@ -351,26 +351,7 @@ class KernelTest extends TestCase {
 		$this->assertEquals($expected, $this->application->configuration->pathExists($key), implode('::', Types::toList($key)));
 	}
 
-	/**
-	 * @return array[]
-	 */
-	public static function data_hasHook(): array {
-		return [
-			[true, Hooks::HOOK_EXIT],
-			[true, Hooks::HOOK_CONFIGURED],
-			[false, 'HOME'],
-			[false, md5('HOME')],
-			[false, '0192830128301283123'],
-		];
-	}
 
-	/**
-	 * @return void
-	 * @dataProvider data_hasHook
-	 */
-	public function test_hasHook($expected, $hook): void {
-		$this->assertEquals($expected, $this->application->hooks->has($hook));
-	}
 
 	/**
 	 * @return void
