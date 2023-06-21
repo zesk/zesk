@@ -32,6 +32,10 @@ use zesk\URL;
  *
  */
 class HTML extends Type {
+	public const HOOK_HEAD = __CLASS__ . '::head';
+
+	public const HOOK_FOOT = __CLASS__ . '::foot';
+
 	/**
 	 * Page title
 	 *
@@ -915,7 +919,7 @@ class HTML extends Type {
 					$sources[] = $src;
 				}
 			}
-			$content = $this->parent->callHook($hook, $content);
+			$content = $this->parent->invokeTypedFilters($hook, [$content], [$this]);
 			$this->application->logger->info('Created {cache_path} from {sources}', [
 				'cache_path' => $cache_path, 'sources' => $sources,
 			]);

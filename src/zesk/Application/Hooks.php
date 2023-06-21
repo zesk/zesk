@@ -18,6 +18,7 @@ use zesk\Exception\KeyNotFound;
 use zesk\Exception\Semantics;
 use zesk\Hookable;
 use zesk\HookGroup;
+use zesk\HookMethod;
 use zesk\Kernel;
 use zesk\PHP;
 use zesk\StringTools;
@@ -76,44 +77,11 @@ class Hooks {
 	public Application $application;
 
 	/**
-	 * Determine which hooks are looked at/tested for existence.
-	 * Retrieve with ->has()
+	 * HookMethod
 	 *
-	 * @var boolean
+	 * @var array:array:HookMethod
 	 */
-	public bool $profileHooks = false;
-
-	/**
-	 * System hooks for adding custom functionality throughout the system
-	 *
-	 * @var array
-	 */
-	private array $hooks = [];
-
-	/**
-	 *
-	 * @var array
-	 */
-	private array $hooksCalled = [];
-
-	/**
-	 *
-	 * @var array
-	 */
-	private array $hooksFailed = [];
-
-	/**
-	 *
-	 * @var array
-	 */
-	private array $hookCache = [];
-
-	/**
-	 * Used to track which top-level classes have been gathered yet
-	 *
-	 * @var array
-	 */
-	private array $allHookClasses = [];
+	protected array $hooksQueue = [];
 
 	/**
 	 *
@@ -140,13 +108,47 @@ class Hooks {
 				error_log($prefix . $msg);
 			}
 		}
-		foreach ($this->hooksFailed as $class => $result) {
-			if ($result instanceof Throwable) {
-				error_log($prefix . "$class::hooks threw exception " . $result::class);
-			}
-		}
 	}
 
+	/**
+	 * @param string $hookName
+	 * @param callable|Closure $method
+	 * @param bool $filter
+	 * @return void
+	 */
+	public function registerHook(string $hookName, callable|Closure $method, bool $filter = false): self {
+		$hookMethod = new HookMethod($hookName, [], $filter);
+		$hookMethod->setClosure($method instanceof Closure ? $method : $method(...), Hooks::callableString($method));
+		$this->hookQueue[$hookName][] = $hookMethod;
+		return $this;
+	}
+
+	/**
+	 * @param string $hookName
+	 * @return array
+	 */
+	public function peekHooks(string $hookName): array {
+		return $this->hookQueue[$hookName] ?? [];
+	}
+
+	/**
+	 * @param string $hookName
+	 * @return array
+	 */
+	public function hooksDequeue(string $hookName): array {
+		$hooks = $this->peekHooks($hookName);
+		unset($this->hooksQueue[$hookName]);
+		return $hooks;
+	}
+
+	/*===============================================================================================================*\
+		____                                _           _
+		|  _ \  ___ _ __  _ __ ___  ___ __ _| |_ ___  __| |
+		| | | |/ _ \ '_ \| '__/ _ \/ __/ _` | __/ _ \/ _` |
+		| |_| |  __/ |_) | | |  __/ (_| (_| | ||  __/ (_| |
+		|____/ \___| .__/|_|  \___|\___\__,_|\__\___|\__,_|
+				   |_|
+	\*===============================================================================================================*/
 	/**
 	 *
 	 * @return array
@@ -161,15 +163,43 @@ class Hooks {
 	}
 
 	/**
-	 * @todo does this work?
+	 * Determine which hooks are looked at/tested for existence.
+	 * Retrieve with ->has()
 	 *
+	 * @var boolean
+	 * @deprecated 2023-06
 	 */
-	public function reset(): void {
-		$this->call(Hooks::HOOK_RESET);
-		foreach ($this->resetAllHookClasses() as $class) {
-			$this->registerClass($class);
-		}
-	}
+	public bool $profileHooks = false;
+
+	/**
+	 * System hooks for adding custom functionality throughout the system
+	 *
+	 * @var array
+	 * @deprecated 2023-06
+	 */
+	private array $hooks = [];
+
+	/**
+	 *
+	 * @var array
+	 * @deprecated 2023-06
+	 */
+	private array $hooksCalled = [];
+
+	/**
+	 *
+	 * @var array
+	 * @deprecated 2023-06
+	 */
+	private array $hookCache = [];
+
+	/**
+	 * Used to track which top-level classes have been gathered yet
+	 *
+	 * @var array
+	 * @deprecated 2023-06
+	 */
+	private array $allHookClasses = [];
 
 	/**
 	 * Clean and normalize a hook name
@@ -253,6 +283,7 @@ class Hooks {
 	 *            List of classes to invoke the static "hooks" method for.
 	 *
 	 * @return self
+	 * @deprecated 2023-06
 	 */
 	public function registerClass(string|array $classes): self {
 		if (is_array($classes)) {
@@ -267,6 +298,7 @@ class Hooks {
 
 	/**
 	 * @return array
+	 * @deprecated 2023-06
 	 */
 	public function hooksCalled(): array {
 		return $this->hooksCalled;
@@ -276,6 +308,7 @@ class Hooks {
 	 *
 	 * @param string $class
 	 * @return void
+	 * @deprecated 2023-06
 	 */
 	private function _registerClassHooks(string $class): void {
 		$lowClass = strtolower($class);
@@ -311,6 +344,7 @@ class Hooks {
 	 *            A hook name, or a list of hooks, separated by ";", or an array of hook names
 	 * @return true If any hook exists. If null passed then returns an array of keys => arrays
 	 *         described above.
+	 * @deprecated 2023-06
 	 */
 	public function has(string|array $hooks): bool {
 		if (is_string($hooks)) {
@@ -339,6 +373,7 @@ class Hooks {
 
 	/**
 	 * @return array
+	 * @deprecated 2023-06
 	 */
 	public function all(): array {
 		return $this->hooks;
@@ -346,12 +381,17 @@ class Hooks {
 
 	/**
 	 *
+	 * @deprecated 2023-06
 	 * @return array
 	 */
 	public function hookCache(): array {
 		return $this->hookCache;
 	}
 
+	/**
+	 * @return string
+	 * @deprecated 2023-06
+	 */
 	private function nextCallableId(): string {
 		return 'anonymous-' . self::$id++;
 	}
@@ -376,9 +416,10 @@ class Hooks {
 	 *
 	 * @return void
 	 * @throws Semantics
+	 * @deprecated 2023-06
 	 */
 	public function add(string $hook, Closure|callable $function, array $options = []): void {
-		$id = $options['id'] ?? self::callable_string($function) ?: Kernel::callingFunction(1);
+		$id = $options['id'] ?? self::callableString($function) ?: Kernel::callingFunction();
 		$hookGroup = $this->_group($hook);
 		if (($options['no-duplicates'] ?? false) && $hookGroup->has($id)) {
 			throw new Semantics('Duplicate registration of hook {id}', [
@@ -395,6 +436,7 @@ class Hooks {
 	 *
 	 * @param string $hook
 	 * @return HookGroup
+	 * @deprecated 2023-06
 	 */
 	private function _group(string $hook): HookGroup {
 		$hook = $this->_hookName($hook);
@@ -410,6 +452,7 @@ class Hooks {
 	 *
 	 * @param array|string $class_methods
 	 * @return array
+	 * @deprecated 2023-06
 	 */
 	public function findAll(array|string $class_methods): array {
 		$methods = [];
@@ -449,6 +492,7 @@ class Hooks {
 	 *
 	 * @param string $hook
 	 * @throws KeyNotFound
+	 * @deprecated 2023-06
 	 */
 	public function remove(string $hook): void {
 		$hook = $this->_hookName($hook);
@@ -464,6 +508,7 @@ class Hooks {
 	 * @param string|array $hooks Hooks to call
 	 * @return mixed
 	 * @deprecated 2023-05 Move to attribute-based system
+	 * @deprecated 2023-06
 	 */
 	public function call(mixed $hooks): mixed {
 		$arguments = func_get_args();
@@ -478,6 +523,7 @@ class Hooks {
 	 * @param array $arguments
 	 *            Arguments to pass to the first hook
 	 * @return array[array]
+	 * @deprecated 2023-06
 	 */
 	public function collectHooks(mixed $hooks, array $arguments = []): array {
 		$definitions = $this->hookLoadDefinitions(Types::toIterable($hooks));
@@ -500,6 +546,7 @@ class Hooks {
 	 *
 	 * @param array|string $methods
 	 * @return mixed
+	 * @deprecated 2023-06
 	 */
 	public function allCall(array|string $methods): mixed {
 		$args = func_get_args();
@@ -517,6 +564,7 @@ class Hooks {
 	 * @param callable|null $result_callback
 	 * @return mixed
 	 * @see self::findAll
+	 * @deprecated 2023-06
 	 */
 	public function allCallArguments(array|string $methods, array $arguments = [], mixed $default = null, callable $hook_callback = null, callable $result_callback = null): mixed {
 		$methods = $this->findAll($methods);
@@ -553,7 +601,7 @@ class Hooks {
 	 * @param mixed $callable
 	 * @return string
 	 */
-	public static function callable_string(mixed $callable): string {
+	public static function callableString(mixed $callable): string {
 		if (is_array($callable)) {
 			return is_object($callable[0]) ? strtolower(get_class($callable[0])) . '::' . $callable[1] : implode('::', $callable);
 		} elseif (is_string($callable)) {
@@ -570,17 +618,17 @@ class Hooks {
 	 * @param Callable[] $callables
 	 * @return string[]
 	 */
-	public static function callable_strings(array $callables): array {
+	public static function callableStrings(array $callables): array {
 		$result = [];
 		foreach ($callables as $callable) {
-			$result[] = self::callable_string($callable);
+			$result[] = self::callableString($callable);
 		}
 		return $result;
 	}
 
 	public function shutdown(): void {
 		try {
-			$this->call(Hooks::HOOK_EXIT, $this->application);
+			$this->application->invokeHooks(Hooks::HOOK_EXIT, [$this->application]);
 		} catch (Throwable $e) {
 			PHP::log($e);
 		}

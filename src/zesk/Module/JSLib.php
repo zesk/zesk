@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+
 namespace zesk\Module;
 
 use zesk\Interface\Module\Head;
@@ -180,9 +181,12 @@ abstract class JSLib extends Module implements Head {
 	 * @param Response $response
 	 */
 	public function ready(Response $response): void {
-		$this->callHook('ready');
-		foreach ($this->jquery_ready as $code) {
-			$response->jquery($code, $this->jquery_ready_weight);
-		}
+		// TODO FIX
+//		$this->invokeHooks(self::HOOK_READY);
+//		foreach ($this->jquery_ready as $code) {
+//			$response->inlineJavaScript($code, ['weight' => $this->jquery_ready_weight]);
+//		}
 	}
+
+	public const HOOK_READY = __CLASS__ . '::ready';
 }

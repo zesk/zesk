@@ -75,10 +75,26 @@ use function str_ends_with;
  * @method SessionModule sessionModule()
  */
 class Application extends Hookable implements ModelFactory {
+	public const HOOK_MAIN = __CLASS__ . '::main';
+
 	/**
+	 * Router was created
 	 *
+	 * @var string
 	 */
-	public const HOOK_ROUTES = 'routes';
+	public const HOOK_ROUTER = __CLASS__ . '::router';
+
+	/**
+	 * Add routes to router
+	 * @var string
+	 */
+	public const HOOK_ROUTES = __CLASS__ . '::routes';
+
+	/**
+	 * Run after routes are created
+	 * @var string
+	 */
+	public const HOOK_ROUTES_POSTPROCESS = __CLASS__ . '::routesPostprocess';
 
 	/**
 	 * @desc Default option to store application version - may be stored differently in overridden classes, use
@@ -1128,10 +1144,8 @@ class Application extends Hookable implements ModelFactory {
 			if ($set === $this->command) {
 				return $this;
 			}
-			$this->command->callHook('replacedWith', $set);
 		}
 		$this->command = $set;
-		$this->callHook('command', $set);
 		return $this;
 	}
 
@@ -1485,9 +1499,7 @@ class Application extends Hookable implements ModelFactory {
 	 */
 	private function configuredHooks(): void {
 		foreach ([Hooks::HOOK_DATABASE_CONFIGURE, Hooks::HOOK_CONFIGURED] as $hook) {
-			$this->hooks->callArguments($hook, [$this, ]);
-			$this->modules->allHookArguments($hook); // Modules
-			$this->callHookArguments($hook); // Application level
+			$this->invokeHooks($hook, [$this]);
 			$this->modules->addLoadHook($hook);
 		}
 	}
@@ -1536,7 +1548,7 @@ class Application extends Hookable implements ModelFactory {
 	final public function setCacheItemPool(CacheItemPoolInterface $pool): self {
 		$this->pool = $pool;
 		$this->autoloader->setCache($pool);
-		$this->callHook(self::HOOK_SET_CACHE);
+		$this->invokeHooks(self::HOOK_SET_CACHE);
 		return $this;
 	}
 
@@ -1573,19 +1585,10 @@ class Application extends Hookable implements ModelFactory {
 				$this->logger->notice('{path} is empty.', compact('size', 'path'));
 			}
 		}
-		$this->callHook(self::HOOK_CACHE_CLEAR);
-		$hooks = $this->modules->listAllHooks(self::HOOK_CACHE_CLEAR);
-		if (count($hooks)) {
-			$this->logger->debug('Running {hookList}', [
-				'hookList' => $this->_formatHooks($hooks),
-			]);
-			$this->modules->allHook(self::HOOK_CACHE_CLEAR, $this);
-		} else {
-			$this->logger->debug('No module cache clear hooks');
-		}
+		$this->invokeHooks(self::HOOK_CACHE_CLEAR, [$this]);
 		$controllers = $this->controllers();
 		foreach ($controllers as $controller) {
-			$controller->callHook(self::HOOK_CACHE_CLEAR);
+			$controller->in(self::HOOK_CACHE_CLEAR);
 		}
 	}
 
@@ -1602,7 +1605,7 @@ class Application extends Hookable implements ModelFactory {
 	private function _formatHooks(array $hooks): array {
 		$result = [];
 		foreach ($hooks as $hook) {
-			$result[] = $this->hooks->callable_string($hook);
+			$result[] = $this->hooks->callableString($hook);
 		}
 		return $result;
 	}
@@ -1640,9 +1643,9 @@ class Application extends Hookable implements ModelFactory {
 	 * @return void
 	 */
 	private function initializeRouter(): void {
-		$this->callHook('router');
-		$this->modules->allHook('routes', $this->router);
-		$this->callHook('router_loaded', $this->router);
+		$this->invokeHooks(self::HOOK_ROUTER, [$this->router]);
+		$this->invokeHooks(self::HOOK_ROUTES, [$this->router]);
+		$this->invokeHooks(self::HOOK_ROUTES_POSTPROCESS, [$this->router]);
 	}
 
 	/**
@@ -1705,6 +1708,8 @@ class Application extends Hookable implements ModelFactory {
 		}
 	}
 
+	public const HOOK_CONTENT = __CLASS__ . '::content';
+
 	/**
 	 * Utility for index.php file for all public-served content.
 	 * @throws Semantics
@@ -1714,7 +1719,7 @@ class Application extends Hookable implements ModelFactory {
 			return '';
 		}
 		$this->contentRecursion[$path] = true;
-		$this->callHook('content');
+		$this->invokeHooks(self::HOOK_CONTENT);
 
 		$url = 'http://localhost/';
 
@@ -1778,7 +1783,7 @@ class Application extends Hookable implements ModelFactory {
 	 */
 	public function main(Request $request): Response {
 		try {
-			$response = $this->callHook('main', $request);
+			$response = $this->invokeFilters(self::HOOK_MAIN, null, [$request]);
 			if ($response instanceof Response) {
 				return $response;
 			}
@@ -1897,14 +1902,17 @@ class Application extends Hookable implements ModelFactory {
 				'first' => true,
 			]);
 			if (!$exception instanceof Redirect) {
-				$this->hooks->call('exception', $exception);
+				$this->invokeHooks(self::HOOK_EXCEPTION, [
+					'exception' => $exception, 'application' => $this, 'response' => $response,
+				]);
 			}
-			$this->callHook('mainException', $exception, $response);
 		} catch (Redirect $e) {
 			$response->redirect()->handleException($e);
 		}
 		return $response;
 	}
+
+	public const HOOK_EXCEPTION = __CLASS__ . '::exception';
 
 	/**
 	 *
@@ -1967,7 +1975,7 @@ class Application extends Hookable implements ModelFactory {
 		$final_map = [];
 
 		$request = $this->requestFactory();
-		$this->callHook('request', $request);
+		$request = $this->invokeFilters(self::HOOK_REQUEST_PREPROCESS, $request);
 		$options = [];
 		if (($response = Response::cached($this->pool, $url = $request->url())) === null) {
 			$response = $this->main($request);
@@ -1993,6 +2001,8 @@ class Application extends Hookable implements ModelFactory {
 		return $response;
 	}
 
+	public const HOOK_REQUEST_PREPROCESS = __CLASS__ . '::requestPreprocess';
+
 	/**
 	 * @param Request $request
 	 * @param Response $response
@@ -2010,7 +2020,6 @@ class Application extends Hookable implements ModelFactory {
 	 */
 	public function setLocale(Locale $set): self {
 		$this->locale = $set;
-		$this->callHook('setLocale', $set);
 		return $this;
 	}
 
@@ -2525,5 +2534,9 @@ class Application extends Hookable implements ModelFactory {
 		} catch (Authentication) {
 			return null;
 		}
+	}
+
+	public function tableExists(string $tableName, string $entityManager = ''): bool {
+		$conn = $this->entityManager($entityManager)->getConnection();
 	}
 }

@@ -58,15 +58,14 @@ class Logger implements LoggerInterface {
 	 */
 	private array $handlers = [];
 
-	public static function hooks(Application $application): void {
-		$application->hooks->add(Hooks::HOOK_CONFIGURED, function () use ($application): void {
-			$logUTC = [Logger::class, 'utc_time'];
-			if ($application->configuration->pathExists($logUTC)) {
-				if ($application->logger instanceof Logger) {
-					$application->logger->utc_time = toBool($application->configuration->getPath($logUTC));
-				}
+	#[HookMethod(handles: Hooks::HOOK_CONFIGURED)]
+	public static function configured(Application $application): void {
+		$logUTC = [Logger::class, 'utc_time'];
+		if ($application->configuration->pathExists($logUTC)) {
+			if ($application->logger instanceof Logger) {
+				$application->logger->utc_time = Types::toBool($application->configuration->getPath($logUTC));
 			}
-		});
+		}
 	}
 
 	/**

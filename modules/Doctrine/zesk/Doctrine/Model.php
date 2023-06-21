@@ -38,31 +38,4 @@ class Model extends \zesk\Model {
 	public function json(JSONWalker $options): array {
 		return $options->walk($this);
 	}
-
-	public static function basePermissions(): array {
-		return [
-			'view' => [
-				'title' => 'View {object}', 'class' => '{class}', 'before_hook' => [
-					'allowed_if_all' => ['{class}::view all', ],
-				],
-			], 'view all' => [
-				'title' => 'View all {objects}',
-			], 'edit' => [
-				'title' => 'Edit {object}', 'class' => '{class}', 'before_hook' => [
-					'allowed_if_all' => ['{class}::edit all', ],
-				],
-			], 'edit all' => [
-				'title' => 'Edit all {objects}',
-			], 'new' => [
-				'title' => 'Create {objects}',
-			], 'delete all' => [
-				'title' => 'Delete any {objects}',
-			], 'delete' => [
-				'title' => 'Delete {object}', 'before_hook' => ['allowed_if_all' => ['{class}::delete all', ], ],
-				'class' => '{class}',
-			], 'list' => [
-				'title' => 'List {objects}',
-			],
-		];
-	}
 }

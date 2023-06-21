@@ -24,6 +24,10 @@ use zesk\Repository\Base as Repository;
  * @category Management
  */
 class Command_Update extends SimpleCommand {
+	public const HOOK_UPDATE = __CLASS__ . '::update';
+
+	public const HOOK_UPDATED = __CLASS__ . '::updated';
+
 	protected array $app_data;
 
 	protected array $option_types = [
@@ -336,8 +340,8 @@ class Command_Update extends SimpleCommand {
 			$logger->debug('Running {class}::hook_{name}', [
 				'class' => $module_object::class, 'name' => $hook_name,
 			]);
-			$module_object->callHook($hook_name);
-		} catch (NotFoundException $e) {
+			$this->invokeObjectHooks($hook_name);
+		} catch (\Throwable $e) {
 			$logger->debug("Module object for $module was not found ... skipping");
 		}
 	}
@@ -376,14 +380,14 @@ class Command_Update extends SimpleCommand {
 			if ($checked_time > $now - $interval) {
 				$this->verboseLog("$moduleName checked less than " . $locale->durationString($interval, 'hour') . ' ago' . ($force_check ? '- checking anyway' : ''));
 				if (!$force_check) {
-					$this->_runModuleHook($moduleName, 'update');
+					$this->_runModuleHook($moduleName, self::HOOK_UPDATE);
 					return true;
 				}
 			}
 		}
 		$edits = $this->fetch($this->app_data + $state_data + $module->moduleData() + $data);
 		$did_updates = $composer_updates || (is_array($edits) && count($edits) > 0);
-		$this->_runModuleHook($moduleName, $did_updates ? 'updated' : 'update');
+		$this->_runModuleHook($moduleName, $did_updates ? self::HOOK_UPDATED : self::HOOK_UPDATE);
 		if ($did_updates) {
 			$this->log('{name} updated to latest version.', [
 				'name' => $moduleName,

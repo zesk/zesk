@@ -457,45 +457,10 @@ class PHP {
 	 * @param boolean $throw Throw an ParseException error when value is invalid JSON. Defaults to true.
 	 * @return mixed
 	 * @throws ParseException
+	 * @deprecated 2023-06
 	 */
 	public static function autoType(mixed $value, bool $throw = true): mixed {
-		if (is_array($value)) {
-			foreach ($value as $k => $v) {
-				$value[$k] = self::autoType($v);
-			}
-			return $value;
-		}
-		if (is_object($value)) {
-			return $value;
-		}
-		// Convert numeric types first, then boolean
-		$boolValue = Types::toBool($value, null);
-		if (is_bool($boolValue)) {
-			return $boolValue;
-		}
-		if (is_numeric($value)) {
-			if (preg_match('/^\d+$/', "$value")) {
-				return Types::toInteger($value);
-			}
-			return Types::toFloat($value);
-		}
-		if (!is_string($value)) {
-			return $value;
-		}
-		if ($value === 'null') {
-			return null;
-		}
-		if (StringTools::unquote($value, '{}[]\'\'""') !== $value) {
-			try {
-				return JSON::decode($value);
-			} catch (ParseException $e) {
-				if ($throw) {
-					throw $e;
-				}
-				return $value;
-			}
-		}
-		return $value;
+		return Types::autoType($value, $throw);
 	}
 
 	/**

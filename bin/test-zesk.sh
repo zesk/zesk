@@ -86,8 +86,6 @@ if test $doStop; then
   args+=("--stop-on-defect" "--stop-on-failure")
   export XDEBUG_MODE=coverage
   echo "Enabling XDEBUG_MODE=coverage"
-else
-  args+=("--no-coverage")
 fi
 if [ ! -x "$phpunit_bin" ]; then
   echo "$phpunit_bin does not exist or is not executable" 1>&2

@@ -245,12 +245,19 @@ class Request extends Hookable {
 
 		$this->_initializeData();
 
-		$this->callHook([
-			'initialize', 'initializeFromGlobals',
-		]);
+		$this->invokeHooks(self::HOOK_INITIALIZE, [$this]);
+		$this->invokeHooks(self::HOOK_INITIALIZE_GLOBALS, [$this]);
 
 		return $this;
 	}
+
+	public const HOOK_INITIALIZE = __CLASS__ . '::initialize';
+
+	public const HOOK_INITIALIZE_GLOBALS = __CLASS__ . '::initializeFromGlobals';
+
+	public const HOOK_INITIALIZE_REQUEST = __CLASS__ . '::initializeFromRequest';
+
+	public const HOOK_INITIALIZE_SETTINGS = __CLASS__ . '::initializeFromSettings';
 
 	/**
 	 * Copy from another request
@@ -275,9 +282,8 @@ class Request extends Hookable {
 
 		$this->init = 'request';
 
-		$this->callHook([
-			'initialize', 'initializeFromRequest',
-		]);
+		$this->invokeHooks(self::HOOK_INITIALIZE, [$this]);
+		$this->invokeHooks(self::HOOK_INITIALIZE_REQUEST, [$this]);
 
 		return $this;
 	}
@@ -336,9 +342,8 @@ class Request extends Hookable {
 		$this->_initializeData();
 		$this->_validURLParts();
 
-		$this->callHook([
-			'initialize', 'initializeFromSettings',
-		]);
+		$this->invokeHooks(self::HOOK_INITIALIZE, [$this]);
+		$this->invokeHooks(self::HOOK_INITIALIZE_SETTINGS, [$this]);
 
 		return $this;
 	}

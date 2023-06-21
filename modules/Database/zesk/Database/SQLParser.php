@@ -12,6 +12,7 @@ use zesk\Exception\NotFoundException;
 use zesk\Exception\ParameterException;
 use zesk\Hookable;
 use zesk\preg;
+use zesk\StringTools;
 use zesk\Text;
 
 /**
@@ -114,26 +115,7 @@ abstract class SQLParser extends Hookable {
 	 * @return array
 	 */
 	public function splitSQLStatements(string $sqlScript): array {
-		$map = [
-			'\\\'' => '*SLASH_SLASH_QUOTE*',
-		];
-		$rev_map = array_flip($map);
-		// Convert our string to make pattern matching easier
-		$sqlScript = strtr($sqlScript, $map);
-		$index = 0;
-		while (preg_match('/\'[^\']*\'/', $sqlScript, $match) !== 0) {
-			$from = $match[0];
-			$to = chr(1) . '{' . $index . '}' . chr(2);
-			$index++;
-			// Map BACK to the original string, not the munged one
-			$map[strtr($from, $rev_map)] = $to;
-			$sqlScript = strtr($sqlScript, [
-				$from => $to,
-			]);
-		}
-		$sqlStatements = ArrayTools::listTrimClean(explode(';', $sqlScript));
-		// Now convert everything back to what it is supposed to be
-		return tr($sqlStatements, array_flip($map));
+		return StringTools::splitSQLStatements($sqlScript);
 	}
 
 	/**

@@ -43,7 +43,7 @@ pipelines:
             - export DATABASE_HOST=127.0.0.1
             - export CONTAINER_DATABASE_HOST=$BITBUCKET_DOCKER_HOST_INTERNAL
             - export DATABASE_ROOT_PASSWORD=hard-to-guess
-            - bin/pipeline-setup.sh
+            - bin/pipeline-setup.sh --testsuite core
     master:
       - step:
           name: Build and test

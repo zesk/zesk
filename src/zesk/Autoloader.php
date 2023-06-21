@@ -159,7 +159,7 @@ class Autoloader {
 	 * @return $this
 	 */
 	public function addLoaded(Closure $closure, string $id = ''): self {
-		$hash = $id ?: Hooks::callable_string($closure);
+		$hash = $id ?: Hooks::callableString($closure);
 		$this->loaded[$hash] = $closure;
 		return $this;
 	}

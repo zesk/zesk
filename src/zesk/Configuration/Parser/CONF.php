@@ -147,7 +147,7 @@ class CONF extends Parser {
 			}
 			if (!$found_quote) {
 				if ($autoType) {
-					$value = PHP::autotype($value);
+					$value = Types::autoType($value);
 				}
 			}
 
