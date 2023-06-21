@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace zesk;
 
 class hookable_test_a extends Hookable {
-	const HOOK_TEST = __CLASS__."::test";
+	public const HOOK_TEST = __CLASS__ . '::test';
 
 	public static Application $app;
 

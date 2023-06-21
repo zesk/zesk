@@ -359,7 +359,7 @@ class Writer extends Base {
 	 * @return self
 	 */
 	public function addWriteHook(callable $callable): self {
-		$name = Hooks::callable_string($callable);
+		$name = Hooks::callableString($callable);
 		$this->write_hooks[$name] = $callable;
 		return $this;
 	}

@@ -181,31 +181,13 @@ class Controller extends zeskController {
 	 * @throws Unsupported
 	 */
 	private function handleLogin(string $userName, string $password): Userlike {
-		$user = $this->application->entityManager()->getRepository($this->userClass);
-		$column_login = $this->option('ormIdColumn', $user->columnLogin());
-		if ($this->option('no_password')) {
-			try {
-				$user = $this->application->ormRegistry(User::class)->querySelect()->addWhere($column_login, $user)->orm();
-				assert($user instanceof User);
-				return $user;
-			} catch (KeyNotFound|ORMNotFound $e) {
-				throw new Authentication($userName, [], 0, $e);
-			}
+		$repo = $this->application->entityManager()->getRepository($this->optionString('userClass'));
+		$user = $repo->findOneBy(['code' => $userName]);
+		if (!$user) {
+			throw new Authentication('{userName} failed', ['userName' => $userName]);
 		}
-		/* @var $user User */
 		$hashed_password = $this->generateHashedPassword($password);
 
-		try {
-			return $user->authenticate($hashed_password, false, false);
-		} catch (Authentication $e) {
-			/* 2nd chance */
-			if ($this->callHookArguments('authenticate', [
-				$user, $userName, $password,
-			], false)) {
-				return $user;
-			}
-
-			throw $e;
-		}
+		return $user->authenticate($hashed_password);
 	}
 }

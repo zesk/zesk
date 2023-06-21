@@ -24,8 +24,9 @@ use zesk\Repository\Base as Repository;
  * @category Management
  */
 class Command_Update extends SimpleCommand {
-	const HOOK_UPDATE = __CLASS__ . '::update';
-	const HOOK_UPDATED = __CLASS__ . '::updated';
+	public const HOOK_UPDATE = __CLASS__ . '::update';
+
+	public const HOOK_UPDATED = __CLASS__ . '::updated';
 
 	protected array $app_data;
 

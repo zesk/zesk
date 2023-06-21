@@ -599,10 +599,10 @@ class Application extends Hookable implements ModelFactory {
 	public function setDeprecated(string $set): string {
 		$old = $this->deprecated;
 		$this->deprecated = [
-								self::DEPRECATED_BACKTRACE => self::DEPRECATED_BACKTRACE,
-								self::DEPRECATED_EXCEPTION => self::DEPRECATED_EXCEPTION,
-								self::DEPRECATED_LOG => self::DEPRECATED_LOG,
-							][$set] ?? self::DEPRECATED_IGNORE;
+			self::DEPRECATED_BACKTRACE => self::DEPRECATED_BACKTRACE,
+			self::DEPRECATED_EXCEPTION => self::DEPRECATED_EXCEPTION,
+			self::DEPRECATED_LOG => self::DEPRECATED_LOG,
+		][$set] ?? self::DEPRECATED_IGNORE;
 		return $old;
 	}
 
@@ -623,14 +623,14 @@ class Application extends Hookable implements ModelFactory {
 		switch ($this->deprecated) {
 			case self::DEPRECATED_EXCEPTION:
 				throw new Deprecated("{reason} Deprecated: {calling_function}\n{backtrace}", [
-						'reason' => $reason, 'calling_function' => Kernel::callingFunction(),
-						'backtrace' => Kernel::backtrace(4 + $depth),
-					] + $arguments);
+					'reason' => $reason, 'calling_function' => Kernel::callingFunction(),
+					'backtrace' => Kernel::backtrace(4 + $depth),
+				] + $arguments);
 			case self::DEPRECATED_LOG:
 				$this->application->logger->error("{reason} Deprecated: {calling_function}\n{backtrace}", [
-						'reason' => $reason ?: 'DEPRECATED', 'calling_function' => Kernel::callingFunction(),
-						'backtrace' => Kernel::backtrace(4 + $depth),
-					] + $arguments);
+					'reason' => $reason ?: 'DEPRECATED', 'calling_function' => Kernel::callingFunction(),
+					'backtrace' => Kernel::backtrace(4 + $depth),
+				] + $arguments);
 				break;
 			case self::DEPRECATED_BACKTRACE:
 				echo Kernel::backtrace();
@@ -643,7 +643,7 @@ class Application extends Hookable implements ModelFactory {
 	 * @codeCoverageIgnore
 	 */
 	public function obsolete(): void {
-		$this->application->logger->alert('Obsolete function called {function}', ['function' => Kernel::callingFunction(2),]);
+		$this->application->logger->alert('Obsolete function called {function}', ['function' => Kernel::callingFunction(2), ]);
 		if ($this->application->development()) {
 			echo Kernel::backtrace();
 			exit(1);
@@ -1605,7 +1605,7 @@ class Application extends Hookable implements ModelFactory {
 	private function _formatHooks(array $hooks): array {
 		$result = [];
 		foreach ($hooks as $hook) {
-			$result[] = $this->hooks->callable_string($hook);
+			$result[] = $this->hooks->callableString($hook);
 		}
 		return $result;
 	}
@@ -1674,8 +1674,8 @@ class Application extends Hookable implements ModelFactory {
 			}
 		} catch (Throwable $t) {
 			$this->logger->error('{applicationClass}::setMaintenance({value}) hook threw {exceptionClass} {message}', [
-					'applicationClass' => get_class($this), 'value' => $set ? 'true' : 'false',
-				] + Exception::phpExceptionVariables($t));
+				'applicationClass' => get_class($this), 'value' => $set ? 'true' : 'false',
+			] + Exception::phpExceptionVariables($t));
 			return false;
 		}
 
@@ -1691,8 +1691,8 @@ class Application extends Hookable implements ModelFactory {
 
 	private function _maintenanceEnabled(): void {
 		$context = [
-				'time' => date('Y-m-d H:i:s'),
-			] + Types::toArray($this->callHookArguments('maintenanceEnabled', [[]], []));
+			'time' => date('Y-m-d H:i:s'),
+		] + Types::toArray($this->callHookArguments('maintenanceEnabled', [[]], []));
 
 		try {
 			file_put_contents($this->maintenanceFile(), JSON::encode($context));
@@ -1765,7 +1765,7 @@ class Application extends Hookable implements ModelFactory {
 		try {
 			if ($inherit) {
 				$request->initializeFromRequest($inherit);
-			} else if ($this->console()) {
+			} elseif ($this->console()) {
 				$request->initializeFromSettings('http://console/');
 			} else {
 				$request->initializeFromGlobals();
@@ -1896,9 +1896,9 @@ class Application extends Hookable implements ModelFactory {
 
 		try {
 			$response->content = $this->themes->theme($this->classes->hierarchy($exception), [
-					'application' => $this, 'request' => $request, 'response' => $response, 'exception' => $exception,
-					'content' => $exception,
-				] + Exception::exceptionVariables($exception), [
+				'application' => $this, 'request' => $request, 'response' => $response, 'exception' => $exception,
+				'content' => $exception,
+			] + Exception::exceptionVariables($exception), [
 				'first' => true,
 			]);
 			if (!$exception instanceof Redirect) {
@@ -1990,8 +1990,8 @@ class Application extends Hookable implements ModelFactory {
 			'{page-render-time}' => sprintf('%.3f', microtime(true) - $this->initializationMicrotime),
 		];
 		if (!$response || $response->isContentType([
-				'text/', 'javascript',
-			])) {
+			'text/', 'javascript',
+		])) {
 			if ($response->content !== null) {
 				$response->content = strtr($response->content, $final_map);
 			}
@@ -2534,5 +2534,9 @@ class Application extends Hookable implements ModelFactory {
 		} catch (Authentication) {
 			return null;
 		}
+	}
+
+	public function tableExists(string $tableName, string $entityManager = ''): bool {
+		$conn = $this->entityManager($entityManager)->getConnection();
 	}
 }

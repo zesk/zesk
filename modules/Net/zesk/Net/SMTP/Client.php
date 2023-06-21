@@ -11,6 +11,7 @@ namespace zesk\Net\SMTP;
 use zesk\Exception\ConnectionFailed;
 use zesk\Exception_Protocol;
 use zesk\Net\SocketClient;
+use zesk\Types;
 
 /**
  *
@@ -51,7 +52,7 @@ class Client extends SocketClient {
 		}
 		$rcpts = [];
 		foreach ($to as $recipient) {
-			if (is_email($recipient)) {
+			if (Types::isEmail($recipient)) {
 				$rcpts[] = $recipient;
 			} else {
 				$rcpts[] = Mail::parseAddress($recipient)['email'] ?? null;

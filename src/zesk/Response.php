@@ -414,6 +414,10 @@ class Response extends Hookable {
 		header($string);
 	}
 
+	public const HOOK_BEFORE_HEADERS = __CLASS__ . '::beforeHeaders';
+
+	public const HOOK_AFTER_HEADERS = __CLASS__ . '::afterHeaders';
+
 	/**
 	 *
 	 * @throws Semantics
@@ -423,7 +427,7 @@ class Response extends Hookable {
 
 		$do_hooks = !$skip_hooks;
 		if ($do_hooks) {
-			$this->callHook('headers_before');
+			$this->invokeHooks(self::HOOK_BEFORE_HEADERS, [$this]);
 		}
 		if ($this->optionBool(self::OPTION_SKIP_HEADERS)) {
 			return;
@@ -442,10 +446,10 @@ class Response extends Hookable {
 			]);
 		}
 		if ($do_hooks) {
-			$this->callHook('headers');
+			$this->invokeHooks(self::HOOK_AFTER_HEADERS, [$this]);
 		}
 		if (str_starts_with($this->contentType, 'text/')) {
-			if (empty($this->charset)) {
+			if ($this->charset === '') {
 				$this->charset = 'utf-8';
 			}
 			$content_type = $this->contentType . '; charset=' . $this->charset;
@@ -684,8 +688,10 @@ class Response extends Hookable {
 		return ob_get_clean();
 	}
 
-	const HOOK_OUTPUT_BEFORE = __CLASS__ . '::outputBefore';
-	const HOOK_OUTPUT_AFTER = __CLASS__ . '::outputBefore';
+	public const HOOK_OUTPUT_BEFORE = __CLASS__ . '::outputBefore';
+
+	public const HOOK_OUTPUT_AFTER = __CLASS__ . '::outputBefore';
+
 	/**
 	 * Echo response
 	 *
@@ -1105,17 +1111,6 @@ class Response extends Hookable {
 	 */
 	final public function inlineJavaScript(string $script, array $options = []): self {
 		return $this->html()->inlineJavaScript($script, $options);
-	}
-
-	/**
-	 * Require jQuery on the page, and optionally add a ready script
-	 *
-	 * @param string|array $add_ready_script
-	 * @param int $weight
-	 * @return Response
-	 */
-	final public function jquery(string|array $add_ready_script = '', int $weight = 0): Response {
-		return $this->html()->jquery($add_ready_script, $weight);
 	}
 
 	/*====================================================================================================*\

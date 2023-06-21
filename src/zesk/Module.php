@@ -134,7 +134,7 @@ class Module extends Hookable {
 		$this->inheritConfiguration();
 	}
 
-	public const HOOK_MODULE_INITIALIZE = __CLASS__ .'::initialize';
+	public const HOOK_MODULE_INITIALIZE = __CLASS__ . '::initialize';
 
 	final public function moduleConfiguration(): array {
 		return $this->configuration;

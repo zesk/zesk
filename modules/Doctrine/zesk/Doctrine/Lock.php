@@ -351,11 +351,13 @@ class Lock extends Model {
 	 *
 	 * @return boolean
 	 */
+	public const HOOK_IS_LOCKED = __CLASS__ . '::isLocked';
+
 	private function _isLocked(): bool {
 		// Each server is responsible for keeping locks clean.
 		// Allow a hook to enable inter-server connection, later
 		if (!$this->isMyServer()) {
-			return $this->server->callHookArguments(__CLASS__ . '::isLocked', [$this], true);
+			return $this->server->invokeFilters(self::HOOK_IS_LOCKED, true, [$this]);
 		}
 		if ($this->isMyPID()) {
 			// My process, so it's not locked

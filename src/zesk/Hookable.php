@@ -57,12 +57,16 @@ class Hookable extends Options {
 			}
 		} catch (DirectoryNotFound|ParameterException $e) {
 			// "Never"
-			throw new RuntimeException('Exception should never occur', [], 0, $e);
+			throw new RuntimeException('Directory {path} not found - someone deleted the source code?', [
+				'path' => $application->path(),
+			], 0, $e);
 		}
 	}
 
 	/**
 	 * Finds static methods in any object in the system with the class attribute attached
+	 *
+	 * *** Globally within the application ***
 	 *
 	 * @param Hookable $hookable
 	 * @param string $attributeClassName
@@ -94,6 +98,12 @@ class Hookable extends Options {
 	/**
 	 * Finds methods in this object with the attribute annotation of class
 	 *
+	 * Usage:
+	 *
+	 * 		foreach ($this->>attributeMethods(DaemonMethod::class) as $method) {
+	 * 			...
+	 * 		}
+	 *
 	 * @param string $attributeClassName
 	 * @return array:HookableAttribute
 	 */
@@ -119,7 +129,27 @@ class Hookable extends Options {
 	 * @return array:HookMethod
 	 */
 	public function hookMethods(string $hookName): array {
-		return array_filter($this->attributeMethods(HookMethod::class), fn(HookMethod $method) => $method->handlesHook($hookName));
+		return array_filter($this->attributeMethods(HookMethod::class), fn (HookMethod $method) => $method->handlesHook($hookName));
+	}
+
+	/**
+	 * Do static and application hooks exist? (unrelated to `$this`)
+	 *
+	 * @param string $hookName
+	 * @return bool
+	 */
+	public function hasHooks(string $hookName): bool {
+		return count(self::_hooksFor($hookName)) !== 0;
+	}
+
+	/**
+	 * Do object hooks exist for this object? (related to `$this`)
+	 *
+	 * @param string $hookName
+	 * @return bool
+	 */
+	public function hasObjectHooks(string $hookName): bool {
+		return count(self::objectHookMethods([$this], $hookName)) !== 0;
 	}
 
 	/**
@@ -130,12 +160,11 @@ class Hookable extends Options {
 	 * @return void
 	 */
 	public function invokeHooks(string $hookName, array $arguments = []): void {
-		$hooks = array_merge(self::staticHooksFor($this, $hookName, true), self::applicationHookMethods($this, $hookName, [$this]));
+		$hooks = array_merge(self::staticHooksFor($this, $hookName), self::applicationHookMethods($this, $hookName, [$this]));
 		foreach ($hooks as $method) {
 			$method->run($arguments);
 		}
 	}
-
 
 	/**
 	 * Run static hooks and object hooks
@@ -168,7 +197,6 @@ class Hookable extends Options {
 			$mixed = $hookMethod->run($arguments);
 		}
 		return $mixed;
-
 	}
 
 	/**
@@ -182,7 +210,8 @@ class Hookable extends Options {
 	 * @throws ParameterException
 	 * @throws ReflectionException
 	 */
-	public function _invokeTypedFilters(string $hookName, array $hookMethods, mixed $mixed, array $arguments = [], int $filterArgumentIndex = -1): mixed {
+	private function _invokeTypedFilters(string $hookName, array $hookMethods, mixed $mixed, array $arguments = [], int
+$filterArgumentIndex = -1): mixed {
 		$type = Types::type($mixed);
 		if ($filterArgumentIndex < 0) {
 			$filterArgumentIndex = count($arguments);
@@ -202,14 +231,32 @@ class Hookable extends Options {
 	}
 
 	/**
-	 * @param string $hookname
-	 * @return HookMethod[]
+	 * @param string $hookName
+	 * @return array
 	 */
-	private function _hooksFor(string $hookname): array {
+	private function _hooksFor(string $hookName): array {
 		return array_merge(self::staticHooksFor($this, $hookName), self::applicationHookMethods($this, $hookName));
 	}
 
 	/**
+	 * Run static and application objects hooks and run a filter function on an argument which is
+	 * returned by each hook. Type is not enforced.
+	 *
+	 * @param string $hookName
+	 * @param mixed $mixed
+	 * @param array $arguments
+	 * @param int $filterArgumentIndex
+	 * @return mixed
+	 */
+	public function invokeFilters(string $hookName, mixed $mixed, array $arguments = [], int $filterArgumentIndex = -1): mixed {
+		$hooks = $this->_hooksFor($hookName);
+		return self::_invokeFilters($hooks, $mixed, $arguments, $filterArgumentIndex);
+	}
+
+	/**
+	 * Run static and application objects hooks and run a filter function on an argument which is
+	 * returned by each hook. Enforce the return type to match upon each function call.
+	 *
 	 * @param string $hookName
 	 * @param mixed $mixed
 	 * @param array $arguments
@@ -218,31 +265,28 @@ class Hookable extends Options {
 	 * @throws ParameterException
 	 * @throws ReflectionException
 	 */
-	public function invokeFilters(string $hookName, mixed $mixed, array $arguments, int $filterArgumentIndex = -1): mixed {
-		$hooks = $this->_hooksFor($hookName);
-		return self::_invokeFilters($hooks, $mixed, $arguments, $filterArgumentIndex);
-	}
-
-	public function invokeTypedFilters(string $hookName, mixed $mixed, array $arguments, int $filterArgumentIndex = -1): mixed {
+	public function invokeTypedFilters(string $hookName, mixed $mixed, array $arguments = [], int $filterArgumentIndex = -1): mixed {
 		$hooks = $this->_hooksFor($hookName);
 		return self::_invokeTypedFilters($hookName, $hooks, $mixed, $arguments, $filterArgumentIndex);
 	}
 
 	/**
-	 * Run static hooks and object hooks
+	 * Run just hooks on this object
 	 *
 	 * @param string $hookName
+	 * @param mixed $mixed
 	 * @param array $arguments
-	 * @return void
+	 * @param int $filterArgumentIndex
+	 * @return mixed
 	 */
-	public function invokeObjectFilters(string $hookName, mixed $mixed, array $arguments = [], int $filterArgumentIndex = -1): void {
+	public function invokeObjectFilters(string $hookName, mixed $mixed, array $arguments = [], int $filterArgumentIndex = -1): mixed {
 		$hooks = self::objectHookMethods([$this], $hookName);
-		self::_invokeFilters($hooks, $mixed, $arguments, $filterArgumentIndex);
+		return self::_invokeFilters($hooks, $mixed, $arguments, $filterArgumentIndex);
 	}
 
-
 	/**
-	 * Finds the HookMethod attached to Hookables and return them
+	 * Finds the HookMethod attached to a list of Hookables and return them. Each hookable may have one ore more
+	 * hookName method.
 	 *
 	 * @param Hookable[] $hookables
 	 * @param string $hookName
@@ -274,7 +318,6 @@ class Hookable extends Options {
 	 * List of application hookables which is, in order:
 	 *
 	 * - the application object
-	 * - the application modules manager
 	 * - the locale
 	 * - the router
 	 * - all modules
@@ -284,17 +327,20 @@ class Hookable extends Options {
 	 */
 	final public function hookables(): array {
 		return array_merge([
-			$this->application, $this->application->modules, $this->application->locale, $this->application->router,
+			$this->application, $this->application->locale, $this->application->router,
 		], $this->application->modules->all(), $this->application->objects->hookables());
 	}
 
 	/**
+	 * Retrieves a list of all static methods tagged with the HookMethod attribute
+	 *
+	 * @see HookMethod
 	 * @param Hookable $hookable
 	 * @param string $name
 	 * @return array:HookMethod
 	 */
 	public static function staticHooksFor(Hookable $hookable, string $name): array {
-		return array_filter(self::staticAttributeMethods($hookable, HookMethod::class), fn(HookMethod $method) => $method->handlesHook($name));
+		return array_filter(self::staticAttributeMethods($hookable, HookMethod::class), fn (HookMethod $method) => $method->handlesHook($name));
 	}
 
 	/**
@@ -312,6 +358,82 @@ class Hookable extends Options {
 	public function __wakeup(): void {
 		$this->application = Kernel::wakeupApplication();
 	}
+
+	/**
+	 * Loading references
+	 *
+	 * @param string $class
+	 * @return array
+	 */
+	private function _defaultOptions(string $class): array {
+		$references = [];
+		// Class hierarchy is given from child -> parent
+		$config = $this->application->configuration;
+		foreach ($this->application->classes->hierarchy($class) as $subclass) {
+			// Child options override parent options
+			$references[$subclass] = $config->path($subclass);
+		}
+		return $references;
+	}
+
+	/**
+	 * Load default options for an object.
+	 * Leaf-class options override parent options.
+	 *
+	 * For class Control_Thing_Example, loads globals from:
+	 *
+	 * - `zesk\Control_Thing_Example::name1`
+	 * - `zesk\Control_Thing::name1`
+	 * - `zesk\Control::name1`
+	 * - `zesk\Options::name1`
+	 *
+	 * @param string $class
+	 * @return array
+	 */
+	public function defaultOptions(string $class): array {
+		// Class hierarchy is given from child -> parent
+		$config = new Configuration();
+		foreach ($this->_defaultOptions($class) as $configuration) {
+			// Child options override parent options
+			$config->merge($configuration, false);
+		}
+		return $config->toArray();
+	}
+
+	/**
+	 * Set options based on the application configuration.
+	 *
+	 * Only sets options if not set already.
+	 *
+	 * @param string $class Class to inherit configuration from
+	 * @return $this
+	 */
+	final public function inheritConfiguration(string $class = ''): self {
+		return $this->_configure($class, false);
+	}
+
+	private function _configure(string $class = '', bool $overwrite = true): self {
+		return $this->setOptions($this->defaultOptions($class ?: get_class($this)), $overwrite);
+	}
+
+	/**
+	 * Set options based on the application configuration.
+	 *
+	 * Overwrites all options from global configuration.
+	 *
+	 * @return $this
+	 */
+	final public function setConfiguration(string $class = ''): self {
+		return $this->_configure($class);
+	}
+	/*=================================================================================================================
+	 *  ____                                _           _
+	 * |  _ \  ___ _ __  _ __ ___  ___ __ _| |_ ___  __| |
+	 * | | | |/ _ \ '_ \| '__/ _ \/ __/ _` | __/ _ \/ _` |
+	 * | |_| |  __/ |_) | | |  __/ (_| (_| | ||  __/ (_| |
+	 * |____/ \___| .__/|_|  \___|\___\__,_|\__\___|\__,_|
+	 *			   |_|
+	 */
 
 	/**
 	 * Invoke a hook on this object if it exists.
@@ -494,7 +616,7 @@ class Hookable extends Options {
 			$methods = $this->_hooks[$type] ?? null;
 			if (is_array($methods)) {
 				foreach ($methods as $method) {
-					$result[] = Hooks::callable_string($method);
+					$result[] = Hooks::callableString($method);
 				}
 			}
 			if (!$object_only) {
@@ -569,73 +691,5 @@ class Hookable extends Options {
 			}
 		}
 		return $new_result;
-	}
-
-	/**
-	 * Loading references
-	 *
-	 * @param string $class
-	 * @return array
-	 */
-	private function _defaultOptions(string $class): array {
-		$references = [];
-		// Class hierarchy is given from child -> parent
-		$config = $this->application->configuration;
-		foreach ($this->application->classes->hierarchy($class) as $subclass) {
-			// Child options override parent options
-			$references[$subclass] = $config->path($subclass);
-		}
-		return $references;
-	}
-
-	/**
-	 * Load default options for an object.
-	 * Leaf-class options override parent options.
-	 *
-	 * For class Control_Thing_Example, loads globals from:
-	 *
-	 * - `zesk\Control_Thing_Example::name1`
-	 * - `zesk\Control_Thing::name1`
-	 * - `zesk\Control::name1`
-	 * - `zesk\Options::name1`
-	 *
-	 * @param string $class
-	 * @return array
-	 */
-	public function defaultOptions(string $class): array {
-		// Class hierarchy is given from child -> parent
-		$config = new Configuration();
-		foreach ($this->_defaultOptions($class) as $configuration) {
-			// Child options override parent options
-			$config->merge($configuration, false);
-		}
-		return $config->toArray();
-	}
-
-	/**
-	 * Set options based on the application configuration.
-	 *
-	 * Only sets options if not set already.
-	 *
-	 * @param string $class Class to inherit configuration from
-	 * @return $this
-	 */
-	final public function inheritConfiguration(string $class = ''): self {
-		return $this->_configure($class, false);
-	}
-
-	private function _configure(string $class = '', bool $overwrite = true): self {
-		return $this->setOptions($this->defaultOptions($class ?: get_class($this)), $overwrite);
-	}
-
-	/**
-	 * Set options based on the application configuration.
-	 *
-	 * Overwrites all options from global configuration.
-	 *
-	 * @return $this
-	 */
-	final public function setConfiguration(string $class = ''): self {
-		return $this->_configure($class);
 	}
 }

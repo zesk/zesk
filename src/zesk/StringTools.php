@@ -24,8 +24,7 @@ class StringTools {
 	public static function cleanTokens(string $string, string $prefixChar = '{', string $suffixChar = '}'): string {
 		$delimiter = '#';
 		$suffix = preg_quote($suffixChar, $delimiter);
-		return preg::replace($delimiter . preg_quote($prefixChar, $delimiter) . '[^' . $suffix . ']*' . $suffix .
-			$delimiter, '', $string);
+		return preg::replace($delimiter . preg_quote($prefixChar, $delimiter) . '[^' . $suffix . ']*' . $suffix . $delimiter, '', $string);
 	}
 
 	/**
@@ -906,5 +905,54 @@ class StringTools {
 			$encoding = mb_internal_encoding();
 		}
 		return mb_substr($string, $start, $length, $encoding);
+	}
+
+	/**
+	 * MySQL, MariaDB
+	 */
+	public const SINGLE_QUOTE = '\'';
+
+	/**
+	 * MySQL, MariaDB
+	 */
+	public const BACKSLASH_SINGLE_QUOTE = '\\\'';
+
+	/**
+	 * Most SQL
+	 */
+	public const SEMICOLON_END_OF_STATEMENT = ';';
+
+	/**
+	 * Divide SQL commands into different distinct commands
+	 *
+	 * @param string $sqlScript
+	 * @param string $quote
+	 * @param string $sqlEscapedQuote
+	 * @param string $endOfStatement
+	 * @return array
+	 */
+	public static function splitSQLStatements(string $sqlScript, string $quote = self::SINGLE_QUOTE, string $sqlEscapedQuote = self::BACKSLASH_SINGLE_QUOTE, string $endOfStatement = self::SEMICOLON_END_OF_STATEMENT): array {
+		$token = '*!@::@!*';
+		$map = [$sqlEscapedQuote => $token];
+		$inverseMap = [$token => $sqlEscapedQuote];
+		// Convert our string to make pattern matching easier
+		$sqlScript = strtr($sqlScript, $map);
+		$index = 0;
+		$matches = [];
+		$pattern = '/' . $quote . '[^' . $quote . ']*' . $quote . '/';
+		while (preg_match($pattern, $sqlScript, $matches) !== 0) {
+			[$from] = $matches;
+			$to = chr(1) . '{' . $index . '}' . chr(2);
+			$index++;
+			// Map BACK to the original string, not the munged one
+			$inverseMap[$to] = $from;
+			$sqlScript = strtr($sqlScript, [
+				$from => $to,
+			]);
+		}
+		// Split on end of line character and remove blank lines
+		$sqlStatements = array_filter(ArrayTools::listTrimClean(explode($endOfStatement, $sqlScript . $endOfStatement)));
+		// Convert everything back to what it is supposed to be
+		return Types::replaceSubstrings($sqlStatements, $inverseMap);
 	}
 }

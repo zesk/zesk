@@ -216,7 +216,7 @@ class Version extends SimpleCommand {
 				];
 				if ($hooks) {
 					$this->info('Calling hooks {hooks}', [
-						'hooks' => $this->application->hooks->callable_strings($hooks),
+						'hooks' => $this->application->hooks->callableStrings($hooks),
 					]);
 					$params = $this->application->modules->allHookArguments('version_updated', [
 						$params,

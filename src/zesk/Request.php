@@ -252,9 +252,13 @@ class Request extends Hookable {
 	}
 
 	public const HOOK_INITIALIZE = __CLASS__ . '::initialize';
+
 	public const HOOK_INITIALIZE_GLOBALS = __CLASS__ . '::initializeFromGlobals';
+
 	public const HOOK_INITIALIZE_REQUEST = __CLASS__ . '::initializeFromRequest';
+
 	public const HOOK_INITIALIZE_SETTINGS = __CLASS__ . '::initializeFromSettings';
+
 	/**
 	 * Copy from another request
 	 *
