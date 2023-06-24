@@ -178,7 +178,7 @@ class Version extends SimpleCommand {
 				if ($old_value !== $version_structure[$token]) {
 					$changed = $reset = true;
 				}
-			} elseif ($reset) {
+			} else if ($reset) {
 				$version_structure[$token] = 0;
 			} else {
 				$version_structure[$token] = intval($version_structure[$token] ?? 0);
@@ -187,7 +187,7 @@ class Version extends SimpleCommand {
 
 		try {
 			$new_version = $generator($version_structure);
-		} catch (Exception $e) {
+		} catch (Throwable $e) {
 			$this->error('Error generating new version from structure {message} ({version_structure})', [
 				'message' => $e->getMessage(), 'version_structure' => $version_structure,
 			]);
@@ -337,10 +337,7 @@ class Version extends SimpleCommand {
 				$path = $json;
 			}
 			return function ($schema) use ($path, $application_root) {
-				$file = File::isAbsolute($schema['file']) ? $schema['file'] : Directory::path(
-					$application_root,
-					$schema['file']
-				);
+				$file = File::isAbsolute($schema['file']) ? $schema['file'] : Directory::path($application_root, $schema['file']);
 				File::depends($file);
 				$json_structure = JSON::decode(File::contents($file));
 				return ArrayTools::path($json_structure, $path, '');
@@ -361,7 +358,7 @@ class Version extends SimpleCommand {
 	private function versionGenerator(array $__generator): Closure {
 		$map = $__generator['map'] ?? null;
 		if (is_array($map) || is_string($map)) {
-			return fn (array $version_structure): string|array => ArrayTools::map($map, $version_structure);
+			return fn(array $version_structure): string|array => ArrayTools::map($map, $version_structure);
 		}
 
 		throw new SemanticsException('{schema_path} `generator` must have key `map`', [

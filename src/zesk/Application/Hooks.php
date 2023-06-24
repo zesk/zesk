@@ -119,14 +119,14 @@ class Hooks {
 	public function registerHook(string $hookName, callable|Closure $method, bool $filter = false): self {
 		$hookMethod = new HookMethod($hookName, [], null, $filter);
 		$hookMethod->setClosure($method instanceof Closure ? $method : $method(...), Hooks::callableString($method));
-		$this->hookQueue[$hookName][] = $hookMethod;
+		$this->hooksQueue[$hookName][] = $hookMethod;
 		return $this;
 	}
 
 	public function registerFilter(string $hookName, callable|Closure $method): self {
 		$hookMethod = new HookMethod($hookName, [], null, true);
 		$hookMethod->setClosure($method instanceof Closure ? $method : $method(...), Hooks::callableString($method));
-		$this->hookQueue[$hookName][] = $hookMethod;
+		$this->hooksQueue[$hookName][] = $hookMethod;
 		return $this;
 	}
 
@@ -135,7 +135,7 @@ class Hooks {
 	 * @return array
 	 */
 	public function peekHooks(string $hookName): array {
-		return $this->hookQueue[$hookName] ?? [];
+		return $this->hooksQueue[$hookName] ?? [];
 	}
 
 	/**
@@ -323,13 +323,13 @@ class Hooks {
 		}
 		if (method_exists($class, 'hooks')) {
 			try {
-				call_user_func([$class, 'hooks', ], $this->application);
+				call_user_func([$class, 'hooks',], $this->application);
 				$this->hooksCalled[$lowClass] = microtime(true);
 			} catch (Throwable $e) {
 				$this->hooksCalled[$lowClass] = $e;
 				$this->call('exception', $e);
 			}
-		} elseif ($this->debug) {
+		} else if ($this->debug) {
 			$args = [
 				'__CLASS__' => __CLASS__, '__FUNCTION__' => __FUNCTION__, 'class' => $class,
 			];
@@ -357,7 +357,7 @@ class Hooks {
 			if ($this->profileHooks) {
 				$ding = microtime(true);
 				if (!isset($this->hookCache[$hook])) {
-					$this->hookCache[$hook] = [1, $ding, $ding, ];
+					$this->hookCache[$hook] = [1, $ding, $ding,];
 				} else {
 					$this->hookCache[$hook][0]++;
 					$this->hookCache[$hook][2] = $ding;
@@ -609,9 +609,9 @@ class Hooks {
 	public static function callableString(mixed $callable): string {
 		if (is_array($callable)) {
 			return is_object($callable[0]) ? strtolower(get_class($callable[0])) . '::' . $callable[1] : implode('::', $callable);
-		} elseif (is_string($callable)) {
+		} else if (is_string($callable)) {
 			return $callable;
-		} elseif ($callable instanceof Closure) {
+		} else if ($callable instanceof Closure) {
 			return '';
 		}
 		return '';

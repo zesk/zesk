@@ -9,6 +9,7 @@ err_env=1
 top="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." || exit $err_env; pwd)"
 
 "$top/bin/build/git.sh"
+"$top/bin/build/colors.sh"
 
 previousVersion=$("$top/bin/build/version-last.sh")
 currentVersion=$("$top/bin/build/version-current.sh")
@@ -30,7 +31,8 @@ echo
 releaseNotes=$top/docs/release/$currentVersion.md
 
 if [ ! -f "$releaseNotes" ]; then
-	echo "Version $currentVersion up to date, nothing to do." 1>&2
+	consoleError "Version $currentVersion up to date, nothing to do." 1>&2
+	echo 1>&2
   exit 18
 fi
 cp "$releaseNotes" "$artifactReleaseNotes"

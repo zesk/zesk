@@ -11,7 +11,7 @@
 # Exit codes
 #
 err_env=1
-ERR_BUILD=1000
+err_build=1000
 
 #
 # Variables and constants
@@ -60,6 +60,11 @@ while [ $# -gt 0 ]; do
     consoleBlue "Clean install ..."
     shift
     ;;
+  --develop)
+    develop=1
+    consoleBlue "Development ..."
+    shift
+    ;;
   *)
     break
     ;;
@@ -92,7 +97,7 @@ echo -n "Setting up database ... "
 echo -n "loading schema ... "
 if ! mariadb "${databaseArguments[@]}" < ./docker/mariadb/schema.sql >> "$quietLog"; then
   failed "$quietLog"
-  exit $ERR_BUILD
+  exit $err_build
 fi
 consoleBoldMagenta $(($(date +%s) - start)) seconds
 consoleReset
@@ -121,7 +126,7 @@ echo docker run "${vendorArgs[@]}" >> "$quietLog"
 
 if ! docker run "${vendorArgs[@]}" >> "$quietLog" 2>&1; then
   failed "$quietLog"
-  exit $ERR_BUILD
+  exit $err_build
 fi
 consoleBoldMagenta $(($(date +%s) - start)) seconds
 consoleReset
@@ -136,7 +141,7 @@ echo -n "Build container ... "
 figlet "Build container" >> "$quietLog"
 if ! docker build "${cleanArgs[@]}" --build-arg "DATABASE_HOST=$CONTAINER_DATABASE_HOST" -f ./docker/php.Dockerfile --tag zesk:latest . >> "$quietLog" 2>&1; then
   failed "$quietLog"
-  exit $ERR_BUILD
+  exit $err_build
 fi
 consoleBoldMagenta $(($(date +%s) - start)) seconds
 consoleReset
