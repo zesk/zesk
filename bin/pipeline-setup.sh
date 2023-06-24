@@ -50,9 +50,11 @@ if [ -z "$docker" ]; then
 fi
 
 #
-# Eat --clean if it's an argument
+# --clean - Do a clean build
+# --develop - Development build, tag with a d-tag upon success
 #
 clean=
+versionArgs=()
 while [ $# -gt 0 ]; do
   case $1 in
   --clean)
@@ -61,7 +63,7 @@ while [ $# -gt 0 ]; do
     shift
     ;;
   --develop)
-    develop=1
+    versionArgs+=("--develop")
     consoleBlue "Development ..."
     shift
     ;;
@@ -155,7 +157,7 @@ docker run -v "$top/:/zesk" zesk:latest /zesk/bin/test-zesk.sh "$@"
 consoleBoldMagenta Testing took $(($(date +%s) - start)) seconds
 
 consoleBlue
-"$top/bin/build/release-check-version.sh"
+"$top/bin/build/release-check-version.sh" "${versionArgs[@]}"
 consoleReset
 
 env > "$envFile"
