@@ -10,7 +10,7 @@ err_arg=2
 top="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." || exit $err_env; pwd)"
 
 "$top/bin/build/git.sh"
-"$top/bin/build/colors.sh"
+source "$top/bin/build/colors.sh"
 
 previousVersion=$("$top/bin/build/version-last.sh")
 currentVersion=$("$top/bin/build/version-current.sh")
@@ -47,8 +47,6 @@ while [ $# -gt 0 ]; do
     ;;
   esac
 done
-
-trap cleanup EXIT
 
 if git show-ref --tags "$currentVersion" --quiet; then
 	echo "Version $currentVersion already exists, already tagged." 1>&2
