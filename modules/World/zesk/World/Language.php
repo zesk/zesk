@@ -55,6 +55,7 @@ class Language extends Model {
 
 	public static function find(Application $application, string $code): self {
 		[$language, $dialect] = StringTools::pair($code, '_', $code, '');
+
 		try {
 			$item = $application->entityManager()->getRepository(self::class)->findOneBy([
 				'code' => $language, 'dialect' => $dialect,
@@ -62,6 +63,7 @@ class Language extends Model {
 			return $item;
 		} catch (Throwable) {
 		}
-		throw new NotFoundException("{class} with {code}", ['class' => self::class, 'code' => $code]);
+
+		throw new NotFoundException('{class} with {code}', ['class' => self::class, 'code' => $code]);
 	}
 }

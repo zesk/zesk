@@ -26,13 +26,13 @@ class Country extends Model {
 	 *
 	 */
 	public const CODE_COLUMN_LENGTH = 2;
+
 	public const NAME_COLUMN_LENGTH = 64;
 
 	/**
 	 *
 	 */
 	use AutoID;
-
 
 	#[Column(type: 'string', length: self::CODE_COLUMN_LENGTH)]
 	public string $code;
@@ -46,7 +46,7 @@ class Country extends Model {
 	 * @param string $name
 	 * @param array $options
 	 */
-	function __construct(Application $application, string $code, string $name, array $options = []) {
+	public function __construct(Application $application, string $code, string $name, array $options = []) {
 		parent::__construct($application, $options);
 		$this->code = substr($code, 0, self::CODE_COLUMN_LENGTH);
 		$this->name = substr($name, 0, self::NAME_COLUMN_LENGTH);
