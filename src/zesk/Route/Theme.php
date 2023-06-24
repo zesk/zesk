@@ -6,7 +6,7 @@ namespace zesk\Route;
 use zesk\ArrayTools;
 use zesk\Exception\DirectoryCreate;
 use zesk\Exception\DirectoryPermission;
-use zesk\Exception\Semantics;
+use zesk\Exception\SemanticsException;
 use zesk\HTTP;
 use zesk\Request;
 use zesk\Response;
@@ -81,7 +81,7 @@ class Theme extends Route {
 	 * @throws RedirectException
 	 * @throws DirectoryCreate
 	 * @throws DirectoryPermission
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	public function internalExecute(Request $request): Response {
 		$application = $this->application;

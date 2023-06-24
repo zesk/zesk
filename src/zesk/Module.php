@@ -14,7 +14,7 @@ use zesk\Exception\ClassNotFound;
 use zesk\Exception\ConfigurationException;
 use zesk\Exception\FileNotFound;
 use zesk\Exception\NotFoundException;
-use zesk\Exception\Unsupported;
+use zesk\Exception\UnsupportedException;
 
 /**
  * Module base class for all extensions to Zesk
@@ -22,7 +22,7 @@ use zesk\Exception\Unsupported;
  * @see Modules
  * @author kent
  */
-class Module extends Hookable {
+class Module extends Hookable implements HookSource {
 	/**
 	 * Module code name
 	 *
@@ -84,7 +84,7 @@ class Module extends Hookable {
 	/**
 	 * @return void
 	 * @throws ConfigurationException
-	 * @throws Unsupported
+	 * @throws UnsupportedException
 	 */
 	public function __wakeup(): void {
 		parent::__wakeup();
@@ -97,10 +97,7 @@ class Module extends Hookable {
 	private function _defaultCodeName(): string {
 		$class = strtr(get_class($this), '\\', '_');
 		return StringTools::removeSuffix(StringTools::removePrefix($class, [
-			'zesk_Module_',
-			'Module_',
-			'Module',
-			'zesk_',
+			'zesk_Module_', 'Module_', 'Module', 'zesk_',
 		]), ['_Module', 'Module']);
 	}
 
@@ -110,7 +107,7 @@ class Module extends Hookable {
 	 * @param Application $application
 	 * @param array $options
 	 * @param array $moduleFactoryState
-	 * @throws Unsupported
+	 * @throws UnsupportedException
 	 */
 	final public function __construct(Application $application, array $options = [], array $moduleFactoryState = []) {
 		parent::__construct($application, $options);
@@ -122,7 +119,7 @@ class Module extends Hookable {
 			'class', 'path', 'name', 'configuration', 'configurationFile', 'configurationData', 'optionsPath',
 		]);
 		if (count($moduleFactoryState)) {
-			throw new Unsupported('Need to support module fields: {keys}', [
+			throw new UnsupportedException('Need to support module fields: {keys}', [
 				'keys' => array_keys($moduleFactoryState),
 			]);
 		}
@@ -142,6 +139,17 @@ class Module extends Hookable {
 
 	final public function moduleConfigurationFile(): string {
 		return $this->configurationFile;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function hookSources(): array {
+		$autoloadPath = ArrayTools::path($this->configuration, ['autoload', 'path']);
+		if ($autoloadPath) {
+			return [$this->path($autoloadPath)];
+		}
+		return [];
 	}
 
 	/**
@@ -181,14 +189,14 @@ class Module extends Hookable {
 	/**
 	 * Override in subclasses - called upon load
 	 * @throws ConfigurationException
-	 * @throws Unsupported
+	 * @throws UnsupportedException
 	 */
 	public function initialize(): void {
 		if ($this->optionBool('fakeConfigurationException')) {
 			throw new ConfigurationException([$this::class, 'fake'], 'Fake exception for testing');
 		}
 		if ($this->optionBool('fakeUnsupportedException')) {
-			throw new Unsupported(__METHOD__);
+			throw new UnsupportedException(__METHOD__);
 		}
 	}
 

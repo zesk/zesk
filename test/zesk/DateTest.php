@@ -11,7 +11,7 @@ namespace zesk;
 
 use OutOfBoundsException;
 use zesk\Exception\ParseException;
-use zesk\Exception\Semantics;
+use zesk\Exception\SemanticsException;
 
 /**
  *
@@ -72,12 +72,12 @@ class DateTest extends UnitTest {
 
 	/**
 	 * @return void
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	public function test_emptyYearDay(): void {
 		$date = new Date();
 		$this->assertNull($date->yearday());
-		$this->expectException(Semantics::class);
+		$this->expectException(SemanticsException::class);
 		$date->setYearday(12);
 	}
 
@@ -87,7 +87,7 @@ class DateTest extends UnitTest {
 		$this->assertNotNull($date->yearday());
 		$date->setEmpty();
 		$this->assertNull($date->yearday());
-		$this->expectException(Semantics::class);
+		$this->expectException(SemanticsException::class);
 		$date->setYearday(12);
 	}
 

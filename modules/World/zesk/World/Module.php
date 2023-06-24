@@ -9,9 +9,10 @@ declare(strict_types=1);
 
 namespace zesk\World;
 
+use zesk\Exception\KeyNotFound;
+use zesk\Exception\SemanticsException;
+use zesk\HookMethod;
 use zesk\Module as BaseModule;
-use zesk\ORM\Interface\SchemaUpdatedInterface;
-
 use zesk\Doctrine\Module as DoctrineModule;
 
 /**
@@ -19,7 +20,7 @@ use zesk\Doctrine\Module as DoctrineModule;
  * @author kent
  *
  */
-class Module extends BaseModule implements SchemaUpdatedInterface {
+class Module extends BaseModule {
 	/**
 	 * List of currencies to include (Currency)
 	 */
@@ -33,12 +34,7 @@ class Module extends BaseModule implements SchemaUpdatedInterface {
 	protected string $name = 'World';
 
 	protected array $modelClasses = [
-		Currency::class,
-		City::class,
-		County::class,
-		Country::class,
-		Language::class,
-		Province::class,
+		Currency::class, City::class, County::class, Country::class, Language::class, Province::class,
 	];
 
 	public function initialize(): void {
@@ -46,7 +42,14 @@ class Module extends BaseModule implements SchemaUpdatedInterface {
 		$this->application->doctrineModule()->addPath($this->path('zesk/World'));
 	}
 
-	public function hook_schema_updated(): void {
+	/**
+	 * @return void
+	 * @throws KeyNotFound
+	 * @throws SemanticsException
+	 * @see self::schemaWasUpdated()
+	 */
+	#[HookMethod(handles: DoctrineModule::HOOK_SCHEMA_UPDATED)]
+	public function schemaWasUpdated(): void {
 		$__ = [
 			'method' => __METHOD__,
 		];

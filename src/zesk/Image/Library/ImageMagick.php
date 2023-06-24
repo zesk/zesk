@@ -14,7 +14,7 @@ use zesk\Exception\DirectoryPermission;
 use zesk\Exception\FileNotFound;
 use zesk\Exception\FilePermission;
 use zesk\Exception\NotFoundException;
-use zesk\Exception\Unimplemented;
+use zesk\Exception\UnimplementedException;
 use zesk\File;
 use zesk\Image\Library;
 
@@ -144,9 +144,9 @@ class ImageMagick extends Library {
 	 * @param float $degrees
 	 * @param array $options
 	 * @return bool
-	 * @throws Unimplemented
+	 * @throws UnimplementedException
 	 */
 	public function imageRotate(string $source, string $destination, float $degrees, array $options = []): bool {
-		throw new Unimplemented('TODO');
+		throw new UnimplementedException('TODO');
 	}
 }

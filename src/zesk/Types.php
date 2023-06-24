@@ -15,7 +15,7 @@ use Stringable;
 use Traversable;
 use TypeError;
 use zesk\Exception\ParseException;
-use zesk\Exception\Semantics;
+use zesk\Exception\SemanticsException;
 use zesk\Interface\Simplifiable;
 
 class Types {
@@ -391,7 +391,7 @@ class Types {
 	 *
 	 * @param mixed $mixed
 	 * @return string|int|float|bool
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	public static function flatten(mixed $mixed): string|int|float|bool {
 		if (is_array($mixed)) {

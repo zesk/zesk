@@ -10,12 +10,17 @@ declare(strict_types=1);
 
 namespace zesk\World;
 
+use Doctrine\ORM\Mapping\Column;
+use Doctrine\ORM\Mapping\Entity;
+use Doctrine\ORM\Mapping\UniqueConstraint;
 use Throwable;
 use zesk\Application;
+use zesk\Doctrine\Model;
+use zesk\Doctrine\Trait\AutoID;
 use zesk\Exception\KeyNotFound;
-use zesk\Exception\Semantics;
-use zesk\Locale\Locale;
-use zesk\ORM\ORMBase;
+use zesk\Exception\NotFoundException;
+use zesk\Exception\SemanticsException;
+use zesk\StringTools;
 
 /**
  *
@@ -26,58 +31,37 @@ use zesk\ORM\ORMBase;
  * @property string $dialect
  * @property string $name
  */
-class Language extends ORMBase {
-	public const MEMBER_ID = 'id';
+#[Entity]
+#[Table(name: 'Language')]
+#[UniqueConstraint(name: 'langDialect', columns: ['code', 'dialect'])]
+class Language extends Model {
+	use AutoID;
 
-	public const MEMBER_CODE = 'code';
+	#[Column(type: 'string', length: 2, nullable: false)]
+	public string $code;
 
-	public const MEMBER_DIALECT = 'dialect';
+	#[Column(type: 'string', length: 2, nullable: false)]
+	public string $dialect;
 
-	public const MEMBER_NAME = 'name';
+	#[Column(type: 'string', length: 128, nullable: false)]
+	public string $name;
 
 	public function locale_string(): string {
-		if ($this->memberIsEmpty(self::MEMBER_DIALECT)) {
+		if (!$this->dialect) {
 			return strtolower($this->code);
 		}
 		return strtolower($this->code) . '_' . strtoupper($this->dialect);
 	}
 
-	public static function lang_name(Application $application, $code, Locale $locale = null): string {
-		[$language, $dialect] = pair($code, '_', $code);
-		if (empty($dialect)) {
-			$dialect = null;
-		}
-
+	public static function find(Application $application, string $code): self {
+		[$language, $dialect] = StringTools::pair($code, '_', $code, '');
 		try {
-			$lang_en = $application->ormRegistry(__CLASS__)->querySelect()->addWhat('name', self::MEMBER_NAME)->appendWhere([
-				self::MEMBER_CODE => $language, self::MEMBER_DIALECT => $dialect,
-			])->one('name');
-			if (!$locale) {
-				$locale = $application->locale;
-			}
-			return $locale->__("Locale:=$lang_en");
+			$item = $application->entityManager()->getRepository(self::class)->findOneBy([
+				'code' => $language, 'dialect' => $dialect,
+			]);
+			return $item;
 		} catch (Throwable) {
 		}
-		return "[$code]";
-	}
-
-	/**
-	 *
-	 * @param Application $application
-	 * @throws Database\Exception\Duplicate
-	 * @throws Database\Exception\NoResults
-	 * @throws Database\Exception\TableNotFound
-	 * @throws KeyNotFound
-	 * @throws Semantics
-	 */
-	public static function clean_table(Application $application): void {
-		$query = $application->ormRegistry(__CLASS__)->queryUpdate();
-		$query->setValues(['dialect' => null])->appendWhere(['dialect' => '']);
-		$query->execute();
-		if ($query->affectedRows() > 0) {
-			$application->logger->warning('{method} updated {n} non-NULL rows', [
-				'method' => __METHOD__, 'n' => $query->affectedRows(),
-			]);
-		}
+		throw new NotFoundException("{class} with {code}", ['class' => self::class, 'code' => $code]);
 	}
 }

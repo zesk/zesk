@@ -8,7 +8,7 @@ declare(strict_types=1);
  */
 namespace zesk;
 
-use zesk\Exception\Semantics;
+use zesk\Exception\SemanticsException;
 
 /**
  * Javascript tools
@@ -43,11 +43,11 @@ class JavaScript {
 	 * Begin JavaScript obfuscation output capture
 	 *
 	 * Depends on output buffering
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	public static function obfuscate_begin(): void {
 		if (self::$obfuscated) {
-			throw new Semantics('Already called obfuscate_begin');
+			throw new SemanticsException('Already called obfuscate_begin');
 		}
 		self::$obfuscated = true;
 		ob_start();
@@ -58,11 +58,11 @@ class JavaScript {
 	 *
 	 * @param array $function_map Apply string mapping at end
 	 * @return string
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	public static function obfuscate_end(array $function_map = []): string {
 		if (!self::$obfuscated) {
-			throw new Semantics('Need to call obfuscate_begin first');
+			throw new SemanticsException('Need to call obfuscate_begin first');
 		}
 		self::$obfuscated = false;
 		$formatting = [

@@ -6,7 +6,7 @@ namespace zesk;
 use stdClass;
 use zesk\Exception\KeyNotFound;
 use zesk\Exception\ParseException;
-use zesk\Exception\Unimplemented;
+use zesk\Exception\UnimplementedException;
 
 class PHPTest extends UnitTest {
 	public function test_php_basics(): void {
@@ -91,11 +91,11 @@ class PHPTest extends UnitTest {
 	 * @param string $setting
 	 * @param int|null $value
 	 * @return void
-	 * @throws Unimplemented;
+	 * @throws UnimplementedException;
 	 */
 	public function test_setFeature(string $setting, ?int $value): void {
 		if ($value === null) {
-			$this->expectException(Unimplemented::class);
+			$this->expectException(UnimplementedException::class);
 			$value = 1024;
 		}
 		$old_value = PHP::setFeature($setting, $value);

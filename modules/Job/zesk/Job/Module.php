@@ -14,8 +14,8 @@ use zesk\Exception\ConfigurationException;
 use zesk\Exception\KeyNotFound;
 use zesk\Exception\ParameterException;
 use zesk\Exception\ParseException;
-use zesk\Exception\Semantics;
-use zesk\Exception\Unimplemented;
+use zesk\Exception\SemanticsException;
+use zesk\Exception\UnimplementedException;
 use zesk\HookMethod;
 use zesk\Interface\Module\Routes;
 use zesk\Interface\SystemProcess;
@@ -52,7 +52,7 @@ class Module extends BaseModule implements Routes {
 
 		try {
 			PHP::setFeature(PHP::FEATURE_TIME_LIMIT, $quit_after);
-		} catch (Unimplemented $e) {
+		} catch (UnimplementedException $e) {
 			$this->application->logger->debug(PHP::FEATURE_TIME_LIMIT . ' reported as {message}', $e->variables());
 		}
 		$process = new MockProcess($application, [
@@ -71,7 +71,7 @@ class Module extends BaseModule implements Routes {
 	 * @throws KeyNotFound
 	 * @throws ParameterException
 	 * @throws ParseException
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	private function runDaemon(SystemProcess $process): void {
 		$seconds = $this->option('execute_jobs_wait', 10);
@@ -103,7 +103,7 @@ class Module extends BaseModule implements Routes {
 	 * @throws KeyNotFound
 	 * @throws ParameterException
 	 * @throws ParseException
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 * @throws Throwable
 	 * @see self::daemon()
 	 */

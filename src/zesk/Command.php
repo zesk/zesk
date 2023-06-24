@@ -26,8 +26,8 @@ use zesk\Exception\NotFoundException;
 use zesk\Exception\ParameterException;
 use zesk\Exception\ParseException;
 use zesk\Exception\Redirect;
-use zesk\Exception\Semantics;
-use zesk\Exception\Unsupported;
+use zesk\Exception\SemanticsException;
+use zesk\Exception\UnsupportedException;
 use zesk\Interface\Promptable;
 
 /**
@@ -273,7 +273,7 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable {
 
 		try {
 			$this->_parseOptions();
-		} catch (Semantics $e) {
+		} catch (SemanticsException $e) {
 			throw new ParameterException('Invalid arguments for {class}: {argv}', [
 				'class' => $this::class, 'argv' => $argv,
 			], $e->getCode(), $e);
@@ -390,8 +390,8 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable {
 	 * @throws DirectoryNotFound
 	 * @throws FilePermission
 	 * @throws ParameterException
-	 * @throws Semantics
-	 * @throws Unsupported|NotFoundException|ParseException
+	 * @throws SemanticsException
+	 * @throws UnsupportedException|NotFoundException|ParseException
 	 */
 	protected function configure(string $name, bool $create = false): string {
 		$configure_options = $this->_configurationFiles($name);
@@ -435,7 +435,7 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable {
 	 * @param string $name
 	 * @param string $filename
 	 * @return void
-	 * @throws Semantics|FilePermission
+	 * @throws SemanticsException|FilePermission
 	 */
 	protected function write_default_configuration(string $name, string $filename): void {
 		if (!is_writable(dirname($filename))) {
@@ -813,7 +813,7 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable {
 		while ($this->hasArgument($endOfArgumentMarker)) {
 			try {
 				$arguments[] = $this->getArgument(__METHOD__, $endOfArgumentMarker);
-			} catch (Semantics) {
+			} catch (SemanticsException) {
 			}
 		}
 		if (!$endOfArgumentMarker && ArrayTools::first($arguments) === self::END_OF_ARGUMENT_MARKER) {
@@ -853,19 +853,19 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable {
 	 * @param string $arg
 	 * @param bool $endOfArgumentMarker
 	 * @return string
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	protected function getArgument(string $arg = '', bool $endOfArgumentMarker = true): string {
 		if (count($this->argv) === 0) {
 			$this->error("No argument parameter for $arg");
 
-			throw new Semantics('No arguments');
+			throw new SemanticsException('No arguments');
 		}
 		if ($endOfArgumentMarker) {
 			if ($this->argv[0] === self::END_OF_ARGUMENT_MARKER) {
 				$this->error("End of arguments marker found for $arg");
 
-				throw new Semantics('End of arguments marker found');
+				throw new SemanticsException('End of arguments marker found');
 			}
 		}
 		return array_shift($this->argv);
@@ -873,7 +873,7 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable {
 
 	/**
 	 * Parse command-line options for this command
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 * @throws ParameterException
 	 */
 	private function _parseOptions(): void {
@@ -1161,7 +1161,7 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable {
 	 * @param string|null $default
 	 * @param array|null $completions
 	 * @return string
-	 * @throws StopIteration|Semantics
+	 * @throws StopIteration|SemanticsException
 	 */
 	public function prompt(string $message, string $default = null, array $completions = null): string {
 		if ($this->option('non-interactive')) {
@@ -1170,7 +1170,7 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable {
 					'message' => $message,
 				]);
 
-				throw new Semantics('Non-interactive set but input is required for {message}', [
+				throw new SemanticsException('Non-interactive set but input is required for {message}', [
 					'message' => $message,
 				]);
 			}
@@ -1289,7 +1289,7 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable {
 	 * @return int
 	 * @throws ConfigurationException
 	 * @throws NotFoundException
-	 * @throws Unsupported
+	 * @throws UnsupportedException
 	 * @throws ParseException
 	 */
 	final public function go(): int {

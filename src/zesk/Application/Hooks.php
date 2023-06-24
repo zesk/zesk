@@ -15,7 +15,7 @@ use ReflectionException;
 use Throwable;
 use zesk\Application;
 use zesk\Exception\KeyNotFound;
-use zesk\Exception\Semantics;
+use zesk\Exception\SemanticsException;
 use zesk\Hookable;
 use zesk\HookGroup;
 use zesk\HookMethod;
@@ -117,7 +117,14 @@ class Hooks {
 	 * @return void
 	 */
 	public function registerHook(string $hookName, callable|Closure $method, bool $filter = false): self {
-		$hookMethod = new HookMethod($hookName, [], $filter);
+		$hookMethod = new HookMethod($hookName, [], null, $filter);
+		$hookMethod->setClosure($method instanceof Closure ? $method : $method(...), Hooks::callableString($method));
+		$this->hookQueue[$hookName][] = $hookMethod;
+		return $this;
+	}
+
+	public function registerFilter(string $hookName, callable|Closure $method): self {
+		$hookMethod = new HookMethod($hookName, [], null, true);
 		$hookMethod->setClosure($method instanceof Closure ? $method : $method(...), Hooks::callableString($method));
 		$this->hookQueue[$hookName][] = $hookMethod;
 		return $this;
@@ -156,7 +163,6 @@ class Hooks {
 	private function resetAllHookClasses(): array {
 		$this->hooks = [];
 		$this->hooksCalled = [];
-		$this->hooksFailed = [];
 		$all_hook_classes = $this->allHookClasses;
 		$this->allHookClasses = [];
 		return $all_hook_classes;
@@ -321,7 +327,6 @@ class Hooks {
 				$this->hooksCalled[$lowClass] = microtime(true);
 			} catch (Throwable $e) {
 				$this->hooksCalled[$lowClass] = $e;
-				$this->hooksFailed[$class] = $e;
 				$this->call('exception', $e);
 			}
 		} elseif ($this->debug) {
@@ -381,8 +386,8 @@ class Hooks {
 
 	/**
 	 *
-	 * @deprecated 2023-06
 	 * @return array
+	 * @deprecated 2023-06
 	 */
 	public function hookCache(): array {
 		return $this->hookCache;
@@ -415,14 +420,14 @@ class Hooks {
 	 *            Return value handling, ordering, arguments.
 	 *
 	 * @return void
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 * @deprecated 2023-06
 	 */
 	public function add(string $hook, Closure|callable $function, array $options = []): void {
 		$id = $options['id'] ?? self::callableString($function) ?: Kernel::callingFunction();
 		$hookGroup = $this->_group($hook);
 		if (($options['no-duplicates'] ?? false) && $hookGroup->has($id)) {
-			throw new Semantics('Duplicate registration of hook {id}', [
+			throw new SemanticsException('Duplicate registration of hook {id}', [
 				'id' => $id,
 			]);
 		}
@@ -635,7 +640,6 @@ class Hooks {
 		$this->_applicationExitCheck();
 		$this->hooks = [];
 		$this->hooksCalled = [];
-		$this->hooksFailed = [];
 		$this->hookCache = [];
 		$this->allHookClasses = [];
 	}

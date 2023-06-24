@@ -15,7 +15,7 @@ use zesk\Exception\DirectoryCreate;
 use zesk\Exception\DirectoryPermission;
 use zesk\Exception\KeyNotFound;
 use zesk\Exception\Redirect;
-use zesk\Exception\Semantics;
+use zesk\Exception\SemanticsException;
 use zesk\File;
 use zesk\HTML as HTMLTools;
 use zesk\JSON as JSONTools;
@@ -298,7 +298,7 @@ class HTML extends Type {
 	 *
 	 * @param string $path
 	 * @return Response
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	public function setShortcutIcon(string $path): Response {
 		$attrs = [];
@@ -330,7 +330,7 @@ class HTML extends Type {
 	 * @param string $type
 	 * @param array $attrs
 	 * @return Response
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	public function setLink(string $rel, string $path, string $type = '', array $attrs = []): Response {
 		if (!array_key_exists('weight', $attrs)) {
@@ -344,7 +344,7 @@ class HTML extends Type {
 		}
 		$share = $attrs['share'] ?? false;
 		if (!$share && $this->parent->optionBool('require_root_dir') && !array_key_exists('root_dir', $attrs)) {
-			throw new Semantics('{path} requires a root_dir specified', compact('rel', 'path'));
+			throw new SemanticsException('{path} requires a root_dir specified', compact('rel', 'path'));
 		}
 		ArrayTools::append($this->linksByRel, $rel, $path);
 		$this->links[$path] = $arr + $attrs;
@@ -366,7 +366,7 @@ class HTML extends Type {
 	 *                share bool for share files
 	 *
 	 * @return Response
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	public function css(string $path, array|string $options = []): Response {
 		if (is_string($options)) {
@@ -438,7 +438,7 @@ class HTML extends Type {
 	 * @return array
 	 * @throws DirectoryCreate
 	 * @throws DirectoryPermission
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	public function scripts(): array {
 		return $this->scriptTags();
@@ -449,7 +449,7 @@ class HTML extends Type {
 	 * @return array
 	 * @throws DirectoryCreate
 	 * @throws DirectoryPermission
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	public function links(): array {
 		return $this->linkTags($this->linkOptions());
@@ -478,7 +478,7 @@ class HTML extends Type {
 	 * @return array
 	 * @throws DirectoryCreate
 	 * @throws DirectoryPermission
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	private function linkTags(array $options = []): array {
 		$result = [];
@@ -592,7 +592,7 @@ class HTML extends Type {
 	 * @return array
 	 * @throws DirectoryCreate
 	 * @throws DirectoryPermission
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	public function toJSON(): array {
 		$script_tags = $this->scriptTags(false);
@@ -650,7 +650,7 @@ class HTML extends Type {
 		try {
 			$content = $this->application->content($resource_path);
 			file_put_contents($path, $content);
-		} catch (Semantics) {
+		} catch (SemanticsException) {
 			return '';
 		}
 		return $path;
@@ -664,7 +664,7 @@ class HTML extends Type {
 	 * @return string Empty string if something is awry
 	 * @throws DirectoryCreate
 	 * @throws DirectoryPermission
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	protected function resourcePath(string $_path, array $attributes): string {
 		$debug = Types::toBool($options['debug'] ?? false);
@@ -703,7 +703,7 @@ class HTML extends Type {
 	 * @return array First item is the URI, 2nd is the full path to the file
 	 * @throws DirectoryCreate
 	 * @throws DirectoryPermission
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	protected function resourceDate(string $path, array $attributes): array {
 		$query = [];
@@ -980,7 +980,7 @@ class HTML extends Type {
 	 * @param bool|null $cache_scripts
 	 * @return array
 	 * @throws DirectoryCreate
-	 * @throws DirectoryPermission|Semantics
+	 * @throws DirectoryPermission|SemanticsException
 	 */
 	private function scriptTags(bool $cache_scripts = null): array {
 		// Sort them by weight if they're not sorted
@@ -1029,7 +1029,7 @@ class HTML extends Type {
 
 							try {
 								$cached_append[] = 'zesk.scripts_cached(' . JSONTools::encode($resource_path) . ');';
-							} catch (Semantics) {
+							} catch (SemanticsException) {
 							}
 							if (array_key_exists('javascript_after', $attrs)) {
 								$cached[] = $attrs['javascript_after'];
@@ -1086,7 +1086,7 @@ class HTML extends Type {
 	 * @param string $path
 	 * @param array $options
 	 * @return Response
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	private function scriptAdd(string $path, array $options): Response {
 		if (array_key_exists($path, $this->scripts)) {
@@ -1103,7 +1103,7 @@ class HTML extends Type {
 				if (($after = $this->findWeight($options['after'], 'max')) !== null) {
 					if ($before !== null) {
 						if ($after <= $before) {
-							throw new Semantics('{path} has a computed {before} weight which is greater than the after weight {after}', [
+							throw new SemanticsException('{path} has a computed {before} weight which is greater than the after weight {after}', [
 								'path' => $path, 'before' => $before, 'after' => $after,
 							]);
 						} else {
@@ -1124,7 +1124,7 @@ class HTML extends Type {
 		$is_route = $options['is_route'] ?? false;
 		$callback = array_key_exists('callback', $options);
 		if (!$is_route && !$callback && !$content && !$share && !$nocache && $this->parent->optionBool('require_root_dir') && !array_key_exists('root_dir', $options)) {
-			throw new Semantics('{path} requires a root_dir specified', compact('path'));
+			throw new SemanticsException('{path} requires a root_dir specified', compact('path'));
 		}
 		$this->scripts[$path] = $options;
 		$this->scriptsAreSorted = false;
@@ -1160,7 +1160,7 @@ class HTML extends Type {
 	 * - browser: defaults to all browsers
 	 * - cdn: defaults to false
 	 * @return Response
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	public function javascript(string|array $paths, array $options = []): Response {
 		if (is_array($paths)) {
@@ -1179,7 +1179,7 @@ class HTML extends Type {
 	 * @param string $script
 	 * @param array $options
 	 * @return Response
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	public function inlineJavaScript(string $script, array $options = []): Response {
 		$multiple = Types::toBool($options['multiple'] ?? false);

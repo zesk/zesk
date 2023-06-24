@@ -17,7 +17,7 @@ use zesk\CacheItem\CacheItemNULL;
 use zesk\Exception\ClassNotFound;
 use zesk\Exception\FileNotFound;
 use zesk\Exception\KeyNotFound;
-use zesk\Exception\Semantics;
+use zesk\Exception\SemanticsException;
 use zesk\Exception\Redirect as RedirectException;
 use zesk\Exception\SyntaxException;
 
@@ -366,7 +366,7 @@ class Response extends Hookable {
 	 * @param array|string|null $value
 	 * @param array $options
 	 * @return self
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	public function setCookie(string $name, array|string $value = null, array $options = []): self {
 		$expire = $options['expire'] ?? $this->option('cookie_expire');
@@ -392,7 +392,7 @@ class Response extends Hookable {
 		$path = $options['path'] ?? $this->option('cookie_path', '/');
 		$expire_time = $n_seconds ? time() + $n_seconds : 0;
 		if (!$this->request->isBrowser()) {
-			throw new Semantics('Not a browser');
+			throw new SemanticsException('Not a browser');
 		}
 		setcookie($name, '', 1, $path, ".$domain", $secure);
 		if (!empty($value)) {
@@ -420,7 +420,7 @@ class Response extends Hookable {
 
 	/**
 	 *
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	private function responseHeaders(bool $skip_hooks = false): void {
 		static $called = false;
@@ -433,7 +433,7 @@ class Response extends Hookable {
 			return;
 		}
 		if ($called) {
-			throw new Semantics('Response headers called twice! {previous}', [
+			throw new SemanticsException('Response headers called twice! {previous}', [
 				'previous' => $called,
 			]);
 		} else {
@@ -441,7 +441,7 @@ class Response extends Hookable {
 		}
 		$file = $line = null;
 		if (headers_sent($file, $line)) {
-			throw new Semantics('Headers already sent on {file}:{line}', [
+			throw new SemanticsException('Headers already sent on {file}:{line}', [
 				'file' => $file, 'line' => $line,
 			]);
 		}
@@ -660,14 +660,14 @@ class Response extends Hookable {
 	 * Current output handler
 	 *
 	 * @return Type
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	private function _output_handler(): Type {
 		$type = $this->output_handler;
 		if (!$type) {
 			$type = $this->contentType;
 			if (!$type) {
-				throw new Semantics('No content type set in {method}', [
+				throw new SemanticsException('No content type set in {method}', [
 					'method' => __METHOD__,
 				]);
 			}
@@ -680,7 +680,7 @@ class Response extends Hookable {
 	 *
 	 * @param array $options
 	 * @return string
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	final public function render(array $options = []): string {
 		ob_start();
@@ -697,7 +697,7 @@ class Response extends Hookable {
 	 *
 	 * @param array $options
 	 * @return void
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	public function output(array $options = []): void {
 		if ($this->rendering) {
@@ -722,7 +722,7 @@ class Response extends Hookable {
 	 * May call zesk\Response\Type::toJSON
 	 *
 	 * @return array
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	public function toJSON(): array {
 		return $this->_output_handler()->toJSON() + $this->response_data;
@@ -831,7 +831,7 @@ class Response extends Hookable {
 	 * @param CacheItemPoolInterface $pool
 	 * @param string $url
 	 * @return boolean
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	public function cacheSave(CacheItemPoolInterface $pool, string $url): bool {
 		if (count($this->cache_settings) === 0) {
@@ -1059,7 +1059,7 @@ class Response extends Hookable {
 	 *            (may be ie,
 	 *            ie6, ie7), and cdn (boolean to prefix with cdn path)
 	 * @return self
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	final public function css(string $path, array $options = []): self {
 		return $this->html()->css($path, $options);
@@ -1095,7 +1095,7 @@ class Response extends Hookable {
 	 *            browsers),
 	 *            cdn (defaults to false)
 	 * @return Response
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	final public function javascript(string|array $path, array $options = []): Response {
 		return $this->html()->javascript($path, $options);
@@ -1107,7 +1107,7 @@ class Response extends Hookable {
 	 * @param string $script
 	 * @param array $options
 	 * @return Response
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	final public function inlineJavaScript(string $script, array $options = []): self {
 		return $this->html()->inlineJavaScript($script, $options);
@@ -1178,7 +1178,7 @@ class Response extends Hookable {
 	 * @param string|null $file
 	 * @return string|$this
 	 * @throws FileNotFound
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	final public function file(string $file = null): string|self {
 		return $file ? $this->setRawFile($file) : $this->raw()->file();

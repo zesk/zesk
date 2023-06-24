@@ -5,7 +5,7 @@ declare(strict_types=1);
  */
 namespace zesk;
 
-use zesk\Exception\Semantics;
+use zesk\Exception\SemanticsException;
 
 /**
  *
@@ -46,7 +46,7 @@ class JavaScriptTest extends UnitTest {
 	/**
 	 */
 	public function test_obfuscate_end(): void {
-		$this->expectException(Semantics::class);
+		$this->expectException(SemanticsException::class);
 		$function_map = [];
 		JavaScript::obfuscate_end($function_map);
 		JavaScript::obfuscate_end($function_map);

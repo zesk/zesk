@@ -7,7 +7,7 @@ declare(strict_types=1);
 namespace zesk;
 
 use stdClass;
-use zesk\Exception\Semantics;
+use zesk\Exception\SemanticsException;
 
 /**
  *
@@ -671,7 +671,7 @@ class HTML_Test extends UnitTest {
 	}
 
 	public function test_tag_close(): void {
-		$this->expectException(Semantics::class);
+		$this->expectException(SemanticsException::class);
 		HTML::tag_close('p');
 	}
 

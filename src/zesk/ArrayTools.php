@@ -12,7 +12,7 @@ declare(strict_types=1);
 namespace zesk;
 
 use Stringable;
-use zesk\Exception\Semantics;
+use zesk\Exception\SemanticsException;
 
 /**
  * Array tools for pretty much anything you can think of for arrays.
@@ -28,7 +28,8 @@ class ArrayTools {
 	public const TRIM_WHITESPACE = " \t\r\n\0\x0B";
 
 	/**
-	 * Gets a value from an array using a delimited separated path.
+	 * Traverse into an array using a key path
+	 *
 	 * // Get the value of $array['foo']['bar']
 	 *
 	 * $value = ArrayTools::path($array, ['foo','bar']);
@@ -156,7 +157,7 @@ class ArrayTools {
 				} else {
 					try {
 						$v = JSON::encode($v);
-					} catch (Semantics) {
+					} catch (SemanticsException) {
 						$v = null;
 					}
 				}
@@ -247,7 +248,7 @@ class ArrayTools {
 			if (!is_scalar($v)) {
 				try {
 					$a[$k] = Types::flatten($v);
-				} catch (Semantics) {
+				} catch (SemanticsException) {
 				}
 			}
 		}
@@ -259,7 +260,7 @@ class ArrayTools {
 	 *
 	 * @param array $a
 	 * @return array
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 * @see flatten
 	 */
 	public static function simplify(array $a): array {

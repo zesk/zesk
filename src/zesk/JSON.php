@@ -13,7 +13,7 @@ use __PHP_Incomplete_Class;
 use Exception;
 use stdClass;
 use zesk\Exception\ParseException;
-use zesk\Exception\Semantics;
+use zesk\Exception\SemanticsException;
 
 /**
  *
@@ -82,7 +82,7 @@ class JSON {
 	 * @param ?array $methods List of methods to try in objects to convert to JSON form (array)
 	 * @param array $arguments Optional arguments passed to $methods
 	 * @return mixed
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	public static function prepare(mixed $mixed, array $methods = null, array $arguments = []): mixed {
 		if ($mixed === null) {
@@ -124,12 +124,12 @@ class JSON {
 	 * @param mixed $mixed
 	 *            Item to encode using JSON
 	 * @return string JSON string of encoded item
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	public static function encode(mixed $mixed): string {
 		$result = json_encode($mixed, JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_IGNORE);
 		if ($result === false) {
-			throw new Semantics('JSON encode failed');
+			throw new SemanticsException('JSON encode failed');
 		}
 		return $result;
 	}

@@ -16,7 +16,7 @@ use zesk\Exception\ClassNotFound;
 use zesk\Exception\ConfigurationException;
 use zesk\Exception\ParameterException;
 use zesk\Exception\ParseException;
-use zesk\Exception\Semantics;
+use zesk\Exception\SemanticsException;
 use zesk\Exception\SyntaxException;
 use zesk\ORM\Database_Query_Select;
 use zesk\ORM\ORMBase;
@@ -78,7 +78,7 @@ class Value extends ORMBase {
 	 * @throws ORMEmpty
 	 * @throws ORMNotFound
 	 * @throws ParameterException
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 * @throws StoreException
 	 * @throws ClassNotFound
 	 * @throws ParseException
@@ -101,7 +101,7 @@ class Value extends ORMBase {
 	 * @param User $user
 	 * @param string $name
 	 * @return Database_Query_Select
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 * @throws ConfigurationException
 	 */
 	private static function _valueQuery(User $user, string $name): Database_Query_Select {
@@ -139,7 +139,7 @@ class Value extends ORMBase {
 	 * @throws ORMEmpty
 	 * @throws ORMNotFound
 	 * @throws ParameterException
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	public static function userGet(User $user, string $name): mixed {
 		if (empty($name)) {

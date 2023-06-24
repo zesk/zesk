@@ -53,7 +53,7 @@ class Settings extends Hookable implements MetaInterface, SettingsInterface {
 		$settings = $application->settings();
 		$variables = $settings->variables();
 		$depends = [];
-		$variables = $this->invokeTypedFilters(self::HOOK_FILTER, $variables, [$variables, $this], 0);
+		$variables = $application->invokeTypedFilters(self::HOOK_FILTER, $variables, [$variables, $application], 0);
 		foreach ($variables as $name => $value) {
 			$value = bash::substitute($value, $settings, $depends);
 			$path = explode(Configuration::key_separator, $name);

@@ -5,7 +5,7 @@ declare(strict_types=1);
  */
 namespace zesk\Interface;
 
-use zesk\Exception\Semantics;
+use zesk\Exception\SemanticsException;
 
 /**
  *
@@ -28,7 +28,7 @@ interface ProgressStack {
 
 	/**
 	 * @return void
-	 * @throws Semantics - If nothing to pop
+	 * @throws SemanticsException - If nothing to pop
 	 */
 	public function progressPop(): void;
 }

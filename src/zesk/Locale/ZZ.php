@@ -10,7 +10,7 @@ declare(strict_types=1);
 
 namespace zesk\Locale;
 
-use zesk\Exception\Semantics;
+use zesk\Exception\SemanticsException;
 use zesk\JSON;
 
 /**
@@ -69,7 +69,7 @@ class ZZ extends Locale {
 
 		try {
 			$noun = JSON::encode($noun);
-		} catch (Semantics $e) {
+		} catch (SemanticsException $e) {
 			$noun = $e->getMessage();
 		}
 		return '{plural(' . $noun . ", $number)}";
@@ -91,7 +91,7 @@ class ZZ extends Locale {
 	public static function encode(string $word): string {
 		try {
 			return JSON::encode($word);
-		} catch (Semantics $e) {
+		} catch (SemanticsException $e) {
 			return $e->getMessage();
 		}
 	}

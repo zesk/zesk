@@ -11,7 +11,7 @@ use zesk\Exception\FileNotFound;
 use zesk\Exception\FilePermission;
 use zesk\Exception\NotFoundException;
 use zesk\Exception\Redirect;
-use zesk\Exception\Semantics;
+use zesk\Exception\SemanticsException;
 use zesk\Interface\Themeable;
 
 /**
@@ -223,11 +223,11 @@ class Theme implements Themeable {
 	 * @param array $variables Optional variables to apply to the template
 	 * @param string $content_variable
 	 * @return string
-	 * @throws Semantics|Redirect
+	 * @throws SemanticsException|Redirect
 	 */
 	public function end(array $variables = [], string $content_variable = 'content'): string {
 		if (count($this->wrappers) === 0) {
-			throw new Semantics('Template::end when no template on the wrapper stack');
+			throw new SemanticsException('Template::end when no template on the wrapper stack');
 		}
 		$t = array_pop($this->wrappers);
 		/* @var $t Theme */
@@ -254,15 +254,15 @@ class Theme implements Themeable {
 	 * Pop the variable stack
 	 *
 	 * @return $this
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	public function pop(): self {
 		$top = $this->themes->popTemplate();
 		if ($top !== $this) {
-			throw new Semantics("Popped template ($top->_path) not this ($this->_path)");
+			throw new SemanticsException("Popped template ($top->_path) not this ($this->_path)");
 		}
 		if (--$this->_running < 0) {
-			throw new Semantics('Template::pop negative running');
+			throw new SemanticsException('Template::pop negative running');
 		}
 		/*
 		 * If we have a stack and variables changed
@@ -466,7 +466,7 @@ class Theme implements Themeable {
 
 		try {
 			$this->pop();
-		} catch (Semantics) {
+		} catch (SemanticsException) {
 			$this->themes->logger->error('pop semantics error {path}', $this->variables());
 		}
 		$contents = ob_get_clean();

@@ -7,7 +7,7 @@ namespace zesk\Net;
 use zesk\Exception\ClassNotFound;
 use zesk\Exception\ConfigurationException;
 use zesk\Exception\SyntaxException;
-use zesk\Exception\Unsupported;
+use zesk\Exception\UnsupportedException;
 use zesk\Module as BaseModule;
 use zesk\URL;
 
@@ -15,7 +15,7 @@ class Module extends BaseModule {
 	/**
 	 * @return void
 	 * @throws ConfigurationException
-	 * @throws Unsupported
+	 * @throws UnsupportedException
 	 */
 	public function initialize(): void {
 		parent::initialize();

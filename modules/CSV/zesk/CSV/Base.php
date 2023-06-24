@@ -12,7 +12,7 @@ namespace zesk\CSV;
 use zesk\Exception\FileNotFound;
 use zesk\Exception\FilePermission;
 use zesk\Exception\KeyNotFound;
-use zesk\Exception\Semantics;
+use zesk\Exception\SemanticsException;
 use zesk\Options;
 use zesk\StringTools;
 
@@ -259,11 +259,11 @@ abstract class Base extends Options {
 	/**
 	 * Check to make sure we have a valid file open and ready for operations
 	 *
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	protected function _check_file(): void {
 		if (!is_resource($this->File)) {
-			throw new Semantics('Must set a file first.');
+			throw new SemanticsException('Must set a file first.');
 		}
 	}
 

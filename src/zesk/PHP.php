@@ -12,9 +12,9 @@ use zesk\Exception\DirectoryNotFound;
 use zesk\Exception\KeyNotFound;
 use zesk\Exception\ParseException;
 use zesk\Exception\SyntaxException;
-use zesk\Exception\Unimplemented;
+use zesk\Exception\UnimplementedException;
 use zesk\Exception\ParameterException;
-use zesk\Exception\Unsupported;
+use zesk\Exception\UnsupportedException;
 
 /**
  *
@@ -365,7 +365,7 @@ class PHP {
 		}
 		if (count($errors) > 0) {
 			if ($throw) {
-				throw new Unsupported('Required features are missing {errors}', ['errors' => $errors]);
+				throw new UnsupportedException('Required features are missing {errors}', ['errors' => $errors]);
 			}
 		}
 		return $results;
@@ -379,7 +379,7 @@ class PHP {
 	 * @param int|float|string $value Value to set it to
 	 *
 	 * @return mixed Return previous value
-	 * @throws Unimplemented
+	 * @throws UnimplementedException
 	 */
 	public static function setFeature(string $feature, int|float|string $value): mixed {
 		$feature = strtolower($feature);
@@ -387,7 +387,7 @@ class PHP {
 			case self::FEATURE_TIME_LIMIT:
 				$old_value = ini_get('max_execution_time');
 				if (!set_time_limit(intval($value))) {
-					throw new Unimplemented('set_time_limit failed');
+					throw new UnimplementedException('set_time_limit failed');
 				}
 				return $old_value;
 			case self::FEATURE_MEMORY_LIMIT:
@@ -395,7 +395,7 @@ class PHP {
 				ini_set('memory_limit', strval(Types::toBytes($value))); // TODO 8.1 PHP accepts float
 				return $old_value;
 			default:
-				throw new Unimplemented('No such feature {feature}', ['feature' => $feature]);
+				throw new UnimplementedException('No such feature {feature}', ['feature' => $feature]);
 		}
 	}
 

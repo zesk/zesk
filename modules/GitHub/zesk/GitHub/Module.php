@@ -13,9 +13,9 @@ use zesk\Exception\DomainLookupFailed;
 use zesk\Exception\ParameterException;
 use zesk\Exception\ParseException;
 use zesk\Exception_Protocol;
-use zesk\Exception\Semantics;
+use zesk\Exception\SemanticsException;
 use zesk\Exception\SyntaxException;
-use zesk\Exception\Unsupported;
+use zesk\Exception\UnsupportedException;
 use zesk\HTTP;
 use zesk\JSON;
 use zesk\MIME;
@@ -91,9 +91,9 @@ class Module extends BaseModule {
 	 * @throws FilePermission
 	 * @throws ParameterException
 	 * @throws ParseException
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 * @throws SyntaxException
-	 * @throws Unsupported
+	 * @throws UnsupportedException
 	 * @throws Exception_Protocol
 	 */
 	public function generateTag(string $name, string $commitish = '', string $description = ''): array {

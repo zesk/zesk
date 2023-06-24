@@ -25,7 +25,7 @@ use zesk\Doctrine\Trait\AutoID;
 use zesk\Doctrine\Trait\CodeName;
 use zesk\Exception;
 use zesk\Exception\LockedException;
-use zesk\Exception\Semantics;
+use zesk\Exception\SemanticsException;
 use zesk\Exception\TimeoutExpired;
 use zesk\Kernel;
 use zesk\PHP;
@@ -59,7 +59,7 @@ class Lock extends Model {
 
 	/**
 	 * Register all zesk hooks.
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	public static function hooks(Application $application): void {
 		$application->hooks->add(Hooks::HOOK_RESET, self::releaseAll(...));
@@ -197,7 +197,7 @@ class Lock extends Model {
 				$application->logger->error($e);
 			}
 			/* @var $lock Lock */
-		} catch (KeyNotFound|Semantics) {
+		} catch (KeyNotFound|SemanticsException) {
 		}
 	}
 

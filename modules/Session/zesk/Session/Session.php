@@ -32,10 +32,10 @@ use zesk\Doctrine\Model;
 use zesk\Doctrine\Trait\AutoID;
 use zesk\Doctrine\User;
 use zesk\Exception as zeskException;
-use zesk\Exception\Authentication;
+use zesk\Exception\AuthenticationException;
 use zesk\Exception\NotFoundException;
 use zesk\Exception\KeyNotFound;
-use zesk\Exception\Semantics;
+use zesk\Exception\SemanticsException;
 use zesk\HTTP;
 use zesk\Interface\SessionInterface;
 use zesk\Login\Controller;
@@ -243,7 +243,7 @@ class Session extends Model implements SessionInterface {
 	 * @param Userlike $user
 	 * @param Request $request
 	 * @return void
-	 * @throws Authentication
+	 * @throws AuthenticationException
 	 * @see SessionInterface::authenticate()
 	 */
 	public function authenticate(Userlike $user, Request $request): void {
@@ -254,7 +254,7 @@ class Session extends Model implements SessionInterface {
 			$this->expires = Timestamp::now()->addUnit($cookieExpire);
 			$this->em->persist($this);
 		} catch (Throwable $t) {
-			throw new Authentication('Failed to store session {exceptionClass} {message}', zeskException::exceptionVariables($t), 0, $t);
+			throw new AuthenticationException('Failed to store session {exceptionClass} {message}', zeskException::exceptionVariables($t), 0, $t);
 		}
 	}
 
@@ -272,19 +272,19 @@ class Session extends Model implements SessionInterface {
 	 * De-authenticate
 	 *
 	 * @return void
-	 * @throws Authentication
+	 * @throws AuthenticationException
 	 */
 	public function relinquish(): void {
 		try {
 			$this->user()->invokeHooks(User::HOOK_LOGOUT);
-		} catch (Authentication) {
+		} catch (AuthenticationException) {
 		}
 		$this->user = null;
 
 		try {
 			$this->em->persist($this);
 		} catch (ORMException) {
-			throw new Authentication('Unable to persist session');
+			throw new AuthenticationException('Unable to persist session');
 		}
 	}
 
@@ -415,7 +415,7 @@ class Session extends Model implements SessionInterface {
 	 * @return Session
 	 * @throws KeyNotFound
 	 * @throws ORMException
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	protected function initializeCookieSession(Request $request): self {
 		$type = self::TYPE_COOKIE;
@@ -546,12 +546,12 @@ class Session extends Model implements SessionInterface {
 	 * @param Userlike $user
 	 * @param Request $request
 	 * @return $this
-	 * @throws Authentication
-	 * @throws Semantics
+	 * @throws AuthenticationException
+	 * @throws SemanticsException
 	 */
 	public function oneTimeAuthenticate(Userlike $user, Request $request): self {
 		if ($this->type !== self::TYPE_ONE_TIME) {
-			throw new Semantics('Not a one-time session');
+			throw new SemanticsException('Not a one-time session');
 		}
 		$this->token = $this->_generateToken();
 		$this->type = self::TYPE_COOKIE;
@@ -573,7 +573,7 @@ class Session extends Model implements SessionInterface {
 
 	/**
 	 * @return int
-	 * @throws Authentication
+	 * @throws AuthenticationException
 	 */
 	public function userId(): int {
 		return $this->user()->id();
@@ -581,11 +581,11 @@ class Session extends Model implements SessionInterface {
 
 	/**
 	 * @return User
-	 * @throws Authentication
+	 * @throws AuthenticationException
 	 */
 	public function user(): User {
 		if (!$this->user) {
-			throw new Authentication('Not authenticated session {token}', ['token' => $this->token]);
+			throw new AuthenticationException('Not authenticated session {token}', ['token' => $this->token]);
 		}
 		return $this->user;
 	}

@@ -17,9 +17,9 @@ use zesk\Exception\DirectoryCreate;
 use zesk\Exception\DirectoryPermission;
 use zesk\Exception\FilePermission;
 use zesk\Exception\ConfigurationException;
-use zesk\Exception\Semantics;
+use zesk\Exception\SemanticsException;
 use zesk\Exception\SyntaxException;
-use zesk\Exception\Unsupported;
+use zesk\Exception\UnsupportedException;
 use zesk\File;
 use zesk\JSON;
 use zesk\Doctrine\Server;
@@ -48,7 +48,7 @@ class Module extends \zesk\Module {
 	 * @throws ConfigurationException
 	 * @throws DirectoryCreate
 	 * @throws DirectoryPermission
-	 * @throws Unsupported
+	 * @throws UnsupportedException
 	 */
 	public function initialize(): void {
 		parent::initialize();
@@ -112,7 +112,7 @@ class Module extends \zesk\Module {
 	 * @param array $database
 	 * @return void
 	 * @throws FilePermission
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	public function saveProcessDatabase(array $database): void {
 		$path = $this->_databasePath();
@@ -172,7 +172,7 @@ class Module extends \zesk\Module {
 				$this->application->logger->debug('Read database: {data}', [
 					'data' => JSON::encode($database),
 				]);
-			} catch (Semantics $e) {
+			} catch (SemanticsException $e) {
 				PHP::log($e);
 			}
 		}

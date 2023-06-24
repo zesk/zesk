@@ -17,7 +17,7 @@ use zesk\Exception;
 use zesk\Interface\SessionInterface;
 use zesk\Model as BaseModel;
 use zesk\Doctrine\Trait\AutoID;
-use zesk\Exception\Authentication;
+use zesk\Exception\AuthenticationException;
 use zesk\Exception\ParameterException;
 use zesk\Exception\PermissionDenied;
 use zesk\Interface\Userlike;
@@ -136,7 +136,7 @@ class User extends Model implements Userlike {
 	 *
 	 * @param Request $request
 	 * @return int
-	 * @throws Authentication
+	 * @throws AuthenticationException
 	 */
 	public function sessionUserId(Request $request): int {
 		return $this->application->session($request)->userId();
@@ -176,14 +176,14 @@ class User extends Model implements Userlike {
 	 *
 	 * @param string $password
 	 * @return self
-	 * @throws Authentication
+	 * @throws AuthenticationException
 	 */
 	public function authenticate(string $password): self {
 		if (strcasecmp($this->_generateHash($password), $this->passwordData) === 0) {
 			return $this;
 		}
 
-		throw new Authentication($this->email);
+		throw new AuthenticationException($this->email);
 	}
 
 	/**
@@ -193,7 +193,7 @@ class User extends Model implements Userlike {
 	 * @param null|Response $response Optional. If supplied, authenticates this user in the associated response
 	 * (generally, by setting a cookie.)
 	 * @return NULL|User
-	 * @throws Authentication
+	 * @throws AuthenticationException
 	 */
 	public function authenticated(Request $request, Response $response = null): ?User {
 		if (empty($this->id)) {

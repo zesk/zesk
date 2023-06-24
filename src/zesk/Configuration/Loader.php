@@ -115,12 +115,15 @@ class Loader {
 	/**
 	 *
 	 * @return void
+	 * @throws SystemException
 	 */
 	public function load(): void {
 		while (count($this->files) > 0) {
 			$file = array_shift($this->files);
 			if (!is_string($file)) {
-				throw new SystemException('File is not a string {type} {file}', ['type' => Types::type($file), 'file' => strval($file)]);
+				throw new SystemException('File is not a string {type} {file}', [
+					'type' => Types::type($file), 'file' => strval($file),
+				]);
 			}
 
 			try {
@@ -203,10 +206,8 @@ class Loader {
 	 */
 	public function variables(): array {
 		return [
-			self::PROCESSED => $this->processedFiles,
-			self::MISSING => $this->missingFiles,
-			self::SKIPPED => $this->skippedFiles,
-			self::EXTERNALS => $this->externals(),
+			self::PROCESSED => $this->processedFiles, self::MISSING => $this->missingFiles,
+			self::SKIPPED => $this->skippedFiles, self::EXTERNALS => $this->externals(),
 		];
 	}
 }

@@ -57,7 +57,7 @@ class KernelTest extends TestCase {
 	/**
 	 * @return void
 	 * @throws Exception\KeyNotFound
-	 * @throws Exception\Semantics
+	 * @throws Exception\SemanticsException
 	 */
 	public function test_hook_order(): void {
 		$hooks = $this->application->hooks;
@@ -350,8 +350,6 @@ class KernelTest extends TestCase {
 	public function test_has($expected, $key): void {
 		$this->assertEquals($expected, $this->application->configuration->pathExists($key), implode('::', Types::toList($key)));
 	}
-
-
 
 	/**
 	 * @return void

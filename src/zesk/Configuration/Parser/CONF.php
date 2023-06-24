@@ -16,7 +16,7 @@ use zesk\Configuration\Parser;
 use zesk\Configuration\Editor\CONFEditor;
 use zesk\Directory;
 use zesk\Exception\ParseException;
-use zesk\Exception\Semantics;
+use zesk\Exception\SemanticsException;
 use zesk\File;
 use zesk\PHP;
 use zesk\StringTools;
@@ -95,7 +95,7 @@ class CONF extends Parser {
 	/**
 	 *
 	 * @return void
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 * @throws ParseException
 	 * @see Parser::process
 	 */

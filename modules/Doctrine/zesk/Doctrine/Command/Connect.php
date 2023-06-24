@@ -18,7 +18,7 @@ use zesk\Exception\DirectoryCreate;
 use zesk\Exception\DirectoryPermission;
 use zesk\Exception\KeyNotFound;
 use zesk\Exception\NotFoundException;
-use zesk\Exception\Unsupported;
+use zesk\Exception\UnsupportedException;
 use zesk\PHP;
 
 /**
@@ -62,7 +62,7 @@ class Connect extends SimpleCommand {
 	 * @return integer
 	 * @throws CommandFailed
 	 * @throws NotFoundException
-	 * @throws Unsupported
+	 * @throws UnsupportedException
 	 * @throws KeyNotFound
 	 */
 	public function run(): int {
@@ -242,7 +242,7 @@ class Connect extends SimpleCommand {
 						'name' => $object->urlComponent('name'), 'from_host' => $this->option('host'),
 						'tables' => SQLDialect::SQL_GRANT_ALL,
 					]);
-				} catch (Unsupported|KeyNotFound) {
+				} catch (UnsupportedException|KeyNotFound) {
 					$grant_statements = null;
 				}
 				if (is_array($grant_statements)) {

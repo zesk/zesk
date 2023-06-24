@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace zesk;
 
-use zesk\Exception\Semantics;
+use zesk\Exception\SemanticsException;
 use zesk\Exception\SyntaxException;
 
 class URLTest extends UnitTest {
@@ -537,12 +537,12 @@ class URLTest extends UnitTest {
 	 * @param string $url
 	 * @return void
 	 * @throws Exception\SyntaxException
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 * @dataProvider data_makeSecure
 	 */
 	public function test_makeSecure(string $expected, string $url): void {
 		if ($expected === '') {
-			$this->expectException(Semantics::class);
+			$this->expectException(SemanticsException::class);
 		}
 		$this->assertEquals($expected, URL::makeSecure($url));
 	}

@@ -23,9 +23,9 @@ use zesk\Doctrine\Settings;
 use zesk\Exception\ClassNotFound;
 use zesk\Exception\ParameterException;
 use zesk\Exception\ParseException;
-use zesk\Exception\Semantics;
+use zesk\Exception\SemanticsException;
 use zesk\Exception\TimeoutExpired;
-use zesk\Exception\Unimplemented;
+use zesk\Exception\UnimplementedException;
 use zesk\Hookable;
 use zesk\HookMethod;
 use zesk\Application\Hooks;
@@ -154,7 +154,7 @@ class Module extends BaseModule {
 	 *
 	 * @return void
 	 * @throws ClassNotFound
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 * @see self::hook_routes()
 	 */
 	#[HookMethod(handles: Application::HOOK_ROUTES, argumentTypes: [Router::class])]
@@ -416,7 +416,7 @@ class Module extends BaseModule {
 	 * Run cron from a JavaScript request
 	 *
 	 * @return string
-	 * @throws Unimplemented
+	 * @throws UnimplementedException
 	 */
 	public function run_js(): string {
 		$run = $this->run();
@@ -437,7 +437,7 @@ class Module extends BaseModule {
 	 * Run cron
 	 *
 	 * @return array
-	 * @throws Unimplemented
+	 * @throws UnimplementedException
 	 */
 	public function run(): array {
 		$this->methods = [];
@@ -462,7 +462,7 @@ class Module extends BaseModule {
 	 *
 	 * @param Request $request
 	 * @param Response $response
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	#[HookMethod(Response\HTML::HOOK_HEAD)]
 	public function page_runner(Request $request, Response $response): void {

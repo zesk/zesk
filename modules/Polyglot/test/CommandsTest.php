@@ -6,7 +6,7 @@ namespace zesk\Polyglot;
 use zesk\Exception\ConfigurationException;
 use zesk\Exception\NotFoundException;
 use zesk\Exception\ParameterException;
-use zesk\Exception\Unsupported;
+use zesk\Exception\UnsupportedException;
 use zesk\Polyglot\Command\Export;
 use zesk\Polyglot\Command\Translate;
 use zesk\Polyglot\Command\Update;
@@ -36,7 +36,7 @@ class CommandsTest extends TestApplicationUnitTest {
 	 * @throws ConfigurationException
 	 * @throws NotFoundException
 	 * @throws ParameterException
-	 * @throws Unsupported
+	 * @throws UnsupportedException
 	 * @dataProvider dataCommands
 	 */
 	public function test_commands(string $class, array $testArguments, int $expectedStatus, string

@@ -18,8 +18,8 @@ use zesk\Exception\FileNotFound;
 use zesk\Exception\NotFoundException;
 use zesk\Exception\ParameterException;
 use zesk\Exception\ParseException;
-use zesk\Exception\Semantics;
-use zesk\Exception\Unsupported;
+use zesk\Exception\SemanticsException;
+use zesk\Exception\UnsupportedException;
 use zesk\Locale\Locale;
 use const STDERR;
 use const ZESK_ROOT;
@@ -151,8 +151,8 @@ class CommandLoader {
 	 * @throws ConfigurationException
 	 * @throws ExitedException
 	 * @throws ParameterException
-	 * @throws Semantics
-	 * @throws Unsupported
+	 * @throws SemanticsException
+	 * @throws UnsupportedException
 	 */
 	public function run(): int {
 		if (!array_key_exists('argv', $_SERVER) || !is_array($_SERVER['argv'])) {
@@ -229,7 +229,7 @@ class CommandLoader {
 	/**
 	 * @return int
 	 * @throws ExitedException
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	private function bootstrapApplication(): int {
 		$first_command = $this->findApplication();
@@ -470,7 +470,7 @@ class CommandLoader {
 
 		try {
 			$this->debug('Remaining class arguments: ' . JSON::encode($args));
-		} catch (Semantics) {
+		} catch (SemanticsException) {
 			// JSON failed, bah
 		}
 		if ($result !== 0) {
@@ -636,7 +636,7 @@ class CommandLoader {
 
 			$this->commands = $this->collectCommandShortcuts();
 			return 0;
-		} catch (Semantics $e) {
+		} catch (SemanticsException $e) {
 			throw new ExitedException('No application', [], 0, $e);
 		}
 	}

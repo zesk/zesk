@@ -11,10 +11,10 @@ namespace zesk\Login;
 
 use zesk\Doctrine\User;
 use zesk\Controller as zeskController;
-use zesk\Exception\Authentication;
+use zesk\Exception\AuthenticationException;
 use zesk\Exception\KeyNotFound;
-use zesk\Exception\Semantics;
-use zesk\Exception\Unsupported;
+use zesk\Exception\SemanticsException;
+use zesk\Exception\UnsupportedException;
 use zesk\HTTP;
 use zesk\Interface\Userlike;
 use zesk\Request;
@@ -104,7 +104,7 @@ class Controller extends zeskController {
 	 * @param Request $request
 	 * @param Response $response
 	 * @return Response
-	 * @throws Unsupported
+	 * @throws UnsupportedException
 	 * @throws \ReflectionException
 	 * @throws \zesk\Exception\ParameterException
 	 */
@@ -117,7 +117,7 @@ class Controller extends zeskController {
 			if ($loginHookResult instanceof Response) {
 				return $response;
 			}
-		} catch (Authentication $e) {
+		} catch (AuthenticationException $e) {
 			$response->setStatus(HTTP::STATUS_UNAUTHORIZED, 'Unauthorized');
 			// Done calling hooks
 			return $response->json()->setData([
@@ -135,7 +135,7 @@ class Controller extends zeskController {
 			return $response->json()->appendData([
 				'authenticated' => true, 'user' => $user->id(),
 			] + $data + $this->_baseResponseData());
-		} catch (Authentication $e) {
+		} catch (AuthenticationException $e) {
 			$response->setStatus(HTTP::STATUS_UNAUTHORIZED, 'Unauthorized');
 			$data = Types::toArray($user->invokeFilters(self::HOOK_LOGIN_FAILED, [], [$this]));
 
@@ -149,7 +149,7 @@ class Controller extends zeskController {
 	 * @param Request $request
 	 * @param Response $response
 	 * @return Response
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	public function action_DELETE_index(Request $request, Response $response): Response {
 		$this->invokeHooks(self::HOOK_LOGOUT);
@@ -177,14 +177,14 @@ class Controller extends zeskController {
 	 * @param string $userName
 	 * @param string $password
 	 * @return Userlike
-	 * @throws Authentication
-	 * @throws Unsupported
+	 * @throws AuthenticationException
+	 * @throws UnsupportedException
 	 */
 	private function handleLogin(string $userName, string $password): Userlike {
 		$repo = $this->application->entityManager()->getRepository($this->optionString('userClass'));
 		$user = $repo->findOneBy(['code' => $userName]);
 		if (!$user) {
-			throw new Authentication('{userName} failed', ['userName' => $userName]);
+			throw new AuthenticationException('{userName} failed', ['userName' => $userName]);
 		}
 		$hashed_password = $this->generateHashedPassword($password);
 

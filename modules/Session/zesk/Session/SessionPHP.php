@@ -8,7 +8,7 @@ namespace zesk\Session;
 
 use Throwable;
 use zesk\Application;
-use zesk\Exception\Authentication;
+use zesk\Exception\AuthenticationException;
 use zesk\Interface\SessionInterface;
 use zesk\Interface\Userlike;
 use zesk\ORM\User;
@@ -145,7 +145,7 @@ class SessionPHP implements SessionInterface {
 	/**
 	 *
 	 * @return int
-	 * @throws Authentication
+	 * @throws AuthenticationException
 	 * @see SessionInterface::userId()
 	 */
 	public function userId(): int {
@@ -154,20 +154,20 @@ class SessionPHP implements SessionInterface {
 			return $result;
 		}
 
-		throw new Authentication('No session ID');
+		throw new AuthenticationException('No session ID');
 	}
 
 	/**
 	 *
 	 *
 	 * @return Userlike
-	 * @throws Authentication
+	 * @throws AuthenticationException
 	 * @see SessionInterface::user()
 	 */
 	public function user(): Userlike {
 		$userId = $this->userId();
 		if (empty($userId)) {
-			throw new Authentication('Not authenticated');
+			throw new AuthenticationException('Not authenticated');
 		}
 
 		try {
@@ -177,7 +177,7 @@ class SessionPHP implements SessionInterface {
 		} catch (Throwable $e) {
 			$this->__set($this->globalSessionUserId(), null);
 
-			throw new Authentication(
+			throw new AuthenticationException(
 				'No user fetched for user id "{userId}"',
 				['userId' => $userId],
 				0,
@@ -190,15 +190,15 @@ class SessionPHP implements SessionInterface {
 	 *
 	 * @param Userlike $user
 	 * @param Request $request
-	 * @throws Authentication
 	 * @return void
+	 * @throws AuthenticationException
 	 * @see SessionInterface::authenticate()
 	 */
 	public function authenticate(Userlike $user, Request $request): void {
 		try {
 			$this->__set($this->globalSessionUserId(), $user->id());
 		} catch (Throwable $t) {
-			throw new Authentication('Unable to authenticate user - no ID', [], 0, $t);
+			throw new AuthenticationException('Unable to authenticate user - no ID', [], 0, $t);
 		}
 		$this->__set($this->globalSessionUserId() . '_IP', $request->remoteIP());
 	}

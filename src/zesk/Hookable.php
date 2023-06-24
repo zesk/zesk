@@ -52,7 +52,13 @@ class Hookable extends Options {
 	 */
 	private static function loadApplication(Application $application): void {
 		try {
-			if (PHP::includePath($application->path())) {
+			$newIncluded = false;
+			foreach ($application->hookSources() as $path) {
+				if (PHP::includePath($path)) {
+					$newIncluded = true;
+				}
+			}
+			if ($newIncluded) {
 				$application->classes->register(get_declared_classes());
 			}
 		} catch (DirectoryNotFound|ParameterException $e) {
@@ -81,11 +87,19 @@ class Hookable extends Options {
 			try {
 				$reflectionClass = new ReflectionClass($className);
 				foreach ($reflectionClass->getMethods($flags) as $method) {
+					if (!$method->isStatic()) {
+						continue;
+					}
+					$declaredClassName = $method->getDeclaringClass()->getName();
+					if ($declaredClassName !== $className) {
+						// TODO optimize this
+						continue;
+					}
 					foreach ($method->getAttributes($attributeClassName) as $reflectionAttribute) {
 						$attribute = $reflectionAttribute->newInstance();
 						assert($attribute instanceof HookableAttribute);
 						$attribute->setMethod($method);
-						$results[$className . '::' . $method->getName()] = $attribute;
+						$results[$declaredClassName . '::' . $method->getName()] = $attribute;
 					}
 				}
 			} catch (ReflectionException $e) {
@@ -100,9 +114,9 @@ class Hookable extends Options {
 	 *
 	 * Usage:
 	 *
-	 * 		foreach ($this->>attributeMethods(DaemonMethod::class) as $method) {
-	 * 			...
-	 * 		}
+	 *        foreach ($this->>attributeMethods(DaemonMethod::class) as $method) {
+	 *            ...
+	 *        }
 	 *
 	 * @param string $attributeClassName
 	 * @return array:HookableAttribute
@@ -112,11 +126,12 @@ class Hookable extends Options {
 		$flags = ReflectionMethod::IS_PROTECTED | ReflectionMethod::IS_PUBLIC;
 		$attributes = [];
 		foreach ($reflection->getMethods($flags) as $method) {
+			$declaringClass = $method->getDeclaringClass()->getName();
 			foreach ($method->getAttributes($attributeClassName) as $reflectionAttribute) {
 				$attribute = $reflectionAttribute->newInstance();
 				assert($attribute instanceof HookableAttribute);
 				$attribute->setMethod($method);
-				$attributes[] = $attribute;
+				$attributes[$declaringClass . '::' . $method->getName()] = $attribute;
 			}
 		}
 		return $attributes;
@@ -153,6 +168,16 @@ class Hookable extends Options {
 	}
 
 	/**
+	 * List of invoke hooks found
+	 *
+	 * @param string $hookName
+	 * @return array
+	 */
+	protected function _hooksFor(string $hookName): array {
+		return array_merge(self::staticHooksFor($this, $hookName), self::applicationHookMethods($this, $hookName, [$this]), $this->application->hooks->peekHooks($hookName));
+	}
+
+	/**
 	 * Run static hooks and object hooks
 	 *
 	 * @param string $hookName
@@ -160,10 +185,28 @@ class Hookable extends Options {
 	 * @return void
 	 */
 	public function invokeHooks(string $hookName, array $arguments = []): void {
-		$hooks = array_merge(self::staticHooksFor($this, $hookName), self::applicationHookMethods($this, $hookName, [$this]));
+		$hooks = $this->_hooksFor($hookName);
 		foreach ($hooks as $method) {
 			$method->run($arguments);
 		}
+	}
+
+	/**
+	 * Run static hooks and object hooks until a non-null result is returned
+	 *
+	 * @param string $hookName
+	 * @param array $arguments
+	 * @return mixed
+	 */
+	public function invokeHooksUntil(string $hookName, array $arguments = []): mixed {
+		$hooks = $this->_hooksFor($hookName);
+		foreach ($hooks as $method) {
+			$result = $method->run($arguments);
+			if ($result !== null) {
+				return $result;
+			}
+		}
+		return null;
 	}
 
 	/**
@@ -208,10 +251,8 @@ class Hookable extends Options {
 	 * @param int $filterArgumentIndex
 	 * @return mixed
 	 * @throws ParameterException
-	 * @throws ReflectionException
 	 */
-	private function _invokeTypedFilters(string $hookName, array $hookMethods, mixed $mixed, array $arguments = [], int
-$filterArgumentIndex = -1): mixed {
+	private function _invokeTypedFilters(string $hookName, array $hookMethods, mixed $mixed, array $arguments = [], int $filterArgumentIndex = -1): mixed {
 		$type = Types::type($mixed);
 		if ($filterArgumentIndex < 0) {
 			$filterArgumentIndex = count($arguments);
@@ -228,14 +269,6 @@ $filterArgumentIndex = -1): mixed {
 			}
 		}
 		return $mixed;
-	}
-
-	/**
-	 * @param string $hookName
-	 * @return array
-	 */
-	private function _hooksFor(string $hookName): array {
-		return array_merge(self::staticHooksFor($this, $hookName), self::applicationHookMethods($this, $hookName));
 	}
 
 	/**
@@ -263,7 +296,6 @@ $filterArgumentIndex = -1): mixed {
 	 * @param int $filterArgumentIndex
 	 * @return mixed
 	 * @throws ParameterException
-	 * @throws ReflectionException
 	 */
 	public function invokeTypedFilters(string $hookName, mixed $mixed, array $arguments = [], int $filterArgumentIndex = -1): mixed {
 		$hooks = $this->_hooksFor($hookName);
@@ -285,7 +317,7 @@ $filterArgumentIndex = -1): mixed {
 	}
 
 	/**
-	 * Finds the HookMethod attached to a list of Hookables and return them. Each hookable may have one ore more
+	 * Finds the HookMethod attached to a list of Hookables and return them. Each hookable may have one or more
 	 * hookName method.
 	 *
 	 * @param Hookable[] $hookables
@@ -295,10 +327,10 @@ $filterArgumentIndex = -1): mixed {
 	public static function objectHookMethods(array $hookables, string $hookName): array {
 		$hookMethods = [];
 		foreach ($hookables as $hookable) {
-			foreach ($hookable->hookMethods($hookName) as $hookMethod) {
+			foreach ($hookable->hookMethods($hookName) as $name => $hookMethod) {
 				/* @var $hookMethod HookMethod */
 				$hookMethod->setObject($hookable);
-				$hookMethods[] = $hookMethod;
+				$hookMethods[$name] = $hookMethod;
 			}
 		}
 		return $hookMethods;
@@ -334,10 +366,10 @@ $filterArgumentIndex = -1): mixed {
 	/**
 	 * Retrieves a list of all static methods tagged with the HookMethod attribute
 	 *
-	 * @see HookMethod
 	 * @param Hookable $hookable
 	 * @param string $name
 	 * @return array:HookMethod
+	 * @see HookMethod
 	 */
 	public static function staticHooksFor(Hookable $hookable, string $name): array {
 		return array_filter(self::staticAttributeMethods($hookable, HookMethod::class), fn (HookMethod $method) => $method->handlesHook($name));

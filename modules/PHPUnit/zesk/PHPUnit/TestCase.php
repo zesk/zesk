@@ -27,8 +27,8 @@ use zesk\Exception\DirectoryPermission;
 use zesk\Exception\FilePermission;
 use zesk\Exception\NotFoundException;
 use zesk\Exception\ParseException;
-use zesk\Exception\Semantics;
-use zesk\Exception\Unsupported;
+use zesk\Exception\SemanticsException;
+use zesk\Exception\UnsupportedException;
 use zesk\File;
 use zesk\JSON;
 use zesk\Kernel;
@@ -85,7 +85,7 @@ class TestCase extends BaseTestCase {
 	 * Must *not* call in dataProvider
 	 *
 	 * @return Application
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	public static function app(): Application {
 		return Kernel::singleton()->application();
@@ -97,8 +97,8 @@ class TestCase extends BaseTestCase {
 	 * @throws ConfigurationException
 	 * @throws ParseException
 	 * @throws NotFoundException
-	 * @throws Semantics
-	 * @throws Unsupported
+	 * @throws SemanticsException
+	 * @throws UnsupportedException
 	 */
 	public function setUp(): void {
 		/*
@@ -141,10 +141,7 @@ class TestCase extends BaseTestCase {
 
 	public function checkMemoryUsage(): void {
 		$usage = memory_get_usage(true);
-		$this->application->logger->info('Memory usage: ' . Number::formatBytes(
-			$this->application->locale,
-			$usage
-		));
+		$this->application->logger->info('Memory usage: ' . Number::formatBytes($this->application->locale, $usage));
 		$maxFile = $this->application->path('.memory_get_usage');
 
 		try {

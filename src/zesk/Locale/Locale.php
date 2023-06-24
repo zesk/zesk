@@ -18,7 +18,7 @@ use zesk\Exception\KeyNotFound;
 use zesk\Hookable;
 use zesk\Exception\ClassNotFound;
 use zesk\Exception\ParseException;
-use zesk\Exception\Semantics;
+use zesk\Exception\SemanticsException;
 use zesk\StringTools;
 use zesk\Temporal;
 use zesk\Timestamp;
@@ -268,7 +268,7 @@ abstract class Locale extends Hookable {
 		if (!$this->locale_phrase_context) {
 			try {
 				$this->locale_phrase_context = $this->application->request()->url();
-			} catch (Semantics) {
+			} catch (SemanticsException) {
 			}
 		}
 	}

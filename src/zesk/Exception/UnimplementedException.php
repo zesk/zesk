@@ -12,6 +12,8 @@ use zesk\Exception;
 
 /**
  *
+ * @author kent
+ *
  */
-class Unsupported extends Exception {
+class UnimplementedException extends Exception {
 }
