@@ -6,10 +6,10 @@
 #
 # Copyright &copy; 2023 Market Acumen, Inc.
 #
-ERR_ENV=1
+err_env=1
 
 me=$(basename "$0")
-top="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." || exit $ERR_ENV; pwd)"
+top="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." || exit $err_env; pwd)"
 quietLog="$top/.build/$me.log"
 markerFile="$top/.build/.$me.marker"
 packages=(apt-utils figlet)
@@ -37,12 +37,12 @@ consoleCyan
 echo -n "Updating apt-get ... "
 if ! apt-get update >> "$quietLog" 2>&1; then
   failed "$quietLog"
-  exit $ERR_ENV
+  exit $err_env
 fi
 echo -n "Installing ${packages[*]} ... "
 if ! apt-get install -y "${packages[@]}" >> "$quietLog" 2>&1; then
   failed "$quietLog"
-  exit $ERR_ENV
+  exit $err_env
 fi
 date > "$markerFile"
 consoleBoldMagenta

@@ -88,5 +88,5 @@ failed() {
     tail -3 "$quietLog"
     echo
   consoleReset
-  return $ERR_ENV
+  return $err_env
 }

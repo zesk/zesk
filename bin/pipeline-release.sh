@@ -6,18 +6,18 @@
 #
 # Copyright &copy; 2023 Market Acumen, Inc.
 #
-ERR_ENV=1
+err_env=1
 
 #
 # Assumptions
 #
-top="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." || exit $ERR_ENV; pwd)"
+top="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." || exit $err_env; pwd)"
 
 set -eo pipefail
 
 if [ ! -d "$top/.git" ]; then
 	echo "No .git directory at $top, stopping" 1>&2
-	exit $ERR_ENV
+	exit $err_env
 fi
 
 "$top/bin/build/git.sh"
@@ -29,7 +29,7 @@ releaseDir=$top/docs/release/
 currentChangeLog="$releaseDir/$currentVersion.md"
 if [ ! -f "$currentChangeLog" ]; then
   echo "No $currentChangeLog" 1>&2
-  exit "$ERR_ENV"
+  exit "$err_env"
 fi
 
 

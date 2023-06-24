@@ -10,7 +10,7 @@
 #
 # Exit codes
 #
-ERR_ENV=1
+err_env=1
 ERR_BUILD=1000
 
 #
@@ -20,7 +20,7 @@ ERR_BUILD=1000
 export TERM=xterm
 export DEBIAN_FRONTEND=noninteractive
 me=$(basename "$0")
-top="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." || exit $ERR_ENV; pwd)"
+top="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." || exit $err_env; pwd)"
 # Optional binaries in build image
 docker=$(which docker)
 envFile="$top/.env"
@@ -40,13 +40,13 @@ set -eo pipefail
 for e in "${envs[@]}"; do
   if [ -z "${!e}" ]; then
     consoleMagenta "Need to have $e defined in pipeline" 1>&2
-    exit $ERR_ENV
+    exit $err_env
   fi
 done
 
 if [ -z "$docker" ]; then
   consoleMagenta "No docker found in $PATH" 1>&2
-  exit $ERR_ENV
+  exit $err_env
 fi
 
 #
@@ -142,7 +142,7 @@ consoleBoldMagenta $(($(date +%s) - start)) seconds
 consoleReset
 
 start=$(($(date +%s) + 0))
-consoleCyan "$(figlet Testing)"
+figlet Testing
 for d in "test-results" ".zesk-coverage" "test-coverage" ".phpunit-cache"; do
   [ -d "$d" ] || mkdir -p "$d"
 done
