@@ -54,6 +54,9 @@ consoleUnderline() {
 consoleBold() {
   consoleCode '\033[1m' '\033[21m' "$@"
 }
+consoleRedBold() {
+  consoleCode '\033[31m' '\033[0m' "$@"
+}
 consoleNoBold() {
   echo -en '\033[21m'
 }
@@ -63,7 +66,9 @@ consoleNoUnderline() {
 echoBar() {
   echo "======================================================="
 }
-
+consoleError() {
+  consoleCode '\033[1;31m' '\033[0m' "$@"
+}
 #
 # When things go badly
 #

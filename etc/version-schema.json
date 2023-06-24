@@ -1,15 +1,18 @@
 {
-    "file": "etc/version.json",
-    "reader": {
-        "json": [
-            "zesk\\Application",
-            "version"
-        ]
-    },
-    "writer": {
-        "json": [
-            "zesk\\Application",
-            "version"
-        ]
-    }
+	"file": "etc/version.json",
+	"generator": {
+		"map": "{major}.{minor}.{maintenance}{tag}"
+	},
+	"reader": {
+		"json": [
+			"zesk\\Application",
+			"version"
+		]
+	},
+	"writer": {
+		"json": [
+			"zesk\\Application",
+			"version"
+		]
+	}
 }

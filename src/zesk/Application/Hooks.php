@@ -119,14 +119,14 @@ class Hooks {
 	public function registerHook(string $hookName, callable|Closure $method, bool $filter = false): self {
 		$hookMethod = new HookMethod($hookName, [], null, $filter);
 		$hookMethod->setClosure($method instanceof Closure ? $method : $method(...), Hooks::callableString($method));
-		$this->hookQueue[$hookName][] = $hookMethod;
+		$this->hooksQueue[$hookName][] = $hookMethod;
 		return $this;
 	}
 
 	public function registerFilter(string $hookName, callable|Closure $method): self {
 		$hookMethod = new HookMethod($hookName, [], null, true);
 		$hookMethod->setClosure($method instanceof Closure ? $method : $method(...), Hooks::callableString($method));
-		$this->hookQueue[$hookName][] = $hookMethod;
+		$this->hooksQueue[$hookName][] = $hookMethod;
 		return $this;
 	}
 
@@ -135,7 +135,7 @@ class Hooks {
 	 * @return array
 	 */
 	public function peekHooks(string $hookName): array {
-		return $this->hookQueue[$hookName] ?? [];
+		return $this->hooksQueue[$hookName] ?? [];
 	}
 
 	/**

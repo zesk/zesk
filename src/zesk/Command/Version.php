@@ -187,7 +187,7 @@ class Version extends SimpleCommand {
 
 		try {
 			$new_version = $generator($version_structure);
-		} catch (Exception $e) {
+		} catch (Throwable $e) {
 			$this->error('Error generating new version from structure {message} ({version_structure})', [
 				'message' => $e->getMessage(), 'version_structure' => $version_structure,
 			]);
@@ -337,10 +337,7 @@ class Version extends SimpleCommand {
 				$path = $json;
 			}
 			return function ($schema) use ($path, $application_root) {
-				$file = File::isAbsolute($schema['file']) ? $schema['file'] : Directory::path(
-					$application_root,
-					$schema['file']
-				);
+				$file = File::isAbsolute($schema['file']) ? $schema['file'] : Directory::path($application_root, $schema['file']);
 				File::depends($file);
 				$json_structure = JSON::decode(File::contents($file));
 				return ArrayTools::path($json_structure, $path, '');
