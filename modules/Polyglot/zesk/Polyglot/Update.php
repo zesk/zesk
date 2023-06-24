@@ -10,8 +10,8 @@ namespace zesk\Polyglot;
 
 use Throwable;
 use zesk\Application;
-use zesk\Database\Exception\SQLException;
 use zesk\Directory;
+use zesk\Doctrine\Model;
 use zesk\Exception\ClassNotFound;
 use zesk\Exception\ConfigurationException;
 use zesk\Exception\FileLocked;
@@ -22,17 +22,9 @@ use zesk\Exception\KeyNotFound;
 use zesk\Exception\NotFoundException;
 use zesk\Exception\ParameterException;
 use zesk\Exception\ParseException;
-use zesk\Exception\Semantics;
+use zesk\Exception\SemanticsException;
 use zesk\File;
 use zesk\Locale\Locale;
-use zesk\ORM\Lock;
-use zesk\ORM\ORMBase;
-use zesk\ORM\Exception\ORMDuplicate;
-use zesk\ORM\Exception\ORMEmpty;
-use zesk\ORM\Exception\ORMNotFound;
-use zesk\ORM\Server;
-use zesk\ORM\Exception\StoreException;
-use zesk\ORM\User;
 use zesk\PHP;
 use zesk\Exception\TimeoutExpired;
 use zesk\Timestamp;
@@ -44,7 +36,7 @@ use zesk\Timestamp;
  * @property User $user
  * @property Timestamp $updated
  */
-class Update extends ORMBase {
+class Update extends Model {
 	/**
 	 * @param Application $application
 	 * @param string $locale
@@ -57,7 +49,7 @@ class Update extends ORMBase {
 	 * @throws KeyNotFound
 	 * @throws ParameterException
 	 * @throws ParseException
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 * @throws ORMDuplicate
 	 * @throws ORMEmpty
 	 * @throws ORMNotFound
@@ -80,6 +72,11 @@ class Update extends ORMBase {
 
 	/**
 	 *
+	 */
+	public const HOOK_UPDATE = __CLASS__ . '::update';
+
+	/**
+	 *
 	 * @param Application $application
 	 * @throws SQLException
 	 * @throws ClassNotFound
@@ -90,7 +87,7 @@ class Update extends ORMBase {
 	 * @throws ORMNotFound
 	 * @throws ParameterException
 	 * @throws ParseException
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 * @throws TimeoutExpired
 	 * @throws ORMEmpty
 	 */
@@ -168,7 +165,7 @@ class Update extends ORMBase {
 			$server->setMeta($server_variable_name, time());
 		}
 		$lock->release();
-		$application->callHook('polyglot_update');
+		$application->invokeHooks(self::HOOK_UPDATE);
 	}
 
 	/**

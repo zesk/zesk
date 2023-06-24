@@ -4,28 +4,49 @@ declare(strict_types=1);
 namespace zesk;
 
 class hookable_test_a extends Hookable {
+	public const HOOK_TEST = __CLASS__ . '::test';
+
 	public static Application $app;
 
 	public function hookit(array $data) {
 		$data['hookit'] = microtime(true);
-		$data = $this->callHook('test', $data);
+		$data = $this->invokeFilters(self::HOOK_TEST, $data);
 		return $data;
 	}
 
 	public static function appendTracking(string $whatever): void {
-		$calls = toArray(self::$app->configuration->get('hookable'));
+		$calls = Types::toArray(self::$app->configuration->get('hookable'));
 		$calls[] = $whatever;
 		self::$app->configuration->set('hookable', $calls);
 	}
 
-	public static function doit(): void {
-		self::appendTracking(__METHOD__);
+	#[HookMethod(handles: self::HOOK_TEST, filter: true)]
+	public static function doit(array $data): array {
+		$data['test_a'] = 99;
+		return $data;
 	}
 }
 
 class hookable_test_b extends hookable_test_a {
-	public static function doit(): void {
-		self::appendTracking(__METHOD__);
+	#[HookMethod(handles: self::HOOK_TEST, filter: true)]
+	public function requiresObjectHookB(array $data): array {
+		$data['test_b'] = 99;
+		return $data;
+	}
+
+	#[HookMethod(handles: self::HOOK_TEST, filter: true)]
+	public static function hook_test2(array $data) {
+		$data['test2'] = '2';
+		return $data;
+	}
+
+	#[HookMethod(handles: self::HOOK_TEST, filter: true)]
+	public function hook_test3(array $data) {
+		$data['test3'] = 'three';
+		$data['test1a'] = 'three not 1a';
+		$data['dude'] = 'the';
+		$data['nice'] = 'pony';
+		return $data;
 	}
 }
 
@@ -33,25 +54,39 @@ class Hookable_Test extends UnitTest {
 	public static $counter = 0;
 
 	public function test_hook_series(): void {
-		$this->application->hooks->add('zesk\\hookable_test_a::test', __CLASS__ . '::hook_test1');
-		$this->application->hooks->add('zesk\\hookable_test_a::test', __CLASS__ . '::hook_test2');
-		$this->application->hooks->add('zesk\\hookable_test_a::test', __CLASS__ . '::hook_test3');
+		$this->application->configure();
+		$this->application->hooks->registerFilter(hookable_test_a::HOOK_TEST, $this->hook_test1(...));
 
 		$data = [
 			'dude' => 'as in the',
 		];
+		$this->application->classes->register([hookable_test_a::class, hookable_test_b::class]);
 
 		$a = new hookable_test_a($this->application);
 		$result = $a->hookit($data);
 
-		$this->assertArrayHasKeys(['dude', 'hookit', 'test1', 'test2', 'test3', 'nice'], $result);
-		$this->assertEquals('the', $result['dude']);
+		$this->assertArrayHasKeys([
+			'dude', 'hookit', 'test1', 'test2', 'test_a',
+		], $result, JSON::encodePretty($result));
+		$this->assertEquals('as in the', $result['dude']);
 		$this->assertEquals('1', $result['test1']);
 		$this->assertEquals('2', $result['test2']);
-		$this->assertEquals('three', $result['test3']);
-		$this->assertEquals('pony', $result['nice']);
 		$this->assertIsFloat($result['hookit']);
 
+		$data = $a->invokeObjectFilters(hookable_test_a::HOOK_TEST, $data);
+		$this->assertArrayHasKeys([
+			'dude', 'hookit', 'test1', 'test2', 'test_a', 'test2',
+		], $result, JSON::encodePretty($result));
+
+		$b = new hookable_test_b($this->application);
+		$data = [
+			'dude' => 'test_b',
+		];
+		$data = $b->invokeObjectFilters(hookable_test_a::HOOK_TEST, $data);
+		$this->assertEquals([
+			'dude' => 'the', 'test_b' => 99, 'test2' => '2', 'test3' => 'three', 'test1a' => 'three not 1a',
+			'nice' => 'pony', 'test_a' => 99,
+		], $data);
 
 		/*array(10) {
   ["dude"]=>
@@ -77,33 +112,10 @@ class Hookable_Test extends UnitTest {
 } */
 	}
 
-	public function test_allCall(): void {
-		$this->application->classes->register(hookable_test_b::class);
-		hookable_test_a::$app = $this->application;
-		$this->application->hooks->allCall(hookable_test_a::class . '::doit');
-		$results = toArray($this->application->configuration->get('hookable'));
-		$this->assertEquals([hookable_test_a::class . '::doit', hookable_test_b::class . '::doit'], $results);
-	}
-
-	public static function hook_test1(hookable_test_a $object, array $data) {
+	public function hook_test1(array $data) {
 		$data[__METHOD__] = microtime(true);
 		$data['test1'] = '1';
 		$data['test1a'] = '1a';
-		return $data;
-	}
-
-	public static function hook_test2(hookable_test_a $object, array $data) {
-		$data[__METHOD__] = microtime(true);
-		$data['test2'] = '2';
-		return $data;
-	}
-
-	public static function hook_test3(hookable_test_a $object, array $data) {
-		$data[__METHOD__] = microtime(true);
-		$data['test3'] = 'three';
-		$data['test1a'] = 'three not 1a';
-		$data['dude'] = 'the';
-		$data['nice'] = 'pony';
 		return $data;
 	}
 

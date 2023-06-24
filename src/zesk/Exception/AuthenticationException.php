@@ -6,15 +6,14 @@ declare(strict_types=1);
  * @author kent
  * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  */
-
 namespace zesk\Exception;
 
 use zesk\Exception;
 
 /**
+ * Throw when the user does not authenticate, authentication fails, or access issues
  *
  * @author kent
- * Throw when a function, method, or system semantics issue occurs.
  */
-class Semantics extends Exception {
+class AuthenticationException extends Exception {
 }

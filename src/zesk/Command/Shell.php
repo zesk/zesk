@@ -11,7 +11,7 @@ namespace zesk\Command;
 
 use Throwable;
 use zesk\Exception\FilePermission;
-use zesk\Exception\Semantics;
+use zesk\Exception\SemanticsException;
 use zesk\Exception\ParameterException;
 use zesk\PHP;
 use zesk\StopIteration;
@@ -81,7 +81,7 @@ class Shell extends SimpleCommand {
 	 * @return int
 	 * @throws FilePermission
 	 * @throws ParameterException
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	public function run(): int {
 		if (!$this->optionBool('skip-configure')) {
@@ -125,7 +125,7 @@ class Shell extends SimpleCommand {
 	 * Interactive evaluation of commands
 	 *
 	 * @return int
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	public function interactive(): int {
 		$this->history_file_path = $this->application->paths->userHome('eval-history.log');

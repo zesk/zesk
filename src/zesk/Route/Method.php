@@ -130,7 +130,7 @@ class Method extends Route {
 			}
 		} elseif (!is_callable($function)) {
 			throw new ParameterException('Not callable: {callable} for {pattern}', $this->variables() + [
-				'callable' => Hooks::callable_string($function), 'pattern' => $this->pattern,
+				'callable' => Hooks::callableString($function), 'pattern' => $this->pattern,
 			]);
 		}
 		return true;
@@ -192,7 +192,7 @@ class Method extends Route {
 			$content = null;
 			$app->hooks->call('exception', $e);
 			$app->logger->error('{class}::_execute() Running {method} threw exception {e}', [
-				'class' => __CLASS__, 'method' => $app->hooks->callable_string($method), 'e' => $e,
+				'class' => __CLASS__, 'method' => $app->hooks->callableString($method), 'e' => $e,
 			]);
 		}
 		return $content;

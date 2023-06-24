@@ -7,22 +7,20 @@ declare(strict_types=1);
  * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  */
 
-namespace zesk\World;
+namespace zesk\World\Bootstrap;
 
 use zesk\Application;
 use zesk\ArrayTools;
 use zesk\File;
 use zesk\Hookable;
 use zesk\JSON;
-use zesk\ORM\ORMEmpty;
-use zesk\ORM\ORMNotFound;
 
 /**
  * @see Currency
  * @author kent
  *
  */
-class Bootstrap_Currency extends Hookable {
+class BootstrapCurrency extends Hookable {
 	/**
 	 *
 	 * @var array

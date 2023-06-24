@@ -10,7 +10,7 @@ use Exception as BaseException;
 use Throwable;
 use zesk\Exception\NotFoundException;
 use zesk\Exception\SyntaxException;
-use zesk\Exception\Unsupported;
+use zesk\Exception\UnsupportedException;
 use zesk\PHPUnit\ExceptionTestCase;
 
 class ThrowableTest extends ExceptionTestCase {
@@ -25,7 +25,7 @@ class ThrowableTest extends ExceptionTestCase {
 					'thing' => 'world',
 				]),
 			], [
-				new Unsupported('Hello {thing}', [
+				new UnsupportedException('Hello {thing}', [
 					'thing' => 'world',
 				]),
 			],

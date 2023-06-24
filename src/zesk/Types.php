@@ -14,7 +14,8 @@ namespace zesk;
 use Stringable;
 use Traversable;
 use TypeError;
-use zesk\Exception\Semantics;
+use zesk\Exception\ParseException;
+use zesk\Exception\SemanticsException;
 use zesk\Interface\Simplifiable;
 
 class Types {
@@ -390,7 +391,7 @@ class Types {
 	 *
 	 * @param mixed $mixed
 	 * @return string|int|float|bool
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	public static function flatten(mixed $mixed): string|int|float|bool {
 		if (is_array($mixed)) {
@@ -539,5 +540,54 @@ class Types {
 	 */
 	public static function keyToString(array $key): string {
 		return implode(self::KEY_SEPARATOR, $key);
+	}
+
+	/**
+	 * Convert a value automatically into a native PHP type
+	 *
+	 * @param mixed $value
+	 * @param boolean $throw Throw an ParseException error when value is invalid JSON. Defaults to true.
+	 * @return mixed
+	 * @throws ParseException
+	 * @see PHP::autoType()
+	 */
+	public static function autoType(mixed $value, bool $throw = true): mixed {
+		if (is_object($value)) {
+			return $value;
+		}
+		if (is_array($value)) {
+			foreach ($value as $k => $v) {
+				$value[$k] = self::autoType($v);
+			}
+			return $value;
+		}
+		// Convert numeric types first, then boolean
+		$boolValue = Types::toBool($value, null);
+		if (is_bool($boolValue)) {
+			return $boolValue;
+		}
+		if (is_numeric($value)) {
+			if (preg_match('/^\d+$/', "$value")) {
+				return Types::toInteger($value);
+			}
+			return Types::toFloat($value);
+		}
+		if (!is_string($value)) {
+			return $value;
+		}
+		if ($value === 'null') {
+			return null;
+		}
+		if (StringTools::unquote($value, '{}[]\'\'""') !== $value) {
+			try {
+				return JSON::decode($value);
+			} catch (ParseException $e) {
+				if ($throw) {
+					throw $e;
+				}
+				return $value;
+			}
+		}
+		return $value;
 	}
 }

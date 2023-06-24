@@ -13,40 +13,31 @@ declare(strict_types=1);
 namespace zesk\Cron;
 
 use Closure;
-use ReflectionClass;
-use ReflectionException;
 use Throwable;
 use zesk\Application;
 use zesk\ArrayTools;
 use zesk\Cron\Attributes\Cron;
-use zesk\Directory;
 use zesk\Doctrine\Lock;
 use zesk\Doctrine\Server;
-use zesk\Exception;
+use zesk\Doctrine\Settings;
 use zesk\Exception\ClassNotFound;
-use zesk\Exception\ConfigurationException;
-use zesk\Exception\KeyNotFound;
 use zesk\Exception\ParameterException;
 use zesk\Exception\ParseException;
-use zesk\Exception\Semantics;
+use zesk\Exception\SemanticsException;
 use zesk\Exception\TimeoutExpired;
-use zesk\Exception\Unimplemented;
+use zesk\Exception\UnimplementedException;
 use zesk\Hookable;
 use zesk\HookMethod;
 use zesk\Application\Hooks;
 use zesk\Interface\MetaInterface;
 use zesk\Interface\SettingsInterface;
-use zesk\Model;
 use zesk\Module as BaseModule;
 use zesk\PHP;
 use zesk\Request;
 use zesk\Response;
 use zesk\Router;
-use zesk\RuntimeException;
-use zesk\System;
 use zesk\Temporal;
 use zesk\Timestamp;
-use zesk\Types;
 
 /**
  *
@@ -96,11 +87,6 @@ class Module extends BaseModule {
 	private array $scopes = [];
 
 	/**
-	 * microtime
-	 */
-	private float $start;
-
-	/**
 	 * The following functions are called within Module, Object, and Application classes:
 	 *
 	 * ::cron - Run every time cron is run
@@ -114,8 +100,13 @@ class Module extends BaseModule {
 	 * @var array
 	 */
 	public static array $intervals = [
-		Temporal::UNIT_SECOND, Temporal::UNIT_MINUTE, Temporal::UNIT_HOUR, Temporal::UNIT_DAY, Temporal::UNIT_WEEK,
-		Temporal::UNIT_MONTH, Temporal::UNIT_YEAR,
+		Temporal::UNIT_SECOND,
+		Temporal::UNIT_MINUTE,
+		Temporal::UNIT_HOUR,
+		Temporal::UNIT_DAY,
+		Temporal::UNIT_WEEK,
+		Temporal::UNIT_MONTH,
+		Temporal::UNIT_YEAR,
 	];
 
 	/**
@@ -148,27 +139,6 @@ class Module extends BaseModule {
 	}
 
 	/**
-	 * Hook Module::settings
-	 *
-	 * @return array
-	 */
-	public function hook_settings(): array {
-		return [
-			__CLASS__ . '::page_runner' => [
-				'type' => 'boolean', 'default' => false,
-				'name' => 'Cron task runs asynchronously via web page requests.',
-				'description' => 'Whether to run poor-man style cron tasks from page requests.',
-			], __CLASS__ . '::time_limit' => [
-				'type' => 'integer', 'default' => 0, 'name' => 'Time limit for cron tasks to complete',
-				'description' => "Set this to a value if cron tasks run too long, and need to be terminated after a certain number of seconds (and that\'s ok)... Uses php's time_limit ini setting to terminate the cron task after a certain amount of time.",
-			], __CLASS__ . '::page_runner_script' => [
-				'type' => 'uri', 'default' => 'js/cron.js', 'name' => 'Path of script to run cron on each page. ',
-				'description' => 'Modify this if it conflicts with one of your own scripts. Note this page should never be cached. It should be a unique URL.',
-			],
-		];
-	}
-
-	/**
 	 * @return string
 	 */
 	private function page_runner_script(): string {
@@ -184,7 +154,7 @@ class Module extends BaseModule {
 	 *
 	 * @return void
 	 * @throws ClassNotFound
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 * @see self::hook_routes()
 	 */
 	#[HookMethod(handles: Application::HOOK_ROUTES, argumentTypes: [Router::class])]
@@ -356,6 +326,7 @@ class Module extends BaseModule {
 
 	/**
 	 * Internal function to run tasks
+	 * @throws ClassNotFound
 	 */
 	private function _run(): void {
 		$now = Timestamp::now();
@@ -445,7 +416,7 @@ class Module extends BaseModule {
 	 * Run cron from a JavaScript request
 	 *
 	 * @return string
-	 * @throws Unimplemented
+	 * @throws UnimplementedException
 	 */
 	public function run_js(): string {
 		$run = $this->run();
@@ -466,12 +437,12 @@ class Module extends BaseModule {
 	 * Run cron
 	 *
 	 * @return array
-	 * @throws Unimplemented
+	 * @throws UnimplementedException
 	 */
 	public function run(): array {
 		$this->methods = [];
 
-		foreach (Hookable::findHooksFor($this, self::HOOK_BEFORE, true) as $hook) {
+		foreach (Hookable::staticHooksFor($this, self::HOOK_BEFORE, true) as $hook) {
 			$hook->run(null, []);
 		}
 
@@ -479,7 +450,7 @@ class Module extends BaseModule {
 		$this->_critical_cron_tasks();
 		$this->_run();
 
-		foreach (Hookable::findHooksFor($this, self::HOOK_AFTER, true) as $hook) {
+		foreach (Hookable::staticHooksFor($this, self::HOOK_AFTER, true) as $hook) {
 			$hook->run(null, []);
 		}
 
@@ -491,8 +462,9 @@ class Module extends BaseModule {
 	 *
 	 * @param Request $request
 	 * @param Response $response
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
+	#[HookMethod(Response\HTML::HOOK_HEAD)]
 	public function page_runner(Request $request, Response $response): void {
 		$response->html()->javascript('/share/zesk/js/zesk.js', [
 			'weight' => 'first', 'share' => true,
@@ -634,17 +606,5 @@ class Module extends BaseModule {
 			}
 		}
 		return null;
-	}
-
-	/**
-	 *
-	 * @return array
-	 */
-	protected function hook_system_panel(): array {
-		return [
-			'system/panel/cron' => [
-				'title' => 'Cron Tasks', 'moduleClass' => __CLASS__,
-			],
-		];
 	}
 }

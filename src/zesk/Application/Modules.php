@@ -24,7 +24,7 @@ use zesk\Exception\DirectoryNotFound;
 use zesk\Exception\NotFoundException;
 use zesk\Exception\ParameterException;
 use zesk\Exception\ParseException;
-use zesk\Exception\Unsupported;
+use zesk\Exception\UnsupportedException;
 use zesk\File;
 use zesk\Hookable;
 use zesk\Module;
@@ -193,7 +193,7 @@ class Modules {
 	 * @throws ConfigurationException
 	 * @throws NotFoundException
 	 * @throws ParseException
-	 * @throws Unsupported
+	 * @throws UnsupportedException
 	 */
 	final public function load(string $name): Module {
 		$name = self::cleanName($name);
@@ -221,7 +221,7 @@ class Modules {
 	 * @throws ConfigurationException
 	 * @throws NotFoundException
 	 * @throws ParseException
-	 * @throws Unsupported
+	 * @throws UnsupportedException
 	 */
 	final public function loadMultiple(array $names): array {
 		$result = [];
@@ -238,7 +238,7 @@ class Modules {
 	 * @throws ConfigurationException
 	 * @throws DirectoryNotFound
 	 * @throws ParseException
-	 * @throws Unsupported
+	 * @throws UnsupportedException
 	 */
 	final public function reload(): self {
 		foreach ($this->modules as $codename => $module) {
@@ -353,7 +353,7 @@ class Modules {
 	 * @throws ConfigurationException
 	 * @throws DirectoryNotFound
 	 * @throws ParseException
-	 * @throws Unsupported
+	 * @throws UnsupportedException
 	 */
 	private function _handleRequires(string|array $requires): void {
 		foreach (Types::toList($requires) as $required_module) {
@@ -388,7 +388,7 @@ class Modules {
 	 * @throws ClassNotFound
 	 * @throws ConfigurationException
 	 * @throws DirectoryNotFound
-	 * @throws Unsupported|ParseException
+	 * @throws UnsupportedException|ParseException
 	 */
 	private function _loadModule(string $name): Module {
 		assert(!str_contains($name, '\\'));
@@ -407,7 +407,10 @@ class Modules {
 
 		$module = $this->modules[$name] = $this->_moduleInitialize($this->_createModuleObject($name, $moduleFactoryState));
 		if (count($this->loadHooks)) {
-			$module->callHook(array_keys($this->loadHooks), $this->application);
+			foreach (array_keys($this->loadHooks) as $hookName) {
+				$module->invokeHooks($hookName, [$this->application]);
+				$module->invokeObjectHooks($hookName, [$this->application]);
+			}
 		}
 		return $module;
 	}
@@ -418,7 +421,7 @@ class Modules {
 	 * @throws ClassNotFound
 	 * @throws ConfigurationException
 	 * @throws DirectoryNotFound
-	 * @throws Unsupported
+	 * @throws UnsupportedException
 	 * @throws ParseException
 	 */
 	public function _reloadModule(Module $module): Module {
@@ -507,7 +510,7 @@ class Modules {
 	 * @param Module $object
 	 * @return Module
 	 * @throws ConfigurationException
-	 * @throws Unsupported
+	 * @throws UnsupportedException
 	 */
 	private function _moduleInitialize(Module $object): Module {
 		try {
@@ -518,7 +521,7 @@ class Modules {
 				]);
 			}
 			return $object;
-		} catch (ConfigurationException|Unsupported $e) {
+		} catch (ConfigurationException|UnsupportedException $e) {
 			$this->application->logger->error('Failed to initialize module object {class}: {message}', [
 				'class' => $object::class, 'message' => $e->getMessage(),
 			]);

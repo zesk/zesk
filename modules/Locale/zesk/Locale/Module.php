@@ -15,8 +15,8 @@ namespace zesk\Locale;
 
 use zesk\Exception\FileNotFound;
 use zesk\Exception\FilePermission;
-use zesk\Exception\Semantics;
-use zesk\Exception\Unimplemented;
+use zesk\Exception\SemanticsException;
+use zesk\Exception\UnimplementedException;
 use zesk\Interface\Module\Head;
 use zesk\Interface\Module\Routes;
 use zesk\PHP;
@@ -55,7 +55,7 @@ class Module extends \zesk\Module implements Head, Routes {
 
 		try {
 			$writer->append($phrases, $phrasesContext);
-		} catch (Unimplemented|FileNotFound|FilePermission $e) {
+		} catch (UnimplementedException|FileNotFound|FilePermission $e) {
 			PHP::log($e);
 		}
 	}
@@ -74,7 +74,7 @@ class Module extends \zesk\Module implements Head, Routes {
 			$response->html()->javascript('/locale/js?ll=' . $this->application->locale->id(), [
 				'weight' => -10, 'is_route' => true, 'route_expire' => 3600, /* once an hour */
 			]);
-		} catch (Semantics $e) {
+		} catch (SemanticsException $e) {
 			/* Should never happen - only if options contain 'after' or 'before' */
 			PHP::log($e);
 		}

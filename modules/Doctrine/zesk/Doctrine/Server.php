@@ -24,7 +24,7 @@ use zesk\Cron\Attributes\Cron;
 use zesk\Doctrine\Trait\AutoID;
 use zesk\Doctrine\Trait\Name;
 use zesk\Exception\KeyNotFound;
-use zesk\Exception\Semantics;
+use zesk\Exception\SemanticsException;
 use zesk\Exception\TimeoutExpired;
 use zesk\Interface\MetaInterface;
 use zesk\IPv4;
@@ -216,7 +216,7 @@ class Server extends Model implements MetaInterface {
 		try {
 			$dead_to_me = Timestamp::now('UTC');
 			$dead_to_me->addUnit($timeout_seconds);
-		} catch (KeyNotFound|Semantics $e) {
+		} catch (KeyNotFound|SemanticsException $e) {
 			$this->application->logger->error($e);
 			return;
 		}
@@ -284,13 +284,15 @@ class Server extends Model implements MetaInterface {
 		return $server;
 	}
 
+	public const HOOK_INITIALIZE_NAME = __CLASS__ . '::initializeNames';
+
 	/**
 	 *
 	 * @return self
 	 */
 	private function registerDefaultServer(): self {
 		// Set up our names using hooks (may do nothing)
-		$this->callHook('initializeNames');
+		$this->invokeHooks(self::HOOK_INITIALIZE_NAME);
 		// Set all blank values to defaults
 		$this->_initializeNameDefaults();
 		return $this;

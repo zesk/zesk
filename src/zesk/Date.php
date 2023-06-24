@@ -16,7 +16,7 @@ use DateTime;
 use OutOfBoundsException;
 use zesk\Exception\ParameterException;
 use zesk\Exception\ParseException;
-use zesk\Exception\Semantics;
+use zesk\Exception\SemanticsException;
 use zesk\Locale\Locale;
 use function gregoriantojd;
 use function jdtogregorian;
@@ -472,13 +472,13 @@ class Date extends Temporal {
 	 * @inline_test zesk\Date::factory('2020-01-02')->year_day() === 1
 	 * @param int $set
 	 * @return self
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 * @see Date_Test::test_yearDay()
 	 */
 	public function setYearday(int $set): self {
 		$yearday = $this->yearDay();
 		if ($yearday === null) {
-			throw new Semantics('Empty date, can not {method}', ['method' => __METHOD__]);
+			throw new SemanticsException('Empty date, can not {method}', ['method' => __METHOD__]);
 		}
 		return $this->add(0, 0, $set - $yearday);
 	}

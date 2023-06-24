@@ -8,6 +8,7 @@ declare(strict_types=1);
  */
 namespace zesk\Interface;
 
+use Stringable;
 use zesk\Application;
 
 /**
@@ -55,8 +56,10 @@ interface SystemProcess {
 	/**
 	 * Logging tool for processes
 	 *
-	 * @param string $message
-	 * @param array $args
+	 * @param $level
+	 * @param Stringable|string $message
+	 * @param array $context
+	 * @return void
 	 */
-	public function log(string $message, array $args = []): void;
+	public function log($level, Stringable|string $message, array $context = []): void;
 }

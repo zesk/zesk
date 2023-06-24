@@ -16,7 +16,7 @@ use Psr\Cache\InvalidArgumentException;
 use zesk\Application\Hooks;
 use zesk\Exception\ClassNotFound;
 use zesk\Exception\DirectoryNotFound;
-use zesk\Exception\Semantics;
+use zesk\Exception\SemanticsException;
 
 /**
  * Handles autoloader for Zesk
@@ -159,7 +159,7 @@ class Autoloader {
 	 * @return $this
 	 */
 	public function addLoaded(Closure $closure, string $id = ''): self {
-		$hash = $id ?: Hooks::callable_string($closure);
+		$hash = $id ?: Hooks::callableString($closure);
 		$this->loaded[$hash] = $closure;
 		return $this;
 	}
@@ -196,7 +196,7 @@ class Autoloader {
 	 *
 	 * @param string $class
 	 * @return boolean
-	 * @throws ClassNotFound|Semantics
+	 * @throws ClassNotFound|SemanticsException
 	 */
 	public function php_autoloader(string $class): bool {
 		if ($this->load($class)) {
@@ -219,7 +219,7 @@ class Autoloader {
 	 * @param boolean $no_exception
 	 *            Do not throw an exception if class is not found
 	 * @return string
-	 * @throws Semantics|ClassNotFound
+	 * @throws SemanticsException|ClassNotFound
 	 * @see ZESK_NO_CONFLICT
 	 * @see $this->no_exception
 	 */
@@ -265,7 +265,7 @@ class Autoloader {
 		if ($this->debug) {
 			$content = ob_get_clean();
 			if ($content !== '') {
-				throw new Semantics('Include file {include} should not output text', [
+				throw new SemanticsException('Include file {include} should not output text', [
 					'include' => $include,
 				]);
 			}

@@ -6,7 +6,7 @@ declare(strict_types=1);
 
 namespace zesk;
 
-use zesk\Exception\Semantics;
+use zesk\Exception\SemanticsException;
 use zesk\Exception\SyntaxException;
 use function trim;
 
@@ -716,7 +716,7 @@ class URL {
 	 *            A URL to test
 	 * @return string Secured URL
 	 * @throws SyntaxException
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 * @see URL_Test::test_makeSecure()
 	 */
 	public static function makeSecure(string $url): string {
@@ -726,14 +726,14 @@ class URL {
 		$parts = self::parse($url);
 		$scheme = $parts['scheme'] ?? '';
 		if (!array_key_exists($scheme, self::$secureProtocols)) {
-			throw new Semantics('{url} Not a known insecure protocol: {choices}', [
+			throw new SemanticsException('{url} Not a known insecure protocol: {choices}', [
 				'url' => $url,
 				'choices' => array_keys(self::$secureProtocols),
 			]);
 		}
 		$defaultPort = self::protocolPort($scheme);
 		if (intval($parts['port'] ?? $defaultPort) !== $defaultPort) {
-			throw new Semantics('{url} Port must be standard to promote: {port} !== {defaultPort}', [
+			throw new SemanticsException('{url} Port must be standard to promote: {port} !== {defaultPort}', [
 				'url' => $url,
 				'defaultPort' => $defaultPort,
 				'port' => $parts['port'],
@@ -792,14 +792,14 @@ class URL {
 	 *            Href on the page
 	 * @return string Reconciled href
 	 * @throws SyntaxException
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	public static function computeHREF(string $url, string $href): string {
 		if (empty($href)) {
-			throw new Semantics('href is blank');
+			throw new SemanticsException('href is blank');
 		}
 		if (str_starts_with($href, 'javascript:')) {
-			throw new Semantics('javascript: href is invalid');
+			throw new SemanticsException('javascript: href is invalid');
 		}
 		if (self::is($href)) {
 			return self::normalize($href);

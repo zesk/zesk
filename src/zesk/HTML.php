@@ -1,16 +1,17 @@
 <?php
 declare(strict_types=1);
 /**
- * @version $URL$
- * @author $Author$
  * @package zesk
  * @subpackage core
+ * @author kent
+ * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  */
+
 
 namespace zesk;
 
 use zesk\Exception\NotFoundException;
-use zesk\Exception\Semantics;
+use zesk\Exception\SemanticsException;
 
 /**
  * Abstraction of HTML markup language, with tools for generating and parsing HTML
@@ -23,7 +24,7 @@ class HTML {
 	 *
 	 * @var string
 	 */
-	private const RE_TAG_NAME_CHAR =  '-' . self::RE_TAG_NAME_START_CHAR . ".0-9\xB7";
+	private const RE_TAG_NAME_CHAR = '-' . self::RE_TAG_NAME_START_CHAR . ".0-9\xB7";
 
 	/**
 	 * Tag name pattern without delimiters.
@@ -152,14 +153,7 @@ class HTML {
 	 * @param array $attrs
 	 * @return string
 	 */
-	public static function img_compat(
-		Application $app,
-		string $src,
-		int $w = null,
-		int $h = null,
-		string $text = '',
-		array $attrs = []
-	): string {
+	public static function img_compat(Application $app, string $src, int $w = null, int $h = null, string $text = '', array $attrs = []): string {
 		$attrs['width'] = $w ?? $attrs['width'] ?? null;
 		$attrs['height'] = $h ?? $attrs['height'] ?? null;
 		return self::img($app, $src, $text, $attrs);
@@ -326,7 +320,7 @@ class HTML {
 				if (is_array($result)) {
 					$attributes = $result;
 				}
-			} catch (Semantics) {
+			} catch (SemanticsException) {
 				// pass
 			}
 		}
@@ -671,15 +665,15 @@ class HTML {
 	 *
 	 * @param null|string $name
 	 * @return string
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	public static function tag_close(string $name = null): string {
 		if (count(self::$tag_stack) === 0) {
-			throw new Semantics("Closing tag without open ($name)");
+			throw new SemanticsException("Closing tag without open ($name)");
 		}
 		$top_name = array_pop(self::$tag_stack);
 		if ($name !== null && strcasecmp($name, $top_name) !== 0) {
-			throw new Semantics("Closing tag $name when it should be $top_name");
+			throw new SemanticsException("Closing tag $name when it should be $top_name");
 		}
 		return '</' . $top_name . '>';
 	}
@@ -730,7 +724,7 @@ class HTML {
 	 * Common tag_close case
 	 *
 	 * @return string
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	public static function div_close(): string {
 		return self::tag_close('div');
@@ -740,7 +734,7 @@ class HTML {
 	 * Common tag_close case
 	 *
 	 * @return string
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	public static function span_close(): string {
 		return self::tag_close('span');

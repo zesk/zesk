@@ -9,7 +9,7 @@ namespace zesk\Configuration\Editor;
 use zesk\ArrayTools;
 use zesk\Configuration\Editor;
 use zesk\Configuration\Parser\CONF;
-use zesk\Exception\Semantics;
+use zesk\Exception\SemanticsException;
 use zesk\JSON;
 use zesk\Text;
 
@@ -23,7 +23,7 @@ class CONFEditor extends Editor {
 	 * @desc Save changes to a configuration file
 	 * @param array $edits
 	 * @return string
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 * @copyright &copy; 2023 Market Acumen, Inc.
 	 * @package zesk
 	 */

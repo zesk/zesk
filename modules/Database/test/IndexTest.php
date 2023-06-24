@@ -9,7 +9,7 @@ declare(strict_types=1);
 namespace zesk\Database;
 
 use zesk\Exception\NotFoundException;
-use zesk\Exception\Semantics;
+use zesk\Exception\SemanticsException;
 use zesk\PHPUnit\TestCase;
 
 /**
@@ -78,7 +78,7 @@ class IndexTest extends TestCase {
 	 *
 	 */
 	public function test_name_required(): void {
-		$this->expectException(Semantics::class);
+		$this->expectException(SemanticsException::class);
 		$table = $this->mytesttable();
 		$name = '';
 		$type = 'INDEX';

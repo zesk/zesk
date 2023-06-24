@@ -47,7 +47,7 @@ class IPv6Test extends UnitTest {
 	}
 
 	public static function dataFromBinary(): array {
-		$expectedLength = Ipv6::BINARY_COLUMN_LENGTH;
+		$expectedLength = IPv6::BINARY_COLUMN_LENGTH;
 		for ($i = 0; $i < 9; $i++) {
 			$tests[$i] = [
 				substr(str_repeat("$i:", $expectedLength / 2), 0, -1),

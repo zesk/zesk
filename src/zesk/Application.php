@@ -14,6 +14,7 @@ use Doctrine\ORM\EntityManager;
 use Psr\Cache\CacheItemPoolInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
+use ReflectionException;
 use Throwable;
 use zesk\Adapter\SettingsConfiguration;
 use zesk\Application\Classes;
@@ -24,7 +25,7 @@ use zesk\Application\Paths;
 use zesk\Configuration\Loader;
 use zesk\Cron\Module as CronModule;
 use zesk\Doctrine\Module as DoctrineModule;
-use zesk\Exception\Authentication;
+use zesk\Exception\AuthenticationException;
 use zesk\Exception\ClassNotFound;
 use zesk\Exception\ConfigurationException;
 use zesk\Exception\Deprecated;
@@ -32,13 +33,15 @@ use zesk\Exception\DirectoryNotFound;
 use zesk\Exception\DirectoryPermission;
 use zesk\Exception\FileNotFound;
 use zesk\Exception\FilePermission;
+use zesk\Exception\SystemException;
 use zesk\Exception\KeyNotFound;
 use zesk\Exception\NotFoundException;
+use zesk\Exception\ParameterException;
 use zesk\Exception\ParseException;
 use zesk\Exception\Redirect;
-use zesk\Exception\Semantics;
+use zesk\Exception\SemanticsException;
 use zesk\Exception\SyntaxException;
-use zesk\Exception\Unsupported;
+use zesk\Exception\UnsupportedException;
 use zesk\Interface\ModelFactory;
 use zesk\Interface\SessionInterface;
 use zesk\Interface\SettingsInterface;
@@ -74,11 +77,58 @@ use function str_ends_with;
  * @method SessionInterface sessionFactory()
  * @method SessionModule sessionModule()
  */
-class Application extends Hookable implements ModelFactory {
+class Application extends Hookable implements ModelFactory, HookSource {
+	public const HOOK_MAIN = __CLASS__ . '::main';
+
+	/**
+	 * Called when setCommand called
+	 */
+	public const HOOK_LOCALE = __CLASS__ . '::setLocale';
+
+	public const HOOK_COMMAND = __CLASS__ . '::command';
+
+	/**
+	 * Called when setCommand called
+	 */
+	public const HOOK_MAINTENANCE = __CLASS__ . '::maintenance';
+
+	/**
+	 * If you want to handle hooks for singleton handling of `zesk\User`, then do
+	 *
+	 * #[HookMethod(handles: Application::HOOK_SINGLETON_PREFIX . User::class)]
+	 *
+	 * To get your hook called.
+	 */
+	public const HOOK_SINGLETON_PREFIX = __CLASS__ . '::singleton::';
+
+	/**
+	 * Router was created
+	 *
+	 * @var string
+	 */
+	public const HOOK_ROUTER = __CLASS__ . '::router';
+
+	/**
+	 * Add routes to router
+	 * @var string
+	 */
+	public const HOOK_ROUTES = __CLASS__ . '::routes';
+
+	/**
+	 * Run after routes are created
+	 * @var string
+	 */
+	public const HOOK_ROUTES_POSTPROCESS = __CLASS__ . '::routesPostprocess';
+
 	/**
 	 *
 	 */
-	public const HOOK_ROUTES = 'routes';
+	public const HOOK_ROUTE_NOT_FOUND = self::class . '::routeNotFound';
+
+	/**
+	 *
+	 */
+	public const HOOK_ROUTE_FOUND = self::class . '::routeFound';
 
 	/**
 	 * @desc Default option to store application version - may be stored differently in overridden classes, use
@@ -557,7 +607,7 @@ class Application extends Hookable implements ModelFactory {
 	 * @param CacheItemPoolInterface $cacheItemPool
 	 * @throws ClassNotFound
 	 * @throws DirectoryNotFound
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	public function __construct(Configuration $configuration, CacheItemPoolInterface $cacheItemPool) {
 		/*
@@ -678,6 +728,20 @@ class Application extends Hookable implements ModelFactory {
 	}
 
 	/**
+	 * Returns a list of PHP source code for the application, used to scan for Attributes
+	 *
+	 * @return array
+	 */
+	public function hookSources(): array {
+		$sources = [$this->application->zeskHome('src')];
+		foreach ($this->modules->all() as $module) {
+			/* @var $module Module */
+			$sources = array_merge($sources, $module->hookSources());
+		}
+		return $sources;
+	}
+
+	/**
 	 * Setter for console
 	 *
 	 * @param boolean $set
@@ -703,7 +767,7 @@ class Application extends Hookable implements ModelFactory {
 	 * @return void
 	 * @throws ClassNotFound
 	 * @throws DirectoryNotFound
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	protected function _initialize(Configuration $configuration, CacheItemPoolInterface $pool): void {
 		$this->configuration = $configuration;
@@ -1128,10 +1192,9 @@ class Application extends Hookable implements ModelFactory {
 			if ($set === $this->command) {
 				return $this;
 			}
-			$this->command->callHook('replacedWith', $set);
 		}
 		$this->command = $set;
-		$this->callHook('command', $set);
+		$this->invokeHooks(self::HOOK_COMMAND, [$set]);
 		return $this;
 	}
 
@@ -1158,13 +1221,19 @@ class Application extends Hookable implements ModelFactory {
 	 * @param array $arguments
 	 * @return object
 	 * @throws ClassNotFound
+	 * @throws SemanticsException
 	 */
 	final public function singletonArguments(string $class, array $arguments = []): object {
 		$desiredClass = $this->objects->resolve($class);
-		$suffix = PHP::cleanFunction($desiredClass);
-		$object = $this->callHookArguments("singleton_$suffix", $arguments);
+		$hookName = self::HOOK_SINGLETON_PREFIX . $desiredClass;
+		$object = $this->invokeHooksUntil($hookName, $arguments);
 		if ($object instanceof $desiredClass) {
 			return $object;
+		}
+		if ($object !== null) {
+			throw new SemanticsException('Singleton hook {hookName} returned type {objectType} expecting {expectedType}', [
+				'hookName' => $hookName, 'objectType' => $object::class, 'expectedType' => $desiredClass,
+			]);
 		}
 		return $this->objects->singletonArguments($desiredClass, $arguments);
 	}
@@ -1192,6 +1261,7 @@ class Application extends Hookable implements ModelFactory {
 	 * @param string $class
 	 * @return Model
 	 * @throws ClassNotFound
+	 * @throws SemanticsException
 	 */
 	final public function modelSingleton(string $class): Model {
 		$args = func_get_args();
@@ -1239,8 +1309,8 @@ class Application extends Hookable implements ModelFactory {
 	 * @throws ConfigurationException
 	 * @throws NotFoundException
 	 * @throws ParseException
-	 * @throws Semantics
-	 * @throws Unsupported
+	 * @throws SystemException
+	 * @throws UnsupportedException
 	 */
 	final public function configure(): self {
 		$this->applicationShutdown = false;
@@ -1255,19 +1325,14 @@ class Application extends Hookable implements ModelFactory {
 	 * @throws ConfigurationException
 	 * @throws NotFoundException
 	 * @throws ParseException
-	 * @throws Semantics
-	 * @throws Unsupported
+	 * @throws UnsupportedException
+	 * @throws SystemException
 	 */
 	private function _configure(): void {
-		// Load hooks
-		$this->hooks->registerClass($this->register_hooks);
-
 		$application = $this;
-		$this->hooks->add(Hooks::HOOK_EXIT, function () use ($application): void {
+		$this->hooks->registerHook(Hooks::HOOK_EXIT, function () use ($application): void {
 			$application->cacheItemPool()->commit();
-		}, [
-			'id' => __METHOD__, 'overwrite' => true, 'last' => true,
-		]);
+		});
 
 		$this->paths->configure($this->options([
 			self::OPTION_COMMAND_PATH, self::OPTION_CACHE_PATH, self::OPTION_DATA_PATH, self::OPTION_HOME_PATH,
@@ -1294,7 +1359,6 @@ class Application extends Hookable implements ModelFactory {
 	 * @return self
 	 */
 	final public function registerClass(array|string $classes): self {
-		$this->hooks->registerClass($classes);
 		$this->classes->register($classes);
 		return $this;
 	}
@@ -1315,6 +1379,7 @@ class Application extends Hookable implements ModelFactory {
 
 	/**
 	 * Load configuration files
+	 * @throws SystemException
 	 */
 	private function _configureFiles(): void {
 		if (count($this->includes) === 0) {
@@ -1373,6 +1438,11 @@ class Application extends Hookable implements ModelFactory {
 		return $files_default;
 	}
 
+	/**
+	 * @param array $files
+	 * @return void
+	 * @throws SystemException
+	 */
 	public function configureFiles(array $files): void {
 		$this->loader->appendFiles($files);
 		$this->loader->load();
@@ -1405,7 +1475,7 @@ class Application extends Hookable implements ModelFactory {
 	 * @throws ConfigurationException
 	 * @throws NotFoundException
 	 * @throws ParseException
-	 * @throws Unsupported
+	 * @throws UnsupportedException
 	 */
 	private function loadOptionModules(): void {
 		$modules = $this->optionArray(self::OPTION_MODULES);
@@ -1485,9 +1555,7 @@ class Application extends Hookable implements ModelFactory {
 	 */
 	private function configuredHooks(): void {
 		foreach ([Hooks::HOOK_DATABASE_CONFIGURE, Hooks::HOOK_CONFIGURED] as $hook) {
-			$this->hooks->callArguments($hook, [$this, ]);
-			$this->modules->allHookArguments($hook); // Modules
-			$this->callHookArguments($hook); // Application level
+			$this->invokeHooks($hook, [$this]);
 			$this->modules->addLoadHook($hook);
 		}
 	}
@@ -1515,13 +1583,13 @@ class Application extends Hookable implements ModelFactory {
 	 * @throws DirectoryNotFound
 	 * @throws NotFoundException
 	 * @throws ParseException
-	 * @throws Semantics
-	 * @throws Unsupported
+	 * @throws SystemException
+	 * @throws UnsupportedException
 	 * @see Application::configure
 	 */
 	public function reconfigure(): self {
 		$this->applicationShutdown = false;
-		$this->hooks->call(Hooks::HOOK_RESET, $this);
+		$this->invokeHooks(Hooks::HOOK_RESET, [$this]);
 		$this->_configure();
 		$this->modules->reload();
 		$this->_configured();
@@ -1536,7 +1604,7 @@ class Application extends Hookable implements ModelFactory {
 	final public function setCacheItemPool(CacheItemPoolInterface $pool): self {
 		$this->pool = $pool;
 		$this->autoloader->setCache($pool);
-		$this->callHook(self::HOOK_SET_CACHE);
+		$this->invokeHooks(self::HOOK_SET_CACHE);
 		return $this;
 	}
 
@@ -1573,19 +1641,10 @@ class Application extends Hookable implements ModelFactory {
 				$this->logger->notice('{path} is empty.', compact('size', 'path'));
 			}
 		}
-		$this->callHook(self::HOOK_CACHE_CLEAR);
-		$hooks = $this->modules->listAllHooks(self::HOOK_CACHE_CLEAR);
-		if (count($hooks)) {
-			$this->logger->debug('Running {hookList}', [
-				'hookList' => $this->_formatHooks($hooks),
-			]);
-			$this->modules->allHook(self::HOOK_CACHE_CLEAR, $this);
-		} else {
-			$this->logger->debug('No module cache clear hooks');
-		}
+		$this->invokeHooks(self::HOOK_CACHE_CLEAR, [$this]);
 		$controllers = $this->controllers();
 		foreach ($controllers as $controller) {
-			$controller->callHook(self::HOOK_CACHE_CLEAR);
+			$controller->invokeObjectHooks(self::HOOK_CACHE_CLEAR, [$this]);
 		}
 	}
 
@@ -1597,14 +1656,6 @@ class Application extends Hookable implements ModelFactory {
 	 */
 	final public function cachePath(string|array $suffix = ''): string {
 		return Directory::path($this->cachePath, $suffix);
-	}
-
-	private function _formatHooks(array $hooks): array {
-		$result = [];
-		foreach ($hooks as $hook) {
-			$result[] = $this->hooks->callable_string($hook);
-		}
-		return $result;
 	}
 
 	/**
@@ -1640,9 +1691,9 @@ class Application extends Hookable implements ModelFactory {
 	 * @return void
 	 */
 	private function initializeRouter(): void {
-		$this->callHook('router');
-		$this->modules->allHook('routes', $this->router);
-		$this->callHook('router_loaded', $this->router);
+		$this->invokeHooks(self::HOOK_ROUTER, [$this->router]);
+		$this->invokeHooks(self::HOOK_ROUTES, [$this->router]);
+		$this->invokeHooks(self::HOOK_ROUTES_POSTPROCESS, [$this->router]);
 	}
 
 	/**
@@ -1656,48 +1707,42 @@ class Application extends Hookable implements ModelFactory {
 	 * Set maintenance flag, this generally affects an application's interface
 	 *
 	 * @param bool $set
-	 * @return boolean
+	 * @return void
+	 * @throws SemanticsException
 	 */
-	final public function setMaintenance(bool $set): bool {
+	final public function setMaintenance(bool $set): void {
 		try {
-			$result = $this->callHookArguments('setMaintenance', [
-				$set,
-			], true);
-			if (!$result) {
-				$this->logger->error('Hook prevented {applicationClass}::setMaintenance({value})', [
-					'applicationClass' => get_class($this), 'value' => $set ? 'true' : 'false',
+			$result = $this->invokeFilters(self::HOOK_MAINTENANCE, ['maintenance' => $set], [$this]);
+			if (($result['maintenance'] ?? null) !== $set) {
+				throw new SemanticsException('Filters prevented {applicationClass}::setMaintenance({value})', [
+					'applicationClass' => get_class($this), Types::toText($set),
 				]);
-				return false;
 			}
 		} catch (Throwable $t) {
-			$this->logger->error('{applicationClass}::setMaintenance({value}) hook threw {exceptionClass} {message}', [
+			throw new SemanticsException('{applicationClass}::setMaintenance({value}) hook threw {exceptionClass} {message}', [
 				'applicationClass' => get_class($this), 'value' => $set ? 'true' : 'false',
-			] + Exception::phpExceptionVariables($t));
-			return false;
+			] + Exception::phpExceptionVariables($t), 0, $t);
 		}
 
 		if ($set) {
-			$this->_maintenanceEnabled();
+			$this->_maintenanceEnabled($result);
 			$this->setOptionPath(['maintenance', 'enabled'], true);
 		} else {
 			$this->unsetOptionPath(['maintenance', 'enabled']);
-			$this->_disableMaintenance();
+			$this->_disableMaintenance($result);
 		}
-		return $result;
 	}
 
-	private function _maintenanceEnabled(): void {
-		$context = [
-			'time' => date('Y-m-d H:i:s'),
-		] + Types::toArray($this->callHookArguments('maintenanceEnabled', [[]], []));
+	private function _maintenanceEnabled(array $context): void {
+		$context['time'] = date('Y-m-d H:i:s');
 
 		try {
 			file_put_contents($this->maintenanceFile(), JSON::encode($context));
-		} catch (Semantics) {
+		} catch (SemanticsException) {
 		}
 	}
 
-	private function _disableMaintenance(): void {
+	private function _disableMaintenance(array $context): void {
 		$maintenance_file = $this->maintenanceFile();
 		if (file_exists($maintenance_file)) {
 			unlink($maintenance_file);
@@ -1705,16 +1750,18 @@ class Application extends Hookable implements ModelFactory {
 		}
 	}
 
+	public const HOOK_CONTENT = __CLASS__ . '::content';
+
 	/**
 	 * Utility for index.php file for all public-served content.
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	final public function content(string $path): string {
 		if (isset($this->contentRecursion[$path])) {
 			return '';
 		}
 		$this->contentRecursion[$path] = true;
-		$this->callHook('content');
+		$this->invokeHooks(self::HOOK_CONTENT);
 
 		$url = 'http://localhost/';
 
@@ -1739,7 +1786,7 @@ class Application extends Hookable implements ModelFactory {
 			$response->output([
 				'skip_headers' => true,
 			]);
-		} catch (Semantics) {
+		} catch (SemanticsException) {
 		}
 		$content = ob_get_clean();
 		unset($this->contentRecursion[$path]);
@@ -1774,11 +1821,11 @@ class Application extends Hookable implements ModelFactory {
 	/**
 	 * @param Request $request
 	 * @return Response
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	public function main(Request $request): Response {
 		try {
-			$response = $this->callHook('main', $request);
+			$response = $this->invokeFilters(self::HOOK_MAIN, null, [$request]);
 			if ($response instanceof Response) {
 				return $response;
 			}
@@ -1796,6 +1843,8 @@ class Application extends Hookable implements ModelFactory {
 	 * @param Request $request
 	 * @return Route
 	 * @throws NotFoundException
+	 * @throws ParameterException
+	 * @throws ReflectionException
 	 */
 	private function determineRoute(Request $request): Route {
 		$router = $this->router();
@@ -1824,21 +1873,18 @@ class Application extends Hookable implements ModelFactory {
 	 * @return void
 	 */
 	protected function routeNotFound(Request $request): void {
-		$this->callHookArguments('route_no_match', [$request]);
+		$this->invokeHooks(self::HOOK_ROUTE_NOT_FOUND, [$request]);
 	}
 
 	/**
 	 * @param Request $request
 	 * @param Route $route
 	 * @return Route
+	 * @throws ParameterException
+	 * @throws ReflectionException
 	 */
 	protected function routeFound(Request $request, Route $route): Route {
-		$new_route = $this->callHookArguments('router_matched', [
-			$request, $route,
-		]);
-		if ($new_route instanceof Route) {
-			$route = $new_route;
-		}
+		$route = $this->invokeTypedFilters(self::HOOK_ROUTE_FOUND, $route, [$request]);
 		if ($this->optionBool('debug_route')) {
 			$this->logger->debug('Matched route {class} Pattern: "{clean_pattern}" {options}', $route->variables());
 		}
@@ -1897,14 +1943,17 @@ class Application extends Hookable implements ModelFactory {
 				'first' => true,
 			]);
 			if (!$exception instanceof Redirect) {
-				$this->hooks->call('exception', $exception);
+				$this->invokeHooks(self::HOOK_EXCEPTION, [
+					'exception' => $exception, 'application' => $this, 'response' => $response,
+				]);
 			}
-			$this->callHook('mainException', $exception, $response);
 		} catch (Redirect $e) {
 			$response->redirect()->handleException($e);
 		}
 		return $response;
 	}
+
+	public const HOOK_EXCEPTION = __CLASS__ . '::exception';
 
 	/**
 	 *
@@ -1921,24 +1970,24 @@ class Application extends Hookable implements ModelFactory {
 	/**
 	 * @param Request $request
 	 * @return self
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	final public function popRequest(Request $request): self {
 		$starting_depth = $request->optionInt('stack_index');
 		$ending_depth = count($this->requestStack);
 		if ($ending_depth === 0) {
-			throw new Semantics('Nothing to pop (attempted to pop {url})', [
+			throw new SemanticsException('Nothing to pop (attempted to pop {url})', [
 				'request' => $request->url(),
 			]);
 		}
 		if ($ending_depth !== $starting_depth) {
-			throw new Semantics('Request ending depth mismatch start {starting_depth} !== end {ending_depth}', [
+			throw new SemanticsException('Request ending depth mismatch start {starting_depth} !== end {ending_depth}', [
 				'starting_depth' => $starting_depth, 'ending_depth' => $ending_depth,
 			]);
 		}
 		$popped = ArrayTools::last($this->requestStack);
 		if ($popped !== $request) {
-			throw new Semantics('Request changed between push and pop? {original} => {popped}', [
+			throw new SemanticsException('Request changed between push and pop? {original} => {popped}', [
 				'original' => $request->variables(), 'popped' => $popped->variables(),
 			]);
 		}
@@ -1961,13 +2010,13 @@ class Application extends Hookable implements ModelFactory {
 	 * Utility for index.php file for all public-served content.
 	 *
 	 * KMD 2018-01 Made this more Response-centric and less content-centric
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	public function index(): Response {
 		$final_map = [];
 
 		$request = $this->requestFactory();
-		$this->callHook('request', $request);
+		$request = $this->invokeFilters(self::HOOK_REQUEST_PREPROCESS, $request);
 		$options = [];
 		if (($response = Response::cached($this->pool, $url = $request->url())) === null) {
 			$response = $this->main($request);
@@ -1993,6 +2042,8 @@ class Application extends Hookable implements ModelFactory {
 		return $response;
 	}
 
+	public const HOOK_REQUEST_PREPROCESS = __CLASS__ . '::requestPreprocess';
+
 	/**
 	 * @param Request $request
 	 * @param Response $response
@@ -2010,7 +2061,7 @@ class Application extends Hookable implements ModelFactory {
 	 */
 	public function setLocale(Locale $set): self {
 		$this->locale = $set;
-		$this->callHook('setLocale', $set);
+		$this->invokeHooks(self::HOOK_LOCALE, [$this, $set]);
 		return $this;
 	}
 
@@ -2093,14 +2144,14 @@ class Application extends Hookable implements ModelFactory {
 	/**
 	 *
 	 * @return Command
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	public function command(): Command {
 		if ($this->command) {
 			return $this->command;
 		}
 
-		throw new Semantics('No command set');
+		throw new SemanticsException('No command set');
 	}
 
 	/**
@@ -2193,22 +2244,6 @@ class Application extends Hookable implements ModelFactory {
 	 */
 	public function modelFactory(string $class, array $value = [], array $options = []): Model {
 		$model = $this->objects->factoryArguments($class, [$this, $options]);
-		assert($model instanceof Model);
-		return $model->initializeFromArray($value);
-	}
-
-	/**
-	 * Create a model
-	 *
-	 * @param string $member
-	 * @param string $class
-	 * @param mixed|null $value
-	 * @param array $options
-	 * @return Model
-	 * @throws ClassNotFound
-	 */
-	public function memberModelFactory(string $member, string $class, array $value = [], array $options = []): Model {
-		$model = $this->application->factory($class, $this, $options);
 		assert($model instanceof Model);
 		return $model->initializeFromArray($value);
 	}
@@ -2351,7 +2386,7 @@ class Application extends Hookable implements ModelFactory {
 	 * @param array $args
 	 * @return object
 	 * @throws NotFoundException
-	 * @throws Unsupported
+	 * @throws UnsupportedException
 	 */
 	final public function __call(string $name, array $args): mixed {
 		if (isset($this->callables[$name])) {
@@ -2363,7 +2398,7 @@ class Application extends Hookable implements ModelFactory {
 			}
 		}
 
-		throw new Unsupported("Application call {method} is not supported.\n\n\tCalled from: {calling}\n\nDo you ned to register the module which adds this functionality?\n\nAvailable: {available}", [
+		throw new UnsupportedException("Application call {method} is not supported.\n\n\tCalled from: {calling}\n\nDo you ned to register the module which adds this functionality?\n\nAvailable: {available}", [
 			'method' => $name, 'calling' => Kernel::callingFunction(),
 			'available' => implode(', ', array_keys($this->callables)),
 		]);
@@ -2379,51 +2414,9 @@ class Application extends Hookable implements ModelFactory {
 	}
 
 	/**
-	 *
-	 * @return void
-	 * @throws NotFoundException
-	 * @throws SyntaxException
-	 */
-	protected function hook_router(): void {
-		if (!$this->file) {
-			$this->logger->debug('{class}->file is not set ({method})', [
-				'class' => self::class, 'method' => __METHOD__,
-			]);
-			return;
-		}
-		$router_file = File::setExtension($this->file, 'router');
-		$exists = is_file($router_file);
-		$cache = $this->optionBool(self::OPTION_CACHE_ROUTER);
-
-		if (!$exists) {
-			$this->logger->debug('No router file {router_file} to load - router is blank', [
-				'router_file' => $router_file,
-			]);
-		} else {
-			$mtime = strval(filemtime($router_file));
-
-			$router = $this->router;
-
-			try {
-				$result = $router->cached($mtime);
-			} catch (NotFoundException) {
-				$parser = new Parser(file_get_contents($router_file), $router_file);
-				$parser->execute($router, [
-					'_source' => $router_file,
-				]);
-				if ($cache) {
-					$router->cache($mtime);
-				}
-				$result = $router;
-			}
-			$this->router = $result;
-		}
-	}
-
-	/**
 	 * @param Request $request
 	 * @return Userlike
-	 * @throws Authentication
+	 * @throws AuthenticationException
 	 */
 	private function sessionUser(Request $request): Userlike {
 		$user = $this->requireSession($request)->user();
@@ -2438,6 +2431,8 @@ class Application extends Hookable implements ModelFactory {
 	 * @param boolean $require Force object creation if not found. May have side effect of creating a Session_Interface within the Request.
 	 * @return Userlike|null
 	 * @throws ClassNotFound
+	 * @throws KeyNotFound
+	 * @throws SemanticsException
 	 */
 	public function user(Request $request = null, bool $require = true): Userlike|null {
 		return $require ? $this->requireUser($request) : $this->optionalUser($request);
@@ -2449,6 +2444,8 @@ class Application extends Hookable implements ModelFactory {
 	 * @param ?Request $request Request to use for
 	 * @return Userlike
 	 * @throws ClassNotFound
+	 * @throws KeyNotFound
+	 * @throws SemanticsException
 	 */
 	public function requireUser(Request $request = null): Userlike {
 		try {
@@ -2456,13 +2453,13 @@ class Application extends Hookable implements ModelFactory {
 				$request = $this->request();
 			}
 			assert($request instanceof Request);
-		} catch (Semantics) {
+		} catch (SemanticsException) {
 			return $this->userFactory();
 		}
 
 		try {
 			return $this->sessionUser($request);
-		} catch (Authentication) {
+		} catch (AuthenticationException) {
 			return $this->userFactory();
 		}
 	}
@@ -2473,7 +2470,7 @@ class Application extends Hookable implements ModelFactory {
 	 * If performing sub-requests, this reflects the most-recent request state (a stack).
 	 *
 	 * @return Request
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	final public function request(): Request {
 		$request = ArrayTools::last($this->requestStack);
@@ -2481,7 +2478,7 @@ class Application extends Hookable implements ModelFactory {
 			return $request;
 		}
 
-		throw new Semantics('No request');
+		throw new SemanticsException('No request');
 	}
 
 	/**
@@ -2491,10 +2488,12 @@ class Application extends Hookable implements ModelFactory {
 
 	/**
 	 * @return Userlike
-	 * @throws ClassNotFound|KeyNotFound
+	 * @throws ClassNotFound
+	 * @throws KeyNotFound
+	 * @throws SemanticsException
 	 */
 	public function userFactory(): Userlike {
-		$className = $this->optionString('userClass');
+		$className = $this->optionString(self::OPTION_USER_CLASS);
 		if (empty($className)) {
 			throw new KeyNotFound('No userClass configured');
 		}
@@ -2512,7 +2511,7 @@ class Application extends Hookable implements ModelFactory {
 	public function optionalUser(Request $request = null): ?Userlike {
 		try {
 			$request = $request ?: $this->request();
-		} catch (Semantics) {
+		} catch (SemanticsException) {
 			/* No session */
 			return null;
 		}
@@ -2522,7 +2521,7 @@ class Application extends Hookable implements ModelFactory {
 			$user = $session?->user();
 			assert($user instanceof Userlike);
 			return $user;
-		} catch (Authentication) {
+		} catch (AuthenticationException) {
 			return null;
 		}
 	}

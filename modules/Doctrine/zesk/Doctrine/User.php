@@ -13,19 +13,14 @@ namespace zesk\Doctrine;
 use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Entity;
 use Throwable;
-use zesk\Application;
 use zesk\Exception;
 use zesk\Interface\SessionInterface;
 use zesk\Model as BaseModel;
 use zesk\Doctrine\Trait\AutoID;
-use zesk\Exception\Authentication;
-use zesk\Exception\KeyNotFound;
+use zesk\Exception\AuthenticationException;
 use zesk\Exception\ParameterException;
 use zesk\Exception\PermissionDenied;
-use zesk\Exception\Unsupported;
 use zesk\Interface\Userlike;
-use zesk\ORM\Exception\ORMEmpty;
-use zesk\ORM\Exception\ORMNotFound;
 use zesk\Request;
 use zesk\Response;
 use zesk\Timestamp;
@@ -41,11 +36,44 @@ use zesk\Types;
 #[Entity]
 class User extends Model implements Userlike {
 	/**
+	 *
+	 */
+	public const HOOK_PERMISSION_ALLOWED = __CLASS__ . '::permissionAllowed';
+
+	/**
+	 *
+	 */
+	public const HOOK_PERMISSION_DENIED = __CLASS__ . '::permissionDenied';
+
+	/**
+	 *
+	 */
+	public const HOOK_CAN = __CLASS__ . '::can';
+
+	/**
+	 *
+	 */
+	public const HOOK_LOGOUT_EXPIRE = __CLASS__ . '::logoutExpire';
+	/**
+	 *
+	 */
+
+	/**
+	 *
+	 */
+	public const HOOK_LOGOUT = __CLASS__ . '::logout';
+
+	/**
 	 * Boolean value to enable debugging of permissions
 	 *
 	 * @var string
 	 */
 	public const OPTION_DEBUG_PERMISSION = 'debugPermission';
+
+	/**
+	 * Boolean value to run a hook after the permission is allowed or denied
+	 */
+	public const OPTION_HOOK_AFTER_PERMISSION = 'hookAfterPermission';
 
 	public static array $allowedMethods = [
 		'md5', 'sha1', 'sha512', 'sha256', 'ripemd128', 'ripemd160', 'ripemd320',
@@ -87,8 +115,8 @@ class User extends Model implements Userlike {
 	public Timestamp $modified;
 
 	/**
-	 * @see SessionInterface::id()
 	 * @return int|string|array
+	 * @see SessionInterface::id()
 	 */
 	public function id(): int|string|array {
 		return $this->id;
@@ -108,29 +136,26 @@ class User extends Model implements Userlike {
 	 *
 	 * @param Request $request
 	 * @return int
-	 * @throws Authentication
+	 * @throws AuthenticationException
 	 */
 	public function sessionUserId(Request $request): int {
 		return $this->application->session($request)->userId();
 	}
 
 	/**
-	 * Get/set the password field
+	 * Set the password field
 	 *
 	 * @param string $set
-	 * @param boolean $plaintext When set is non-null, whether value is plain text or not.
-	 * @return User
-	 * @throws KeyNotFound
-	 * @throws ORMEmpty
-	 * @throws ORMNotFound
-	 * @throws Unsupported
+	 * @param string $method
+	 * @return $this
+	 * @throws ParameterException
 	 */
 	public function setPassword(string $set, string $method): self {
 		if (!in_array($method, self::$allowedMethods)) {
 			throw new ParameterException('Invalid method {method}', ['method' => $method]);
 		}
 		$this->passwordMethod = $method;
-		$this->passwordData = $this->_generate_hash($set);
+		$this->passwordData = $this->_generateHash($set);
 
 		return $this;
 	}
@@ -138,9 +163,10 @@ class User extends Model implements Userlike {
 	/**
 	 *
 	 * @param string $string
+	 * @param bool $binary
 	 * @return string
 	 */
-	private function _generate_hash(string $string, bool $binary = false): string {
+	private function _generateHash(string $string, bool $binary = false): string {
 		return hash($this->passwordMethod, $string, $binary);
 	}
 
@@ -150,14 +176,14 @@ class User extends Model implements Userlike {
 	 *
 	 * @param string $password
 	 * @return self
-	 * @throws Authentication
+	 * @throws AuthenticationException
 	 */
 	public function authenticate(string $password): self {
-		if (strcasecmp($this->_generate_hash($password), $this->passwordData) === 0) {
+		if (strcasecmp($this->_generateHash($password), $this->passwordData) === 0) {
 			return $this;
 		}
 
-		throw new Authentication($this->email);
+		throw new AuthenticationException($this->email);
 	}
 
 	/**
@@ -167,7 +193,7 @@ class User extends Model implements Userlike {
 	 * @param null|Response $response Optional. If supplied, authenticates this user in the associated response
 	 * (generally, by setting a cookie.)
 	 * @return NULL|User
-	 * @throws Authentication
+	 * @throws AuthenticationException
 	 */
 	public function authenticated(Request $request, Response $response = null): ?User {
 		if (empty($this->id)) {
@@ -182,11 +208,13 @@ class User extends Model implements Userlike {
 		}
 		$session = $this->application->requireSession($request);
 		$session->authenticate($this, $request);
-		$this->callHook('authenticated', $request, $response, $session);
-		$this->application->callHook('userAuthenticated', $this, $request, $response, $session);
-		$this->application->modules->allHook('userAuthenticated', $this, $request, $response, $session);
+		$this->invokeHooks(self::HOOK_AUTHENTICATED, [
+			'user' => $this, 'request' => $request, 'response' => $response, 'session' => $session,
+		]);
 		return $this;
 	}
+
+	public const HOOK_AUTHENTICATED = __CLASS__ . '::authenticated';
 
 	/**
 	 * Similar to $user->can(...) but instead throws an PermissionDenied on failure
@@ -255,24 +283,22 @@ class User extends Model implements Userlike {
 		// Allow multiple actions
 		$is_or = is_string($actions) && strpos($actions, '|');
 		$actions = Types::toList($actions, [], $is_or ? '|' : ';');
-		$default_result = $this->option('can', false);
 		foreach ($actions as $action) {
 			$action = self::clean_permission($action);
 			$skipLog = false;
 
 			try {
-				$result = $this->callHookArguments('can', [
-					$action, $context, $options,
-				], $default_result);
+				$result = $this->invokeFilters(self::HOOK_CAN, $result, [$action, $context, $options]);
 			} catch (Throwable $e) {
+				$result = false;
 				$skipLog = true;
 				$this->application->logger->error("User::can({action},{context}) = {result} (Roles {roles}): Exception {throwableClass} {message}\n{backtrace}", [
-					'action' => $action, 'context' => $context, 'result' => false, 'roles' => $this->_roles,
+					'action' => $action, 'context' => $context, 'result' => false,
 				] + Exception::exceptionVariables($e));
 			}
 			if ($this->optionBool(self::OPTION_DEBUG_PERMISSION) && !$skipLog) {
 				$this->application->logger->debug('User::can({action},{context}) = {result} (Roles {roles}) ({extra})', [
-					'action' => $action, 'context' => $context, 'result' => $result, 'roles' => $this->_roles,
+					'action' => $action, 'context' => $context, 'result' => $result,
 				]);
 			}
 			if ($is_or) {
@@ -287,16 +313,10 @@ class User extends Model implements Userlike {
 				}
 			}
 		}
-		if ($result) {
-			$default_hook = 'permission_pass';
-		} else {
-			$default_hook = 'permission_fail';
-		}
-		$hook_option_name = $default_hook . '_hook';
-		$hook = $options[$hook_option_name] ?? $this->option($hook_option_name);
+		$hook = $options[self::OPTION_HOOK_AFTER_PERMISSION] ?? $this->option(self::OPTION_HOOK_AFTER_PERMISSION);
 		if ($hook !== null) {
-			$this->callHookArguments(is_string($hook) ? $hook : $default_hook, [
-				$actions, $context, $options,
+			$this->invokeHooks($result ? self::HOOK_PERMISSION_ALLOWED : self::HOOK_PERMISSION_DENIED, [
+				$this, $actions, $context, $options,
 			]);
 		}
 
@@ -340,20 +360,6 @@ class User extends Model implements Userlike {
 	 */
 	public function canDelete(Model $object): bool {
 		return $this->can('delete', $object);
-	}
-
-	/**
-	 * Implement ORM::permissions
-	 *
-	 * @param Application $application
-	 * @return array
-	 */
-	public static function permissions(Application $application): array {
-		return parent::default_permissions($application, __CLASS__) + [
-			__CLASS__ . '::become' => [
-				'title' => $application->locale->__('Become another user'), 'class' => 'User',
-			],
-		];
 	}
 
 	/**

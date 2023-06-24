@@ -6,11 +6,7 @@
  * @copyright &copy; 2023, Market Acumen, Inc.
  */
 declare(strict_types=1);
-/**
- * @no_buffer true
- * @author kent
- * @sandbox false
- */
+
 namespace zesk;
 
 /**
@@ -30,7 +26,7 @@ class OverheadTest extends UnitTest {
 		$stop = $start + $test_limit;
 		// echo "Start=$start, Stop=$stop\n";
 		do {
-			$servers[] = new TestModel($this->application, 1);
+			$servers[] = new TestModel($this->application, []);
 			$current = memory_get_usage();
 			// echo "Current=$current\n";
 			// $delta = $current - $start;
@@ -39,8 +35,7 @@ class OverheadTest extends UnitTest {
 		} while ($current < $stop);
 		$nObjects = count($servers);
 		$this->log('{nObjects} objects fit in {bytes}, or {perObject} per object', [
-			'nObjects' => $nObjects,
-			'bytes' => Number::formatBytes($this->application->locale, $test_limit),
+			'nObjects' => $nObjects, 'bytes' => Number::formatBytes($this->application->locale, $test_limit),
 			'perObject' => Number::formatBytes($this->application->locale, intval($test_limit / $nObjects)),
 		]);
 	}

@@ -5,7 +5,7 @@ declare(strict_types=1);
  */
 namespace zesk;
 
-use zesk\Exception\Semantics;
+use zesk\Exception\SemanticsException;
 
 /**
  *
@@ -39,11 +39,11 @@ class ThemeStack {
 	 * Pop template
 	 *
 	 * @return Theme
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	final public function pop(): Theme {
 		if (count($this->stack) <= 1) {
-			throw new Semantics('Popped top template from template stack - not allowed: {log}', [
+			throw new SemanticsException('Popped top template from template stack - not allowed: {log}', [
 				'log' => nl2br(implode("\n", $this->log)),
 			]);
 		}

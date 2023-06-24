@@ -16,8 +16,8 @@ use zesk\Exception\FilePermission;
 use zesk\Exception\NotFoundException;
 use zesk\Exception\ParameterException;
 use zesk\Exception\ParseException;
-use zesk\Exception\Semantics;
-use zesk\Exception\Unsupported;
+use zesk\Exception\SemanticsException;
+use zesk\Exception\UnsupportedException;
 
 class ACMETest {
 	public string $name;
@@ -50,19 +50,19 @@ class ApplicationTest extends TestApplicationUnitTest {
 	}
 
 	public function test_missing_factory(): void {
-		$this->expectException(Unsupported::class);
+		$this->expectException(UnsupportedException::class);
 
 		$this->testApplication->missingFactory();
 	}
 
 	public function test_missing_request(): void {
-		$this->expectException(Semantics::class);
+		$this->expectException(SemanticsException::class);
 
 		$this->testApplication->request();
 	}
 
 	public function test_invalidPopRequest(): void {
-		$this->expectException(Semantics::class);
+		$this->expectException(SemanticsException::class);
 		$request = $this->testApplication->requestFactory();
 		$this->assertInstanceOf(Request::class, $request);
 		$this->testApplication->popRequest($request);
@@ -118,37 +118,23 @@ class ApplicationTest extends TestApplicationUnitTest {
 
 	/**
 	 * @return void
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	public function test_noCommand(): void {
-		$this->expectException(Semantics::class);
+		$this->expectException(SemanticsException::class);
 		$this->testApplication->command();
 	}
 
 	public function test_setLocale(): void {
 		$this->testApplication->configure();
 		$fr = $this->testApplication->localeFactory('FR');
-		$this->assertArrayNotHasKey(Application::class . '::setLocale', $this->testApplication->hooksCalled);
+		$this->assertArrayNotHasKey(Application::HOOK_LOCALE, $this->testApplication->hooksCalled);
 
 		$this->testApplication->setLocale($fr);
-		$this->assertArrayHasKey(Application::class . '::setLocale', $this->testApplication->hooksCalled);
+		$this->assertArrayHasKey(Application::HOOK_LOCALE, $this->testApplication->hooksCalled);
 		$this->assertEquals($fr, $this->testApplication->locale);
-	}
-
-	public function test_singleton_hook(): void {
-		$newApplication = $this->testApplication;
-		$newApplication->configure();
-
-		$this->assertArrayNotHasKey(Application::class . '::singleton_zesk_TestModel', $newApplication->hooksCalled);
-
-		$command = $newApplication->modelSingleton(TestModel::class);
-		$this->assertInstanceOf(TestModel::class, $command);
-
-		$this->assertArrayHasKey(
-			Application::class . '::singleton_zesk_TestModel',
-			$newApplication->hooksCalled,
-			'Keys: ' . implode(', ', array_keys($newApplication->hooksCalled))
-		);
+		$this->assertInArray('object', $this->testApplication->hooksCalled[Application::HOOK_LOCALE]);
+		$this->assertInArray('static', $this->testApplication->hooksCalled[Application::HOOK_LOCALE]);
 	}
 
 	public function test_setCommand(): void {
@@ -158,26 +144,16 @@ class ApplicationTest extends TestApplicationUnitTest {
 		$command = new TestCommand($newApplication);
 		$command2 = new Test2Command($newApplication);
 
+		$this->assertArrayNotHasKey(Application::HOOK_COMMAND, $newApplication->hooksCalled, implode(', ', array_keys($newApplication->hooksCalled)));
 		$newApplication->setCommand($command);
-		$this->assertEquals($command, $newApplication->command());
-		$newApplication->setCommand($command);
-		$this->assertEquals($command, $newApplication->command());
+		$this->assertArrayHasKey(Application::HOOK_COMMAND, $newApplication->hooksCalled, implode(', ', array_keys($newApplication->hooksCalled)));
 
-		$this->assertArrayHasKey(Application::class . '::command', $newApplication->hooksCalled);
-		$this->assertEquals($newApplication->hooksCalled[Application::class . '::command'], $command);
+		$this->assertEquals($command, $newApplication->command());
+		$this->assertEquals($newApplication->hooksCalled[Application::HOOK_COMMAND], $command);
 
 		$newApplication->setCommand($command2);
 		$this->assertEquals($command2, $newApplication->command());
-		$newApplication->setCommand($command2);
-		$this->assertEquals($command2, $newApplication->command());
-
-		$this->assertArrayHasKey(Command::class . '::replacedWith', $newApplication->hooksCalled, implode(
-			', ',
-			array_keys($newApplication->hooksCalled)
-		));
-		$this->assertEquals($newApplication->hooksCalled[Command::class . '::replacedWith'], $command2);
-		$this->assertArrayHasKey(Application::class . '::command', $newApplication->hooksCalled);
-		$this->assertEquals($newApplication->hooksCalled[Application::class . '::command'], $command2);
+		$this->assertEquals($newApplication->hooksCalled[Application::HOOK_COMMAND], $command2);
 	}
 
 	/**
@@ -192,7 +168,7 @@ class ApplicationTest extends TestApplicationUnitTest {
 	 * @throws NotFoundException
 	 * @throws ParameterException
 	 * @throws ParseException
-	 * @throws Unsupported
+	 * @throws UnsupportedException
 	 */
 	public function test_application_basics(): void {
 		$publicRoot = $this->testApplication->documentRoot('public');
@@ -210,8 +186,7 @@ class ApplicationTest extends TestApplicationUnitTest {
 
 		/* autoloadPath */
 		$this->assertEquals([
-			'/zesk/modules/Diff/zesk/Diff/',
-			'/zesk/modules/CSV/zesk/CSV/',
+			'/zesk/modules/Diff/zesk/Diff/', '/zesk/modules/CSV/zesk/CSV/',
 		], array_keys($newApplication->autoloadPath()));
 
 		$newApplication->modules->loadMultiple(['PHPUnit', 'Doctrine', 'Repository']);
@@ -256,6 +231,8 @@ class ApplicationTest extends TestApplicationUnitTest {
 
 		$this->assertFalse($newApplication->isConfigured());
 
+		$newApplication->setMaintenance(false);
+
 		/* maintenance/configure/configured/reconfigure */
 		$this->assertFalse($newApplication->maintenance());
 		$newApplication->configure();
@@ -277,45 +254,55 @@ class ApplicationTest extends TestApplicationUnitTest {
 		$this->requestRoundTrip($rootRequest, 'home', '10.0.0.71');
 
 		$dumpRoute = [
-			'content' => '{route}',
-			'map'=> [
+			'content' => '{route}', 'map' => [
 				'route',
-			],
-			'id' => 'dumpRoute',
-			'_source'=> '/zesk/test/classes/TestApplication.router',
-			'weight'=> 0.002,
-			'class'=> 'zesk\\Route\\Content',
+			], 'id' => 'dumpRoute', '_source' => '/zesk/test/classes/TestApplication.router', 'weight' => 0.007,
+			'class' => 'zesk\\Route\\Content',
 		];
 		$this->requestRoundTrip($rootRequest, 'dump/route', JSON::encodePretty($dumpRoute));
 
 		$this->assertNotCount(0, $newApplication->controllers());
 
 		$this->assertFalse($newApplication->maintenance());
-		$this->assertTrue($newApplication->setMaintenance(true));
+		$newApplication->setMaintenance(true);
 		$this->assertTrue($newApplication->maintenance());
-		$this->assertTrue($newApplication->setMaintenance(false));
+		$newApplication->setMaintenance(false);
 		$this->assertFalse($newApplication->maintenance());
-
-		$newApplication->setOption('preventMaintenance', true);
-		$this->assertFalse($newApplication->maintenance());
-		$this->assertFalse($newApplication->setMaintenance(true));
-		$this->assertTrue($newApplication->setMaintenance(false));
-		$this->assertFalse($newApplication->maintenance());
-
-		$newApplication->setOption('preventMaintenance', false);
-		$this->assertTrue($newApplication->setMaintenance(true));
-		$this->assertTrue($newApplication->maintenance());
-		$newApplication->setOption('preventMaintenance', 'throw');
-		$this->assertTrue($newApplication->maintenance());
-		$this->assertFalse($newApplication->setMaintenance(true));
-		$this->assertTrue($newApplication->setMaintenance(false));
-		$this->assertFalse($newApplication->maintenance());
-		$this->assertFalse($newApplication->setMaintenance(true));
-		$this->assertFalse($newApplication->maintenance());
-
 		// TODO move to TestShareController.php
 		// $this->assertEquals(['zesk' => $newApplication->zeskHome('share')], $newApplication->sharePath());
 		$this->assertEquals($newApplication->path('data/extra'), $newApplication->dataPath('extra'));
+	}
+
+	public function test_preventMaintenance(): void {
+		$newApplication = $this->testApplication;
+		$newApplication->configure();
+
+		$newApplication->setOption('preventMaintenance', null);
+
+		$newApplication->setMaintenance(false);
+		$this->assertFalse($newApplication->maintenance());
+
+		$newApplication->setOption('preventMaintenance', true);
+		$newApplication->setMaintenance(false);
+		$this->assertFalse($newApplication->maintenance());
+		$this->expectException(SemanticsException::class);
+		$newApplication->setMaintenance(true);
+	}
+
+	public function test_preventMaintenanceThrow(): void {
+		$newApplication = $this->testApplication;
+		$newApplication->configure();
+
+		$newApplication->setOption('preventMaintenance', null);
+
+		$newApplication->setMaintenance(false);
+		$this->assertFalse($newApplication->maintenance());
+
+		$newApplication->setOption('preventMaintenance', 'throw');
+		$newApplication->setMaintenance(false);
+		$this->assertFalse($newApplication->maintenance());
+		$this->expectException(SemanticsException::class);
+		$newApplication->setMaintenance(true);
 	}
 
 	public function test_routerReverse(): void {

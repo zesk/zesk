@@ -1,36 +1,33 @@
 <?xml version="1.0"?>
-<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.1/phpunit.xsd" bootstrap="test.application.php" beStrictAboutOutputDuringTests="true" processIsolation="false" backupGlobals="false" colors="true" cacheDirectory=".phpunit-cache" backupStaticProperties="false">
-  <testsuites>
-    <!--Test suite for Zesk web application framework -->
-    <testsuite name="core">
-      <directory>test/zesk</directory>
-    </testsuite>
-    <testsuite name="CSV">
-      <directory>modules/CSV/test</directory>
-    </testsuite>
-    <testsuite name="Diff">
-      <directory>modules/Diff/test</directory>
-    </testsuite>
-    <testsuite name="Doctrine">
-      <directory>modules/Doctrine/test</directory>
-    </testsuite>
-  </testsuites>
-  <php>
-    <const name="PHPUNIT" value="true"/>
-  </php>
-  <coverage includeUncoveredFiles="true" pathCoverage="true" ignoreDeprecatedCodeUnits="true" disableCodeCoverageIgnore="false">
-    <report>
-      <html outputDirectory="test-coverage"/>
-    </report>
-  </coverage>
-  <logging>
-    <junit outputFile="test-reports/junit.xml"/>
-  </logging>
-  <source>
-    <include>
-      <directory suffix=".php">src</directory>
-      <directory suffix=".php">modules</directory>
-      <directory suffix=".tpl">theme</directory>
-    </include>
-  </source>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.1/phpunit.xsd" bootstrap="test.application.php"
+         beStrictAboutOutputDuringTests="true" processIsolation="false" backupGlobals="false" colors="true"
+         cacheDirectory=".phpunit-cache" backupStaticProperties="false">
+    <testsuites>
+        <!--Test suite for Zesk web application framework -->
+        <testsuite name="core">
+            <directory>test/zesk</directory>
+        </testsuite>
+        <testsuite name="CSV">
+            <directory>modules/CSV/test</directory>
+        </testsuite>
+        <testsuite name="Diff">
+            <directory>modules/Diff/test</directory>
+        </testsuite>
+        <testsuite name="Doctrine">
+            <directory>modules/Doctrine/test</directory>
+        </testsuite>
+    </testsuites>
+    <php>
+        <const name="PHPUNIT" value="true"/>
+    </php>
+    <coverage includeUncoveredFiles="true" pathCoverage="true" ignoreDeprecatedCodeUnits="true"
+              disableCodeCoverageIgnore="false">
+        <report>
+            <html outputDirectory="test-coverage"/>
+        </report>
+    </coverage>
+    <logging>
+        <junit outputFile="test-reports/junit.xml"/>
+    </logging>
 </phpunit>

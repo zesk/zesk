@@ -11,7 +11,7 @@ namespace zesk\Polyglot;
 use zesk\Application;
 use zesk\Exception\ConfigurationException;
 use zesk\Exception\KeyNotFound;
-use zesk\Exception\Semantics;
+use zesk\Exception\SemanticsException;
 use zesk\Locale\Locale;
 use zesk\Locale\Validate;
 use zesk\ORM\Exception\ORMNotFound;
@@ -105,7 +105,7 @@ class Token extends ORMBase {
 			try {
 				$request = $this->application->request();
 				$this->user = $this->application->user($request);
-			} catch (Semantics) {
+			} catch (SemanticsException) {
 			}
 		}
 		if ($this->memberIsEmpty('context')) {
@@ -227,7 +227,7 @@ class Token extends ORMBase {
 	 * leave it here for now in case it's relevant in the future.
 	 *
 	 * @param Application $app
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 * @throws Database\Exception\Duplicate
 	 * @throws Database\Exception\NoResults
 	 * @throws Database\Exception\TableNotFound

@@ -49,7 +49,7 @@ class Net_POP_Client_Test extends TestCase {
 			$this->markTestSkipped(get_class($this) . '::url not valid (' . $this->url . ')');
 		}
 		$this->email = $this->option('email');
-		if (!is_email($this->email)) {
+		if (!Types::isEmail($this->email)) {
 			$this->markTestSkipped(get_class($this) . '::email not valid (' . $this->email . ')');
 		}
 		$this->parts = URL::parse($this->url);

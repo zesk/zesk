@@ -15,7 +15,7 @@ use ReflectionException;
 use Throwable;
 use zesk\CacheItemPool\NULLCacheItemPool;
 use zesk\Exception\ClassNotFound;
-use zesk\Exception\Semantics;
+use zesk\Exception\SemanticsException;
 
 /**
  * Stuff that should probably just be part of PHP, but isn't.
@@ -72,12 +72,11 @@ class Kernel {
 	/**
 	 * Fetch the kernel singleton. Avoid this call whenever possible.
 	 *
-	 * @return static
-	 * @throws Semantics
+	 * @return self
 	 */
 	public static function singleton(): self {
 		if (!self::$singleton) {
-			throw new Semantics('Need to create singleton with {class}::factory first', ['class' => __CLASS__, ]);
+			throw new RuntimeException('Need to create singleton with {class}::factory first', ['class' => __CLASS__, ]);
 		}
 		return self::$singleton;
 	}
@@ -259,7 +258,6 @@ class Kernel {
 
 	/**
 	 * @return Application
-	 * @throws Semantics
 	 */
 	public static function wakeupApplication(): Application {
 		return Kernel::singleton()->application();

@@ -11,7 +11,7 @@ namespace test;
 
 use zesk\CSV\Base;
 use zesk\Exception\KeyNotFound;
-use zesk\Exception\Semantics;
+use zesk\Exception\SemanticsException;
 use zesk\UnitTest;
 use zesk\CSV\Writer;
 
@@ -34,7 +34,7 @@ class CSVWriterTest extends UnitTest {
 				'Title' => 'B',
 			];
 			$x->add_object_map($name, $map);
-		} catch (Semantics $e) {
+		} catch (SemanticsException $e) {
 			$success = true;
 		}
 		$this->assertTrue($success);
@@ -49,7 +49,7 @@ class CSVWriterTest extends UnitTest {
 				'Title' => 'B',
 			];
 			$x->add_translation_map($name, $map);
-		} catch (Semantics $e) {
+		} catch (SemanticsException $e) {
 			$success = true;
 		}
 		$this->assertTrue($success);

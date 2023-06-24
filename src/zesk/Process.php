@@ -11,7 +11,7 @@ use zesk\Application\Hooks;
 use zesk\Exception\CommandFailed;
 use zesk\Exception\FileNotFound;
 use zesk\Exception\FilePermission;
-use zesk\Exception\Semantics;
+use zesk\Exception\SemanticsException;
 
 /**
  * Current and other process status, process creation
@@ -45,7 +45,7 @@ class Process {
 
 	/**
 	 * @return void
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	public function __wakeup(): void {
 		$this->application = Kernel::wakeupApplication();
@@ -53,7 +53,7 @@ class Process {
 
 	/**
 	 * Create object
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	public function __construct(Application $application) {
 		$this->application = $application;

@@ -10,7 +10,7 @@ declare(strict_types=1);
 namespace zesk\Doctrine;
 
 use zesk\Controller;
-use zesk\Exception\Authentication;
+use zesk\Exception\AuthenticationException;
 use zesk\Exception\ClassNotFound;
 use zesk\HTTP;
 use zesk\Interface\SessionInterface;
@@ -41,10 +41,10 @@ class AuthenticatedController extends Controller {
 	/**
 	 * @param string $message
 	 * @return void
-	 * @throws Authentication
+	 * @throws AuthenticationException
 	 */
 	private function throwAuthentication(string $message): void {
-		throw new Authentication($message, [], HTTP::STATUS_UNAUTHORIZED);
+		throw new AuthenticationException($message, [], HTTP::STATUS_UNAUTHORIZED);
 	}
 
 	/**
@@ -52,7 +52,7 @@ class AuthenticatedController extends Controller {
 	 * @param Response $response
 	 * @return void
 	 * @throws ClassNotFound
-	 * @throws Authentication
+	 * @throws AuthenticationException
 	 */
 	protected function before(Request $request, Response $response): void {
 		parent::before($request, $response);

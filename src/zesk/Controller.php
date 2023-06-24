@@ -80,8 +80,13 @@ class Controller extends Hookable implements Themeable {
 		$this->router = $route->router();
 
 		$this->initialize();
-		$this->callHook('initialize');
+		$this->invokeHooks(self::HOOK_INITIALIZE);
 	}
+
+	/**
+	 *
+	 */
+	public const HOOK_INITIALIZE = __CLASS__ . '::initialize';
 
 	/**
 	 * Shortcut for subclass methods

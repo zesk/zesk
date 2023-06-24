@@ -18,9 +18,9 @@ use zesk\Exception\ConnectionFailed;
 use zesk\Exception\DomainLookupFailed;
 use zesk\Exception\NotFoundException;
 use zesk\Exception\ParameterException;
-use zesk\Exception\Semantics;
+use zesk\Exception\SemanticsException;
 use zesk\Exception\SyntaxException;
-use zesk\Exception\Unsupported;
+use zesk\Exception\UnsupportedException;
 use zesk\File;
 use zesk\Hookable;
 use zesk\HTTP;
@@ -777,12 +777,12 @@ class Client extends Hookable {
 	 * @throws FilePermission
 	 * @throws ParameterException
 	 * @throws SyntaxException
-	 * @throws Unsupported
+	 * @throws UnsupportedException
 	 * @throws ClientException
 	 */
 	public function go() {
 		if (!function_exists('curl_init')) {
-			throw new Unsupported('Net_HTTP_Client::go(): CURL not integrated!');
+			throw new UnsupportedException('Net_HTTP_Client::go(): CURL not integrated!');
 		}
 		if (empty($this->url)) {
 			throw new ParameterException('Net_HTTP_Client::go called with no URL specified');
@@ -848,19 +848,19 @@ class Client extends Hookable {
 	/**
 	 * @param string $url
 	 * @return string
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 * @throws ConnectionFailed
 	 */
 	public static function simpleGet(string $url): string {
 		if (!$url) {
-			throw new Semantics('Require non-blank URL');
+			throw new SemanticsException('Require non-blank URL');
 		}
 		$parts = parse_url($url);
 		$protocol = $parts['scheme'] ?? '';
 		if (!in_array($protocol, [
 			'http', 'https',
 		])) {
-			throw new Semantics('Require valid HTTP URL {protocol} ({url})', [
+			throw new SemanticsException('Require valid HTTP URL {protocol} ({url})', [
 				'protocol' => $protocol, 'url' => $url,
 			]);
 		}
@@ -922,7 +922,7 @@ class Client extends Hookable {
 			return $data;
 		}
 		if (!is_array($data)) {
-			throw new Semantics('Data is not a string or array?');
+			throw new SemanticsException('Data is not a string or array?');
 		}
 		return http_build_query($data);
 	}
@@ -1102,7 +1102,7 @@ class Client extends Hookable {
 					if ($expires->before($now)) {
 						$deleteCookie = true;
 					}
-				} catch (Semantics) {
+				} catch (SemanticsException) {
 				}
 			}
 			if ($deleteCookie) {

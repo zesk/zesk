@@ -22,7 +22,7 @@ use zesk\Exception\DirectoryCreate;
 use zesk\Exception\DirectoryNotFound;
 use zesk\Exception\DirectoryPermission;
 use zesk\Exception\NotFoundException;
-use zesk\Exception\Unsupported;
+use zesk\Exception\UnsupportedException;
 use zesk\Module as BaseModule;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Exception\MalformedDsnException;
@@ -35,6 +35,11 @@ use Doctrine\ORM\ORMSetup;
 use Doctrine\DBAL\Types\Type;
 
 class Module extends BaseModule {
+	/**
+	 * @todo Call this somewhere
+	 */
+	public const HOOK_SCHEMA_UPDATED = self::class . '::schemaUpdated';
+
 	/**
 	 *
 	 */
@@ -53,8 +58,7 @@ class Module extends BaseModule {
 	private array $managers = [];
 
 	private static array $zeskTypes = [
-		Timestamp::TYPE => Timestamp::class,
-		EnumBoolean::TYPE => EnumBoolean::class,
+		Timestamp::TYPE => Timestamp::class, EnumBoolean::TYPE => EnumBoolean::class,
 	];
 
 	private static bool $added = false;
@@ -63,7 +67,7 @@ class Module extends BaseModule {
 	 * @return void
 	 * @throws ConfigurationException
 	 * @throws Exception
-	 * @throws Unsupported
+	 * @throws UnsupportedException
 	 */
 	public function initialize(): void {
 		parent::initialize();
@@ -190,8 +194,13 @@ class Module extends BaseModule {
 	 * @throws NotFoundException
 	 */
 	public function schemaSynchronizeSQL(array $entities, string $name = ''): array {
-		$tool = new SchemaTool($this->entityManager($name));
-		$sql = $tool->getUpdateSchemaSql($entities);
+		$em = $this->entityManager($name);
+		$tool = new SchemaTool($em);
+		$classMetadata = [];
+		foreach ($entities as $entity) {
+			$classMetadata[] = $em->getClassMetadata($entity);
+		}
+		$sql = $tool->getUpdateSchemaSql($classMetadata);
 		return $sql;
 	}
 
@@ -214,5 +223,27 @@ class Module extends BaseModule {
 			$results[$sql] = $connection->executeQuery($sql);
 		}
 		return $results;
+	}
+
+	/**
+	 * @param string $entityName
+	 * @param string $name
+	 * @return array
+	 * @throws ConfigurationException
+	 * @throws DirectoryCreate
+	 * @throws DirectoryNotFound
+	 * @throws DirectoryPermission
+	 * @throws Exception
+	 * @throws NotFoundException
+	 */
+	public function dependentEntities(string $entityName, string $name = ''): array {
+		$depend = [];
+		foreach ($this->entityManager($name)->getClassMetadata($entityName)->getAssociationMappings() as $key => $mapping) {
+			if (array_key_exists('targetEntity', $mapping)) {
+				$depend[$mapping['targetEntity']] = true;
+			}
+		}
+		unset($depend[$entityName]);
+		return array_keys($depend);
 	}
 }

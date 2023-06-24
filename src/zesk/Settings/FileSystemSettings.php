@@ -11,7 +11,7 @@ use zesk\Exception\DirectoryPermission;
 use zesk\Exception\FileNotFound;
 use zesk\Exception\FilePermission;
 use zesk\Exception\ParseException;
-use zesk\Exception\Semantics;
+use zesk\Exception\SemanticsException;
 use zesk\File;
 use zesk\Interface\SettingsInterface;
 use zesk\JSON;
@@ -72,7 +72,7 @@ class FileSystemSettings implements SettingsInterface {
 		try {
 			Directory::depend(dirname($this->dataFile));
 			File::atomicPut($this->dataFile, JSON::encode($this->data));
-		} catch (Semantics|DirectoryPermission|DirectoryCreate|FileNotFound $e) {
+		} catch (SemanticsException|DirectoryPermission|DirectoryCreate|FileNotFound $e) {
 			$this->application->logger->error($e);
 		}
 	}

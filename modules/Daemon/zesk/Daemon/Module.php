@@ -10,18 +10,21 @@ namespace zesk\Daemon;
 
 use Doctrine\ORM\Exception\ORMException;
 
+use zesk\Cron\Attributes\Cron;
 use zesk\Cron\Attributes\CronMinute;
 use zesk\Directory;
 use zesk\Exception\DirectoryCreate;
 use zesk\Exception\DirectoryPermission;
 use zesk\Exception\FilePermission;
 use zesk\Exception\ConfigurationException;
-use zesk\Exception\Semantics;
+use zesk\Exception\SemanticsException;
 use zesk\Exception\SyntaxException;
-use zesk\Exception\Unsupported;
+use zesk\Exception\UnsupportedException;
+use zesk\File;
 use zesk\JSON;
 use zesk\Doctrine\Server;
 use zesk\PHP;
+use zesk\Temporal;
 use zesk\Timestamp;
 
 /**
@@ -45,7 +48,7 @@ class Module extends \zesk\Module {
 	 * @throws ConfigurationException
 	 * @throws DirectoryCreate
 	 * @throws DirectoryPermission
-	 * @throws Unsupported
+	 * @throws UnsupportedException
 	 */
 	public function initialize(): void {
 		parent::initialize();
@@ -70,7 +73,7 @@ class Module extends \zesk\Module {
 		];
 	}
 
-	#[CronMinute]
+	#[Cron(schedule: Temporal::UNIT_MINUTE)]
 	protected function hook_cron(): void {
 		$application = $this->application;
 
@@ -97,15 +100,19 @@ class Module extends \zesk\Module {
 		return Directory::path($this->runPath, 'daemon.db');
 	}
 
+	/**
+	 * @return void
+	 * @throws FilePermission
+	 */
 	public function unlink_database(): void {
-		unlink($this->_databasePath());
+		File::unlink($this->_databasePath());
 	}
 
 	/**
 	 * @param array $database
 	 * @return void
 	 * @throws FilePermission
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	public function saveProcessDatabase(array $database): void {
 		$path = $this->_databasePath();
@@ -113,12 +120,10 @@ class Module extends \zesk\Module {
 			if (count($database) === 0) {
 				return;
 			}
-			if (!file_put_contents($path, serialize($database))) {
-				throw new FilePermission($path, 'write');
-			}
+			File::put($path, serialize($database));
 		} else {
 			if (count($database) === 0) {
-				unlink($path);
+				File::unlink($path);
 				return;
 			}
 		}
@@ -167,7 +172,7 @@ class Module extends \zesk\Module {
 				$this->application->logger->debug('Read database: {data}', [
 					'data' => JSON::encode($database),
 				]);
-			} catch (Semantics $e) {
+			} catch (SemanticsException $e) {
 				PHP::log($e);
 			}
 		}

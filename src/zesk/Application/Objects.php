@@ -13,7 +13,8 @@ use ReflectionMethod;
 use stdClass;
 use zesk\Exception;
 use zesk\Exception\ClassNotFound;
-use zesk\Exception\Semantics;
+use zesk\Exception\SemanticsException;
+use zesk\Hookable;
 use zesk\Kernel;
 use zesk\PHP;
 
@@ -61,6 +62,13 @@ class Objects {
 				PHP::log('{method} {message}}', ['method' => __METHOD__] + Exception::exceptionVariables($e));
 			}
 		}
+	}
+
+	/**
+	 * @return array:Hookable
+	 */
+	public function hookables(): array {
+		return array_filter($this->singletons, fn ($object) => $object instanceof Hookable);
 	}
 
 	/**
@@ -129,7 +137,7 @@ class Objects {
 	 * @param object $object
 	 * @param string|null $class The resolved class to save this class under.
 	 * @return $this
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	public function setSingleton(object $object, string $class = null): self {
 		if ($class === null) {
@@ -142,7 +150,7 @@ class Objects {
 				return $this;
 			}
 
-			throw new Semantics('Singletons should not change existing {found_object} !== set {object}', [
+			throw new SemanticsException('Singletons should not change existing {found_object} !== set {object}', [
 				'found_object' => $found_object, 'object' => $found_object,
 			]);
 		}
@@ -167,11 +175,11 @@ class Objects {
 	 *
 	 * @param mixed $object
 	 * @return mixed
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	private function _setSingleton(object $object, string $resolvedClass): object {
 		if (isset($this->singletons[$resolvedClass])) {
-			throw new Semantics('{method}(Object of {class_name}) Can not set singleton {class_name} twice, originally set in {first_caller}', [
+			throw new SemanticsException('{method}(Object of {class_name}) Can not set singleton {class_name} twice, originally set in {first_caller}', [
 				'method' => __METHOD__, 'class_name' => $resolvedClass,
 				'first_caller' => $this->singletonsCaller[$resolvedClass],
 			]);
@@ -211,7 +219,7 @@ class Objects {
 			throw new ClassNotFound($resolveClass);
 		} catch (ReflectionException|LogicException $e) {
 			throw new ClassNotFound($resolveClass, '', [], $e);
-		} catch (Semantics $e) {
+		} catch (SemanticsException $e) {
 			/* NEVER from _setSingleton */
 			throw new ClassNotFound($resolveClass, 'Semantics SHOULD NOT HAPPEN as getSingleton returned
 			null', [], $e);
@@ -237,7 +245,7 @@ class Objects {
 			return $this->_setSingleton($rc->newInstanceArgs($arguments), $resolveClass);
 		} catch (ReflectionException|LogicException $e) {
 			throw new ClassNotFound($resolveClass, '', [], $e);
-		} catch (Semantics $e) {
+		} catch (SemanticsException $e) {
 			/* NEVER from _setSingleton */
 			throw new ClassNotFound($resolveClass, 'Semantics SHOULD NOT HAPPEN as getSingleton returned
 			null', [], $e);

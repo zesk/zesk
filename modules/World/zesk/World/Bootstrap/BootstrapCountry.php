@@ -7,14 +7,17 @@ declare(strict_types=1);
  * @author kent
  * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  */
-namespace zesk\World;
 
+namespace zesk\World\Bootstrap;
+
+use zesk\World\Country;
 use zesk\Application;
 use zesk\ArrayTools;
 use zesk\Exception\DirectoryNotFound;
 use zesk\Exception\FilePermission;
 use zesk\Exception\NotFoundException;
 use zesk\Hookable;
+use zesk\Types;
 use zesk\Net\Sync;
 
 /**
@@ -22,7 +25,7 @@ use zesk\Net\Sync;
  * @author kent
  *
  */
-class Bootstrap_Country extends Hookable {
+class BootstrapCountry extends Hookable {
 	/**
 	 * Source http://download.geonames.org/export/dump/countryInfo.txt
 	 *
@@ -48,31 +51,29 @@ class Bootstrap_Country extends Hookable {
 
 	/**
 	 *
+	 * @param mixed $options
 	 * @global Module_World::include_country List of country codes to include
 	 *
-	 * @param mixed $options
 	 */
 	public function __construct(Application $application, array $options = []) {
 		parent::__construct($application, $options);
 		$this->inheritConfiguration(Module::class);
 		$include_country = $this->optionIterable('include_country');
-		$this->include_country = array_change_key_case(ArrayTools::keysFromValues(toList($include_country), true));
+		$this->include_country = array_change_key_case(ArrayTools::keysFromValues(Types::toList($include_country), true));
 	}
 
 	public function bootstrap(): void {
 		$application = $this->application;
-		$x = $application->ormFactory(Country::class);
-		if ($this->optionBool('drop')) {
-			$x->database()->query('TRUNCATE ' . $x->table());
-		}
-
+		$em = $application->entityManager();
+		$em->getConnection()->executeQuery('TRUNCATE ' . Country::class);
 		$map = $this->load_countryinfo($application);
 		foreach ($map as $fields) {
-			$country = new Country($application, $fields);
+			$country = new Country($application, $fields['code'], $fields['name']);
 			if ($this->is_included($country)) {
-				$country->register();
+				$em->persist($country);
 			}
 		}
+		$em->flush();
 	}
 
 	private function is_included(Country $country) {
@@ -115,8 +116,7 @@ class Bootstrap_Country extends Hookable {
 				continue;
 			}
 			$rows[] = [
-				'code' => $code2,
-				'name' => $name,
+				'code' => $code2, 'name' => $name,
 			];
 		}
 		return $rows;

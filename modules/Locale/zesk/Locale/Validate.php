@@ -9,7 +9,7 @@ namespace zesk\Locale;
 use zesk\Application;
 use zesk\Exception\ConfigurationException;
 use zesk\Exception\KeyNotFound;
-use zesk\Exception\Semantics;
+use zesk\Exception\SemanticsException;
 use zesk\Hookable;
 use zesk\JSON;
 use zesk\StringTools;
@@ -207,7 +207,7 @@ class Validate extends Hookable {
 	 * @param string $source
 	 * @param string $translation
 	 * @return string[] An array of errors found when the two strings are compared
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	public function checkTranslationBraces(string $source, string $translation): array {
 		$source = StringTools::right($source, ':=', $source);

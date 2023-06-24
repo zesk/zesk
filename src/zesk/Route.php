@@ -11,7 +11,7 @@ use zesk\Exception\ClassNotFound;
 use zesk\Exception\NotFoundException;
 use zesk\Exception\PermissionDenied;
 use zesk\Exception\Redirect;
-use zesk\Exception\Semantics;
+use zesk\Exception\SemanticsException;
 use zesk\Exception\SyntaxException;
 use zesk\Route\Command as CommandRoute;
 use zesk\Route\Content as ContentRoute;
@@ -910,7 +910,7 @@ abstract class Route extends Hookable {
 
 		try {
 			$template->pop();
-		} catch (Semantics) {
+		} catch (SemanticsException) {
 			$response->setStatus(HTTP::STATUS_INTERNAL_SERVER_ERROR, 'Template pop');
 		}
 		return $response;
@@ -1011,7 +1011,7 @@ abstract class Route extends Hookable {
 	/**
 	 * @param Router $router
 	 * @return $this
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	public function wasAdded(Router $router): self {
 		if (!$this->hasOption(self::OPTION_ALIASES)) {
@@ -1020,7 +1020,7 @@ abstract class Route extends Hookable {
 		$defaultAlias = $this->optionString(self::OPTION_ALIAS_TARGET, $this->getPattern());
 		foreach ($this->optionArray(self::OPTION_ALIASES) as $alias => $aliasId) {
 			if (!is_string($aliasId)) {
-				throw new Semantics('{option} in route must be an object with string keys and values {alias} and {id} provided', [
+				throw new SemanticsException('{option} in route must be an object with string keys and values {alias} and {id} provided', [
 					'option' => self::OPTION_ALIASES, 'alias' => gettype($alias), 'id' => gettype($aliasId),
 				]);
 			}

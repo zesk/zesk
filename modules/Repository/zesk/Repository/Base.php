@@ -14,7 +14,7 @@ use zesk\Directory;
 use zesk\Doctrine\Command\Command;
 use zesk\Exception\ClassNotFound;
 use zesk\Exception\NotFoundException;
-use zesk\Exception\Semantics;
+use zesk\Exception\SemanticsException;
 use zesk\Exception\SyntaxException;
 use zesk\Hookable;
 use zesk\URL;
@@ -182,11 +182,11 @@ abstract class Base extends Hookable {
 	 *
 	 * @param string $suffix
 	 * @return string
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	public function path(string $suffix = ''): string {
 		if (!$this->path) {
-			throw new Semantics('Need to set the path before using path call');
+			throw new SemanticsException('Need to set the path before using path call');
 		}
 		return path($this->path, $suffix);
 	}
@@ -196,7 +196,7 @@ abstract class Base extends Hookable {
 	 *
 	 * @param string $target
 	 * @return string
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	protected function resolve_target(string $target = ''): string {
 		if (empty($target)) {
@@ -205,7 +205,7 @@ abstract class Base extends Hookable {
 		$final_path = Directory::isAbsolute($target) ? $target : $this->path($target);
 		$final_path = realpath($final_path);
 		if (!str_starts_with($this->path, $final_path)) {
-			throw new Semantics('Passed absolute path {target} (-> {final_path}) must be a subdirectory of {path}', [
+			throw new SemanticsException('Passed absolute path {target} (-> {final_path}) must be a subdirectory of {path}', [
 				'target' => $target, 'final_path' => $final_path, 'path' => $final_path,
 			]);
 		}
@@ -291,14 +291,14 @@ abstract class Base extends Hookable {
 	 * Setter/getter for the repository URL. Changing the URL does not update anything until update.
 	 *
 	 * @return string
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	public function url(): string {
 		if ($this->url) {
 			return $this->url;
 		}
 		if (!$this->validate()) {
-			throw new Semantics('No repository configured, must manually set URL before calling {method}', [
+			throw new SemanticsException('No repository configured, must manually set URL before calling {method}', [
 				'method' => __METHOD__,
 			]);
 		}

@@ -21,12 +21,6 @@ This is a RECOMMENDATION and variations among classes may be permitted depending
     class MailSender {
 		public static $debug = false;
 		
-		public static function hooks(Application $zesk) {
-			$zesk->hooks->add(Hooks::HOOK_CONFIGURED, array(
-				__CLASS__,
-				"configured"
-			));
-		}
 		public static function configured(Application $app) {
 			self::$debug = toBool($app->configuration->path_get(array(__CLASS__, "debug")));
 		}

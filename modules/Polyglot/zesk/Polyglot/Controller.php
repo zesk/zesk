@@ -9,7 +9,7 @@ declare(strict_types=1);
 namespace zesk\Polyglot;
 
 use zesk\Exception\PermissionDenied;
-use zesk\Exception\Semantics;
+use zesk\Exception\SemanticsException;
 use zesk\Locale\Locale;
 use zesk\ORM\Controller_Authenticated;
 use zesk\ORM\User;
@@ -52,7 +52,7 @@ class Controller extends Controller_Authenticated {
 			/* If we are running a command, then continue all clear */
 			$this->application->command();
 			return;
-		} catch (Semantics) {
+		} catch (SemanticsException) {
 		}
 		$action = Module::class . '::translate';
 		if (!$this->user instanceof User || !$this->user->can($action)) {

@@ -14,7 +14,7 @@ use stdClass;
 use zesk\Exception\ClassNotFound;
 use zesk\Exception\KeyNotFound;
 use zesk\Exception\NotFoundException;
-use zesk\Exception\Semantics;
+use zesk\Exception\SemanticsException;
 use zesk\Exception\SyntaxException;
 use zesk\Router\Parser;
 
@@ -157,12 +157,7 @@ class Router extends Hookable {
 	 */
 	public function __sleep() {
 		return array_merge([
-			'applicationClass',
-			'reverseRoutes',
-			'routes',
-			'prefix',
-			'defaultRoute',
-			'aliases',
+			'applicationClass', 'reverseRoutes', 'routes', 'prefix', 'defaultRoute', 'aliases',
 		], parent::__sleep());
 	}
 
@@ -361,7 +356,7 @@ class Router extends Hookable {
 	 * @param array $options
 	 * @return Route
 	 * @throws ClassNotFound
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	public function addRoute(string $path, array $options): Route {
 		if ($path === '.') {
@@ -379,7 +374,7 @@ class Router extends Hookable {
 	 *
 	 * @param Route $route
 	 * @return Route
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	private function _addRouteID(Route $route): Route {
 		$id = $route->id();
@@ -455,10 +450,12 @@ class Router extends Hookable {
 	 */
 	private function derivedClasses(Model $object): array {
 		$by_class = [];
-		return $object->callHookArguments(self::HOOK_ROUTER_DERIVED_CLASSES, [
+		return $object->invokeTypedFilters(self::HOOK_ROUTER_DERIVED_CLASSES, [
 			$by_class,
-		], $by_class);
+		], [$this]);
 	}
+
+	public const FILTER_ROUTE_OPTIONS = self::class . '::routeOptions';
 
 	/**
 	 * Retrieve a route to an object from the router.
@@ -489,11 +486,7 @@ class Router extends Hookable {
 		}
 		if ($object) {
 			$try_classes = $app->classes->hierarchy($object, Model::class);
-			$options += $object->callHookArguments('routeOptions', [
-				$this, $action,
-			], []) + [
-				'derivedClasses' => [],
-			];
+			$options += $object->invokeTypedFilters(self::FILTER_ROUTE_OPTIONS, $options, [$this, $action]);
 			$options['derivedClasses'] += $this->derivedClasses($object);
 		} elseif (is_string($object)) {
 			$try_classes = [

@@ -8,7 +8,7 @@ namespace zesk;
 
 use stdClass;
 use zesk\Exception\ParseException;
-use zesk\Exception\Semantics;
+use zesk\Exception\SemanticsException;
 
 /**
  *
@@ -28,7 +28,7 @@ class JSONTest extends UnitTest {
 
 	/**
 	 * @return void
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	public function test_malencode(): void {
 		$content = file_get_contents($this->application->path('test/test-data/json/malencode.txt'));
@@ -73,7 +73,7 @@ class JSONTest extends UnitTest {
 	 * @param $methods
 	 * @param $arguments
 	 * @return void
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 * @dataProvider data_prepare
 	 */
 	public function test_prepare($expected, $mixed, $methods, $arguments): void {
@@ -104,12 +104,12 @@ class JSONTest extends UnitTest {
 	 * @param string|null $expected
 	 * @param mixed $mixed
 	 * @return void
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 * @dataProvider data_encode
 	 */
 	public function test_encode(?string $expected, mixed $mixed): void {
 		if ($expected === null) {
-			$this->expectException(Semantics::class);
+			$this->expectException(SemanticsException::class);
 		}
 		$this->assertEquals($expected, JSON::encode($mixed));
 	}
@@ -122,7 +122,7 @@ class JSONTest extends UnitTest {
 	 */
 	public function test_encodeSpecial(?string $expected, mixed $mixed): void {
 		if ($expected === null) {
-			$this->expectException(Semantics::class);
+			$this->expectException(SemanticsException::class);
 		}
 		$this->assertEquals($expected, JSON::encodeSpecial($mixed));
 	}
@@ -269,7 +269,7 @@ class JSONTest extends UnitTest {
 	 * @dataProvider data_internal_values
 	 * @param mixed $mixed
 	 * @return void
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	public function test_internal(mixed $mixed): void {
 		$encode = JSON::encode($mixed);
