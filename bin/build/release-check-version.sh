@@ -52,9 +52,8 @@ cleanup() {
 trap cleanup EXIT
 
 git tag > "$top/tags.txt"
-exists=$(grep "$currentVersion" tags.txt)
-if [ -n "$exists" ]; then
-	echo "Version $exists already exists, already tagged." 1>&2
+if git show-ref --tags "$currentVersion" --quiet; then
+	echo "Version $currentVersion already exists, already tagged." 1>&2
 	exit 16
 fi
 if [ "$previousVersion" = "$currentVersion" ]; then
