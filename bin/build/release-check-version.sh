@@ -4,9 +4,9 @@
 #
 # Copyright &copy; 2023 Market Acumen, Inc.
 #
-ERR_ENV=1
+err_env=1
 
-top="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." || exit $ERR_ENV; pwd)"
+top="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." || exit $err_env; pwd)"
 
 "$top/bin/build/git.sh"
 

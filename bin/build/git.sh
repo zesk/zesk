@@ -6,10 +6,10 @@
 #
 # Copyright &copy; 2023 Market Acumen, Inc.
 #
-ERR_ENV=1
+err_env=1
 
 me=$(basename "$0")
-top="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." || exit $ERR_ENV; pwd)"
+top="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." || exit $err_env; pwd)"
 quietLog="$top/.build/$me.log"
 
 set -eo pipefail
