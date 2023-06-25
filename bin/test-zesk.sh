@@ -95,5 +95,6 @@ need_paths+=("$junit_path")
 for d in "${need_paths[@]}"; do
   [ -d "$d" ] || mkdir -p "$d"
 done
+args+=("--log-junit" "$junit_path/junit.xml")
 echo "$phpunit_bin" "${args[@]}" "$@"
 exec "$phpunit_bin" "${args[@]}" "$@"
