@@ -10,12 +10,12 @@ err_arg=2
 top="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." || exit $err_env; pwd)"
 
 "$top/bin/build/git.sh"
-"$top/bin/build/colors.sh"
+source "$top/bin/build/colors.sh"
 
 previousVersion=$("$top/bin/build/version-last.sh")
 currentVersion=$("$top/bin/build/version-current.sh")
 artifactReleaseNotes="$top/.release-notes.md"
-tagsFile="$top/tags.txt"
+me=$(basename "${BASH_SOURCE[0]}")
 
 usage() {
   local rs
@@ -30,7 +30,10 @@ usage() {
   echo "$me: Check version and optionally tag development version"
   echo
   echo "--develop    Tag a development version as {current}d{nextIndex}"
+  echo
+  exit "$rs"
 }
+
 develop=
 while [ $# -gt 0 ]; do
   case $1 in
@@ -45,16 +48,8 @@ while [ $# -gt 0 ]; do
   esac
 done
 
-cleanup() {
-  [ -f "$tagsFile" ] && rm -f "$tagsFile"
-}
-
-trap cleanup EXIT
-
-git tag > "$top/tags.txt"
-exists=$(grep "$currentVersion" tags.txt)
-if [ -n "$exists" ]; then
-	echo "Version $exists already exists, already tagged." 1>&2
+if git show-ref --tags "$currentVersion" --quiet; then
+	echo "Version $currentVersion already exists, already tagged." 1>&2
 	exit 16
 fi
 if [ "$previousVersion" = "$currentVersion" ]; then
@@ -74,21 +69,29 @@ if [ ! -f "$releaseNotes" ]; then
 fi
 cp "$releaseNotes" "$artifactReleaseNotes"
 
-maximumDevelopmentTagsPerVersion=1000
-tagPrefix="${currentVersion}d"
-d=0
+maximumTagsPerVersion=1000
+if test $develop; then
+  label=development
+  versionSuffix=d
+else
+  label=release
+  versionSuffix=rc
+fi
+tagPrefix="${currentVersion}${versionSuffix}"
+index=0
 while true; do
-  devVersion="$tagPrefix$d"
-  if ! grep -q "$devVersion" "$tagsFile"; then
+  tryVersion="$tagPrefix$index"
+  if ! git show-ref --tags "$tryVersion" --quiet; then
     break;
   fi
-  d=$((d + 1))
-  if [ $d -gt $maximumDevelopmentTagsPerVersion ]; then
-	  consoleError "Development tag version exceeded maximum of $maximumDevelopmentTagsPerVersion" 1>&2
+  index=$((index + 1))
+  if [ $index -gt $maximumTagsPerVersion ]; then
+    consoleError "Tag $label version exceeded maximum of $maximumTagsPerVersion" 1>&2
     exit 19
   fi
 done
 
-echo "Tagging development version: $devVersion"
-git tag "$devVersion"
+consoleGreen "Tagging $label version $tryVersion and pushing ... "
+git tag "$tryVersion"
 git push --tags
+consoleGreen OK && echo
