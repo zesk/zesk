@@ -15,6 +15,14 @@ top="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." || exit $err_env; pwd)"
 
 set -eo pipefail
 
+source "$top/bin/build/colors.sh"
+
+if [ -n "$GITHUB_ACCESS_TOKEN" ]; then
+  exec 1>&2
+  consoleRed "GITHUB_ACCESS_TOKEN is required";
+  echo
+  exit $err_env
+fi
 if [ ! -d "$top/.git" ]; then
 	echo "No .git directory at $top, stopping" 1>&2
 	exit $err_env
@@ -32,6 +40,8 @@ if [ ! -f "$currentChangeLog" ]; then
   exit "$err_env"
 fi
 
+GITHUB_REPOSITORY_OWNER=${GITHUB_REPOSITORY_OWNER:-zesk}
+GITHUB_REPOSITORY_NAME=${GITHUB_REPOSITORY_NAME:-zesk}
 
 figlet "zesk $currentVersion"
 cat currentChangeLog
@@ -41,10 +51,11 @@ echo
 yml="$top/docker-compose.yml"
 {
   echo 'zesk\\GitHub\\Module::access_token="'"$GITHUB_ACCESS_TOKEN"'"'
-  echo 'zesk\\GitHub\\Module::owner='"${GITHUB_REPOSITORY_OWNER:-zesk}"
-  echo 'zesk\\GitHub\\Module::repository='"${GITHUB_REPOSITORY_NAME:-zesk}"
+  echo 'zesk\\GitHub\\Module::owner='"$GITHUB_REPOSITORY_OWNER"
+  echo 'zesk\\GitHub\\Module::repository='"$GITHUB_REPOSITORY_NAME"
 } > "$top/.github.conf"
 
+git push --mirror "https://github.com/$GITHUB_REPOSITORY_OWNER/$GITHUB_REPOSITORY_NAME.git"
 docker-compose -f "$yml" -T -u www-data /zesk/bin/zesk --config /zesk/.github.conf GitHub --tag --description-file "$currentChangeLog"
 
 echo
