@@ -36,6 +36,14 @@ use zesk\Version as ZeskVersion;
  * @category Management
  */
 class Version extends SimpleCommand {
+	/**
+	 * When the version is updated
+	 */
+	public const HOOK_UPDATED = self::class . '::updated';
+
+	/**
+	 * @var array|string[]
+	 */
 	protected array $shortcuts = ['version', 'v'];
 
 	protected array $option_types = [
@@ -210,18 +218,11 @@ class Version extends SimpleCommand {
 				]);
 				return self::EXIT_CODE_VERSION_UPDATE_UNCHANGED;
 			} else {
-				$hooks = $this->application->modules->listAllHooks('version_updated');
 				$params = [
 					'previousVersion' => $previousVersion, 'version' => $new_version_raw, 'command' => $this,
+					'application' => $this->application,
 				];
-				if ($hooks) {
-					$this->info('Calling hooks {hooks}', [
-						'hooks' => $this->application->hooks->callableStrings($hooks),
-					]);
-					$params = $this->application->modules->allHookArguments('version_updated', [
-						$params,
-					], $params);
-				}
+				$this->invokeHooks(self::HOOK_UPDATED, [$params]);
 				$this->info('Updated version from {previousVersion} to {version}', $params);
 				return 0;
 			}

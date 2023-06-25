@@ -79,4 +79,4 @@ pipelines:
             - apt-lists
             - apt-cache
           script:
-            - bin/pipeline-deploy.sh
+            - bin/pipeline-release.sh
