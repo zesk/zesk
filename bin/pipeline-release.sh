@@ -59,7 +59,8 @@ yml="$top/docker-compose.yml"
   echo 'zesk\\GitHub\\Module::repository='"$GITHUB_REPOSITORY_NAME"
 } > "$top/.github.conf"
 
-git push --mirror "https://github.com/$GITHUB_REPOSITORY_OWNER/$GITHUB_REPOSITORY_NAME.git"
+ssh-keyscan github.com >> "$HOME/.ssh/known_hosts"
+git push --mirror "git@github.com:$GITHUB_REPOSITORY_OWNER/$GITHUB_REPOSITORY_NAME.git"
 docker compose -f "$yml" -T -u www-data /zesk/bin/zesk --config /zesk/.github.conf GitHub --tag --description-file "$currentChangeLog"
 
 consoleGreen "Tagging $currentVersion and pushing ... "
@@ -67,7 +68,7 @@ git tag "$currentVersion"
 git push --tags
 consoleGreen OK && echo
 
-git push --mirror "https://github.com/$GITHUB_REPOSITORY_OWNER/$GITHUB_REPOSITORY_NAME.git"
+git push --mirror "git@github.com:$GITHUB_REPOSITORY_OWNER/$GITHUB_REPOSITORY_NAME.git"
 
 echo
 figlet "zesk $currentVersion OK"
