@@ -69,6 +69,7 @@ pipelines:
             - bin/pipeline-setup.sh --testsuite core
       - step:
           name: Deploy
+          deployment: production
           trigger: manual
           size: 2x
           script:

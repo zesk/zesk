@@ -81,10 +81,9 @@ echo "Started on $(date)" > "$quietLog"
 #
 # Connect to the database and set up test schema
 #
-start=$(($(date +%s) + 0))
+start=$(beginTiming)
 databaseArguments=("-u" "root" "-p$DATABASE_ROOT_PASSWORD" "-h" "$DATABASE_HOST" "--port" "$DATABASE_PORT")
-consoleCyan
-echo -n "Setting up database ... "
+consoleInfo -n "Setting up database ... "
 {
   figlet "Database"
   echoBar
@@ -96,45 +95,43 @@ echo -n "Setting up database ... "
 
 "$top/bin/build/mariadb-client.sh"
 
-echo -n "loading schema ... "
+consoleInfo -n "Loading schema ... "
+start=$(beginTiming)
 if ! mariadb "${databaseArguments[@]}" < ./docker/mariadb/schema.sql >> "$quietLog"; then
   failed "$quietLog"
   exit $err_build
 fi
-consoleBoldMagenta $(($(date +%s) - start)) seconds
-consoleReset
+reportTiming "$start" OK
+
 
 if test $clean; then
-  consoleBlue "Deleting $top/vendor"
+  consoleInfo "Deleting $top/vendor"
   [ -d "$top/vendor" ] && rm -rf "$top/vendor"
 fi
 "$top/bin/build/composer.sh"
-
 
 cleanArgs=()
 if test "$clean"; then
   cleanArgs=("--no-cache" "--pull")
 fi
-start=$(($(date +%s) + 0))
-consoleCyan
-echo -n "Build container ... "
+start=$(beginTiming)
+consoleInfo -n "Build container ... "
 figlet "Build container" >> "$quietLog"
 if ! docker build "${cleanArgs[@]}" --build-arg "DATABASE_HOST=$CONTAINER_DATABASE_HOST" -f ./docker/php.Dockerfile --tag zesk:latest . >> "$quietLog" 2>&1; then
   failed "$quietLog"
   exit $err_build
 fi
-consoleBoldMagenta $(($(date +%s) - start)) seconds
-consoleReset
+reportTiming "$start" OK
 
-start=$(($(date +%s) + 0))
+start=$(beginTiming)
 figlet Testing
 for d in "test-results" ".zesk-coverage" "test-coverage" ".phpunit-cache"; do
   [ -d "$d" ] || mkdir -p "$d"
 done
 docker run -v "$top/:/zesk" zesk:latest /zesk/bin/test-zesk.sh "$@"
-consoleBoldMagenta Testing took $(($(date +%s) - start)) seconds
+reportTiming "$start" Passed
 
-consoleBlue
+consoleInfo
 "$top/bin/build/release-check-version.sh" "${versionArgs[@]}"
 consoleReset
 
