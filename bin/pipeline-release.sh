@@ -48,7 +48,7 @@ GITHUB_REPOSITORY_OWNER=${GITHUB_REPOSITORY_OWNER:-zesk}
 GITHUB_REPOSITORY_NAME=${GITHUB_REPOSITORY_NAME:-zesk}
 
 figlet "zesk $currentVersion"
-cat currentChangeLog
+cat "$currentChangeLog"
 echo
 echo "Tagging release in GitHub ..."
 echo
