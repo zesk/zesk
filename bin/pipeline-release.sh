@@ -59,10 +59,13 @@ yml="$top/docker-compose.yml"
   echo 'zesk\\GitHub\\Module::repository='"$GITHUB_REPOSITORY_NAME"
 } > "$top/.github.conf"
 
+commitish=$(git rev-parse --short HEAD)
 ssh-keyscan github.com >> "$HOME/.ssh/known_hosts"
 git remote add github "git@github.com:$GITHUB_REPOSITORY_OWNER/$GITHUB_REPOSITORY_NAME.git"
 git push github
-docker-compose -f "$yml" -T -u www-data /zesk/bin/zesk --config /zesk/.github.conf GitHub --tag --description-file "$currentChangeLog"
+docker-compose -f "$yml" build
+docker-compose up -d
+docker-compose -f "$yml" exec -T -u www-data php /zesk/bin/zesk --config /zesk/.github.conf module GitHub -- github --tag --description-file "$currentChangeLog" --commitish "$commitish"
 
 consoleGreen "Pull github and push origin ... "
 git pull github
