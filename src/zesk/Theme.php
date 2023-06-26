@@ -471,8 +471,7 @@ class Theme implements Themeable {
 		}
 		$contents = ob_get_clean();
 		if ($_template_exception) {
-			$contents .= '<!-- TEMPLATE_EXCEPTION: ' . $_template_exception::class . ' ' .
-			$_template_exception->getMessage() . ' -->';
+			$contents .= '<!-- TEMPLATE_EXCEPTION: ' . $_template_exception::class . ' ' . $_template_exception->getMessage() . ' -->';
 		}
 		if (self::$profile) {
 			ArrayTools::increment(self::$_stats['times'], $this->_path, microtime(true) - $__start);
@@ -504,7 +503,7 @@ class Theme implements Themeable {
 		self::$wrap = $config->getBool('wrap');
 		self::$debug = $config->getBool('debug');
 		self::$debug_stack = $config->getBool('debugStack');
-		$application->hooks->add('</body>', self::profileOutput(...));
+		$application->hooks->registerHook(\zesk\Response\HTML::HOOK_BODY_CLOSE, self::profileOutput(...));
 	}
 
 	/**

@@ -9,10 +9,12 @@ declare(strict_types=1);
 
 namespace zesk\Login;
 
+use ReflectionException;
 use zesk\Doctrine\User;
 use zesk\Controller as zeskController;
 use zesk\Exception\AuthenticationException;
 use zesk\Exception\KeyNotFound;
+use zesk\Exception\ParameterException;
 use zesk\Exception\SemanticsException;
 use zesk\Exception\UnsupportedException;
 use zesk\HTTP;
@@ -105,8 +107,8 @@ class Controller extends zeskController {
 	 * @param Response $response
 	 * @return Response
 	 * @throws UnsupportedException
-	 * @throws \ReflectionException
-	 * @throws \zesk\Exception\ParameterException
+	 * @throws ReflectionException
+	 * @throws ParameterException
 	 */
 	public function action_POST_index(Request $request, Response $response): Response {
 		/**
@@ -157,9 +159,9 @@ class Controller extends zeskController {
 		if ($session) {
 			$id = $session->id();
 			$session->relinquish();
-			$this->application->logger->notice('Session #{id} relinquishd', ['id' => $id]);
+			$this->application->notice('Session #{id} relinquishd', ['id' => $id]);
 		} else {
-			$this->application->logger->notice('Logout with no session found in request: Cookies: {cookies}', [
+			$this->application->notice('Logout with no session found in request: Cookies: {cookies}', [
 				'cookies' => $request->cookies(),
 			]);
 		}

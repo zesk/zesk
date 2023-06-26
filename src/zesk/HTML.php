@@ -208,28 +208,6 @@ class HTML {
 	}
 
 	/**
-	 * Output a link which is a telephone number.
-	 * Pass in 1, 2, or 3 parameters, like so:
-	 *
-	 * <code>
-	 * echo HTML::atel("+1 800-555-1212"); // Prints <a href="tel:+18005551212">+1 800-555-1212</a>
-	 * echo HTML::atel("+1 800-555-1212", "Call me"); // Prints <a href="tel:+18005551212">Call
-	 * me</a>
-	 * echo HTML::atel("+1 800-555-1212", array("class" => tel"), "Call me"); // Prints <a
-	 * class="tel" href="tel:+18005551212">Call me</a>
-	 * </code>
-	 *
-	 * @param string $phone
-	 * @param array $attributes
-	 * @param string $text
-	 * @return string
-	 */
-	public static function atel(string $phone, array $attributes, string $text = ''): string {
-		$attributes['href'] = 'tel:' . preg_replace('/[^+0-9,]/', '', $phone);
-		return self::tag('a', $attributes, $text);
-	}
-
-	/**
 	 * @param string|array $mixed
 	 * @return array
 	 */
@@ -313,16 +291,9 @@ class HTML {
 	public static function tag(string $name, array|string $attributes = [], string $content = null): string {
 		$name = self::cleanTagName($name);
 		if (array_key_exists($name, self::$attributes_alter)) {
-			try {
-				$result = Kernel::singleton()->application()->hooks->callArguments(__METHOD__ . "::$name", [
-					$attributes, $content,
-				], $attributes);
-				if (is_array($result)) {
-					$attributes = $result;
-				}
-			} catch (SemanticsException) {
-				// pass
-			}
+			$attributes = Kernel::singleton()->application()->invokeTypedFilters(__METHOD__ . "::$name", $attributes, [
+				$attributes, $content,
+			], 0);
 		}
 		return "<$name" . self::attributes(self::toAttributes($attributes)) . ($content === null ? ' />' : ">$content</$name>");
 	}
@@ -507,9 +478,7 @@ class HTML {
 			if ($value === true) {
 				$value = $name;
 			}
-			if ($value instanceof Control) {
-				continue;
-			} elseif (is_object($value)) {
+			if (is_object($value)) {
 				$value = method_exists($value, '__toString') ? $value->__toString() : strval($value);
 			}
 			if (!is_numeric($name)) {
@@ -992,7 +961,7 @@ class HTML {
 				$attr = [];
 			} else {
 				$attr = self::parseAttributes($match[2]);
-				$attr = ArrayTools::filterKeys($attr, $include, $exclude, false);
+				$attr = ArrayTools::filterKeys($attr, $include, $exclude);
 			}
 			$ss = $match[0];
 			$single = str_ends_with($match[0], '/>') ? '/' : '';
@@ -1288,15 +1257,6 @@ class HTML {
 			'offset' => $offset, 'next' => $offset + $tagMatchLength, 'tagMatchLength' => $tagMatchLength,
 			'tagMatch' => $tagMatch, 'words' => $nWords, 'tagContents' => $tagContents, 'tagName' => $tagName,
 		];
-	}
-
-	/**
-	 * @param string $string
-	 * @param int $wordCount
-	 * @return string
-	 */
-	public static function trim_words(string $string, int $wordCount): string {
-		return self::trimWords($string, $wordCount);
 	}
 
 	/**
@@ -1601,37 +1561,5 @@ class HTML {
 			return $phrase;
 		}
 		return str_replace($skip_s, $skip_r, $phrase);
-	}
-
-	/**
-	 * Extract the body, ignoring extra body tags
-	 *
-	 * @param mixed $mixed
-	 *            HTML string, HTMLTag object, or an object which can be converted
-	 * @return string|array Contents of the tag
-	 * @deprecated Use self::extractTagContents
-	 */
-	public static function extractBody(array|string $mixed): array|string {
-		if (is_array($mixed)) {
-			$result = [];
-			foreach ($mixed as $k => $x) {
-				$result[$k] = self::extractBody($x);
-			}
-			return $result;
-		}
-		$begin_tag = stripos($mixed, '<body');
-		$end_tag = strripos($mixed, '</body>');
-		if ($begin_tag < 0) {
-			$begin_tag = 0;
-		} else {
-			$begin_tag_len = strpos($mixed, '>', $begin_tag);
-			$begin_tag = $begin_tag_len;
-		}
-		if ($end_tag < 0) {
-			$end_tag = strlen($mixed);
-		} else {
-			$end_tag -= $begin_tag;
-		}
-		return substr($mixed, $begin_tag, $end_tag);
 	}
 }

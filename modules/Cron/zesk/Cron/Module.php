@@ -100,13 +100,8 @@ class Module extends BaseModule {
 	 * @var array
 	 */
 	public static array $intervals = [
-		Temporal::UNIT_SECOND,
-		Temporal::UNIT_MINUTE,
-		Temporal::UNIT_HOUR,
-		Temporal::UNIT_DAY,
-		Temporal::UNIT_WEEK,
-		Temporal::UNIT_MONTH,
-		Temporal::UNIT_YEAR,
+		Temporal::UNIT_SECOND, Temporal::UNIT_MINUTE, Temporal::UNIT_HOUR, Temporal::UNIT_DAY, Temporal::UNIT_WEEK,
+		Temporal::UNIT_MONTH, Temporal::UNIT_YEAR,
 	];
 
 	/**
@@ -173,9 +168,7 @@ class Module extends BaseModule {
 	#[HookMethod(handles: Hooks::HOOK_CONFIGURED)]
 	public function hook_configured(): void {
 		if ($this->optionBool('page_runner')) {
-			$this->application->hooks->add('response/html.tpl', [
-				$this, 'page_runner',
-			]);
+			$this->application->hooks->registerHook(Response\HTML::HOOK_HTML_OPEN, $this->page_runner(...));
 		}
 	}
 
@@ -229,7 +222,7 @@ class Module extends BaseModule {
 	 * @return array
 	 */
 	private function _collectCrons(): array {
-		return Hookable::findMethodsWithAttributes($this, Cron::class);
+		return Hookable::staticAttributeMethods($this, Cron::class);
 	}
 
 	/**
@@ -309,11 +302,11 @@ class Module extends BaseModule {
 	 * @param string|array $cron_hooks
 	 */
 	private function _exception(Throwable $e, string|array $cron_hooks): void {
-		$this->application->logger->error("Exception during {hooks}: {message}\n{backtrace}", [
+		$this->application->error("Exception during {hooks}: {message}\n{backtrace}", [
 			'hooks' => $cron_hooks, 'message' => $e->getMessage(), 'backtrace' => $e->getTraceAsString(),
 			'exception' => $e,
 		]);
-		$this->application->hooks->call('exception', $e);
+		$this->application->invokeHooks(Application::HOOK_EXCEPTION, [$this->application, $e]);
 	}
 
 	/**
@@ -347,7 +340,7 @@ class Module extends BaseModule {
 				$scopes[$method]['lock'] = $lock->acquire();
 			} catch (TimeoutExpired) {
 				unset($scopes[$method]);
-				$this->application->logger->warning('{method}: Unable to acquire lock {lock_name}, skipping scope {scope_method}', [
+				$this->application->warning('{method}: Unable to acquire lock {lock_name}, skipping scope {scope_method}', [
 					'method' => __METHOD__, 'scope_method' => $method, 'lock_name' => $lock_name,
 				]);
 			}
@@ -363,7 +356,7 @@ class Module extends BaseModule {
 			/* @var $state MetaInterface */
 			$last_run = self::_lastCronRun($state);
 			$scopeCronMethods = array_filter($allCronMethods, fn (Cron $cronAttribute) => $cronAttribute->scope === $scope);
-			if ($now->difference($last_run, Temporal::UNIT_SECOND)) {
+			if ($now->difference($last_run)) {
 				self::_cronJustRan($state, null, null, $now);
 				if (count($scopeCronMethods) !== 0) {
 					$unitCronMethods = array_filter($scopeCronMethods, fn (Cron $cronAttribute) => $cronAttribute->schedule === Temporal::UNIT_SECOND);
@@ -371,17 +364,17 @@ class Module extends BaseModule {
 					foreach ($unitCronMethods as $method => $cronAttribute) {
 						/* @var Cron $cronAttribute */
 						try {
-							$app->logger->info('Running {method}', ['method' => $method]);
+							$app->info('Running {method}', ['method' => $method]);
 							$cronAttribute->run(null, [$app]);
 						} catch (Throwable $e) {
-							$this->_exception($e);
+							$this->_exception($e, $cronAttribute->name);
 						}
 					}
 				}
 			}
 			foreach (self::$intervals as $unit) {
 				$last_unit_run = self::_lastCronRun($state, $settings['prefix'], $unit);
-				$this->application->logger->debug('Last ran {unit} {when}', [
+				$this->application->debug('Last ran {unit} {when}', [
 					'unit' => $unit, 'when' => $last_unit_run->format(),
 				]);
 				if ($now->difference($last_unit_run, $unit) > 0) {
@@ -392,7 +385,7 @@ class Module extends BaseModule {
 						foreach ($unitCronMethods as $method => $cronAttribute) {
 							/* @var Cron $cronAttribute */
 							try {
-								$app->logger->info('Running {method}', ['method' => $method]);
+								$app->info('Running {method}', ['method' => $method]);
 								$cronAttribute->run(null, [$app]);
 							} catch (Throwable $e) {
 								$this->_exception($e);
@@ -464,7 +457,7 @@ class Module extends BaseModule {
 	 * @param Response $response
 	 * @throws SemanticsException
 	 */
-	#[HookMethod(Response\HTML::HOOK_HEAD)]
+	#[HookMethod(Response\HTML::HOOK_HTML_OPEN)]
 	public function page_runner(Request $request, Response $response): void {
 		$response->html()->javascript('/share/zesk/js/zesk.js', [
 			'weight' => 'first', 'share' => true,

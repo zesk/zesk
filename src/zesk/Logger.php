@@ -8,6 +8,7 @@ namespace zesk;
 
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel as LogLevel;
+use Stringable;
 use Throwable;
 use zesk\Application\Hooks;
 use zesk\Logger\Handler;
@@ -62,8 +63,9 @@ class Logger implements LoggerInterface {
 	public static function configured(Application $application): void {
 		$logUTC = [Logger::class, 'utc_time'];
 		if ($application->configuration->pathExists($logUTC)) {
-			if ($application->logger instanceof Logger) {
-				$application->logger->utc_time = Types::toBool($application->configuration->getPath($logUTC));
+			$logger = $application->logger();
+			if ($logger instanceof Logger) {
+				$logger->utc_time = Types::toBool($application->configuration->getPath($logUTC));
 			}
 		}
 	}
@@ -216,7 +218,7 @@ class Logger implements LoggerInterface {
 		$this->log(LogLevel::DEBUG, $message, $context);
 	}
 
-	public static function contextualize($level, string|\Stringable $message, array $context): array {
+	public static function contextualize($level, string|Stringable $message, array $context): array {
 		if (array_key_exists('_formatted', $context)) {
 			return $context;
 		}

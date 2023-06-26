@@ -149,7 +149,7 @@ class BootstrapCurrency extends Hookable {
 		$fields['format'] = '{symbol}{amount}';
 
 		if (empty($id)) {
-			$this->application->logger->debug('Unknown id for currency {code} {name}', $fields);
+			$this->application->debug('Unknown id for currency {code} {name}', $fields);
 			return;
 		}
 
@@ -179,7 +179,7 @@ class BootstrapCurrency extends Hookable {
 			$code = strtolower($row[2]);
 			if (!isset($missing_ones[$code])) {
 				if ($this->optionBool('debug')) {
-					$this->application->logger->debug('Code {2} ({1}) no longer valid, remove it', $row);
+					$this->application->debug('Code {2} ({1}) no longer valid, remove it', $row);
 				}
 				unset($codes[$index]);
 
@@ -188,7 +188,7 @@ class BootstrapCurrency extends Hookable {
 			unset($missing_ones[$code]);
 		}
 		if (count($missing_ones) > 0) {
-			$this->application->logger->debug('Currency codes {missing_ones} need to be added', [
+			$this->application->debug('Currency codes {missing_ones} need to be added', [
 				'missing_ones' => $missing_ones,
 			]);
 		}

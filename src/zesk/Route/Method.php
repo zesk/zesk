@@ -6,6 +6,7 @@ namespace zesk\Route;
 use Closure;
 use ReflectionMethod;
 use Throwable;
+use zesk\Application;
 use zesk\Application\Hooks;
 use zesk\ArrayTools;
 use zesk\Exception;
@@ -190,8 +191,8 @@ class Method extends Route {
 			}
 		} catch (Throwable $e) {
 			$content = null;
-			$app->hooks->call('exception', $e);
-			$app->logger->error('{class}::_execute() Running {method} threw exception {e}', [
+			$app->invokeHooks(Application::HOOK_EXCEPTION, [$e]);
+			$app->error('{class}::_execute() Running {method} threw exception {e}', [
 				'class' => __CLASS__, 'method' => $app->hooks->callableString($method), 'e' => $e,
 			]);
 		}
@@ -229,7 +230,7 @@ class Method extends Route {
 		}
 
 		try {
-			$method = $this->_mapVariables($request, $this->options[self::OPTION_METHOD]);
+			$method = $this->_mapVariables($request, $this->optionString(self::OPTION_METHOD));
 			ob_start();
 			$content = $this->executeMethod($request, $method, $this->_mapVariables($request, $this->args));
 			$buffer = ob_get_clean();

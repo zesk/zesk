@@ -38,7 +38,7 @@ class TestApplication extends Application {
 		});
 		$this->hooks->registerHook(Application::HOOK_LOCALE, $this->registrationBasedObjectHook(...));
 		$id = __METHOD__;
-		$this->hooks->registerFilter(Application::HOOK_MAINTENANCE, function (self $app, array $set) use ($id): array {
+		$this->hooks->registerFilter(Application::FILTER_MAINTENANCE, function (self $app, array $set) use ($id): array {
 			if ($set['maintenance']) {
 				$value = $app->option('preventMaintenance');
 				if ($value === 'throw') {
@@ -51,6 +51,7 @@ class TestApplication extends Application {
 			$set[$id] = true;
 			return $set;
 		});
+		Directory::depend($this->path('etc'));
 	}
 
 	public function registrationBasedObjectHook(TestApplication $test, Locale $locale): void {

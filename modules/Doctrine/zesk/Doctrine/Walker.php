@@ -423,7 +423,7 @@ class Walker {
 				], $e->getCode(), $e);
 			}
 		}
-		$logger = $model->application->logger;
+		$logger = $model->application->logger();
 
 		$members = [];
 		/* Handle "resolve_objects" list and "allow_resolve_objects" checks */

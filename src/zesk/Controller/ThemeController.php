@@ -121,7 +121,7 @@ abstract class ThemeController extends Controller {
 	 */
 	public function exception(\Exception $e): void {
 		if ($this->autoRender() && $this->theme) {
-			$this->application->logger->error('Exception in controller {this-class} {class}: {message}', [
+			$this->application->error('Exception in controller {this-class} {class}: {message}', [
 				'this-class' => get_class($this),
 			] + Exception::exceptionVariables($e));
 		}

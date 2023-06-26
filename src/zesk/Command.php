@@ -248,6 +248,13 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable {
 	}
 
 	/**
+	 * @return void
+	 */
+	protected function initialize(): void {
+		// Hello, world.
+	}
+
+	/**
 	 * Parse arguments and set up Command for running.
 	 *
 	 * Command line arguments must be passed in. Use $_SERVER['argv]
@@ -279,8 +286,8 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable {
 			], $e->getCode(), $e);
 		}
 
-		if ($this->debug) {
-			$this->application->logger->debug('{class}({args})', [
+		if ($this->optionBool(self::OPTION_DEBUG)) {
+			$this->application->debug('{class}({args})', [
 				'class' => get_class($this), 'args' => var_export($argv, true),
 			]);
 		}
@@ -299,7 +306,7 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable {
 	 */
 	protected function applicationConfigure(): void {
 		$application = $this->application;
-		$logger = $application->logger;
+		$logger = $application->logger();
 		/* @var $command_object Command */
 		if (!$this->has_configuration) {
 			$logger->debug('Command {class} does not have configuration, calling {app}->configured()', [
@@ -368,13 +375,6 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable {
 	}
 
 	/**
-	 * Load global values which affect the operation of this command
-	 */
-	protected function hook_construct(): void {
-		$this->debug = $this->option('debug', $this->debug);
-	}
-
-	/**
 	 * Load a configuration file for this command.
 	 *
 	 * RETHINK commands and application setup - commands extend existing application configuration and may ADD modules
@@ -424,7 +424,6 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable {
 			} else {
 				$this->write_default_configuration($name, $filename);
 			}
-			$this->debug = $this->optionBool('debug', $this->debug);
 		}
 		$app->configured();
 		return $filename;
@@ -473,11 +472,6 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable {
 		return PHP::dump(array_merge([
 			$this->program,
 		], $this->arguments));
-	}
-
-	/**
-	 */
-	protected function initialize(): void {
 	}
 
 	/**
@@ -776,7 +770,7 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable {
 	 * @return void
 	 */
 	protected function debugLog(string|array $message, array $arguments = []): void {
-		if ($this->optionBool('debug') || $this->debug) {
+		if ($this->optionBool(self::OPTION_DEBUG)) {
 			$this->debug($message, $arguments);
 		}
 	}
@@ -1093,7 +1087,7 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable {
 		try {
 			$this->history_file = File::open($this->history_file_path, 'ab');
 		} catch (FilePermission $e) {
-			$this->application->logger->error('{message}', $e->variables());
+			$this->application->error('{message}', $e->variables());
 		}
 	}
 
@@ -1279,9 +1273,9 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable {
 		return $this->application->process->executeArguments($command, $args, true);
 	}
 
-	public const HOOK_RUN_BEFORE = 'runBefore';
+	public const HOOK_RUN_BEFORE = self::class . 'runBefore';
 
-	public const HOOK_RUN_AFTER = 'runAfter';
+	public const FILTER_RUN_AFTER = self::class . 'runAfter';
 
 	/**
 	 * Main entry point for running a command
@@ -1299,7 +1293,7 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable {
 		$this->applicationConfigure();
 
 		try {
-			$this->callHookArguments(self::HOOK_RUN_BEFORE);
+			$this->invokeHooks(self::HOOK_RUN_BEFORE, [$this]);
 		} catch (ExitedException $e) {
 			return $e->getCode();
 		}
@@ -1310,9 +1304,7 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable {
 
 		try {
 			$result = $this->run();
-			$result = $this->callHookArguments(self::HOOK_RUN_AFTER, [
-				$result,
-			], $result);
+			$result = $this->invokeTypedFilters(self::FILTER_RUN_AFTER, $result, [$this]);
 			if (is_bool($result)) {
 				$result = $result ? self::EXIT_CODE_SUCCESS : -1;
 			} elseif ($result === null) {
@@ -1330,7 +1322,7 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable {
 			$this->error("Exception thrown by command {class} : {exceptionClass} {message}\n{backtrace}", Exception::exceptionVariables($e) + [
 				'class' => get_class($this),
 			]);
-			$this->application->hooks->call('exception', $e);
+			$this->application->invokeHooks(Application::HOOK_EXCEPTION, [$this->application, $e]);
 			if ($this->optionBool('debug', $this->application->development())) {
 				$this->error($e->getTraceAsString());
 			}

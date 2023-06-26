@@ -65,6 +65,8 @@ class Info extends SimpleCommand {
 	 */
 	public const VERSION_RELEASE_STRING = 'releaseString';
 
+	public const FILTER_INFO = self::class . '::info';
+
 	/**
 	 *
 	 *
@@ -91,11 +93,8 @@ class Info extends SimpleCommand {
 		$variables = $app->loader->variables();
 		$info[$appScope][self::CONFIGURATION_FILES_LOADED] = Types::toArray($variables['processed'] ?? []);
 
-		/* TODO Hook Defined Here */
-		$module_info = $app->modules->allHookArguments('info', [
-			[],
-		], []);
-		$info = array_merge($info, ArrayTools::extract($module_info, null, 'value'));
+		$info = $app->invokeTypedFilters(self::FILTER_INFO, $info + ['application' => $this->application]);
+		unset($info['application']);
 
 		$format = $this->optionString('format', self::FORMAT_TEXT);
 		if ($format === self::FORMAT_TEXT) {

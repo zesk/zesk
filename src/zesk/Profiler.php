@@ -20,7 +20,7 @@ class Profiler {
 	 *
 	 */
 	public function __construct(Hooks $hooks) {
-		$hooks->add('</body>', function (): void {
+		$hooks->registerHook(\zesk\Response\HTML::HOOK_BODY_CLOSE, function (): void {
 			echo $this->render();
 		});
 	}

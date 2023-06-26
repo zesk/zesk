@@ -543,7 +543,7 @@ class Client extends Hookable {
 	 * @return void
 	 */
 	private function _zero_content_length_warning(): void {
-		$this->application->logger->warning('{method} with 0 size data', ['method' => $this->method]);
+		$this->application->warning('{method} with 0 size data', ['method' => $this->method]);
 	}
 
 	/**
