@@ -80,3 +80,10 @@ pipelines:
             - apt-cache
           script:
             - bin/pipeline-release.sh
+    deploy:
+      - step:
+          deployment: deploy
+          name: Deploy
+          size: 2x
+          script:
+            - bin/pipeline-release.sh

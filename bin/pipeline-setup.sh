@@ -104,34 +104,12 @@ fi
 consoleBoldMagenta $(($(date +%s) - start)) seconds
 consoleReset
 
-[ -d "$top/.composer" ] || mkdir "$top/.composer"
-
-vendorArgs=()
-vendorArgs+=("-v" "$top:/app")
-vendorArgs+=("-v" "$top/.composer:/tmp")
-vendorArgs+=("composer:latest")
-vendorArgs+=("--ignore-platform-reqs")
-#vendorArgs+=("--ignore-platform-req=ext-calendar")
-#vendorArgs+=("--ignore-platform-req=ext-pcntl")
-#vendorArgs+=("--ignore-platform-req=ext-intl")
-vendorArgs+=("install")
-
-start=$(($(date +%s) + 0))
 if test $clean; then
   consoleBlue "Deleting $top/vendor"
   [ -d "$top/vendor" ] && rm -rf "$top/vendor"
 fi
-consoleCyan
-echo -n "Install vendor ... "
-figlet "Install vendor" >> "$quietLog"
-echo docker run "${vendorArgs[@]}" >> "$quietLog"
+"$top/bin/build/composer.sh"
 
-if ! docker run "${vendorArgs[@]}" >> "$quietLog" 2>&1; then
-  failed "$quietLog"
-  exit $err_build
-fi
-consoleBoldMagenta $(($(date +%s) - start)) seconds
-consoleReset
 
 cleanArgs=()
 if test "$clean"; then
