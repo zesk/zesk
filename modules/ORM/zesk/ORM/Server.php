@@ -1,6 +1,5 @@
 <?php
 declare(strict_types=1);
-
 /**
  * @package zesk
  * @subpackage file
@@ -14,23 +13,24 @@ use Psr\Cache\InvalidArgumentException;
 use Throwable;
 use zesk\Application;
 use zesk\ArrayTools;
-use zesk\Database;
-use zesk\Database_Exception;
-use zesk\Database_Exception_Duplicate;
-use zesk\Database_Exception_SQL;
-use zesk\Database_Exception_Table_NotFound;
-use zesk\Exception_Class_NotFound;
-use zesk\Exception_Configuration;
-use zesk\Exception_Convert;
-use zesk\Exception_Key;
-use zesk\Exception_NotFound;
-use zesk\Exception_Parameter;
-use zesk\Exception_Parse;
-use zesk\Exception_Semantics;
-use zesk\Exception_Timeout;
-use zesk\Exception_Unsupported;
-use zesk\Hooks;
-use zesk\Interface_Data;
+use zesk\Database\Base;
+use zesk\Database\Exception\Duplicate;
+use zesk\Database\Exception\NoResults;
+use zesk\Database\Exception\TableNotFound;
+use zesk\Exception\ClassNotFound;
+use zesk\Exception\KeyNotFound;
+use zesk\Exception\ConfigurationException;
+use zesk\Exception\ParseException;
+use zesk\Exception\ParameterException;
+use zesk\Exception\Semantics;
+use zesk\Exception\TimeoutExpired;
+use zesk\Exception\Unsupported;
+use zesk\Interface\MetaInterface;
+use zesk\ORM\Database\Query\Select;
+use zesk\ORM\Exception\ORMDuplicate;
+use zesk\ORM\Exception\ORMEmpty;
+use zesk\ORM\Exception\ORMNotFound;
+use zesk\ORM\Exception\StoreException;
 use zesk\System;
 use zesk\Timestamp;
 
@@ -52,7 +52,7 @@ use zesk\Timestamp;
  * @property Timestamp $alive
  * @property ORMIterator $metas
  */
-class Server extends ORMBase implements Interface_Data {
+class Server extends ORMBase implements MetaInterface {
 	public const MEMBER_METAS = 'metas';
 
 	public const DEFAULT_OPTION_FREE_DISK_VOLUME = '/';
@@ -151,7 +151,10 @@ class Server extends ORMBase implements Interface_Data {
 	public static function cron_cluster_minute(Application $application): void {
 		$server = $application->ormFactory(self::class);
 		/* @var $server Server */
-		$server->bury_dead_servers();
+		try {
+			$server->buryDeadServers();
+		} catch (TimeoutExpired) {
+		}
 	}
 
 	/**
@@ -170,13 +173,13 @@ class Server extends ORMBase implements Interface_Data {
 
 	/**
 	 * Run intermittently once per cluster to clean away dead Server records
-	 * @throws Exception_Timeout
+	 * @throws TimeoutExpired
 	 */
-	public function bury_dead_servers(): void {
+	public function buryDeadServers(): void {
 		try {
-			$lock = Lock::instance($this->application, __CLASS__ . '::bury_dead_servers');
+			$lock = Lock::instance($this->application, __METHOD__);
 		} catch (Throwable $e) {
-			throw new Exception_Timeout('Unable to get lock instance {name}', [], 0, $e);
+			throw new TimeoutExpired('Unable to get lock instance {name}', [], 0, $e);
 		}
 		$lock = $lock->acquire();
 
@@ -188,7 +191,7 @@ class Server extends ORMBase implements Interface_Data {
 		try {
 			$dead_to_me = Timestamp::now('UTC');
 			$dead_to_me->addUnit($timeout_seconds);
-		} catch (Exception_Key|Exception_Semantics $e) {
+		} catch (KeyNotFound|Semantics $e) {
 			$this->application->logger->error($e);
 			return;
 		}
@@ -227,8 +230,15 @@ class Server extends ORMBase implements Interface_Data {
 	 *
 	 * @param Application $application
 	 * @return Server
-	 * @throws Exception_Key
-	 * @throws Exception_Semantics
+	 * @throws ClassNotFound
+	 * @throws ConfigurationException
+	 * @throws ParseException
+	 * @throws ParameterException
+	 * @throws ParseException
+	 * @throws Semantics
+	 * @throws KeyNotFound
+	 * @throws ORMEmpty
+	 * @throws ORMNotFound
 	 */
 	public static function singleton(Application $application): self {
 		$cache = $application->cacheItemPool();
@@ -261,6 +271,14 @@ class Server extends ORMBase implements Interface_Data {
 	/**
 	 * Register and load this
 	 * @return $this
+	 * @throws ClassNotFound
+	 * @throws ConfigurationException
+	 * @throws ParseException
+	 * @throws ParameterException
+	 * @throws ParseException
+	 * @throws Semantics
+	 * @throws ORMEmpty
+	 * @throws ORMNotFound
 	 */
 	protected function _findSingleton(): self {
 		$this->name = self::hostDefault();
@@ -270,16 +288,12 @@ class Server extends ORMBase implements Interface_Data {
 			assert($orm instanceof self);
 			$now = Timestamp::now();
 
-			try {
-				$delta = $now->difference($this->alive);
-			} catch (Exception_Parameter) {
-				$delta = 0;
-			}
+			$delta = $now->difference($this->alive);
 			if ($delta > $this->option(self::OPTION_ALIVE_UPDATE_SECONDS, self::DEFAULT_ALIVE_UPDATE_SECONDS)) {
 				$orm->updateState();
 			}
 			return $this;
-		} catch (Exception_ORMNotFound) {
+		} catch (ORMNotFound) {
 			return $this->registerDefaultServer();
 		}
 	}
@@ -287,18 +301,15 @@ class Server extends ORMBase implements Interface_Data {
 	/**
 	 *
 	 * @return Server
-	 * @throws Database_Exception_SQL
-	 * @throws Exception_Class_NotFound
-	 * @throws Exception_Configuration
-	 * @throws Exception_Convert
-	 * @throws Exception_Key
-	 * @throws Exception_NotFound
-	 * @throws Exception_ORMEmpty
-	 * @throws Exception_ORMNotFound
-	 * @throws Exception_Parameter
-	 * @throws Exception_Parse
-	 * @throws Exception_Semantics
-	 * @throws Exception_Store
+	 * @throws ClassNotFound
+	 * @throws StoreException
+	 * @throws ConfigurationException
+	 * @throws ParseException
+	 * @throws ParameterException
+	 * @throws ParseException
+	 * @throws Semantics
+	 * @throws ORMEmpty
+	 * @throws ORMNotFound
 	 */
 	private function registerDefaultServer(): self {
 		// Set up our names using hooks (may do nothing)
@@ -307,10 +318,12 @@ class Server extends ORMBase implements Interface_Data {
 		$this->_initializeNameDefaults();
 
 		try {
-			return $this->store();
-		} catch (Exception_ORMDuplicate) {
-			return $this->find();
+			$result = $this->store();
+		} catch (ORMDuplicate) {
+			$result = $this->find();
 		}
+		assert($result instanceof self);
+		return $result;
 	}
 
 	/**
@@ -333,7 +346,7 @@ class Server extends ORMBase implements Interface_Data {
 			$ips = System::ipAddresses($this->application);
 			$ips = ArrayTools::valuesRemove($ips, ['127.0.0.1']);
 			if (count($ips) >= 1) {
-				$this->ip4_internal = first(array_values($ips));
+				$this->ip4_internal = ArrayTools::first(array_values($ips));
 			}
 		}
 		if (empty($this->ip4_internal)) {
@@ -351,7 +364,7 @@ class Server extends ORMBase implements Interface_Data {
 	 *
 	 * @param string $path
 	 * @return self
-	 * @throws Exception_ORMNotFound
+	 * @throws ORMNotFound
 	 */
 	public function updateState(string $path = ''): self {
 		if ($path === '') {
@@ -374,7 +387,7 @@ class Server extends ORMBase implements Interface_Data {
 		$pushed = $this->push_utc();
 
 		try {
-			$update['load'] = first(System::loadAverages());
+			$update['load'] = ArrayTools::first(System::loadAverages());
 			$update['*alive'] = $this->sql()->now();
 			$this->queryUpdate()->setValues($update)->appendWhere($this->members($this->primaryKeys()))->execute();
 			$this->pop_utc($pushed);
@@ -383,7 +396,7 @@ class Server extends ORMBase implements Interface_Data {
 			// Runtime error - never occur
 			$this->application->hooks->call('exception', $e);
 
-			throw new Exception_ORMNotFound(self::class, 'Updating alive', [], $e);
+			throw new ORMNotFound(self::class, 'Updating alive', [], $e);
 		}
 	}
 
@@ -407,7 +420,7 @@ class Server extends ORMBase implements Interface_Data {
 	private function push_utc(): array {
 		$db = $this->database();
 
-		if ($db->can(Database::FEATURE_TIME_ZONE_RELATIVE_TIMESTAMP)) {
+		if ($db->can(Base::FEATURE_TIME_ZONE_RELATIVE_TIMESTAMP)) {
 			try {
 				$old_tz = $db->timeZone();
 				if (!$this->_db_tz_is_utc($old_tz)) {
@@ -416,7 +429,7 @@ class Server extends ORMBase implements Interface_Data {
 					// TODO this is (?) specific to MySQL - need to modify for different databases
 					$db->setTimeZone('+00:00');
 				}
-			} catch (Exception_Unsupported) {
+			} catch (Unsupported) {
 				// never
 				$old_tz = null;
 			}
@@ -438,7 +451,7 @@ class Server extends ORMBase implements Interface_Data {
 	private function pop_utc(array $pushed): void {
 		[$old_tz, $old_php_tz] = $pushed;
 		$db = $this->database();
-		if ($db->can(Database::FEATURE_TIME_ZONE_RELATIVE_TIMESTAMP)) {
+		if ($db->can(Base::FEATURE_TIME_ZONE_RELATIVE_TIMESTAMP)) {
 			if (!$this->_db_tz_is_utc($old_tz)) {
 				$db->setTimeZone($old_tz);
 			}
@@ -484,9 +497,9 @@ class Server extends ORMBase implements Interface_Data {
 	 *
 	 * @param string $name
 	 * @return NULL|ServerMeta
-	 * @throws Exception_Configuration
-	 * @throws Exception_Key
-	 * @throws Exception_Semantics
+	 * @throws ConfigurationException
+	 * @throws KeyNotFound
+	 * @throws Semantics
 	 */
 	private function _getMeta(string $name): mixed {
 		$iterator = $this->memberIterator(self::MEMBER_METAS, [
@@ -504,11 +517,11 @@ class Server extends ORMBase implements Interface_Data {
 	 *
 	 * @param mixed $name
 	 * @return mixed
-	 * @throws Exception_Configuration
-	 * @throws Exception_Key
-	 * @throws Exception_ORMNotFound
-	 * @throws Exception_Semantics
-	 * @throws Exception_Timeout
+	 * @throws ConfigurationException
+	 * @throws KeyNotFound
+	 * @throws ORMNotFound
+	 * @throws Semantics
+	 * @throws TimeoutExpired
 	 */
 	public function meta(string $name): mixed {
 		$lock_name = 'server_data_' . $this->memberInteger('id');
@@ -523,14 +536,10 @@ class Server extends ORMBase implements Interface_Data {
 	 *
 	 * @param mixed $name
 	 * @return $this
-	 * @throws Database_Exception
-	 * @throws Exception_Semantics
-	 * @throws Database_Exception_Duplicate
-	 * @throws Database_Exception_SQL
-	 * @throws Database_Exception_Table_NotFound
-	 * @see Interface_Data::delete_data
+	 * @throws Semantics
+	 * @see MetaInterface::delete_data
 	 */
-	public function deleteData(string|array $name): self {
+	public function deleteMeta(string|array $name): self {
 		$this->application->ormRegistry(ServerMeta::class)->queryDelete()->appendWhere([
 			'server' => $this, 'name' => $name,
 		])->execute();
@@ -542,13 +551,16 @@ class Server extends ORMBase implements Interface_Data {
 	 *
 	 * @param mixed $name
 	 * @return self
-	 * @throws Database_Exception
-	 * @throws Database_Exception_Duplicate
-	 * @throws Database_Exception_SQL
-	 * @throws Database_Exception_Table_NotFound
-	 * @throws Exception_Semantics
 	 */
-	public function deleteAllData(string $name): self {
+	/**
+	 * @param string $name
+	 * @return $this
+	 * @throws Semantics
+	 * @throws Duplicate
+	 * @throws NoResults
+	 * @throws TableNotFound
+	 */
+	public function deleteAllMeta(string $name): self {
 		$this->application->ormRegistry(ServerMeta::class)->queryDelete()->appendWhere([
 			'name' => $name,
 		])->execute();
@@ -559,12 +571,8 @@ class Server extends ORMBase implements Interface_Data {
 	 * Query all servers to find servers which match name = value
 	 *
 	 * @param array $where Use [ "name" => $value } as  basic one
-	 * @return Database_Query_Select
-	 * @throws Exception_Configuration
-	 * @throws Exception_ORMNotFound
-	 * @throws Exception_Semantics
 	 */
-	public function dataQuery(array $where): Database_Query_Select {
+	public function dataQuery(array $where): Select {
 		$query = $this->application->ormRegistry(Server::class)->querySelect();
 		$query->ormWhat();
 		foreach ($where as $name => $value) {
@@ -584,8 +592,8 @@ class Server extends ORMBase implements Interface_Data {
 	/**
 	 * @param int $within_seconds
 	 * @return array
-	 * @throws Exception_Key
-	 * @throws Exception_Semantics
+	 * @throws KeyNotFound
+	 * @throws Semantics
 	 */
 	public function aliveIPs(int $within_seconds = 300): array {
 		$ips = $this->querySelect()->appendWhat([

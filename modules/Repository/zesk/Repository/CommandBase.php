@@ -10,10 +10,11 @@ declare(strict_types=1);
 namespace zesk\Repository;
 
 use Module;
-use zesk\Exception_Command;
-use zesk\Exception_NotFound;
-use zesk\Exception_Parameter;
-use zesk\Exception_Unimplemented;
+use zesk\ArrayTools;
+use zesk\CommandFailed;
+use zesk\Exception\NotFoundException;
+use zesk\Exception\ParameterException;
+use zesk\Exception\UnimplementedException;
 use zesk\Process;
 
 /**
@@ -63,22 +64,19 @@ abstract class CommandBase extends Base {
 	 *
 	 * @param string $path
 	 * @return $this
-	 * @throws Exception_Parameter
-	 * @throws Exception_Unimplemented
+	 * @throws ParameterException
+	 * @throws UnimplementedException
 	 */
 	public function setPath(string $path): self {
 		if (empty($path)) {
-			throw new Exception_Parameter('{method} - no path passed', [
+			throw new ParameterException('{method} - no path passed', [
 				'method' => __METHOD__,
 			]);
 		}
 		if ($this->optionBool('find_root') && $root = $this->findRoot($path)) {
 			if ($root !== $path) {
-				$this->application->logger->debug('{method} {code} moved to {root} instead of {path}', [
-					'method' => __METHOD__,
-					'code' => $this->code,
-					'root' => $root,
-					'path' => $path,
+				$this->application->debug('{method} {code} moved to {root} instead of {path}', [
+					'method' => __METHOD__, 'code' => $this->code, 'root' => $root, 'path' => $path,
 				]);
 			}
 			$this->path = $root;
@@ -91,12 +89,12 @@ abstract class CommandBase extends Base {
 
 	/**
 	 * @return void
-	 * @throws Exception_NotFound
-	 * @throws Exception_Unimplemented
+	 * @throws NotFoundException
+	 * @throws UnimplementedException
 	 */
 	protected function initialize(): void {
 		if (!$this->executable) {
-			throw new Exception_Unimplemented('Need to set ->executable to a value');
+			throw new UnimplementedException('Need to set ->executable to a value');
 		}
 		parent::initialize();
 		$this->process = $this->application->process;
@@ -109,7 +107,7 @@ abstract class CommandBase extends Base {
 	 * @param array $arguments
 	 * @param bool $passThrough
 	 * @return array
-	 * @throws Exception_Command
+	 * @throws CommandFailed
 	 */
 	protected function run_command(string $suffix, array $arguments = [], bool $passThrough = false): array {
 		$had_path = !empty($this->path);
@@ -124,7 +122,7 @@ abstract class CommandBase extends Base {
 				chdir($cwd);
 			}
 			return $result;
-		} catch (Exception_Command $e) {
+		} catch (CommandFailed $e) {
 			if ($had_path) {
 				chdir($cwd);
 			}
@@ -149,11 +147,11 @@ abstract class CommandBase extends Base {
 	/**
 	 * @param string $directory
 	 * @return string
-	 * @throws Exception_Unimplemented
+	 * @throws UnimplementedException
 	 */
 	protected function findRoot(string $directory): string {
 		if (!$this->dot_directory) {
-			throw new Exception_Unimplemented('{method} does not support dot_directory setting', [
+			throw new UnimplementedException('{method} does not support dot_directory setting', [
 				'method' => __METHOD__,
 			]);
 		}
@@ -196,6 +194,6 @@ abstract class CommandBase extends Base {
 	 * @return string
 	 */
 	protected function compute_latest_version(array $versions): string {
-		return first($this->rsort_versions($versions));
+		return ArrayTools::first($this->rsort_versions($versions));
 	}
 }

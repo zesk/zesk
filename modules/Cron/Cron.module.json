@@ -1,0 +1,13 @@
+{
+	"name": "Cron",
+	"moduleClass": "zesk\\Cron\\Module",
+	"autoload": {
+		"classPrefix": "zesk\\Cron\\",
+		"path": "zesk/Cron/"
+	},
+	"zeskCommandPath": "zesk/Cron/Command/",
+	"requires": [
+		"Doctrine"
+	],
+	"copyright": "Copyright &copy; 2023, Market Acumen, Inc."
+}

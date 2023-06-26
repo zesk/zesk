@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace zesk\Repository;
 
-use zesk\Exception_NotFound;
+use zesk\Exception\NotFoundException;
 use zesk\UnitTest;
 
 class TestCase extends UnitTest {
@@ -75,7 +75,7 @@ class TestCase extends UnitTest {
 
 	/**
 	 * @depends testConfiguration
-	 * @throws Exception_NotFound
+	 * @throws NotFoundException
 	 */
 	public function testFactory($path): Base {
 		$this->assertNotCount(0, $this->repository_types, 'Must initialize ' . get_class($this) . '->repository_types to a non-zero list of types');

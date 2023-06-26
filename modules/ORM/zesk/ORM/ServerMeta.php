@@ -11,11 +11,11 @@ namespace zesk\ORM;
 
 use zesk\Application;
 use zesk\Database_Exception;
-use zesk\Database_Exception_Duplicate;
-use zesk\Database_Exception_SQL;
-use zesk\Database_Exception_Table_NotFound;
-use zesk\Exception_Configuration;
-use zesk\Exception_Semantics;
+use zesk\Database\Exception\Duplicate;
+use zesk\Database\Exception\SQLException;
+use zesk\Database\Exception\TableNotFound;
+use zesk\Exception\ConfigurationException;
+use zesk\Exception\Semantics;
 
 /**
  * @see Class_ServerMeta
@@ -43,11 +43,11 @@ class ServerMeta extends ORMBase {
 	 * @param Application $application
 	 * @return void
 	 * @throws Database_Exception
-	 * @throws Database_Exception_Duplicate
-	 * @throws Database_Exception_SQL
-	 * @throws Database_Exception_Table_NotFound
-	 * @throws Exception_Semantics
-	 * @throws Exception_Configuration
+	 * @throws Database\Exception\Duplicate
+	 * @throws Database\Exception\SQLException
+	 * @throws Database\Exception\TableNotFound
+	 * @throws Semantics
+	 * @throws ConfigurationException
 	 */
 	public static function cron_cluster_hour(Application $application): void {
 		/* TODO Proper foreign key constraints */
@@ -66,10 +66,10 @@ class ServerMeta extends ORMBase {
 	 * @param Server $server
 	 * @return void
 	 * @throws Database_Exception
-	 * @throws Database_Exception_Duplicate
-	 * @throws Database_Exception_SQL
-	 * @throws Database_Exception_Table_NotFound
-	 * @throws Exception_Semantics
+	 * @throws Database\Exception\Duplicate
+	 * @throws Database\Exception\SQLException
+	 * @throws Database\Exception\TableNotFound
+	 * @throws Semantics
 	 */
 	public static function serverDelete(Server $server): void {
 		$server->application->ormRegistry(__CLASS__)->queryDelete()->addWhere('server', $server)->execute();

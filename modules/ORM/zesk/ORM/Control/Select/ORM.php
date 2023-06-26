@@ -70,7 +70,7 @@ class Control_Select_ORM extends Control_Select {
 		if (!$text_column) {
 			$text_column = $this->class_object->name_column;
 		}
-		$text_column = to_list($text_column);
+		$text_column = toList($text_column);
 		$text_column = array_merge($text_column, $this->optionArray('text_columns'));
 		return $text_column;
 	}

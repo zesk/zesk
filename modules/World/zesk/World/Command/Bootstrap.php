@@ -1,8 +1,13 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 
-namespace zesk\World;
+namespace zesk\World\Command;
 
-use zesk\Command_Base;
+use zesk\Command\SimpleCommand;
+use zesk\World\Bootstrap\BootstrapCountry;
+use zesk\World\Bootstrap\BootstrapLanguage;
+use zesk\World\Bootstrap\BootstrapCurrency;
+use zesk\World\Bootstrap\BootstrapProvince;
 
 /**
  * Register default Country, Currency, Language, and Province data in the database.
@@ -11,32 +16,23 @@ use zesk\Command_Base;
  * @author kent
  *
  */
-class Command_Bootstrap extends Command_Base {
+class Bootstrap extends SimpleCommand {
 	protected array $shortcuts = ['world-bootstrap'];
 
 	protected array $option_types = [
-		'drop' => 'boolean',
-		'all' => 'boolean',
-		'country' => 'boolean',
-		'currency' => 'boolean',
-		'language' => 'boolean',
-		'province' => 'boolean',
+		'drop' => 'boolean', 'all' => 'boolean', 'country' => 'boolean', 'currency' => 'boolean',
+		'language' => 'boolean', 'province' => 'boolean',
 	];
 
 	protected array $option_help = [
-		'drop' => 'Truncate all tables (may cause renumbering)',
-		'all' => 'Bootstrap all codes',
-		'country' => 'Bootstrap country codes',
-		'currency' => 'Bootstrap currency codes',
-		'language' => 'Bootstrap language codes',
-		'province' => 'Bootstrap US/CA provinces',
+		'drop' => 'Truncate all tables (may cause renumbering)', 'all' => 'Bootstrap all codes',
+		'country' => 'Bootstrap country codes', 'currency' => 'Bootstrap currency codes',
+		'language' => 'Bootstrap language codes', 'province' => 'Bootstrap US/CA provinces',
 	];
 
 	private static array $straps = [
-		'country' => Bootstrap_Country::class,
-		'currency' => Bootstrap_Currency::class,
-		'language' => Bootstrap_Language::class,
-		'province' => Bootstrap_Province::class,
+		'country' => BootstrapCountry::class, 'currency' => BootstrapCurrency::class,
+		'language' => BootstrapLanguage::class, 'province' => BootstrapProvince::class,
 	];
 
 	public function run(): int {
@@ -61,8 +57,9 @@ class Command_Bootstrap extends Command_Base {
 		foreach ($straps as $strap) {
 			$class = self::$straps[$strap];
 			$this->log("Bootstrapping $strap ...");
-			$object = $this->application->factory($class, $this->application, $this->options);
+			$object = $this->application->factory($class, $this->application, $this->options());
 			$object->bootstrap($this->application);
 		}
+		return 0;
 	}
 }

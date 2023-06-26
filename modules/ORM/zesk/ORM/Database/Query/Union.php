@@ -10,24 +10,24 @@ declare(strict_types=1);
  * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  */
 
-namespace zesk\ORM;
+namespace zesk\ORM\Database\Query;
 
 use Throwable;
+use zesk\Database\Base;
 use zesk\ArrayTools;
-use zesk\Database;
-use zesk\Exception_Deprecated;
 use zesk\PHP;
+use zesk\Types;
 
 /**
  *
  * @author kent
  *
  */
-class Database_Query_Union extends Database_Query_Select_Base {
+class Union extends SelectBase {
 	/**
 	 * Array of queries to UNION
 	 *
-	 * @var Database_Query_Select[]
+	 * @var Select[]
 	 */
 	protected array $queries = [];
 
@@ -41,27 +41,27 @@ class Database_Query_Union extends Database_Query_Select_Base {
 	/**
 	 * Construct a new UNION select query
 	 *
-	 * @param Database $db
+	 * @param Base $db
 	 */
-	public function __construct(Database $db) {
+	public function __construct(Base $db) {
 		parent::__construct('UNION', $db);
 	}
 
 	/**
 	 * Create a new query
 	 *
-	 * @param Database $db
-	 * @return Database_Query_Union
+	 * @param Base $db
+	 * @return self
 	 */
-	public static function factory(Database $db): self {
-		return new Database_Query_Union($db);
+	public static function factory(Base $db): self {
+		return new self($db);
 	}
 
 	/**
-	 * @param Database_Query_Select $select
+	 * @param Select $select
 	 * @return $this
 	 */
-	public function union(Database_Query_Select $select): self {
+	public function union(Select $select): self {
 		$this->queries[] = $select;
 		return $this;
 	}
@@ -88,18 +88,6 @@ class Database_Query_Union extends Database_Query_Select_Base {
 			$query->from($table, $alias);
 		}
 		return $this;
-	}
-
-	/**
-	 * @param string $sql
-	 * @param string $join_id
-	 * @return $this
-	 * @throws Exception_Deprecated
-	 * @deprecated 2022-05
-	 */
-	public function join(string $sql, string $join_id = ''): self {
-		$this->application->deprecated(__METHOD__);
-		return $this->addJoin($sql, $join_id);
 	}
 
 	/**
@@ -142,7 +130,7 @@ class Database_Query_Union extends Database_Query_Select_Base {
 	 * @return $this
 	 */
 	public function setOrderBy(string|array $order_by): self {
-		$this->order_by = toList($order_by);
+		$this->order_by = Types::toList($order_by);
 		return $this;
 	}
 
@@ -182,6 +170,6 @@ class Database_Query_Union extends Database_Query_Select_Base {
 		foreach ($this->queries as $query) {
 			$sql_phrases[] = $query->__toString();
 		}
-		return implode(' UNION ', ArrayTools::wrapValues($sql_phrases, '(', ')')) . $this->sql()->order_by($this->order_by);
+		return implode(' UNION ', ArrayTools::wrapValues($sql_phrases, '(', ')')) . $this->sql()->orderBy($this->order_by);
 	}
 }

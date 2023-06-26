@@ -1,5 +1,5 @@
 #!/bin/bash
-top="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." || exit; pwd)"
+top="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." || exit 1; pwd)"
 
 PATH=$top/vendor/bin:$PATH
 

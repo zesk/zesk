@@ -1,51 +1,56 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * @author kent
  * @package zesk/modules
  * @subpackage Polyglot
  * @copyright &copy; 2023, Market Acumen, Inc.
  */
+
 namespace zesk\Polyglot;
 
 /**
  *
  */
 
-use zesk\Exception_File_Format;
-use zesk\Exception_File_NotFound;
-use zesk\Interface_Module_Routes;
-use zesk\Locale;
+use zesk\Exception\FileNotFound;
+use zesk\Exception\FileParseException;
+use zesk\Interface\Module\Routes;
+use zesk\Locale\Locale;
 use zesk\Locale\Reader;
 use zesk\Module as BaseModule;
-use zesk\ORM\Exception_ORMNotFound;
+use zesk\ORM\Exception\ORMNotFound;
 use zesk\Router;
-use World\Language;
+use zesk\World\Language;
 
 /**
  *
  * @author kent
  *
  */
-class Module extends BaseModule implements Interface_Module_Routes {
+class Module extends BaseModule implements Routes {
 	/**
 	 *
 	 * @var array
 	 */
 	protected array $modelClasses = [
-		Token::class,
-		Update::class,
+		Token::class, Update::class,
 	];
+
+	public const OPTION_LOCALE_OPTIONS_DEFAULT = self::class . '::localeOptions';
+
+	public const HOOK_LOCALE_OPTIONS = self::class . '::localeOptions';
 
 	/**
 	 *
 	 * @return array
 	 */
 	public function localeOptions(): array {
-		$list = $this->callHookArguments('localeOptions', [], $this->optionArray('localeOptions'));
+		$list = $this->invokeTypedFilters(self::HOOK_LOCALE_OPTIONS, $this->optionArray(self::OPTION_LOCALE_OPTIONS_DEFAULT));
 		$where = [];
 		foreach ($list as $locale) {
-			$language = Locale::parse_language($locale);
-			$dialect = Locale::parse_dialect($locale);
+			$language = Locale::parseLanguage($locale);
+			$dialect = Locale::parseDialect($locale);
 			$w = [
 				'code' => $language,
 			];
@@ -54,16 +59,11 @@ class Module extends BaseModule implements Interface_Module_Routes {
 			}
 			$where[] = $w;
 		}
-		$query = $this->application->ormRegistry(Language::class)
-			->querySelect()
-			->appendWhat([
-				'code' => 'code',
-				'dialect' => 'dialect',
-				'name' => 'name',
-			])
-			->appendWhere($where ? [
-				$where,
-			] : []);
+		$query = $this->application->ormRegistry(Language::class)->querySelect()->appendWhat([
+			'code' => 'code', 'dialect' => 'dialect', 'name' => 'name',
+		])->appendWhere($where ? [
+			$where,
+		] : []);
 		$locales = $query->toArray();
 		$results = [];
 		foreach ($locales as $locale) {
@@ -87,20 +87,17 @@ class Module extends BaseModule implements Interface_Module_Routes {
 		];
 		$router->addRoute('polyglot', $base);
 		$router->addRoute('polyglot/load/{dialect}', $base + [
-			'action' => 'load',
-			'arguments' => [
+			'action' => 'load', 'arguments' => [
 				2,
 			],
 		]);
 		$router->addRoute('polyglot/token/{dialect}', $base + [
-			'action' => 'token',
-			'arguments' => [
+			'action' => 'token', 'arguments' => [
 				2,
 			],
 		]);
 		$router->addRoute('polyglot/update/{dialect}', $base + [
-			'action' => 'update',
-			'arguments' => [
+			'action' => 'update', 'arguments' => [
 				2,
 			],
 		]);
@@ -110,8 +107,8 @@ class Module extends BaseModule implements Interface_Module_Routes {
 	 *
 	 * @param string $locale
 	 * @return Token[]
-	 * @throws Exception_File_Format
-	 * @throws Exception_File_NotFound|Exception_ORMNotFound
+	 * @throws FileParseException
+	 * @throws FileNotFound|ORMNotFound
 	 */
 	public function loadLocale(string $locale = ''): array {
 		$source_files = $this->optionIterable('source_files');
@@ -123,7 +120,7 @@ class Module extends BaseModule implements Interface_Module_Routes {
 			}
 			$tt = $this->application->load($source_file);
 			if (!is_array($tt)) {
-				throw new Exception_File_Format($source_file, 'Source file {basename} does not return the correct format', [
+				throw new FileParseException($source_file, 'Source file {basename} does not return the correct format', [
 					'basename' => basename($source_file),
 				]);
 			}
@@ -132,14 +129,14 @@ class Module extends BaseModule implements Interface_Module_Routes {
 		if (count($table) === 0) {
 			foreach ($source_files as $source_file) {
 				if (!is_file($source_file)) {
-					throw new Exception_File_NotFound($source_file);
+					throw new FileNotFound($source_file);
 				}
 			}
 		}
 		$existing = Reader::factory($this->application->localePath(), $locale)->execute();
 		$table = $existing + $table;
-		$language = Locale::parse_language($locale);
-		$dialect = Locale::parse_dialect($locale);
+		$language = Locale::parseLanguage($locale);
+		$dialect = Locale::parseDialect($locale);
 		$tokens = Token::fetchAll($this->application, $language, $dialect);
 
 		foreach ($table as $original => $translation) {

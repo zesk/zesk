@@ -1,4 +1,5 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * @author kent
  * @package zesk/modules
@@ -7,14 +8,14 @@
  */
 namespace zesk\Polyglot;
 
-use zesk\Exception_Redirect;
-use zesk\Exception_Semantics;
+use zesk\Exception\PermissionDenied;
+use zesk\Exception\SemanticsException;
+use zesk\Locale\Locale;
 use zesk\ORM\Controller_Authenticated;
-use zesk\Exception_Permission;
+use zesk\ORM\User;
+use zesk\Redirect;
 use zesk\Request;
 use zesk\Response;
-use zesk\Locale;
-use zesk\ORM\User;
 
 /**
  *
@@ -51,24 +52,24 @@ class Controller extends Controller_Authenticated {
 			/* If we are running a command, then continue all clear */
 			$this->application->command();
 			return;
-		} catch (Exception_Semantics) {
+		} catch (SemanticsException) {
 		}
 		$action = Module::class . '::translate';
 		if (!$this->user instanceof User || !$this->user->can($action)) {
-			throw new Exception_Permission($this->user, $action);
+			throw new PermissionDenied($this->user, $action);
 		}
 	}
 
 	/**
 	 *
 	 * @return string
-	 *@throws Exception_Permission|Exception_Redirect
+	 *@throws PermissionDenied|Redirect
 	 */
 	public function action_index() {
 		if (!$this->user->can('zesk\\Module_PolyGlot::translate')) {
 			$app_locale = $this->application->locale;
 
-			throw new Exception_Permission($this->user, 'Module_PolyGlot::index', null, [
+			throw new PermissionDenied($this->user, 'Module_PolyGlot::index', null, [
 				'message' => $app_locale->__('Not allowed to do translations.'),
 			]);
 		}
@@ -108,7 +109,7 @@ class Controller extends Controller_Authenticated {
 	 *
 	 * @param string $locale_string
 	 */
-	public function action_update($locale_string) {
+	public function action_update(string $locale_string) {
 		$locale = $this->application->locale;
 		$locale_string = Locale::normalize($locale_string);
 		$__ = [
@@ -159,8 +160,8 @@ class Controller extends Controller_Authenticated {
 		foreach (['original', 'translation', 'status'] as $k) {
 			$fields[$k] = $request->get($k);
 		}
-		$fields['dialect'] = Locale::parse_dialect($locale);
-		$fields['language'] = $language = Locale::parse_language($locale);
+		$fields['dialect'] = Locale::parseDialect($locale);
+		$fields['language'] = $language = Locale::parseLanguage($locale);
 		if (empty($language)) {
 			return $this->json([
 				'status' => false,

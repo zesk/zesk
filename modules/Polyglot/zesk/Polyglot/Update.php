@@ -6,35 +6,28 @@ declare(strict_types=1);
  * @subpackage Polyglot
  * @copyright &copy; 2023, Market Acumen, Inc.
  */
+
 namespace zesk\Polyglot;
 
 use Throwable;
 use zesk\Application;
-use zesk\Database_Exception_SQL;
-use zesk\Exception_Class_NotFound;
-use zesk\Exception_Configuration;
-use zesk\Exception_Convert;
-use zesk\Exception_File_Locked;
-use zesk\Exception_File_NotFound;
-use zesk\Exception_File_Permission;
-use zesk\Exception_FileSystem;
-use zesk\Exception_Key;
-use zesk\Exception_NotFound;
-use zesk\Exception_Parameter;
-use zesk\Exception_Parse;
-use zesk\Exception_Semantics;
-use zesk\Exception_Timeout;
+use zesk\Directory;
+use zesk\Doctrine\Model;
+use zesk\Exception\ClassNotFound;
+use zesk\Exception\ConfigurationException;
+use zesk\Exception\FileLocked;
+use zesk\Exception\FileNotFound;
+use zesk\Exception\FilePermission;
+use zesk\Exception\FileSystemException;
+use zesk\Exception\KeyNotFound;
+use zesk\Exception\NotFoundException;
+use zesk\Exception\ParameterException;
+use zesk\Exception\ParseException;
+use zesk\Exception\SemanticsException;
 use zesk\File;
-use zesk\Locale;
-use zesk\ORM\Exception_ORMDuplicate;
-use zesk\ORM\Exception_ORMEmpty;
-use zesk\ORM\Exception_ORMNotFound;
-use zesk\ORM\Exception_Store;
-use zesk\ORM\Lock;
-use zesk\ORM\ORMBase;
-use zesk\ORM\Server;
-use zesk\ORM\User;
+use zesk\Locale\Locale;
 use zesk\PHP;
+use zesk\Exception\TimeoutExpired;
 use zesk\Timestamp;
 
 /**
@@ -44,24 +37,24 @@ use zesk\Timestamp;
  * @property User $user
  * @property Timestamp $updated
  */
-class Update extends ORMBase {
+class Update extends Model {
 	/**
 	 * @param Application $application
 	 * @param string $locale
 	 * @param User|null $user
 	 * @return self
-	 * @throws Database_Exception_SQL
-	 * @throws Exception_Class_NotFound
-	 * @throws Exception_Configuration
-	 * @throws Exception_Convert
-	 * @throws Exception_Key
-	 * @throws Exception_Parameter
-	 * @throws Exception_Parse
-	 * @throws Exception_Semantics
-	 * @throws Exception_ORMDuplicate
-	 * @throws Exception_ORMEmpty
-	 * @throws Exception_ORMNotFound
-	 * @throws Exception_Store
+	 * @throws SQLException
+	 * @throws ClassNotFound
+	 * @throws ConfigurationException
+	 * @throws ParseException
+	 * @throws KeyNotFound
+	 * @throws ParameterException
+	 * @throws ParseException
+	 * @throws SemanticsException
+	 * @throws ORMDuplicate
+	 * @throws ORMEmpty
+	 * @throws ORMNotFound
+	 * @throws StoreException
 	 */
 	public static function registerUpdate(Application $application, string $locale, User $user = null): self {
 		$object = $application->ormFactory(__CLASS__, [
@@ -71,7 +64,7 @@ class Update extends ORMBase {
 
 		try {
 			$object->fetch();
-		} catch (Exception_ORMNotFound) {
+		} catch (ORMNotFound) {
 			$object->user = $user;
 		}
 		$object->updated = 'now';
@@ -80,19 +73,24 @@ class Update extends ORMBase {
 
 	/**
 	 *
+	 */
+	public const HOOK_UPDATE = __CLASS__ . '::update';
+
+	/**
+	 *
 	 * @param Application $application
-	 * @throws Database_Exception_SQL
-	 * @throws Exception_Class_NotFound
-	 * @throws Exception_Configuration
-	 * @throws Exception_Convert
-	 * @throws Exception_Key
-	 * @throws Exception_NotFound
-	 * @throws Exception_ORMNotFound
-	 * @throws Exception_Parameter
-	 * @throws Exception_Parse
-	 * @throws Exception_Semantics
-	 * @throws Exception_Timeout
-	 * @throws Exception_ORMEmpty
+	 * @throws SQLException
+	 * @throws ClassNotFound
+	 * @throws ConfigurationException
+	 * @throws ParseException
+	 * @throws KeyNotFound
+	 * @throws NotFoundException
+	 * @throws ORMNotFound
+	 * @throws ParameterException
+	 * @throws ParseException
+	 * @throws SemanticsException
+	 * @throws TimeoutExpired
+	 * @throws ORMEmpty
 	 */
 	public static function cron_minute(Application $application): void {
 		$server = Server::singleton($application);
@@ -100,7 +98,7 @@ class Update extends ORMBase {
 			Module::class, 'update_path',
 		], $application->path('etc/language'));
 		if (!is_dir($path)) {
-			$application->logger->warning(Module::class . '::update_path is not a directory ({path}) on {server}', [
+			$application->warning(Module::class . '::update_path is not a directory ({path}) on {server}', [
 				'path' => $path, 'server' => $server->name,
 			]);
 			return;
@@ -109,7 +107,7 @@ class Update extends ORMBase {
 
 		try {
 			$lock->acquire();
-		} catch (Exception_Timeout) {
+		} catch (TimeoutExpired) {
 			return;
 		}
 		$server_variable_name = __CLASS__ . '::last_update';
@@ -125,7 +123,7 @@ class Update extends ORMBase {
 			$update_locales = $application->ormRegistry(__CLASS__)->querySelect()->addWhat('locale', 'locale')->toArray(null, 'locale');
 		}
 		if (count($update_locales) === 0) {
-			$application->logger->debug('No locale updates needed on {server}', [
+			$application->debug('No locale updates needed on {server}', [
 				'server' => $server->name,
 			]);
 			$lock->release();
@@ -133,7 +131,7 @@ class Update extends ORMBase {
 		}
 		$additional_locales = [];
 		foreach ($update_locales as $update_locale) {
-			$dialect = Locale::parse_dialect($update_locale);
+			$dialect = Locale::parseDialect($update_locale);
 			if (!$dialect) {
 				$expanded_locales = $application->ormRegistry(Token::class)->querySelect()->setDistinct()->addWhat('*locale', 'CONCAT(language,\'_\',dialect)')->appendWhere([
 					'language' => $update_locale, [
@@ -147,7 +145,7 @@ class Update extends ORMBase {
 		}
 		$update_locales = array_merge($update_locales, $additional_locales);
 		$update_locales = array_unique($update_locales);
-		$application->logger->warning('Updating locales {locales} on {server}', [
+		$application->warning('Updating locales {locales} on {server}', [
 			'locales' => $update_locales, 'server' => $server->name,
 		]);
 		$success = true;
@@ -158,7 +156,7 @@ class Update extends ORMBase {
 				self::updateLocale($application, $path, $update_locale);
 				$application->ormRegistry(__CLASS__)->queryUpdate()->value('updated', Timestamp::now())->addWhere('locale', $update_locale)->execute();
 			} catch (Throwable $e) {
-				$application->logger->error('Updating locale {locale} on {server} FAILED due to {message}', [
+				$application->error('Updating locale {locale} on {server} FAILED due to {message}', [
 					'locales' => $update_locales, 'server' => $server->name, 'message' => $e->getMessage(),
 				]);
 				$success = false;
@@ -168,7 +166,7 @@ class Update extends ORMBase {
 			$server->setMeta($server_variable_name, time());
 		}
 		$lock->release();
-		$application->callHook('polyglot_update');
+		$application->invokeHooks(self::HOOK_UPDATE);
 	}
 
 	/**
@@ -177,11 +175,11 @@ class Update extends ORMBase {
 	 * @param string $filename
 	 * @param string $original
 	 * @param string $translation
-	 * @throws Exception_FileSystem
+	 * @throws FileSystemException
 	 */
 	private static function writeTranslationLine(mixed $f, string $filename, string $original, string $translation): void {
 		if (!fwrite($f, '$tt[' . PHP::dump($original) . '] = ' . PHP::dump($translation) . ";\n")) {
-			throw new Exception_FileSystem($filename, 'Unable to write to {filename}');
+			throw new FileSystemException($filename, 'Unable to write to {filename}');
 		}
 	}
 
@@ -191,24 +189,24 @@ class Update extends ORMBase {
 	 * @param string $path
 	 * @param string $locale
 	 * @return void
-	 * @throws Exception_FileSystem
-	 * @throws Exception_File_Locked
-	 * @throws Exception_File_NotFound
-	 * @throws Exception_File_Permission
-	 * @throws Exception_ORMNotFound
+	 * @throws FileSystemException
+	 * @throws FileLocked
+	 * @throws FileNotFound
+	 * @throws FilePermission
+	 * @throws ORMNotFound
 	 */
 	public static function updateLocale(Application $application, string $path, string $locale): void {
 		$iterator = Token::localeQuery($application, $locale)->addWhere('status', Token::STATUS_DONE)->setOrderBy([
 			'updated DESC', 'original',
 		])->iterator('original', 'translation');
 
-		$target_file = path($path, "$locale.inc");
+		$target_file = Directory::path($path, "$locale.inc");
 
 		$pid = $application->process->id();
-		$temp_file = path($path, "$locale.inc.$pid");
+		$temp_file = Directory::path($path, "$locale.inc.$pid");
 		$f = fopen($temp_file, 'wb');
 		if (!$f) {
-			throw new Exception_File_Permission($temp_file, 'Unable to open {filename} for writing');
+			throw new FilePermission($temp_file, 'Unable to open {filename} for writing');
 		}
 		fwrite($f, "<?php\n\n// This file was automatically generated on " . date('Y-m-d H:i:s') . ' by ' . __METHOD__ . "\n\n\$tt = array();\n");
 		$original_tt = [];

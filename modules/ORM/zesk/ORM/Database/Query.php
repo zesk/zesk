@@ -1,6 +1,5 @@
 <?php
 declare(strict_types=1);
-
 /**
  * @package zesk
  * @subpackage database
@@ -8,23 +7,27 @@ declare(strict_types=1);
  * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  */
 
-namespace zesk\ORM;
+namespace zesk\ORM\Database;
 
 use zesk\Application;
-use zesk\Exception_Class_NotFound;
-use zesk\Exception_NotFound;
+use zesk\Database\Base;
+use zesk\Database\SQLDialect;
+use zesk\Database\SQLParser;
+use zesk\Exception\ClassNotFound;
+use zesk\Exception\NotFoundException;
+use zesk\Exception\Semantics;
+use zesk\Interface\MemberModelFactory;
+use zesk\Kernel;
 use zesk\Model;
-use zesk\Database;
-use zesk\Interface_Member_Model_Factory;
-use zesk\Database_SQL;
-use zesk\Database_Parser;
+use zesk\ORM\Class_Base;
+use zesk\ORM\ORMBase;
 
 /**
  *
  * @author kent
  *
  */
-class Database_Query {
+class Query {
 	/**
 	 *
 	 * @var Application
@@ -41,9 +44,9 @@ class Database_Query {
 	/**
 	 * Database
 	 *
-	 * @var Database
+	 * @var Base
 	 */
-	protected Database $db;
+	protected Base $db;
 
 	/**
 	 * Database code
@@ -68,17 +71,17 @@ class Database_Query {
 
 	/**
 	 *
-	 * @var Interface_Member_Model_Factory
+	 * @var MemberModelFactory
 	 */
-	protected Interface_Member_Model_Factory $factory;
+	protected MemberModelFactory $factory;
 
 	/**
 	 * Create a new query
 	 *
 	 * @param string $type
-	 * @param Database $db
+	 * @param Base $db
 	 */
-	public function __construct(string $type, Database $db) {
+	public function __construct(string $type, Base $db) {
 		$this->db = $db;
 		$this->application = $db->application;
 		$this->factory = $this->application;
@@ -91,10 +94,10 @@ class Database_Query {
 	/**
 	 * Set the object which creates other objects
 	 *
-	 * @param Interface_Member_Model_Factory $factory
+	 * @param MemberModelFactory $factory
 	 * @return self
 	 */
-	public function setFactory(Interface_Member_Model_Factory $factory): self {
+	public function setFactory(MemberModelFactory $factory): self {
 		$this->factory = $factory;
 		return $this;
 	}
@@ -108,19 +111,21 @@ class Database_Query {
 	}
 
 	/**
+	 * @return void
+	 * @throws Semantics
 	 */
 	public function __wakeup(): void {
 		// Reconnect upon wakeup
-		$this->application = __wakeup_application();
+		$this->application = Kernel::wakeupApplication();
 		$this->db = $this->application->databaseRegistry($this->dbname);
 	}
 
 	/**
 	 *
-	 * @param Database_Query $from
-	 * @return Database_Query
+	 * @param Query $from
+	 * @return Query
 	 */
-	protected function _copy_from_query(Database_Query $from): self {
+	protected function _copy_from_query(Query $from): self {
 		$this->type = $from->type;
 		$this->db = $from->db;
 		$this->dbname = $from->dbname;
@@ -139,9 +144,9 @@ class Database_Query {
 
 	/**
 	 *
-	 * @return Database
+	 * @return Base
 	 */
-	public function database(): Database {
+	public function database(): Base {
 		return $this->db;
 	}
 
@@ -155,18 +160,18 @@ class Database_Query {
 
 	/**
 	 *
-	 * @return Database_SQL
+	 * @return SQLDialect
 	 */
-	public function sql(): Database_SQL {
-		return $this->db->sql();
+	public function sql(): SQLDialect {
+		return $this->db->sqlDialect();
 	}
 
 	/**
 	 *
-	 * @return Database_Parser
+	 * @return SQLParser
 	 */
-	public function parser(): Database_Parser {
-		return $this->db->parser();
+	public function parser(): SQLParser {
+		return $this->db->sqlParser();
 	}
 
 	/**
@@ -182,7 +187,7 @@ class Database_Query {
 	 * Set or get a class associated with this query
 	 *
 	 * @param string $class
-	 * @return Database_Query string
+	 * @return Query string
 	 */
 	public function setORMClass(string $class): self {
 		$this->class = $class;
@@ -225,10 +230,26 @@ class Database_Query {
 	 * @param mixed $mixed
 	 * @param array $options
 	 * @return Model
-	 * @throws Exception_NotFound
+	 * @throws NotFoundException|ClassNotFound
 	 */
 	public function memberModelFactory(string $member, string $class, mixed $mixed = null, array $options = []): Model {
 		return $this->factory->memberModelFactory($member, $class, $mixed, $options);
+	}
+
+	/**
+	 * Create objects in the current application context
+	 *
+	 * @param string $member
+	 * @param string $class
+	 * @param mixed $mixed
+	 * @param array $options
+	 * @return ORMBase
+	 * @throws NotFoundException|ClassNotFound
+	 */
+	public function memberORMFactory(string $member, string $class, mixed $mixed = null, array $options = []): ORMBase {
+		$result = $this->factory->memberModelFactory($member, $class, $mixed, $options);
+		assert($result instanceof ORMBase);
+		return $result;
 	}
 
 	/**

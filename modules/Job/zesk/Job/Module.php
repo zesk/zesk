@@ -1,24 +1,40 @@
-<?php declare(strict_types=1);
-
+<?php
+declare(strict_types=1);
 /**
  *
  */
+
 namespace zesk\Job;
 
-use zesk\Exception_Unimplemented;
+use Throwable;
+use zesk\Application;
+use zesk\Daemon\Attributes\DaemonMethod;
+use zesk\Exception\ClassNotFound;
+use zesk\Exception\ConfigurationException;
+use zesk\Exception\KeyNotFound;
+use zesk\Exception\ParameterException;
+use zesk\Exception\ParseException;
+use zesk\Exception\SemanticsException;
+use zesk\Exception\UnimplementedException;
+use zesk\HookMethod;
+use zesk\Interface\Module\Routes;
+use zesk\Interface\SystemProcess;
 use zesk\PHP;
 use zesk\Router;
-use zesk\Interface_Process;
 use zesk\MockProcess;
 use zesk\Module as BaseModule;
-use zesk\Interface_Module_Routes;
 
 /**
  * Job module for running background jobs in a somewhat reliable manner
  *
  * @author kent
  */
-class Module extends BaseModule implements Interface_Module_Routes {
+class Module extends BaseModule implements Routes {
+	/**
+	 * Call a method to wait for a job to be delivered instead of polling the database (default) every n seconds.
+	 */
+	public const HOOK_WAIT_FOR_JOB = __CLASS__ . '::waitForJob';
+
 	/**
 	 *
 	 * @var array
@@ -36,8 +52,8 @@ class Module extends BaseModule implements Interface_Module_Routes {
 
 		try {
 			PHP::setFeature(PHP::FEATURE_TIME_LIMIT, $quit_after);
-		} catch (Exception_Unimplemented $e) {
-			$this->application->logger->debug(PHP::FEATURE_TIME_LIMIT . ' reported as {message}', $e->variables());
+		} catch (UnimplementedException $e) {
+			$this->application->debug(PHP::FEATURE_TIME_LIMIT . ' reported as {message}', $e->variables());
 		}
 		$process = new MockProcess($application, [
 			'quit_after' => $quit_after,
@@ -48,23 +64,28 @@ class Module extends BaseModule implements Interface_Module_Routes {
 	/**
 	 * Run daemon
 	 *
-	 * @param Interface_Process $process
+	 * @param SystemProcess $process
+	 * @throws Throwable
+	 * @throws ClassNotFound
+	 * @throws ConfigurationException
+	 * @throws KeyNotFound
+	 * @throws ParameterException
+	 * @throws ParseException
+	 * @throws SemanticsException
 	 */
-	private function runDaemon(Interface_Process $process): void {
-		$has_hook = $this->hasHook('wait_for_job');
+	private function runDaemon(SystemProcess $process): void {
 		$seconds = $this->option('execute_jobs_wait', 10);
 		$app = $process->application();
-		if (!$has_hook) {
-			$app->logger->debug('No hook exists for wait_for_job, sleeping interval is {seconds} seconds', compact('seconds'));
+		$hasHooks = $this->hasHooks(self::HOOK_WAIT_FOR_JOB);
+		if (!$hasHooks) {
+			$app->debug('No hook exists for wait_for_job, sleeping interval is {seconds} seconds', compact('seconds'));
 		}
 
-		declare(ticks = 1) {
+		declare(ticks=1) {
 			while (!$process->done()) {
 				Job::executeJobs($process);
-				if ($has_hook) {
-					$this->callHookArguments('wait_for_job', [
-						$process,
-					]);
+				if ($hasHooks) {
+					$this->invokeHooks(self::HOOK_WAIT_FOR_JOB, [$process, $this]);
 					$process->sleep(0);
 				} else {
 					$process->sleep($seconds);
@@ -76,9 +97,18 @@ class Module extends BaseModule implements Interface_Module_Routes {
 	/**
 	 * Daemon hook
 	 *
-	 * @param Interface_Process $process
+	 * @param SystemProcess $process
+	 * @throws ClassNotFound
+	 * @throws ConfigurationException
+	 * @throws KeyNotFound
+	 * @throws ParameterException
+	 * @throws ParseException
+	 * @throws SemanticsException
+	 * @throws Throwable
+	 * @see self::daemon()
 	 */
-	public static function daemon(Interface_Process $process): void {
+	#[DaemonMethod]
+	public static function daemon(SystemProcess $process): void {
 		$application = $process->application();
 		$module = $application->jobModule();
 		$module->runDaemon($process);
@@ -87,20 +117,18 @@ class Module extends BaseModule implements Interface_Module_Routes {
 	/**
 	 * Add routes to Router
 	 **
-	 * @see Interface_Module_Routes::hook_routes()
+	 * @see Routes::hook_routes()
 	 */
+	#[HookMethod(handles: Application::HOOK_ROUTER)]
 	public function hook_routes(Router $router): void {
-		$router->addRoute('job/{zesk\\Job job}(/{option action})', [
-			'controller' => Controller::class,
-			'arguments' => [
+		$router->addRoute('job/{' . Job::class . ' job}(/{option action})', [
+			'controller' => Controller::class, 'arguments' => [
 				1,
-			],
-			'module' => $this->codeName(),
+			], 'module' => $this->codeName(),
 		]);
 		if ($this->application->development() && !$this->optionBool('skip_route_job_execute')) {
 			$router->addRoute('job-execute', [
-				'method' => $this->mockDaemon(...),
-				'module' => $this->codeName(),
+				'method' => $this->mockDaemon(...), 'module' => $this->codeName(),
 			]);
 		}
 	}

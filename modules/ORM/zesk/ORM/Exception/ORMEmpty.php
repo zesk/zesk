@@ -1,13 +1,16 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  *
  */
-namespace zesk\ORM;
+namespace zesk\ORM\Exception;
+
+use zesk\ORM\Exception;
 
 /**
  *
  * @author kent
  *
  */
-class Exception_ORMEmpty extends Exception {
+class ORMEmpty extends Exception {
 }

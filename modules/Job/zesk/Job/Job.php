@@ -1,6 +1,5 @@
 <?php
 declare(strict_types=1);
-
 /**
  *
  */
@@ -10,34 +9,35 @@ namespace zesk\Job;
 use Throwable;
 use zesk\Application;
 use zesk\ArrayTools;
-use zesk\Database_Exception_Duplicate;
-use zesk\Database_Exception_NoResults;
-use zesk\Database_Exception_SQL;
-use zesk\Database_Exception_Table_NotFound;
+use zesk\Database\Exception\Duplicate;
+use zesk\Database\Exception\NoResults;
+use zesk\Database\Exception\SQLException;
+use zesk\Database\Exception\TableNotFound;
+use zesk\Debug;
 use zesk\Exception;
-use zesk\Exception_Class_NotFound;
-use zesk\Exception_Configuration;
-use zesk\Exception_Convert;
-use zesk\Exception_Deprecated;
-use zesk\Exception_Interrupt;
-use zesk\Exception_Key;
-use zesk\Exception_NotFound;
-use zesk\Exception_Parameter;
-use zesk\Exception_Parse;
-use zesk\Exception_Semantics;
-use zesk\Interface_Process;
-use zesk\Interface_Progress;
+use zesk\Exception\ClassNotFound;
+use zesk\Exception\ConfigurationException;
+use zesk\Exception\KeyNotFound;
+use zesk\Exception\NotFoundException;
+use zesk\Exception\ParameterException;
+use zesk\Exception\ParseException;
+use zesk\Exception\SemanticsException;
+use zesk\Interface\ProgressStack;
+use zesk\Interface\SystemProcess;
+use zesk\Exception\InterruptException;
 use zesk\MockProcess;
-use zesk\ORM\Exception_ORMDuplicate;
-use zesk\ORM\Exception_ORMEmpty;
-use zesk\ORM\Exception_ORMNotFound;
-use zesk\ORM\Exception_Store;
 use zesk\ORM\ORMBase;
+use zesk\ORM\Exception\ORMDuplicate;
+use zesk\ORM\Exception\ORMEmpty;
+use zesk\ORM\Exception\ORMNotFound;
 use zesk\ORM\Server;
+use zesk\ORM\Exception\StoreException;
 use zesk\ORM\User;
 use zesk\SQLite3\Module;
+use zesk\StringTools;
 use zesk\Timer;
 use zesk\Timestamp;
+use zesk\Types;
 
 /**
  *
@@ -62,7 +62,7 @@ use zesk\Timestamp;
  * @property array $data
  * @property string $status
  */
-class Job extends ORMBase implements Interface_Process, Interface_Progress {
+class Job extends ORMBase implements SystemProcess, ProgressStack {
 	public const OPTION_RETRY_ATTEMPTS = 'retryAttempts';
 
 	/**
@@ -90,14 +90,14 @@ class Job extends ORMBase implements Interface_Process, Interface_Progress {
 
 	/**
 	 *
-	 * @var null|Interface_Process
+	 * @var null|SystemProcess
 	 */
-	private null|Interface_Process $process = null;
+	private null|SystemProcess $process = null;
 
 	/**
 	 * @param Application $set
 	 * @return $this
-	 * @see Interface_Process::setApplication()
+	 * @see SystemProcess::setApplication()
 	 */
 	public function setApplication(Application $set): self {
 		$this->application = $set;
@@ -132,25 +132,25 @@ class Job extends ORMBase implements Interface_Process, Interface_Progress {
 	 * @param array $arguments Additional arguments to pass to the hook.
 	 * @param int $priority Numeric priority between 0 and 255.
 	 * @return self
-	 * @throws Database_Exception_SQL
-	 * @throws Exception_Class_NotFound
-	 * @throws Exception_Configuration
-	 * @throws Exception_Convert
-	 * @throws Exception_Key
-	 * @throws Exception_ORMDuplicate
-	 * @throws Exception_ORMEmpty
-	 * @throws Exception_ORMNotFound
-	 * @throws Exception_Parameter
-	 * @throws Exception_Parse
-	 * @throws Exception_Semantics
-	 * @throws Exception_Store
+	 * @throws SQLException
+	 * @throws ClassNotFound
+	 * @throws ConfigurationException
+	 * @throws ParseException
+	 * @throws KeyNotFound
+	 * @throws ORMDuplicate
+	 * @throws ORMEmpty
+	 * @throws ORMNotFound
+	 * @throws ParameterException
+	 * @throws ParseException
+	 * @throws SemanticsException
+	 * @throws StoreException
 	 * @see Modue_Job::daemon
 	 */
 	public static function instance(Application $application, string $name, string $code, string $hook, array $arguments = [], int $priority = self::PRIORITY_NORMAL): self {
-		$hookCall = pair($hook, '::');
+		$hookCall = StringTools::pair($hook, '::');
 		if (!is_callable($hookCall)) {
-			throw new Exception_Semantics('{hook} is not callable', [
-				'hook' => _dump($hook),
+			throw new SemanticsException('{hook} is not callable', [
+				'hook' => Debug::dump($hook),
 			]);
 		}
 		$members = [
@@ -166,21 +166,21 @@ class Job extends ORMBase implements Interface_Process, Interface_Progress {
 	 * @param Application $application
 	 * @param int $id
 	 * @param array $options
-	 * @return Interface_Process
-	 * @throws Database_Exception_SQL
-	 * @throws Exception_Class_NotFound
-	 * @throws Exception_Configuration
-	 * @throws Exception_Convert
-	 * @throws Exception_Key
-	 * @throws Exception_NotFound
-	 * @throws Exception_ORMEmpty
-	 * @throws Exception_ORMNotFound
-	 * @throws Exception_Parameter
-	 * @throws Exception_Parse
-	 * @throws Exception_Semantics
+	 * @return SystemProcess
+	 * @throws SQLException
+	 * @throws ClassNotFound
+	 * @throws ConfigurationException
+	 * @throws ParseException
+	 * @throws KeyNotFound
+	 * @throws NotFoundException
+	 * @throws ORMEmpty
+	 * @throws ORMNotFound
+	 * @throws ParameterException
+	 * @throws ParseException
+	 * @throws SemanticsException
 	 * @throws Throwable
 	 */
-	public static function mockRun(Application $application, int $id, array $options = []): Interface_Process {
+	public static function mockRun(Application $application, int $id, array $options = []): SystemProcess {
 		/* @var $job Job */
 		$job = $application->ormFactory(__CLASS__, $id)->fetch();
 		$process = new MockProcess($application, $options);
@@ -192,10 +192,10 @@ class Job extends ORMBase implements Interface_Process, Interface_Progress {
 	 * Getter/setter for Priority
 	 *
 	 * @return int
-	 * @throws Exception_Convert
-	 * @throws Exception_Key
-	 * @throws Exception_ORMEmpty
-	 * @throws Exception_ORMNotFound
+	 * @throws ParseException
+	 * @throws KeyNotFound
+	 * @throws ORMEmpty
+	 * @throws ORMNotFound
 	 */
 	public function priority(): int {
 		return $this->memberInteger('priority');
@@ -235,13 +235,13 @@ class Job extends ORMBase implements Interface_Process, Interface_Progress {
 	 * Return milliseconds.
 	 *
 	 * @return mixed
-	 * @throws Database_Exception_Duplicate
-	 * @throws Database_Exception_NoResults
-	 * @throws Database_Exception_Table_NotFound
-	 * @throws Exception_Key
+	 * @throws Duplicate
+	 * @throws NoResults
+	 * @throws TableNotFound
+	 * @throws KeyNotFound
 	 */
 	public function refreshInterval(): int {
-		$value = $this->sql()->function_date_diff($this->sql()->nowUTC(), 'updated');
+		$value = $this->sql()->functionDateDifference($this->sql()->nowUTC(), 'updated');
 		$n_seconds = $this->querySelect()->addWhat('*delta', $value)->integer('delta');
 		$mag = 1;
 		while ($n_seconds > $mag) {
@@ -262,7 +262,7 @@ class Job extends ORMBase implements Interface_Process, Interface_Progress {
 	/**
 	 * Support application context
 	 *
-	 * @see Interface_Process::application()
+	 * @see SystemProcess::application()
 	 */
 	public function application(): Application {
 		return $this->application;
@@ -274,18 +274,18 @@ class Job extends ORMBase implements Interface_Process, Interface_Progress {
 	 *
 	 * @param null|string|int|Timestamp $when
 	 * @return self
-	 * @throws Database_Exception_SQL
-	 * @throws Exception_Class_NotFound
-	 * @throws Exception_Configuration
-	 * @throws Exception_Convert
-	 * @throws Exception_Key
-	 * @throws Exception_ORMDuplicate
-	 * @throws Exception_ORMEmpty
-	 * @throws Exception_ORMNotFound
-	 * @throws Exception_Parameter
-	 * @throws Exception_Parse
-	 * @throws Exception_Semantics
-	 * @throws Exception_Store
+	 * @throws SQLException
+	 * @throws ClassNotFound
+	 * @throws ConfigurationException
+	 * @throws ParseException
+	 * @throws KeyNotFound
+	 * @throws ORMDuplicate
+	 * @throws ORMEmpty
+	 * @throws ORMNotFound
+	 * @throws ParameterException
+	 * @throws ParseException
+	 * @throws SemanticsException
+	 * @throws StoreException
 	 */
 	public function start(null|string|int|Timestamp $when = null): self {
 		if ($when === null) {
@@ -302,28 +302,26 @@ class Job extends ORMBase implements Interface_Process, Interface_Progress {
 	/**
 	 * Run jobs as part of a process
 	 *
-	 * @param Interface_Process $process
+	 * @param SystemProcess $process
 	 * @return int
-	 * @throws Database_Exception_Duplicate
-	 * @throws Database_Exception_NoResults
-	 * @throws Database_Exception_SQL
-	 * @throws Database_Exception_Table_NotFound
-	 * @throws Exception_Class_NotFound
-	 * @throws Exception_Configuration
-	 * @throws Exception_Convert
-	 * @throws Exception_Key
-	 * @throws Exception_NotFound
-	 * @throws Exception_ORMEmpty
-	 * @throws Exception_ORMNotFound
-	 * @throws Exception_Parameter
-	 * @throws Exception_Parse
-	 * @throws Exception_Semantics
+	 * @throws Duplicate
+	 * @throws NoResults
+	 * @throws SQLException
+	 * @throws TableNotFound
+	 * @throws ClassNotFound
+	 * @throws ConfigurationException
+	 * @throws ParseException
+	 * @throws KeyNotFound
+	 * @throws ORMEmpty
+	 * @throws ORMNotFound
+	 * @throws ParameterException
+	 * @throws ParseException
+	 * @throws SemanticsException
 	 * @throws Throwable
-	 * @throws Exception_Deprecated
 	 */
-	public static function executeJobs(Interface_Process $process): int {
+	public static function executeJobs(SystemProcess $process): int {
 		$application = $process->application();
-		$logger = $application->logger;
+		$logger = $application->logger();
 
 		$server = Server::singleton($application);
 		$pid = getmypid();
@@ -367,7 +365,7 @@ class Job extends ORMBase implements Interface_Process, Interface_Progress {
 					'pid' => null, 'id' => $job->id(),
 				])->execute();
 				// Race condition if we crash before this executes
-				if (!toBool($application->ormFactory(__CLASS__)->querySelect()->addWhat('*X', 'COUNT(id)')->appendWhere($server_pid)->addWhere('id', $job->id())->integer('X'))) {
+				if (!Types::toBool($application->ormFactory(__CLASS__)->querySelect()->addWhat('*X', 'COUNT(id)')->appendWhere($server_pid)->addWhere('id', $job->id())->integer('X'))) {
 					// Someone else grabbed it.
 					continue;
 				}
@@ -381,13 +379,13 @@ class Job extends ORMBase implements Interface_Process, Interface_Progress {
 
 					try {
 						$job->execute($process);
-					} catch (\Exception $e) {
+					} catch (Throwable $e) {
 						$job->setData('execute_exception', ArrayTools::flatten(Exception::exceptionVariables($e)));
 						$job->died(); // Stops permanently
 					}
 					$job->release();
 					$jobs++;
-				} catch (Exception_ORMNotFound) {
+				} catch (ORMNotFound) {
 					$found_job = false;
 				}
 				self::cleanDeadProcessIDs($application, $server);
@@ -415,18 +413,18 @@ class Job extends ORMBase implements Interface_Process, Interface_Progress {
 	 *
 	 * @param Application $application
 	 * @param Server $server
-	 * @throws Database_Exception_Duplicate
-	 * @throws Database_Exception_NoResults
-	 * @throws Database_Exception_Table_NotFound
-	 * @throws Exception_Key
-	 * @throws Exception_Semantics
+	 * @throws Duplicate
+	 * @throws NoResults
+	 * @throws TableNotFound
+	 * @throws KeyNotFound
+	 * @throws SemanticsException|SQLException
 	 */
 	private static function cleanDeadProcessIDs(Application $application, Server $server): void {
 		foreach ($application->ormRegistry(__CLASS__)->querySelect()->addWhat('pid', 'pid')->addWhat('id', 'id')->appendWhere([
 			'pid|!=' => null, 'server' => $server,
 		])->toArray('id', 'pid') as $id => $pid) {
 			if (!$application->process->alive($pid)) {
-				$application->logger->debug('Removing stale PID {pid} from Job # {id}', compact('pid', 'id'));
+				$application->debug('Removing stale PID {pid} from Job # {id}', compact('pid', 'id'));
 				$application->ormRegistry(__CLASS__)->queryUpdate()->setValues([
 					'pid' => null, 'server' => null, '*died' => 'died+1',
 				])->addWhere('id', $id)->execute();
@@ -435,33 +433,33 @@ class Job extends ORMBase implements Interface_Process, Interface_Progress {
 	}
 
 	/**
-	 * @param Interface_Process $process
+	 * @param SystemProcess $process
 	 * @return void
-	 * @throws Database_Exception_Duplicate
-	 * @throws Database_Exception_NoResults
-	 * @throws Database_Exception_Table_NotFound
-	 * @throws Exception_Class_NotFound
-	 * @throws Exception_Key
-	 * @throws Exception_ORMEmpty
-	 * @throws Exception_Semantics
+	 * @throws Duplicate
+	 * @throws NoResults
+	 * @throws TableNotFound
+	 * @throws ClassNotFound
+	 * @throws KeyNotFound
+	 * @throws ORMEmpty
+	 * @throws SemanticsException
 	 * @throws Throwable
 	 */
-	public function execute(Interface_Process $process): void {
+	public function execute(SystemProcess $process): void {
 		$this->process = $process;
 
 		$timer = new Timer();
 
 		try {
-			[$class, $method] = pair($this->hook, '::', '', $this->hook);
+			[$class, $method] = StringTools::pair($this->hook, '::', '', $this->hook);
 			if ($class && !class_exists($class)) {
-				throw new Exception_Class_NotFound($class);
+				throw new ClassNotFound($class);
 			}
 			$this->callHook('execute_before');
 			$result = call_user_func_array([$class, $method], array_merge([
 				$this,
-			], toArray($this->hook_args)));
+			], Types::toArray($this->hook_args)));
 			$this->callHook('execute_after;execute_success', $result);
-		} catch (Exception_Interrupt $e) {
+		} catch (InterruptException $e) {
 			$this->callHook('execute_after;execute_interrupt', $e);
 			$process->terminate();
 			return;
@@ -492,21 +490,21 @@ class Job extends ORMBase implements Interface_Process, Interface_Progress {
 	 * @param string|null $status
 	 * @param float|null $percent
 	 * @return void
-	 * @throws Exception_Interrupt
-	 * @throws Exception_ORMEmpty
-	 * @throws Exception_Semantics
-	 * @throws Database_Exception_Duplicate
-	 * @throws Database_Exception_NoResults
-	 * @throws Database_Exception_Table_NotFound
-	 * @throws Exception_Key
-	 * @see Interface_Progress::progress()
+	 * @throws InterruptException
+	 * @throws ORMEmpty
+	 * @throws SemanticsException
+	 * @throws Duplicate
+	 * @throws NoResults
+	 * @throws TableNotFound
+	 * @throws KeyNotFound
+	 * @see ProgressStack::progress()
 	 */
 	public function progress(string $status = null, float $percent = null): void {
 		if ($this->process && $this->process->done()) {
-			throw new Exception_Interrupt();
+			throw new InterruptException();
 		}
 		$query = $this->queryUpdate()->setValues([
-			'*updated' => $this->database()->sql()->nowUTC(),
+			'*updated' => $this->database()->sqlDialect()->nowUTC(),
 		])->addWhere('id', $this->id());
 		if (is_numeric($percent)) {
 			$query->value('progress', $percent);
@@ -524,18 +522,18 @@ class Job extends ORMBase implements Interface_Process, Interface_Progress {
 	 *
 	 * @param int $exitCode
 	 * @return self
-	 * @throws Database_Exception_SQL
-	 * @throws Exception_Class_NotFound
-	 * @throws Exception_Configuration
-	 * @throws Exception_Convert
-	 * @throws Exception_Key
-	 * @throws Exception_ORMDuplicate
-	 * @throws Exception_ORMEmpty
-	 * @throws Exception_ORMNotFound
-	 * @throws Exception_Parameter
-	 * @throws Exception_Parse
-	 * @throws Exception_Semantics
-	 * @throws Exception_Store
+	 * @throws SQLException
+	 * @throws ClassNotFound
+	 * @throws ConfigurationException
+	 * @throws ParseException
+	 * @throws KeyNotFound
+	 * @throws ORMDuplicate
+	 * @throws ORMEmpty
+	 * @throws ORMNotFound
+	 * @throws ParameterException
+	 * @throws ParseException
+	 * @throws SemanticsException
+	 * @throws StoreException
 	 */
 	public function setCompleted(int $exitCode): self {
 		$this->completed = Timestamp::now();
@@ -566,18 +564,18 @@ class Job extends ORMBase implements Interface_Process, Interface_Progress {
 	 * All's well that ends well.
 	 *
 	 * @return self
-	 * @throws Exception_Class_NotFound
-	 * @throws Exception_Configuration
-	 * @throws Exception_Convert
-	 * @throws Exception_Key
-	 * @throws Exception_ORMDuplicate
-	 * @throws Exception_ORMEmpty
-	 * @throws Exception_ORMNotFound
-	 * @throws Exception_Parameter
-	 * @throws Exception_Parse
-	 * @throws Exception_Semantics
-	 * @throws Exception_Store
-	 * @throws Database_Exception_SQL
+	 * @throws ClassNotFound
+	 * @throws ConfigurationException
+	 * @throws ParseException
+	 * @throws KeyNotFound
+	 * @throws ORMDuplicate
+	 * @throws ORMEmpty
+	 * @throws ORMNotFound
+	 * @throws ParameterException
+	 * @throws ParseException
+	 * @throws SemanticsException
+	 * @throws StoreException
+	 * @throws SQLException
 	 */
 	public function setSucceeded(): self {
 		return $this->setCompleted(0);
@@ -598,10 +596,9 @@ class Job extends ORMBase implements Interface_Process, Interface_Progress {
 	 * @return int
 	 */
 	public static function retryAttempts(Application $application): int {
-		return toInteger($application->configuration->getPath(
-			[self::class, self::OPTION_RETRY_ATTEMPTS],
-			self::DEFAULT_RETRY_ATTEMPTS
-		), self::DEFAULT_RETRY_ATTEMPTS);
+		return Types::toInteger($application->configuration->getPath([
+			self::class, self::OPTION_RETRY_ATTEMPTS,
+		], self::DEFAULT_RETRY_ATTEMPTS), self::DEFAULT_RETRY_ATTEMPTS);
 	}
 
 	/**
@@ -618,18 +615,18 @@ class Job extends ORMBase implements Interface_Process, Interface_Progress {
 	 *
 	 * @param int $exitCode
 	 * @return Job
-	 * @throws Database_Exception_SQL
-	 * @throws Exception_Class_NotFound
-	 * @throws Exception_Configuration
-	 * @throws Exception_Convert
-	 * @throws Exception_Key
-	 * @throws Exception_ORMDuplicate
-	 * @throws Exception_ORMEmpty
-	 * @throws Exception_ORMNotFound
-	 * @throws Exception_Parameter
-	 * @throws Exception_Parse
-	 * @throws Exception_Semantics
-	 * @throws Exception_Store
+	 * @throws SQLException
+	 * @throws ClassNotFound
+	 * @throws ConfigurationException
+	 * @throws ParseException
+	 * @throws KeyNotFound
+	 * @throws ORMDuplicate
+	 * @throws ORMEmpty
+	 * @throws ORMNotFound
+	 * @throws ParameterException
+	 * @throws ParseException
+	 * @throws SemanticsException
+	 * @throws StoreException
 	 */
 	public function died(int $exitCode = 255): self {
 		$this->died = $this->died + 10;
@@ -640,12 +637,12 @@ class Job extends ORMBase implements Interface_Process, Interface_Progress {
 	 * Release the job so others can process
 	 *
 	 * @return void
-	 * @throws Database_Exception_Duplicate
-	 * @throws Database_Exception_NoResults
-	 * @throws Database_Exception_Table_NotFound
-	 * @throws Exception_Key
-	 * @throws Exception_ORMEmpty
-	 * @throws Exception_Semantics
+	 * @throws Duplicate
+	 * @throws NoResults
+	 * @throws TableNotFound
+	 * @throws KeyNotFound
+	 * @throws ORMEmpty
+	 * @throws SemanticsException
 	 */
 	private function release(): void {
 		$this->queryUpdate()->value([
@@ -656,7 +653,7 @@ class Job extends ORMBase implements Interface_Process, Interface_Progress {
 	/**
 	 *
 	 * @return bool
-	 * @see Interface_Process::done()
+	 * @see SystemProcess::done()
 	 */
 	public function done(): bool {
 		return !$this->process || $this->process->done();
@@ -666,7 +663,7 @@ class Job extends ORMBase implements Interface_Process, Interface_Progress {
 	 *
 	 * @param float $seconds
 	 * @return void
-	 * @see Interface_Process::sleep()
+	 * @see SystemProcess::sleep()
 	 */
 	public function sleep(float $seconds = 1.0): void {
 		$this->process?->sleep($seconds);
@@ -674,7 +671,7 @@ class Job extends ORMBase implements Interface_Process, Interface_Progress {
 
 	/**
 	 *
-	 * @see Interface_Process::terminate()
+	 * @see SystemProcess::terminate()
 	 */
 	public function terminate(): void {
 		$this->process?->terminate();
@@ -682,7 +679,7 @@ class Job extends ORMBase implements Interface_Process, Interface_Progress {
 
 	/**
 	 * @return void
-	 * @see Interface_Process::kill()
+	 * @see SystemProcess::kill()
 	 */
 	public function kill(): void {
 		$this->process?->kill();
@@ -690,11 +687,11 @@ class Job extends ORMBase implements Interface_Process, Interface_Progress {
 
 	/**
 	 *
-	 * @see Interface_Process::log()
 	 * @param $message
 	 * @param array $args
 	 * @param $level
 	 * @return void
+	 * @see SystemProcess::log()
 	 */
 	public function log($message, array $args = [], $level = null): void {
 		$this->process?->log($message, $args, $level);
@@ -704,8 +701,8 @@ class Job extends ORMBase implements Interface_Process, Interface_Progress {
 	 * Getter for content
 	 *
 	 * @return array
-	 * @throws Exception_Key
-	 * @throws Exception_ORMNotFound
+	 * @throws KeyNotFound
+	 * @throws ORMNotFound
 	 */
 	public function content(): mixed {
 		return $this->data('content');
@@ -716,8 +713,8 @@ class Job extends ORMBase implements Interface_Process, Interface_Progress {
 	 *
 	 * @param mixed $set
 	 * @return Job
-	 * @throws Exception_Key
-	 * @throws Exception_ORMNotFound
+	 * @throws KeyNotFound
+	 * @throws ORMNotFound
 	 */
 	public function setContent(mixed $set): self {
 		return $this->setData('content', $set);
@@ -729,8 +726,8 @@ class Job extends ORMBase implements Interface_Process, Interface_Progress {
 	 * @param int|string $name
 	 * @param mixed $value
 	 * @return self
-	 * @throws Exception_Key
-	 * @throws Exception_ORMNotFound
+	 * @throws KeyNotFound
+	 * @throws ORMNotFound
 	 */
 	public function setData(int|string $name, mixed $value): self {
 		return $this->setMemberData('data', [$name => $value] + $this->memberData('data'));
@@ -741,8 +738,8 @@ class Job extends ORMBase implements Interface_Process, Interface_Progress {
 	 *
 	 * @param int|string $name
 	 * @return mixed
-	 * @throws Exception_Key
-	 * @throws Exception_ORMNotFound
+	 * @throws KeyNotFound
+	 * @throws ORMNotFound
 	 */
 	public function data(int|string $name): mixed {
 		$data = $this->memberData('data');
@@ -754,8 +751,8 @@ class Job extends ORMBase implements Interface_Process, Interface_Progress {
 	 *
 	 * @param int|string $name
 	 * @return boolean
-	 * @throws Exception_Key
-	 * @throws Exception_ORMNotFound
+	 * @throws KeyNotFound
+	 * @throws ORMNotFound
 	 */
 	public function hasData(int|string $name): bool {
 		return array_key_exists($name, $this->memberData('data'));

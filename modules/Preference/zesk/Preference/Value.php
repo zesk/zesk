@@ -1,6 +1,5 @@
 <?php
 declare(strict_types=1);
-
 /**
  * @version $Id: Preference.php 4555 2017-04-06 18:32:10Z kent $
  * @package zesk
@@ -12,25 +11,20 @@ declare(strict_types=1);
 namespace zesk\Preference;
 
 use Throwable;
-use zesk\Database_Exception_Duplicate;
-use zesk\Database_Exception_NoResults;
-use zesk\Database_Exception_SQL;
-use zesk\Database_Exception_Table_NotFound;
 use zesk\Exception;
-use zesk\Exception_Class_NotFound;
-use zesk\Exception_Configuration;
-use zesk\Exception_Convert;
-use zesk\Exception_Key;
-use zesk\Exception_Parameter;
-use zesk\Exception_Parse;
-use zesk\Exception_Semantics;
-use zesk\Exception_Syntax;
+use zesk\Exception\ClassNotFound;
+use zesk\Exception\ConfigurationException;
+use zesk\Exception\ParameterException;
+use zesk\Exception\ParseException;
+use zesk\Exception\SemanticsException;
+use zesk\Exception\SyntaxException;
+use zesk\Interface\Userlike;
 use zesk\ORM\Database_Query_Select;
-use zesk\ORM\Exception_ORMDuplicate;
-use zesk\ORM\Exception_ORMEmpty;
-use zesk\ORM\Exception_ORMNotFound;
-use zesk\ORM\Exception_Store;
 use zesk\ORM\ORMBase;
+use zesk\ORM\ORMDuplicate;
+use zesk\ORM\ORMEmpty;
+use zesk\ORM\ORMNotFound;
+use zesk\ORM\StoreException;
 use zesk\ORM\User;
 use zesk\PHP;
 
@@ -67,8 +61,8 @@ class Value extends ORMBase {
 
 	/**
 	 * @return mixed
-	 * @throws Exception_Key
-	 * @throws Exception_ORMNotFound
+	 * @throws KeyNotFound
+	 * @throws ORMNotFound
 	 */
 	public function value(): mixed {
 		return $this->member(self::MEMBER_VALUE);
@@ -78,26 +72,26 @@ class Value extends ORMBase {
 	 * Store - check requirements
 	 *
 	 * @return self
-	 * @throws Database_Exception_SQL
-	 * @throws Exception_Configuration
-	 * @throws Exception_Key
-	 * @throws Exception_ORMDuplicate
-	 * @throws Exception_ORMEmpty
-	 * @throws Exception_ORMNotFound
-	 * @throws Exception_Parameter
-	 * @throws Exception_Semantics
-	 * @throws Exception_Store
-	 * @throws Exception_Class_NotFound
-	 * @throws Exception_Convert
-	 * @throws Exception_Parse
+	 * @throws Database\Exception\SQLException
+	 * @throws ConfigurationException
+	 * @throws KeyNotFound
+	 * @throws ORMDuplicate
+	 * @throws ORMEmpty
+	 * @throws ORMNotFound
+	 * @throws ParameterException
+	 * @throws SemanticsException
+	 * @throws StoreException
+	 * @throws ClassNotFound
+	 * @throws ParseException
+	 * @throws ParseException
 	 * @see ORMBase::store()
 	 */
 	public function store(): self {
 		if ($this->memberIsEmpty(self::MEMBER_USER)) {
-			throw new Exception_ORMEmpty('NULL value for user');
+			throw new ORMEmpty('NULL value for user');
 		}
 		if ($this->memberIsEmpty(self::MEMBER_TYPE)) {
-			throw new Exception_ORMEmpty('NULL value for type');
+			throw new ORMEmpty('NULL value for type');
 		}
 		return parent::store();
 	}
@@ -108,8 +102,8 @@ class Value extends ORMBase {
 	 * @param User $user
 	 * @param string $name
 	 * @return Database_Query_Select
-	 * @throws Exception_Semantics
-	 * @throws Exception_Configuration
+	 * @throws SemanticsException
+	 * @throws ConfigurationException
 	 */
 	private static function _valueQuery(User $user, string $name): Database_Query_Select {
 		$preference = $user->application->ormRegistry(self::class);
@@ -137,20 +131,20 @@ class Value extends ORMBase {
 	}
 
 	/**
-	 * @param User $user
+	 * @param Userlike $user
 	 * @param string $name
 	 * @return mixed
-	 * @throws Database_Exception_SQL
-	 * @throws Exception_Configuration
-	 * @throws Exception_Key
-	 * @throws Exception_ORMEmpty
-	 * @throws Exception_ORMNotFound
-	 * @throws Exception_Parameter
-	 * @throws Exception_Semantics
+	 * @throws Database\Exception\SQLException
+	 * @throws ConfigurationException
+	 * @throws KeyNotFound
+	 * @throws ORMEmpty
+	 * @throws ORMNotFound
+	 * @throws ParameterException
+	 * @throws SemanticsException
 	 */
-	public static function userGet(User $user, string $name): mixed {
+	public static function userGet(Userlike $user, string $name): mixed {
 		if (empty($name)) {
-			throw new Exception_Parameter('{method}({user}, {name}, ...) Name is empty', [
+			throw new ParameterException('{method}({user}, {name}, ...) Name is empty', [
 				'method' => __METHOD__, 'user' => $user->id(), 'name' => $name,
 			]);
 		}
@@ -160,8 +154,8 @@ class Value extends ORMBase {
 				self::MEMBER_ID => self::ALIAS_VALUE . '.' . self::MEMBER_ID,
 				'value' => self::ALIAS_VALUE . '.' . self::MEMBER_VALUE,
 			])->one();
-		} catch (Database_Exception_NoResults $e) {
-			throw new Exception_ORMNotFound(self::class, 'No preference {name} for user {id}', [
+		} catch (Database\Exception\NoResults $e) {
+			throw new ORMNotFound(self::class, 'No preference {name} for user {id}', [
 				'id' => $user->id(), 'name' => $name,
 			], $e);
 		}
@@ -170,11 +164,11 @@ class Value extends ORMBase {
 		if ($valueLength >= 4 && $value[1] === ':' && $value[$valueLength - 1] === ';') {
 			try {
 				return PHP::unserialize($value);
-			} catch (Exception_Syntax $e) {
-				$user->application->logger->warning('Invalid serialized PHP: {value}', ['value' => $value]);
+			} catch (SyntaxException $e) {
+				$user->application->warning('Invalid serialized PHP: {value}', ['value' => $value]);
 			}
 		}
-		$user->application->logger->warning('Invalid preference string for {user}: {key}={value} ({valueLength} chars) - deleting ({debug})', [
+		$user->application->warning('Invalid preference string for {user}: {key}={value} ({valueLength} chars) - deleting ({debug})', [
 			'user' => $user, 'key' => $name, 'value' => $value, 'debug' => PHP::dump($row),
 			'valueLength' => $valueLength,
 		]);
@@ -182,25 +176,25 @@ class Value extends ORMBase {
 		try {
 			$user->application->ormRegistry(Value::class)->queryDelete()->addWhere('id', $row[self::MEMBER_ID])->execute();
 		} catch (Throwable $e) {
-			throw new Exception_ORMNotFound(self::class, 'Failed to delete invalid {name} for user {id}', [
+			throw new ORMNotFound(self::class, 'Failed to delete invalid {name} for user {id}', [
 				'id' => $user->id(), 'name' => $name,
 			], $e);
 		}
 
-		throw new Exception_ORMNotFound(self::class, 'Preference {name} not found for user {id}', [
+		throw new ORMNotFound(self::class, 'Preference {name} not found for user {id}', [
 			'id' => $user->id(), 'name' => $name,
 		]);
 	}
 
 	/**
-	 * @param User $user
+	 * @param Userlike $user
 	 * @param array $values
 	 * @return array
-	 * @throws Database_Exception_Table_NotFound
-	 * @throws Exception_ORMDuplicate
-	 * @throws Exception_ORMNotFound
+	 * @throws Database\Exception\TableNotFound
+	 * @throws ORMDuplicate
+	 * @throws ORMNotFound
 	 */
-	public static function userSet(User $user, array $values): array {
+	public static function userSet(Userlike $user, array $values): array {
 		$app = $user->application;
 		$result = [];
 		foreach ($values as $name => $value) {
@@ -216,9 +210,9 @@ class Value extends ORMBase {
 	 * @param Type $type
 	 * @param mixed $value
 	 * @return int
-	 * @throws Database_Exception_Table_NotFound
-	 * @throws Exception_ORMDuplicate
-	 * @throws Exception_ORMNotFound
+	 * @throws Database\Exception\TableNotFound
+	 * @throws ORMDuplicate
+	 * @throws ORMNotFound
 	 */
 	private static function _register(User $user, Type $type, mixed $value): int {
 		$where = [
@@ -238,17 +232,17 @@ class Value extends ORMBase {
 				$app->ormRegistry(__CLASS__)->queryUpdate()->value(self::MEMBER_VALUE, $serializedValue)->addWhere(self::MEMBER_ID, $result[self::MEMBER_ID])->execute();
 				return intval($result[self::MEMBER_ID]);
 			} catch (Exception $e) {
-				throw new Exception_ORMNotFound(__CLASS__, '{exceptionClass} {message} doing update', $e->variables(), $e);
+				throw new ORMNotFound(__CLASS__, '{exceptionClass} {message} doing update', $e->variables(), $e);
 			}
-		} catch (Exception_Key|Database_Exception_NoResults|Database_Exception_Duplicate $error) {
-			$user->application->logger->error($error);
+		} catch (KeyNotFound|Database\Exception\NoResults|Database\Exception\Duplicate $error) {
+			$user->application->error($error);
 
 			try {
 				return $app->ormRegistry(__CLASS__)->queryInsert()->setValues($where + [
 					self::MEMBER_VALUE => $serializedValue,
 				])->id();
 			} catch (Exception $e) {
-				throw new Exception_ORMDuplicate(__CLASS__, '{exceptionClass} {message}', $e->variables(), $e);
+				throw new ORMDuplicate(__CLASS__, '{exceptionClass} {message}', $e->variables(), $e);
 			}
 		}
 	}

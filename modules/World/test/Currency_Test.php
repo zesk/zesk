@@ -7,21 +7,22 @@ use zesk\ORM\ORMUnitTest;
 
 class Currency_Test extends ORMUnitTest {
 	protected array $load_modules = [
-		'World', 'ORM', 'MySQL',
+		'World',
 	];
 
 	public function initialize(): void {
-		$this->application->ormModule()->schema_synchronize(null, [
+		$this->schemaSynchronize([
 			Currency::class,
 		], [
 			'follow' => true,
 		]);
 	}
 
-	public function sampleCountry(): Country {
-		$result = $this->application->ormFactory(Country::class)->register([
+	public static function sampleCountry(): Country {
+		$app = self::app();
+		$result = $app->ormFactory(Country::class, [
 			Country::MEMBER_CODE => 'US', Country::MEMBER_NAME => 'United States',
-		]);
+		])->register();
 		assert($result instanceof Country);
 		return $result;
 	}
@@ -29,11 +30,10 @@ class Currency_Test extends ORMUnitTest {
 	/**
 	 * @return array[]
 	 */
-	public function classes_to_test(): array {
-		$this->setUp();
+	public static function classes_to_test(): array {
 		return [
 			[
-				Currency::class, [Currency::MEMBER_BANK_COUNTRY => $this->sampleCountry()], [],
+				Currency::class, [Currency::MEMBER_BANK_COUNTRY => fn () => self::sampleCountry()], [],
 			],
 		];
 	}
@@ -41,10 +41,12 @@ class Currency_Test extends ORMUnitTest {
 	/**
 	 *
 	 * @param string $class
+	 * @param mixed|null $mixed
 	 * @param array $options
 	 * @dataProvider classes_to_test
 	 */
 	public function test_classes(string $class, mixed $mixed = null, array $options = []): void {
+		$mixed = $this->applyClosures($mixed);
 		$this->assertORMClass($class, $mixed, $options);
 	}
 }

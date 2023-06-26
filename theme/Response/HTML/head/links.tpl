@@ -8,7 +8,9 @@ declare(strict_types=1);
  */
 namespace zesk;
 
-/* @var $this Template */
+use zesk\Locale\Locale;
+
+/* @var $this Theme */
 /* @var $application Application */
 /* @var $locale Locale */
 /* @var $session Session */

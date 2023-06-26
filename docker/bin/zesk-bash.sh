@@ -4,6 +4,8 @@
 #
 test "${BASHRC_DEBUG}" && echo "${BASH_SOURCE[0]}"
 
+err_env=1
+
 [ -f /etc/env.sh ] && set -a && . /etc/env.sh && set +a
 
 # Bash settings for all containers
@@ -17,7 +19,7 @@ container_prompt() {
 }
 
 composer_install() {
-  cd /usr/local/bin/
+  cd /usr/local/bin/ || return $err_env
   php -d allow_url_fopen=On composer-installer.php --filename=composer
 }
 

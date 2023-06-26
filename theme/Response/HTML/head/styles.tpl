@@ -1,4 +1,5 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage theme
@@ -7,15 +8,15 @@
  */
 namespace zesk;
 
-/* @var $this \zesk\Template */
+/* @var $this \zesk\Theme */
 /* @var $application \zesk\Application */
-/* @var $locale \zesk\Locale */
+/* @var $locale \zesk\Locale\Locale */
 /* @var $session \zesk\Session */
 /* @var $router \zesk\Router */
 /* @var $route \zesk\Route */
 /* @var $request \zesk\Request */
 /* @var $response \zesk\Response */
-$styles = to_array($response->html()->styles());
+$styles = toArray($response->html()->styles());
 
 foreach ($styles as $attributes) {
 	$content = $attributes['content'];

@@ -1,14 +1,14 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  *
  */
 
 namespace zesk\Locale;
 
-use zesk\Exception_Class_NotFound;
+use zesk\Exception\ClassNotFound;
 use zesk\HTTP;
 use zesk\JavaScript;
-use zesk\Locale;
 use zesk\Request;
 use zesk\Response;
 
@@ -60,7 +60,7 @@ class Controller extends \zesk\Controller {
 			foreach ($codes as $code) {
 				try {
 					$locales[$code] = Reader::factory($app->localePath(), $code)->locale($app);
-				} catch (Exception_Class_NotFound) {
+				} catch (ClassNotFound) {
 					// pass
 				}
 			}

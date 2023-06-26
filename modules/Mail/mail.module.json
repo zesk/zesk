@@ -1,8 +1,0 @@
-{
-	"name": "Mail Module",
-	"moduleClass": "zesk\\Mail\\Module",
-	"autoload": {
-		"classPrefix": "zesk\\Mail\\"
-	},
-	"copyright": "Copyright &copy; 2023, Market Acumen, Inc."
-}

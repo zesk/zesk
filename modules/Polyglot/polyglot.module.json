@@ -8,6 +8,6 @@
 	"requires": [
 		"Locale",
 		"World",
-		"ORM"
+		"Doctrine"
 	]
 }

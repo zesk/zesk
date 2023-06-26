@@ -1,5 +1,7 @@
 # zesk configure
 
+> This is currently outdated and may be removed.
+
 This command-line tool is very helpful in managing remote deployments of code using a simple grammar for keeping files in sync with the local file system and a source code repository.
 
 Sometimes, it's nice to be able to edit files in-place on a server system in order to get changes in place quickly, instead of having to run through editing a file in the repository and then copying it into place. 
@@ -93,4 +95,3 @@ Flags can be:
 ### `symlink symlink target`
 
 Creates **symlink** to **target** and ensures it's updated or correct.
- 

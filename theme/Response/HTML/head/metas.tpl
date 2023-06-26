@@ -1,4 +1,5 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage theme
@@ -7,9 +8,9 @@
  */
 namespace zesk;
 
-/* @var $this \zesk\Template */
+/* @var $this \zesk\Theme */
 /* @var $application \zesk\Application */
-/* @var $locale \zesk\Locale */
+/* @var $locale \zesk\Locale\Locale */
 /* @var $session \zesk\Session */
 /* @var $router \zesk\Router */
 /* @var $route \zesk\Route */

@@ -32,13 +32,13 @@ The `\zesk\Application` locates the router file using this field and by changing
 Routing occurs as follows:
 
 1. A request is made to your web application
-1. The application loads/creates the router
+2. The application loads/creates the router
  - The router is built of many "routes" and are sorted in order of increasing weight
  - The router attempts to match each route to the passed in URI (path)
-1. When a match is made, the URI is broken into segments using the slash (`/`) delimiter
-1. Each segment is numbered (starting from zero) and passed to the route
-1. The route converts each segment into the appropriate type
-1. The route is executed and the page is output, or an alternate HTTP response is sent to the browser
+3. When a match is made, the URI is broken into segments using the slash (`/`) delimiter
+4. Each segment is numbered (starting from zero) and passed to the route
+5. The route converts each segment into the appropriate type
+6. The route is executed and the page is output, or an alternate HTTP response is sent to the browser
 
 To define your application's routes, you use a special file format called a `.router` file.
 
@@ -300,4 +300,3 @@ You can set the content to a string:
 	out/{User user}/{tpl}
 		theme[]="usertemplates/{tpl}.tpl"
 		theme[]={"theme": "homepage.tpl", "arguments": { "user" : "{user}" }}
-

@@ -143,7 +143,7 @@ Set handling of `assert` failures.
 Set handling of [deprecated](deprecated.md) functionality in Zesk. Can be one of:
 
 - `log`: Log all deprecated function calls to the [log](log.md)
-- `exception`: Throw an `Exception_Deprecated` when a deprecated function is invoked
+- `exception`: Throw an `Deprecated` when a deprecated function is invoked
 
 ## `lf`
 

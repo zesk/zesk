@@ -9,16 +9,16 @@ declare(strict_types=1);
 
 namespace zesk\ORM;
 
-use zesk\Exception_Authentication;
-use zesk\Interface_Session;
-use zesk\Interface_UserLike;
+use zesk\Authentication;
+use zesk\Interface\SessionInterface;
+use zesk\Userlike;
 use zesk\Request;
 use zesk\Response;
 use zesk\HTTP;
 use zesk\Controller;
 
 /**
- * @see Controller_Theme
+ * @see ThemeController
  * @author kent
  *
  */
@@ -26,22 +26,22 @@ class Controller_Authenticated extends Controller {
 	/**
 	 * Current logged in user
 	 *
-	 * @var Interface_UserLike|null
+	 * @var Userlike|null
 	 */
-	public Interface_UserLike|null $user = null;
+	public Userlike|null $user = null;
 
 	/**
 	 * Current session
 	 *
-	 * @var Interface_Session|null
+	 * @var SessionInterface|null
 	 */
-	public Interface_Session|null $session = null;
+	public SessionInterface|null $session = null;
 
 	/**
 	 * @param Request $request
 	 * @param Response $response
 	 * @return void
-	 * @throws Exception_Authentication
+	 * @throws Authentication
 	 */
 	protected function before(Request $request, Response $response): void {
 		parent::before($request, $response);
@@ -49,7 +49,7 @@ class Controller_Authenticated extends Controller {
 		try {
 			$this->session = $this->application->requireSession($request);
 			$this->user = $this->session->user();
-		} catch (Exception_Authentication $e) {
+		} catch (Authentication $e) {
 			$response->setStatus(HTTP::STATUS_UNAUTHORIZED);
 
 			throw $e;

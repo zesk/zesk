@@ -10,8 +10,9 @@ namespace zesk\Git;
 use zesk\Repository;
 use zesk\Repository\TestCase;
 use zesk\Directory;
-use zesk\Exception_Semantics;
-use zesk\Exception_Syntax;
+use zesk\Exception\SemanticsException;
+use zesk\Exception\SyntaxException;
+use zesk\StringTools;
 use zesk\URL;
 
 /**
@@ -102,7 +103,7 @@ class Repository_Git_Test extends TestCase {
 		]));
 		foreach ($tags as $tag) {
 			$this->assertFalse($repo->needUpdate(), 'Repo should no longer need update');
-			$repo->setURL(glue($url, '/', "tags/$tag"));
+			$repo->setURL(StringTools::glue($url, '/', "tags/$tag"));
 			$this->assertTrue($repo->needUpdate(), 'Repo should need update');
 			$repo->update();
 			$this->assertDirectoriesExist($this->pathCatenator($this->path, [
@@ -124,7 +125,7 @@ class Repository_Git_Test extends TestCase {
 	 * @depends testFactory
 	 */
 	public function testNoURL(Repository $repo) {
-		$this->expectException(Exception_Semantics::class);
+		$this->expectException(SemanticsException::class);
 		$repo->setURL('');
 		$path = $repo->path();
 		$this->assertStringMatchesFormat('%agittest%A', $path);
@@ -137,7 +138,7 @@ class Repository_Git_Test extends TestCase {
 	 * @depends testFactory
 	 */
 	public function testBADURL(Repository $repo): void {
-		$this->expectException(Exception_Syntax::class);
+		$this->expectException(SyntaxException::class);
 		$repo->setURL('http:/localhost/path/to/git');
 	}
 }

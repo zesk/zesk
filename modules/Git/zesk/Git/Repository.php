@@ -10,10 +10,10 @@ declare(strict_types=1);
 namespace zesk\Git;
 
 use aws\classes\Module;
-use zesk\Exception_Command;
-use zesk\Exception_Semantics;
-use zesk\Exception_Unimplemented;
-use zesk\Exception_Unsupported;
+use zesk\CommandFailed;
+use zesk\Exception\SemanticsException;
+use zesk\Exception\UnimplementedException;
+use zesk\Exception\UnsupportedException;
 use zesk\Repository\CommandBase;
 
 /**
@@ -56,10 +56,10 @@ class Repository extends CommandBase {
 	 * @param string $path
 	 * @param string $component
 	 * @return array
-	 * @throws Exception_Unsupported
+	 * @throws UnsupportedException
 	 */
 	public function info(string $path = '', string $component = ''): array {
-		throw new Exception_Unsupported(__METHOD__);
+		throw new UnsupportedException(__METHOD__);
 	}
 
 	/**
@@ -67,7 +67,7 @@ class Repository extends CommandBase {
 	 *
 	 * @param string $target
 	 * @return boolean
-	 * @throws Exception_Semantics|Exception_Command
+	 * @throws SemanticsException|CommandFailed
 	 */
 	public function needUpdate(string $target): bool {
 		if (!$this->validate()) {
@@ -86,10 +86,10 @@ class Repository extends CommandBase {
 	}
 
 	/**
-	 * @throws Exception_Unimplemented
+	 * @throws UnimplementedException
 	 */
 	public function need_commit(string $target): bool {
-		throw new Exception_Unimplemented(__METHOD__);
+		throw new UnimplementedException(__METHOD__);
 	}
 
 	/**
@@ -97,20 +97,20 @@ class Repository extends CommandBase {
 	 *
 	 * @param string $target
 	 * @param string $message
-	 * @throws Exception_Unimplemented
+	 * @throws UnimplementedException
 	 */
 	public function commit(string $target, string $message): bool {
-		throw new Exception_Unimplemented(__METHOD__);
+		throw new UnimplementedException(__METHOD__);
 	}
 
 	/**
 	 * Update repository target at target, and get changes from remote
 	 *
 	 * @param string $target
-	 * @throws Exception_Unimplemented
+	 * @throws UnimplementedException
 	 */
 	public function update(string $target): void {
-		throw new Exception_Unimplemented(__METHOD__);
+		throw new UnimplementedException(__METHOD__);
 	}
 
 	/**
@@ -118,15 +118,15 @@ class Repository extends CommandBase {
 	 *
 	 * @param string $target Directory of target directory
 	 * @return void
-	 * @throws Exception_Unimplemented
+	 * @throws UnimplementedException
 	 */
 	public function rollback(string $target): void {
-		throw new Exception_Unimplemented(__METHOD__);
+		throw new UnimplementedException(__METHOD__);
 	}
 
 	/**
 	 * @return string
-	 * @throws Exception_Command
+	 * @throws CommandFailed
 	 */
 	public function latest_version(): string {
 		$versions = $this->run_command('tag');

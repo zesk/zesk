@@ -1,10 +1,36 @@
 #!/bin/bash
 . /usr/local/bin/zesk-bash.sh && container_prompt
+err_env=1
 if [ -d "/zesk" ]; then
     PATH=$PATH:/zesk/bin:/zesk/vendor/bin
 fi
+consoleRed() {
+    echo -en "\033[31m"
+}
+consoleNormal() {
+    echo -en "\033[0m"
+}
+php_ini_path() {
+    php -r "echo get_cfg_var('cfg_file_path');"
+}
+php_error_log() {
+    php -r "echo get_cfg_var('error_log');"
+}
 T-php() {
-    tail -F /usr/local/var/log/php-error.log
+    local logFile
+    logFile=$(php_error_log)
+    if [ -z "$logFile" ]; then
+        echo "No PHP error log configured in $(consoleRed)$(php_ini_path)$(consoleNormal)" 1>&2
+        return $err_env
+    fi
+    if [ ! -f "$logFile" ]; then
+        echo "$(consoleRed)${logFile}$(consoleNormal) does not exist - creating" 1>&2
+        touch "$logFile"
+    fi
+    if [ "$(du -b $(php_error_log) | awk '{ print $1 }')" = "0" ]; then
+        echo "$(consoleRed)${logFile}$(consoleNormal) is empty" 1>&2
+    fi
+    tail -F "$logFile"
 }
 Xdebug_ON() {
     export XDEBUG_ENABLED=1
@@ -13,11 +39,4 @@ Xdebug_ON() {
 Xdebug_off() {
     unset XDEBUG_ENABLED
     echo "XDebug debugging disabled..."
-}
-consoleRed() {
-    echo -en "\033[31m"
-}
-
-consoleNormal() {
-    echo -en "\033[0m"
 }

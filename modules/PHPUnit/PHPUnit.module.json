@@ -1,0 +1,15 @@
+{
+	"name": "PHP Unit tests and tools to work with Zesk and PHPUnit",
+	"moduleClass": "zesk\\PHPUnit\\Module",
+	"autoload": {
+		"classPrefix": "zesk\\PHPUnit\\",
+		"path": "zesk/PHPUnit/"
+	},
+	"composer": {
+		"require": "phpunit/phpunit"
+	},
+	"urlProject": "https://phpunit.de/",
+	"urlLicense": "https://raw.githubusercontent.com/sebastianbergmann/phpunit/main/LICENSE",
+	"licenses": ["BSD3"],
+	"copyright": "Copyright &copy; 2023, Market Acumen, Inc."
+}

@@ -5,55 +5,81 @@ definitions:
   caches:
     apt-lists: /var/lib/apt/lists
     apt-cache: /var/cache/apt
+  docker:
+    memory: 6144
+  services:
+    mariadb:
+      memory: 1024
+      image: mariadb:latest
+      variables:
+        MARIADB_ROOT_PASSWORD: hard-to-guess
+        MYSQL_ROOT_PASSWORD: hard-to-guess
 
-image: php:8-cli
+image: php:8.1
 pipelines:
   branches:
     develop:
       - step:
-          name: Setup
+          name: Build and test
+          services:
+            - mariadb
           artifacts:
             - .env
+            - .build/
+            - .release-notes.md
+            - test-coverage/
+            - test.log
+            - .memory_get_usage
+            - memory-logs.txt
           caches:
+            - docker
             - apt-lists
             - apt-cache
-          deployment: staging
+          deployment: develop
           script:
-            - export DOCKER_BUILDKIT=1
-            - export DEPLOYMENT=staging
-            - bin/pipeline-setup.sh "${DEPLOYMENT}" ${BUILD_TEST_FLAG} --host "${CONTAINER_HOST}" --commit "${BITBUCKET_COMMIT}"
-      - step:
-          name: Unit Tests
-          caches:
-            - apt-lists
-            - apt-cache
-          script:
-            - bin/pipeline-unit-tests.sh
+            - while true; do date && echo -n "Memory usage in megabytes:" && echo $(($(cat /sys/fs/cgroup/memory/memory.memsw.usage_in_bytes | awk '{print $1}')/1048576)) && echo "" && sleep 30; done >> memory-logs.txt &
+            - export DATABASE_HOST=127.0.0.1
+            - export CONTAINER_DATABASE_HOST=$BITBUCKET_DOCKER_HOST_INTERNAL
+            - export DATABASE_ROOT_PASSWORD=hard-to-guess
+            - bin/pipeline-setup.sh --develop --testsuite core
     master:
       - step:
-          name: Build
+          name: Build and test
+          services:
+            - mariadb
           artifacts:
             - .env
+            - .build/
+            - .release-notes.md
+            - test-coverage/
+            - test.log
+            - .memory_get_usage
+            - memory-logs.txt
           caches:
+            - docker
             - apt-lists
             - apt-cache
-          deployment: staging
+          deployment: production
+          size: 2x
           script:
-            - export DOCKER_BUILDKIT=1
-            - export DEPLOYMENT=staging
-            - bin/pipeline-setup.sh "${DEPLOYMENT}" ${BUILD_TEST_FLAG} --host "${CONTAINER_HOST}" --commit "${BITBUCKET_COMMIT}"
+            - while true; do date && echo -n "Memory usage in megabytes:" && echo $(($(cat /sys/fs/cgroup/memory/memory.memsw.usage_in_bytes | awk '{print $1}')/1048576)) && echo "" && sleep 30; done >> memory-logs.txt &
+            - export DATABASE_HOST=127.0.0.1
+            - export CONTAINER_DATABASE_HOST=$BITBUCKET_DOCKER_HOST_INTERNAL
+            - export DATABASE_ROOT_PASSWORD=hard-to-guess
+            - bin/pipeline-setup.sh --testsuite core
       - step:
-          name: Unit Tests
-          caches:
-            - apt-lists
-            - apt-cache
-          script:
-            - bin/build-unit-test.sh
-      - step:
-          name: Deploy new release
+          name: Deploy
           trigger: manual
           caches:
+            - docker
             - apt-lists
             - apt-cache
           script:
-            - bin/build-deploy.sh
+            - bin/pipeline-release.sh
+    deploy:
+      - step:
+          deployment: deploy
+          name: Deploy
+          size: 2x
+          script:
+            - bin/pipeline-release.sh

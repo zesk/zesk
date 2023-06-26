@@ -9,16 +9,19 @@ declare(strict_types=1);
  * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  */
 
-namespace zesk\ORM;
+namespace zesk\ORM\Database\Query;
 
-use zesk\Exception_Key;
+use zesk\Exception\KeyNotFound;
+use zesk\ORM\Class_Base;
+use zesk\ORM\Database\Query;
+use zesk\StringTools;
 
 /**
  *
  * @author kent
  *
  */
-abstract class Database_Query_Edit extends Database_Query {
+abstract class Edit extends Query {
 	/**
 	 * Low priority update/insert
 	 *
@@ -72,7 +75,7 @@ abstract class Database_Query_Edit extends Database_Query {
 	 *
 	 * @param string $table Table to include in the query.
 	 * @param string $alias Optional alias. Blank ("") is the default table.
-	 * @return Database_Query_Edit
+	 * @return self
 	 */
 	public function setTable(string $table, string $alias = ''): self {
 		if (count($this->table) === 0) {
@@ -108,7 +111,7 @@ abstract class Database_Query_Edit extends Database_Query {
 	 */
 	private function validColumn(string $name): bool {
 		$clean_name = ltrim($name, '*');
-		[$alias, $clean_name] = pair($clean_name, '.', $this->default_alias, $clean_name);
+		[$alias, $clean_name] = StringTools::pair($clean_name, '.', $this->default_alias, $clean_name);
 		$columns = $this->valid_columns[$alias] ?? null;
 		if (!is_array($columns) || !in_array($clean_name, $columns)) {
 			return false;
@@ -122,7 +125,7 @@ abstract class Database_Query_Edit extends Database_Query {
 	 * @param string|array $name Alternately, pass an array as this value to update multiple values
 	 * @param mixed $value When $name is a string, this is the value set
 	 * @return self
-	 * @throws Exception_Key
+	 * @throws KeyNotFound
 	 */
 	public function value(array|string $name, mixed $value = null): self {
 		if (is_array($name)) {
@@ -141,11 +144,11 @@ abstract class Database_Query_Edit extends Database_Query {
 	 * If not, throw an exception.
 	 *
 	 * @param string $name
-	 * @throws Exception_Key
+	 * @throws KeyNotFound
 	 */
 	private function check_column(string $name): void {
 		if (!$this->validColumn($name)) {
-			throw new Exception_Key('Column {name} is not in table {table} (columns are {columns})', [
+			throw new KeyNotFound('Column {name} is not in table {table} (columns are {columns})', [
 				'name' => $name,
 				'table' => $this->table,
 				'columns' => $this->valid_columns,
@@ -168,7 +171,7 @@ abstract class Database_Query_Edit extends Database_Query {
 	 *
 	 * @param array $values When null, return the current values to be set (array)
 	 * @return self
-	 * @throws Exception_Key
+	 * @throws KeyNotFound
 	 */
 	public function setValues(array $values): self {
 		return $this->value($values);

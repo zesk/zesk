@@ -1,28 +1,32 @@
-<?php declare(strict_types=1);
-
+<?php
+declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage Daemon
  * @author kent
  * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  */
+
 namespace zesk\Daemon;
 
-use Psr\Cache\InvalidArgumentException;
+use Doctrine\ORM\Exception\ORMException;
+
+use zesk\Cron\Attributes\Cron;
+use zesk\Cron\Attributes\CronMinute;
 use zesk\Directory;
-use zesk\Exception_Configuration;
-use zesk\Exception_Directory_Create;
-use zesk\Exception_Directory_Permission;
-use zesk\Exception_Key;
-use zesk\Exception_Semantics;
-use zesk\Exception_Syntax;
-use zesk\Exception_Unsupported;
-use zesk\ORM\Server;
-use zesk\PHP;
-use zesk\Template;
+use zesk\Exception\DirectoryCreate;
+use zesk\Exception\DirectoryPermission;
+use zesk\Exception\FilePermission;
+use zesk\Exception\ConfigurationException;
+use zesk\Exception\SemanticsException;
+use zesk\Exception\SyntaxException;
+use zesk\Exception\UnsupportedException;
+use zesk\File;
 use zesk\JSON;
+use zesk\Doctrine\Server;
+use zesk\PHP;
+use zesk\Temporal;
 use zesk\Timestamp;
-use zesk\Exception_File_Permission;
 
 /**
  *
@@ -42,35 +46,34 @@ class Module extends \zesk\Module {
 	 *
 	 *
 	 * @return void
-	 * @throws Exception_Configuration
-	 * @throws Exception_Directory_Create
-	 * @throws Exception_Directory_Permission
-	 * @throws Exception_Unsupported
+	 * @throws ConfigurationException
+	 * @throws DirectoryCreate
+	 * @throws DirectoryPermission
+	 * @throws UnsupportedException
 	 */
 	public function initialize(): void {
 		parent::initialize();
 		$runPath = $this->application->dataPath('run');
-		$this->runPath = path($runPath, 'daemon');
+		$this->runPath = Directory::path($runPath, 'daemon');
 		Directory::depend($this->runPath, 0o700);
 	}
 
 	/**
-	 *
-	 * @param Template $template
 	 * @return string[][]
+	 * @todo This is not doing anything
+	 *
 	 */
-	protected function hook_system_panel(Template $template) {
-		$locale = $template->locale;
+	protected function hook_system_panel(): array {
 		return [
 			'system/panel/daemon' => [
-				'title' => $locale->__('Daemons'),
-				'module_class' => __CLASS__,
+				'title' => $this->application->locale->__('Daemons'), 'moduleClass' => __CLASS__,
 				'server_data_key' => __CLASS__ . '::process_database',
 				'server_updated_key' => __CLASS__ . '::process_database_updated',
 			],
 		];
 	}
 
+	#[Cron(schedule: Temporal::UNIT_MINUTE)]
 	protected function hook_cron(): void {
 		$application = $this->application;
 
@@ -83,9 +86,8 @@ class Module extends \zesk\Module {
 			}
 			$server->setMeta(__CLASS__ . '::process_database', $database);
 			$server->setMeta(__CLASS__ . '::process_database_updated', Timestamp::now());
-		} catch (Exception_Syntax|Exception_File_Permission|Exception_Semantics|Exception_Key
-		|InvalidArgumentException $e) {
-			$this->application->logger->error($e->getRawMessage(), $e->variables());
+		} catch (ORMException $e) {
+			$this->application->error($e->getMessage());
 		}
 	}
 
@@ -95,20 +97,22 @@ class Module extends \zesk\Module {
 	 * @return string
 	 */
 	private function _databasePath(): string {
-		return path($this->runPath, 'daemon.db');
-	}
-
-	public function unlink_database(): void {
-		unlink($this->_databasePath());
+		return Directory::path($this->runPath, 'daemon.db');
 	}
 
 	/**
-	 * Get/set daemon database
-	 *
-	 * @param array|null $database
-	 * @return array
-	 * @throws Exception_File_Permission
-	 * @throws Exception_Semantics
+	 * @return void
+	 * @throws FilePermission
+	 */
+	public function unlink_database(): void {
+		File::unlink($this->_databasePath());
+	}
+
+	/**
+	 * @param array $database
+	 * @return void
+	 * @throws FilePermission
+	 * @throws SemanticsException
 	 */
 	public function saveProcessDatabase(array $database): void {
 		$path = $this->_databasePath();
@@ -116,12 +120,10 @@ class Module extends \zesk\Module {
 			if (count($database) === 0) {
 				return;
 			}
-			if (!file_put_contents($path, serialize($database))) {
-				throw new Exception_File_Permission($path, 'write');
-			}
+			File::put($path, serialize($database));
 		} else {
 			if (count($database) === 0) {
-				unlink($path);
+				File::unlink($path);
 				return;
 			}
 		}
@@ -132,7 +134,7 @@ class Module extends \zesk\Module {
 		flock($fp, LOCK_UN);
 		fclose($fp);
 		if ($this->db_debug) {
-			$this->application->logger->debug('Wrote database: {data}', [
+			$this->application->debug('Wrote database: {data}', [
 				'data' => JSON::encode($database),
 			]);
 		}
@@ -142,7 +144,7 @@ class Module extends \zesk\Module {
 	 * Get daemon database
 	 *
 	 * @return array
-	 * @throws Exception_File_Permission|Exception_Syntax
+	 * @throws FilePermission|SyntaxException
 	 */
 	public function loadProcessDatabase(): array {
 		$path = $this->_databasePath();
@@ -151,52 +153,35 @@ class Module extends \zesk\Module {
 		}
 		$fp = fopen($path, 'rb');
 		if (!$fp) {
-			throw new Exception_File_Permission($path, "fopen($path) returned false-ish");
+			throw new FilePermission($path, "fopen($path) returned false-ish");
 		}
 		if (!flock($fp, LOCK_SH)) {
 			fclose($fp);
 
-			throw new Exception_File_Permission($path, "flock($path, LOCK_SH) returned false-ish");
+			throw new FilePermission($path, "flock($path, LOCK_SH) returned false-ish");
 		}
 		$result = fread($fp, 1024 * 1024);
 		if ($result === false) {
 			fclose($fp);
 
-			throw new Exception_File_Permission($path, "fread($path) returned false");
+			throw new FilePermission($path, "fread($path) returned false");
 		}
 		$database = PHP::unserialize($result);
 		if ($this->db_debug) {
 			try {
-				$this->application->logger->debug('Read database: {data}', [
+				$this->application->debug('Read database: {data}', [
 					'data' => JSON::encode($database),
 				]);
-			} catch (Exception_Semantics $e) {
+			} catch (SemanticsException $e) {
 				PHP::log($e);
 			}
 		}
 		if (!flock($fp, LOCK_UN)) {
 			fclose($fp);
 
-			throw new Exception_File_Permission($path, "flock($path, LOCK_UN) returned false-ish");
+			throw new FilePermission($path, "flock($path, LOCK_UN) returned false-ish");
 		}
 		fclose($fp);
 		return is_array($database) ? $database : [];
-	}
-
-	/**
-	 * Get/set daemon database
-	 *
-	 * @param array|null $database
-	 * @return array
-	 * @throws Exception_File_Permission
-	 * @throws Exception_Semantics
-	 */
-	public function process_database(array $database = null): array {
-		if ($database === null) {
-			return $this->loadProcessDatabase();
-		} else {
-			$this->saveProcessDatabase($database);
-			return $database;
-		}
 	}
 }

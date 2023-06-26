@@ -10,25 +10,33 @@ declare(strict_types=1);
  * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  */
 
-namespace zesk\ORM;
+namespace zesk\ORM\Database\Query;
 
-use zesk\Exception_Configuration;
-use zesk\Exception_Deprecated;
-use zesk\Exception_Key;
-use zesk\ORM\QueryTrait\Where;
-use zesk\Database;
 use zesk\ArrayTools;
+use zesk\Database\Base;
+use zesk\Database\Exception\SQLException;
+use zesk\Exception\ClassNotFound;
+use zesk\Exception\ConfigurationException;
+use zesk\Exception\KeyNotFound;
+use zesk\Exception\ParseException;
+use zesk\Exception\NotFoundException;
+use zesk\Exception\ParameterException;
+use zesk\Exception\Semantics;
+use zesk\ORM\Class_Base;
+use zesk\ORM\Database\QueryTrait\Where;
+use zesk\ORM\Exception\ORMEmpty;
+use zesk\ORM\Exception\ORMNotFound;
+use zesk\ORM\ORMBase;
 use zesk\PHP;
-use zesk\StringTools;
-use zesk\Exception_Semantics;
 use zesk\RuntimeException;
+use zesk\StringTools;
 
 /**
  *
  * @author kent
  *
  */
-class Database_Query_Select extends Database_Query_Select_Base {
+class Select extends SelectBase {
 	use Where;
 
 	/**
@@ -118,9 +126,9 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	/**
 	 * Construct a new Select query
 	 *
-	 * @param Database $db
+	 * @param Base $db
 	 */
-	public function __construct(Database $db) {
+	public function __construct(Base $db) {
 		parent::__construct('SELECT', $db);
 	}
 
@@ -135,7 +143,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	/**
 	 *
 	 * {@inheritDoc}
-	 * @see \zesk\Database_Query_Select_Base::__sleep()
+	 * @see \zesk\Select_Base::__sleep()
 	 */
 	public function __sleep(): array {
 		return array_merge(parent::__sleep(), [
@@ -145,10 +153,10 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	}
 
 	/**
-	 * @param Database_Query_Select $query
+	 * @param Select $query
 	 * @return $this
 	 */
-	public function copy_from(Database_Query_Select $query): self {
+	public function copyFrom(Select $query): self {
 		parent::_copy_from_base($query);
 
 		$this->what = $query->what;
@@ -175,7 +183,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	 * @return boolean
 	 */
 	public function validColumn(string $column_reference): bool {
-		[$alias, $column] = pair($column_reference, '.', $this->alias, $column_reference);
+		[$alias, $column] = StringTools::pair($column_reference, '.', $this->alias, $column_reference);
 		if ($alias === $this->alias) {
 			$class = $this->class;
 		} else {
@@ -190,11 +198,11 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	/**
 	 * Create a new query
 	 *
-	 * @param Database $db
-	 * @return Database_Query_Select
+	 * @param Base $db
+	 * @return Select
 	 */
-	public static function factory(Database $db): self {
-		return new Database_Query_Select($db);
+	public static function factory(Base $db): self {
+		return new Select($db);
 	}
 
 	/**
@@ -219,7 +227,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	 * Get the class alias for this object
 	 * @param string $class
 	 * @return string
-	 * @throws Exception_ORMNotFound
+	 * @throws ORMNotFound
 	 */
 	public function class_alias(string $class = ''): string {
 		if ($class === '' || $this->class === $class) {
@@ -230,7 +238,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 			return $reverse_joins[$class];
 		}
 
-		throw new Exception_ORMNotFound($class, '{class} is not a member of any joins in {this}', [
+		throw new ORMNotFound($class, '{class} is not a member of any joins in {this}', [
 			'this' => get_class($this),
 		]);
 	}
@@ -326,10 +334,10 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	}
 
 	/**
-	 * @param Database_Query_Select $query
+	 * @param Select $query
 	 * @return $this
 	 */
-	public function addWhatSelect(Database_Query_Select $query): self {
+	public function addWhatSelect(Select $query): self {
 		$this->what += $query->what;
 		return $this;
 	}
@@ -350,8 +358,8 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	 * @param ?string $prefix Prefix all output field names with this string, blank for nothing
 	 * @param ?string $object_mixed Pass to class_table_columns for dynamic table objects
 	 * @param array $object_options Pass to class_table_columns for dynamic table objects
-	 * @return Database_Query_Select
-	 * @throws Exception_ORMNotFound
+	 * @return Select
+	 * @throws ORMNotFound
 	 */
 	public function ormWhat(string $class = null, string $alias = null, string $prefix = null, mixed $object_mixed = null, array $object_options = []): self {
 		if ($class === null) {
@@ -364,7 +372,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 		foreach ($columns as $column) {
 			$this->addWhat($prefix . $column, "$alias.$column");
 		}
-		$this->objects_prefixes[$prefix] = [$alias, $class, ];
+		$this->objects_prefixes[$prefix] = $class;
 		return $this;
 	}
 
@@ -373,7 +381,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	 *
 	 * @param string $table
 	 * @param string $alias
-	 * @return Database_Query_Select
+	 * @return Select
 	 */
 	public function from(string $table, string $alias = ''): self {
 		$this->tables[$alias] = $table;
@@ -386,7 +394,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	 *
 	 * @param array|string $sql
 	 * @param string $join_id
-	 * @return Database_Query_Select
+	 * @return Select
 	 */
 	public function join(array|string $sql, string $join_id = ''): self {
 		if (is_array($sql)) {
@@ -442,7 +450,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	 * @param array $on
 	 * @param string $table
 	 * @return $this
-	 * @throws Exception_Semantics|Exception_Key
+	 * @throws Semantics|KeyNotFound
 	 */
 	public function join_object(string $join_type, ORMBase|string $class, string $alias, array $on, string $table = ''): self {
 		if (is_string($class)) {
@@ -452,7 +460,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 			$class = $object::class;
 		}
 		if (array_key_exists($alias, $this->join_objects)) {
-			throw new Exception_Semantics(__CLASS__ . "::join_object: Same alias $alias added twice");
+			throw new Semantics(__CLASS__ . "::join_object: Same alias $alias added twice");
 		}
 		$this->join_objects[$alias] = $class;
 
@@ -474,23 +482,23 @@ class Database_Query_Select extends Database_Query_Select_Base {
 		 * empty "database_name" means value of configuration zesk\Database::default
 		 */
 		if ($object->database()->codeName() !== $this->databaseName()) {
-			$cross_db_this = $this->database()->feature(Database::FEATURE_CROSS_DATABASE_QUERIES);
-			$cross_db_object = $object->database()->feature(Database::FEATURE_CROSS_DATABASE_QUERIES);
+			$cross_db_this = $this->database()->feature(Base::FEATURE_CROSS_DATABASE_QUERIES);
+			$cross_db_object = $object->database()->feature(Base::FEATURE_CROSS_DATABASE_QUERIES);
 			if ($cross_db_this !== true) {
-				throw new Exception_Semantics('Database {name} ({class}) does not support cross-database queries, join is not possible', [
+				throw new Semantics('Database {name} ({class}) does not support cross-database queries, join is not possible', [
 					'name' => $this->databaseName(), 'class' => $this->class,
 				]);
 			}
 			if ($cross_db_object !== true) {
-				throw new Exception_Semantics('Database {name} ({class}) does not support cross-database queries, join is not possible', [
+				throw new Semantics('Database {name} ({class}) does not support cross-database queries, join is not possible', [
 					'name' => $object->databaseName(), 'class' => $object::class,
 				]);
 			}
-			$table_as = $sql->database_table_as($object->database()->databaseName(), $table, $alias);
+			$table_as = $sql->databaseTableAs($object->database()->databaseName(), $table, $alias);
 		} else {
-			$table_as = $sql->table_as($table, $alias);
+			$table_as = $sql->tableAs($table, $alias);
 		}
-		return $this->join("$join_type JOIN $table_as ON " . $this->sql()->where_clause($on));
+		return $this->join("$join_type JOIN $table_as ON " . $this->sql()->whereClause($on));
 	}
 
 	/**
@@ -507,8 +515,16 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	 *         "require": Boolean value, when specified and when "type" is not specified, specifies "INNER" or "LEFT OUTER" for type. Defaults to false.
 	 *
 	 * @return $this
-	 * @throws Exception_Configuration
-	 * @throws Exception_Semantics
+	 * @throws ClassNotFound
+	 * @throws ConfigurationException
+	 * @throws KeyNotFound
+	 * @throws NotFoundException
+	 * @throws ORMEmpty
+	 * @throws ORMNotFound
+	 * @throws ParameterException
+	 * @throws ParseException
+	 * @throws Semantics
+	 * @throws SQLException
 	 */
 	public function link(string $class, string|array $mixed = []): self {
 		if (is_string($mixed)) {
@@ -523,16 +539,15 @@ class Database_Query_Select extends Database_Query_Select_Base {
 
 			try {
 				$path = $object->link_default_path_to($target_class);
-			} catch (Exception_ORMNotFound) {
+			} catch (ORMNotFound) {
 				throw new RuntimeException("No path to {target_class} (resolved from {class}) from $this->class, specify explicitly", [
 					'class' => $class, 'target_class' => $target_class,
 				]);
 			}
 			$mixed['path'] = $path;
 		}
-		return $object->linkWalk($this, $mixed);
-
-		//		return ORM::cache_object($class)->link($this, $mixed);
+		$object->linkWalk($this, $mixed);
+		return $this;
 	}
 
 	/**
@@ -560,7 +575,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	 * Set order by clause
 	 *
 	 * @param array $order_by
-	 * @return Database_Query_Select
+	 * @return Select
 	 */
 	public function setOrderBy(array $order_by): self {
 		$this->order_by = $order_by;
@@ -571,7 +586,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	 * Set group by clause
 	 *
 	 * @param array $group_by
-	 * @return Database_Query_Select
+	 * @return Select
 	 */
 	public function setGroupBy(array $group_by): self {
 		$this->group_by = $group_by;
@@ -583,7 +598,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	 *
 	 * @param int $offset
 	 * @param int $limit
-	 * @return Database_Query_Select
+	 * @return Select
 	 * @deprecated 2022-05
 	 */
 	public function limit(int $offset = 0, int $limit = -1): self {
@@ -602,7 +617,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	 *
 	 * @param int $offset
 	 * @param int $limit
-	 * @return Database_Query_Select
+	 * @return Select
 	 */
 	public function setOffsetLimit(int $offset = 0, int $limit = -1): self {
 		$this->offset = $offset;
@@ -618,7 +633,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	public function __toString(): string {
 		try {
 			return $this->toSQL();
-		} catch (Exception_Semantics $e) {
+		} catch (Semantics $e) {
 			PHP::log($e);
 			return '';
 		}
@@ -628,7 +643,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	 * Compile SQL statement
 	 *
 	 * @return string
-	 * @throws Exception_Semantics
+	 * @throws Semantics
 	 */
 	public function toSQL(): string {
 		return $this->selectToSQL();
@@ -636,10 +651,10 @@ class Database_Query_Select extends Database_Query_Select_Base {
 
 	/**
 	 * @return string
-	 * @throws Exception_Semantics
+	 * @throws Semantics
 	 */
 	public function selectToSQL(): string {
-		return $this->generated_sql = $this->db->sql()->select([
+		return $this->generated_sql = $this->db->sqlDialect()->select([
 			'what' => $this->what_sql ?: $this->what, 'distinct' => $this->distinct, 'tables' => $this->tables,
 			'where' => $this->where, 'having' => $this->having, 'group_by' => $this->group_by,
 			'order_by' => $this->order_by, 'offset' => $this->offset, 'limit' => $this->limit,
@@ -682,49 +697,9 @@ class Database_Query_Select extends Database_Query_Select_Base {
 			'noun' => $class->name, 'nouns' => $locale->plural($class->name),
 		];
 		if (count($this->conditions) === 0) {
-			return $locale->__("Database_Query_Select-$class_name-title-all:=All {nouns}", $map);
+			return $locale->__("Select-$class_name-title-all:=All {nouns}", $map);
 		}
-		$map['conditions'] = map($locale->conjunction($this->conditions, $locale->__('and')), $map);
-		return $locale->__("Database_Query_Select-$class_name-title:={nouns} which {conditions}", $map);
-	}
-
-	/**
-	 * Set group by clause
-	 *
-	 * @param array|string $group_by
-	 * @return self
-	 * @throws Exception_Deprecated
-	 * @deprecated 2022-01
-	 */
-	public function group_by(array|string $group_by): self {
-		$this->application->deprecated(__METHOD__);
-		return $this->setGroupBy(toList($group_by));
-	}
-
-	/**
-	 * Set order by clause
-	 *
-	 * @param array|string|null $order_by
-	 * @return array|$this
-	 * @throws Exception_Deprecated
-	 */
-	public function order_by(array|string $order_by = null): array|self {
-		$this->application->deprecated(__METHOD__);
-		if ($order_by === null) {
-			return $this->order_by;
-		}
-		return $this->setOrderBy(toList($order_by));
-	}
-
-	/**
-	 * @param string|null $add
-	 * @param string $id
-	 * @return $this|array
-	 * @throws Exception_Deprecated
-	 * @deprecated 2022-05
-	 */
-	public function condition(string $add = null, string $id = ''): self|array {
-		$this->application->deprecated(__METHOD__);
-		return ($add !== null) ? $this->addCondition($add, $id) : $this->conditions();
+		$map['conditions'] = ArrayTools::map($locale->conjunction($this->conditions, $locale->__('and')), $map);
+		return $locale->__("Select-$class_name-title:={nouns} which {conditions}", $map);
 	}
 }

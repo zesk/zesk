@@ -9,16 +9,20 @@ declare(strict_types=1);
 
 namespace zesk\Login;
 
+use ReflectionException;
+use zesk\Doctrine\User;
 use zesk\Controller as zeskController;
-use zesk\Exception_Authentication;
-use zesk\Exception_Key;
-use zesk\Exception_Unsupported;
+use zesk\Exception\AuthenticationException;
+use zesk\Exception\KeyNotFound;
+use zesk\Exception\ParameterException;
+use zesk\Exception\SemanticsException;
+use zesk\Exception\UnsupportedException;
 use zesk\HTTP;
-use zesk\ORM\Exception_ORMNotFound;
-use zesk\ORM\User;
+use zesk\Interface\Userlike;
 use zesk\Request;
 use zesk\Response;
 use zesk\Timestamp;
+use zesk\Types;
 
 /**
  *
@@ -26,6 +30,14 @@ use zesk\Timestamp;
  *
  */
 class Controller extends zeskController {
+	public const HOOK_LOGIN = __CLASS__ . '::login';
+
+	public const HOOK_LOGIN_SUCCESS = __CLASS__ . '::loginSuccess';
+
+	public const HOOK_LOGIN_FAILED = __CLASS__ . '::loginFailed';
+
+	public const HOOK_LOGOUT = __CLASS__ . '::logout';
+
 	/**
 	 * @var string
 	 */
@@ -90,16 +102,24 @@ class Controller extends zeskController {
 		] + ($authenticated ? $session->user()->authenticationData() : []));
 	}
 
+	/**
+	 * @param Request $request
+	 * @param Response $response
+	 * @return Response
+	 * @throws UnsupportedException
+	 * @throws ReflectionException
+	 * @throws ParameterException
+	 */
 	public function action_POST_index(Request $request, Response $response): Response {
 		/**
 		 * Allow hooks to intercept and handle on their own.
 		 */
 		try {
-			$loginHookResult = $this->callHook('login', $request, $response);
+			$loginHookResult = $this->invokeFilters(self::HOOK_LOGIN, $response, [$request]);
 			if ($loginHookResult instanceof Response) {
 				return $response;
 			}
-		} catch (Exception_Authentication $e) {
+		} catch (AuthenticationException $e) {
 			$response->setStatus(HTTP::STATUS_UNAUTHORIZED, 'Unauthorized');
 			// Done calling hooks
 			return $response->json()->setData([
@@ -113,13 +133,13 @@ class Controller extends zeskController {
 			$user = $this->handleLogin($user, $password);
 			$user->authenticated($request, $response);
 
-			$data = toArray($user->callHookArguments('loginSuccess', [$this], []));
-			$response->json()->appendData([
+			$data = Types::toArray($user->invokeFilters(self::HOOK_LOGIN_SUCCESS, [], [$this]));
+			return $response->json()->appendData([
 				'authenticated' => true, 'user' => $user->id(),
 			] + $data + $this->_baseResponseData());
-		} catch (Exception_Authentication $e) {
+		} catch (AuthenticationException $e) {
 			$response->setStatus(HTTP::STATUS_UNAUTHORIZED, 'Unauthorized');
-			$data = toArray($this->callHookArguments('loginFailed', [$this], []));
+			$data = Types::toArray($user->invokeFilters(self::HOOK_LOGIN_FAILED, [], [$this]));
 
 			return $response->json()->setData([
 				'authenticated' => false, 'message' => 'user-or-password-mismatch',
@@ -131,17 +151,17 @@ class Controller extends zeskController {
 	 * @param Request $request
 	 * @param Response $response
 	 * @return Response
-	 * @throws \zesk\Exception_Semantics
+	 * @throws SemanticsException
 	 */
 	public function action_DELETE_index(Request $request, Response $response): Response {
-		$this->callHook('logout');
+		$this->invokeHooks(self::HOOK_LOGOUT);
 		$session = $this->application->session($request, false);
 		if ($session) {
 			$id = $session->id();
 			$session->relinquish();
-			$this->application->logger->notice('Session #{id} relinquishd', ['id' => $id]);
+			$this->application->notice('Session #{id} relinquishd', ['id' => $id]);
 		} else {
-			$this->application->logger->notice('Logout with no session found in request: Cookies: {cookies}', [
+			$this->application->notice('Logout with no session found in request: Cookies: {cookies}', [
 				'cookies' => $request->cookies(),
 			]);
 		}
@@ -158,36 +178,18 @@ class Controller extends zeskController {
 	/**
 	 * @param string $userName
 	 * @param string $password
-	 * @return User
-	 * @throws Exception_Authentication
-	 * @throws Exception_Unsupported
+	 * @return Userlike
+	 * @throws AuthenticationException
+	 * @throws UnsupportedException
 	 */
-	private function handleLogin(string $userName, string $password): User {
-		$user = $this->application->ormFactory(User::class);
-		$column_login = $this->option('ormIdColumn', $user->column_login());
-		if ($this->option('no_password')) {
-			try {
-				$user = $this->application->ormRegistry(User::class)->querySelect()->addWhere($column_login, $user)->orm();
-				assert($user instanceof User);
-				return $user;
-			} catch (Exception_Key|Exception_ORMNotFound $e) {
-				throw new Exception_Authentication($userName, [], 0, $e);
-			}
+	private function handleLogin(string $userName, string $password): Userlike {
+		$repo = $this->application->entityManager()->getRepository($this->optionString('userClass'));
+		$user = $repo->findOneBy(['code' => $userName]);
+		if (!$user) {
+			throw new AuthenticationException('{userName} failed', ['userName' => $userName]);
 		}
-		/* @var $user User */
 		$hashed_password = $this->generateHashedPassword($password);
 
-		try {
-			return $user->authenticate($hashed_password, false, false);
-		} catch (Exception_Authentication $e) {
-			/* 2nd chance */
-			if ($this->callHookArguments('authenticate', [
-				$user, $userName, $password,
-			], false)) {
-				return $user;
-			}
-
-			throw $e;
-		}
+		return $user->authenticate($hashed_password);
 	}
 }

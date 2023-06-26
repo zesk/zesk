@@ -3,14 +3,14 @@ declare(strict_types=1);
 
 namespace zesk\World;
 
-use zesk\Database_Exception_SQL;
-use zesk\Exception_Key;
+use zesk\Database\Exception\SQLException;
+use zesk\Exception\KeyNotFound;
 use zesk\ORM\ORMUnitTest;
-use zesk\ORM\Exception_ORMNotFound;
+use zesk\ORM\ORMNotFound;
 
 class Country_Test extends ORMUnitTest {
 	protected array $load_modules = [
-		'World', 'MySQL',
+		'World',
 	];
 
 	public function initialize(): void {
@@ -19,7 +19,7 @@ class Country_Test extends ORMUnitTest {
 		$this->requireORMTables(Country::class);
 	}
 
-	public function classes_to_test(): array {
+	public static function classes_to_test(): array {
 		return [
 			[Country::class, null, [], 'code', ],
 			[Country::class, null, [], 'name', ],
@@ -39,8 +39,8 @@ class Country_Test extends ORMUnitTest {
 
 	/**
 	 * @return void
-	 * @throws Database_Exception_SQL
-	 * @throws Exception_Key
+	 * @throws Database\Exception\SQLException
+	 * @throws KeyNotFound
 	 */
 	public function test_bootstrap(): void {
 		$this->truncateClassTables(Country::class);
@@ -58,13 +58,13 @@ class Country_Test extends ORMUnitTest {
 	public function test_find_country(?string $expected_code, string|int $mixed): void {
 		$this->test_bootstrap();
 		if ($expected_code === null) {
-			$this->expectException(Exception_ORMNotFound::class);
+			$this->expectException(ORMNotFound::class);
 		}
 		$country = Country::findCountry($this->application, $mixed);
 		$this->assertEquals($expected_code, $country->code);
 	}
 
-	public function data_find_country(): array {
+	public static function data_find_country(): array {
 		return [
 			['GB', 'gb', ], ['US', 'us', ], ['US', 'Us', ], ['US', 'US', ], ['AD', 'ad', ], [
 				'DE', 'de',

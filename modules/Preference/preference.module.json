@@ -6,7 +6,6 @@
 	},
 	"moduleClass": "zesk\\Preference\\Module",
 	"requires": [
-		"ORM",
-		"MySQL"
+		"Doctrine"
 	]
 }

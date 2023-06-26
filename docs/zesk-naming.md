@@ -67,38 +67,11 @@ Zesk core classes are loaded via PSR-4 and composer.
 Modules may be added to Zesk's internal autoloader using the [Modules](./modules.md) functionality, or by adding paths
 manually via `$application->addAutoloadPath()` during application configuration.
 
-Class paths are computed based on replacement of the underscore `_` in a class name with a path slash `/`, so:
-
-	$f = new Route_Controller($pattern, $options);
-	
-Will search the autoload path for:
-
-    Route/Controller.php
-
-Class names are [Upper-first CamelCase](naming-styles-definitions.md), optionally separated by underscores for classes which are intended to be instantiated:
-
-    $u = new User();
-	$c = new Control_Image_Toggle();
-	$s = new Province();
-
-The corresponding file names which contain these classes use the [PSR-4][] standard:
-
-	classes/User.inc
-	classes/Control/Image/Toggle.inc
-	classes/Province.inc
-
-## Functions and Methods
-
-Functions and methods within the system generally follow the PSR-1 standard by using lower-first camelCase:
-
-    echo Number::formatBytes(1512312);
-    $result = Route::compareWeight($route1, $route2);
-
 ## Hooks
 
 Hooks are a simple but powerful method your code to interact with various behaviors in the system. As a general rule, Hooks are named as follows:
 
-TODO
+- TODO
 
 ### Hookable syntax
 
@@ -110,7 +83,7 @@ Classes which inherit from `zesk\Hookable` have hook functionality built in. To 
 
 The `Hookable` class invokes `hook_`*`message`* first, then calls the class hierarchy version of a hook. By way of example, given the following class:
 
-	class MenuItem extends \zesk\ORMBase {
+	class MenuItem extends \zesk\Doctrine\Model {
 		...
 	}
 	class FoodItem extends MenuItem {
@@ -141,18 +114,17 @@ The following global `$application->hooks` are called, in order with the value o
  - `Pizza::delivered`
  - `FoodItem::delivered`
  - `MenuItem::delivered`
- - `zesk\ORM\ORMBase::delivered`
+ - `zesk\Doctrine\Model::delivered`
  - `zesk\Model::delivered`
  - `zesk\Hookable::delivered`
 
 So, if we wanted to intercept this via a hook, we could do this in our application configuration:
 	
-	$app = $this;
-	$this->hooks->add("Pizza::delivered", function (Pizza $pizza, Location $location) use ($app) {
+	$this->hooks->add("Pizza::delivered", function (Pizza $pizza, Location $location) {
 		$sms = $pizza->order->sms_notify;
 		if ($sms) {
 			$order_id = $pizza->order->code;
-			$app->ormFactory("SMS")->submitMessageTo($sms, "Your pizza order #$order_id was delivered");
+			$pizza->application->smsModule()->submitMessageTo($sms, "Your pizza order #$order_id was delivered");
 		}
 	});
 

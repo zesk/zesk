@@ -1,10 +1,14 @@
-# Zesk Debugging 
+# Zesk Debugging
 
-When writing and maintaining code it's important to be able to flag sections of code where more information is needed to track down a specific issue. Ideally this would be a run-time flag which allows us to turn the debugging messages on or off depending on the server or application context. This document outlines a pattern used in Zesk and recommended in your own code for enabling flags
+When writing and maintaining code it's important to be able to flag sections of code where more information is needed to
+track down a specific issue. Ideally this would be a run-time flag which allows us to turn the debugging messages on or
+off depending on the server or application context. This document outlines a pattern used in Zesk and recommended in
+your own code for enabling flags
 
 ## Functionality Flags
 
-The general practice for setting debugging flags in your classes is to use a configuration option which is loaded into the global `zesk\Application` `zesk\Configuration` object.
+The general practice for setting debugging flags in your classes is to use a configuration option which is loaded into
+the global `zesk\Application` `zesk\Configuration` object.
 
 Naming should be as follows:
 
@@ -21,12 +25,6 @@ This is a RECOMMENDATION and variations among classes may be permitted depending
     class MailSender {
 		public static $debug = false;
 		
-		public static function hooks(Application $zesk) {
-			$zesk->hooks->add(Hooks::HOOK_CONFIGURED, array(
-				__CLASS__,
-				"configured"
-			));
-		}
 		public static function configured(Application $app) {
 			self::$debug = toBool($app->configuration->path_get(array(__CLASS__, "debug")));
 		}
@@ -61,7 +59,7 @@ This is a RECOMMENDATION and variations among classes may be permitted depending
 		 */
 		public function debug($message, array $args = array()) {
 			if ($this->optionBool("debug")) {
-				$this->application->logger->debug($message, $args);
+				$this->application->debug($message, $args);
 			}
 		}
 		/**
@@ -73,7 +71,7 @@ This is a RECOMMENDATION and variations among classes may be permitted depending
 		 */
 		public function send() {
 			if ($this->optionBool("debug_send", $this->optionBool("debug"))) {
-				$this->application->logger->debug("Sending message {id}", array("id" => $this->id));
+				$this->application->debug("Sending message {id}", array("id" => $this->id));
 			}
 		}
 		// Snip

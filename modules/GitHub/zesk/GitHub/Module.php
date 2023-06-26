@@ -1,17 +1,30 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage GitHub
  * @author kent
  * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  */
+
 namespace zesk\GitHub;
 
+use Throwable;
+use zesk\ArrayTools;
+use zesk\Command\Version;
+use zesk\Exception;
+use zesk\Exception\FilePermission;
+use zesk\Exception\DomainLookupFailed;
+use zesk\Exception\ParameterException;
+use zesk\Exception\ParseException;
+use zesk\Exception\SemanticsException;
+use zesk\Exception\UnsupportedException;
+use zesk\HookMethod;
 use zesk\HTTP;
 use zesk\JSON;
 use zesk\MIME;
-use zesk\Net\HTTP\Client as Net_HTTP_Client;
 use zesk\Module as BaseModule;
+use zesk\Net\HTTP\Client;
 
 /**
  *
@@ -21,61 +34,72 @@ class Module extends BaseModule {
 	 * @see https://developer.github.com/v3/repos/releases/#create-a-release
 	 * @var string
 	 */
-	public const API_ENDPOINT_RELEASE = 'https://api.github.com/repos/{owner}/{repository}/releases?access_token={access_token}';
+	public const API_ENDPOINT_RELEASE = 'https://api.github.com/repos/{owner}/{repository}/releases';
 
 	public const MISSING_TOKEN = '*MISSING*OPTION*';
 
 	/**
-	 *
 	 * @param array $settings
-	 * @return array
+	 * @return void
+	 * @see self::versionWasUpdated()
 	 */
-	public function hook_version_updated(array $settings) {
-		if (!$this->optionBool('tag-on-version-update')) {
-			return $settings;
+	#[HookMethod(handles: Version::HOOK_UPDATED)]
+	public function versionWasUpdated(array $settings): void {
+		if (!$this->optionBool('tagOn')) {
+			return;
 		}
-		$version = null;
-		$previous_version = null;
-		$commitish = null;
+		$logger = $this->application->logger();
 		extract($settings, EXTR_IF_EXISTS);
+		$version = $settings['version'] ?? null;
+		$commitish = $settings['commitish'] ?? null;
 		if (!$commitish) {
 			$commitish = $this->option('commitish');
 		}
 		if ($version) {
-			if (!$this->has_credentials()) {
-				$this->application->logger->warning('{class} is not configured: need options owner, repository, and access_token to generate release for version {version}', [
-					'class' => get_class($this),
-					'version' => $version,
+			if (!$this->hasCredentials()) {
+				$logger->warning('{class} is not configured: need options owner, repository, and access_token to generate release for version {version}', [
+					'class' => get_class($this), 'version' => $version,
 				]);
-				return $settings;
+				return;
 			}
-			if (!$this->generate_tag("v$version", $commitish)) {
-				$this->application->logger->error('Unable to generate a tag for {version}', [
+
+			try {
+				$result = $this->generateTag("v$version", $commitish);
+				$logger->info('Generated {version} for {owner}/{repository}: {result}', [
+					'version' => $version, 'result' => $result,
+				] + $this->options());
+			} catch (Throwable $t) {
+				$logger->error('Unable to generate a tag for {version}: {throwableClass} {message}', [
 					'version' => $version,
-				]);
-			} else {
-				$this->application->logger->info('Generated {version} for {owner}/{repository}', [
-					'version' => $version,
-				] + $this->options);
+				] + Exception::exceptionVariables($t));
 			}
 		}
-		return $settings;
 	}
 
 	/**
+	 * Do we have credentials for GitHub?
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
-	public function has_credentials() {
+	public function hasCredentials(): bool {
 		return $this->hasOption('owner') && $this->hasOption('repository') && $this->hasOption('access_token');
 	}
 
 	/**
 	 *
-	 * @param unknown $version
-	 * @return boolean
+	 * @param string $name
+	 * @param string $commitish
+	 * @param string $description
+	 * @return array
+	 * @throws Client\Exception
+	 * @throws DomainLookupFailed
+	 * @throws FilePermission
+	 * @throws ParameterException
+	 * @throws ParseException
+	 * @throws SemanticsException
+	 * @throws UnsupportedException
 	 */
-	public function generate_tag($name, $commitish = null, $description = null) {
+	public function generateTag(string $name, string $commitish = '', string $description = ''): array {
 		if (!$description) {
 			$description = "Release of version $name";
 		}
@@ -83,25 +107,24 @@ class Module extends BaseModule {
 			$commitish = 'master';
 		}
 		$json_struct = [
-			'tag_name' => $name,
-			'target_commitish' => $commitish,
-			'name' => $name,
-			'body' => $description,
-			'draft' => false,
-			'prerelase' => false,
+			'tag_name' => $name, 'target_commitish' => $commitish, 'name' => $name, 'body' => $description,
+			'draft' => false, 'prerelease' => false,
 		];
 		$missing = self::MISSING_TOKEN;
-		$url = map(self::API_ENDPOINT_RELEASE, $this->options + ['owner' => $missing, 'repository' => $missing, 'access_token' => $missing]);
-		$client = new Net_HTTP_Client($this->application, $url);
+		$options = $this->options() + [
+			'owner' => $missing, 'repository' => $missing, 'accessToken' => $missing,
+		];
+		$url = ArrayTools::map(self::API_ENDPOINT_RELEASE, $options);
+		$client = new Client($this->application, $url);
+		$client->setRequestHeader('Authorization', ArrayTools::map('token {accessToken}', $options));
 		$client->setMethod(HTTP::METHOD_POST);
 		$client->setData(JSON::encode($json_struct));
 		$client->setRequestHeader(HTTP::REQUEST_CONTENT_TYPE, MIME::TYPE_APPLICATION_JSON);
 		$content = $client->go();
 		if ($client->response_code_type() === 2) {
-			$this->application->logger->info(JSON::encodePretty(JSON::decode($content)));
-			return true;
+			return JSON::decode($content);
 		}
-		$this->application->logger->error('Error with request: {response_code} {response_message} {response_data}', $client->responseVariables());
-		return false;
+
+		throw new SemanticsException('Error with request: {responseCode} {responseMessage} {responseData}', $client->responseVariables());
 	}
 }

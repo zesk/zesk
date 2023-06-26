@@ -23,7 +23,7 @@ if [ -L $vendor ]; then
 	exit 0
 elif [ -d $vendor ]; then
 	rm -rf $vendor
-	ln -s $ZESK $vendor
+	ln -s "$ZESK" "$vendor"
 	echo "$ME: Linked to active zesk dev: $ZESK"
 	exit 0
 else

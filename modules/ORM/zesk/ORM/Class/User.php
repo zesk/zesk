@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace zesk\ORM;
 
 use zesk\ArrayTools;
-use zesk\Exception_Configuration;
+use zesk\Exception\ConfigurationException;
 
 /**
  * @see Class_User
@@ -89,7 +89,7 @@ class Class_User extends Class_Base {
 
 	/**
 	 * @return void
-	 * @throws Exception_Configuration
+	 * @throws ConfigurationException
 	 */
 	protected function initialize(): void {
 		$this->column_types[$this->id_column] = self::TYPE_ID;
@@ -121,7 +121,7 @@ class Class_User extends Class_Base {
 			}
 		}
 		if (!in_array($this->default_hash_method, $this->allowed_hash_methods)) {
-			throw new Exception_Configuration([
+			throw new ConfigurationException([
 				__CLASS__ . '::allowed_hash_methods',
 				__CLASS__ . '::default_hash_method',
 			], 'Default method {item} does not exist in list {list}', [
