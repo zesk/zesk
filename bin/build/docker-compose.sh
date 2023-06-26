@@ -25,7 +25,10 @@ fi
 "$top/bin/build/python.sh"
 
 consoleCyan "Installing docker-compose ... "
-pip install docker-compose > "$quietLog" 2>&1
+if ! pip install docker-compose > "$quietLog" 2>&1; then
+  consoleError "pip install docker-compose failed $?"
+  failed "$quietLog"
+fi
 if ! which docker-compose 2> /dev/null; then
   consoleError "docker-compose not found after install"
   failed "$quietLog"
