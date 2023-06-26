@@ -9,7 +9,7 @@ namespace zesk\Image\Library;
 use zesk\ArrayTools;
 use zesk\CSS;
 use zesk\Exception\KeyNotFound;
-use zesk\Exception\Semantics;
+use zesk\Exception\SemanticsException;
 use zesk\Exception\SyntaxException;
 use zesk\Image\Library;
 
@@ -142,18 +142,18 @@ class GD extends Library {
 	 * @param string $data
 	 * @param array $options
 	 * @return string
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 * @throws ParseException
 	 */
 	public function imageScaleData(string $data, array $options): string {
 		if (empty($data)) {
-			throw new Semantics('{method} passed an empty string', [
+			throw new SemanticsException('{method} passed an empty string', [
 				'method' => __METHOD__,
 			]);
 		}
 		$src = @imagecreatefromstring($data);
 		if ($src) {
-			throw new Semantics('{method} passed an invalid string of {n} bytes', [
+			throw new SemanticsException('{method} passed an invalid string of {n} bytes', [
 				'n' => strlen($data), 'method' => __METHOD__,
 			]);
 		}
@@ -168,7 +168,7 @@ class GD extends Library {
 	 * @return bool
 	 * @throws FileNotFound
 	 * @throws ParseException
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 * @see Image_Library::imageScale()
 	 */
 	public function imageScale(string $source, string $dest, array $options): bool {
@@ -182,7 +182,7 @@ class GD extends Library {
 	 * @param string $source image file path to load
 	 * @return GdImage
 	 * @throws FileNotFound
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	private function _imageLoad(string $source): GdImage {
 		$contents = @file_get_contents($source);
@@ -191,7 +191,7 @@ class GD extends Library {
 		}
 		$src = imagecreatefromstring($contents);
 		if (!$src instanceof GdImage) {
-			throw new Semantics('{method} passed an invalid string from {source} of {n} bytes', [
+			throw new SemanticsException('{method} passed an invalid string from {source} of {n} bytes', [
 				'n' => strlen($contents), 'source' => $source, 'method' => __METHOD__,
 			]);
 		}
@@ -298,7 +298,7 @@ class GD extends Library {
 
 	/**
 	 * @throws FileNotFound
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 * {@inheritDoc}
 	 * @see Image_Library::imageRotate()
 	 */

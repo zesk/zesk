@@ -3,6 +3,10 @@ declare(strict_types=1);
 
 namespace zesk;
 
+use zesk\Exception\AuthenticationException;
+use zesk\Locale\Locale;
+use zesk\Router\RouterFile;
+
 /**
  * @see ApplicationTest
  */
@@ -21,32 +25,46 @@ class TestApplication extends Application {
 		Request::class => TestRequest::class,
 	];
 
+	public function hookSources(): array {
+		return array_merge([$this->zeskHome('test/classes')], parent::hookSources());
+	}
+
 	public function beforeConfigure(): void {
+		$this->router = RouterFile::load($this->router, File::setExtension(__FILE__, 'router'));
 		parent::beforeConfigure();
-		$this->hooks->add(Application::class . '::command', function ($_app, $command): void {
-			$_app->hooksCalled[Application::class . '::command'] = $command;
+		$this->hooks->registerHook(Application::HOOK_COMMAND, function (Command $command): void {
+			$app = $command->application;
+			$app->hooksCalled[Application::HOOK_COMMAND] = $command;
 		});
-		$this->hooks->add(Command::class . '::replacedWith', function ($oldCommand, $command): void {
-			$command->application->hooksCalled[Command::class . '::replacedWith'] = $command;
-		});
-		$this->hooks->add(Application::class . '::singleton_zesk_TestModel', function ($app): TestModel {
-			$app->hooksCalled[Application::class . '::singleton_zesk_TestModel'] = true;
-			return new TestModel($app);
-		});
-		$this->hooks->add(Application::class . '::setLocale', function ($app, $locale): void {
-			$app->hooksCalled[Application::class . '::setLocale'] = $locale;
-		});
-		$this->hooks->add(Application::class . '::setMaintenance', function (Application $app, bool $set): bool {
-			if ($set) {
+		$this->hooks->registerHook(Application::HOOK_LOCALE, $this->registrationBasedObjectHook(...));
+		$id = __METHOD__;
+		$this->hooks->registerFilter(Application::FILTER_MAINTENANCE, function (self $app, array $set) use ($id): array {
+			if ($set['maintenance']) {
 				$value = $app->option('preventMaintenance');
 				if ($value === 'throw') {
-					throw new Authentication();
+					throw new AuthenticationException();
 				}
-				if ($value === true) {
-					return false;
+				if ($value) {
+					$set['maintenance'] = false;
 				}
 			}
-			return true;
+			$set[$id] = true;
+			return $set;
 		});
+		Directory::depend($this->path('etc'));
+	}
+
+	public function registrationBasedObjectHook(TestApplication $test, Locale $locale): void {
+		$this->hooksCalled[Application::HOOK_LOCALE][] = 'object';
+	}
+
+	/**
+	 * @param TestApplication $test
+	 * @param Locale $locale
+	 * @return void
+	 */
+	#[HookMethod(handles: Application::HOOK_LOCALE)]
+	public static function attributeBasedHookTest(TestApplication $test, Locale $locale): void {
+		$test->hooksCalled[Application::HOOK_LOCALE][] = 'static';
 	}
 }

@@ -11,6 +11,11 @@ use zesk\Interface\SettingsInterface;
  *
  */
 class bash {
+	/**
+	 *
+	 */
+	private const UNQUOTE_PAIRS = '\'\'""';
+
 	public static function substitute($value, SettingsInterface $settings, array &$dependencies = null, $lower_dependencies = false) {
 		if (!is_array($dependencies)) {
 			$dependencies = [];
@@ -65,9 +70,4 @@ class bash {
 		}
 		return $value;
 	}
-
-	/**
-	 *
-	 */
-	private const UNQUOTE_PAIRS = '\'\'""';
 }

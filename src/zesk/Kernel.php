@@ -15,7 +15,7 @@ use ReflectionException;
 use Throwable;
 use zesk\CacheItemPool\NULLCacheItemPool;
 use zesk\Exception\ClassNotFound;
-use zesk\Exception\Semantics;
+use zesk\Exception\SemanticsException;
 
 /**
  * Stuff that should probably just be part of PHP, but isn't.

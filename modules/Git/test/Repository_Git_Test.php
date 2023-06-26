@@ -10,7 +10,7 @@ namespace zesk\Git;
 use zesk\Repository;
 use zesk\Repository\TestCase;
 use zesk\Directory;
-use zesk\Exception\Semantics;
+use zesk\Exception\SemanticsException;
 use zesk\Exception\SyntaxException;
 use zesk\StringTools;
 use zesk\URL;
@@ -125,7 +125,7 @@ class Repository_Git_Test extends TestCase {
 	 * @depends testFactory
 	 */
 	public function testNoURL(Repository $repo) {
-		$this->expectException(Semantics::class);
+		$this->expectException(SemanticsException::class);
 		$repo->setURL('');
 		$path = $repo->path();
 		$this->assertStringMatchesFormat('%agittest%A', $path);

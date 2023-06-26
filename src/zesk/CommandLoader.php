@@ -18,8 +18,8 @@ use zesk\Exception\FileNotFound;
 use zesk\Exception\NotFoundException;
 use zesk\Exception\ParameterException;
 use zesk\Exception\ParseException;
-use zesk\Exception\Semantics;
-use zesk\Exception\Unsupported;
+use zesk\Exception\SemanticsException;
+use zesk\Exception\UnsupportedException;
 use zesk\Locale\Locale;
 use const STDERR;
 use const ZESK_ROOT;
@@ -151,8 +151,8 @@ class CommandLoader {
 	 * @throws ConfigurationException
 	 * @throws ExitedException
 	 * @throws ParameterException
-	 * @throws Semantics
-	 * @throws Unsupported
+	 * @throws SemanticsException
+	 * @throws UnsupportedException
 	 */
 	public function run(): int {
 		if (!array_key_exists('argv', $_SERVER) || !is_array($_SERVER['argv'])) {
@@ -229,7 +229,7 @@ class CommandLoader {
 	/**
 	 * @return int
 	 * @throws ExitedException
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	private function bootstrapApplication(): int {
 		$first_command = $this->findApplication();
@@ -298,8 +298,7 @@ class CommandLoader {
 		try {
 			require_once($arg);
 		} catch (Throwable $e) {
-			$this->error(ArrayTools::map("require_once($arg) threw error: {class} {message}\n", ['arg' => $arg] +
-				Exception::exceptionVariables($e)));
+			$this->error(ArrayTools::map("require_once($arg) threw error: {class} {message}\n", ['arg' => $arg] + Exception::exceptionVariables($e)));
 			return self::EXIT_CODE_ARGUMENTS;
 		}
 		return 0;
@@ -377,7 +376,7 @@ class CommandLoader {
 		}
 		if (count($failures)) {
 			foreach ($failures as $path => $throwable) {
-				$this->application->logger->error('Command {path} failed {message}', Exception::exceptionVariables($throwable) + ['path' => $path]);
+				$this->application->error('Command {path} failed {message}', Exception::exceptionVariables($throwable) + ['path' => $path]);
 			}
 		}
 		$this->application->classes->register(get_declared_classes());
@@ -405,13 +404,13 @@ class CommandLoader {
 			foreach ($shortcuts as $shortcut) {
 				if (array_key_exists($shortcut, $allShortcuts)) {
 					if (str_starts_with($commandClass, __NAMESPACE__ . '\\')) {
-						$this->application->logger->info('Shortcut {shortcut} for {previousClass} overridden by handler {class}', [
+						$this->application->info('Shortcut {shortcut} for {previousClass} overridden by handler {class}', [
 							'shortcut' => $shortcut, 'class' => $commandClass,
 							'previousClass' => $allShortcuts[$shortcut],
 						]);
 						$allShortcuts[$shortcut] = $commandClass;
 					} else {
-						$this->application->logger->debug('Shortcut {shortcut} for {class} will not override existing handler {currentClass}', [
+						$this->application->debug('Shortcut {shortcut} for {class} will not override existing handler {currentClass}', [
 							'shortcut' => $shortcut, 'class' => $commandClass,
 							'currentClass' => $allShortcuts[$shortcut],
 						]);
@@ -423,7 +422,7 @@ class CommandLoader {
 		}
 		if (count($failures)) {
 			foreach ($failures as $path => $throwable) {
-				$this->application->logger->error('Command {path} failed {message}', Exception::exceptionVariables($throwable) + ['path' => $path]);
+				$this->application->error('Command {path} failed {message}', Exception::exceptionVariables($throwable) + ['path' => $path]);
 			}
 		}
 		return $allShortcuts;
@@ -470,7 +469,7 @@ class CommandLoader {
 
 		try {
 			$this->debug('Remaining class arguments: ' . JSON::encode($args));
-		} catch (Semantics) {
+		} catch (SemanticsException) {
 			// JSON failed, bah
 		}
 		if ($result !== 0) {
@@ -636,7 +635,7 @@ class CommandLoader {
 
 			$this->commands = $this->collectCommandShortcuts();
 			return 0;
-		} catch (Semantics $e) {
+		} catch (SemanticsException $e) {
 			throw new ExitedException('No application', [], 0, $e);
 		}
 	}

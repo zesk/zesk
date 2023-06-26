@@ -17,12 +17,13 @@ use zesk\Daemon\Module;
 use zesk\Directory;
 use zesk\Exception\ConfigurationException;
 use zesk\Exception\FilePermission;
-use zesk\Exception\Semantics;
+use zesk\Exception\SemanticsException;
 use zesk\Exception\SyntaxException;
 use zesk\FileMonitor\FilesMonitor;
 use zesk\Hookable;
 use zesk\Interface\SystemProcess;
 use zesk\PHP;
+use zesk\Process;
 use zesk\ProcessTools;
 use zesk\StringTools;
 use zesk\Exception\SystemException;
@@ -250,25 +251,25 @@ class Daemon extends SimpleCommand implements SystemProcess {
 	final public function command_stop($signal = SIGTERM): int {
 		$database = $this->loadProcessDatabase();
 		if (count($database) === 0) {
-			$this->application->logger->error('Not running.');
+			$this->application->error('Not running.');
 			return 1;
 		}
 		$signal_name = self::$signals[$signal] ?? $signal;
 		$me = $database['me'] ?? null;
 		if (!$me) {
 			$changed = false;
-			$this->application->logger->error('Parent process has been terminated - killing children');
+			$this->application->error('Parent process has been terminated - killing children');
 			var_dump($database);
 			foreach ($database as $name => $settings) {
 				$pid = $settings['pid'];
 				$status = $settings['status'];
 				if ($status === 'up') {
 					if (!posix_kill($pid, $signal)) {
-						$this->application->logger->notice('Dead process {name} ({pid})', compact('name', 'pid'));
+						$this->application->notice('Dead process {name} ({pid})', compact('name', 'pid'));
 						unset($database[$name]);
 						$changed = true;
 					} else {
-						$this->application->logger->notice('Sent {signal_name} to {name} ({pid})', compact('name', 'pid'));
+						$this->application->notice('Sent {signal_name} to {name} ({pid})', compact('name', 'pid'));
 					}
 				} else {
 					unset($database[$name]);
@@ -282,7 +283,7 @@ class Daemon extends SimpleCommand implements SystemProcess {
 		}
 
 		$pid = $me['pid'];
-		$this->application->logger->notice('Sent {signal} to process {pid}', [
+		$this->application->notice('Sent {signal} to process {pid}', [
 			'pid' => $pid, 'signal' => $signal_name,
 		]);
 		posix_kill($pid, $signal);
@@ -371,7 +372,7 @@ class Daemon extends SimpleCommand implements SystemProcess {
 			$found = false;
 			foreach ($database as $procname => $settings) {
 				if (stripos($procname, $name) !== false) {
-					$this->application->logger->notice('Matched process name {procname}', compact('procname'));
+					$this->application->notice('Matched process name {procname}', compact('procname'));
 					$this->_commandState($database, $procname, $settings, $want, $newState);
 					$found = true;
 				}
@@ -382,7 +383,7 @@ class Daemon extends SimpleCommand implements SystemProcess {
 			$settings = null;
 		}
 		if (!is_array($settings)) {
-			$this->application->logger->error('Unknown process {name}', [
+			$this->application->error('Unknown process {name}', [
 				'name' => $name,
 			]);
 			return 2;
@@ -423,7 +424,7 @@ class Daemon extends SimpleCommand implements SystemProcess {
 					$killed = true;
 				}
 				if ($timer->elapsed() > 10) {
-					$this->application->logger->error('Unable to kill process {name} ({pid})', [
+					$this->application->error('Unable to kill process {name} ({pid})', [
 						'name' => $name, 'pid' => $pid,
 					]);
 					return 1;
@@ -497,7 +498,7 @@ class Daemon extends SimpleCommand implements SystemProcess {
 	 */
 	protected static function instance(): self {
 		if (!self::$instance) {
-			throw new Semantics('No instance');
+			throw new SemanticsException('No instance');
 		}
 		return self::$instance;
 	}
@@ -518,7 +519,7 @@ class Daemon extends SimpleCommand implements SystemProcess {
 	 *            The signal number to handle
 	 */
 	public function signal_handler(int $signo): void {
-		$this->application->logger->debug('Signal {signame} {signo} received', [
+		$this->application->debug('Signal {signame} {signo} received', [
 			'signo' => $signo, 'signame' => self::$signals[$signo] ?? 'Unknown',
 		]);
 		if (function_exists('pcntl_signal')) {
@@ -669,12 +670,12 @@ class Daemon extends SimpleCommand implements SystemProcess {
 			'pid' => $this->application->process->id(), 'status' => 'up', 'time' => microtime(true),
 		];
 		$this->saveProcessDatabase($database);
-		$this->application->logger->notice('Daemon run successfully.');
+		$this->application->notice('Daemon run successfully.');
 		self::instance($this);
 
 		PHP::setFeature(PHP::FEATURE_TIME_LIMIT, $this->optionInt(self::OPTION_TIME_LIMIT, 0));
 		$daemons = $this->daemons();
-		$this->application->logger->debug('Daemons to run: ' . implode(', ', $daemons));
+		$this->application->debug('Daemons to run: ' . implode(', ', $daemons));
 
 		if (file_exists($this->fifo_path)) {
 			if (!unlink($this->fifo_path)) {
@@ -707,7 +708,7 @@ class Daemon extends SimpleCommand implements SystemProcess {
 				}
 				if ($elapsed > $alive_notices) {
 					$alive_notices = $elapsed + $this->option('alive-interval', 600);
-					$this->application->logger->notice('Daemon is running at {date}', [
+					$this->application->notice('Daemon is running at {date}', [
 						'date' => Timestamp::now()->format(),
 					]);
 				}
@@ -737,24 +738,24 @@ class Daemon extends SimpleCommand implements SystemProcess {
 
 	private function run_child(string $name, DaemonMethod $method) {
 		$pid = $this->application->process->id();
-		$this->application->logger->debug('FORKING for process {name} me={pid}', [
+		$this->application->debug('FORKING for process {name} me={pid}', [
 			'name' => $name, 'pid' => $pid,
 		]);
 		$nofork = $this->optionBool('nofork');
 		if ($nofork) {
-			$this->application->logger->warning('Not forking for child process because of --nofork');
+			$this->application->warning('Not forking for child process because of --nofork');
 			$child = 0;
 		} else {
 			$child = pcntl_fork();
 		}
 		if ($child < 0) {
-			$this->application->logger->error('Unable to fork to run {name}', [
+			$this->application->error('Unable to fork to run {name}', [
 				'name' => $name,
 			]);
 			return null;
 		} elseif ($child === 0) {
-			Hookable::invokeFilters($this, 'pcntl_fork-child');
-			$this->application->logger->notice('Running {name} as process id {pid}', [
+			$this->invokeHooks(Process::HOOK_FORK_CHILD, [$this->application]);
+			$this->application->notice('Running {name} as process id {pid}', [
 				'name' => $name, 'pid' => $this->application->process->id(),
 			]);
 			$this->name = $name;
@@ -763,9 +764,9 @@ class Daemon extends SimpleCommand implements SystemProcess {
 			// ->child() exits process always - exit here for documentation
 			exit(0);
 		}
-		$this->application->hooks->call('pcntl_fork-parent');
+		$this->invokeHooks(Process::HOOK_FORK_CHILD, [$this->application]);
 
-		$this->application->logger->debug('PARENT FORKED for process {name} me={pid} child={child}', [
+		$this->application->debug('PARENT FORKED for process {name} me={pid} child={child}', [
 			'name' => $name, 'pid' => $pid, 'child' => $child,
 		]);
 		while (true) {
@@ -788,14 +789,15 @@ class Daemon extends SimpleCommand implements SystemProcess {
 	 * @param int $timeout
 	 */
 	private function read_fifo(int $timeout): void {
-		if ($this->debug) {
-			$this->application->logger->debug('Server waiting for data in FIFO (timeout is {timeout} seconds)', [
+		$debug = $this->optionBool(self::OPTION_DEBUG);
+		if ($debug) {
+			$this->application->debug('Server waiting for data in FIFO (timeout is {timeout} seconds)', [
 				'timeout' => $timeout,
 			]);
 		}
 		$result = $this->read($timeout);
-		if ($this->debug) {
-			$this->application->logger->debug('Server read: {data}', [
+		if ($debug) {
+			$this->application->debug('Server read: {data}', [
 				'data' => var_export($result, true),
 			]);
 		}
@@ -806,11 +808,11 @@ class Daemon extends SimpleCommand implements SystemProcess {
 		foreach ($result as $name => $pid) {
 			if (is_numeric($pid)) {
 				if (!array_key_exists($name, $database)) {
-					$this->application->logger->error('Child sent name which isn\'t in our database? {name}', [
+					$this->application->error('Child sent name which isn\'t in our database? {name}', [
 						'name' => $name,
 					]);
 				} elseif ($database[$name]['pid'] !== $pid) {
-					$this->application->logger->error('Child sent PID which doesn\'t match our database (Child sent {childpid}, we have {pid}?', $database[$name] + [
+					$this->application->error('Child sent PID which doesn\'t match our database (Child sent {childpid}, we have {pid}?', $database[$name] + [
 						'childpid' => $pid,
 					]);
 				}
@@ -823,12 +825,12 @@ class Daemon extends SimpleCommand implements SystemProcess {
 				pcntl_waitpid($childpid, $status);
 				if ($pid === 'down') {
 					$database[$name]['status'] = 'down';
-					$this->application->logger->error('Service {name} requested to go down', [
+					$this->application->error('Service {name} requested to go down', [
 						'name' => $name,
 					]);
 				}
 			} else {
-				$this->application->logger->debug('Unknown message from child: {child_pid}', [
+				$this->application->debug('Unknown message from child: {child_pid}', [
 					'data' => serialize($pid),
 				]);
 			}
@@ -856,7 +858,7 @@ class Daemon extends SimpleCommand implements SystemProcess {
 				$status = $settings['status'];
 				$pcntl_status = 0;
 				if (($wait = pcntl_waitpid($pid, $pcntl_status, WNOHANG)) > 0) {
-					$this->application->logger->debug('Child process {name} {pid} exited with {pcntl_status} (result = {wait})', compact('name', 'wait', 'pcntl_status', 'pid'));
+					$this->application->debug('Child process {name} {pid} exited with {pcntl_status} (result = {wait})', compact('name', 'wait', 'pcntl_status', 'pid'));
 					unset($database[$name]);
 					$this->saveProcessDatabase($database);
 
@@ -864,15 +866,15 @@ class Daemon extends SimpleCommand implements SystemProcess {
 				}
 				if (posix_kill($pid, 0)) {
 					if ($status === 'down') {
-						$this->application->logger->debug('Sending TERM to {name} ({pid}) - want down', [
+						$this->application->debug('Sending TERM to {name} ({pid}) - want down', [
 							'pid' => $pid, 'name' => $name,
 						]);
 						posix_kill($pid, SIGTERM);
 
 						continue;
 					}
-					if ($this->debug) {
-						$this->application->logger->debug('Checking {name} {pid}: Running', [
+					if ($this->optionBool(self::OPTION_DEBUG)) {
+						$this->application->debug('Checking {name} {pid}: Running', [
 							'name' => $name, 'pid' => $pid,
 						]);
 					}
@@ -886,7 +888,7 @@ class Daemon extends SimpleCommand implements SystemProcess {
 					}
 				} else {
 					$errno = posix_get_last_error();
-					$this->application->logger->debug('{name} REMOVED {pid} NOT RUNNING {errno}: {strerror}', [
+					$this->application->debug('{name} REMOVED {pid} NOT RUNNING {errno}: {strerror}', [
 						'name' => $name, 'pid' => $database[$name], 'errno' => $errno,
 						'strerror' => posix_strerror($errno),
 					]);
@@ -896,7 +898,7 @@ class Daemon extends SimpleCommand implements SystemProcess {
 			}
 		}
 		while (($wait = pcntl_waitpid(-1, $status, WNOHANG)) > 0) {
-			$this->application->logger->debug('Child process {wait} exited with {status}', compact('wait', 'status'));
+			$this->application->debug('Child process {wait} exited with {status}', compact('wait', 'status'));
 		}
 	}
 
@@ -911,7 +913,7 @@ class Daemon extends SimpleCommand implements SystemProcess {
 		}
 		$this->fifo_w = fopen($this->fifo_path, 'wb');
 		if (!$this->fifo_w) {
-			$this->application->logger->error('Can not open fifo {fifo} for writing', [
+			$this->application->error('Can not open fifo {fifo} for writing', [
 				'fifo' => $this->fifo_path,
 			]);
 
@@ -927,7 +929,7 @@ class Daemon extends SimpleCommand implements SystemProcess {
 	private function _fifo_read(): void {
 		$this->fifo_r = fopen($this->fifo_path, 'r+b');
 		if (!$this->fifo_r) {
-			$this->application->logger->error('Can not open fifo {fifo} for reading', [
+			$this->application->error('Can not open fifo {fifo} for reading', [
 				'fifo' => $this->fifo_path,
 			]);
 
@@ -981,7 +983,7 @@ class Daemon extends SimpleCommand implements SystemProcess {
 		$this->send([
 			$this->name => $pid,
 		]);
-		$this->application->logger->debug('Running {name} as part of {pid}', [
+		$this->application->debug('Running {name} as part of {pid}', [
 			'name' => $this->name, 'pid' => $pid,
 		]);
 		$result = call_user_func($this->method, $this);
@@ -1063,7 +1065,7 @@ class Daemon extends SimpleCommand implements SystemProcess {
 			$pid = $status = null;
 			extract($settings, EXTR_IF_EXISTS);
 			if ($status === 'up' && $pid) {
-				$this->application->logger->debug('Sending SIGINT to {pid}', [
+				$this->application->debug('Sending SIGINT to {pid}', [
 					'pid' => $pid,
 				]);
 				posix_kill($pid, SIGINT);
@@ -1085,19 +1087,19 @@ class Daemon extends SimpleCommand implements SystemProcess {
 				$status = 0;
 				$result = pcntl_waitpid($pid, $status, WNOHANG);
 				if ($result === -1) {
-					$this->application->logger->error('pcntl_waitpid({pid}, {status}, WNOHANG) returned -1, child died? {name}', [
+					$this->application->error('pcntl_waitpid({pid}, {status}, WNOHANG) returned -1, child died? {name}', [
 						'name' => $name, 'pid' => $pid, 'status' => $status,
 					]);
 					unset($database[$name]);
 				} elseif ($result === 0) {
-					$this->application->logger->debug('pcntl_waitpid({pid}, {status}, WNOHANG) returned 0, no child available. {name}.', [
+					$this->application->debug('pcntl_waitpid({pid}, {status}, WNOHANG) returned 0, no child available. {name}.', [
 						'name' => $name, 'pid' => $pid, 'status' => $status,
 					]);
 					unset($database[$name]);
 				} else {
 					if (pcntl_wifexited($status)) {
 						unset($database[$name]);
-						$this->application->logger->debug('pcntl_wifexited({status}) {pid} success {name}', [
+						$this->application->debug('pcntl_wifexited({status}) {pid} success {name}', [
 							'name' => $name, 'pid' => $pid, 'status' => $status,
 						]);
 					}
@@ -1115,7 +1117,7 @@ class Daemon extends SimpleCommand implements SystemProcess {
 			return;
 		}
 		if ($message) {
-			$this->application->logger->notice($message);
+			$this->application->notice($message);
 		}
 		$this->quitting = true;
 		if ($this->parent) {
@@ -1123,10 +1125,10 @@ class Daemon extends SimpleCommand implements SystemProcess {
 			if (count($database) > 0) {
 				$this->shutdown_children($database);
 			} else {
-				$this->application->logger->error('Database is empty on termination? ...');
+				$this->application->error('Database is empty on termination? ...');
 			}
 			usleep(intval(0.1 * 1000000));
-			$this->application->logger->debug('Deleting FIFO and database ...');
+			$this->application->debug('Deleting FIFO and database ...');
 			unlink($this->fifo_path);
 			$this->module->unlink_database();
 		} else {
@@ -1134,7 +1136,7 @@ class Daemon extends SimpleCommand implements SystemProcess {
 			if ($this->hasOption('terminate-wait')) {
 				sleep($this->optionInt('terminate-wait', 1));
 			}
-			$this->application->logger->notice('Daemon child terminated ...');
+			$this->application->notice('Daemon child terminated ...');
 			exit();
 		}
 	}
@@ -1173,6 +1175,6 @@ class Daemon extends SimpleCommand implements SystemProcess {
 	 * @param string $level
 	 */
 	public function warning(string $message, array $args = []): void {
-		$this->application->logger->warning($message, $args);
+		$this->application->warning($message, $args);
 	}
 }

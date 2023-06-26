@@ -11,8 +11,9 @@ use zesk\Exception\DirectoryPermission;
 use zesk\Exception\FileNotFound;
 use zesk\Exception\FilePermission;
 use zesk\Exception\ParseException;
-use zesk\Exception\Semantics;
+use zesk\Exception\SemanticsException;
 use zesk\File;
+use zesk\HookMethod;
 use zesk\Interface\SettingsInterface;
 use zesk\JSON;
 use zesk\PHP;
@@ -54,14 +55,17 @@ class FileSystemSettings implements SettingsInterface {
 			$this->data = [];
 		} catch (ParseException $e) {
 			$this->backupDataFile('parse-' . $application->process->id());
-			$application->logger->error('Parsing {dataFile} {message} - data lost', [
+			$application->error('Parsing {dataFile} {message} - data lost', [
 				'dataFile' => $this->dataFile, 'message' => $e->getMessage(),
 			]);
 			$this->data = [];
 		}
-		$application->hooks->add(Hooks::HOOK_EXIT, $this->saveChanged(...));
 	}
 
+	/**
+	 * @return void
+	 */
+	#[HookMethod(handles: Hooks::HOOK_EXIT)]
 	protected function saveChanged(): void {
 		if ($this->changed) {
 			$this->save();
@@ -72,8 +76,8 @@ class FileSystemSettings implements SettingsInterface {
 		try {
 			Directory::depend(dirname($this->dataFile));
 			File::atomicPut($this->dataFile, JSON::encode($this->data));
-		} catch (Semantics|DirectoryPermission|DirectoryCreate|FileNotFound $e) {
-			$this->application->logger->error($e);
+		} catch (SemanticsException|DirectoryPermission|DirectoryCreate|FileNotFound $e) {
+			$this->application->error($e);
 		}
 	}
 

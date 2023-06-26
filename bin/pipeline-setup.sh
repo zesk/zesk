@@ -10,8 +10,8 @@
 #
 # Exit codes
 #
-ERR_ENV=1
-ERR_BUILD=1000
+err_env=1
+err_build=1000
 
 #
 # Variables and constants
@@ -20,7 +20,7 @@ ERR_BUILD=1000
 export TERM=xterm
 export DEBIAN_FRONTEND=noninteractive
 me=$(basename "$0")
-top="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." || exit $ERR_ENV; pwd)"
+top="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." || exit $err_env; pwd)"
 # Optional binaries in build image
 docker=$(which docker)
 envFile="$top/.env"
@@ -40,24 +40,31 @@ set -eo pipefail
 for e in "${envs[@]}"; do
   if [ -z "${!e}" ]; then
     consoleMagenta "Need to have $e defined in pipeline" 1>&2
-    exit $ERR_ENV
+    exit $err_env
   fi
 done
 
 if [ -z "$docker" ]; then
   consoleMagenta "No docker found in $PATH" 1>&2
-  exit $ERR_ENV
+  exit $err_env
 fi
 
 #
-# Eat --clean if it's an argument
+# --clean - Do a clean build
+# --develop - Development build, tag with a d-tag upon success
 #
 clean=
+versionArgs=()
 while [ $# -gt 0 ]; do
   case $1 in
   --clean)
     clean=1
     consoleBlue "Clean install ..."
+    shift
+    ;;
+  --develop)
+    versionArgs+=("--develop")
+    consoleBlue "Development ..."
     shift
     ;;
   *)
@@ -92,7 +99,7 @@ echo -n "Setting up database ... "
 echo -n "loading schema ... "
 if ! mariadb "${databaseArguments[@]}" < ./docker/mariadb/schema.sql >> "$quietLog"; then
   failed "$quietLog"
-  exit $ERR_BUILD
+  exit $err_build
 fi
 consoleBoldMagenta $(($(date +%s) - start)) seconds
 consoleReset
@@ -121,7 +128,7 @@ echo docker run "${vendorArgs[@]}" >> "$quietLog"
 
 if ! docker run "${vendorArgs[@]}" >> "$quietLog" 2>&1; then
   failed "$quietLog"
-  exit $ERR_BUILD
+  exit $err_build
 fi
 consoleBoldMagenta $(($(date +%s) - start)) seconds
 consoleReset
@@ -136,13 +143,13 @@ echo -n "Build container ... "
 figlet "Build container" >> "$quietLog"
 if ! docker build "${cleanArgs[@]}" --build-arg "DATABASE_HOST=$CONTAINER_DATABASE_HOST" -f ./docker/php.Dockerfile --tag zesk:latest . >> "$quietLog" 2>&1; then
   failed "$quietLog"
-  exit $ERR_BUILD
+  exit $err_build
 fi
 consoleBoldMagenta $(($(date +%s) - start)) seconds
 consoleReset
 
 start=$(($(date +%s) + 0))
-consoleCyan "$(figlet Testing)"
+figlet Testing
 for d in "test-results" ".zesk-coverage" "test-coverage" ".phpunit-cache"; do
   [ -d "$d" ] || mkdir -p "$d"
 done
@@ -150,7 +157,7 @@ docker run -v "$top/:/zesk" zesk:latest /zesk/bin/test-zesk.sh "$@"
 consoleBoldMagenta Testing took $(($(date +%s) - start)) seconds
 
 consoleBlue
-"$top/bin/build/release-check-version.sh"
+"$top/bin/build/release-check-version.sh" "${versionArgs[@]}"
 consoleReset
 
 env > "$envFile"

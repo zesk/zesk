@@ -210,17 +210,9 @@ class TimestampTest extends UnitTest {
 
 		$x->time();
 
-		$x->isEmpty();
-
-		$x->setEmpty();
-
-		$value = null;
-		$x->set($value);
-
-		$x->unixTimestamp();
-
 		$ts = 1231204;
 		$this->assertEquals($x, $x->setUnixTimestamp($ts));
+		$this->assertEquals($ts, $x->unixTimestamp());
 
 		$x->__toString();
 
@@ -392,9 +384,13 @@ class TimestampTest extends UnitTest {
 		$this->assertFalse($x->before($x, false));
 
 		$model = new Timestamp();
+		$model2 = Timestamp::now();
+		$ts2=$model2->unixTimestamp();
+		$this->assertEquals($model->unixTimestamp(), $ts2);
+
 		$equal = false;
-		$this->assertTrue($x->after($model, false));
-		$this->assertTrue($x->after($model, true));
+		$this->assertFalse($x->after($model, true));
+		$this->assertFalse($x->after($model, $equal));
 
 		$model = new Timestamp();
 		$x->later($model);

@@ -140,14 +140,14 @@ class TypesTest extends UnitTest {
 	 * @dataProvider data_isEmail
 	 */
 	public function test_is_email($email): void {
-		$this->assertTrue(is_email($email), "is_email($email)");
+		$this->assertTrue(Types::isEmail($email), "is_email($email)");
 	}
 
 	/**
 	 * @dataProvider data_not_is_email
 	 */
 	public function test_is_not_email($email): void {
-		$this->assertFalse(is_email($email), "is_email($email)");
+		$this->assertFalse(Types::isEmail($email), "is_email($email)");
 	}
 
 	public static function data_isPhone(): array {

@@ -15,10 +15,10 @@ use zesk\Configuration\Parser;
 
 use zesk\Configuration\Editor\CONFEditor;
 use zesk\Directory;
+use zesk\Exception\KeyNotFound;
 use zesk\Exception\ParseException;
-use zesk\Exception\Semantics;
+use zesk\Exception\SemanticsException;
 use zesk\File;
-use zesk\PHP;
 use zesk\StringTools;
 use zesk\Types;
 
@@ -62,15 +62,11 @@ class CONF extends Parser {
 
 	public const DEFAULT_UNQUOTE = '\'\'""';
 
-	protected array $options = [
-		self::OPTION_OVERWRITE => self::DEFAULT_OVERWRITE,
-		self::OPTION_TRIM_KEY => self::DEFAULT_TRIM_KEY,
-		self::OPTION_SEPARATOR => self::DEFAULT_SEPARATOR,
-		self::OPTION_TRIM_VALUE => self::DEFAULT_TRIM_VALUE,
-		self::OPTION_AUTO_TYPE => self::DEFAULT_AUTO_TYPE,
-		self::OPTION_LOWER => self::DEFAULT_LOWER,
-		self::OPTION_MULTILINE => self::DEFAULT_MULTILINE,
-		self::OPTION_UNQUOTE => self::DEFAULT_UNQUOTE,
+	protected array $parseOptions = [
+		self::OPTION_OVERWRITE => self::DEFAULT_OVERWRITE, self::OPTION_TRIM_KEY => self::DEFAULT_TRIM_KEY,
+		self::OPTION_SEPARATOR => self::DEFAULT_SEPARATOR, self::OPTION_TRIM_VALUE => self::DEFAULT_TRIM_VALUE,
+		self::OPTION_AUTO_TYPE => self::DEFAULT_AUTO_TYPE, self::OPTION_LOWER => self::DEFAULT_LOWER,
+		self::OPTION_MULTILINE => self::DEFAULT_MULTILINE, self::OPTION_UNQUOTE => self::DEFAULT_UNQUOTE,
 	];
 
 	/**
@@ -95,15 +91,15 @@ class CONF extends Parser {
 	/**
 	 *
 	 * @return void
-	 * @throws Semantics
 	 * @throws ParseException
-	 * @see Parser::process
+	 * @throws SemanticsException
+	 * @throws KeyNotFound
 	 */
 	public function process(): void {
-		$autoType = Types::toBool($this->options[self::OPTION_AUTO_TYPE]);
-		$unquote = strval($this->options[self::OPTION_UNQUOTE]);
-		$multiline = Types::toBool($this->options[self::OPTION_MULTILINE]);
-		$overwrite = Types::toBool($this->options[self::OPTION_OVERWRITE]);
+		$autoType = Types::toBool($this->parseOptions[self::OPTION_AUTO_TYPE]);
+		$unquote = strval($this->parseOptions[self::OPTION_UNQUOTE]);
+		$multiline = Types::toBool($this->parseOptions[self::OPTION_MULTILINE]);
+		$overwrite = Types::toBool($this->parseOptions[self::OPTION_OVERWRITE]);
 		$settings = $this->settings;
 		$dependency = $this->dependency;
 
@@ -131,8 +127,7 @@ class CONF extends Parser {
 			}
 			$found_quote = null;
 			$key = strtr($key, [
-				'___' => '\\',
-				'__' => '::',
+				'___' => '\\', '__' => '::',
 			]);
 			/**
 			 * Parse and normalize value
@@ -147,7 +142,7 @@ class CONF extends Parser {
 			}
 			if (!$found_quote) {
 				if ($autoType) {
-					$value = PHP::autotype($value);
+					$value = Types::autoType($value);
 				}
 			}
 
@@ -201,8 +196,7 @@ class CONF extends Parser {
 		$last = 0;
 		foreach ($lines as $line) {
 			if (in_array(substr($line, 0, 1), [
-				"\t",
-				' ',
+				"\t", ' ',
 			])) {
 				$result[$last] .= "\n$line";
 			} else {
@@ -220,7 +214,7 @@ class CONF extends Parser {
 	 * @return ?array
 	 */
 	public function parseLine(string $line): ?array {
-		$separator = $this->options[self::OPTION_SEPARATOR];
+		$separator = $this->parseOptions[self::OPTION_SEPARATOR];
 		$line = trim($line);
 		if (str_starts_with($line, '#')) {
 			return null;
@@ -233,18 +227,17 @@ class CONF extends Parser {
 		if (!$key) {
 			return null;
 		}
-		if ($this->options[self::OPTION_TRIM_KEY]) {
+		if ($this->parseOptions[self::OPTION_TRIM_KEY]) {
 			$key = trim($key);
 		}
-		if ($this->options[self::OPTION_TRIM_VALUE]) {
+		if ($this->parseOptions[self::OPTION_TRIM_VALUE]) {
 			$value = trim($value);
 		}
-		if ($this->options[self::OPTION_LOWER]) {
+		if ($this->parseOptions[self::OPTION_LOWER]) {
 			$key = strtolower($key);
 		}
 		return [
-			$key,
-			$value,
+			$key, $value,
 		];
 	}
 }

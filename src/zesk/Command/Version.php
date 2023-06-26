@@ -20,7 +20,7 @@ use zesk\Exception\FilePermission;
 use zesk\File;
 use zesk\JSON;
 use zesk\Exception\ParseException;
-use zesk\Exception\Semantics;
+use zesk\Exception\SemanticsException;
 use zesk\Types;
 use zesk\Version as ZeskVersion;
 
@@ -36,6 +36,14 @@ use zesk\Version as ZeskVersion;
  * @category Management
  */
 class Version extends SimpleCommand {
+	/**
+	 * When the version is updated
+	 */
+	public const HOOK_UPDATED = self::class . '::updated';
+
+	/**
+	 * @var array|string[]
+	 */
 	protected array $shortcuts = ['version', 'v'];
 
 	protected array $option_types = [
@@ -105,7 +113,7 @@ class Version extends SimpleCommand {
 	 * @return int
 	 * @throws FileNotFound
 	 * @throws FilePermission
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	public function run(): int {
 		if ($this->optionBool('init')) {
@@ -128,7 +136,7 @@ class Version extends SimpleCommand {
 
 		try {
 			$parser = $this->versionParser($schema['parser'] ?? []);
-		} catch (Semantics) {
+		} catch (SemanticsException) {
 			$this->error('Unable to geneate parser for version');
 			return self::EXIT_CODE_INVALID_PARSER;
 		}
@@ -187,7 +195,7 @@ class Version extends SimpleCommand {
 
 		try {
 			$new_version = $generator($version_structure);
-		} catch (Exception $e) {
+		} catch (Throwable $e) {
 			$this->error('Error generating new version from structure {message} ({version_structure})', [
 				'message' => $e->getMessage(), 'version_structure' => $version_structure,
 			]);
@@ -210,18 +218,11 @@ class Version extends SimpleCommand {
 				]);
 				return self::EXIT_CODE_VERSION_UPDATE_UNCHANGED;
 			} else {
-				$hooks = $this->application->modules->listAllHooks('version_updated');
 				$params = [
 					'previousVersion' => $previousVersion, 'version' => $new_version_raw, 'command' => $this,
+					'application' => $this->application,
 				];
-				if ($hooks) {
-					$this->info('Calling hooks {hooks}', [
-						'hooks' => $this->application->hooks->callable_strings($hooks),
-					]);
-					$params = $this->application->modules->allHookArguments('version_updated', [
-						$params,
-					], $params);
-				}
+				$this->invokeHooks(self::HOOK_UPDATED, [$params]);
 				$this->info('Updated version from {previousVersion} to {version}', $params);
 				return 0;
 			}
@@ -295,7 +296,7 @@ class Version extends SimpleCommand {
 	 *
 	 * @param array $__parser
 	 * @return Closure
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	private function versionParser(array $__parser): Closure {
 		$pattern = $__parser['pattern'] ?? '/([0-9]+)\\.([0-9]+)\\.([0-9]+)(?:\\.([0-9]+))?([a-z][a-z0-9]*)?/i';
@@ -303,10 +304,10 @@ class Version extends SimpleCommand {
 			'version', 'major', 'minor', 'maintenance', 'patch', 'tag',
 		];
 		if (!$pattern) {
-			throw new Semantics('Missing pattern');
+			throw new SemanticsException('Missing pattern');
 		}
 		if (!is_array($matches)) {
-			throw new Semantics('parser should have `pattern` and `matches` set, `matches` is missing');
+			throw new SemanticsException('parser should have `pattern` and `matches` set, `matches` is missing');
 		}
 		return function ($content) use ($pattern, $matches) {
 			$found = [];
@@ -337,10 +338,7 @@ class Version extends SimpleCommand {
 				$path = $json;
 			}
 			return function ($schema) use ($path, $application_root) {
-				$file = File::isAbsolute($schema['file']) ? $schema['file'] : Directory::path(
-					$application_root,
-					$schema['file']
-				);
+				$file = File::isAbsolute($schema['file']) ? $schema['file'] : Directory::path($application_root, $schema['file']);
 				File::depends($file);
 				$json_structure = JSON::decode(File::contents($file));
 				return ArrayTools::path($json_structure, $path, '');
@@ -356,7 +354,7 @@ class Version extends SimpleCommand {
 	/**
 	 * @param array $__generator
 	 * @return Closure
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	private function versionGenerator(array $__generator): Closure {
 		$map = $__generator['map'] ?? null;
@@ -364,7 +362,7 @@ class Version extends SimpleCommand {
 			return fn (array $version_structure): string|array => ArrayTools::map($map, $version_structure);
 		}
 
-		throw new Semantics('{schema_path} `generator` must have key `map`', [
+		throw new SemanticsException('{schema_path} `generator` must have key `map`', [
 			'schema_path' => $this->versionSchemaPath(),
 		]);
 	}

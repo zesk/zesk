@@ -6,14 +6,14 @@
 #
 # Copyright &copy; 2023 Market Acumen, Inc.
 #
-ERR_ENV=1
+err_env=1
 ERR_ARG=2
 
 #
 # Assumptions
 #
 me=$(basename "$0")
-top="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." || exit $ERR_ENV; pwd)"
+top="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." || exit $err_env; pwd)"
 yml="$top/docker-compose.yml"
 
 set -eo pipefail
@@ -36,7 +36,7 @@ usage() {
 envs=(ZESK_REPOSITORY_VERSION_PREFIX)
 for e in "${envs[@]}"; do
   if [ -z "${!e}" ]; then
-    usage $ERR_ENV "Need $e defined in environment"
+    usage $err_env "Need $e defined in environment"
   fi
 done
 
@@ -76,7 +76,7 @@ git push --tags > /dev/null 2>&1
 echo "Cleaning ..."
 if ! docker-compose -f "$yml" exec php bash -c 'cd /zesk && ./bin/cs-zesk.sh' > /dev/null 2>&1; then
 	echo "Clean failed" 1>& 2
-	exit $ERR_ENV
+	exit $err_env
 fi
 
 #

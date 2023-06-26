@@ -3,6 +3,7 @@ declare(strict_types=1);
 /**
  *
  */
+
 namespace zesk\Repository;
 
 use zesk\ArrayTools;
@@ -103,10 +104,8 @@ class Module extends zeskModule {
 	public function factory(string $directory): Base {
 		$repos = $this->determineRepository($directory);
 		if (count($repos) > 1) {
-			$this->application->logger->warning('{method} multiple repositories detected ({repos}), using first {repo}', [
-				'method' => __METHOD__,
-				'repos' => array_keys($repos),
-				'repo' => ArrayTools::first(array_keys($repos)),
+			$this->application->warning('{method} multiple repositories detected ({repos}), using first {repo}', [
+				'method' => __METHOD__, 'repos' => array_keys($repos), 'repo' => ArrayTools::first(array_keys($repos)),
 			]);
 			return ArrayTools::first($repos);
 		}

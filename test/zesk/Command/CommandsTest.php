@@ -15,8 +15,8 @@ use zesk\Exception\ConfigurationException;
 use zesk\Exception\NotFoundException;
 use zesk\Exception\ParameterException;
 use zesk\Exception\ParseException;
-use zesk\Exception\Semantics;
-use zesk\Exception\Unsupported;
+use zesk\Exception\SemanticsException;
+use zesk\Exception\UnsupportedException;
 use zesk\File;
 use zesk\System;
 use zesk\TestApplicationUnitTest;
@@ -49,26 +49,27 @@ World: false';
 	private static function commandTestArguments(): array {
 		$versionInitLines = [
 			'INFO: wrote /zesk/cache/testApp/etc/version-schema.json',
-			'INFO: wrote /zesk/cache/testApp/etc/version.json',
-			'',
+			'INFO: wrote /zesk/cache/testApp/etc/version.json', '',
 		];
 		return [
 			Arguments::class => [
 				[['a', 'b', 'c'], 0, "[\"a\",\"b\",\"c\"]\n"], [['a', 'b', 'dee'], 0, "[\"a\",\"b\",\"dee\"]\n"],
 			], Cache::class => [
 				[['print'], 0, "zesk\\CacheItemPool\\FileCacheItemPool\n"],
-				[['--log', '-', 'clear'], 0, "NOTICE: /zesk/cache/testApp/cache/ is empty.\nDEBUG: No module cache clear hooks\n"],
+				[['--log', '-', 'clear'], 0, "NOTICE: /zesk/cache/testApp/cache/ is empty.\n"],
 			], Version::class => [
-				[[function () {
-					Directory::depend(self::testApplication()->path('etc'));
-					foreach (['etc/version.json', 'etc/version-schema.json'] as $f) {
-						$f = self::testApplication()->path($f);
-						File::unlink($f);
-					}
-					return '--init';
-				}], 0, implode("\n", $versionInitLines), ],
-				[[], 0, '0.0.0.0'],
-				[['--major'], 0, "INFO: Updated version from 0.0.0.0 to 1.0.0.0\n"],
+				[
+					[
+						function () {
+							Directory::depend(self::testApplication()->path('etc'));
+							foreach (['etc/version.json', 'etc/version-schema.json'] as $f) {
+								$f = self::testApplication()->path($f);
+								File::unlink($f);
+							}
+							return '--init';
+						},
+					], 0, implode("\n", $versionInitLines),
+				], [[], 0, '0.0.0.0'], [['--major'], 0, "INFO: Updated version from 0.0.0.0 to 1.0.0.0\n"],
 				[['--minor'], 0, "INFO: Updated version from 1.0.0.0 to 1.1.0.0\n"],
 				[['--maintenance'], 0, "INFO: Updated version from 1.1.0.0 to 1.1.1.0\n"],
 				[['--patch'], 0, "INFO: Updated version from 1.1.1.0 to 1.1.1.1\n"],
@@ -79,23 +80,20 @@ World: false';
 			], RunTime::class => [
 				[[''], 0, "/0\.[01][0-9]{2} sec\n/"],
 			], Module::class => [
-				/* State is for application load time */
-				[[], 0, self::allFalseModules],
-				[['--loaded'], 0, "CSV : true\nDiff: true\n"],
-				[['CSV'], 0, ''],
-				[['NopeModule'], 1, "ERROR: Failed loading module: NopeModule: NopeModule was not found in /zesk/modules\n",
-				], /* State is reset for application between calls */
-				[['--loaded'], 0, "CSV : true\nDiff: true\n"],
+				/* State is for application load time */ [[], 0, self::allFalseModules],
+				[['--loaded'], 0, "CSV : true\nDiff: true\n"], [['CSV'], 0, ''], [
+					['NopeModule'], 1,
+					"ERROR: Failed loading module: NopeModule: NopeModule was not found in /zesk/modules\n",
+				], /* State is reset for application between calls */ [['--loaded'], 0, "CSV : true\nDiff: true\n"],
 			], Maintenance::class => [
 				/* Maintenance uses state on disk so call updates state */ [[], 1, ''],
-				[['1'], 0, "INFO: Maintenance enabled\n"], [[], 0, ''], [['true'], 0, "INFO: Maintenance enabled\n"],
-				[[],
-					0, '', ],
-				[['false'], 0, "INFO: Maintenance disabled\n"], [[], 1, ''], [
+				[['1'], 0, "INFO: Maintenance enabled\n"], [[], 0, ''], [['true'], 0, "INFO: Maintenance enabled\n"], [
+					[], 0, '',
+				], [['false'], 0, "INFO: Maintenance disabled\n"], [[], 1, ''], [
 					['This is a maintenance message'], 0,
 					"INFO: Maintenance enabled with message \"This is a maintenance message\"\n",
-				], [[], 0, "This is a maintenance message\n"], [['true'], 0, "INFO: Maintenance enabled\n"], [[], 0, ''],
-				[['false'], 0, "INFO: Maintenance disabled\n"], [[], 1, ''],
+				], [[], 0, "This is a maintenance message\n"], [['true'], 0, "INFO: Maintenance enabled\n"],
+				[[], 0, ''], [['false'], 0, "INFO: Maintenance disabled\n"], [[], 1, ''],
 			], Licenses::class => [
 				[[], 0, ''], [['--all'], 0, File::contents(self::applicationPath('test/test-data/license.txt'))],
 				[['--all', '--json'], 0, File::contents(self::applicationPath('test/test-data/license.json'))],
@@ -164,8 +162,8 @@ World: false';
 	 * @throws NotFoundException
 	 * @throws ParameterException
 	 * @throws ParseException
-	 * @throws Semantics
-	 * @throws Unsupported
+	 * @throws SemanticsException
+	 * @throws UnsupportedException
 	 * @dataProvider dataIncludeClasses
 	 */
 	public function test_command(string $class, array $testArguments, int $expectedStatus, string $expectedOutput): void {

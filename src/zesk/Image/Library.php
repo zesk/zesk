@@ -1,11 +1,9 @@
 <?php
 declare(strict_types=1);
+
 namespace zesk\Image;
 
-use Throwable;
 use zesk\Application;
-use zesk\ArrayTools;
-use zesk\Exception;
 use zesk\Exception\ConfigurationException;
 use zesk\Image\Library\GD;
 use zesk\Image\Library\ImageMagick;
@@ -49,25 +47,16 @@ abstract class Library {
 	 * @throws ConfigurationException
 	 */
 	public static function factory(Application $application): self {
-		$libraries= [
-			GD::class,
-			ImageMagick::class,
+		$libraries = [
+			GD::class, ImageMagick::class,
 		];
 		foreach ($libraries as $class) {
-			try {
-				$singleton = $application->factory($class, $application);
-				if (!$singleton->installed()) {
-					continue;
-				}
-				assert($singleton instanceof self);
-				return $singleton;
-			} catch (Throwable $e) {
-				$application->logger->error('{class} creation resulted in {e.class}: {e.message}', [
-					'class' => $class,
-				] + ArrayTools::prefixKeys(Exception::exceptionVariables($e), 'e.'));
-				$application->hooks->call('exception', $e);
+			$singleton = $application->factory($class, $application);
+			if (!$singleton->installed()) {
 				continue;
 			}
+			assert($singleton instanceof self);
+			return $singleton;
 		}
 
 		throw new ConfigurationException(__CLASS__, 'Need one of {libraries} installed', ['libraries' => $libraries]);
@@ -106,8 +95,7 @@ abstract class Library {
 	 * @param float $degrees
 	 * @param array $options
 	 */
-	abstract public function imageRotate(string $source, string $destination, float $degrees, array $options = []):
-	bool;
+	abstract public function imageRotate(string $source, string $destination, float $degrees, array $options = []): bool;
 
 	/**
 	 * Scale an image size to be within a rectangle specified
@@ -121,22 +109,19 @@ abstract class Library {
 	public static function constrainDimensions(int $image_width, int $image_height, int $width, int $height): array {
 		if ($image_width < $width && $image_height < $height) {
 			return [
-				$image_width,
-				$image_height,
+				$image_width, $image_height,
 			];
 		}
 		$ratio = floatval($image_height / $image_width);
 		if ($ratio > 1) {
 			// Portrait
 			return [
-				round($height / $ratio),
-				$height,
+				round($height / $ratio), $height,
 			];
 		} else {
 			// Landscape
 			return [
-				$width,
-				round($width * $ratio),
+				$width, round($width * $ratio),
 			];
 		}
 	}

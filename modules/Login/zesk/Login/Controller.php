@@ -9,12 +9,14 @@ declare(strict_types=1);
 
 namespace zesk\Login;
 
+use ReflectionException;
 use zesk\Doctrine\User;
 use zesk\Controller as zeskController;
-use zesk\Exception\Authentication;
+use zesk\Exception\AuthenticationException;
 use zesk\Exception\KeyNotFound;
-use zesk\Exception\Semantics;
-use zesk\Exception\Unsupported;
+use zesk\Exception\ParameterException;
+use zesk\Exception\SemanticsException;
+use zesk\Exception\UnsupportedException;
 use zesk\HTTP;
 use zesk\Interface\Userlike;
 use zesk\Request;
@@ -104,9 +106,9 @@ class Controller extends zeskController {
 	 * @param Request $request
 	 * @param Response $response
 	 * @return Response
-	 * @throws Unsupported
-	 * @throws \ReflectionException
-	 * @throws \zesk\Exception\ParameterException
+	 * @throws UnsupportedException
+	 * @throws ReflectionException
+	 * @throws ParameterException
 	 */
 	public function action_POST_index(Request $request, Response $response): Response {
 		/**
@@ -117,7 +119,7 @@ class Controller extends zeskController {
 			if ($loginHookResult instanceof Response) {
 				return $response;
 			}
-		} catch (Authentication $e) {
+		} catch (AuthenticationException $e) {
 			$response->setStatus(HTTP::STATUS_UNAUTHORIZED, 'Unauthorized');
 			// Done calling hooks
 			return $response->json()->setData([
@@ -135,7 +137,7 @@ class Controller extends zeskController {
 			return $response->json()->appendData([
 				'authenticated' => true, 'user' => $user->id(),
 			] + $data + $this->_baseResponseData());
-		} catch (Authentication $e) {
+		} catch (AuthenticationException $e) {
 			$response->setStatus(HTTP::STATUS_UNAUTHORIZED, 'Unauthorized');
 			$data = Types::toArray($user->invokeFilters(self::HOOK_LOGIN_FAILED, [], [$this]));
 
@@ -149,7 +151,7 @@ class Controller extends zeskController {
 	 * @param Request $request
 	 * @param Response $response
 	 * @return Response
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	public function action_DELETE_index(Request $request, Response $response): Response {
 		$this->invokeHooks(self::HOOK_LOGOUT);
@@ -157,9 +159,9 @@ class Controller extends zeskController {
 		if ($session) {
 			$id = $session->id();
 			$session->relinquish();
-			$this->application->logger->notice('Session #{id} relinquishd', ['id' => $id]);
+			$this->application->notice('Session #{id} relinquishd', ['id' => $id]);
 		} else {
-			$this->application->logger->notice('Logout with no session found in request: Cookies: {cookies}', [
+			$this->application->notice('Logout with no session found in request: Cookies: {cookies}', [
 				'cookies' => $request->cookies(),
 			]);
 		}
@@ -177,35 +179,17 @@ class Controller extends zeskController {
 	 * @param string $userName
 	 * @param string $password
 	 * @return Userlike
-	 * @throws Authentication
-	 * @throws Unsupported
+	 * @throws AuthenticationException
+	 * @throws UnsupportedException
 	 */
 	private function handleLogin(string $userName, string $password): Userlike {
-		$user = $this->application->entityManager()->getRepository($this->userClass);
-		$column_login = $this->option('ormIdColumn', $user->columnLogin());
-		if ($this->option('no_password')) {
-			try {
-				$user = $this->application->ormRegistry(User::class)->querySelect()->addWhere($column_login, $user)->orm();
-				assert($user instanceof User);
-				return $user;
-			} catch (KeyNotFound|ORMNotFound $e) {
-				throw new Authentication($userName, [], 0, $e);
-			}
+		$repo = $this->application->entityManager()->getRepository($this->optionString('userClass'));
+		$user = $repo->findOneBy(['code' => $userName]);
+		if (!$user) {
+			throw new AuthenticationException('{userName} failed', ['userName' => $userName]);
 		}
-		/* @var $user User */
 		$hashed_password = $this->generateHashedPassword($password);
 
-		try {
-			return $user->authenticate($hashed_password, false, false);
-		} catch (Authentication $e) {
-			/* 2nd chance */
-			if ($this->callHookArguments('authenticate', [
-				$user, $userName, $password,
-			], false)) {
-				return $user;
-			}
-
-			throw $e;
-		}
+		return $user->authenticate($hashed_password);
 	}
 }

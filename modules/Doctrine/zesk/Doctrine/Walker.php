@@ -328,15 +328,15 @@ class Walker {
 	 */
 	public function walk(Model $model): int|string|array {
 		if ($this->preprocess_hook) {
-			$model->callHookArguments($this->preprocess_hook, [
-				$this,
+			$model->invokeHooks($this->preprocess_hook, [
+				$model, $this,
 			]);
 		}
 		$result = $this->_walk($model);
 		if ($this->postprocess_hook) {
-			$result = $model->callHookArguments($this->postprocess_hook, [
+			$result = $model->invokeFilters($this->postprocess_hook, $result, [
 				$result, $this,
-			], $result);
+			], 0);
 		}
 		return $result;
 	}
@@ -423,7 +423,7 @@ class Walker {
 				], $e->getCode(), $e);
 			}
 		}
-		$logger = $model->application->logger;
+		$logger = $model->application->logger();
 
 		$members = [];
 		/* Handle "resolve_objects" list and "allow_resolve_objects" checks */

@@ -13,7 +13,7 @@ use Psr\Log\LoggerInterface;
 use zesk\Exception\DirectoryNotFound;
 use zesk\Exception\NotFoundException;
 use zesk\Exception\Redirect;
-use zesk\Exception\Semantics;
+use zesk\Exception\SemanticsException;
 use zesk\Interface\Themeable;
 
 /**
@@ -310,7 +310,7 @@ class Themes implements Themeable {
 
 	/**
 	 * @return Theme
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	public function popTemplate(): Theme {
 		$top = $this->template_stack->pop();

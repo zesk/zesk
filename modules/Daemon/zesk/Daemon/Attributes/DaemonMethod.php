@@ -6,16 +6,10 @@ namespace zesk\Daemon\Attributes;
 use Attribute;
 use ReflectionMethod;
 use zesk\HookableAttribute;
+use zesk\Daemon\ConfigurationManager;
 
 #[Attribute(flags: Attribute::TARGET_METHOD)]
 class DaemonMethod implements HookableAttribute {
-	/**
-	 * Number of problems you may have
-	 *
-	 * @var int
-	 */
-	public const MAX_PROCESS_COUNT = 99;
-
 	/**
 	 * Daemon method
 	 *
@@ -26,10 +20,10 @@ class DaemonMethod implements HookableAttribute {
 	/**
 	 * @var int
 	 */
-	private int $processCount;
+	private string $managerClass;
 
-	public function __construct(int $processCount = 1) {
-		$this->processCount = $processCount <= 0 ? 1 : (($processCount > self::MAX_PROCESS_COUNT) ? self::MAX_PROCESS_COUNT : $processCount);
+	public function __construct(string $managerClass = ConfigurationManager::class) {
+		$this->$managerClass = $managerClass;
 	}
 
 	public function setMethod(ReflectionMethod $method): self {
@@ -42,11 +36,10 @@ class DaemonMethod implements HookableAttribute {
 	}
 
 	/**
-	 * Guaranteed to be greater than zero
-	 * @return int
+	 * @return string
 	 */
-	public function processCount(): int {
-		return $this->processCount;
+	public function managerClass(): string {
+		return $this->managerClass;
 	}
 
 	/**

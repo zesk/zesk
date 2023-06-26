@@ -6,7 +6,7 @@ namespace zesk\Route;
 use zesk\ArrayTools;
 use zesk\Exception\DirectoryCreate;
 use zesk\Exception\DirectoryPermission;
-use zesk\Exception\Semantics;
+use zesk\Exception\SemanticsException;
 use zesk\HTTP;
 use zesk\Request;
 use zesk\Response;
@@ -63,7 +63,7 @@ class Theme extends Route {
 		$parameters = $application->variables() + [
 			'route' => $this,
 		];
-		$parameters += $this->options + $this->named;
+		$parameters += $this->options() + $this->named;
 		$args = ArrayTools::map($this->optionArray('theme arguments'), $parameters) + $parameters;
 		$theme = $this->option('theme');
 		if ($themes->themeExists($theme, $args)) {
@@ -81,7 +81,7 @@ class Theme extends Route {
 	 * @throws RedirectException
 	 * @throws DirectoryCreate
 	 * @throws DirectoryPermission
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	public function internalExecute(Request $request): Response {
 		$application = $this->application;
@@ -89,7 +89,7 @@ class Theme extends Route {
 		$parameters = $application->variables() + [
 			'route' => $this,
 		];
-		$parameters += $this->options + $this->named;
+		$parameters += $this->options() + $this->named;
 		$args = ArrayTools::map($this->optionArray('theme arguments'), $parameters) + $parameters;
 		$mapped_theme = $theme = $this->option('theme');
 		$theme_options = $this->optionArray('theme options');
@@ -101,7 +101,7 @@ class Theme extends Route {
 				$response->setContent("Theme $mapped_theme not found");
 				return $response;
 			}
-			$application->logger->debug('Executing theme={theme} mapped_theme={mapped_theme} args={args}', compact('theme', 'mapped_theme', 'args'));
+			$application->debug('Executing theme={theme} mapped_theme={mapped_theme} args={args}', compact('theme', 'mapped_theme', 'args'));
 		}
 		$content = $themes->theme($mapped_theme, $args, $theme_options); //TODO
 

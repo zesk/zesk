@@ -12,7 +12,7 @@ namespace zesk;
 use zesk\Exception\ClassNotFound;
 use zesk\Exception\ConfigurationException;
 use zesk\Exception\NotFoundException;
-use zesk\Exception\Unsupported;
+use zesk\Exception\UnsupportedException;
 
 class ApplicationLoader {
 	/**
@@ -22,7 +22,7 @@ class ApplicationLoader {
 	 * @throws ClassNotFound
 	 * @throws ConfigurationException
 	 * @throws NotFoundException
-	 * @throws Unsupported
+	 * @throws UnsupportedException
 	 */
 	public static function application(array $options = []): Application {
 		try {

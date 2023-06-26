@@ -24,7 +24,7 @@ use zesk\Cron\Attributes\Cron;
 use zesk\Doctrine\Trait\AutoID;
 use zesk\Doctrine\Trait\Name;
 use zesk\Exception\KeyNotFound;
-use zesk\Exception\Semantics;
+use zesk\Exception\SemanticsException;
 use zesk\Exception\TimeoutExpired;
 use zesk\Interface\MetaInterface;
 use zesk\IPv4;
@@ -192,7 +192,7 @@ class Server extends Model implements MetaInterface {
 			$server = self::singleton($application);
 			$server->updateState();
 		} catch (Throwable $e) {
-			$application->logger->error("Exception {class} {code} {file}:{line}\n{message}\n{backtrace}", Exception::exceptionVariables($e));
+			$application->error("Exception {class} {code} {file}:{line}\n{message}\n{backtrace}", Exception::exceptionVariables($e));
 		}
 	}
 
@@ -216,8 +216,8 @@ class Server extends Model implements MetaInterface {
 		try {
 			$dead_to_me = Timestamp::now('UTC');
 			$dead_to_me->addUnit($timeout_seconds);
-		} catch (KeyNotFound|Semantics $e) {
-			$this->application->logger->error($e);
+		} catch (KeyNotFound|SemanticsException $e) {
+			$this->application->error($e);
 			return;
 		}
 		$query = $builder->select()->from(self::class, 'X')->where('X.alive < :deadToMe')->setParameter('deadToMe', $dead_to_me)->getQuery();
@@ -226,10 +226,10 @@ class Server extends Model implements MetaInterface {
 			/* @var $server Server */
 			// Delete this way so hooks get called per dead server
 			try {
-				$this->application->logger->warning('Burying dead server {name} (#{id}), last alive on {alive}', $server->variables());
+				$this->application->warning('Burying dead server {name} (#{id}), last alive on {alive}', $server->variables());
 				$server->delete();
 			} catch (Throwable $t) {
-				$this->application->logger->error($t);
+				$this->application->error($t);
 				return;
 			}
 		}
@@ -237,7 +237,7 @@ class Server extends Model implements MetaInterface {
 		try {
 			$em->flush();
 		} catch (OptimisticLockException|ORMException $e) {
-			$this->application->logger->error($e->getMessage());
+			$this->application->error($e->getMessage());
 		}
 		$lock->release();
 	}

@@ -6,6 +6,8 @@ declare(strict_types=1);
 
 namespace zesk\Image\Library;
 
+use Exception;
+use zesk\ArrayTools;
 use zesk\Directory;
 use zesk\Exception\CommandFailed;
 use zesk\Exception\DirectoryCreate;
@@ -14,7 +16,7 @@ use zesk\Exception\DirectoryPermission;
 use zesk\Exception\FileNotFound;
 use zesk\Exception\FilePermission;
 use zesk\Exception\NotFoundException;
-use zesk\Exception\Unimplemented;
+use zesk\Exception\UnimplementedException;
 use zesk\File;
 use zesk\Image\Library;
 
@@ -121,17 +123,16 @@ class ImageMagick extends Library {
 		];
 
 		$cmd = $this->shellCommandScale();
-		$cmd = map($cmd, $map);
+		$cmd = ArrayTools::map($cmd, $map);
 
 		try {
 			$this->application->process->executeArguments($cmd);
 			if (file_exists($dest)) {
 				chmod($dest, /* 0o644 */ 420);
-				$this->application->hooks->call('file_created', $dest);
 				return true;
 			}
 			return false;
-		} catch (\Exception $e) {
+		} catch (Exception $e) {
 			File::unlink($dest);
 
 			throw $e;
@@ -144,9 +145,9 @@ class ImageMagick extends Library {
 	 * @param float $degrees
 	 * @param array $options
 	 * @return bool
-	 * @throws Unimplemented
+	 * @throws UnimplementedException
 	 */
 	public function imageRotate(string $source, string $destination, float $degrees, array $options = []): bool {
-		throw new Unimplemented('TODO');
+		throw new UnimplementedException('TODO');
 	}
 }

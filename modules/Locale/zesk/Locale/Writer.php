@@ -12,7 +12,7 @@ namespace zesk\Locale;
 use zesk\Application;
 use zesk\Exception\FileNotFound;
 use zesk\Exception\FilePermission;
-use zesk\Exception\Unimplemented;
+use zesk\Exception\UnimplementedException;
 use zesk\File;
 use zesk\StringTools;
 
@@ -54,14 +54,14 @@ class Writer {
 	 * @return array
 	 * @throws FileNotFound
 	 * @throws FilePermission
-	 * @throws Unimplemented
+	 * @throws UnimplementedException
 	 */
 	public function append(array $phrases, string $context = ''): array {
 		$extension = File::extension($this->file);
 		return match ($extension) {
 			'php' => $this->appendPHPFile($phrases, $context),
 			'json' => $this->appendCSVFile($phrases, $context),
-			default => throw new Unimplemented('{method}: No handler for file extension {extension} (file is {file})', [
+			default => throw new UnimplementedException('{method}: No handler for file extension {extension} (file is {file})', [
 				'method' => __METHOD__, 'extension' => $extension, 'file' => $this->file,
 			])
 		};
@@ -139,7 +139,7 @@ class Writer {
 			$result[$k] = $v;
 		}
 		File::append($this->file, $csv);
-		$app->logger->debug('{method} - Appended {n} entries to {filename}', [
+		$app->debug('{method} - Appended {n} entries to {filename}', [
 			'filename' => $this->file, 'n' => count($phrases), 'method' => __METHOD__,
 		]);
 		return $result;

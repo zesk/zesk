@@ -1,16 +1,17 @@
 <?php
 declare(strict_types=1);
 /**
- * @version $URL$
- * @author $Author$
  * @package zesk
  * @subpackage core
+ * @author kent
+ * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  */
+
 
 namespace zesk;
 
 use zesk\Exception\NotFoundException;
-use zesk\Exception\Semantics;
+use zesk\Exception\SemanticsException;
 
 /**
  * Abstraction of HTML markup language, with tools for generating and parsing HTML
@@ -23,7 +24,7 @@ class HTML {
 	 *
 	 * @var string
 	 */
-	private const RE_TAG_NAME_CHAR =  '-' . self::RE_TAG_NAME_START_CHAR . ".0-9\xB7";
+	private const RE_TAG_NAME_CHAR = '-' . self::RE_TAG_NAME_START_CHAR . ".0-9\xB7";
 
 	/**
 	 * Tag name pattern without delimiters.
@@ -152,14 +153,7 @@ class HTML {
 	 * @param array $attrs
 	 * @return string
 	 */
-	public static function img_compat(
-		Application $app,
-		string $src,
-		int $w = null,
-		int $h = null,
-		string $text = '',
-		array $attrs = []
-	): string {
+	public static function img_compat(Application $app, string $src, int $w = null, int $h = null, string $text = '', array $attrs = []): string {
 		$attrs['width'] = $w ?? $attrs['width'] ?? null;
 		$attrs['height'] = $h ?? $attrs['height'] ?? null;
 		return self::img($app, $src, $text, $attrs);
@@ -210,28 +204,6 @@ class HTML {
 	public static function a(string $href, array|string $attributes, string $text = null): string {
 		$attributes = self::toAttributes($attributes);
 		$attributes['href'] = $href;
-		return self::tag('a', $attributes, $text);
-	}
-
-	/**
-	 * Output a link which is a telephone number.
-	 * Pass in 1, 2, or 3 parameters, like so:
-	 *
-	 * <code>
-	 * echo HTML::atel("+1 800-555-1212"); // Prints <a href="tel:+18005551212">+1 800-555-1212</a>
-	 * echo HTML::atel("+1 800-555-1212", "Call me"); // Prints <a href="tel:+18005551212">Call
-	 * me</a>
-	 * echo HTML::atel("+1 800-555-1212", array("class" => tel"), "Call me"); // Prints <a
-	 * class="tel" href="tel:+18005551212">Call me</a>
-	 * </code>
-	 *
-	 * @param string $phone
-	 * @param array $attributes
-	 * @param string $text
-	 * @return string
-	 */
-	public static function atel(string $phone, array $attributes, string $text = ''): string {
-		$attributes['href'] = 'tel:' . preg_replace('/[^+0-9,]/', '', $phone);
 		return self::tag('a', $attributes, $text);
 	}
 
@@ -319,16 +291,9 @@ class HTML {
 	public static function tag(string $name, array|string $attributes = [], string $content = null): string {
 		$name = self::cleanTagName($name);
 		if (array_key_exists($name, self::$attributes_alter)) {
-			try {
-				$result = Kernel::singleton()->application()->hooks->callArguments(__METHOD__ . "::$name", [
-					$attributes, $content,
-				], $attributes);
-				if (is_array($result)) {
-					$attributes = $result;
-				}
-			} catch (Semantics) {
-				// pass
-			}
+			$attributes = Kernel::singleton()->application()->invokeTypedFilters(__METHOD__ . "::$name", $attributes, [
+				$attributes, $content,
+			], 0);
 		}
 		return "<$name" . self::attributes(self::toAttributes($attributes)) . ($content === null ? ' />' : ">$content</$name>");
 	}
@@ -513,9 +478,7 @@ class HTML {
 			if ($value === true) {
 				$value = $name;
 			}
-			if ($value instanceof Control) {
-				continue;
-			} elseif (is_object($value)) {
+			if (is_object($value)) {
 				$value = method_exists($value, '__toString') ? $value->__toString() : strval($value);
 			}
 			if (!is_numeric($name)) {
@@ -671,15 +634,15 @@ class HTML {
 	 *
 	 * @param null|string $name
 	 * @return string
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	public static function tag_close(string $name = null): string {
 		if (count(self::$tag_stack) === 0) {
-			throw new Semantics("Closing tag without open ($name)");
+			throw new SemanticsException("Closing tag without open ($name)");
 		}
 		$top_name = array_pop(self::$tag_stack);
 		if ($name !== null && strcasecmp($name, $top_name) !== 0) {
-			throw new Semantics("Closing tag $name when it should be $top_name");
+			throw new SemanticsException("Closing tag $name when it should be $top_name");
 		}
 		return '</' . $top_name . '>';
 	}
@@ -730,7 +693,7 @@ class HTML {
 	 * Common tag_close case
 	 *
 	 * @return string
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	public static function div_close(): string {
 		return self::tag_close('div');
@@ -740,7 +703,7 @@ class HTML {
 	 * Common tag_close case
 	 *
 	 * @return string
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	public static function span_close(): string {
 		return self::tag_close('span');
@@ -998,7 +961,7 @@ class HTML {
 				$attr = [];
 			} else {
 				$attr = self::parseAttributes($match[2]);
-				$attr = ArrayTools::filterKeys($attr, $include, $exclude, false);
+				$attr = ArrayTools::filterKeys($attr, $include, $exclude);
 			}
 			$ss = $match[0];
 			$single = str_ends_with($match[0], '/>') ? '/' : '';
@@ -1294,15 +1257,6 @@ class HTML {
 			'offset' => $offset, 'next' => $offset + $tagMatchLength, 'tagMatchLength' => $tagMatchLength,
 			'tagMatch' => $tagMatch, 'words' => $nWords, 'tagContents' => $tagContents, 'tagName' => $tagName,
 		];
-	}
-
-	/**
-	 * @param string $string
-	 * @param int $wordCount
-	 * @return string
-	 */
-	public static function trim_words(string $string, int $wordCount): string {
-		return self::trimWords($string, $wordCount);
 	}
 
 	/**
@@ -1607,37 +1561,5 @@ class HTML {
 			return $phrase;
 		}
 		return str_replace($skip_s, $skip_r, $phrase);
-	}
-
-	/**
-	 * Extract the body, ignoring extra body tags
-	 *
-	 * @param mixed $mixed
-	 *            HTML string, HTMLTag object, or an object which can be converted
-	 * @return string|array Contents of the tag
-	 * @deprecated Use self::extractTagContents
-	 */
-	public static function extractBody(array|string $mixed): array|string {
-		if (is_array($mixed)) {
-			$result = [];
-			foreach ($mixed as $k => $x) {
-				$result[$k] = self::extractBody($x);
-			}
-			return $result;
-		}
-		$begin_tag = stripos($mixed, '<body');
-		$end_tag = strripos($mixed, '</body>');
-		if ($begin_tag < 0) {
-			$begin_tag = 0;
-		} else {
-			$begin_tag_len = strpos($mixed, '>', $begin_tag);
-			$begin_tag = $begin_tag_len;
-		}
-		if ($end_tag < 0) {
-			$end_tag = strlen($mixed);
-		} else {
-			$end_tag -= $begin_tag;
-		}
-		return substr($mixed, $begin_tag, $end_tag);
 	}
 }

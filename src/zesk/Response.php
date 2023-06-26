@@ -17,7 +17,7 @@ use zesk\CacheItem\CacheItemNULL;
 use zesk\Exception\ClassNotFound;
 use zesk\Exception\FileNotFound;
 use zesk\Exception\KeyNotFound;
-use zesk\Exception\Semantics;
+use zesk\Exception\SemanticsException;
 use zesk\Exception\Redirect as RedirectException;
 use zesk\Exception\SyntaxException;
 
@@ -258,20 +258,27 @@ class Response extends Hookable {
 	 */
 	private bool $rendering = false;
 
-	/**
-	 *
-	 * @see Options::__sleep
-	 */
-	public function __sleep(): array {
-		return array_merge(parent::__sleep(), [
-			'content', 'status_code', 'status_message', 'contentType', 'output_handler', 'charset', 'types', 'headers',
-			'response_data',
-		]);
+	public function __serialize(): array {
+		return parent::__serialize() + [
+			'content' => $this->content, 'status_code' => $this->status_code,
+			'status_message' => $this->status_message, 'contentType' => $this->contentType,
+			'output_handler' => $this->output_handler, 'charset' => $this->charset, 'types' => $this->types,
+			'headers' => $this->headers, 'response_data' => $this->response_data,
+		];
 	}
 
-	public function __wakeup(): void {
-		parent::__wakeup();
+	public function __unserialize(array $data): void {
+		parent::__unserialize($data);
 		$this->id = self::$response_index++;
+		$this->content = $data['content'];
+		$this->status_code = $data['status_code'];
+		$this->status_message = $data['status_message'];
+		$this->contentType = $data['contentType'];
+		$this->output_handler = $data['output_handler'];
+		$this->charset = $data['charset'];
+		$this->types = $data['types'];
+		$this->headers = $data['headers'];
+		$this->response_data = $data['response_data'];
 	}
 
 	/**
@@ -366,7 +373,7 @@ class Response extends Hookable {
 	 * @param array|string|null $value
 	 * @param array $options
 	 * @return self
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	public function setCookie(string $name, array|string $value = null, array $options = []): self {
 		$expire = $options['expire'] ?? $this->option('cookie_expire');
@@ -382,7 +389,7 @@ class Response extends Hookable {
 		if ($domain) {
 			$domain = ltrim($domain, '.');
 			if (!str_ends_with($host, $domain)) {
-				$this->application->logger->warning('Unable to set cookie domain {cookie_domain} on host {host}', [
+				$this->application->warning('Unable to set cookie domain {cookie_domain} on host {host}', [
 					'cookie_domain' => $domain, 'host' => $host,
 				]);
 				$domain = null;
@@ -392,7 +399,7 @@ class Response extends Hookable {
 		$path = $options['path'] ?? $this->option('cookie_path', '/');
 		$expire_time = $n_seconds ? time() + $n_seconds : 0;
 		if (!$this->request->isBrowser()) {
-			throw new Semantics('Not a browser');
+			throw new SemanticsException('Not a browser');
 		}
 		setcookie($name, '', 1, $path, ".$domain", $secure);
 		if (!empty($value)) {
@@ -414,22 +421,26 @@ class Response extends Hookable {
 		header($string);
 	}
 
+	public const HOOK_BEFORE_HEADERS = __CLASS__ . '::beforeHeaders';
+
+	public const HOOK_AFTER_HEADERS = __CLASS__ . '::afterHeaders';
+
 	/**
 	 *
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	private function responseHeaders(bool $skip_hooks = false): void {
 		static $called = false;
 
 		$do_hooks = !$skip_hooks;
 		if ($do_hooks) {
-			$this->callHook('headers_before');
+			$this->invokeHooks(self::HOOK_BEFORE_HEADERS, [$this]);
 		}
 		if ($this->optionBool(self::OPTION_SKIP_HEADERS)) {
 			return;
 		}
 		if ($called) {
-			throw new Semantics('Response headers called twice! {previous}', [
+			throw new SemanticsException('Response headers called twice! {previous}', [
 				'previous' => $called,
 			]);
 		} else {
@@ -437,15 +448,15 @@ class Response extends Hookable {
 		}
 		$file = $line = null;
 		if (headers_sent($file, $line)) {
-			throw new Semantics('Headers already sent on {file}:{line}', [
+			throw new SemanticsException('Headers already sent on {file}:{line}', [
 				'file' => $file, 'line' => $line,
 			]);
 		}
 		if ($do_hooks) {
-			$this->callHook('headers');
+			$this->invokeHooks(self::HOOK_AFTER_HEADERS, [$this]);
 		}
 		if (str_starts_with($this->contentType, 'text/')) {
-			if (empty($this->charset)) {
+			if ($this->charset === '') {
 				$this->charset = 'utf-8';
 			}
 			$content_type = $this->contentType . '; charset=' . $this->charset;
@@ -535,7 +546,7 @@ class Response extends Hookable {
 	 * @return self
 	 */
 	final public function setContentType(string $set): self {
-		$this->application->logger->debug('Set content type to {set} at {where}', [
+		$this->application->debug('Set content type to {set} at {where}', [
 			'set' => $set, 'where' => Kernel::callingFunction(),
 		]);
 		$this->contentType = $set;
@@ -571,7 +582,7 @@ class Response extends Hookable {
 	 * @return Response
 	 */
 	final public function setOutputHandler(string $set): self {
-		$this->application->logger->debug('{method} set to {set} from {calling}', [
+		$this->application->debug('{method} set to {set} from {calling}', [
 			'method' => __METHOD__, 'set' => $set, 'calling' => Kernel::callingFunction(2),
 		]);
 		$this->output_handler = $set;
@@ -656,14 +667,14 @@ class Response extends Hookable {
 	 * Current output handler
 	 *
 	 * @return Type
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	private function _output_handler(): Type {
 		$type = $this->output_handler;
 		if (!$type) {
 			$type = $this->contentType;
 			if (!$type) {
-				throw new Semantics('No content type set in {method}', [
+				throw new SemanticsException('No content type set in {method}', [
 					'method' => __METHOD__,
 				]);
 			}
@@ -676,7 +687,7 @@ class Response extends Hookable {
 	 *
 	 * @param array $options
 	 * @return string
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	final public function render(array $options = []): string {
 		ob_start();
@@ -684,14 +695,16 @@ class Response extends Hookable {
 		return ob_get_clean();
 	}
 
-	const HOOK_OUTPUT_BEFORE = __CLASS__ . '::outputBefore';
-	const HOOK_OUTPUT_AFTER = __CLASS__ . '::outputBefore';
+	public const HOOK_OUTPUT_BEFORE = __CLASS__ . '::outputBefore';
+
+	public const HOOK_OUTPUT_AFTER = __CLASS__ . '::outputBefore';
+
 	/**
 	 * Echo response
 	 *
 	 * @param array $options
 	 * @return void
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	public function output(array $options = []): void {
 		if ($this->rendering) {
@@ -716,7 +729,7 @@ class Response extends Hookable {
 	 * May call zesk\Response\Type::toJSON
 	 *
 	 * @return array
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	public function toJSON(): array {
 		return $this->_output_handler()->toJSON() + $this->response_data;
@@ -825,7 +838,7 @@ class Response extends Hookable {
 	 * @param CacheItemPoolInterface $pool
 	 * @param string $url
 	 * @return boolean
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	public function cacheSave(CacheItemPoolInterface $pool, string $url): bool {
 		if (count($this->cache_settings) === 0) {
@@ -860,7 +873,7 @@ class Response extends Hookable {
 			} elseif ($expires instanceof Timestamp) {
 				$item->expiresAt($expires->datetime());
 			} else {
-				$this->application->logger->error('{method} expires is unhandled type: {type}', [
+				$this->application->error('{method} expires is unhandled type: {type}', [
 					'method' => __METHOD__, 'type' => Types::type($expires),
 				]);
 			}
@@ -1053,7 +1066,7 @@ class Response extends Hookable {
 	 *            (may be ie,
 	 *            ie6, ie7), and cdn (boolean to prefix with cdn path)
 	 * @return self
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	final public function css(string $path, array $options = []): self {
 		return $this->html()->css($path, $options);
@@ -1089,7 +1102,7 @@ class Response extends Hookable {
 	 *            browsers),
 	 *            cdn (defaults to false)
 	 * @return Response
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	final public function javascript(string|array $path, array $options = []): Response {
 		return $this->html()->javascript($path, $options);
@@ -1101,21 +1114,10 @@ class Response extends Hookable {
 	 * @param string $script
 	 * @param array $options
 	 * @return Response
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	final public function inlineJavaScript(string $script, array $options = []): self {
 		return $this->html()->inlineJavaScript($script, $options);
-	}
-
-	/**
-	 * Require jQuery on the page, and optionally add a ready script
-	 *
-	 * @param string|array $add_ready_script
-	 * @param int $weight
-	 * @return Response
-	 */
-	final public function jquery(string|array $add_ready_script = '', int $weight = 0): Response {
-		return $this->html()->jquery($add_ready_script, $weight);
 	}
 
 	/*====================================================================================================*\
@@ -1183,7 +1185,7 @@ class Response extends Hookable {
 	 * @param string|null $file
 	 * @return string|$this
 	 * @throws FileNotFound
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	final public function file(string $file = null): string|self {
 		return $file ? $this->setRawFile($file) : $this->raw()->file();
@@ -1320,9 +1322,6 @@ class Response extends Hookable {
 	 * @return int
 	 */
 	public function resourceExpireSeconds(): int {
-		return $this->optionInt(
-			self::OPTION_RESOURCE_CACHE_EXPIRE_SECONDS,
-			self::DEFAULT_RESOURCE_CACHE_EXPIRE_SECONDS
-		);
+		return $this->optionInt(self::OPTION_RESOURCE_CACHE_EXPIRE_SECONDS, self::DEFAULT_RESOURCE_CACHE_EXPIRE_SECONDS);
 	}
 }

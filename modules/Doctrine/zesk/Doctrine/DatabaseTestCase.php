@@ -7,7 +7,6 @@ declare(strict_types=1);
 namespace zesk\Doctrine;
 
 use Doctrine\Persistence\ObjectRepository;
-use zesk\ArrayTools;
 use zesk\PHPUnit\TestCase;
 
 use Doctrine\ORM\EntityManager;

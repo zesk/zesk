@@ -6,13 +6,14 @@ declare(strict_types=1);
  * @author kent
  * @copyright &copy; 2023, Market Acumen, Inc.
  */
+
 namespace zesk\Response;
 
 use Throwable;
 use zesk\Exception\KeyNotFound;
 use zesk\Exception\Redirect as RedirectException;
 use zesk\Exception\RedirectTemporary;
-use zesk\Exception\Semantics;
+use zesk\Exception\SemanticsException;
 use zesk\Interface\SessionInterface;
 use zesk\Net_HTTP;
 use zesk\Response;
@@ -26,7 +27,7 @@ class Redirect extends Type {
 	/**
 	 *
 	 * @return SessionInterface
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	private function session(): SessionInterface {
 		return $this->application->requireSession($this->application->request());
@@ -40,9 +41,8 @@ class Redirect extends Type {
 		try {
 			$this->session()->redirect_message = null;
 		} catch (Throwable $e) {
-			$this->application->logger->debug('{method} caused an exception {e}', [
-				'method' => __METHOD__,
-				'e' => $e,
+			$this->application->debug('{method} caused an exception {e}', [
+				'method' => __METHOD__, 'e' => $e,
 			]);
 		}
 	}
@@ -54,7 +54,7 @@ class Redirect extends Type {
 	 * @param string $message
 	 * @param array $attributes
 	 * @return Response
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 * @throws KeyNotFound
 	 * @todo Move this elsewhere. Response addon?
 	 */
@@ -104,22 +104,24 @@ class Redirect extends Type {
 	}
 
 	/**
-	 * @throws RedirectException
 	 * @param string $url
 	 * @param string $message
+	 * @throws RedirectException
 	 */
 	public function url(string $url, string $message = ''): void {
 		throw new RedirectException($url, $message);
 	}
 
 	/**
-	 * @throws RedirectTemporary
 	 * @param string $url
 	 * @param string $message
+	 * @throws RedirectTemporary
 	 */
-	public function urlTemporary(string  $url, string $message = ''): void {
+	public function urlTemporary(string $url, string $message = ''): void {
 		throw new RedirectTemporary($url, $message);
 	}
+
+	public const HOOK_URL_ALTER = self::class . '::urlAlter';
 
 	/**
 	 *
@@ -129,9 +131,7 @@ class Redirect extends Type {
 	public function processURL(string $url): string {
 		/* Clean out any unwanted characters from the URL */
 		$url = preg_replace("/[\x01-\x1F\x7F-\xFF]/", '', $url);
-		$altered_url = $this->parent->callHookArguments('redirect_alter', [
-			$url,
-		], $url);
+		$altered_url = $this->parent->invokeTypedFilters(self::HOOK_URL_ALTER, $url, [$this->parent]);
 		if (is_string($altered_url) && !empty($altered_url)) {
 			$url = $altered_url;
 		}

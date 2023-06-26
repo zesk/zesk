@@ -4,12 +4,13 @@ declare(strict_types=1);
  * @copyright &copy; 2023 Market Acumen, Inc.
  * @package zesk
  */
+
 namespace zesk\Configuration\Editor;
 
 use zesk\ArrayTools;
 use zesk\Configuration\Editor;
 use zesk\Configuration\Parser\CONF;
-use zesk\Exception\Semantics;
+use zesk\Exception\SemanticsException;
 use zesk\JSON;
 use zesk\Text;
 
@@ -23,12 +24,12 @@ class CONFEditor extends Editor {
 	 * @desc Save changes to a configuration file
 	 * @param array $edits
 	 * @return string
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 * @copyright &copy; 2023 Market Acumen, Inc.
 	 * @package zesk
 	 */
 	public function edit(array $edits): string {
-		$parser = new CONF('', null, $this->options);
+		$parser = new CONF('', null, $this->options());
 		$edits_processed = ArrayTools::valuesFlipCopy(array_keys($edits));
 		$new_lines = [];
 		$lines = explode("\n", $this->content);

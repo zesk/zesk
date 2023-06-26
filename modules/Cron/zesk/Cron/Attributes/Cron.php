@@ -6,7 +6,6 @@ namespace zesk\Cron\Attributes;
 use Attribute;
 use ReflectionException;
 use ReflectionMethod;
-use zesk\Hookable;
 use zesk\HookableAttribute;
 
 #[Attribute(Attribute::TARGET_METHOD)]
@@ -61,12 +60,11 @@ class Cron implements HookableAttribute {
 	}
 
 	/**
-	 * @param Hookable|null $object
 	 * @param array $arguments
 	 * @return mixed
 	 * @throws ReflectionException
 	 */
-	public function run(null|Hookable $object, array $arguments = []): mixed {
-		return $this->method->invokeArgs($object, $arguments);
+	public function run(array $arguments = []): mixed {
+		return $this->method->invokeArgs(null, $arguments);
 	}
 }

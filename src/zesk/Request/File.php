@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+
 namespace zesk\Request;
 
 use zesk\Application;
@@ -50,8 +51,7 @@ class File {
 	public function __construct(array $upload_array) {
 		if (!isset($upload_array['tmp_name'])) {
 			throw new ParameterException('{method} must have keys tmp_name (keys passed: {keys})', [
-				'method' => __METHOD__,
-				'keys' => array_keys($upload_array),
+				'method' => __METHOD__, 'keys' => array_keys($upload_array),
 			]);
 		}
 		$this->upload_array = $upload_array;
@@ -73,14 +73,19 @@ class File {
 	/**
 	 * Create a new instance
 	 *
-	 * @return self
 	 * @param array $upload_array
+	 * @return self
 	 * @throws FilePermission
 	 * @throws ParameterException
 	 */
 	public static function instance(array $upload_array): self {
 		return new self($upload_array);
 	}
+
+	/**
+	 * Process upload files before anyone else
+	 */
+	public const FILTER_UPLOAD = self::class . '::upload';
 
 	/**
 	 * Sample options are:
@@ -94,8 +99,8 @@ class File {
 	 *
 	 * @param string $dest_path
 	 * @param array $options
-	 * @throws ParameterException
 	 * @return string
+	 * @throws ParameterException
 	 */
 	/**
 	 * @param Application $application
@@ -127,7 +132,7 @@ class File {
 			zeskFile::chmod($dest_path, $options['file_mode']);
 		}
 		if (!($options['skip_hook'] ?? false)) {
-			$application->hooks->call('upload', $dest_path);
+			$dest_path = $application->invokeTypedFilters(self::FILTER_UPLOAD, $dest_path, [$application]);
 		}
 		return $dest_path;
 	}

@@ -6,6 +6,7 @@ declare(strict_types=1);
  * @subpackage Polyglot
  * @copyright &copy; 2023, Market Acumen, Inc.
  */
+
 namespace zesk\Polyglot;
 
 use Throwable;
@@ -22,7 +23,7 @@ use zesk\Exception\KeyNotFound;
 use zesk\Exception\NotFoundException;
 use zesk\Exception\ParameterException;
 use zesk\Exception\ParseException;
-use zesk\Exception\Semantics;
+use zesk\Exception\SemanticsException;
 use zesk\File;
 use zesk\Locale\Locale;
 use zesk\PHP;
@@ -49,7 +50,7 @@ class Update extends Model {
 	 * @throws KeyNotFound
 	 * @throws ParameterException
 	 * @throws ParseException
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 * @throws ORMDuplicate
 	 * @throws ORMEmpty
 	 * @throws ORMNotFound
@@ -87,7 +88,7 @@ class Update extends Model {
 	 * @throws ORMNotFound
 	 * @throws ParameterException
 	 * @throws ParseException
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 * @throws TimeoutExpired
 	 * @throws ORMEmpty
 	 */
@@ -97,7 +98,7 @@ class Update extends Model {
 			Module::class, 'update_path',
 		], $application->path('etc/language'));
 		if (!is_dir($path)) {
-			$application->logger->warning(Module::class . '::update_path is not a directory ({path}) on {server}', [
+			$application->warning(Module::class . '::update_path is not a directory ({path}) on {server}', [
 				'path' => $path, 'server' => $server->name,
 			]);
 			return;
@@ -122,7 +123,7 @@ class Update extends Model {
 			$update_locales = $application->ormRegistry(__CLASS__)->querySelect()->addWhat('locale', 'locale')->toArray(null, 'locale');
 		}
 		if (count($update_locales) === 0) {
-			$application->logger->debug('No locale updates needed on {server}', [
+			$application->debug('No locale updates needed on {server}', [
 				'server' => $server->name,
 			]);
 			$lock->release();
@@ -144,7 +145,7 @@ class Update extends Model {
 		}
 		$update_locales = array_merge($update_locales, $additional_locales);
 		$update_locales = array_unique($update_locales);
-		$application->logger->warning('Updating locales {locales} on {server}', [
+		$application->warning('Updating locales {locales} on {server}', [
 			'locales' => $update_locales, 'server' => $server->name,
 		]);
 		$success = true;
@@ -155,7 +156,7 @@ class Update extends Model {
 				self::updateLocale($application, $path, $update_locale);
 				$application->ormRegistry(__CLASS__)->queryUpdate()->value('updated', Timestamp::now())->addWhere('locale', $update_locale)->execute();
 			} catch (Throwable $e) {
-				$application->logger->error('Updating locale {locale} on {server} FAILED due to {message}', [
+				$application->error('Updating locale {locale} on {server} FAILED due to {message}', [
 					'locales' => $update_locales, 'server' => $server->name, 'message' => $e->getMessage(),
 				]);
 				$success = false;

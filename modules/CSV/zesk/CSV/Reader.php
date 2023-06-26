@@ -15,7 +15,7 @@ use zesk\Exception\FileParseException;
 use zesk\Exception\KeyNotFound;
 use zesk\Exception\ParameterException;
 use zesk\Exception\ParseException;
-use zesk\Exception\Semantics;
+use zesk\Exception\SemanticsException;
 use zesk\StopIteration;
 use zesk\StringTools;
 use zesk\UTF16;
@@ -43,7 +43,7 @@ class Reader extends Base {
 	 * @throws FileNotFound
 	 * @throws FilePermission
 	 * @throws ParseException
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	public function __construct(string $filename = '', array $options = []) {
 		parent::__construct($options);
@@ -62,7 +62,7 @@ class Reader extends Base {
 	 * @throws FileNotFound
 	 * @throws FilePermission
 	 * @throws ParseException
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	public static function factory(string $filename = '', array $options = []): self {
 		return new self($filename, $options);
@@ -93,7 +93,7 @@ class Reader extends Base {
 	 * @throws FileNotFound
 	 * @throws FilePermission
 	 * @throws ParseException
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	public function setFilename(string $filename): self {
 		parent::_setFile($filename, 'r');
@@ -119,16 +119,16 @@ class Reader extends Base {
 	 * Seek to a previous tell point. Do not try to construct this structure
 	 *
 	 * @param array $tell
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	public function seek(array $tell): void {
 		if (!array_key_exists('key', $tell)) {
-			throw new Semantics('Invalid tell for CSV File {filename}', [
+			throw new SemanticsException('Invalid tell for CSV File {filename}', [
 				'filename' => $this->FileName,
 			]);
 		}
 		if ($tell['key'] !== $this->_magicNumber()) {
-			throw new Semantics('Invalid tell for CSV File, hashes do not match {filename}', [
+			throw new SemanticsException('Invalid tell for CSV File, hashes do not match {filename}', [
 				'filename' => $this->FileName,
 			]);
 		}
@@ -199,14 +199,14 @@ class Reader extends Base {
 	 * Read the headers from the CSV file
 	 *
 	 * @return array
-	 * @throws Semantics|KeyNotFound|FileParseException
+	 * @throws SemanticsException|KeyNotFound|FileParseException
 	 */
 	public function read_headers(): array {
 		$this->_check_file();
 		if (!count($this->Headers)) {
 			$headers = $this->read_line();
 			if (!count($headers)) {
-				throw new Semantics('No headers');
+				throw new SemanticsException('No headers');
 			}
 			$this->RowIndex++;
 			$this->setHeaders($headers, false);
@@ -226,7 +226,7 @@ class Reader extends Base {
 	 * @return array
 	 * @throws FileParseException
 	 * @throws KeyNotFound
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	public function read_row(): array {
 		$this->_check_file();
@@ -250,7 +250,7 @@ class Reader extends Base {
 	 * @return array
 	 * @throws FileParseException
 	 * @throws KeyNotFound
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	public function read_row_assoc(): array {
 		$row = $this->read_row();
@@ -306,11 +306,11 @@ class Reader extends Base {
 	 *
 	 * @return void
 	 * @throws ParseException
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	private function determineEncoding(): void {
 		if (!is_resource($this->File)) {
-			throw new Semantics('File is not a resource: {filename}', [
+			throw new SemanticsException('File is not a resource: {filename}', [
 				'filename' => $this->FileName,
 			]);
 		}

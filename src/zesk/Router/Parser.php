@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace zesk\Router;
 
+use zesk\Application;
 use zesk\JSON;
 use zesk\Route;
 use zesk\Router;
@@ -66,7 +67,7 @@ class Parser {
 	 */
 	public function execute(Router $router, array $add_options = []): array {
 		$app = $router->application;
-		$logger = $app->logger;
+		$logger = $app->logger();
 
 		$lines = explode("\n", $this->contents);
 		$paths = [];
@@ -103,7 +104,7 @@ class Parser {
 							$logger->error('Error parsing {id}:{lineno} decoding JSON failed', [
 								'id' => $this->id, 'lineno' => $lineno1,
 							]);
-							$app->hooks->call('exception', $e);
+							$app->invokeHooks(Application::HOOK_EXCEPTION, [$app, $e]);
 						}
 					}
 					if (is_string($value) || is_array($value)) {

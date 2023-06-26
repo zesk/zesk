@@ -9,7 +9,7 @@ declare(strict_types=1);
 
 namespace zesk\Net;
 
-use zesk\Exception\Semantics;
+use zesk\Exception\SemanticsException;
 use zesk\Exception\ConnectionFailed;
 use zesk\Exception_Protocol;
 use zesk\TimeoutExpired;
@@ -123,7 +123,7 @@ class SocketClient extends Client {
 
 	/**
 	 * @return string
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 * @throws ConnectionFailed
 	 * @throws Exception_Protocol
 	 */
@@ -239,7 +239,7 @@ class SocketClient extends Client {
 	 * @param int $milliseconds
 	 * @return string
 	 * @throws Exception_Protocol
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 * @throws TimeoutExpired
 	 */
 	public function readWait(int $milliseconds = self::DEFAULT_READ_TIMEOUT_MILLISECONDS): string {
@@ -282,7 +282,7 @@ class SocketClient extends Client {
 	/**
 	 * @param int $length
 	 * @return string
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 * @throws Exception_Protocol
 	 */
 	public function readData(int $length): string {

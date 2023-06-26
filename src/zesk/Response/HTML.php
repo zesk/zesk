@@ -14,8 +14,9 @@ use zesk\Directory;
 use zesk\Exception\DirectoryCreate;
 use zesk\Exception\DirectoryPermission;
 use zesk\Exception\KeyNotFound;
+use zesk\Exception\ParameterException;
 use zesk\Exception\Redirect;
-use zesk\Exception\Semantics;
+use zesk\Exception\SemanticsException;
 use zesk\File;
 use zesk\HTML as HTMLTools;
 use zesk\JSON as JSONTools;
@@ -32,9 +33,29 @@ use zesk\URL;
  *
  */
 class HTML extends Type {
+	public const HOOK_PAGE_OPEN = __CLASS__ . '::page::open';
+
+	public const HOOK_PAGE_CLOSE = __CLASS__ . '::page::close';
+
+	public const HOOK_HEADERS = __CLASS__ . '::headers';
+
+	public const HOOK_HTML_OPEN = __CLASS__ . '::html::open';
+
+	public const HOOK_HTML_CLOSE = __CLASS__ . '::html::close';
+
+	public const HOOK_BODY_OPEN = __CLASS__ . '::body::open';
+
+	public const HOOK_BODY_CLOSE = __CLASS__ . '::body::close';
+
 	public const HOOK_HEAD = __CLASS__ . '::head';
 
+	public const HOOK_HEAD_OPEN = __CLASS__ . '::head::open';
+
+	public const HOOK_HEAD_CLOSE = __CLASS__ . '::head::close';
+
 	public const HOOK_FOOT = __CLASS__ . '::foot';
+
+	public const HOOK_DONE = __CLASS__ . '::done';
 
 	/**
 	 * Page title
@@ -147,7 +168,7 @@ class HTML extends Type {
 
 	public function setTitle(string $set): Response {
 		$this->title = $set;
-		$this->application->logger->debug('Set page title to "{title} ({context})"', [
+		$this->application->debug('Set page title to "{title} ({context})"', [
 			'title' => $set, 'context' => Kernel::callingFunction(2),
 		]);
 		return $this->parent;
@@ -298,7 +319,7 @@ class HTML extends Type {
 	 *
 	 * @param string $path
 	 * @return Response
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	public function setShortcutIcon(string $path): Response {
 		$attrs = [];
@@ -330,7 +351,7 @@ class HTML extends Type {
 	 * @param string $type
 	 * @param array $attrs
 	 * @return Response
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	public function setLink(string $rel, string $path, string $type = '', array $attrs = []): Response {
 		if (!array_key_exists('weight', $attrs)) {
@@ -344,7 +365,7 @@ class HTML extends Type {
 		}
 		$share = $attrs['share'] ?? false;
 		if (!$share && $this->parent->optionBool('require_root_dir') && !array_key_exists('root_dir', $attrs)) {
-			throw new Semantics('{path} requires a root_dir specified', compact('rel', 'path'));
+			throw new SemanticsException('{path} requires a root_dir specified', compact('rel', 'path'));
 		}
 		ArrayTools::append($this->linksByRel, $rel, $path);
 		$this->links[$path] = $arr + $attrs;
@@ -366,7 +387,7 @@ class HTML extends Type {
 	 *                share bool for share files
 	 *
 	 * @return Response
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	public function css(string $path, array|string $options = []): Response {
 		if (is_string($options)) {
@@ -438,7 +459,7 @@ class HTML extends Type {
 	 * @return array
 	 * @throws DirectoryCreate
 	 * @throws DirectoryPermission
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	public function scripts(): array {
 		return $this->scriptTags();
@@ -449,7 +470,7 @@ class HTML extends Type {
 	 * @return array
 	 * @throws DirectoryCreate
 	 * @throws DirectoryPermission
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	public function links(): array {
 		return $this->linkTags($this->linkOptions());
@@ -471,6 +492,10 @@ class HTML extends Type {
 		return $this->styles;
 	}
 
+	public const FILTER_LINKS_PREPROCESS = self::class . '::linksPreprocess';
+
+	public const FILTER_LINK_PROCESS = self::class . '::linkProcess';
+
 	/**
 	 * Retrieve link tags in attributes form for output via JSON or other mechanism
 	 *
@@ -478,7 +503,8 @@ class HTML extends Type {
 	 * @return array
 	 * @throws DirectoryCreate
 	 * @throws DirectoryPermission
-	 * @throws Semantics
+	 * @throws SemanticsException
+	 * @throws ParameterException
 	 */
 	private function linkTags(array $options = []): array {
 		$result = [];
@@ -489,9 +515,7 @@ class HTML extends Type {
 		}
 		$cache_links = $this->parent->optionBool(Response::OPTION_CACHE_LINKS);
 		$cached_media = [];
-		$this->linksSorted = $this->parent->callHookArguments('links_preprocess', [
-			$this->linksSorted,
-		], $this->linksSorted);
+		$this->linksSorted = $this->parent->invokeTypedFilters(self::FILTER_LINKS_PREPROCESS, $this->linksSorted, [$this->parent]);
 		foreach ($this->linksSorted as $attrs) {
 			$tag = $this->browserConditionals(strval($attrs['browser'] ?? ''));
 
@@ -499,14 +523,14 @@ class HTML extends Type {
 			if ($stylesheets_inline && $rel === 'stylesheet') {
 				$dest = $this->resourcePath($attrs['href'], $attrs);
 				if (empty($dest) || !is_file($dest)) {
-					$this->application->logger->error('Inline stylesheet path {dest} not found: {attributes}', [
+					$this->application->error('Inline stylesheet path {dest} not found: {attributes}', [
 						'dest' => $dest, 'attributes' => serialize($attrs),
 					]);
 				} else {
 					$tag['name'] = 'style';
 					$tag['attributes'] = [
-							'type' => 'text/css',
-						] + ArrayTools::filter($attrs, 'media');
+						'type' => 'text/css',
+					] + ArrayTools::filter($attrs, 'media');
 					$tag['content'] = file_get_contents($dest);
 					$result[] = $tag;
 				}
@@ -518,16 +542,14 @@ class HTML extends Type {
 					$attrs['file_path'] = $file_path;
 					$attrs['href_original'] = $attrs['href'];
 					$attrs['href'] = $href;
-					$attrs = $this->parent->callHookArguments('link_process', [
-						$attrs,
-					], $attrs);
+					$attrs = $this->parent->invokeTypedFilters(self::FILTER_LINK_PROCESS, $attrs, [$this->parent]);
 					// Only cache and group stylesheets, for now.
 					if ($rel === 'stylesheet' && $cache_links && $file_path && !($attrs['nocache'] ?? null)) {
 						$cached_media[$media][$href] = $file_path;
 						continue;
 					}
 				} else {
-					$this->application->logger->error('Unable to find {href} in {root_dir}', $attrs);
+					$this->application->error('Unable to find {href} in {root_dir}', $attrs);
 
 					continue;
 				}
@@ -566,8 +588,8 @@ class HTML extends Type {
 	 */
 	public function render(string $content): string {
 		return $this->application->themes->theme($this->pageTheme, [
-				'content' => $content,
-			] + $this->themeVariables());
+			'content' => $content,
+		] + $this->themeVariables());
 	}
 
 	/**
@@ -592,7 +614,7 @@ class HTML extends Type {
 	 * @return array
 	 * @throws DirectoryCreate
 	 * @throws DirectoryPermission
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	public function toJSON(): array {
 		$script_tags = $this->scriptTags(false);
@@ -650,7 +672,7 @@ class HTML extends Type {
 		try {
 			$content = $this->application->content($resource_path);
 			file_put_contents($path, $content);
-		} catch (Semantics) {
+		} catch (SemanticsException) {
 			return '';
 		}
 		return $path;
@@ -664,7 +686,7 @@ class HTML extends Type {
 	 * @return string Empty string if something is awry
 	 * @throws DirectoryCreate
 	 * @throws DirectoryPermission
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	protected function resourcePath(string $_path, array $attributes): string {
 		$debug = Types::toBool($options['debug'] ?? false);
@@ -675,18 +697,18 @@ class HTML extends Type {
 		$route_expire = intval($attributes['route_expire'] ?? $defaultRouteExpire);
 		if ($root_dir) {
 			if ($debug) {
-				$this->application->logger->debug('root_dir (' . JSONTools::encode($root_dir) . ") check $_path");
+				$this->application->debug('root_dir (' . JSONTools::encode($root_dir) . ") check $_path");
 			}
 			return HTMLTools::href($this->application, Directory::path($root_dir, $_path));
-		} else if ($share) {
+		} elseif ($share) {
 			if ($debug) {
-				$this->application->logger->debug("share check $_path");
+				$this->application->debug("share check $_path");
 			}
 			// TODO return Controller_Share::realpath($this->application, $_path);
 			return $this->application->router()->realPath($_path);
-		} else if ($is_route) {
+		} elseif ($is_route) {
 			if ($debug) {
-				$this->application->logger->debug("route check $_path");
+				$this->application->debug("route check $_path");
 			}
 			return $this->resourcePathRoute($_path, $route_expire);
 		} else {
@@ -703,13 +725,13 @@ class HTML extends Type {
 	 * @return array First item is the URI, 2nd is the full path to the file
 	 * @throws DirectoryCreate
 	 * @throws DirectoryPermission
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	protected function resourceDate(string $path, array $attributes): array {
 		$query = [];
 		$file = $this->resourcePath($path, $attributes);
 		if (!$file || !is_file($file)) {
-			$this->application->logger->warning('Resource {path} not found at {file}', [
+			$this->application->warning('Resource {path} not found at {file}', [
 				'path' => $path, 'file' => $file,
 			]);
 			return [
@@ -746,13 +768,13 @@ class HTML extends Type {
 				$urlMatch = [];
 				if (preg_match('|^"[^"]+"$|', $import) || preg_match('|^\'[^\']+\'$|', $import)) {
 					$import = StringTools::unquote($import);
-				} else if (preg_match('|^url\(([^)]+)\)$|', $import, $urlMatch)) {
+				} elseif (preg_match('|^url\(([^)]+)\)$|', $import, $urlMatch)) {
 					$import = StringTools::unquote($urlMatch[1]);
 					if (URL::valid($import) || $import[0] === '/') {
 						continue;
 					}
 				} else {
-					$this->application->logger->debug('Unknown @import syntax in {file}: {import}', [
+					$this->application->debug('Unknown @import syntax in {file}: {import}', [
 						'file' => $file, 'import' => $match[0],
 					]);
 
@@ -774,8 +796,8 @@ class HTML extends Type {
 			[$full_match, $rel_image] = $match;
 			$rel_image = StringTools::unquote($rel_image);
 			if (URL::valid($rel_image) || StringTools::begins($rel_image, [
-					'/', 'data:',
-				])) {
+				'/', 'data:',
+			])) {
 				continue;
 			}
 			$rel_image = explode('/', $rel_image);
@@ -787,7 +809,7 @@ class HTML extends Type {
 			$src_dir = implode('/', $src_dir);
 			$rel_image = implode('/', $rel_image);
 			$new_href = Directory::path($src_dir, $rel_image);
-			$this->application->logger->debug("process_cached_css: $file: $rel_image => $new_href");
+			$this->application->debug("process_cached_css: $file: $rel_image => $new_href");
 			$map[$full_match] = strtr($full_match, [
 				$match[1] => '"' . $new_href . '"',
 			]);
@@ -806,15 +828,18 @@ class HTML extends Type {
 	 * @see HTML::processCachedCSS
 	 */
 	private function process_cached_type(string $src, string $file, string $dest, string $extension): string {
-		$method = "process_cached_$extension";
+		$hook = ['js' => self::HOOK_PROCESS_CACHED_JS, 'css' => self::HOOK_PROCESS_CACHED_CSS][$extension] ?? null;
 		$contents = file_get_contents($file);
-		if (method_exists($this, $method)) {
-			$contents = $this->$method($src, $file, $dest, $contents);
+		if (!$hook) {
+			return $contents;
 		}
-		return $this->parent->callHookArguments($method, [
-			$src, $file, $dest, $contents,
-		], $contents);
+		$contents = $this->parent->invokeTypedFilters($hook, $contents, [$this->parent]);
+		return $contents;
 	}
+
+	public const HOOK_PROCESS_CACHED_JS = self::class . '::processCachedJS';
+
+	public const HOOK_PROCESS_CACHED_CSS = self::class . '::processCachedCSS';
 
 	/**
 	 * Cache files in the resource paths tend to grow, particularly
@@ -836,12 +861,12 @@ class HTML extends Type {
 
 		foreach (File::deleteModifiedBefore($files, $modified_after) as $file => $result) {
 			if (is_array($result) && array_key_exists('deleted', $result)) {
-				$this->application->logger->debug('Deleting old file {file} modified on {when}, more than {delta} seconds ago', $result);
+				$this->application->debug('Deleting old file {file} modified on {when}, more than {delta} seconds ago', $result);
 				$deleted[] = $file;
 			}
 		}
 
-		$this->application->logger->notice('Deleted {deleted} files from cache directory at {path} (Expire after {expire_seconds} seconds)', [
+		$this->application->notice('Deleted {deleted} files from cache directory at {path} (Expire after {expire_seconds} seconds)', [
 			'deleted' => count($deleted), 'path' => $path, 'expire_seconds' => $expire_seconds,
 		]);
 		return $deleted;
@@ -920,7 +945,7 @@ class HTML extends Type {
 				}
 			}
 			$content = $this->parent->invokeTypedFilters($hook, [$content], [$this]);
-			$this->application->logger->info('Created {cache_path} from {sources}', [
+			$this->application->info('Created {cache_path} from {sources}', [
 				'cache_path' => $cache_path, 'sources' => $sources,
 			]);
 			file_put_contents($cache_path, $content);
@@ -980,7 +1005,7 @@ class HTML extends Type {
 	 * @param bool|null $cache_scripts
 	 * @return array
 	 * @throws DirectoryCreate
-	 * @throws DirectoryPermission|Semantics
+	 * @throws DirectoryPermission|SemanticsException
 	 */
 	private function scriptTags(bool $cache_scripts = null): array {
 		// Sort them by weight if they're not sorted
@@ -1015,7 +1040,7 @@ class HTML extends Type {
 						$this->parent->option(Response::OPTION_NOCACHE_VARIABLE, Response::DEFAULT_NOCACHE_VARIABLE) => md5(microtime()),
 					]);
 					$script_attributes['src'] = $resource_path;
-				} else if (URL::valid($attrs['src'])) {
+				} elseif (URL::valid($attrs['src'])) {
 					$script_attributes['src'] = $attrs['src'];
 				} else {
 					[$resource_path, $file_path] = $this->resourceDate($attrs['src'], $attrs);
@@ -1029,7 +1054,7 @@ class HTML extends Type {
 
 							try {
 								$cached_append[] = 'zesk.scripts_cached(' . JSONTools::encode($resource_path) . ');';
-							} catch (Semantics) {
+							} catch (SemanticsException) {
 							}
 							if (array_key_exists('javascript_after', $attrs)) {
 								$cached[] = $attrs['javascript_after'];
@@ -1086,7 +1111,7 @@ class HTML extends Type {
 	 * @param string $path
 	 * @param array $options
 	 * @return Response
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	private function scriptAdd(string $path, array $options): Response {
 		if (array_key_exists($path, $this->scripts)) {
@@ -1103,7 +1128,7 @@ class HTML extends Type {
 				if (($after = $this->findWeight($options['after'], 'max')) !== null) {
 					if ($before !== null) {
 						if ($after <= $before) {
-							throw new Semantics('{path} has a computed {before} weight which is greater than the after weight {after}', [
+							throw new SemanticsException('{path} has a computed {before} weight which is greater than the after weight {after}', [
 								'path' => $path, 'before' => $before, 'after' => $after,
 							]);
 						} else {
@@ -1124,7 +1149,7 @@ class HTML extends Type {
 		$is_route = $options['is_route'] ?? false;
 		$callback = array_key_exists('callback', $options);
 		if (!$is_route && !$callback && !$content && !$share && !$nocache && $this->parent->optionBool('require_root_dir') && !array_key_exists('root_dir', $options)) {
-			throw new Semantics('{path} requires a root_dir specified', compact('path'));
+			throw new SemanticsException('{path} requires a root_dir specified', compact('path'));
 		}
 		$this->scripts[$path] = $options;
 		$this->scriptsAreSorted = false;
@@ -1160,7 +1185,7 @@ class HTML extends Type {
 	 * - browser: defaults to all browsers
 	 * - cdn: defaults to false
 	 * @return Response
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	public function javascript(string|array $paths, array $options = []): Response {
 		if (is_array($paths)) {
@@ -1179,7 +1204,7 @@ class HTML extends Type {
 	 * @param string $script
 	 * @param array $options
 	 * @return Response
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	public function inlineJavaScript(string $script, array $options = []): Response {
 		$multiple = Types::toBool($options['multiple'] ?? false);
@@ -1188,8 +1213,8 @@ class HTML extends Type {
 			$id = $id . '-' . count($this->scripts);
 		}
 		return $this->scriptAdd($id, [
-				'content' => $script, 'browser' => $options['browser'] ?? null,
-			] + $options);
+			'content' => $script, 'browser' => $options['browser'] ?? null,
+		] + $options);
 	}
 
 	/**

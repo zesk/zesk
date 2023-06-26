@@ -6,6 +6,7 @@ declare(strict_types=1);
  * @author kent
  * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  */
+
 namespace zesk\Daemon;
 
 use Doctrine\ORM\Exception\ORMException;
@@ -17,9 +18,9 @@ use zesk\Exception\DirectoryCreate;
 use zesk\Exception\DirectoryPermission;
 use zesk\Exception\FilePermission;
 use zesk\Exception\ConfigurationException;
-use zesk\Exception\Semantics;
+use zesk\Exception\SemanticsException;
 use zesk\Exception\SyntaxException;
-use zesk\Exception\Unsupported;
+use zesk\Exception\UnsupportedException;
 use zesk\File;
 use zesk\JSON;
 use zesk\Doctrine\Server;
@@ -48,7 +49,7 @@ class Module extends \zesk\Module {
 	 * @throws ConfigurationException
 	 * @throws DirectoryCreate
 	 * @throws DirectoryPermission
-	 * @throws Unsupported
+	 * @throws UnsupportedException
 	 */
 	public function initialize(): void {
 		parent::initialize();
@@ -58,15 +59,14 @@ class Module extends \zesk\Module {
 	}
 
 	/**
+	 * @return string[][]
 	 * @todo This is not doing anything
 	 *
-	 * @return string[][]
 	 */
 	protected function hook_system_panel(): array {
 		return [
 			'system/panel/daemon' => [
-				'title' => $this->application->locale->__('Daemons'),
-				'moduleClass' => __CLASS__,
+				'title' => $this->application->locale->__('Daemons'), 'moduleClass' => __CLASS__,
 				'server_data_key' => __CLASS__ . '::process_database',
 				'server_updated_key' => __CLASS__ . '::process_database_updated',
 			],
@@ -87,7 +87,7 @@ class Module extends \zesk\Module {
 			$server->setMeta(__CLASS__ . '::process_database', $database);
 			$server->setMeta(__CLASS__ . '::process_database_updated', Timestamp::now());
 		} catch (ORMException $e) {
-			$this->application->logger->error($e->getMessage());
+			$this->application->error($e->getMessage());
 		}
 	}
 
@@ -112,7 +112,7 @@ class Module extends \zesk\Module {
 	 * @param array $database
 	 * @return void
 	 * @throws FilePermission
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	public function saveProcessDatabase(array $database): void {
 		$path = $this->_databasePath();
@@ -134,7 +134,7 @@ class Module extends \zesk\Module {
 		flock($fp, LOCK_UN);
 		fclose($fp);
 		if ($this->db_debug) {
-			$this->application->logger->debug('Wrote database: {data}', [
+			$this->application->debug('Wrote database: {data}', [
 				'data' => JSON::encode($database),
 			]);
 		}
@@ -169,10 +169,10 @@ class Module extends \zesk\Module {
 		$database = PHP::unserialize($result);
 		if ($this->db_debug) {
 			try {
-				$this->application->logger->debug('Read database: {data}', [
+				$this->application->debug('Read database: {data}', [
 					'data' => JSON::encode($database),
 				]);
-			} catch (Semantics $e) {
+			} catch (SemanticsException $e) {
 				PHP::log($e);
 			}
 		}

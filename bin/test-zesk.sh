@@ -3,14 +3,14 @@
 # Run Zesk test interactively while debugging and fixing things
 # Run usually inside a container
 #
-ERR_ENV=1
+err_env=1
 
 set -eo pipefail
 
 PATH=$top/vendor/bin:$PATH
 
 me=$(basename "$0")
-top="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd || exit $ERR_ENV)"
+top="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd || exit $err_env)"
 phpunit_bin=vendor/bin/phpunit
 coverage_path="$top/test-coverage"
 junit_path="$top/test-results"
@@ -41,7 +41,7 @@ if [ ! -d "$top/vendor" ]; then
       composer_install
     fi
   elif [ -z "$(which composer)" ]; then
-    usage $ERR_ENV "No vendor directory or composer binary"
+    usage $err_env "No vendor directory or composer binary"
   fi
   cd "$top"
 	composer install
@@ -86,16 +86,15 @@ if test $doStop; then
   args+=("--stop-on-defect" "--stop-on-failure")
   export XDEBUG_MODE=coverage
   echo "Enabling XDEBUG_MODE=coverage"
-else
-  args+=("--no-coverage")
 fi
 if [ ! -x "$phpunit_bin" ]; then
   echo "$phpunit_bin does not exist or is not executable" 1>&2
-  exit $ERR_ENV
+  exit $err_env
 fi
 need_paths+=("$junit_path")
 for d in "${need_paths[@]}"; do
   [ -d "$d" ] || mkdir -p "$d"
 done
+args+=("--log-junit" "$junit_path/junit.xml")
 echo "$phpunit_bin" "${args[@]}" "$@"
 exec "$phpunit_bin" "${args[@]}" "$@"

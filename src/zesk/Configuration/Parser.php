@@ -7,7 +7,7 @@ use zesk\Configuration\Parser\CONF;
 use zesk\Configuration\Parser\JSON;
 use zesk\Configuration\Parser\SH;
 use zesk\Exception\ParseException;
-use zesk\Exception\Unimplemented;
+use zesk\Exception\UnimplementedException;
 use zesk\Options;
 use zesk\Adapter\SettingsArray;
 use zesk\Exception\ClassNotFound;
@@ -155,9 +155,9 @@ abstract class Parser extends Options {
 	 * @param string $content
 	 * @param array $options
 	 * @return Editor
-	 * @throws Unimplemented
+	 * @throws UnimplementedException
 	 */
 	public function editor(string $content, array $options = []): Editor {
-		throw new Unimplemented(__METHOD__);
+		throw new UnimplementedException(__METHOD__);
 	}
 }

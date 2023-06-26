@@ -7,22 +7,20 @@ declare(strict_types=1);
  * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  */
 
-namespace zesk\World;
+namespace zesk\World\Bootstrap;
 
 use zesk\Application;
 use zesk\ArrayTools;
 use zesk\File;
 use zesk\Hookable;
 use zesk\JSON;
-use zesk\ORM\ORMEmpty;
-use zesk\ORM\ORMNotFound;
 
 /**
  * @see Currency
  * @author kent
  *
  */
-class Bootstrap_Currency extends Hookable {
+class BootstrapCurrency extends Hookable {
 	/**
 	 *
 	 * @var array
@@ -151,7 +149,7 @@ class Bootstrap_Currency extends Hookable {
 		$fields['format'] = '{symbol}{amount}';
 
 		if (empty($id)) {
-			$this->application->logger->debug('Unknown id for currency {code} {name}', $fields);
+			$this->application->debug('Unknown id for currency {code} {name}', $fields);
 			return;
 		}
 
@@ -181,7 +179,7 @@ class Bootstrap_Currency extends Hookable {
 			$code = strtolower($row[2]);
 			if (!isset($missing_ones[$code])) {
 				if ($this->optionBool('debug')) {
-					$this->application->logger->debug('Code {2} ({1}) no longer valid, remove it', $row);
+					$this->application->debug('Code {2} ({1}) no longer valid, remove it', $row);
 				}
 				unset($codes[$index]);
 
@@ -190,7 +188,7 @@ class Bootstrap_Currency extends Hookable {
 			unset($missing_ones[$code]);
 		}
 		if (count($missing_ones) > 0) {
-			$this->application->logger->debug('Currency codes {missing_ones} need to be added', [
+			$this->application->debug('Currency codes {missing_ones} need to be added', [
 				'missing_ones' => $missing_ones,
 			]);
 		}

@@ -5,7 +5,7 @@ namespace zesk\Response;
 
 use zesk\Exception\FileNotFound;
 use zesk\Exception\KeyNotFound;
-use zesk\Exception\Semantics;
+use zesk\Exception\SemanticsException;
 use zesk\File;
 use zesk\MIME;
 use zesk\Response;
@@ -78,11 +78,11 @@ class Raw extends Type {
 	}
 
 	/**
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	public function file(): string {
 		if (empty($this->file)) {
-			throw new Semantics('file not set');
+			throw new SemanticsException('file not set');
 		}
 		return $this->file;
 	}

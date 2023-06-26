@@ -6,5 +6,8 @@
 	},
 	"moduleClass": "zesk\\GitHub\\Module",
 	"zeskCommandPath": "./zesk/GitHub/",
-	"copyright": "Copyright &copy; 2023, Market Acumen, Inc."
+	"copyright": "Copyright &copy; 2023, Market Acumen, Inc.",
+	"requires": [
+		"Net"
+	]
 }

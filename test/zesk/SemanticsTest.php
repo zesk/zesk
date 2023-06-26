@@ -8,12 +8,12 @@ declare(strict_types=1);
  */
 namespace zesk;
 
-use zesk\Exception\Semantics;
+use zesk\Exception\SemanticsException;
 use zesk\PHPUnit\ExceptionTestCase;
 
 class SemanticsTest extends ExceptionTestCase {
 	public function test_basics(): void {
-		$exception = new Semantics();
+		$exception = new SemanticsException();
 		$this->assertThrowable($exception);
 	}
 }

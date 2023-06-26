@@ -16,11 +16,13 @@ use zesk\Exception\DirectoryNotFound;
 use zesk\Exception\FilePermission;
 use zesk\Exception\ConnectionFailed;
 use zesk\Exception\DomainLookupFailed;
+use zesk\Exception\KeyNotFound;
 use zesk\Exception\NotFoundException;
 use zesk\Exception\ParameterException;
-use zesk\Exception\Semantics;
+use zesk\Exception\ParseException;
+use zesk\Exception\SemanticsException;
 use zesk\Exception\SyntaxException;
-use zesk\Exception\Unsupported;
+use zesk\Exception\UnsupportedException;
 use zesk\File;
 use zesk\Hookable;
 use zesk\HTTP;
@@ -381,16 +383,22 @@ class Client extends Hookable {
 	}
 
 	/**
-	 * Get or set request cookies
+	 * Get request cookies
+	 *
+	 * @return array
+	 */
+	public function requestCookies(): array {
+		return $this->requestCookie;
+	}
+
+	/**
+	 * Set request cookies
 	 *
 	 * @param array $set
-	 *            Set cookies to name/value pairs for request
-	 * @param boolean $append
+	 * @param bool $append
+	 * @return $this
 	 */
-	public function request_cookie(array $set = null, bool $append = false) {
-		if ($set === null) {
-			return $this->requestCookie;
-		}
+	public function setRequestCookies(array $set, bool $append = false): self {
 		$this->requestCookie = $append ? $set + $this->requestCookie : $set;
 		return $this;
 	}
@@ -400,10 +408,10 @@ class Client extends Hookable {
 	 *
 	 * @return string
 	 */
-	private function format_cookie() {
+	private function format_cookie(): string {
 		// semicolon, comma, and white space
 		$encode = [];
-		foreach (str_split(";,= \r\n", 1) as $char) {
+		foreach (str_split(";,= \r\n") as $char) {
 			$encode[$char] = urlencode($char);
 		}
 		$result = [];
@@ -461,13 +469,12 @@ class Client extends Hookable {
 	 *
 	 * @return string
 	 */
-	public function content_type() {
+	public function contentType(): string {
 		$header = $this->responseHeaders['content-type'] ?? null;
 		if (!$header) {
-			return null;
+			return '';
 		}
-		$header = trim(StringTools::left($header, ';', $header));
-		return $header;
+		return trim(StringTools::left($header, ';', $header));
 	}
 
 	/**
@@ -536,7 +543,7 @@ class Client extends Hookable {
 	 * @return void
 	 */
 	private function _zero_content_length_warning(): void {
-		$this->application->logger->warning('{method} with 0 size data', ['method' => $this->method]);
+		$this->application->warning('{method} with 0 size data', ['method' => $this->method]);
 	}
 
 	/**
@@ -765,7 +772,7 @@ class Client extends Hookable {
 				$this->parseHeaders($headers);
 			}
 			unlink($dest_headers_name);
-			File::trim($this->destination, strlen($all_headers));
+			File::trim($this->application(), $this->destination, strlen($all_headers));
 		} elseif ($this->wantHeaders()) {
 			$this->parseHeaders();
 		}
@@ -776,13 +783,12 @@ class Client extends Hookable {
 	 * @throws DomainLookupFailed
 	 * @throws FilePermission
 	 * @throws ParameterException
-	 * @throws SyntaxException
-	 * @throws Unsupported
+	 * @throws UnsupportedException
 	 * @throws ClientException
 	 */
-	public function go() {
+	public function go(): string {
 		if (!function_exists('curl_init')) {
-			throw new Unsupported('Net_HTTP_Client::go(): CURL not integrated!');
+			throw new UnsupportedException('Net_HTTP_Client::go(): CURL not integrated!');
 		}
 		if (empty($this->url)) {
 			throw new ParameterException('Net_HTTP_Client::go called with no URL specified');
@@ -848,19 +854,19 @@ class Client extends Hookable {
 	/**
 	 * @param string $url
 	 * @return string
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 * @throws ConnectionFailed
 	 */
 	public static function simpleGet(string $url): string {
 		if (!$url) {
-			throw new Semantics('Require non-blank URL');
+			throw new SemanticsException('Require non-blank URL');
 		}
 		$parts = parse_url($url);
 		$protocol = $parts['scheme'] ?? '';
 		if (!in_array($protocol, [
 			'http', 'https',
 		])) {
-			throw new Semantics('Require valid HTTP URL {protocol} ({url})', [
+			throw new SemanticsException('Require valid HTTP URL {protocol} ({url})', [
 				'protocol' => $protocol, 'url' => $url,
 			]);
 		}
@@ -900,7 +906,7 @@ class Client extends Hookable {
 
 	public static function url_content_length(Application $application, $url) {
 		$headers = self::url_headers($application, $url);
-		return toInteger($headers[ 'Content-Length'] ?? null);
+		return toInteger($headers['Content-Length'] ?? null);
 	}
 
 	public static function url_headers(Application $application, $url): array {
@@ -922,7 +928,7 @@ class Client extends Hookable {
 			return $data;
 		}
 		if (!is_array($data)) {
-			throw new Semantics('Data is not a string or array?');
+			throw new SemanticsException('Data is not a string or array?');
 		}
 		return http_build_query($data);
 	}
@@ -966,7 +972,7 @@ class Client extends Hookable {
 					if (!$secure && $cookie->secure()) {
 						continue;
 					}
-					$results[] = $cookie->string();
+					$results[] = $cookie->value();
 				}
 			}
 		}
@@ -989,7 +995,7 @@ class Client extends Hookable {
 		$cookies = $this->responseCookies[$cookieName];
 		if (is_array($cookies)) {
 			foreach ($cookies as $k => $cookie) {
-				assert($cookie instanceof Net_HTTP_Client_Cookie);
+				assert($cookie instanceof Cookie);
 				if ($cookie->matches($domain, $path)) {
 					unset($this->responseCookies[$cookieName][$k]);
 					return true;
@@ -997,7 +1003,7 @@ class Client extends Hookable {
 			}
 		} else {
 			$cookie = $cookies;
-			assert($cookie instanceof Net_HTTP_Client_Cookie);
+			assert($cookie instanceof Cookie);
 			if ($cookie->matches($domain, $path)) {
 				unset($this->responseCookies[$cookieName]);
 				return true;
@@ -1060,7 +1066,7 @@ class Client extends Hookable {
 		foreach ($cookies as $cookie) {
 			$parts = explode(';', $cookie);
 			$cookie_item = array_shift($parts);
-			[$cookieName, $cookieValue] = StringTools::pair($cookie_item, '=', $cookie_item, null);
+			[$cookieName, $cookieValue] = StringTools::pair($cookie_item, '=', $cookie_item);
 			$cookieName = trim($cookieName);
 			if (empty($cookieName)) {
 				continue;
@@ -1097,12 +1103,12 @@ class Client extends Hookable {
 
 			if ($expireString) {
 				try {
-					$expires = Timestamp::factory($expireString);
+					$expires = Timestamp::factory()->parse($expireString);
 					$now = Timestamp::now();
 					if ($expires->before($now)) {
 						$deleteCookie = true;
 					}
-				} catch (Semantics) {
+				} catch (ParseException) {
 				}
 			}
 			if ($deleteCookie) {
@@ -1149,7 +1155,7 @@ class Client extends Hookable {
 	private function parseHeaders(string $content = ''): void {
 		$headers = ($content === '') ? $this->content : $content;
 		$this->responseHeaders = [];
-		[$headers, $new_content] = pair($headers, "\r\n\r\n", $headers, '');
+		[$headers, $new_content] = pair($headers, "\r\n\r\n", $headers);
 		$headers = explode("\r\n", $headers);
 		$response = explode(' ', array_shift($headers), 3);
 		$this->responseProtocol = array_shift($response);
@@ -1262,7 +1268,7 @@ class Client extends Hookable {
 	 * Configure this object to mimic/passthrough the Request
 	 *
 	 * @param Request $request
-	 * @return Net_HTTP_Client
+	 * @return self
 	 */
 	public function proxyRequest(Request $request, string $url_prefix): self {
 		$this->setMethod($method = $request->method());

@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace zesk\Route;
 
+use zesk\Application;
 use zesk\ArrayTools;
 use zesk\Exception\CommandFailed;
 use zesk\Route;
@@ -64,7 +65,7 @@ class Command extends Route {
 		$command = ArrayTools::map($command, $this->named);
 		$args = ArrayTools::map($args, $this->args + $this->named);
 		if ($debug) {
-			$app->logger->debug('{class}: executing: command={command}, args={args}', [
+			$app->debug('{class}: executing: command={command}, args={args}', [
 				'command' => $command, 'class' => get_class($this), 'args' => $args,
 			]);
 		}
@@ -73,7 +74,7 @@ class Command extends Route {
 		try {
 			$result = $app->process->executeArguments($command, $args);
 			if ($debug) {
-				$app->logger->debug('{class}: Result is {result}', [
+				$app->debug('{class}: Result is {result}', [
 					'class' => get_class($this), 'result' => $result,
 				]);
 			}
@@ -82,7 +83,7 @@ class Command extends Route {
 				'content' => $result, 'failed' => false, 'exitCode' => 0,
 			] + $theme_arguments);
 		} catch (CommandFailed $e) {
-			$app->hooks->call('exception', $e);
+			$app->invokeHooks(Application::HOOK_EXCEPTION, [$app, $e]);
 			$failedTheme = $this->option(self::OPTION_FAILED_THEME, self::DEFAULT_OPTION_FAILED_THEME);
 			$content = $app->themes->theme($failedTheme, [
 				'content' => $e->getOutput(), 'failed' => true,

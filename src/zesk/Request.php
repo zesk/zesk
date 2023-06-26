@@ -211,8 +211,13 @@ class Request extends Hookable {
 		$this->init = 'uninitialized';
 	}
 
-	public function __sleep() {
-		return array_merge(parent::__sleep(), ['method', 'uri', 'headers', 'headers_parsed', 'cookies', 'data', 'dataFile', 'requestData', 'files', 'url', 'urlParts', 'userAgent', 'ip', 'serverIP', 'remoteIP', 'init']);
+	public function __serialize(): array {
+		return parent::__serialize() + $this->variables();
+	}
+
+	public function __unserialize(array $data): void {
+		parent::__unserialize($data);
+		$this->initializeFromSettings($data);
 	}
 
 	/**
@@ -252,9 +257,13 @@ class Request extends Hookable {
 	}
 
 	public const HOOK_INITIALIZE = __CLASS__ . '::initialize';
+
 	public const HOOK_INITIALIZE_GLOBALS = __CLASS__ . '::initializeFromGlobals';
+
 	public const HOOK_INITIALIZE_REQUEST = __CLASS__ . '::initializeFromRequest';
+
 	public const HOOK_INITIALIZE_SETTINGS = __CLASS__ . '::initializeFromSettings';
+
 	/**
 	 * Copy from another request
 	 *
@@ -492,8 +501,7 @@ class Request extends Hookable {
 					parse_str($rawData, $this->data);
 					break;
 				case 'multipart/form-data':
-					/* Why NOT rawData? TODO KMD 2023 */
-					$this->data = $_REQUEST;
+					/* Why NOT rawData? TODO KMD 2023 */ $this->data = $_REQUEST;
 					break;
 				default:
 					break;
@@ -704,23 +712,14 @@ class Request extends Hookable {
 	 */
 	public function variables(): array {
 		return [
-			self::OPTION_METHOD => $this->method,
-			self::OPTION_URI => $this->uri,
-			self::OPTION_HEADERS => $this->headers,
-			self::OPTION_COOKIES => $this->cookies,
-			self::OPTION_DATA => $this->data(),
-			self::OPTION_DATA_FILE => $this->dataFile,
-			self::OPTION_REQUEST_DATA => $this->requestData,
-			self::OPTION_FILES => $this->files,
-			self::OPTION_URL => $this->url,
-			self::OPTION_URL_PARTS => $this->urlParts,
-			self::OPTION_USER_AGENT => $this->userAgent?->classify(),
-			self::OPTION_IP => $this->ip,
-			self::OPTION_SERVER_IP => $this->serverIP,
-			self::OPTION_REMOTE_IP => $this->remoteIP,
-			'initialized' => $this->init,
-			'DEFAULT_URI' => self::DEFAULT_URI,
-			'DEFAULT_IP' => self::DEFAULT_IP,
+			self::OPTION_METHOD => $this->method, self::OPTION_URI => $this->uri,
+			self::OPTION_HEADERS => $this->headers, self::OPTION_COOKIES => $this->cookies,
+			self::OPTION_DATA => $this->data(), self::OPTION_DATA_FILE => $this->dataFile,
+			self::OPTION_REQUEST_DATA => $this->requestData, self::OPTION_FILES => $this->files,
+			self::OPTION_URL => $this->url, self::OPTION_URL_PARTS => $this->urlParts,
+			self::OPTION_USER_AGENT => $this->userAgent?->classify(), self::OPTION_IP => $this->ip,
+			self::OPTION_SERVER_IP => $this->serverIP, self::OPTION_REMOTE_IP => $this->remoteIP,
+			'initialized' => $this->init, 'DEFAULT_URI' => self::DEFAULT_URI, 'DEFAULT_IP' => self::DEFAULT_IP,
 		];
 	}
 
@@ -886,7 +885,7 @@ class Request extends Hookable {
 	 * Parse the range value
 	 *
 	 * @throws KeyNotFound
-	 *@todo make this an object, maybe?
+	 * @todo make this an object, maybe?
 	 */
 	public function range_parse(): string {
 		$range = $this->header('Range');

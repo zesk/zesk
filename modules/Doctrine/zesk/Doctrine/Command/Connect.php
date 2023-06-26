@@ -18,7 +18,7 @@ use zesk\Exception\DirectoryCreate;
 use zesk\Exception\DirectoryPermission;
 use zesk\Exception\KeyNotFound;
 use zesk\Exception\NotFoundException;
-use zesk\Exception\Unsupported;
+use zesk\Exception\UnsupportedException;
 use zesk\PHP;
 
 /**
@@ -62,7 +62,7 @@ class Connect extends SimpleCommand {
 	 * @return integer
 	 * @throws CommandFailed
 	 * @throws NotFoundException
-	 * @throws Unsupported
+	 * @throws UnsupportedException
 	 * @throws KeyNotFound
 	 */
 	public function run(): int {
@@ -100,16 +100,16 @@ class Connect extends SimpleCommand {
 	}
 
 	public function databaseShellCommand(Connection $connection): array {
-//		$platform = $connection->getDatabasePlatform();
-//		if (!$platform) {
-//			throw new NotFoundException("No database platform for connection");
-//		}
-//		$parts = $connection->getParams();
-//		$platformClass = strtolower(get_class($platform));
-//		if (str_contains($platformClass, 'mysql')) {
-//			return []
-//
-//		}
+		//		$platform = $connection->getDatabasePlatform();
+		//		if (!$platform) {
+		//			throw new NotFoundException("No database platform for connection");
+		//		}
+		//		$parts = $connection->getParams();
+		//		$platformClass = strtolower(get_class($platform));
+		//		if (str_contains($platformClass, 'mysql')) {
+		//			return []
+		//
+		//		}
 		return []; // TODO
 	}
 
@@ -128,7 +128,7 @@ class Connect extends SimpleCommand {
 		 */
 		foreach ($options as $option_key => $option_value) {
 			if (!array_key_exists($option_key, self::$shell_command_options)) {
-				$this->application->logger->warning('Unknown option passed to {method}: {option_key}={option_value}', [
+				$this->application->warning('Unknown option passed to {method}: {option_key}={option_value}', [
 					'method' => __METHOD__, 'option_key' => $option_key, 'option_value' => _dump($option_value),
 				]);
 			}
@@ -242,7 +242,7 @@ class Connect extends SimpleCommand {
 						'name' => $object->urlComponent('name'), 'from_host' => $this->option('host'),
 						'tables' => SQLDialect::SQL_GRANT_ALL,
 					]);
-				} catch (Unsupported|KeyNotFound) {
+				} catch (UnsupportedException|KeyNotFound) {
 					$grant_statements = null;
 				}
 				if (is_array($grant_statements)) {

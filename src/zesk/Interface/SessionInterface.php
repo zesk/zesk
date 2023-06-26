@@ -7,8 +7,8 @@ declare(strict_types=1);
 namespace zesk\Interface;
 
 use zesk\Application;
-use zesk\Exception\Authentication;
-use zesk\Exception\Semantics;
+use zesk\Exception\AuthenticationException;
+use zesk\Exception\SemanticsException;
 use zesk\Request;
 
 /**
@@ -33,10 +33,10 @@ interface SessionInterface extends SettingsInterface {
 	/**
 	 * Authenticate a user in the system as being tied to this session. Optionally give the IP address
 	 *
-	 * @throws Authentication
 	 * @param Userlike $user
 	 * @param Request $request
 	 * @return void
+	 *@throws AuthenticationException
 	 */
 	public function authenticate(Userlike $user, Request $request): void;
 
@@ -51,21 +51,21 @@ interface SessionInterface extends SettingsInterface {
 	 * Relinquish the authentication of the current user. Throws Semantics if not authenticated.
 	 *
 	 * @return void
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	public function relinquish(): void;
 
 	/**
 	 * Retrieve user identifier
 	 * @return int User ID
-	 * @throws Authentication
+	 * @throws AuthenticationException
 	 */
 	public function userId(): int;
 
 	/**
 	 * Retrieve user
 	 * @return Userlike User object
-	 * @throws Authentication
+	 * @throws AuthenticationException
 	 */
 	public function user(): Userlike;
 

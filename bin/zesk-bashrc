@@ -33,5 +33,5 @@ _Zesk() {
   docker compose -f "${ZESK_DOCKER_COMPOSE}" exec "${ttyArg[@]}" -u "${user}" php "$@"
 }
 
-alias ZeskRootBash='_Zesk root bash'
+alias suZeskBash='_Zesk root bash'
 alias ZeskBash='_Zesk www-data bash'

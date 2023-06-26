@@ -16,7 +16,7 @@ use zesk\Exception\FileNotFound;
 use zesk\Exception\FileParseException;
 use zesk\Exception\FilePermission;
 use zesk\Exception\ParseException;
-use zesk\Exception\Unsupported;
+use zesk\Exception\UnsupportedException;
 use zesk\File;
 use zesk\JSON;
 use zesk\Types;
@@ -196,7 +196,7 @@ class Reader {
 	 * @param string $file
 	 * @return array
 	 * @throws FileParseException
-	 * @throws Unsupported
+	 * @throws UnsupportedException
 	 * @throws FileNotFound
 	 * @throws FilePermission
 	 * @throws ParseException
@@ -211,7 +211,7 @@ class Reader {
 		} elseif ($extension === 'json') {
 			$result = JSON::decode(File::contents($file));
 		} else {
-			throw new Unsupported('Locale file {file} extension {extension} not supported', [
+			throw new UnsupportedException('Locale file {file} extension {extension} not supported', [
 				'file' => $file,
 				'extension' => $extension,
 			]);

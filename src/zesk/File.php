@@ -22,7 +22,7 @@ use zesk\Exception\FileSystemException;
 use zesk\Exception\NotFoundException;
 use zesk\Exception\SyntaxException;
 use zesk\Exception\TimeoutExpired;
-use zesk\Exception\Unimplemented;
+use zesk\Exception\UnimplementedException;
 
 /**
  * File abstraction, lots of file tools
@@ -721,7 +721,7 @@ class File {
 	 *
 	 * @param string $mode_string
 	 * @return int
-	 * @throws Unimplemented
+	 * @throws UnimplementedException
 	 * @throws SyntaxException
 	 */
 	public static function stringToMode(string $mode_string): int {
@@ -734,7 +734,7 @@ class File {
 		for ($i = 0; $i < strlen($mode_string); $i++) {
 			$v = $map[$i][$mode_string[$i]] ?? null;
 			if ($v === null) {
-				throw new Unimplemented("Unknown mode character $mode_string ($i)... \"" . $mode_string[$i] . '"');
+				throw new UnimplementedException("Unknown mode character $mode_string ($i)... \"" . $mode_string[$i] . '"');
 			}
 			$mode |= $v;
 		}

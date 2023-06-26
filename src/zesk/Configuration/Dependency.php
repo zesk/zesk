@@ -3,7 +3,7 @@ declare(strict_types=1);
 namespace zesk\Configuration;
 
 use zesk\ArrayTools;
-use zesk\Exception\Semantics;
+use zesk\Exception\SemanticsException;
 
 /**
  * A class dedicated to determining: In a series of configuration files, what external dependencies do we have?
@@ -43,11 +43,11 @@ class Dependency {
 
 	/**
 	 * @return self
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	public function pop(): self {
 		if (count($this->context) === 0) {
-			throw new Semantics('Popped once to many times?');
+			throw new SemanticsException('Popped once to many times?');
 		}
 		array_pop($this->context);
 		return $this;

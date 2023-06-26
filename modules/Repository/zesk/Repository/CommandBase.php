@@ -14,7 +14,7 @@ use zesk\ArrayTools;
 use zesk\CommandFailed;
 use zesk\Exception\NotFoundException;
 use zesk\Exception\ParameterException;
-use zesk\Exception\Unimplemented;
+use zesk\Exception\UnimplementedException;
 use zesk\Process;
 
 /**
@@ -65,7 +65,7 @@ abstract class CommandBase extends Base {
 	 * @param string $path
 	 * @return $this
 	 * @throws ParameterException
-	 * @throws Unimplemented
+	 * @throws UnimplementedException
 	 */
 	public function setPath(string $path): self {
 		if (empty($path)) {
@@ -75,11 +75,8 @@ abstract class CommandBase extends Base {
 		}
 		if ($this->optionBool('find_root') && $root = $this->findRoot($path)) {
 			if ($root !== $path) {
-				$this->application->logger->debug('{method} {code} moved to {root} instead of {path}', [
-					'method' => __METHOD__,
-					'code' => $this->code,
-					'root' => $root,
-					'path' => $path,
+				$this->application->debug('{method} {code} moved to {root} instead of {path}', [
+					'method' => __METHOD__, 'code' => $this->code, 'root' => $root, 'path' => $path,
 				]);
 			}
 			$this->path = $root;
@@ -93,11 +90,11 @@ abstract class CommandBase extends Base {
 	/**
 	 * @return void
 	 * @throws NotFoundException
-	 * @throws Unimplemented
+	 * @throws UnimplementedException
 	 */
 	protected function initialize(): void {
 		if (!$this->executable) {
-			throw new Unimplemented('Need to set ->executable to a value');
+			throw new UnimplementedException('Need to set ->executable to a value');
 		}
 		parent::initialize();
 		$this->process = $this->application->process;
@@ -150,11 +147,11 @@ abstract class CommandBase extends Base {
 	/**
 	 * @param string $directory
 	 * @return string
-	 * @throws Unimplemented
+	 * @throws UnimplementedException
 	 */
 	protected function findRoot(string $directory): string {
 		if (!$this->dot_directory) {
-			throw new Unimplemented('{method} does not support dot_directory setting', [
+			throw new UnimplementedException('{method} does not support dot_directory setting', [
 				'method' => __METHOD__,
 			]);
 		}
