@@ -4,6 +4,7 @@ declare(strict_types=1);
  * @copyright &copy; 2023 Market Acumen, Inc.
  * @package zesk
  */
+
 namespace zesk\Configuration\Editor;
 
 use zesk\ArrayTools;
@@ -28,7 +29,7 @@ class CONFEditor extends Editor {
 	 * @package zesk
 	 */
 	public function edit(array $edits): string {
-		$parser = new CONF('', null, $this->options);
+		$parser = new CONF('', null, $this->options());
 		$edits_processed = ArrayTools::valuesFlipCopy(array_keys($edits));
 		$new_lines = [];
 		$lines = explode("\n", $this->content);

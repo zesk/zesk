@@ -6,7 +6,6 @@ namespace zesk;
 use Attribute;
 use Closure;
 use ReflectionMethod;
-use ReflectionException;
 use zesk\Application\Hooks;
 use zesk\Exception\ParameterException;
 
@@ -140,8 +139,9 @@ class HookMethod implements HookableAttribute {
 			if (!array_key_exists($index, $arguments)) {
 				throw new ParameterException("Require argument of type $argumentType at position $index");
 			}
-			$givenType = Types::type($arguments[$index]);
-			if ((is_object($arguments[$index]) && !is_subclass_of($argumentType, $givenType)) || ($givenType !== $argumentType)) {
+			$arg = $arguments[$index];
+			$givenType = Types::type($arg);
+			if ((is_object($arg) && !is_subclass_of($arg, $argumentType)) || ($givenType !== $argumentType)) {
 				throw new ParameterException("Need argument of type $argumentType for argument $index, $givenType given");
 			}
 		}

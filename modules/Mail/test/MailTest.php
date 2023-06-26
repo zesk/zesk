@@ -371,7 +371,7 @@ All work and no play makes Kent a dull boy.
 			$iterator = $pop->iterator();
 			foreach ($iterator as $headers) {
 				$remote_subject = $headers['subject'] ?? null;
-				$this->application->logger->debug("checking subject: $remote_subject");
+				$this->application->debug("checking subject: $remote_subject");
 				if ($remote_subject === $subject) {
 					$iterator->current_delete();
 					$bogus_header = $headers['x-bogus-header'] ?? null;

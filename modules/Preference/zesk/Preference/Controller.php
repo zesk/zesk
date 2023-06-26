@@ -15,9 +15,9 @@ use zesk\Exception\FilePermission;
 use zesk\Exception\ParameterException;
 use zesk\File;
 use zesk\HTTP;
-use zesk\PHP;
 use zesk\Request;
 use zesk\Response;
+use zesk\Types;
 
 /**
  * Very similar to Controller_Setting - refactor both
@@ -71,7 +71,7 @@ class Controller extends BaseController {
 				$this->whitelist = [];
 			}
 			if ($this->optionBool('autoRegister')) {
-				$this->application->hooks->add(Hooks::HOOK_EXIT, $this->save_preferences(...), ['first' => true]);
+				$this->application->hooks->registerHook(Hooks::HOOK_EXIT, $this->save_preferences(...));
 			}
 		}
 		return $this->whitelist;
@@ -155,7 +155,7 @@ class Controller extends BaseController {
 	 */
 	public function action_POST(Request $request, Response $response, string $name): Response {
 		$user = $this->application->requireUser($request);
-		$value = PHP::autotype($request->get('value'));
+		$value = Types::autoType($request->get('value'));
 
 		try {
 			Value::userSet($user, [$name => $value]);

@@ -27,6 +27,7 @@ use zesk\Exception;
 use zesk\Exception\LockedException;
 use zesk\Exception\SemanticsException;
 use zesk\Exception\TimeoutExpired;
+use zesk\HookMethod;
 use zesk\Kernel;
 use zesk\PHP;
 use zesk\Temporal;
@@ -56,15 +57,6 @@ class Lock extends Model {
 	protected Timestamp $used;
 
 	private static int $serverLocks = 0;
-
-	/**
-	 * Register all zesk hooks.
-	 * @throws SemanticsException
-	 */
-	public static function hooks(Application $application): void {
-		$application->hooks->add(Hooks::HOOK_RESET, self::releaseAll(...));
-		$application->hooks->add(Hooks::HOOK_EXIT, self::releaseAll(...), ['first' => true]);
-	}
 
 	/**
 	 * Retrieve the cached version of a lock or register one
@@ -138,7 +130,7 @@ class Lock extends Model {
 		}
 		$id = $lock->server->id;
 		$lock->release();
-		$lock->application->logger->notice('Releasing lock #{id} {code} associated with defunct server # {serverId} (current server ids: {context})', [
+		$lock->application->notice('Releasing lock #{id} {code} associated with defunct server # {serverId} (current server ids: {context})', [
 			'id' => $lock->id, 'code' => $lock->code, 'serverId' => $id, 'context' => $context,
 		]);
 	}
@@ -189,12 +181,12 @@ class Lock extends Model {
 					/* @var $lock Lock */
 					if (!$lock->isProcessAlive()) {
 						// Delete this way so hooks get called per dead server
-						$lock->application->logger->warning('Releasing lock {code} (#{id}), associated with dead process, locked on {locked}', $lock->members());
+						$lock->application->warning('Releasing lock {code} (#{id}), associated with dead process, locked on {locked}', $lock->members());
 						$lock->release();
 					}
 				}
 			} catch (Throwable $e) {
-				$application->logger->error($e);
+				$application->error($e);
 			}
 			/* @var $lock Lock */
 		} catch (KeyNotFound|SemanticsException) {
@@ -250,11 +242,21 @@ class Lock extends Model {
 	/**
 	 * Release all locks from my server/process
 	 */
+	#[HookMethod(handles: [Hooks::HOOK_EXIT, Hooks::HOOK_RESET])]
 	public static function releaseAll(Application $application): void {
-		$query = $application->entityManager()->createQuery('UPDATE ' . Lock::class . ' SET server=NULL, pid=NULL WHERE server=:server AND pid=:pid');
+		if (!$application->modules->loaded('Doctrine')) {
+			return;
+		}
+
+		try {
+			$em = $application->entityManager();
+		} catch (Exception\NotFoundException) {
+			return;
+		}
+		$query = $em->createQuery('UPDATE ' . Lock::class . ' SET server=NULL, pid=NULL WHERE server=:server AND pid=:pid');
 		$server = Server::singleton($application);
 		$result = $query->execute(['server' => $server, 'pid' => $application->process->id()]);
-		$application->logger->debug(__METHOD__ . '{method} => {result}', [
+		$application->debug(__METHOD__ . '{method} => {result}', [
 			'method' => __METHOD__, 'result' => $result,
 		]);
 	}
@@ -271,7 +273,7 @@ class Lock extends Model {
 		$server = Server::singleton($application);
 		$result = $query->execute(['server' => $server]);
 		if ($result > 0) {
-			$application->logger->notice(__METHOD__ . 'Deleted {result} {locks} associated with server {name} (#{id})', [
+			$application->notice(__METHOD__ . 'Deleted {result} {locks} associated with server {name} (#{id})', [
 				'method' => __METHOD__, 'result' => $result, 'name' => $server->name, 'id' => $server->id,
 			]);
 		}
@@ -314,7 +316,7 @@ class Lock extends Model {
 		$this->pid = null;
 		$this->em->persist($this);
 		$this->em->flush();
-		$this->application->logger->debug("Released lock $this->code");
+		$this->application->debug("Released lock $this->code");
 		return $this;
 	}
 
@@ -367,7 +369,7 @@ class Lock extends Model {
 		if ($this->application->process->alive($this->pid)) {
 			return true;
 		}
-		$this->application->logger->warning('Releasing lock from {server}:{pid} as process is dead', [
+		$this->application->warning('Releasing lock from {server}:{pid} as process is dead', [
 			'server' => $this->server->id, 'pid' => $this->pid,
 		]);
 		$this->release();
@@ -393,7 +395,7 @@ class Lock extends Model {
 			try {
 				$em->refresh($this);
 				if ($this->_isMine()) {
-					$this->application->logger->debug("Acquired lock $this->code");
+					$this->application->debug("Acquired lock $this->code");
 					return $this;
 				}
 			} catch (Throwable $t) {

@@ -139,7 +139,7 @@ class Writer {
 			$result[$k] = $v;
 		}
 		File::append($this->file, $csv);
-		$app->logger->debug('{method} - Appended {n} entries to {filename}', [
+		$app->debug('{method} - Appended {n} entries to {filename}', [
 			'filename' => $this->file, 'n' => count($phrases), 'method' => __METHOD__,
 		]);
 		return $result;

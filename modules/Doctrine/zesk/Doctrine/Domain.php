@@ -67,7 +67,7 @@ class Domain extends Model {
 			try {
 				Sync::urlToFile($application, $url, $path);
 			} catch (FilePermission|DirectoryNotFound $e) {
-				$application->logger->error($e);
+				$application->error($e);
 			}
 		}
 	}

@@ -13,6 +13,7 @@ use Closure;
 use Doctrine\ORM\EntityManager;
 use Psr\Cache\CacheItemPoolInterface;
 use Psr\Log\LoggerInterface;
+use Psr\Log\LoggerTrait;
 use Psr\Log\NullLogger;
 use ReflectionException;
 use Throwable;
@@ -77,8 +78,12 @@ use function str_ends_with;
  * @method SessionInterface sessionFactory()
  * @method SessionModule sessionModule()
  */
-class Application extends Hookable implements ModelFactory, HookSource {
+class Application extends Hookable implements ModelFactory, HookSource, LoggerInterface {
+	use LoggerTrait;
+
 	public const HOOK_MAIN = __CLASS__ . '::main';
+
+	public const HOOK_SECURITY = __CLASS__ . '::security';
 
 	/**
 	 * Called when setCommand called
@@ -90,7 +95,7 @@ class Application extends Hookable implements ModelFactory, HookSource {
 	/**
 	 * Called when setCommand called
 	 */
-	public const HOOK_MAINTENANCE = __CLASS__ . '::maintenance';
+	public const FILTER_MAINTENANCE = __CLASS__ . '::maintenance';
 
 	/**
 	 * If you want to handle hooks for singleton handling of `zesk\User`, then do
@@ -427,7 +432,7 @@ class Application extends Hookable implements ModelFactory, HookSource {
 	 *
 	 * @var LoggerInterface
 	 */
-	public LoggerInterface $logger;
+	protected LoggerInterface $logger;
 
 	/**
 	 * Inherited directly from zesk\Kernel.
@@ -661,7 +666,7 @@ class Application extends Hookable implements ModelFactory, HookSource {
 					'backtrace' => Kernel::backtrace(4 + $depth),
 				] + $arguments);
 			case self::DEPRECATED_LOG:
-				$this->application->logger->error("{reason} Deprecated: {calling_function}\n{backtrace}", [
+				$this->logger->error("{reason} Deprecated: {calling_function}\n{backtrace}", [
 					'reason' => $reason ?: 'DEPRECATED', 'calling_function' => Kernel::callingFunction(),
 					'backtrace' => Kernel::backtrace(4 + $depth),
 				] + $arguments);
@@ -677,7 +682,7 @@ class Application extends Hookable implements ModelFactory, HookSource {
 	 * @codeCoverageIgnore
 	 */
 	public function obsolete(): void {
-		$this->application->logger->alert('Obsolete function called {function}', ['function' => Kernel::callingFunction(2), ]);
+		$this->logger->alert('Obsolete function called {function}', ['function' => Kernel::callingFunction(2), ]);
 		if ($this->application->development()) {
 			echo Kernel::backtrace();
 			exit(1);
@@ -899,6 +904,32 @@ class Application extends Hookable implements ModelFactory, HookSource {
 		$arguments = func_get_args();
 		$class = array_shift($arguments);
 		return $this->factoryArguments($class, $arguments);
+	}
+
+	/**
+	 * @param LoggerInterface $logger
+	 * @return $this
+	 */
+	public function setLogger(LoggerInterface $logger): self {
+		$this->logger = $logger;
+		return $this;
+	}
+
+	/**
+	 * @return LoggerInterface
+	 */
+	public function logger(): LoggerInterface {
+		return $this->logger;
+	}
+
+	/**
+	 * @param $level
+	 * @param $message
+	 * @param array $context
+	 * @return void
+	 */
+	public function log($level, $message, array $context = []): void {
+		$this->logger->log($level, $message, $context);
 	}
 
 	/**
@@ -1617,9 +1648,11 @@ class Application extends Hookable implements ModelFactory, HookSource {
 
 	/**
 	 * Clear application cache
+	 * @return void
+	 * @throws ClassNotFound
 	 * @throws DirectoryPermission
 	 * @throws FilePermission
-	 * @throws ClassNotFound
+	 * @throws ParameterException
 	 */
 	final public function cacheClear(): void {
 		$this->pool->clear();
@@ -1642,9 +1675,9 @@ class Application extends Hookable implements ModelFactory, HookSource {
 			}
 		}
 		$this->invokeHooks(self::HOOK_CACHE_CLEAR, [$this]);
-		$controllers = $this->controllers();
-		foreach ($controllers as $controller) {
-			$controller->invokeObjectHooks(self::HOOK_CACHE_CLEAR, [$this]);
+		foreach (Hookable::objectHookMethods($this->controllers(), self::HOOK_CACHE_CLEAR) as $method) {
+			/* @var $method HookMethod */
+			$method->run([$this]);
 		}
 	}
 
@@ -1712,7 +1745,7 @@ class Application extends Hookable implements ModelFactory, HookSource {
 	 */
 	final public function setMaintenance(bool $set): void {
 		try {
-			$result = $this->invokeFilters(self::HOOK_MAINTENANCE, ['maintenance' => $set], [$this]);
+			$result = $this->invokeFilters(self::FILTER_MAINTENANCE, ['maintenance' => $set], [$this]);
 			if (($result['maintenance'] ?? null) !== $set) {
 				throw new SemanticsException('Filters prevented {applicationClass}::setMaintenance({value})', [
 					'applicationClass' => get_class($this), Types::toText($set),
@@ -2024,7 +2057,7 @@ class Application extends Hookable implements ModelFactory, HookSource {
 			$final_map['{page-is-cached}'] = '0';
 		} else {
 			$options['skip_hooks'] = true;
-			$this->hooks->unhook('exit');
+			$this->hooks->hooksDequeue(Hooks::HOOK_EXIT);
 			$final_map['{page-is-cached}'] = '1';
 		}
 		$final_map += [
@@ -2372,7 +2405,7 @@ class Application extends Hookable implements ModelFactory, HookSource {
 	private function _registerCallable(string $code, callable|Closure $callable): null|callable|Closure {
 		$old_factory = $this->callables[$code] ?? null;
 		$this->callables[$code] = $callable;
-		$this->application->logger->debug('Adding factory for {code}', [
+		$this->logger->debug('Adding factory for {code}', [
 			'code' => $code,
 		]);
 		return $old_factory;

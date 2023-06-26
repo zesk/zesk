@@ -53,7 +53,7 @@ class Module extends BaseModule implements Routes {
 		try {
 			PHP::setFeature(PHP::FEATURE_TIME_LIMIT, $quit_after);
 		} catch (UnimplementedException $e) {
-			$this->application->logger->debug(PHP::FEATURE_TIME_LIMIT . ' reported as {message}', $e->variables());
+			$this->application->debug(PHP::FEATURE_TIME_LIMIT . ' reported as {message}', $e->variables());
 		}
 		$process = new MockProcess($application, [
 			'quit_after' => $quit_after,
@@ -78,7 +78,7 @@ class Module extends BaseModule implements Routes {
 		$app = $process->application();
 		$hasHooks = $this->hasHooks(self::HOOK_WAIT_FOR_JOB);
 		if (!$hasHooks) {
-			$app->logger->debug('No hook exists for wait_for_job, sleeping interval is {seconds} seconds', compact('seconds'));
+			$app->debug('No hook exists for wait_for_job, sleeping interval is {seconds} seconds', compact('seconds'));
 		}
 
 		declare(ticks=1) {

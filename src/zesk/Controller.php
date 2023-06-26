@@ -113,6 +113,10 @@ class Controller extends Hookable implements Themeable {
 		return $this->optionIterable('classes');
 	}
 
+	public const HOOK_BEFORE = self::class . '::before';
+
+	public const HOOK_AFTER = self::class . '::after';
+
 	/**
 	 * Execute this route
 	 *
@@ -137,11 +141,11 @@ class Controller extends Hookable implements Themeable {
 		$__ = $requestMap + [
 			'class' => $this::class, 'actionMethod' => $actionMethod,
 		];
-		$app->logger->debug('Controller {class} running action {method} {action} -> {actionMethod}', $__);
+		$app->debug('Controller {class} running action {method} {action} -> {actionMethod}', $__);
 
 		$this->before($request, $response);
 		$this->optionalMethod($beforeMethod, $wrapperArguments);
-		$this->callHookArguments('before', $wrapperArguments);
+		$this->invokeHooks(self::HOOK_BEFORE, $wrapperArguments);
 		if ($response->status_code !== HTTP::STATUS_OK) {
 			return $response;
 		}
@@ -163,22 +167,22 @@ class Controller extends Hookable implements Themeable {
 			$response = $result;
 		} elseif (is_string($result)) {
 			if ($contentsLength) {
-				$app->logger->warning("Incorrect controller semantics: output + return string, output ignored.\n$message", $__);
+				$app->warning("Incorrect controller semantics: output + return string, output ignored.\n$message", $__);
 			}
 			$response->setContent($result);
 		} elseif (is_array($result)) {
 			if ($contentsLength) {
-				$app->logger->warning("Incorrect controller semantics: output + return array, output ignored\n$message", $__);
+				$app->warning("Incorrect controller semantics: output + return array, output ignored\n$message", $__);
 			}
 			$response->setResponseData($result);
 		} elseif ($contentsLength) {
 			if (!$this->optionBool('captureOutput')) {
-				$app->logger->warning("{class}::captureOutput is not enabled: $message", $__);
+				$app->warning("{class}::captureOutput is not enabled: $message", $__);
 			} else {
 				$response->setContent($contents);
 			}
 		}
-		$this->callHookArguments('after', $wrapperArguments);
+		$this->invokeHooks(self::HOOK_AFTER, $wrapperArguments);
 		$this->optionalMethod($afterMethod, $wrapperArguments);
 		$this->after($request, $response);
 		return $response;
@@ -225,6 +229,8 @@ class Controller extends Hookable implements Themeable {
 		];
 	}
 
+	public const FILTER_JSON = self::class . 'json';
+
 	/**
 	 * Update all settings to return a JSON response
 	 *
@@ -233,9 +239,7 @@ class Controller extends Hookable implements Themeable {
 	 * @return Response
 	 */
 	public function responseJSON(Response $response, mixed $mixed = null): Response {
-		$mixed = $this->callHookArguments('json', [
-			$mixed,
-		], $mixed);
+		$mixed = $this->invokeTypedFilters(self::FILTER_JSON, $mixed, [$this]);
 		$response->json()->setData($mixed);
 		return $response;
 	}
@@ -397,13 +401,13 @@ class Controller extends Hookable implements Themeable {
 					continue;
 				}
 				$args = ['controllerInclude' => $controllerInclude];
-				$application->logger->debug('Found controller {controllerInclude}', $args);
+				$application->debug('Found controller {controllerInclude}', $args);
 
 				try {
 					$application->load($controllerInclude);
 				} catch (Throwable $e) {
 					$args += Exception::exceptionVariables($e);
-					$application->logger->error('Exception creating controller {controller_inc} {throwableClass}', $args);
+					$application->error('Exception creating controller {controller_inc} {throwableClass}', $args);
 				}
 			}
 		}
@@ -436,7 +440,7 @@ class Controller extends Hookable implements Themeable {
 	 * @return string
 	 */
 	public function _to_php(): string {
-		return '$application, ' . PHP::dump($this->options);
+		return '$application, ' . PHP::dump($this->options());
 	}
 
 	/**

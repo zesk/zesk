@@ -12,10 +12,12 @@ namespace zesk\Command;
 use Psr\Log\NullLogger;
 use Stringable;
 use Psr\Log\LogLevel;
+use zesk\Application;
 use zesk\Application\Hooks;
 use zesk\Command;
 use zesk\Exception\ExitedException;
 use zesk\Exception\KeyNotFound;
+use zesk\HookMethod;
 use zesk\Logger\FileLogger;
 use zesk\RuntimeException;
 use zesk\Logger\InterfaceAdapter;
@@ -128,19 +130,21 @@ abstract class SimpleCommand extends Command {
 				}
 			}
 			if ($this->option('debug')) {
-				$this->application->logger->info('Registered file logger {file}', ['file' => $filename]);
+				$this->application->info('Registered file logger {file}', ['file' => $filename]);
 			}
 		} else {
 			$logger = new InterfaceAdapter($this);
 		}
-		$this->application->logger = $logger; //->setChild($this->application->logger);
+		$this->application->setLogger($logger); //->setChild($this->application->logger);
 	}
 
 	/**
 	 * @return void
 	 * @throws ExitedException
+	 * @see self::runBefore()
 	 */
-	protected function hook_runBefore(): void {
+	#[HookMethod(handles: self::HOOK_RUN_BEFORE)]
+	public function runBefore(): void {
 		$this->configureLogger();
 		if ($this->optionBool('help')) {
 			$this->usage();
@@ -148,9 +152,7 @@ abstract class SimpleCommand extends Command {
 			throw new ExitedException();
 		}
 		if ($this->optionBool('debug-config')) {
-			$this->application->addHook(Hooks::HOOK_CONFIGURED, [
-				$this, 'action_debug_configured',
-			]);
+			$this->application->hooks->registerHook(Hooks::HOOK_CONFIGURED, $this->action_debug_configured(...));
 		}
 	}
 
@@ -163,13 +165,11 @@ abstract class SimpleCommand extends Command {
 
 	/**
 	 */
-	public function action_debug_configured(bool $exit = true): int {
-		require_once($this->application->zeskHome('command/config.php'));
-		$config = new Configuration($this->application, $this->options());
+	public function action_debug_configured(Application $application): void {
+		$config = new Configuration($application, $this->options());
 		$result = $config->parseArguments([])->run();
-		if ($exit) {
+		if ($this->optionBool('debug-config')) {
 			exit($result);
 		}
-		return $result;
 	}
 }

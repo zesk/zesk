@@ -65,10 +65,23 @@ class Module extends Hookable implements HookSource {
 
 	/**
 	 */
-	public function __sleep() {
+	public function __serialize(): array {
 		return [
-			'name', 'path', 'configuration', 'configurationFile', 'configurationData', 'modelClasses', 'classAliases',
-		];
+			'name' => $this->name, 'path' => $this->path, 'configuration' => $this->configuration,
+			'configurationFile' => $this->configurationFile, 'configurationData' => $this->configuration,
+			'modelClasses' => $this->modelClasses, 'classAliases' => $this->classAliases,
+		] + parent::__serialize();
+	}
+
+	public function __unserialize(array $data): void {
+		parent::__unserialize($data);
+		$this->name = $data['name'];
+		$this->path = $data['path'];
+		$this->configuration = $data['configuration'];
+		$this->configurationFile = $data['configurationFile'];
+		$this->configurationData = $data['configurationData'];
+		$this->modelClasses = $data['modelClasses'];
+		$this->classAliases = $data['classAliases'];
 	}
 
 	/**
@@ -79,16 +92,6 @@ class Module extends Hookable implements HookSource {
 	 */
 	final public function path(string $suffix = ''): string {
 		return Directory::path($this->path, $suffix);
-	}
-
-	/**
-	 * @return void
-	 * @throws ConfigurationException
-	 * @throws UnsupportedException
-	 */
-	public function __wakeup(): void {
-		parent::__wakeup();
-		$this->initialize();
 	}
 
 	/**
@@ -183,7 +186,7 @@ class Module extends Hookable implements HookSource {
 	public function __toString() {
 		$php = new PHP();
 		$php->settingsOneLine();
-		return '$application, ' . $php->render($this->options);
+		return '$application, ' . $php->render($this->options());
 	}
 
 	/**
@@ -205,7 +208,7 @@ class Module extends Hookable implements HookSource {
 	 */
 	public function shutdown(): void {
 		if ($this->optionBool('debugShutdown')) {
-			$this->application->logger->debug($this::class . '::shutdown');
+			$this->application->debug($this::class . '::shutdown');
 		}
 	}
 

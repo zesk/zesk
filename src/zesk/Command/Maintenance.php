@@ -11,6 +11,7 @@ declare(strict_types=1);
 namespace zesk\Command;
 
 use zesk\Application;
+use zesk\HookMethod;
 use zesk\Types;
 
 /**
@@ -26,11 +27,6 @@ class Maintenance extends SimpleCommand {
 	protected array $option_types = [
 		'*' => 'string',
 	];
-
-	protected function initialize(): void {
-		parent::initialize();
-		$this->application->hooks->add(Application::class . '::maintenanceEnabled', $this->maintenanceEnabled(...));
-	}
 
 	public function run(): int {
 		if ($this->hasArgument()) {
@@ -62,10 +58,14 @@ class Maintenance extends SimpleCommand {
 	/**
 	 * Pass values to store as part of the system globals upon maintenance
 	 *
+	 * Note this will only be called if it exists in the application as an object, usually as `->command()`
+	 *
 	 * @param Application $app
 	 * @param array $values
 	 * @return array
+	 * @see self::maintenanceEnabled()
 	 */
+	#[FilterMethod(handles: Application::FILTER_MAINTENANCE)]
 	public function maintenanceEnabled(Application $app, array $values): array {
 		assert($app->isConfigured());
 		$values['message'] = $this->optionString('message');

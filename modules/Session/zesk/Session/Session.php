@@ -306,7 +306,7 @@ class Session extends Model implements SessionInterface {
 			$user->invokeHooks(User::HOOK_LOGOUT_EXPIRE);
 		} catch (Throwable $e) {
 			// User deleted
-			$this->application->logger->error($e);
+			$this->application->error($e);
 		}
 	}
 
@@ -387,7 +387,7 @@ class Session extends Model implements SessionInterface {
 		if ($method) {
 			return $method($request);
 		}
-		$this->application->logger->warning('{class}::{option} is not set to one of {methods} - no session will load', [
+		$this->application->warning('{class}::{option} is not set to one of {methods} - no session will load', [
 			'methods' => array_keys($methods), 'class' => self::class, 'option' => self::OPTION_METHOD,
 		]);
 		return $this;
@@ -432,7 +432,7 @@ class Session extends Model implements SessionInterface {
 
 		$cookie_options = $this->cookieOptions();
 		$cookie_value = $this->token;
-		$this->application->hooks->add(Response::class . '::headers', function (Response $response) use (
+		$this->application->hooks->registerHook(Response::HOOK_BEFORE_HEADERS, function (Response $response) use (
 			$cookie_name,
 			$cookie_value,
 			$cookie_options

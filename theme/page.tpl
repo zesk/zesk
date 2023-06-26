@@ -8,10 +8,13 @@ namespace zesk;
 /* @var $application Application */
 /* @var $route Route */
 /* @var $request Request */
+
 /* @var $response Response */
 
+use zesk\Response\HTML as ResponseHTML;
+
 // Setup
-$application->hooks->call('page.tpl', $this);
+$application->invokeHooks(ResponseHTML::HOOK_PAGE_OPEN, [$request, $response, $this]);
 
 $wrap_html = $response->contentType() === Response::CONTENT_TYPE_HTML;
 $page_template = $response->option('theme', 'Response/HTML');
@@ -26,4 +29,4 @@ if ($wrap_html && $page_template) {
 	echo $this->getString('content');
 }
 
-$application->hooks->call('page.tpl-exit', $this);
+$application->invokeHooks(ResponseHTML::HOOK_PAGE_CLOSE, [$request, $response, $this]);

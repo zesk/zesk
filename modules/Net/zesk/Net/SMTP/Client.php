@@ -6,6 +6,7 @@ declare(strict_types=1);
  * @author kent
  * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  */
+
 namespace zesk\Net\SMTP;
 
 use zesk\Exception\ConnectionFailed;
@@ -32,13 +33,13 @@ class Client extends SocketClient {
 	 * Send email
 	 *
 	 * @param string $from
-	 *        	Simple FROM
+	 *            Simple FROM
 	 * @param mixed $to
-	 *        	Email address or array of email addresses
+	 *            Email address or array of email addresses
 	 * @param array|string $headers
-	 *        	raw formatted headers, or array of headers (not name-value, array of strings)
+	 *            raw formatted headers, or array of headers (not name-value, array of strings)
 	 * @param string $body
-	 *        	Body to send
+	 *            Body to send
 	 * @return boolean
 	 */
 	public function send(string $from, string|array $to, array|string $headers, string $body): bool {
@@ -91,10 +92,8 @@ class Client extends SocketClient {
 		$message = false;
 		$result = $this->expect('250', $message);
 
-		$this->application->logger->debug('Sent email to {rcpts} {nbytes} bytes via {user}@{host}', [
-			'rcpts' => $rcpts,
-			'nbytes' => strlen($body),
-			'user' => $this->urlComponent('user'),
+		$this->application->debug('Sent email to {rcpts} {nbytes} bytes via {user}@{host}', [
+			'rcpts' => $rcpts, 'nbytes' => strlen($body), 'user' => $this->urlComponent('user'),
 			'host' => $this->urlComponent('host'),
 		]);
 		return $result;
@@ -168,7 +167,7 @@ class Client extends SocketClient {
 	 * RCPT TO command
 	 *
 	 * @param string $to
-	 *        	Email address
+	 *            Email address
 	 * @return string
 	 * @throws ConnectionFailed
 	 * @throws Exception_Protocol

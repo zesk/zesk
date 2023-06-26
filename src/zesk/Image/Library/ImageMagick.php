@@ -6,6 +6,8 @@ declare(strict_types=1);
 
 namespace zesk\Image\Library;
 
+use Exception;
+use zesk\ArrayTools;
 use zesk\Directory;
 use zesk\Exception\CommandFailed;
 use zesk\Exception\DirectoryCreate;
@@ -121,17 +123,16 @@ class ImageMagick extends Library {
 		];
 
 		$cmd = $this->shellCommandScale();
-		$cmd = map($cmd, $map);
+		$cmd = ArrayTools::map($cmd, $map);
 
 		try {
 			$this->application->process->executeArguments($cmd);
 			if (file_exists($dest)) {
 				chmod($dest, /* 0o644 */ 420);
-				$this->application->hooks->call('file_created', $dest);
 				return true;
 			}
 			return false;
-		} catch (\Exception $e) {
+		} catch (Exception $e) {
 			File::unlink($dest);
 
 			throw $e;

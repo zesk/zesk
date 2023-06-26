@@ -6,6 +6,7 @@ declare(strict_types=1);
  * @author kent
  * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  */
+
 namespace zesk\Command;
 
 use Throwable;
@@ -58,25 +59,17 @@ abstract class FileConverter extends SimpleCommand {
 	 */
 	public function initialize(): void {
 		$this->option_types += [
-			'nomtime' => 'boolean',
-			'noclobber' => 'boolean',
-			'extension' => 'string',
-			'dry-run' => 'boolean',
-			'force' => 'boolean',
-			'target-path' => 'string',
-			'mkdir-target' => 'boolean',
-			'*' => 'files',
+			'nomtime' => 'boolean', 'noclobber' => 'boolean', 'extension' => 'string', 'dry-run' => 'boolean',
+			'force' => 'boolean', 'target-path' => 'string', 'mkdir-target' => 'boolean', '*' => 'files',
 		];
 		$this->setOptions([
-			'extension' => $this->destination_extension,
-			'target-path' => './',
+			'extension' => $this->destination_extension, 'target-path' => './',
 		], false);
 		$this->option_help += [
 			'nomtime' => 'Ignore destination file modification time when determining whether to generate',
 			'noclobber' => 'Do not overwrite existing files',
 			'extension' => 'Use this extenstion for the generated files instead of the default',
-			'dry-run' => 'Don\'t make any changes, just show what would happen.',
-			'force' => 'Always write files',
+			'dry-run' => 'Don\'t make any changes, just show what would happen.', 'force' => 'Always write files',
 			'target-path' => 'When converting files, create targets here (e.g. `../compiled-js/`)',
 			'mkdir-target' => 'Create target directory if does not exist, then convert`)',
 			'*' => 'A list of files to process',
@@ -105,9 +98,7 @@ abstract class FileConverter extends SimpleCommand {
 		$app->setConsole(true);
 		$request = $app->requestFactory();
 		$app->template->set([
-			'request' => $request,
-			'response' => $app->responseFactory($request),
-			'stylesheets_inline' => true,
+			'request' => $request, 'response' => $app->responseFactory($request), 'stylesheets_inline' => true,
 		]);
 		if ($this->overwrite && $this->optionBool('no-clobber')) {
 			$this->error('The --no-clobber option is not compatible with this command, it can only overwrite existing files.');
@@ -128,15 +119,10 @@ abstract class FileConverter extends SimpleCommand {
 				$this->verboseLog('Listing {cwd}', compact('cwd'));
 				$files = Directory::listRecursive($cwd, [
 					Directory::LIST_RULE_FILE => [
-						'/\.(' . $this->source_extension_pattern . ')$/' => true,
-						false,
-					],
-					Directory::LIST_RULE_DIRECTORY_WALK => [
-						'#/\.#' => false,
-						true,
-					],
-					Directory::LIST_RULE_DIRECTORY => false,
-					Directory::LIST_ADD_PATH => true,
+						'/\.(' . $this->source_extension_pattern . ')$/' => true, false,
+					], Directory::LIST_RULE_DIRECTORY_WALK => [
+						'#/\.#' => false, true,
+					], Directory::LIST_RULE_DIRECTORY => false, Directory::LIST_ADD_PATH => true,
 				]);
 			}
 			$overwrite = $this->overwrite;
@@ -153,7 +139,7 @@ abstract class FileConverter extends SimpleCommand {
 				$new_path = dirname($new_file);
 				if (!$force && is_file($new_file) && filesize($new_file) > 0) {
 					if ($noclobber) {
-						$this->application->logger->debug("noclobber: Will not overwrite: $new_file");
+						$this->application->debug("noclobber: Will not overwrite: $new_file");
 
 						continue;
 					}
@@ -161,29 +147,28 @@ abstract class FileConverter extends SimpleCommand {
 						$new_mtime = filemtime($new_file);
 						$mtime = filemtime($file);
 						if ($new_mtime > $mtime) {
-							$this->application->logger->debug("Modification time, skipping: $new_file");
+							$this->application->debug("Modification time, skipping: $new_file");
 
 							continue;
 						}
 					}
 				}
 				if ($dry_run) {
-					$this->application->logger->notice("Would write $new_file");
+					$this->application->notice("Would write $new_file");
 
 					continue;
 				}
 				if (!is_dir($new_path) && $mkdir_target) {
 					Directory::depend($new_path);
 				} else {
-					$this->application->logger->debug('Skipping convert {file} because {new_path} does not exist', compact('file', 'new_path'));
+					$this->application->debug('Skipping convert {file} because {new_path} does not exist', compact('file', 'new_path'));
 				}
 
 				try {
 					$this->convert_file($file, $new_file);
 				} catch (Throwable $t) {
-					$this->application->logger->error('unable to convert from {file} to {new_file}: {throwableClass} {throwableMessage}', [
-						'file' => $file,
-						'newFile' => $new_file,
+					$this->application->error('unable to convert from {file} to {new_file}: {throwableClass} {throwableMessage}', [
+						'file' => $file, 'newFile' => $new_file,
 					] + Exception::exceptionVariables($t));
 				}
 			}
@@ -196,8 +181,8 @@ abstract class FileConverter extends SimpleCommand {
 	/**
 	 * Default implementation of "convert_fp" which loads the file until feof($fp) and does the conversion in memory.
 	 *
-	 * @api
 	 * @param resource $fp File opened for reading with file pointer cued to the file start position.
+	 * @api
 	 */
 	protected function convert_fp(mixed $fp): string {
 		$content = '';
@@ -210,17 +195,17 @@ abstract class FileConverter extends SimpleCommand {
 	/**
 	 * Convert $file into $new_file
 	 *
-	 * @api
 	 * @param string $file
 	 * @param string $new_file
+	 * @api
 	 */
 	abstract protected function convert_file(string $file, string $new_file): void;
 
 	/**
 	 * Convert in memory and return converted entity
 	 *
-	 * @api
 	 * @param string $content
+	 * @api
 	 */
 	abstract protected function convert_raw(string $content): string;
 
@@ -231,7 +216,7 @@ abstract class FileConverter extends SimpleCommand {
 	 * @throws FilePermission
 	 */
 	final protected function default_convert_file(string $file, string $new_file): void {
-		$this->application->logger->notice('Writing {new_file}', compact('new_file'));
+		$this->application->notice('Writing {new_file}', compact('new_file'));
 		File::put($new_file, $this->convert_raw(file_get_contents($file)));
 	}
 

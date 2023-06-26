@@ -6,6 +6,7 @@ declare(strict_types=1);
  * @author kent
  * @copyright Copyright &copy; 2023, Market Acumen, Inc.
  */
+
 namespace zesk\Interface;
 
 use Stringable;
@@ -15,6 +16,11 @@ use zesk\Application;
  * For long processes which can be interrupted.
  */
 interface SystemProcess {
+	/**
+	 *
+	 */
+	public const HOOK_DONE = 'done';
+
 	/**
 	 * Retrieve current application
 	 *

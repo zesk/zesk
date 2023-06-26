@@ -9,7 +9,9 @@ declare(strict_types=1);
 
 namespace zesk\Command;
 
+use Exception;
 use Throwable;
+use zesk\Application;
 use zesk\Exception\FilePermission;
 use zesk\Exception\SemanticsException;
 use zesk\Exception\ParameterException;
@@ -41,24 +43,17 @@ class Shell extends SimpleCommand {
 	protected array $shortcuts = ['shell', 'eval', 'evaluate'];
 
 	protected array $option_types = [
-		'skip-configure' => 'boolean',
-		'json' => 'boolean',
-		'interactive' => 'boolean',
-		'debug-state' => 'boolean',
+		'skip-configure' => 'boolean', 'json' => 'boolean', 'interactive' => 'boolean', 'debug-state' => 'boolean',
 		'*' => 'string',
 	];
 
 	protected array $option_help = [
-		'skip-configure' => 'Skip application configuration',
-		'json' => 'Output results as JSON instead of PHP',
-		'interactive' => 'Run interactively',
-		'debug-state' => 'Debug interactive state management',
-		'*' => 'string',
+		'skip-configure' => 'Skip application configuration', 'json' => 'Output results as JSON instead of PHP',
+		'interactive' => 'Run interactively', 'debug-state' => 'Debug interactive state management', '*' => 'string',
 	];
 
 	protected array $option_chars = [
-		'i' => 'interactive',
-		's' => 'skip-configure',
+		'i' => 'interactive', 's' => 'skip-configure',
 	];
 
 	/**
@@ -154,7 +149,7 @@ class Shell extends SimpleCommand {
 				if ($content) {
 					echo "# Content\n$content\n";
 				}
-				$this->application->hooks->call('exception', $ex);
+				$this->application->invokeHooks(Application::HOOK_COMMAND, [$this->application, $ex]);
 				$last_exit_code = 99;
 				continue;
 			}
@@ -203,8 +198,7 @@ class Shell extends SimpleCommand {
 		}
 		$prefix = 'return';
 		if (StringTools::begins($string, [
-			'echo ',
-			'print ',
+			'echo ', 'print ',
 		]) || str_contains($string, ';')) {
 			$prefix = '';
 		}
@@ -219,7 +213,7 @@ class Shell extends SimpleCommand {
 	 *
 	 * @param string $__string Arbitrary PHP code
 	 * @return mixed
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	private function _eval(string $__string): mixed {
 		$__eval = $this->_prefix_commmand($__string);
@@ -235,7 +229,7 @@ class Shell extends SimpleCommand {
 			$__result = eval($__eval);
 			$this->_after_evaluate(get_defined_vars());
 			return $__result;
-		} catch (\Exception $e) {
+		} catch (Exception $e) {
 			throw $e;
 		}
 	}

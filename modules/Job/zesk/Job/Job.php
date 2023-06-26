@@ -321,7 +321,7 @@ class Job extends ORMBase implements SystemProcess, ProgressStack {
 	 */
 	public static function executeJobs(SystemProcess $process): int {
 		$application = $process->application();
-		$logger = $application->logger;
+		$logger = $application->logger();
 
 		$server = Server::singleton($application);
 		$pid = getmypid();
@@ -365,8 +365,7 @@ class Job extends ORMBase implements SystemProcess, ProgressStack {
 					'pid' => null, 'id' => $job->id(),
 				])->execute();
 				// Race condition if we crash before this executes
-				if (!Types::toBool($application->ormFactory(__CLASS__)->querySelect()->addWhat('*X', 'COUNT(id)')
-					->appendWhere($server_pid)->addWhere('id', $job->id())->integer('X'))) {
+				if (!Types::toBool($application->ormFactory(__CLASS__)->querySelect()->addWhat('*X', 'COUNT(id)')->appendWhere($server_pid)->addWhere('id', $job->id())->integer('X'))) {
 					// Someone else grabbed it.
 					continue;
 				}
@@ -425,7 +424,7 @@ class Job extends ORMBase implements SystemProcess, ProgressStack {
 			'pid|!=' => null, 'server' => $server,
 		])->toArray('id', 'pid') as $id => $pid) {
 			if (!$application->process->alive($pid)) {
-				$application->logger->debug('Removing stale PID {pid} from Job # {id}', compact('pid', 'id'));
+				$application->debug('Removing stale PID {pid} from Job # {id}', compact('pid', 'id'));
 				$application->ormRegistry(__CLASS__)->queryUpdate()->setValues([
 					'pid' => null, 'server' => null, '*died' => 'died+1',
 				])->addWhere('id', $id)->execute();
@@ -597,10 +596,9 @@ class Job extends ORMBase implements SystemProcess, ProgressStack {
 	 * @return int
 	 */
 	public static function retryAttempts(Application $application): int {
-		return Types::toInteger($application->configuration->getPath(
-			[self::class, self::OPTION_RETRY_ATTEMPTS],
-			self::DEFAULT_RETRY_ATTEMPTS
-		), self::DEFAULT_RETRY_ATTEMPTS);
+		return Types::toInteger($application->configuration->getPath([
+			self::class, self::OPTION_RETRY_ATTEMPTS,
+		], self::DEFAULT_RETRY_ATTEMPTS), self::DEFAULT_RETRY_ATTEMPTS);
 	}
 
 	/**
@@ -689,11 +687,11 @@ class Job extends ORMBase implements SystemProcess, ProgressStack {
 
 	/**
 	 *
-	 * @see SystemProcess::log()
 	 * @param $message
 	 * @param array $args
 	 * @param $level
 	 * @return void
+	 * @see SystemProcess::log()
 	 */
 	public function log($message, array $args = [], $level = null): void {
 		$this->process?->log($message, $args, $level);

@@ -34,7 +34,7 @@ class TestApplicationFactory {
 
 			$logger = new FileLogger(__DIR__ . '/test.log');
 			$logger->setLevels([LogLevel::NOTICE => true, LogLevel::INFO => true, LogLevel::DEBUG => false]);
-			$application->logger = $logger->setChild($application->logger);
+			$application->setLogger($logger->setChild($application->logger()));
 
 			$application->configuration->set(ArrayTools::filterKeyPrefixes($_SERVER, ['DATABASE']));
 
@@ -43,9 +43,7 @@ class TestApplicationFactory {
 			]);
 
 			$files = [
-				'/etc/env.sh',
-				$application->path('docker/etc/test.conf'),
-				$application->paths->userHome('test.conf'),
+				'/etc/env.sh', $application->path('docker/etc/test.conf'), $application->paths->userHome('test.conf'),
 				$application->paths->userHome('test.json'),
 			];
 

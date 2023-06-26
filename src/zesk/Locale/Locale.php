@@ -570,12 +570,16 @@ abstract class Locale extends Hookable {
 		]);
 	}
 
+	public const HOOK_SHUTDOWN = self::class . '::shutdown';
+
 	/**
 	 * Allow modules to do something with untranslated phrases, like save them.
 	 */
 	public function shutdown(): void {
 		if ($this->auto) {
-			$this->application->hooks->call(__METHOD__, $this, $this->locale_phrases, $this->locale_phrase_context);
+			$this->application->invokeHooks(self::HOOK_SHUTDOWN, [
+				$this, $this->locale_phrases, $this->locale_phrase_context,
+			]);
 		}
 	}
 

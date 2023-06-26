@@ -57,20 +57,20 @@ class Module extends BaseModule {
 		$bootstrap_country = $this->optionBool('bootstrap_country');
 		$bootstrap_currency = $this->optionBool('bootstrap_currency');
 		$bootstrap_language = $this->optionBool('bootstrap_language');
-		$this->application->logger->debug('{method} begin', $__);
+		$this->application->debug('{method} begin', $__);
 		if ($bootstrap || $bootstrap_country) {
-			$this->application->logger->debug('{method} World_Bootstrap_Country', $__);
+			$this->application->debug('{method} World_Bootstrap_Country', $__);
 			Bootstrap_Country::factory($this->application)->bootstrap();
 		}
 		if ($bootstrap || $bootstrap_language) {
-			$this->application->logger->debug('{method} World_Bootstrap_Language', $__);
+			$this->application->debug('{method} World_Bootstrap_Language', $__);
 			Bootstrap_Language::factory($this->application)->bootstrap();
 		}
 		if ($bootstrap || $bootstrap_currency) {
-			$this->application->logger->debug('{method} World_Bootstrap_Currency', $__);
+			$this->application->debug('{method} World_Bootstrap_Currency', $__);
 			Bootstrap_Currency::factory($this->application)->bootstrap();
 		}
-		$this->application->logger->debug('{method} ended', $__);
+		$this->application->debug('{method} ended', $__);
 
 		Language::clean_table($this->application);
 	}

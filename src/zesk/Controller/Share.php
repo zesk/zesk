@@ -143,7 +143,7 @@ class Share extends Controller {
 		$sharePaths = $this->sharePath();
 		$document_root = $app->documentRoot();
 		foreach ($sharePaths as $name => $path) {
-			$app->logger->info('Reviewing {name} => {path}', [
+			$app->info('Reviewing {name} => {path}', [
 				'name' => $name, 'path' => $path,
 			]);
 			$files = Directory::ls($path);
@@ -156,7 +156,7 @@ class Share extends Controller {
 					if (!copy($source, $target_file)) {
 						throw new FilePermission($target_file);
 					}
-					$app->logger->info("Copied $source to $target_file");
+					$app->info("Copied $source to $target_file");
 				}
 			}
 		}
@@ -226,7 +226,7 @@ class Share extends Controller {
 			try {
 				$response->setContentType(MIME::fromExtension($file));
 			} catch (KeyNotFound) {
-				$this->application->logger->warning('No content type for {file}', ['file' => $file]);
+				$this->application->warning('No content type for {file}', ['file' => $file]);
 			}
 			$response->content = '';
 			$this->_buildOption($original_uri, $file);
@@ -260,7 +260,7 @@ class Share extends Controller {
 			try {
 				$this->build($original_uri, $file);
 			} catch (DirectoryPermission|DirectoryCreate $e) {
-				$this->application->logger->error($e);
+				$this->application->error($e);
 			}
 		}
 	}
@@ -277,7 +277,7 @@ class Share extends Controller {
 		$target = Directory::path($this->application->documentRoot(), $path);
 		Directory::depend(dirname($target), 0o775);
 		$status = copy($file, $target);
-		$this->application->logger->notice('Copied {file} to {target} - {status}', [
+		$this->application->notice('Copied {file} to {target} - {status}', [
 			'file' => $file, 'target' => $target, 'status' => $status ? 'true' : 'false',
 		]);
 	}
@@ -315,7 +315,7 @@ class Share extends Controller {
 	 * Clear the share build path upon cache clear
 	 */
 	public function hook_cacheClear(): void {
-		$logger = $this->application->logger;
+		$logger = $this->application->logger();
 		if (!$this->optionBool(self::OPTION_BUILD)) {
 			return;
 		}

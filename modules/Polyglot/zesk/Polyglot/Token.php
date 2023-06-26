@@ -6,6 +6,7 @@ declare(strict_types=1);
  * @subpackage Polyglot
  * @copyright &copy; 2023, Market Acumen, Inc.
  */
+
 namespace zesk\Polyglot;
 
 use zesk\Application;
@@ -121,23 +122,17 @@ class Token extends ORMBase {
 		$result = parent::store();
 		if ($this->status === self::STATUS_DELETE) {
 			$this->queryDelete()->appendWhere([
-				'*md5' => "UNHEX('$this->md5')",
-				'language|!=' => [
-					null,
-					'',
+				'*md5' => "UNHEX('$this->md5')", 'language|!=' => [
+					null, '',
 				],
 			])->execute();
 		}
 		return $result;
 	}
 
-	public static function create(Application $app, string $language, string $dialect, string $original, string $translation, string $status =
-	'') {
+	public static function create(Application $app, string $language, string $dialect, string $original, string $translation, string $status = '') {
 		$token = $app->ormFactory(__CLASS__, [
-			'language' => $language,
-			'dialect' => $dialect,
-			'original' => $original,
-			'translation' => $translation,
+			'language' => $language, 'dialect' => $dialect, 'original' => $original, 'translation' => $translation,
 		]);
 		assert($token instanceof self);
 		$token->status = ($status === '') ? self::STATUS_TODO : $status;
@@ -155,14 +150,12 @@ class Token extends ORMBase {
 	 */
 	public static function fetchAll(Application $app, string $language, string $dialect = ''): array {
 		$where = [
-			'language' => $language,
-			'dialect' => $dialect === '' ? null : $dialect,
+			'language' => $language, 'dialect' => $dialect === '' ? null : $dialect,
 		];
 		$query = $app->ormRegistry(__CLASS__)->querySelect();
 		$where = [
 			[
-				$where,
-				[
+				$where, [
 					'status' => self::STATUS_DELETE,
 				],
 			],
@@ -180,12 +173,7 @@ class Token extends ORMBase {
 
 	public function json(JSONWalker $options): array {
 		$members = $this->members([
-			'id',
-			'language',
-			'dialect',
-			'original',
-			'translation',
-			'status',
+			'id', 'language', 'dialect', 'original', 'translation', 'status',
 		]);
 		$members['user'] = $this->memberInteger('user');
 		return $members;
@@ -199,13 +187,9 @@ class Token extends ORMBase {
 	 * @throws ORMNotFound
 	 */
 	public static function localeQuery(Application $application, string $locale): Database_Query_Select {
-		return $application->ormRegistry(__CLASS__)
-			->querySelect()
-			->ormWhat()
-			->appendWhere([
-				'dialect' => Locale::parseDialect($locale),
-				'language' => Locale::parseLanguage($locale),
-			]);
+		return $application->ormRegistry(__CLASS__)->querySelect()->ormWhat()->appendWhere([
+			'dialect' => Locale::parseDialect($locale), 'language' => Locale::parseLanguage($locale),
+		]);
 	}
 
 	/**
@@ -213,12 +197,9 @@ class Token extends ORMBase {
 	 */
 	public static function statusFilters_EN(): array {
 		return [
-			self::STATUS_TODO => 'Need translation',
-			self::STATUS_INFO => 'Need more information',
-			self::STATUS_DEV => 'Need developer review',
-			self::STATUS_DRAFT => 'Draft',
-			self::STATUS_DELETE => 'Deleted',
-			self::STATUS_DONE => 'Translated',
+			self::STATUS_TODO => 'Need translation', self::STATUS_INFO => 'Need more information',
+			self::STATUS_DEV => 'Need developer review', self::STATUS_DRAFT => 'Draft',
+			self::STATUS_DELETE => 'Deleted', self::STATUS_DONE => 'Translated',
 		];
 	}
 
@@ -234,25 +215,15 @@ class Token extends ORMBase {
 	 * @throws KeyNotFound
 	 */
 	public static function htmlentities_all(Application $app): void {
-		$iterator = $app->ormRegistry(__CLASS__)
-			->querySelect()
-			->appendWhat([
-				'id' => 'id',
-				'translation' => 'translation',
-			])
-			->iterator('id', 'translation');
+		$iterator = $app->ormRegistry(__CLASS__)->querySelect()->appendWhat([
+			'id' => 'id', 'translation' => 'translation',
+		])->iterator('id', 'translation');
 		foreach ($iterator as $id => $translation) {
 			$entities = htmlentities($translation);
 			if ($entities !== $translation) {
-				$app->ormRegistry(__CLASS__)
-					->queryUpdate()
-					->value('translation', $entities)
-					->addWhere('id', $id)
-					->execute();
-				$app->logger->debug('Updated #{id} {translation} to {entities}', [
-					'id' => $id,
-					'translation' => $translation,
-					'entities' => $entities,
+				$app->ormRegistry(__CLASS__)->queryUpdate()->value('translation', $entities)->addWhere('id', $id)->execute();
+				$app->debug('Updated #{id} {translation} to {entities}', [
+					'id' => $id, 'translation' => $translation, 'entities' => $entities,
 				]);
 			}
 		}

@@ -258,20 +258,27 @@ class Response extends Hookable {
 	 */
 	private bool $rendering = false;
 
-	/**
-	 *
-	 * @see Options::__sleep
-	 */
-	public function __sleep(): array {
-		return array_merge(parent::__sleep(), [
-			'content', 'status_code', 'status_message', 'contentType', 'output_handler', 'charset', 'types', 'headers',
-			'response_data',
-		]);
+	public function __serialize(): array {
+		return parent::__serialize() + [
+			'content' => $this->content, 'status_code' => $this->status_code,
+			'status_message' => $this->status_message, 'contentType' => $this->contentType,
+			'output_handler' => $this->output_handler, 'charset' => $this->charset, 'types' => $this->types,
+			'headers' => $this->headers, 'response_data' => $this->response_data,
+		];
 	}
 
-	public function __wakeup(): void {
-		parent::__wakeup();
+	public function __unserialize(array $data): void {
+		parent::__unserialize($data);
 		$this->id = self::$response_index++;
+		$this->content = $data['content'];
+		$this->status_code = $data['status_code'];
+		$this->status_message = $data['status_message'];
+		$this->contentType = $data['contentType'];
+		$this->output_handler = $data['output_handler'];
+		$this->charset = $data['charset'];
+		$this->types = $data['types'];
+		$this->headers = $data['headers'];
+		$this->response_data = $data['response_data'];
 	}
 
 	/**
@@ -382,7 +389,7 @@ class Response extends Hookable {
 		if ($domain) {
 			$domain = ltrim($domain, '.');
 			if (!str_ends_with($host, $domain)) {
-				$this->application->logger->warning('Unable to set cookie domain {cookie_domain} on host {host}', [
+				$this->application->warning('Unable to set cookie domain {cookie_domain} on host {host}', [
 					'cookie_domain' => $domain, 'host' => $host,
 				]);
 				$domain = null;
@@ -539,7 +546,7 @@ class Response extends Hookable {
 	 * @return self
 	 */
 	final public function setContentType(string $set): self {
-		$this->application->logger->debug('Set content type to {set} at {where}', [
+		$this->application->debug('Set content type to {set} at {where}', [
 			'set' => $set, 'where' => Kernel::callingFunction(),
 		]);
 		$this->contentType = $set;
@@ -575,7 +582,7 @@ class Response extends Hookable {
 	 * @return Response
 	 */
 	final public function setOutputHandler(string $set): self {
-		$this->application->logger->debug('{method} set to {set} from {calling}', [
+		$this->application->debug('{method} set to {set} from {calling}', [
 			'method' => __METHOD__, 'set' => $set, 'calling' => Kernel::callingFunction(2),
 		]);
 		$this->output_handler = $set;
@@ -866,7 +873,7 @@ class Response extends Hookable {
 			} elseif ($expires instanceof Timestamp) {
 				$item->expiresAt($expires->datetime());
 			} else {
-				$this->application->logger->error('{method} expires is unhandled type: {type}', [
+				$this->application->error('{method} expires is unhandled type: {type}', [
 					'method' => __METHOD__, 'type' => Types::type($expires),
 				]);
 			}
@@ -1315,9 +1322,6 @@ class Response extends Hookable {
 	 * @return int
 	 */
 	public function resourceExpireSeconds(): int {
-		return $this->optionInt(
-			self::OPTION_RESOURCE_CACHE_EXPIRE_SECONDS,
-			self::DEFAULT_RESOURCE_CACHE_EXPIRE_SECONDS
-		);
+		return $this->optionInt(self::OPTION_RESOURCE_CACHE_EXPIRE_SECONDS, self::DEFAULT_RESOURCE_CACHE_EXPIRE_SECONDS);
 	}
 }
