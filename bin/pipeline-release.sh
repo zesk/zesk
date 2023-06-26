@@ -63,26 +63,44 @@ echo
 } > "$top/.github.conf"
 
 commitish=$(git rev-parse --short HEAD)
-ssh-keyscan github.com >> "$HOME/.ssh/known_hosts"
+ssh-keyscan github.com >> "$HOME/.ssh/known_hosts" 2> /dev/null
 git remote add github "git@github.com:$GITHUB_REPOSITORY_OWNER/$GITHUB_REPOSITORY_NAME.git"
-git push github
 
+consoleCyan "Pushing changes to GitHub ..."
+consoleGreen "$(echoBar)"
+start=$(($(date +%s) + 0))
+git push github
+consoleGreen "$(echoBar)"
+consoleGreen "OK. " && consoleBoldMagenta $(($(date +%s) - start)) seconds && echo
+
+start=$(($(date +%s) + 0))
+consoleCyan "Building Zesk PHP Dockerfile ..."
 image=$(docker build -q -f ./docker/php.Dockerfile .)
+consoleGreen "OK. " && consoleBoldMagenta $(($(date +%s) - start)) seconds && echo
+
 consoleCyan "Generated container $image, running github tag ..." && echo
 consoleGreen "$(echoBar)"
+start=$(($(date +%s) + 0))
 docker run -u www-data "$image" /zesk/bin/zesk --config /zesk/.github.conf module GitHub -- github --tag --description-file "/zesk/$remoteChangeLogName" --commitish "$commitish"
 consoleGreen "$(echoBar)"
-consoleGreen OK && echo
+consoleGreen "OK. " && consoleBoldMagenta $(($(date +%s) - start)) seconds && echo
 
-consoleGreen "Pull github and push origin ... "
+consoleCyan "Pull github and push origin ... " && echo
+consoleGreen "$(echoBar)"
+consoleCyan "git pull github" && echo
+start=$(($(date +%s) + 0))
 git pull github
+consoleCyan "git push origin" && echo
 git push origin
+consoleGreen "$(echoBar)"
+consoleBoldMagenta $(($(date +%s) - start)) seconds
 
 consoleGreen "Tagging $currentVersion and pushing ... "
+start=$(($(date +%s) + 0))
+consoleGreen "$(echoBar)"
 git tag "$currentVersion"
 git push origin --tags
 git push github --tags
-consoleGreen OK && echo
+consoleGreen "OK. " && consoleBoldMagenta $(($(date +%s) - start)) seconds && echo
 
-echo
 figlet "zesk $currentVersion OK"

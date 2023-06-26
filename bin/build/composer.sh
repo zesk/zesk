@@ -20,6 +20,7 @@ set -eo pipefail
 [ -d "$top/.composer" ] || mkdir "$top/.composer"
 
 vendorArgs=()
+vendorArgs+=("-q")
 vendorArgs+=("-v" "$top:/app")
 vendorArgs+=("-v" "$top/.composer:/tmp")
 vendorArgs+=("composer:latest")
