@@ -128,7 +128,7 @@ class Cannon extends SimpleCommand {
 		$replace = null;
 		if ($this->hasArgument()) {
 			$replace = $this->getArgument('replace');
-		} else if (!$show) {
+		} elseif (!$show) {
 			echo 'Replace? ';
 			$replace = rtrim(fgets(STDIN), "\n\r");
 		}
@@ -137,7 +137,7 @@ class Cannon extends SimpleCommand {
 		}
 		if ($show) {
 			$this->verboseLog('Showing matches only');
-		} else if ($backup) {
+		} elseif ($backup) {
 			if ($duplicate) {
 				$this->error('--duplicate and --backup are exclusive, ignoring --backup');
 			}
@@ -154,7 +154,7 @@ class Cannon extends SimpleCommand {
 			if ($result > 0) {
 				$stats['files']++;
 				$stats['lines'] += $result;
-			} else if ($result < 0) {
+			} elseif ($result < 0) {
 				if (!isset($stats['skipped'])) {
 					$stats['skipped'] = 0;
 				}
@@ -247,8 +247,8 @@ class Cannon extends SimpleCommand {
 				$carrot_line = preg_replace("#[^$rabbit]#", ' ', $line);
 
 				echo Text::rightAlign(strval($lineno + 1), 4) . ': ' . strtr($line, [
-						$rabbit => $search,
-					]) . "\n";
+					$rabbit => $search,
+				]) . "\n";
 				if (!$sameLength) {
 					echo Text::rightAlign('', 4) . '  ' . rtrim(strtr($carrot_line, $carrotSearch)) . "\n";
 				}

@@ -87,16 +87,16 @@ class Parser {
 			if (in_array($firstChar, $whites)) {
 				if (count($paths) === 0) {
 					$logger->warning("Line $lineno1 of router has setting without path");
-				} else if (!str_contains($line, '=')) {
+				} elseif (!str_contains($line, '=')) {
 					$logger->warning("Line $lineno1 of router has no value ($line)");
 				} else {
 					[$name, $value] = explode('=', $line, 2);
 					$value_trimmed = trim($value);
 					if ($value_trimmed === 'null') {
 						$value = null;
-					} else if ($value_trimmed === 'true' || $value_trimmed === 'false') {
+					} elseif ($value_trimmed === 'true' || $value_trimmed === 'false') {
 						$value = Types::toBool($value_trimmed);
-					} else if (StringTools::begins($value_trimmed, str_split('"\'{['))) {
+					} elseif (StringTools::begins($value_trimmed, str_split('"\'{['))) {
 						try {
 							$decoded = JSON::decode($value);
 							$value = $decoded;

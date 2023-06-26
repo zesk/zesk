@@ -228,7 +228,7 @@ class Update extends SimpleCommand {
 	private function modules_to_update(): array {
 		if ($this->hasArgument()) {
 			$modules = $this->modules_from_command_line();
-		} else if ($this->optionBool('all')) {
+		} elseif ($this->optionBool('all')) {
 			$modules = $this->modules_from_module_paths();
 		} else {
 			$modules = $this->application->modules->moduleNames();
@@ -419,7 +419,7 @@ class Update extends SimpleCommand {
 				$this->verboseLog("$moduleName uptodate\n");
 				$edits = [];
 				$edits['checked'] = $date;
-			} else if ($edits instanceof Exception) {
+			} elseif ($edits instanceof Exception) {
 				$message = $edits->getMessage();
 				$edits = [];
 				$edits['failed_message'] = $message;
@@ -497,13 +497,13 @@ class Update extends SimpleCommand {
 		$do_updates = $this->optionBool('composer-update');
 
 		foreach ([
-					 '' => $composer_require, '--dev ' => $composer_require_dev,
-				 ] as $arg => $requires) {
+			'' => $composer_require, '--dev ' => $composer_require_dev,
+		] as $arg => $requires) {
 			foreach ($requires as $require) {
 				if (!is_string($require)) {
 					$logger->error('Module {name} {conf_path} composer.require is not a string? {type}', [
-							'type' => Types::type($require),
-						] + $data);
+						'type' => Types::type($require),
+					] + $data);
 
 					continue;
 				}
@@ -607,12 +607,12 @@ class Update extends SimpleCommand {
 					$load_urls[$url] = [
 						'destination' => $value, 'strip_components' => $strip_components,
 					];
-				} else if (is_array($value)) {
+				} elseif (is_array($value)) {
 					$load_urls[$url] = array_change_key_case($value) + [
-							'destination' => $destination, 'strip_components' => $strip_components,
-						];
+						'destination' => $destination, 'strip_components' => $strip_components,
+					];
 				}
-			} else if (!URL::valid($value)) {
+			} elseif (!URL::valid($value)) {
 				$this->error('{value} in  module {name} is not a valid URL', [
 					'value' => $value, 'name' => $name,
 				]);
@@ -672,6 +672,7 @@ class Update extends SimpleCommand {
 				$this->error('Updating {url} failed: {message}', [
 					'url' => $url, 'message' => $e->getMessage(),
 				]);
+
 				throw $e;
 			}
 
@@ -681,7 +682,7 @@ class Update extends SimpleCommand {
 			if ($this->optionBool('force')) {
 				$do_update = true;
 				$this->verboseLog('Updating forced');
-			} else if (!$this->isUnpack($filename) && !file_exists($dest_file)) {
+			} elseif (!$this->isUnpack($filename) && !file_exists($dest_file)) {
 				$do_update = true;
 				$this->verboseLog('Destination file {dest_file} doesn\'t exist? (filename is {filename})', [
 					'dest_file' => $dest_file, 'filename' => $filename,
@@ -693,7 +694,7 @@ class Update extends SimpleCommand {
 					$this->verboseLog('Hashes don\'t match for {dest_file}: {hash} !== {new_hash}', [
 						'dest_file' => $dest_file, 'hash' => $hash, 'new_hash' => $new_hash,
 					]);
-				} else if (!is_dir($destination) || Directory::isEmpty($destination)) {
+				} elseif (!is_dir($destination) || Directory::isEmpty($destination)) {
 					$do_update = true;
 					$this->verboseLog('Destination directory {destination} does not exist', [
 						'destination' => $destination,
@@ -770,7 +771,7 @@ class Update extends SimpleCommand {
 					'delete' => $delete,
 				]);
 				Directory::delete($delete);
-			} else if (is_file($delete)) {
+			} elseif (is_file($delete)) {
 				$this->info('Deleting file {delete}', [
 					'delete' => $delete,
 				]);
@@ -842,7 +843,7 @@ class Update extends SimpleCommand {
 				'filename' => $filename,
 			]);
 			$result = self::unpack_tar($data);
-		} else if (StringTools::ends($filename, [
+		} elseif (StringTools::ends($filename, [
 			'.zip',
 		])) {
 			$this->debugLog('Unpacking ZIP file {filename}', [
@@ -969,7 +970,8 @@ class Update extends SimpleCommand {
 						Directory::copy($source_path, $dest_path, true);
 					} catch (Throwable $e) {
 						Directory::delete($dest_path);
-						throw new FilePermission($dest_path, "Directory::copy {sourcePath} to {destPath}", [
+
+						throw new FilePermission($dest_path, 'Directory::copy {sourcePath} to {destPath}', [
 							'sourcePath' => $source_path, 'destPath' => $dest_path,
 						], $e->getCode(), $e);
 					}

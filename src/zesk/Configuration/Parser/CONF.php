@@ -151,7 +151,7 @@ class CONF extends Parser {
 			 */
 			if ($this->loader && strtolower($key) === 'include') {
 				$this->handleInclude($value);
-			} else if ($append) {
+			} elseif ($append) {
 				$append_value = Types::toArray($settings->get($key));
 				$append_value[] = $value;
 				$settings->set($key, $append_value);

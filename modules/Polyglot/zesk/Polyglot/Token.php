@@ -156,8 +156,8 @@ class Token extends ORMBase {
 		$where = [
 			[
 				$where, [
-				'status' => self::STATUS_DELETE,
-			],
+					'status' => self::STATUS_DELETE,
+				],
 			],
 		];
 		$query->appendWhere($where);
@@ -188,8 +188,8 @@ class Token extends ORMBase {
 	 */
 	public static function localeQuery(Application $application, string $locale): Database_Query_Select {
 		return $application->ormRegistry(__CLASS__)->querySelect()->ormWhat()->appendWhere([
-				'dialect' => Locale::parseDialect($locale), 'language' => Locale::parseLanguage($locale),
-			]);
+			'dialect' => Locale::parseDialect($locale), 'language' => Locale::parseLanguage($locale),
+		]);
 	}
 
 	/**
@@ -216,8 +216,8 @@ class Token extends ORMBase {
 	 */
 	public static function htmlentities_all(Application $app): void {
 		$iterator = $app->ormRegistry(__CLASS__)->querySelect()->appendWhat([
-				'id' => 'id', 'translation' => 'translation',
-			])->iterator('id', 'translation');
+			'id' => 'id', 'translation' => 'translation',
+		])->iterator('id', 'translation');
 		foreach ($iterator as $id => $translation) {
 			$entities = htmlentities($translation);
 			if ($entities !== $translation) {

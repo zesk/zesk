@@ -39,22 +39,22 @@ $dev = $application->development();
 			echo $dev ? $class : strtr($class, '_', ' ') ?>
             <!--  <?php
 			echo $class;
-			?> -->
+?> -->
         </h1>
         <p>The computer error given was:</p>
 		<?php
 		echo HTML::tag('code', $message);
-		if ($dev) {
-			?><p>The call stack is:</p><?php
-			echo $this->theme('Exception/Trace', [
-				'content' => $trace,
-			]); ?>
+if ($dev) {
+	?><p>The call stack is:</p><?php
+	echo $this->theme('Exception/Trace', [
+		'content' => $trace,
+	]); ?>
 			<?php
-		}
-		if ($this->suffix) {
-			echo HTML::tag('p', $this->suffix);
-		}
-		?>
+}
+if ($this->suffix) {
+	echo HTML::tag('p', $this->suffix);
+}
+?>
     </div>
 	<?php
 echo HTML::tag_close('div');

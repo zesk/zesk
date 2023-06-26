@@ -950,7 +950,7 @@ class Timestamp extends Temporal {
 			$timestamp = clone $timestamp;
 			$timestamp->setTimeZone($this->tz->getName());
 		}
-		$options = ['skipHook' => true,];
+		$options = ['skipHook' => true, ];
 		return $this->format(self::DEFAULT_FORMAT_STRING, $options) === $timestamp->format(self::DEFAULT_FORMAT_STRING, $options);
 	}
 
@@ -1375,7 +1375,7 @@ class Timestamp extends Temporal {
 		$delta = $a->unixTimestamp() - $b->unixTimestamp();
 		if ($delta < 0) {
 			return -1;
-		} else if ($delta === 0) {
+		} elseif ($delta === 0) {
 			return 0;
 		}
 		return 1;

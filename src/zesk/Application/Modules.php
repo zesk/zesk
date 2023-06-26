@@ -513,6 +513,7 @@ class Modules {
 				'class' => $object::class, 'message' => $e->getMessage(),
 			]);
 			$this->application->invokeHooks(Application::HOOK_EXCEPTION, [$this->application, $e]);
+
 			throw $e;
 		}
 	}

@@ -114,6 +114,7 @@ class Controller extends Hookable implements Themeable {
 	}
 
 	public const HOOK_BEFORE = self::class . '::before';
+
 	public const HOOK_AFTER = self::class . '::after';
 
 	/**
@@ -138,8 +139,8 @@ class Controller extends Hookable implements Themeable {
 		$actionMethod = $this->determineMethod($this->actionMethods, $requestMap, true);
 		$afterMethod = $this->determineMethod($this->afterMethods, $requestMap, false);
 		$__ = $requestMap + [
-				'class' => $this::class, 'actionMethod' => $actionMethod,
-			];
+			'class' => $this::class, 'actionMethod' => $actionMethod,
+		];
 		$app->debug('Controller {class} running action {method} {action} -> {actionMethod}', $__);
 
 		$this->before($request, $response);
@@ -164,17 +165,17 @@ class Controller extends Hookable implements Themeable {
 		$message = '{actionMethod} output {bytes} bytes: "{contents}"';
 		if ($result instanceof Response) {
 			$response = $result;
-		} else if (is_string($result)) {
+		} elseif (is_string($result)) {
 			if ($contentsLength) {
 				$app->warning("Incorrect controller semantics: output + return string, output ignored.\n$message", $__);
 			}
 			$response->setContent($result);
-		} else if (is_array($result)) {
+		} elseif (is_array($result)) {
 			if ($contentsLength) {
 				$app->warning("Incorrect controller semantics: output + return array, output ignored\n$message", $__);
 			}
 			$response->setResponseData($result);
-		} else if ($contentsLength) {
+		} elseif ($contentsLength) {
 			if (!$this->optionBool('captureOutput')) {
 				$app->warning("{class}::captureOutput is not enabled: $message", $__);
 			} else {

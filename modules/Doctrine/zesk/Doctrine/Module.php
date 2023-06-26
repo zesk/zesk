@@ -140,7 +140,7 @@ class Module extends BaseModule {
 						self::class, 'connections', $name,
 					], 'Invalid URL {dsn}', ['dsn' => $dsn], $e);
 				}
-			} else if (is_array($dsn)) {
+			} elseif (is_array($dsn)) {
 				$parts = $dsn;
 			} else {
 				throw new ConfigurationException([

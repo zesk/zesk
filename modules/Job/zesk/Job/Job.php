@@ -290,7 +290,7 @@ class Job extends ORMBase implements SystemProcess, ProgressStack {
 	public function start(null|string|int|Timestamp $when = null): self {
 		if ($when === null) {
 			$when = Timestamp::now();
-		} else if (!$when instanceof Timestamp) {
+		} elseif (!$when instanceof Timestamp) {
 			$when = Timestamp::factory($when);
 		}
 		$this->start = $when;

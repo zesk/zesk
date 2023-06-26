@@ -54,7 +54,6 @@ class KernelTest extends TestCase {
 		$test->order++;
 	}
 
-
 	public function test_singletons(): void {
 		SingletonSampler::$serialNo = $theId = $this->randomHex();
 
@@ -157,7 +156,7 @@ class KernelTest extends TestCase {
 			[
 				ZESK_ROOT . 'modules/Doctrine/zesk/Doctrine/User.php', 'zesk\\Doctrine\\User', ['php', 'sql'],
 				['Doctrine'],
-			], [null, 'zesk\\Doctrine\\User', ['other', 'none',], ['Doctrine']],
+			], [null, 'zesk\\Doctrine\\User', ['other', 'none', ], ['Doctrine']],
 		];
 	}
 
@@ -285,7 +284,7 @@ class KernelTest extends TestCase {
 	public static function data_has(): array {
 		return [
 			[true, Application::class], [true, [Application::class, 'deprecated']], [true, Kernel::class],
-			[true, [Application::class, Application::OPTION_HOME_PATH],], [true, Options::class], [false, md5('HOME')],
+			[true, [Application::class, Application::OPTION_HOME_PATH], ], [true, Options::class], [false, md5('HOME')],
 			[true, 'HOME'], [false, 'HoMe'], [false, '0192830128301283123'],
 		];
 	}
@@ -395,8 +394,8 @@ class KernelTest extends TestCase {
 			$app->setConfiguration()->configure();
 		}
 		foreach ([
-					 Application::DEPRECATED_BACKTRACE, Application::DEPRECATED_IGNORE, Application::DEPRECATED_LOG,
-				 ] as $deprecatedSetting) {
+			Application::DEPRECATED_BACKTRACE, Application::DEPRECATED_IGNORE, Application::DEPRECATED_LOG,
+		] as $deprecatedSetting) {
 			$configuration->setPath([$app::class, 'deprecated'], $deprecatedSetting);
 			$app->setConfiguration()->configure();
 		}

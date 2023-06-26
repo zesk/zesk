@@ -86,7 +86,7 @@ class JSON extends Parser {
 			$this->loader->appendFiles([
 				$file,
 			]);
-		} else if ($context && is_dir($context) && File::pathCheck($file)) {
+		} elseif ($context && is_dir($context) && File::pathCheck($file)) {
 			$full = Directory::path($context, $file);
 			$this->loader->appendFiles([$full]);
 		} else {
@@ -113,11 +113,12 @@ class JSON extends Parser {
 			]);
 			if (is_array($value)) {
 				$this->mergeResults($value, $current_path, $interpolate);
-			} else if (is_string($value) && $interpolate && preg_match_all('/\$\{([^}]+)}/', $value, $matches, PREG_SET_ORDER)) {
+			} elseif (is_string($value) && $interpolate && preg_match_all('/\$\{([^}]+)}/', $value, $matches, PREG_SET_ORDER)) {
 				$dependencies = [];
 				$map = [];
 				foreach ($matches as $match) {
 					[$token, $variable] = $match;
+
 					try {
 						$map[$token] = strval($settings->get($variable));
 					} catch (KeyNotFound) {

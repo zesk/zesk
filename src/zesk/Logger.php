@@ -288,8 +288,8 @@ class Logger implements LoggerInterface {
 				$handler->log($message, $context);
 			} catch (Throwable $e) {
 				PHP::log('{method} {handler} threw {class} at {file}:{line} {message} Backtrace: {backtrace}', [
-						'method' => __METHOD__, 'name' => $name,
-					] + Exception::exceptionVariables($e));
+					'method' => __METHOD__, 'name' => $name,
+				] + Exception::exceptionVariables($e));
 			}
 		}
 		$this->sending = false;

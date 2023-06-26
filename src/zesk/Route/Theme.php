@@ -61,8 +61,8 @@ class Theme extends Route {
 		$application = $this->application;
 		$themes = $application->themes;
 		$parameters = $application->variables() + [
-				'route' => $this,
-			];
+			'route' => $this,
+		];
 		$parameters += $this->options() + $this->named;
 		$args = ArrayTools::map($this->optionArray('theme arguments'), $parameters) + $parameters;
 		$theme = $this->option('theme');
@@ -87,8 +87,8 @@ class Theme extends Route {
 		$application = $this->application;
 		$themes = $application->themes;
 		$parameters = $application->variables() + [
-				'route' => $this,
-			];
+			'route' => $this,
+		];
 		$parameters += $this->options() + $this->named;
 		$args = ArrayTools::map($this->optionArray('theme arguments'), $parameters) + $parameters;
 		$mapped_theme = $theme = $this->option('theme');
@@ -111,8 +111,8 @@ class Theme extends Route {
 		$json_html = $this->option('json_html', false);
 		if ($json_html && $response->isJSON() || $this->optionBool('json')) {
 			$response->json()->setData($response->html()->toJSON() + [
-					'status' => true,
-				]);
+				'status' => true,
+			]);
 		}
 		return $response;
 	}

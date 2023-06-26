@@ -355,11 +355,11 @@ class Module extends BaseModule {
 			$state = $settings['state'];
 			/* @var $state MetaInterface */
 			$last_run = self::_lastCronRun($state);
-			$scopeCronMethods = array_filter($allCronMethods, fn(Cron $cronAttribute) => $cronAttribute->scope === $scope);
+			$scopeCronMethods = array_filter($allCronMethods, fn (Cron $cronAttribute) => $cronAttribute->scope === $scope);
 			if ($now->difference($last_run)) {
 				self::_cronJustRan($state, null, null, $now);
 				if (count($scopeCronMethods) !== 0) {
-					$unitCronMethods = array_filter($scopeCronMethods, fn(Cron $cronAttribute) => $cronAttribute->schedule === Temporal::UNIT_SECOND);
+					$unitCronMethods = array_filter($scopeCronMethods, fn (Cron $cronAttribute) => $cronAttribute->schedule === Temporal::UNIT_SECOND);
 
 					foreach ($unitCronMethods as $method => $cronAttribute) {
 						/* @var Cron $cronAttribute */
@@ -380,7 +380,7 @@ class Module extends BaseModule {
 				if ($now->difference($last_unit_run, $unit) > 0) {
 					self::_cronJustRan($state, $settings['prefix'], $unit, $now);
 					if (count($scopeCronMethods) !== 0) {
-						$unitCronMethods = array_filter($scopeCronMethods, fn(Cron $cronAttribute) => $cronAttribute->schedule === $unit);
+						$unitCronMethods = array_filter($scopeCronMethods, fn (Cron $cronAttribute) => $cronAttribute->schedule === $unit);
 
 						foreach ($unitCronMethods as $method => $cronAttribute) {
 							/* @var Cron $cronAttribute */

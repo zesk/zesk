@@ -16,7 +16,6 @@ use zesk\Application;
  * For long processes which can be interrupted.
  */
 interface SystemProcess {
-
 	/**
 	 *
 	 */

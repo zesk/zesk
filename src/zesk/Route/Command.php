@@ -80,14 +80,14 @@ class Command extends Route {
 			}
 			$resultTheme = $this->option(self::OPTION_THEME, self::DEFAULT_OPTION_THEME);
 			$content = $app->themes->theme($resultTheme, [
-					'content' => $result, 'failed' => false, 'exitCode' => 0,
-				] + $theme_arguments);
+				'content' => $result, 'failed' => false, 'exitCode' => 0,
+			] + $theme_arguments);
 		} catch (CommandFailed $e) {
 			$app->invokeHooks(Application::HOOK_EXCEPTION, [$app, $e]);
 			$failedTheme = $this->option(self::OPTION_FAILED_THEME, self::DEFAULT_OPTION_FAILED_THEME);
 			$content = $app->themes->theme($failedTheme, [
-					'content' => $e->getOutput(), 'failed' => true,
-				] + $e->variables() + $theme_arguments);
+				'content' => $e->getOutput(), 'failed' => true,
+			] + $e->variables() + $theme_arguments);
 		}
 		return $app->responseFactory($request)->setContent($content);
 	}

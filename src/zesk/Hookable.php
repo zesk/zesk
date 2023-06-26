@@ -136,7 +136,7 @@ class Hookable extends Options {
 	 * @return array:HookMethod
 	 */
 	public function hookMethods(string $hookName): array {
-		return array_filter($this->attributeMethods(HookMethod::class), fn(HookMethod $method) => $method->handlesHook($hookName));
+		return array_filter($this->attributeMethods(HookMethod::class), fn (HookMethod $method) => $method->handlesHook($hookName));
 	}
 
 	/**
@@ -332,9 +332,7 @@ class Hookable extends Options {
 		if ($untilValue instanceof Closure) {
 			$loopEndTest = $untilValue;
 		} else {
-			$loopEndTest = function ($value) use ($untilValue) {
-				return $value === $untilValue;
-			};
+			$loopEndTest = fn ($value) => $value === $untilValue;
 		}
 		return self::_invokeTypedFilters($hookName, $hooks, $mixed, $loopEndTest, $arguments, $filterArgumentIndex);
 	}
@@ -428,7 +426,7 @@ class Hookable extends Options {
 	 * @return array
 	 */
 	public static function _staticHookMethodsFor(Hookable $hookable, string $name, bool $isFilter): array {
-		return array_filter(self::staticAttributeMethods($hookable, HookMethod::class), fn(HookMethod $method) => $method->handlesHook($name) && $method->isFilter() === $isFilter);
+		return array_filter(self::staticAttributeMethods($hookable, HookMethod::class), fn (HookMethod $method) => $method->handlesHook($name) && $method->isFilter() === $isFilter);
 	}
 
 	/**

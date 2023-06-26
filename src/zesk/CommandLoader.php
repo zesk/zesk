@@ -354,7 +354,7 @@ class CommandLoader {
 				} catch (Throwable $e) {
 					$failures[$path] = $e;
 				}
-			} else if (is_dir($path)) {
+			} elseif (is_dir($path)) {
 				try {
 					$commands = Directory::listRecursive($path, [
 						Directory::LIST_RULE_FILE => [
@@ -552,8 +552,8 @@ class CommandLoader {
 		$keys = ['ZESK_APPLICATION_PATTERNS', 'zesk_root_files'];
 		foreach ($keys as $key) {
 			foreach ([
-						 $_ZESK, $_SERVER,
-					 ] as $super) {
+				$_ZESK, $_SERVER,
+			] as $super) {
 				if (!is_array($super)) {
 					continue;
 				}

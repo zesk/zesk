@@ -18,7 +18,9 @@ use zesk\Exception\FilePermission;
  */
 class Process extends Hookable {
 	public const HOOK_FORK_CHILD = __CLASS__ . '::forkChild';
+
 	public const HOOK_FORK_PARENT = __CLASS__ . '::forkParent';
+
 	/**
 	 * Debugging enabled for execute
 	 */
@@ -35,8 +37,8 @@ class Process extends Hookable {
 	 */
 	public function __serialize(): array {
 		return [
-				'debug' => $this->debug,
-			] + parent::__serialize();
+			'debug' => $this->debug,
+		] + parent::__serialize();
 	}
 
 	public function __unserialize(array $data): void {

@@ -122,8 +122,8 @@ abstract class ThemeController extends Controller {
 	public function exception(\Exception $e): void {
 		if ($this->autoRender() && $this->theme) {
 			$this->application->error('Exception in controller {this-class} {class}: {message}', [
-					'this-class' => get_class($this),
-				] + Exception::exceptionVariables($e));
+				'this-class' => get_class($this),
+			] + Exception::exceptionVariables($e));
 		}
 	}
 
@@ -142,8 +142,8 @@ abstract class ThemeController extends Controller {
 			}
 			if ($this->theme) {
 				$content = $this->theme($this->theme, [
-						'content' => $content,
-					] + $this->variables(), $this->optionArray('theme_options'));
+					'content' => $content,
+				] + $this->variables(), $this->optionArray('theme_options'));
 			}
 			return $response->setContent($content);
 		}
@@ -155,7 +155,7 @@ abstract class ThemeController extends Controller {
 	 */
 	public function variables(): array {
 		return [
-				'theme' => $this->theme,
-			] + parent::variables() + $this->variables;
+			'theme' => $this->theme,
+		] + parent::variables() + $this->variables;
 	}
 }

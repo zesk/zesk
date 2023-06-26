@@ -121,7 +121,7 @@ class Redirect extends Type {
 		throw new RedirectTemporary($url, $message);
 	}
 
-	public const HOOK_URL_ALTER = self::class . "::urlAlter";
+	public const HOOK_URL_ALTER = self::class . '::urlAlter';
 
 	/**
 	 *

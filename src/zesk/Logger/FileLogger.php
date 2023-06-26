@@ -120,7 +120,7 @@ class FileLogger implements LoggerInterface {
 			$this->opened = false;
 			$this->filename = '';
 			$this->filename_pattern = '';
-		} else if (StringTools::hasTokens($filename)) {
+		} elseif (StringTools::hasTokens($filename)) {
 			$this->filename = '';
 			$this->filename_pattern = $filename;
 			$this->fp = null;

@@ -18,6 +18,7 @@ class MockProcess extends Hookable implements SystemProcess {
 	 * @var bool
 	 */
 	private bool $done;
+
 	/**
 	 *
 	 * @var Timer
@@ -62,7 +63,6 @@ class MockProcess extends Hookable implements SystemProcess {
 	private function _done(): void {
 		$this->invokeHooks(SystemProcess::HOOK_DONE, [$this]);
 		$this->done = true;
-
 	}
 
 	/**

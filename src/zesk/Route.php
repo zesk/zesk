@@ -251,11 +251,11 @@ abstract class Route extends Hookable {
 	 */
 	public function __serialize(): array {
 		return parent::__serialize() + [
-				'originalOptions' => $this->originalOptions, 'originalPattern' => $this->originalPattern,
-				'cleanPattern' => $this->cleanPattern, 'methods' => $this->methods, 'pattern' => $this->pattern,
-				'types' => $this->types, 'urlParts' => $this->urlParts, 'args' => $this->args,
-				'argsValid' => $this->argsValid, 'named' => $this->named, 'byClass' => $this->byClass,
-			];
+			'originalOptions' => $this->originalOptions, 'originalPattern' => $this->originalPattern,
+			'cleanPattern' => $this->cleanPattern, 'methods' => $this->methods, 'pattern' => $this->pattern,
+			'types' => $this->types, 'urlParts' => $this->urlParts, 'args' => $this->args,
+			'argsValid' => $this->argsValid, 'named' => $this->named, 'byClass' => $this->byClass,
+		];
 	}
 
 	public function __unserialize(array $data): void {
@@ -547,7 +547,7 @@ abstract class Route extends Hookable {
 			$named = [
 				$name => $value,
 			];
-		} else if (is_array($name)) {
+		} elseif (is_array($name)) {
 			$named = $name;
 		} else {
 			$named = [];
@@ -767,7 +767,7 @@ abstract class Route extends Hookable {
 				if (Types::toBool($cache)) {
 					$response->setCacheForever();
 				}
-			} else if (is_array($cache)) {
+			} elseif (is_array($cache)) {
 				$response->setCache($cache);
 			} else {
 				$application->warning('Invalid cache setting for route {route}: {cache}', [
@@ -789,7 +789,7 @@ abstract class Route extends Hookable {
 		}
 		if ($this->optionBool(self::OPTION_JSON)) {
 			$response->makeJSON();
-		} else if ($this->optionBool(self::OPTION_HTML)) {
+		} elseif ($this->optionBool(self::OPTION_HTML)) {
 			$response->makeHTML();
 		}
 		return $response;
@@ -852,7 +852,7 @@ abstract class Route extends Hookable {
 				$context = $permission['context'] ?? null;
 				$action = $permission['action'] ?? '';
 				$options = Types::toArray($permission['options'] ?? []);
-			} else if (is_string($permission)) {
+			} elseif (is_string($permission)) {
 				$action = $permission;
 			}
 			if (!$context instanceof Model && $context !== null) {
@@ -972,8 +972,8 @@ abstract class Route extends Hookable {
 		$object_hierarchy = is_object($object) ? $this->application->classes->hierarchy($object, Model::class) : [];
 		$derived_classes = Types::toArray($options['derivedClasses'] ?? []);
 		$map = [
-				'action' => $action,
-			] + $options;
+			'action' => $action,
+		] + $options;
 
 		if (count($object_hierarchy) === 0) {
 			return $map;
@@ -985,7 +985,7 @@ abstract class Route extends Hookable {
 			[$part_class, $part_name] = $type;
 			if (in_array($part_class, $object_hierarchy)) {
 				$map[$part_name] = $object instanceof Model ? $object->id() : $options[$part_name] ?? '';
-			} else if (array_key_exists($part_class, $derived_classes)) {
+			} elseif (array_key_exists($part_class, $derived_classes)) {
 				$map[$part_name] = $derived_classes[$part_class];
 			} else {
 				$option = $options[$part_name] ?? null;

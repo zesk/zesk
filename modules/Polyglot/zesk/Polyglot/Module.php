@@ -38,6 +38,7 @@ class Module extends BaseModule implements Routes {
 	];
 
 	public const OPTION_LOCALE_OPTIONS_DEFAULT = self::class . '::localeOptions';
+
 	public const HOOK_LOCALE_OPTIONS = self::class . '::localeOptions';
 
 	/**
@@ -59,10 +60,10 @@ class Module extends BaseModule implements Routes {
 			$where[] = $w;
 		}
 		$query = $this->application->ormRegistry(Language::class)->querySelect()->appendWhat([
-				'code' => 'code', 'dialect' => 'dialect', 'name' => 'name',
-			])->appendWhere($where ? [
-				$where,
-			] : []);
+			'code' => 'code', 'dialect' => 'dialect', 'name' => 'name',
+		])->appendWhere($where ? [
+			$where,
+		] : []);
 		$locales = $query->toArray();
 		$results = [];
 		foreach ($locales as $locale) {
@@ -86,20 +87,20 @@ class Module extends BaseModule implements Routes {
 		];
 		$router->addRoute('polyglot', $base);
 		$router->addRoute('polyglot/load/{dialect}', $base + [
-				'action' => 'load', 'arguments' => [
-					2,
-				],
-			]);
+			'action' => 'load', 'arguments' => [
+				2,
+			],
+		]);
 		$router->addRoute('polyglot/token/{dialect}', $base + [
-				'action' => 'token', 'arguments' => [
-					2,
-				],
-			]);
+			'action' => 'token', 'arguments' => [
+				2,
+			],
+		]);
 		$router->addRoute('polyglot/update/{dialect}', $base + [
-				'action' => 'update', 'arguments' => [
-					2,
-				],
-			]);
+			'action' => 'update', 'arguments' => [
+				2,
+			],
+		]);
 	}
 
 	/**

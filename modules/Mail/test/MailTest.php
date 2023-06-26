@@ -72,35 +72,35 @@ class MailTest extends TestCase {
 		$header = '=?ISO-8859-1?q?Hello?= =?ISO-8859-2?q?This?= =?ISO-8859-3?q?is?= =?ISO-8859-4?q?a?= =?ISO-8859-5?q?test?= =?ISO-8859-4?X?but_ignore_this_part?= ';
 		$result = Mail::headerCharsets($header);
 
-		$this->assertEquals(['ISO-8859-1', 'ISO-8859-2', 'ISO-8859-3', 'ISO-8859-4', 'ISO-8859-5',], $result);
+		$this->assertEquals(['ISO-8859-1', 'ISO-8859-2', 'ISO-8859-3', 'ISO-8859-4', 'ISO-8859-5', ], $result);
 	}
 
 	public function test_decode_header(): void {
 		$headers = [
-			['=?US-ASCII?Q?Keith_Moore?= <moore@cs.utk.edu>', 'Keith Moore <moore@cs.utk.edu>', ['US-ASCII',],], [
+			['=?US-ASCII?Q?Keith_Moore?= <moore@cs.utk.edu>', 'Keith Moore <moore@cs.utk.edu>', ['US-ASCII', ], ], [
 				'=?ISO-8859-1?Q?Keld_J=F8rn_Simonsen?= <keld@dkuug.dk>',
 				'Keld J' . UTF8::fromCharacterSet(chr(hexdec('F8')), 'ISO-8859-1') . 'rn Simonsen <keld@dkuug.dk>',
-				['ISO-8859-1',],
+				['ISO-8859-1', ],
 			], [
 				'=?ISO-8859-1?Q?Andr=E9?= Pirard <PIRARD@vm1.ulg.ac.be>',
-				'Andr' . chr(hexdec('C3')) . chr(hexdec('A9')) . ' Pirard <PIRARD@vm1.ulg.ac.be>', ['ISO-8859-1',],
+				'Andr' . chr(hexdec('C3')) . chr(hexdec('A9')) . ' Pirard <PIRARD@vm1.ulg.ac.be>', ['ISO-8859-1', ],
 			], [
 				'=?ISO-8859-1?B?SWYgeW91IGNhbiByZWFkIHRoaXMgeW8=?=
  =?ISO-8859-2?B?dSB1bmRlcnN0YW5kIHRoZSBleGFtcGxlLg==?=', 'If you can read this you understand the example.',
-				['ISO-8859-1', 'ISO-8859-2',],
+				['ISO-8859-1', 'ISO-8859-2', ],
 			], [
 				'Nathaniel Borenstein <nsb@thumper.bellcore.com>
  (=?iso-8859-8?b?7eXs+SDv4SDp7Oj08A==?=)', 'Nathaniel Borenstein <nsb@thumper.bellcore.com>
- (םולש ןב ילטפנ)', ['ISO-8859-8',],
+ (םולש ןב ילטפנ)', ['ISO-8859-8', ],
 			], [
 				'(=?ISO-8859-1?Q?a?=
-       =?ISO-8859-1?Q?b?=)', '(ab)', ['ISO-8859-1', 'ISO-8859-1',],
+       =?ISO-8859-1?Q?b?=)', '(ab)', ['ISO-8859-1', 'ISO-8859-1', ],
 			], [
 				'?ISO-8859-1?Q?a?=
        =?ISO-8859-1?Q?b?)', '?ISO-8859-1?Q?a?=
        =?ISO-8859-1?Q?b?)', [],
-			], ['(=?ISO-8859-1?Q?a_b?=)', '(a b)', ['ISO-8859-1',],],
-			['(=?ISO-8859-1?Q?a?= =?iso-8859-2?q?_b?=)', '(a b)', ['ISO-8859-1', 'ISO-8859-2',],], [
+			], ['(=?ISO-8859-1?Q?a_b?=)', '(a b)', ['ISO-8859-1', ], ],
+			['(=?ISO-8859-1?Q?a?= =?iso-8859-2?q?_b?=)', '(a b)', ['ISO-8859-1', 'ISO-8859-2', ], ], [
 				'(=?ISO-8859-1?Q?a?=
 
 
@@ -115,7 +115,7 @@ class MailTest extends TestCase {
 
 
 
-	=?iso-8859-2?q?_b?=)', '(a b)', ['ISO-8859-1', 'ISO-8859-2',],
+	=?iso-8859-2?q?_b?=)', '(a b)', ['ISO-8859-1', 'ISO-8859-2', ],
 			],
 		];
 
@@ -131,9 +131,9 @@ class MailTest extends TestCase {
 
 	public function test_is_encoded_header(): void {
 		$headers = [
-			['=?US-ASCII?Q?Keith_Moore?= <moore@cs.utk.edu>', true,],
-			['=?ISO-8859-1?Q?Keld_J=F8rn_Simonsen?= <keld@dkuug.dk>', true,],
-			['=?ISO-8859-1?Q?Andr=E9?= Pirard <PIRARD@vm1.ulg.ac.be>', true,], [
+			['=?US-ASCII?Q?Keith_Moore?= <moore@cs.utk.edu>', true, ],
+			['=?ISO-8859-1?Q?Keld_J=F8rn_Simonsen?= <keld@dkuug.dk>', true, ],
+			['=?ISO-8859-1?Q?Andr=E9?= Pirard <PIRARD@vm1.ulg.ac.be>', true, ], [
 				'=?ISO-8859-1?B?SWYgeW91IGNhbiByZWFkIHRoaXMgeW8=?=
  =?ISO-8859-2?B?dSB1bmRlcnN0YW5kIHRoZSBleGFtcGxlLg==?=', true,
 			], [
@@ -145,10 +145,10 @@ class MailTest extends TestCase {
 			], [
 				'?ISO-8859-1?Q?a?=
        =?ISO-8859-1?Q?b?)', false,
-			], ['(=??Q?a_b?=)', false,], ['(=?a_b?Q??=)', false,], ['(=?bad-charset?Q?data?=)', true,],
+			], ['(=??Q?a_b?=)', false, ], ['(=?a_b?Q??=)', false, ], ['(=?bad-charset?Q?data?=)', true, ],
 			// No charset validation, OK
-			['(=?ISO-8859-1?X?a?=)', false,], ['(=?ISO-8859-1?Y?a?=)', false,], ['(=?ISO-8859-1?q?a?=)', true,],
-			['(=?ISO-8859-1?Q?a?=)', true,], ['(=?ISO-8859-1?B?a?=)', true,], ['(=?ISO-8859-1?b?a?=)', true,],
+			['(=?ISO-8859-1?X?a?=)', false, ], ['(=?ISO-8859-1?Y?a?=)', false, ], ['(=?ISO-8859-1?q?a?=)', true, ],
+			['(=?ISO-8859-1?Q?a?=)', true, ], ['(=?ISO-8859-1?B?a?=)', true, ], ['(=?ISO-8859-1?b?a?=)', true, ],
 		];
 
 		foreach ($headers as $i => $header) {
@@ -221,7 +221,7 @@ Thanks,
 		$to = 'noone@zesk.com';
 		$from = 'no-reply@zesk' . System::uname();
 		$subject = 'This is a subject';
-		$array = ['Hello' => 'Name', 'Boo' => 'FEDF',];
+		$array = ['Hello' => 'Name', 'Boo' => 'FEDF', ];
 		$prefix = '';
 		$suffix = '';
 		$mail = Mail::mailArray($this->application, $to, $from, $subject, $array, $prefix, $suffix);
@@ -367,7 +367,7 @@ All work and no play makes Kent a dull boy.
 		$success = false;
 		$timer = new Timer();
 		do {
-			$pop = new Net\POP\Client\Client($this->application, $pop_url, ['echo_log' => false,]);
+			$pop = new Net\POP\Client\Client($this->application, $pop_url, ['echo_log' => false, ]);
 			$iterator = $pop->iterator();
 			foreach ($iterator as $headers) {
 				$remote_subject = $headers['subject'] ?? null;

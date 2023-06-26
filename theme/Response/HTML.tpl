@@ -33,8 +33,8 @@ $application->invokeHooks(ResponseHTML::HOOK_HEADERS, $hook_parameters);
 		{
 			$application->invokeHooks(ResponseHTML::HOOK_BODY_OPEN, $hook_parameters);
 			foreach ([
-						 'content', 'page_contents', 'page_content',
-					 ] as $k) {
+				'content', 'page_contents', 'page_content',
+			] as $k) {
 				if ($this->has($k)) {
 					echo $this->get($k);
 					break;

@@ -198,8 +198,8 @@ class Shell extends SimpleCommand {
 		}
 		$prefix = 'return';
 		if (StringTools::begins($string, [
-				'echo ', 'print ',
-			]) || str_contains($string, ';')) {
+			'echo ', 'print ',
+		]) || str_contains($string, ';')) {
 			$prefix = '';
 		}
 		return $prefix . ' ' . $string;

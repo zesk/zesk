@@ -492,7 +492,7 @@ class Walker {
 		}
 		if (is_scalar($value)) {
 			return $value;
-		} else if (is_object($value)) {
+		} elseif (is_object($value)) {
 			return $this->resolve_object($model, $member, $value, $child_options, $logger);
 		} else {
 			return null;

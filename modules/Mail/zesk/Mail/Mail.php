@@ -181,9 +181,9 @@ class Mail extends Hookable {
 		/*
 		 * Load globals
 		 */
-		self::$log = $application->paths->expand($config->getPath([__CLASS__, 'log',]));
+		self::$log = $application->paths->expand($config->getPath([__CLASS__, 'log', ]));
 		self::$fp = null;
-		self::$disabled = Types::toBool($config->getPath([__CLASS__, 'disabled',]));
+		self::$disabled = Types::toBool($config->getPath([__CLASS__, 'disabled', ]));
 	}
 
 	public const HOOK_SEND = __CLASS__ . '::send';
@@ -340,7 +340,7 @@ class Mail extends Hookable {
 	 * @return string
 	 */
 	private static function trimMailLine(string $line): string {
-		return trim(str_replace(["\r", "\n",], ['', '',], $line));
+		return trim(str_replace(["\r", "\n", ], ['', '', ], $line));
 	}
 
 	/**
@@ -409,8 +409,8 @@ class Mail extends Hookable {
 		$len += strlen('MSG:');
 
 		$remain = Types::toInteger($application->configuration->getPath([
-				__CLASS__, 'sms_max_characters',
-			]), 140) - $len;
+			__CLASS__, 'sms_max_characters',
+		]), 140) - $len;
 
 		return self::sendmail($application, $to, $from, $subject, substr($body, 0, $remain), $cc, $bcc, $headers);
 	}
@@ -472,7 +472,7 @@ class Mail extends Hookable {
 		if (!self::$fp) {
 			self::$fp = fopen(self::$log, 'ab');
 			if (!self::$fp) {
-				$this->application->error('Unable to open mail log {log} - mail logging disabled', ['log' => self::$log,]);
+				$this->application->error('Unable to open mail log {log} - mail logging disabled', ['log' => self::$log, ]);
 				self::$log = '';
 				return;
 			}
@@ -603,7 +603,7 @@ class Mail extends Hookable {
 		// KMD: 2015-11-05 Removed
 		//	 "Return-Receipt-To"
 		// From below as it should be handled enough by Return-Path for bounces
-		foreach (['Reply-To', 'Return-Path',] as $k) {
+		foreach (['Reply-To', 'Return-Path', ] as $k) {
 			if (!array_key_exists($k, $headers)) {
 				$headers[$k] = $headers['From'];
 			}

@@ -260,11 +260,11 @@ class Response extends Hookable {
 
 	public function __serialize(): array {
 		return parent::__serialize() + [
-				'content' => $this->content, 'status_code' => $this->status_code,
-				'status_message' => $this->status_message, 'contentType' => $this->contentType,
-				'output_handler' => $this->output_handler, 'charset' => $this->charset, 'types' => $this->types,
-				'headers' => $this->headers, 'response_data' => $this->response_data,
-			];
+			'content' => $this->content, 'status_code' => $this->status_code,
+			'status_message' => $this->status_message, 'contentType' => $this->contentType,
+			'output_handler' => $this->output_handler, 'charset' => $this->charset, 'types' => $this->types,
+			'headers' => $this->headers, 'response_data' => $this->response_data,
+		];
 	}
 
 	public function __unserialize(array $data): void {
@@ -379,7 +379,7 @@ class Response extends Hookable {
 		$expire = $options['expire'] ?? $this->option('cookie_expire');
 		if ($expire instanceof Timestamp) {
 			$n_seconds = $expire->subtract(Timestamp::now($expire->timeZone()));
-		} else if (is_int($expire)) {
+		} elseif (is_int($expire)) {
 			$n_seconds = $expire;
 		} else {
 			$n_seconds = null;
@@ -464,8 +464,8 @@ class Response extends Hookable {
 			$content_type = $this->contentType;
 		}
 		if ($this->application->development() && $this->application->configuration->getPath([
-				__CLASS__, 'json_to_html',
-			])) {
+			__CLASS__, 'json_to_html',
+		])) {
 			if ($this->contentType == self::CONTENT_TYPE_JSON) {
 				$content_type = 'text/html; charset=' . $this->charset;
 			}
@@ -784,8 +784,8 @@ class Response extends Hookable {
 	private static function cacheURLParts(string $url): array {
 		try {
 			$parts = Types::toArray(URL::parse($url)) + [
-					'scheme' => 'none',
-				];
+				'scheme' => 'none',
+			];
 		} catch (SyntaxException $e) {
 			/* URL should be valid therefore this never occurs */
 			PHP::log($e);
@@ -870,7 +870,7 @@ class Response extends Hookable {
 		if ($expires) {
 			if ($expires instanceof DateTimeInterface) {
 				$item->expiresAt($expires);
-			} else if ($expires instanceof Timestamp) {
+			} elseif ($expires instanceof Timestamp) {
 				$item->expiresAt($expires->datetime());
 			} else {
 				$this->application->error('{method} expires is unhandled type: {type}', [

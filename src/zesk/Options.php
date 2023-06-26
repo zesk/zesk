@@ -35,6 +35,7 @@ class Options {
 	 * @var string
 	 */
 	public const OPTION_DEBUG = 'debug';
+
 	/**
 	 * Character used for space
 	 * @var string

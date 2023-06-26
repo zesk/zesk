@@ -28,5 +28,4 @@ class Doctrine extends BaseCommand {
 		ConsoleRunner::run(new SingleManagerProvider($entityManager));
 		$_SERVER['argv'] = $savedArgv;
 	}
-
 }

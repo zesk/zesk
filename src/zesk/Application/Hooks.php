@@ -67,6 +67,7 @@ class Hooks {
 	 * @var array:array:HookMethod
 	 */
 	protected array $hooksQueue = [];
+
 	/**
 	 * Whether a hook is a filter or not as registered.
 	 *
@@ -135,7 +136,7 @@ class Hooks {
 			return;
 		}
 		if (($isType = $this->hooksQueueType[$hookName]) !== $isFilter) {
-			throw new RuntimeException("{hookName} accessed as a {accessedAs} but created as {createdAs}}", [
+			throw new RuntimeException('{hookName} accessed as a {accessedAs} but created as {createdAs}}', [
 				'hookName' => $hookName, 'accessedAs' => $isFilter ? 'filter' : 'hook',
 				'createdAs' => $isType ? 'filter' : 'hook',
 			]);
@@ -193,9 +194,9 @@ class Hooks {
 	public static function callableString(mixed $callable): string {
 		if (is_array($callable)) {
 			return is_object($callable[0]) ? strtolower(get_class($callable[0])) . '::' . $callable[1] : implode('::', $callable);
-		} else if (is_string($callable)) {
+		} elseif (is_string($callable)) {
 			return $callable;
-		} else if ($callable instanceof Closure) {
+		} elseif ($callable instanceof Closure) {
 			return '';
 		}
 		return '';

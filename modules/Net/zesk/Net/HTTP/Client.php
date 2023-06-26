@@ -773,7 +773,7 @@ class Client extends Hookable {
 			}
 			unlink($dest_headers_name);
 			File::trim($this->application(), $this->destination, strlen($all_headers));
-		} else if ($this->wantHeaders()) {
+		} elseif ($this->wantHeaders()) {
 			$this->parseHeaders();
 		}
 	}

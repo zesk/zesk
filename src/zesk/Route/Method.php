@@ -101,7 +101,7 @@ class Method extends Route {
 		$class = $method = '';
 		if (is_string($function)) {
 			[$class, $method] = StringTools::pair($function, '::', '', $function);
-		} else if (is_array($function)) {
+		} elseif (is_array($function)) {
 			[$class, $method] = $function;
 		}
 		[$include, $require] = $this->_includeFiles();
@@ -113,26 +113,26 @@ class Method extends Route {
 			}
 			if (!method_exists($class, $method)) {
 				throw new ParameterException("No such method {class}::{method} exists in $require or $include for {pattern}", $this->variables() + [
-						'require' => $require, 'include' => $include, 'method' => $method,
-					]);
+					'require' => $require, 'include' => $include, 'method' => $method,
+				]);
 			}
-		} else if (is_object($class)) {
+		} elseif (is_object($class)) {
 			if (!method_exists($class, $method)) {
 				throw new ParameterException("No such method {objectClass}::{method} exists in $require or $include for {pattern}", $this->variables() + [
-						'require' => $require, 'include' => $include, 'method' => $method,
-						'objectClass' => $class::class,
-					]);
+					'require' => $require, 'include' => $include, 'method' => $method,
+					'objectClass' => $class::class,
+				]);
 			}
-		} else if (is_string($function)) {
+		} elseif (is_string($function)) {
 			if (!function_exists($function)) {
 				throw new ParameterException('No such function exists in {require} or {include} for {pattern}', $this->variables() + [
-						'require' => $require, 'include' => $include,
-					]);
-			}
-		} else if (!is_callable($function)) {
-			throw new ParameterException('Not callable: {callable} for {pattern}', $this->variables() + [
-					'callable' => Hooks::callableString($function), 'pattern' => $this->pattern,
+					'require' => $require, 'include' => $include,
 				]);
+			}
+		} elseif (!is_callable($function)) {
+			throw new ParameterException('Not callable: {callable} for {pattern}', $this->variables() + [
+				'callable' => Hooks::callableString($function), 'pattern' => $this->pattern,
+			]);
 		}
 		return true;
 	}
@@ -153,8 +153,8 @@ class Method extends Route {
 				require_once($require);
 			} catch (Throwable $t) {
 				throw new FileNotFound($require, 'Loading route {pattern} require: {require}', [
-						'require' => $require,
-					] + $this->variables(), 0, $t);
+					'require' => $require,
+				] + $this->variables(), 0, $t);
 			}
 		}
 		foreach ($includes as $include) {
@@ -162,8 +162,8 @@ class Method extends Route {
 				$this->application->load($include);
 			} catch (Throwable $t) {
 				throw new FileNotFound($include, '{throwableClass} {message} Loading route {pattern} include: {include}', [
-						'include' => $include,
-					] + Exception::exceptionVariables($t) + $this->variables(), 0, $t);
+					'include' => $include,
+				] + Exception::exceptionVariables($t) + $this->variables(), 0, $t);
 			}
 		}
 		return [$includes, $requires];
@@ -252,7 +252,7 @@ class Method extends Route {
 		if (!$this->optionBool(self::OPTION_NO_BUFFER)) {
 			if ($content === null && !empty($buffer)) {
 				$content = $buffer;
-			} else if ($this->optionBool(self::OPTION_BUFFER)) {
+			} elseif ($this->optionBool(self::OPTION_BUFFER)) {
 				$content = $buffer;
 			}
 		}

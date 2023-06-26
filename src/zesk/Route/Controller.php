@@ -193,8 +193,8 @@ class Controller extends Route {
 		$url = ArrayTools::map($this->cleanPattern, $map);
 		if (!$this->match($url)) {
 			throw new NotFoundException('{method} {pattern} does not match {url} - route {original_pattern} is corrupt', [
-					'method' => __METHOD__, 'url' => $url,
-				] + $this->variables());
+				'method' => __METHOD__, 'url' => $url,
+			] + $this->variables());
 		}
 		$this->_mapOptions();
 		$controller = $this->controller();

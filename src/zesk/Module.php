@@ -67,10 +67,10 @@ class Module extends Hookable implements HookSource {
 	 */
 	public function __serialize(): array {
 		return [
-				'name' => $this->name, 'path' => $this->path, 'configuration' => $this->configuration,
-				'configurationFile' => $this->configurationFile, 'configurationData' => $this->configuration,
-				'modelClasses' => $this->modelClasses, 'classAliases' => $this->classAliases,
-			] + parent::__serialize();
+			'name' => $this->name, 'path' => $this->path, 'configuration' => $this->configuration,
+			'configurationFile' => $this->configurationFile, 'configurationData' => $this->configuration,
+			'modelClasses' => $this->modelClasses, 'classAliases' => $this->classAliases,
+		] + parent::__serialize();
 	}
 
 	public function __unserialize(array $data): void {

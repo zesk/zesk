@@ -61,9 +61,9 @@ class Domain extends Model {
 	 */
 	public static function cron_hour(Application $application): void {
 		foreach ([
-					 self::URL_PUBLIC_SUFFIX_LIST => self::publicSuffixListFile($application->paths),
-					 self::URL_TOP_LEVEL_DOMAINS => self::topLevelDomainsFile($application->paths),
-				 ] as $url => $path) {
+			self::URL_PUBLIC_SUFFIX_LIST => self::publicSuffixListFile($application->paths),
+			self::URL_TOP_LEVEL_DOMAINS => self::topLevelDomainsFile($application->paths),
+		] as $url => $path) {
 			try {
 				Sync::urlToFile($application, $url, $path);
 			} catch (FilePermission|DirectoryNotFound $e) {
@@ -205,9 +205,9 @@ class Domain extends Model {
 	 */
 	private static function updateDataFiles(Application $application): void {
 		foreach ([
-					 self::URL_PUBLIC_SUFFIX_LIST => self::publicSuffixListFile($application->paths),
-					 self::URL_TOP_LEVEL_DOMAINS => self::topLevelDomainsFile($application->paths),
-				 ] as $url => $path) {
+			self::URL_PUBLIC_SUFFIX_LIST => self::publicSuffixListFile($application->paths),
+			self::URL_TOP_LEVEL_DOMAINS => self::topLevelDomainsFile($application->paths),
+		] as $url => $path) {
 			Sync::urlToFile($application, $url, $path);
 		}
 	}

@@ -70,7 +70,7 @@ class Lock extends Model {
 		$lock = $em->getRepository(Lock::class)->findOneBy(['code' => $code]);
 		if (!$lock) {
 			$lock = self::_create_lock($application, $code);
-		} else if (!$lock->_isMine()) {
+		} elseif (!$lock->_isMine()) {
 			try {
 				$em->refresh($lock);
 			} catch (ORMException|TransactionRequiredException $e) {
@@ -244,9 +244,10 @@ class Lock extends Model {
 	 */
 	#[HookMethod(handles: [Hooks::HOOK_EXIT, Hooks::HOOK_RESET])]
 	public static function releaseAll(Application $application): void {
-		if (!$application->modules->loaded("Doctrine")) {
+		if (!$application->modules->loaded('Doctrine')) {
 			return;
 		}
+
 		try {
 			$em = $application->entityManager();
 		} catch (Exception\NotFoundException) {

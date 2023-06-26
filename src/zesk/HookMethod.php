@@ -83,7 +83,7 @@ class HookMethod implements HookableAttribute {
 	 * @return $this
 	 */
 	public function setMethod(ReflectionMethod $method): self {
-		$this->method = fn() => $method->invokeArgs($this->object, func_get_args());
+		$this->method = fn () => $method->invokeArgs($this->object, func_get_args());
 		$this->name = $method->getName();
 		return $this;
 	}

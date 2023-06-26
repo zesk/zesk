@@ -113,7 +113,7 @@ abstract class SimpleCommand extends Command {
 		if ($this->optionBool('quiet')) {
 			$this->quiet = true;
 			$logger = new NullLogger();
-		} else if (($filename = $this->option('log')) !== null) {
+		} elseif (($filename = $this->option('log')) !== null) {
 			if ($filename === '-') {
 				$logger = new InterfaceAdapter($this);
 			} else {

@@ -87,7 +87,6 @@ class File {
 	 */
 	public const FILTER_UPLOAD = self::class . '::upload';
 
-
 	/**
 	 * Sample options are:
 	 *

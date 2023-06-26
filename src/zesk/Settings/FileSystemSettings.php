@@ -90,8 +90,8 @@ class FileSystemSettings implements SettingsInterface {
 			File::put($this->dataFile . ".$extra", File::contents($this->dataFile));
 		} catch (FilePermission|FileNotFound $e) {
 			PHP::log('{exceptionClass} while backing up settings file {dataFile}.{extra}: {message}', $e->variables() + [
-					'dataFile' => $this->dataFile, 'extra' => $extra,
-				]);
+				'dataFile' => $this->dataFile, 'extra' => $extra,
+			]);
 		}
 	}
 
