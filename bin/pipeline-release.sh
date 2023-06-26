@@ -62,7 +62,7 @@ yml="$top/docker-compose.yml"
 ssh-keyscan github.com >> "$HOME/.ssh/known_hosts"
 git remote add github "git@github.com:$GITHUB_REPOSITORY_OWNER/$GITHUB_REPOSITORY_NAME.git"
 git push github
-docker compose -f "$yml" -T -u www-data /zesk/bin/zesk --config /zesk/.github.conf GitHub --tag --description-file "$currentChangeLog"
+docker-compose -f "$yml" -T -u www-data /zesk/bin/zesk --config /zesk/.github.conf GitHub --tag --description-file "$currentChangeLog"
 
 consoleGreen "Pull github and push origin ... "
 git pull github
