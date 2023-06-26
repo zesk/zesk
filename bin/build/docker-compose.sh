@@ -2,7 +2,7 @@
 #
 # docker-compose.sh
 #
-# Depends: pip3 python3
+# Depends: pip python
 #
 # install docker-compose and requirements
 #
@@ -22,7 +22,7 @@ fi
 
 [ -d "$(dirname "$quietLog")" ] || mkdir -p "$(dirname "$quietLog")"
 
-"$top/bin/build/pip.sh"
+"$top/bin/build/python.sh"
 
 consoleCyan "Installing docker-compose ... "
 pip install docker-compose > "$quietLog" 2>&1

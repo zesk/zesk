@@ -14,10 +14,12 @@ me=$(basename "$0")
 top="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." || exit $err_env; pwd)"
 quietLog="$top/.build/$me.log"
 markerFile="$top/.build/.$me.marker"
-packages=(apt-utils figlet python3 python3-pip)
+packages=(apt-utils figlet)
 apt=$(which apt-get)
 set -eo pipefail
+
 . "$top/bin/build/colors.sh"
+
 
 if [ -f "$markerFile" ]; then
   exit 0
