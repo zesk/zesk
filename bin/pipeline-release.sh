@@ -31,7 +31,7 @@ if [ ! -d "$top/.git" ]; then
 fi
 
 "$top/bin/build/git.sh"
-"$top/bin/build/docker-compose.sh"
+# "$top/bin/build/docker-compose.sh"
 
 "$top/bin/build/composer.sh"
 
@@ -65,7 +65,7 @@ git push --tags
 consoleGreen OK && echo
 
 git push --mirror "https://github.com/$GITHUB_REPOSITORY_OWNER/$GITHUB_REPOSITORY_NAME.git"
-docker-compose -f "$yml" -T -u www-data /zesk/bin/zesk --config /zesk/.github.conf GitHub --tag --description-file "$currentChangeLog"
+docker compose -f "$yml" -T -u www-data /zesk/bin/zesk --config /zesk/.github.conf GitHub --tag --description-file "$currentChangeLog"
 
 echo
 figlet "zesk $currentVersion OK"
