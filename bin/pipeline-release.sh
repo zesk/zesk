@@ -2,6 +2,8 @@
 #
 # pipeline-release.sh
 #
+# Depends: apt docker
+#
 # Push a new tag to GitHub when then triggers a new release to Packagist automatically
 #
 # Copyright &copy; 2023 Market Acumen, Inc.

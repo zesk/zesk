@@ -15,7 +15,7 @@ definitions:
         MARIADB_ROOT_PASSWORD: hard-to-guess
         MYSQL_ROOT_PASSWORD: hard-to-guess
 
-image: python:3
+image: php:8.1
 pipelines:
   branches:
     develop:
@@ -32,12 +32,10 @@ pipelines:
             - .memory_get_usage
             - memory-logs.txt
           caches:
-            - pip
             - docker
             - apt-lists
             - apt-cache
-          deployment: staging
-          size: 2x
+          deployment: develop
           script:
             - while true; do date && echo -n "Memory usage in megabytes:" && echo $(($(cat /sys/fs/cgroup/memory/memory.memsw.usage_in_bytes | awk '{print $1}')/1048576)) && echo "" && sleep 30; done >> memory-logs.txt &
             - export DATABASE_HOST=127.0.0.1
@@ -58,7 +56,6 @@ pipelines:
             - .memory_get_usage
             - memory-logs.txt
           caches:
-            - pip
             - docker
             - apt-lists
             - apt-cache
@@ -74,7 +71,6 @@ pipelines:
           name: Deploy
           trigger: manual
           caches:
-            - pip
             - docker
             - apt-lists
             - apt-cache

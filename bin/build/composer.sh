@@ -2,6 +2,8 @@
 #
 # composer.sh
 #
+# Depends: docker
+#
 # run composer install
 #
 # Copyright &copy; 2023 Market Acumen, Inc.
@@ -12,9 +14,7 @@ err_build=1000
 me=$(basename "$0")
 top="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." || exit $err_env; pwd)"
 quietLog="$top/.build/$me.log"
-
 set -eo pipefail
-
 . "$top/bin/build/colors.sh"
 
 [ -d "$top/.composer" ] || mkdir "$top/.composer"

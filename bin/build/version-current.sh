@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 #
-# version-last.sh
+# version-current.sh
+#
+# Depends: docker
 #
 # Copyright &copy; 2023 Market Acumen, Inc.
 #

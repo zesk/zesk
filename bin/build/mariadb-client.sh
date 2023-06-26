@@ -2,6 +2,8 @@
 #
 # mariadb-client.sh
 #
+# Depends: apt
+#
 # mariadb-client install if needed
 #
 # Copyright &copy; 2023 Market Acumen, Inc.

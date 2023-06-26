@@ -2,6 +2,8 @@
 #
 # pip.sh
 #
+# Depends: pip
+#
 # pip upgrade once
 #
 # Copyright &copy; 2023 Market Acumen, Inc.

@@ -2,6 +2,8 @@
 #
 # apt-utils.sh
 #
+# Depends: apt
+#
 # apt-utils base setup
 #
 # Copyright &copy; 2023 Market Acumen, Inc.
@@ -14,9 +16,7 @@ quietLog="$top/.build/$me.log"
 markerFile="$top/.build/.$me.marker"
 packages=(apt-utils figlet)
 apt=$(which apt-get)
-
 set -eo pipefail
-
 . "$top/bin/build/colors.sh"
 
 if [ -f "$markerFile" ]; then

@@ -2,6 +2,8 @@
 #
 # release-check-version.sh
 #
+# Depends: apt git docker
+#
 # Copyright &copy; 2023 Market Acumen, Inc.
 #
 err_env=1

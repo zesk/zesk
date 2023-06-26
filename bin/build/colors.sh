@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
-
+#
+# Shell colors
+#
+# Usage: source ./bin/build/colors.sh
+#
+# Depends: -
+#
 consoleReset() {
   echo -en '\033[0m' # Reset
 }

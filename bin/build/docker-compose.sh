@@ -2,6 +2,8 @@
 #
 # docker-compose.sh
 #
+# Depends: pip3 python3
+#
 # install docker-compose and requirements
 #
 # Copyright &copy; 2023 Market Acumen, Inc.
@@ -11,8 +13,8 @@ err_env=1
 me=$(basename "$0")
 top="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." || exit $err_env; pwd)"
 quietLog="$top/.build/$me.log"
-
 set -eo pipefail
+. "$top/bin/build/colors.sh"
 
 if which docker-compose 2> /dev/null 1>&2; then
   exit 0
@@ -22,9 +24,9 @@ fi
 
 "$top/bin/build/pip.sh"
 
-echo "Installing docker-compose ..."
+consoleCyan "Installing docker-compose ... "
 pip install docker-compose > "$quietLog" 2>&1
 if ! which docker-compose 2> /dev/null; then
-  echo "docker-compose not found after install" 1>&2
-  exit $err_env
+  consoleError "docker-compose not found after install"
+  failed "$quietLog"
 fi

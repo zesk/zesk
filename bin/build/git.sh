@@ -2,6 +2,8 @@
 #
 # git.sh
 #
+# Depends: apt
+#
 # git install if needed
 #
 # Copyright &copy; 2023 Market Acumen, Inc.
