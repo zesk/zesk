@@ -31,12 +31,10 @@ if [ ! -d "$top/.git" ]; then
 fi
 
 "$top/bin/build/git.sh"
-"$top/bin/build/docker-compose.sh"
-
 "$top/bin/build/composer.sh"
 
 currentVersion=$("$top/bin/build/version-current.sh")
-releaseDir=$top/docs/release/
+releaseDir=$top/docs/release
 
 currentChangeLog="$releaseDir/$currentVersion.md"
 if [ ! -f "$currentChangeLog" ]; then
@@ -52,7 +50,6 @@ cat "$currentChangeLog"
 echo
 echo "Tagging release in GitHub ..."
 echo
-yml="$top/docker-compose.yml"
 {
   echo 'zesk\\GitHub\\Module::access_token="'"$GITHUB_ACCESS_TOKEN"'"'
   echo 'zesk\\GitHub\\Module::owner='"$GITHUB_REPOSITORY_OWNER"
@@ -63,9 +60,13 @@ commitish=$(git rev-parse --short HEAD)
 ssh-keyscan github.com >> "$HOME/.ssh/known_hosts"
 git remote add github "git@github.com:$GITHUB_REPOSITORY_OWNER/$GITHUB_REPOSITORY_NAME.git"
 git push github
-docker-compose -f "$yml" build
-docker-compose up -d
-docker-compose -f "$yml" exec -T -u www-data php /zesk/bin/zesk --config /zesk/.github.conf module GitHub -- github --tag --description-file "$currentChangeLog" --commitish "$commitish"
+
+image=$(docker build -q -f ./docker/php.Dockerfile .)
+consoleCyan "Generated container $image, running github tag ..." && echo
+consoleGreen "$(echoBar)"
+docker run -u www-data "$image" /zesk/bin/zesk --config /zesk/.github.conf module GitHub -- github --tag --description-file "$currentChangeLog" --commitish "$commitish"
+consoleGreen "$(echoBar)"
+consoleGreen OK && echo
 
 consoleGreen "Pull github and push origin ... "
 git pull github

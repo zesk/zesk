@@ -97,9 +97,10 @@ class Command extends SimpleCommand {
 
 		$commitish = $this->optionString('commitish');
 		if (!$commitish) {
-			$this->error("Need --committish");
+			$this->error('Need --committish');
 			return self::EXIT_CODE_ARGUMENTS;
 		}
+
 		try {
 			/* @var $github Module */
 			$github = $this->application->modules->object('GitHub');
@@ -114,8 +115,8 @@ class Command extends SimpleCommand {
 			return self::EXIT_CODE_GITHUB_MODULE;
 		} catch (Throwable $e) {
 			$this->error('Running {this_class} but unknown exception {class} {message}', [
-					'this_class' => get_class($this),
-				] + Exception::exceptionVariables($e));
+				'this_class' => get_class($this),
+			] + Exception::exceptionVariables($e));
 			return self::EXIT_CODE_GITHUB_MODULE;
 		}
 	}
