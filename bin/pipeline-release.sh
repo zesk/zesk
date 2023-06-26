@@ -45,8 +45,14 @@ fi
 GITHUB_REPOSITORY_OWNER=${GITHUB_REPOSITORY_OWNER:-zesk}
 GITHUB_REPOSITORY_NAME=${GITHUB_REPOSITORY_NAME:-zesk}
 
+remoteChangeLogName=".release-notes.md"
+remoteChangeLog="$top/$remoteChangeLogName"
+{
+  figlet "zesk $currentVersion" | awk '{ print "    " $0 }'
+  echo
+  cat "$currentChangeLog"
+} >> "$remoteChangeLog"
 figlet "zesk $currentVersion"
-cat "$currentChangeLog"
 echo
 echo "Tagging release in GitHub ..."
 echo
@@ -64,7 +70,7 @@ git push github
 image=$(docker build -q -f ./docker/php.Dockerfile .)
 consoleCyan "Generated container $image, running github tag ..." && echo
 consoleGreen "$(echoBar)"
-docker run -u www-data "$image" /zesk/bin/zesk --config /zesk/.github.conf module GitHub -- github --tag --description-file "$currentChangeLog" --commitish "$commitish"
+docker run -u www-data "$image" /zesk/bin/zesk --config /zesk/.github.conf module GitHub -- github --tag --description-file "/zesk/$remoteChangeLogName" --commitish "$commitish"
 consoleGreen "$(echoBar)"
 consoleGreen OK && echo
 
