@@ -24,7 +24,6 @@ set -eo pipefail
 vendorArgs=()
 vendorArgs+=("-v" "$top:/app")
 vendorArgs+=("-v" "$top/.composer:/tmp")
-vendorArgs+=("-q")
 vendorArgs+=("composer:latest")
 vendorArgs+=("--ignore-platform-reqs")
 vendorArgs+=("install")
@@ -33,7 +32,8 @@ start=$(beginTiming)
 consoleInfo -n "Install vendor ... "
 figlet "Install vendor" >> "$quietLog"
 echo Running: docker run "${vendorArgs[@]}" >> "$quietLog"
-
+#DEBUGGING - remove, why no -q option?
+docker run --help 2>&1 || :
 if ! docker run "${vendorArgs[@]}" >> "$quietLog" 2>&1; then
   failed "$quietLog"
   exit $err_build
