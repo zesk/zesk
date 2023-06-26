@@ -218,7 +218,7 @@ class Settings extends Hookable implements MetaInterface, SettingsInterface {
 		$query = $em->createQuery('UPDATE ' . SettingsValue::class . ' SET name=REPLACE(name, :old, :new) WHERE name LIKE :oldPattern)');
 		$rowCount = $query->execute(['old' => $oldPrefix, 'new' => $newPrefix, 'oldPattern' => $oldPrefix . '%']);
 		if ($rowCount > 0) {
-			$this->application->logger->notice('Updated {rowCount} settings from {old_prefix} to use new prefix {new_prefix}', [
+			$this->application->notice('Updated {rowCount} settings from {old_prefix} to use new prefix {new_prefix}', [
 				'rowCount' => $rowCount, 'old_prefix' => $oldPrefix, 'new_prefix' => $newPrefix,
 			]);
 		}

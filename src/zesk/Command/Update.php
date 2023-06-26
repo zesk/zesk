@@ -9,21 +9,42 @@ declare(strict_types=1);
 
 namespace zesk\Command;
 
+use Throwable;
+use zesk\JSON;
+use zesk\PHP;
+use zesk\StringTools;
+use zesk\Types;
+use zesk\Exception;
+use zesk\Exception\ParseException;
 use zesk\Exception\ClassNotFound;
+use zesk\Exception\CommandFailed;
+use zesk\Exception\ConfigurationException;
 use zesk\Exception\ConnectionFailed;
 use zesk\Exception\DirectoryCreate;
 use zesk\Exception\DirectoryNotFound;
 use zesk\Exception\DirectoryPermission;
+use zesk\Exception\DomainLookupFailed;
 use zesk\Exception\FileNotFound;
 use zesk\Exception\FilePermission;
+use zesk\Exception\NotFoundException;
+use zesk\Exception\ParameterException;
+use zesk\Exception\SemanticsException;
+use zesk\Exception\SystemException;
+use zesk\Exception\UnsupportedException;
+use zesk\File;
+use zesk\Module;
+use zesk\ArrayTools;
+use zesk\Directory;
+use zesk\Net\HTTP\Client;
 use zesk\Repository\Base as Repository;
+use zesk\URL;
 
 /**
  * Update code from remote sources in ${module}.module.conf
  *
  * @category Management
  */
-class Command_Update extends SimpleCommand {
+class Update extends SimpleCommand {
 	public const HOOK_UPDATE = __CLASS__ . '::update';
 
 	public const HOOK_UPDATED = __CLASS__ . '::updated';
@@ -84,18 +105,12 @@ class Command_Update extends SimpleCommand {
 
 	/**
 	 *
-	 * @var boolean
-	 */
-	private bool $composer_do_install = false;
-
-	/**
-	 *
 	 * @var array
 	 */
 	private array $composer_packages = [];
 
 	/**
-	 * @return int|bool
+	 * @return int
 	 * @throws ClassNotFound
 	 * @throws ParameterException
 	 */
@@ -111,12 +126,12 @@ class Command_Update extends SimpleCommand {
 		if (!$this->optionBool('skip-database')) {
 			// Options loaded from configuration file
 			$this->verboseLog('Loading update database');
-			$this->update_db = $this->updateDatabase();
+			$this->update_db = $this->loadDatabase();
 		}
 
 		if ($this->hasOption('source-control')) {
 			$vc = $this->option('source-control');
-			$this->repo = Repository::factory($vc);
+			$this->repo = Repository::factory($this->application, $vc);
 			if (!$this->repo) {
 				$this->usage('No version-control of type "{type}" available', [
 					'type' => $vc,
@@ -160,7 +175,7 @@ class Command_Update extends SimpleCommand {
 			if ($this->application->modules->exists($module)) {
 				$modules[] = $module;
 			} else {
-				$this->application->logger->error('No such module {module} found', ['module' => $module]);
+				$this->application->error('No such module {module} found', ['module' => $module]);
 			}
 		} while ($this->hasArgument());
 		return $modules;
@@ -176,7 +191,8 @@ class Command_Update extends SimpleCommand {
 			$this->verboseLog('No module paths configured');
 		}
 		foreach ($paths as $path) {
-			$globbed = array_merge(glob(path($path, '*/*.module.conf')), glob(path($path, '*/*/*.module.conf')), glob(path($path, '*/*.module.json')), glob(path($path, '*/*/*.module.json')));
+			$globbed = array_merge(glob(Directory::path($path, '*/*.module.conf')), glob(Directory::path($path, '*/*/*.module
+			.conf')), glob(Directory::path($path, '*/*.module.json')), glob(Directory::path($path, '*/*/*.module.json')));
 			if (is_array($globbed)) {
 				$count = count($globbed);
 				$locale = $this->application->locale;
@@ -190,7 +206,7 @@ class Command_Update extends SimpleCommand {
 						$modules[$moduleName] = $moduleObject;
 						$this->verboseLog('Module {name} loaded configuration {configurationFile}', $moduleObject->moduleData());
 					} else {
-						$this->application->logger->warning('{name} does not have an associated configuration file', [
+						$this->application->warning('{name} does not have an associated configuration file', [
 							'name' => $moduleName,
 						]);
 					}
@@ -212,7 +228,7 @@ class Command_Update extends SimpleCommand {
 	private function modules_to_update(): array {
 		if ($this->hasArgument()) {
 			$modules = $this->modules_from_command_line();
-		} elseif ($this->optionBool('all')) {
+		} else if ($this->optionBool('all')) {
 			$modules = $this->modules_from_module_paths();
 		} else {
 			$modules = $this->application->modules->moduleNames();
@@ -263,7 +279,7 @@ class Command_Update extends SimpleCommand {
 
 		try {
 			$this->composer_json = JSON::decode(file_get_contents($composer_lock));
-		} catch (ParseException $e) {
+		} catch (Exception\ParseException $e) {
 			$this->error('Unable to parse JSON in {file}', [
 				'file' => $composer_lock,
 			]);
@@ -308,7 +324,7 @@ class Command_Update extends SimpleCommand {
 	 *
 	 * @param array $set
 	 * @return $this
-	 * @throws FilePermission
+	 * @throws Exception\FilePermission
 	 */
 	private function updateDatabase(array $set): self {
 		$path = $this->application->path('.update.json');
@@ -333,7 +349,7 @@ class Command_Update extends SimpleCommand {
 	}
 
 	private function _runModuleHook(string $module, string $hook_name): void {
-		$logger = $this->application->logger;
+		$logger = $this->application->logger();
 
 		try {
 			$module_object = $this->application->modules->object($module);
@@ -341,7 +357,7 @@ class Command_Update extends SimpleCommand {
 				'class' => $module_object::class, 'name' => $hook_name,
 			]);
 			$this->invokeObjectHooks($hook_name);
-		} catch (\Throwable $e) {
+		} catch (Throwable $e) {
 			$logger->debug("Module object for $module was not found ... skipping");
 		}
 	}
@@ -354,7 +370,7 @@ class Command_Update extends SimpleCommand {
 	 */
 	private function _updateModule(Module $module): bool {
 		$moduleName = $module->name();
-		$logger = $this->application->logger;
+		$logger = $this->application->logger();
 		$force = $this->optionBool('force');
 		$force_check = $this->optionBool('force-check');
 		$now = time();
@@ -363,10 +379,10 @@ class Command_Update extends SimpleCommand {
 			return true;
 		}
 		if ($this->optionBool('list')) {
-			$this->log($module);
+			$this->info($module);
 			return true;
 		}
-		$this->log("Updating $moduleName");
+		$this->info("Updating $moduleName");
 		$composer_updates = false;
 		if (ArrayTools::has($data, 'composer')) {
 			$composer_updates = $this->composerUpdate($data);
@@ -389,11 +405,11 @@ class Command_Update extends SimpleCommand {
 		$did_updates = $composer_updates || (is_array($edits) && count($edits) > 0);
 		$this->_runModuleHook($moduleName, $did_updates ? self::HOOK_UPDATED : self::HOOK_UPDATE);
 		if ($did_updates) {
-			$this->log('{name} updated to latest version.', [
+			$this->info('{name} updated to latest version.', [
 				'name' => $moduleName,
 			]);
 		} else {
-			$this->log('{name} is up to date.', [
+			$this->info('{name} is up to date.', [
 				'name' => $moduleName,
 			]);
 		}
@@ -403,7 +419,7 @@ class Command_Update extends SimpleCommand {
 				$this->verboseLog("$moduleName uptodate\n");
 				$edits = [];
 				$edits['checked'] = $date;
-			} elseif ($edits instanceof Exception) {
+			} else if ($edits instanceof Exception) {
 				$message = $edits->getMessage();
 				$edits = [];
 				$edits['failed_message'] = $message;
@@ -457,13 +473,13 @@ class Command_Update extends SimpleCommand {
 	 * @return bool
 	 * @throws CommandFailed
 	 * @throws ConfigurationException
-	 * @throws SyntaxException
+	 * @throws Exception\SyntaxException
 	 */
 	private function composerUpdate(array $data) {
 		$name = $data['name'] ?? null;
 		$composer = $data['composer'] ?? null;
 		$application = $this->application;
-		$logger = $application->logger;
+		$logger = $application->logger();
 		$configuration = $this->application->configuration;
 		if (!is_array($composer)) {
 			throw new SyntaxException("Composer value is not an array: {composer}\ndata: {data}", [
@@ -474,30 +490,30 @@ class Command_Update extends SimpleCommand {
 		if (!ArrayTools::hasAnyKey($composer, ['require', 'require-dev'])) {
 			return true;
 		}
-		$composer_version = toArray($application->modules->configuration($name)['composerVersion'] ?? []);
-		$composer_require = toList($composer['require'] ?? null);
-		$composer_require_dev = toList($composer['require-dev'] ?? null);
+		$composer_version = Types::toArray($application->modules->configuration($name)['composerVersion'] ?? []);
+		$composer_require = Types::toList($composer['require'] ?? null);
+		$composer_require_dev = Types::toList($composer['require-dev'] ?? null);
 		chdir($application->path());
 		$do_updates = $this->optionBool('composer-update');
 
 		foreach ([
-			'' => $composer_require, '--dev ' => $composer_require_dev,
-		] as $arg => $requires) {
+					 '' => $composer_require, '--dev ' => $composer_require_dev,
+				 ] as $arg => $requires) {
 			foreach ($requires as $require) {
 				if (!is_string($require)) {
 					$logger->error('Module {name} {conf_path} composer.require is not a string? {type}', [
-						'type' => type($require),
-					] + $data);
+							'type' => Types::type($require),
+						] + $data);
 
 					continue;
 				}
-				[$component] = pair($require, ':', $require, '');
+				[$component] = StringTools::pair($require, ':', $require, '');
 				if (array_key_exists($component, $composer_version)) {
 					$require = $component . ':' . $composer_version[$component];
 				}
 				if ($this->composerHasInstalled($component) && !$do_updates) {
 					if ($this->optionBool('dry-run')) {
-						$this->log('No update for composer {require} - already installed', [
+						$this->info('No update for composer {require} - already installed', [
 							'require' => $require,
 						]);
 					}
@@ -506,7 +522,7 @@ class Command_Update extends SimpleCommand {
 					continue;
 				}
 				if ($this->optionBool('dry-run')) {
-					$this->log("Would run command: $composer_command require {require}", [
+					$this->info("Would run command: $composer_command require {require}", [
 						'require' => $require,
 					]);
 				} else {
@@ -529,17 +545,16 @@ class Command_Update extends SimpleCommand {
 	 * @throws NotFoundException
 	 * @throws ParameterException
 	 * @throws SystemException
-	 * @throws Unsupported
-	 * @throws Net_HTTP_Client_Exception
+	 * @throws UnsupportedException
 	 */
 	private function _fetchURL(string $url): array {
-		$client = new Net_HTTP_Client($this->application, $url);
+		$client = new Client($this->application, $url);
 		$minutes = 5; // 2 minutes total for client to run
-		$client->timeout($minutes * 60000);
+		$client->setTimeout($minutes * 60000);
 		$temp_file_name = File::temporary($this->application->paths->temporary());
 		$client->setFollowLocation(true);
-		$client->userAgent('Mozilla/5.0 (Macintosh; Intel Mac OS X 10.7; rv:12.0) Gecko/20100101 Firefox/12.0');
-		$client->destination($temp_file_name);
+		$client->setUserAgent('Mozilla/5.0 (Macintosh; Intel Mac OS X 10.7; rv:12.0) Gecko/20100101 Firefox/12.0');
+		$client->setDestination($temp_file_name);
 		$this->verboseLog("Downloading $url ... ");
 		$client->go();
 		$response_code = $client->response_code_type();
@@ -575,7 +590,7 @@ class Command_Update extends SimpleCommand {
 			if (!$version) {
 				$version = ArrayTools::last(array_keys($versions));
 			}
-			$this->log('Updating {name} to version {version}', [
+			$this->info('Updating {name} to version {version}', [
 				'name' => $name, 'version' => $version,
 			]);
 			$data['version'] = $version;
@@ -584,7 +599,7 @@ class Command_Update extends SimpleCommand {
 		if (count($urls) === 0) {
 			return [];
 		}
-		$urls = map($urls, $data);
+		$urls = ArrayTools::map($urls, $data);
 		$load_urls = [];
 		foreach ($urls as $url => $value) {
 			if (URL::valid($url)) {
@@ -592,12 +607,12 @@ class Command_Update extends SimpleCommand {
 					$load_urls[$url] = [
 						'destination' => $value, 'strip_components' => $strip_components,
 					];
-				} elseif (is_array($value)) {
+				} else if (is_array($value)) {
 					$load_urls[$url] = array_change_key_case($value) + [
-						'destination' => $destination, 'strip_components' => $strip_components,
-					];
+							'destination' => $destination, 'strip_components' => $strip_components,
+						];
 				}
-			} elseif (!URL::valid($value)) {
+			} else if (!URL::valid($value)) {
 				$this->error('{value} in  module {name} is not a valid URL', [
 					'value' => $value, 'name' => $name,
 				]);
@@ -614,12 +629,11 @@ class Command_Update extends SimpleCommand {
 	 *
 	 * @param array $data
 	 * @return self|null
-	 * @throws Exception
 	 * @throws DirectoryCreate
 	 * @throws DirectoryNotFound
 	 * @throws DirectoryPermission
 	 * @throws FileNotFound
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	private function fetch(array $data): self|null {
 		$name = $data['name'] ?? null;
@@ -647,27 +661,27 @@ class Command_Update extends SimpleCommand {
 			}
 			$destination = $this->computeDestination($data, $destination);
 			if ($dry_run) {
-				$this->log("Would download $url to $destination");
+				$this->info("Would download $url to $destination");
 
 				continue;
 			}
 
 			try {
 				[$temp_file_name, $filename] = $this->_fetchURL($url);
-			} catch (Exception $e) {
+			} catch (Throwable $e) {
 				$this->error('Updating {url} failed: {message}', [
 					'url' => $url, 'message' => $e->getMessage(),
 				]);
-				return $e;
+				throw $e;
 			}
 
 			$do_update = false;
 			$new_hash = md5_file($temp_file_name);
-			$dest_file = path($destination, $filename);
+			$dest_file = Directory::path($destination, $filename);
 			if ($this->optionBool('force')) {
 				$do_update = true;
 				$this->verboseLog('Updating forced');
-			} elseif (!$this->isUnpack($filename) && !file_exists($dest_file)) {
+			} else if (!$this->isUnpack($filename) && !file_exists($dest_file)) {
 				$do_update = true;
 				$this->verboseLog('Destination file {dest_file} doesn\'t exist? (filename is {filename})', [
 					'dest_file' => $dest_file, 'filename' => $filename,
@@ -679,7 +693,7 @@ class Command_Update extends SimpleCommand {
 					$this->verboseLog('Hashes don\'t match for {dest_file}: {hash} !== {new_hash}', [
 						'dest_file' => $dest_file, 'hash' => $hash, 'new_hash' => $new_hash,
 					]);
-				} elseif (!is_dir($destination) || Directory::isEmpty($destination)) {
+				} else if (!is_dir($destination) || Directory::isEmpty($destination)) {
 					$do_update = true;
 					$this->verboseLog('Destination directory {destination} does not exist', [
 						'destination' => $destination,
@@ -724,7 +738,7 @@ class Command_Update extends SimpleCommand {
 		$filesToDelete = [];
 		foreach ($files as $file) {
 			if (str_contains($file, '*')) {
-				$path = path($destination, $file);
+				$path = Directory::path($destination, $file);
 				$paths = glob($path);
 				if (count($paths) === 0) {
 					$this->verboseLog("Wildcard delete_after matched NO files $path");
@@ -732,7 +746,7 @@ class Command_Update extends SimpleCommand {
 					$filesToDelete = array_merge($filesToDelete, $paths);
 				}
 			} else {
-				$path = path($destination, $file);
+				$path = Directory::path($destination, $file);
 				$delete_file = realpath($path);
 				if (!$delete_file) {
 					$this->verboseLog("delete_after file $delete_file not found");
@@ -752,12 +766,12 @@ class Command_Update extends SimpleCommand {
 		}
 		foreach ($filesToDelete as $delete) {
 			if (is_dir($delete)) {
-				$this->log('Deleting directory {delete}', [
+				$this->info('Deleting directory {delete}', [
 					'delete' => $delete,
 				]);
 				Directory::delete($delete);
-			} elseif (is_file($delete)) {
-				$this->log('Deleting file {delete}', [
+			} else if (is_file($delete)) {
+				$this->info('Deleting file {delete}', [
 					'delete' => $delete,
 				]);
 				unlink($delete);
@@ -828,7 +842,7 @@ class Command_Update extends SimpleCommand {
 				'filename' => $filename,
 			]);
 			$result = self::unpack_tar($data);
-		} elseif (StringTools::ends($filename, [
+		} else if (StringTools::ends($filename, [
 			'.zip',
 		])) {
 			$this->debugLog('Unpacking ZIP file {filename}', [
@@ -836,7 +850,7 @@ class Command_Update extends SimpleCommand {
 			]);
 			$result = self::unpack_zip($data);
 		} else {
-			$full_destination = path($destination, $filename);
+			$full_destination = Directory::path($destination, $filename);
 			$this->debugLog('Copying directory {temp_file_name} => {full_destination}', [
 				'temp_file_name' => $filename, 'full_destination' => $full_destination,
 			]);
@@ -852,7 +866,7 @@ class Command_Update extends SimpleCommand {
 		}
 		// Clean up perms
 		foreach (Directory::listRecursive($destination) as $f) {
-			$path = path($destination, $f);
+			$path = Directory::path($destination, $f);
 			chmod($path, is_file($path) ? 0o644 : 0o755);
 		}
 		return true;
@@ -927,7 +941,7 @@ class Command_Update extends SimpleCommand {
 
 		if ($n_components > 0) {
 			foreach (Directory::ls($temp_directory_name) as $d) {
-				$dir = path($temp_directory_name, $d);
+				$dir = Directory::path($temp_directory_name, $d);
 				if (is_dir($dir)) {
 					if ($match === null || preg_match($match, $d)) {
 						self::stripComponents($dir, $final_destination, $strip_components);
@@ -935,14 +949,14 @@ class Command_Update extends SimpleCommand {
 				}
 			}
 		} else {
-			$logger = $this->application->logger;
-			$debug = $this->debug;
+			$logger = $this->application->logger();
+			$debug = $this->optionBool(self::OPTION_DEBUG);
 			if ($debug) {
 				$logger->debug("strip_components: level=0 Copying $temp_directory_name");
 			}
 			foreach (Directory::ls($temp_directory_name) as $f) {
-				$source_path = path($temp_directory_name, $f);
-				$dest_path = path($final_destination, $f);
+				$source_path = Directory::path($temp_directory_name, $f);
+				$dest_path = Directory::path($final_destination, $f);
 				if ($debug) {
 					$logger->debug("strip_components: Copying $source_path to $dest_path");
 				}
@@ -951,10 +965,13 @@ class Command_Update extends SimpleCommand {
 						throw new FilePermission($dest_path, "rename $source_path to $dest_path");
 					}
 				} else {
-					if (!Directory::copy($source_path, $dest_path, true)) {
+					try {
+						Directory::copy($source_path, $dest_path, true);
+					} catch (Throwable $e) {
 						Directory::delete($dest_path);
-
-						throw new FilePermission($dest_path, "Directory::copy $source_path to $dest_path");
+						throw new FilePermission($dest_path, "Directory::copy {sourcePath} to {destPath}", [
+							'sourcePath' => $source_path, 'destPath' => $dest_path,
+						], $e->getCode(), $e);
 					}
 				}
 			}
@@ -971,7 +988,7 @@ class Command_Update extends SimpleCommand {
 			return null;
 		}
 		$name = $data['name'];
-		return path($this->option('sharePath'), $name);
+		return Directory::path($this->option('sharePath'), $name);
 	}
 
 	/**
@@ -987,7 +1004,7 @@ class Command_Update extends SimpleCommand {
 		if ($sharePath && is_dir($sharePath)) {
 			return $sharePath;
 		}
-		$sharePath = path($path, 'share');
+		$sharePath = Directory::path($path, 'share');
 		if ($sharePath && is_dir($sharePath)) {
 			return $sharePath;
 		}
@@ -1004,7 +1021,7 @@ class Command_Update extends SimpleCommand {
 		$path = $data['path'];
 		$name = $data['name'];
 		if (str_starts_with($destination, $path)) {
-			$this->application->logger->error('Module {name} uses module path for updates - deprecated! Use application_root instead.', compact('name'));
+			$this->application->error('Module {name} uses module path for updates - deprecated! Use application_root instead.', compact('name'));
 			$destination = StringTools::removePrefix($destination, $path);
 		}
 		if (str_starts_with($destination, $application_root)) {
@@ -1013,7 +1030,7 @@ class Command_Update extends SimpleCommand {
 		/* Disable share-path for now */ // 		if (trim($destination, '/') === 'share' && $this->hasOption('share-path')) {
 		// 			return path($this->option('share-path'), $name);
 		// 		}
-		return path($application_root, $destination);
+		return Directory::path($application_root, $destination);
 	}
 
 	/**
@@ -1050,8 +1067,10 @@ class Command_Update extends SimpleCommand {
 	 * @return boolean
 	 */
 	private function unpack_zip(array $data): bool {
-		$filename = $temp_file_name = $destination = $strip_components = $name = null;
-		extract($data, EXTR_IF_EXISTS);
+		$temp_file_name = $data['temp_file_name'] ?? '';
+		$destination = $data['destination'] ?? '';
+		$strip_components = $data['strip_components'] ?? '';
+		$name = $data['name'] ?? '';
 		$args = [];
 		$args[] = $this->_whichCommand('unzip');
 		$args[] = '-o';

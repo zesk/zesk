@@ -75,11 +75,8 @@ abstract class CommandBase extends Base {
 		}
 		if ($this->optionBool('find_root') && $root = $this->findRoot($path)) {
 			if ($root !== $path) {
-				$this->application->logger->debug('{method} {code} moved to {root} instead of {path}', [
-					'method' => __METHOD__,
-					'code' => $this->code,
-					'root' => $root,
-					'path' => $path,
+				$this->application->debug('{method} {code} moved to {root} instead of {path}', [
+					'method' => __METHOD__, 'code' => $this->code, 'root' => $root, 'path' => $path,
 				]);
 			}
 			$this->path = $root;

@@ -120,7 +120,7 @@ class FileLogger implements LoggerInterface {
 			$this->opened = false;
 			$this->filename = '';
 			$this->filename_pattern = '';
-		} elseif (StringTools::hasTokens($filename)) {
+		} else if (StringTools::hasTokens($filename)) {
 			$this->filename = '';
 			$this->filename_pattern = $filename;
 			$this->fp = null;
@@ -247,7 +247,7 @@ class FileLogger implements LoggerInterface {
 		$locale = isset($context['locale']) && $context['locale'] instanceof Locale ? $context['locale'] : null;
 		$ts = Timestamp::factory(intval($context['_microtime']), $this->timeZone);
 		$new_filename = $ts->format($this->filename_pattern, [
-			'nohook' => true,
+			'skipHook' => true,
 		]);
 		if ($new_filename === $this->filename) {
 			return false;

@@ -24,7 +24,7 @@ class RouterFile {
 	 */
 	public static function load(Router $router, string $file): Router {
 		$application = $router->application;
-		$logger = $application->logger;
+		$logger = $application->logger();
 		if (!$file) {
 			$logger->debug('{class}->file is not set ({method})', [
 				'class' => self::class, 'method' => __METHOD__,

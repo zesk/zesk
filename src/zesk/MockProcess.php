@@ -15,12 +15,9 @@ use zesk\Interface\SystemProcess;
  */
 class MockProcess extends Hookable implements SystemProcess {
 	/**
-	 * Done yet?
-	 *
-	 * @var boolean
+	 * @var bool
 	 */
-	private bool $done = false;
-
+	private bool $done;
 	/**
 	 *
 	 * @var Timer
@@ -43,6 +40,7 @@ class MockProcess extends Hookable implements SystemProcess {
 		parent::__construct($application, $options);
 		$this->timer = new Timer();
 		$this->quit_after = $this->optionInt('quit_after', 60); // 60 seconds should be good, right?
+		$this->done = false;
 	}
 
 	/**
@@ -61,25 +59,34 @@ class MockProcess extends Hookable implements SystemProcess {
 		return $this;
 	}
 
+	private function _done(): void {
+		$this->invokeHooks(SystemProcess::HOOK_DONE, [$this]);
+		$this->done = true;
+
+	}
+
 	/**
 	 * Getter for done state
 	 *
-	 * @param
-	 *            boolean
+	 * @return bool
 	 */
 	public function done(): bool {
-		if ($this->timer->elapsed() > $this->quit_after) {
+		if ($this->done) {
 			return true;
 		}
-		return $this->callHookArguments('done', [], $this->done);
+		if ($this->timer->elapsed() < $this->quit_after) {
+			return false;
+		}
+		$this->_done();
+		return true;
 	}
 
 	/**
 	 * Kill/interrupt this process.
-	 * Harsher than ->done(true);
+	 * Not nice way to do it.
 	 */
 	public function kill(): void {
-		$this->done = true;
+		$this->terminate();
 	}
 
 	/**
@@ -87,7 +94,9 @@ class MockProcess extends Hookable implements SystemProcess {
 	 * Nice way to do it.
 	 */
 	public function terminate(): void {
-		$this->done = true;
+		if (!$this->done) {
+			$this->_done();
+		}
 	}
 
 	/**
@@ -101,10 +110,12 @@ class MockProcess extends Hookable implements SystemProcess {
 	/**
 	 * Logging tool for processes
 	 *
-	 * @param string $message
-	 * @param array $args
+	 * @param $level
+	 * @param $message
+	 * @param array $context
+	 * @return void
 	 */
-	public function log(string $message, array $args = []): void {
-		$this->application->logger->log($args['severity'] ?? 'info', $message, $args);
+	public function log($level, $message, array $context = []): void {
+		$this->application->log($context['severity'] ?? 'info', $message, $context);
 	}
 }

@@ -11,6 +11,7 @@ use zesk\ArrayTools;
 use zesk\Configuration;
 use zesk\Configuration\Parser;
 use zesk\Directory;
+use zesk\Exception\KeyNotFound;
 use zesk\Exception\ParseException;
 use zesk\File;
 use zesk\JSON as JSONTools;
@@ -22,10 +23,8 @@ use zesk\Types;
  *
  */
 class JSON extends Parser {
-	protected array $options = [
-		'overwrite' => true,
-		'lower' => false,
-		'interpolate' => true,
+	protected array $parseOptions = [
+		'overwrite' => true, 'lower' => false, 'interpolate' => true,
 	];
 
 	/**
@@ -49,16 +48,15 @@ class JSON extends Parser {
 	 * @throws ParseException
 	 */
 	public function process(): void {
-		$lower = $this->options['lower'] ?? false;
-		$interpolate = $this->options['interpolate'] ?? false;
+		$lower = $this->parseOptions['lower'] ?? false;
+		$interpolate = $this->parseOptions['interpolate'] ?? false;
 
 		$result = JSONTools::decode($this->content);
 
 		if (!is_array($result)) {
 			$message = '{method} JSON::decode returned non-array {type}';
 			$__ = [
-				'method' => __METHOD__,
-				'type' => Types::type($result),
+				'method' => __METHOD__, 'type' => Types::type($result),
 			];
 			error_log(ArrayTools::map($message, $__));
 
@@ -88,14 +86,12 @@ class JSON extends Parser {
 			$this->loader->appendFiles([
 				$file,
 			]);
-		} elseif ($context && is_dir($context) && File::pathCheck($file)) {
+		} else if ($context && is_dir($context) && File::pathCheck($file)) {
 			$full = Directory::path($context, $file);
 			$this->loader->appendFiles([$full]);
 		} else {
 			error_log(ArrayTools::map('{method} {file} context {context} was a no-op', [
-				'method' => __METHOD__,
-				'file' => $file,
-				'context' => $context,
+				'method' => __METHOD__, 'file' => $file, 'context' => $context,
 			]));
 		}
 	}
@@ -104,7 +100,8 @@ class JSON extends Parser {
 	 *
 	 * @param array $results
 	 * @param array $path
-	 * @param boolean $interpolate
+	 * @param bool $interpolate
+	 * @return void
 	 */
 	private function mergeResults(array $results, array $path = [], bool $interpolate = false): void {
 		$dependency = $this->dependency;
@@ -116,12 +113,16 @@ class JSON extends Parser {
 			]);
 			if (is_array($value)) {
 				$this->mergeResults($value, $current_path, $interpolate);
-			} elseif (is_string($value) && $interpolate && preg_match_all('/\$\{([^}]+)}/', $value, $matches, PREG_SET_ORDER)) {
+			} else if (is_string($value) && $interpolate && preg_match_all('/\$\{([^}]+)}/', $value, $matches, PREG_SET_ORDER)) {
 				$dependencies = [];
 				$map = [];
 				foreach ($matches as $match) {
 					[$token, $variable] = $match;
-					$map[$token] = strval($settings->get($variable));
+					try {
+						$map[$token] = strval($settings->get($variable));
+					} catch (KeyNotFound) {
+						$map[$token] = '';
+					}
 					$dependencies[$variable] = true;
 				}
 				$value = strtr($value, $map);

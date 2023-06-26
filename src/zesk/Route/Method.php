@@ -6,6 +6,7 @@ namespace zesk\Route;
 use Closure;
 use ReflectionMethod;
 use Throwable;
+use zesk\Application;
 use zesk\Application\Hooks;
 use zesk\ArrayTools;
 use zesk\Exception;
@@ -100,7 +101,7 @@ class Method extends Route {
 		$class = $method = '';
 		if (is_string($function)) {
 			[$class, $method] = StringTools::pair($function, '::', '', $function);
-		} elseif (is_array($function)) {
+		} else if (is_array($function)) {
 			[$class, $method] = $function;
 		}
 		[$include, $require] = $this->_includeFiles();
@@ -112,26 +113,26 @@ class Method extends Route {
 			}
 			if (!method_exists($class, $method)) {
 				throw new ParameterException("No such method {class}::{method} exists in $require or $include for {pattern}", $this->variables() + [
-					'require' => $require, 'include' => $include, 'method' => $method,
-				]);
+						'require' => $require, 'include' => $include, 'method' => $method,
+					]);
 			}
-		} elseif (is_object($class)) {
+		} else if (is_object($class)) {
 			if (!method_exists($class, $method)) {
 				throw new ParameterException("No such method {objectClass}::{method} exists in $require or $include for {pattern}", $this->variables() + [
-					'require' => $require, 'include' => $include, 'method' => $method,
-					'objectClass' => $class::class,
-				]);
+						'require' => $require, 'include' => $include, 'method' => $method,
+						'objectClass' => $class::class,
+					]);
 			}
-		} elseif (is_string($function)) {
+		} else if (is_string($function)) {
 			if (!function_exists($function)) {
 				throw new ParameterException('No such function exists in {require} or {include} for {pattern}', $this->variables() + [
-					'require' => $require, 'include' => $include,
-				]);
+						'require' => $require, 'include' => $include,
+					]);
 			}
-		} elseif (!is_callable($function)) {
+		} else if (!is_callable($function)) {
 			throw new ParameterException('Not callable: {callable} for {pattern}', $this->variables() + [
-				'callable' => Hooks::callableString($function), 'pattern' => $this->pattern,
-			]);
+					'callable' => Hooks::callableString($function), 'pattern' => $this->pattern,
+				]);
 		}
 		return true;
 	}
@@ -152,8 +153,8 @@ class Method extends Route {
 				require_once($require);
 			} catch (Throwable $t) {
 				throw new FileNotFound($require, 'Loading route {pattern} require: {require}', [
-					'require' => $require,
-				] + $this->variables(), 0, $t);
+						'require' => $require,
+					] + $this->variables(), 0, $t);
 			}
 		}
 		foreach ($includes as $include) {
@@ -161,8 +162,8 @@ class Method extends Route {
 				$this->application->load($include);
 			} catch (Throwable $t) {
 				throw new FileNotFound($include, '{throwableClass} {message} Loading route {pattern} include: {include}', [
-					'include' => $include,
-				] + Exception::exceptionVariables($t) + $this->variables(), 0, $t);
+						'include' => $include,
+					] + Exception::exceptionVariables($t) + $this->variables(), 0, $t);
 			}
 		}
 		return [$includes, $requires];
@@ -190,8 +191,8 @@ class Method extends Route {
 			}
 		} catch (Throwable $e) {
 			$content = null;
-			$app->hooks->call('exception', $e);
-			$app->logger->error('{class}::_execute() Running {method} threw exception {e}', [
+			$app->invokeHooks(Application::HOOK_EXCEPTION, [$e]);
+			$app->error('{class}::_execute() Running {method} threw exception {e}', [
 				'class' => __CLASS__, 'method' => $app->hooks->callableString($method), 'e' => $e,
 			]);
 		}
@@ -229,7 +230,7 @@ class Method extends Route {
 		}
 
 		try {
-			$method = $this->_mapVariables($request, $this->options[self::OPTION_METHOD]);
+			$method = $this->_mapVariables($request, $this->optionString(self::OPTION_METHOD));
 			ob_start();
 			$content = $this->executeMethod($request, $method, $this->_mapVariables($request, $this->args));
 			$buffer = ob_get_clean();
@@ -251,7 +252,7 @@ class Method extends Route {
 		if (!$this->optionBool(self::OPTION_NO_BUFFER)) {
 			if ($content === null && !empty($buffer)) {
 				$content = $buffer;
-			} elseif ($this->optionBool(self::OPTION_BUFFER)) {
+			} else if ($this->optionBool(self::OPTION_BUFFER)) {
 				$content = $buffer;
 			}
 		}

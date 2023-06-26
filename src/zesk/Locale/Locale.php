@@ -212,8 +212,8 @@ abstract class Locale extends Hookable {
 	 */
 	public function find(string $phrase): string|null {
 		$parts = explode(':=', $phrase, 2) + [
-			null, $phrase,
-		];
+				null, $phrase,
+			];
 		$text = $parts[1];
 		$try_phrases = [
 			$phrase, strtolower($phrase), $text, strtolower($text),
@@ -421,7 +421,7 @@ abstract class Locale extends Hookable {
 	public function pluralWord(string $word, int $number): string {
 		if ($number === 0) {
 			$phrase = 'Locale::plural_word:=no {word}';
-		} elseif ($number === 1) {
+		} else if ($number === 1) {
 			$phrase = 'Locale::plural_word:=one {word}';
 		} else {
 			$phrase = 'Locale::plural_word:={number} {word}';
@@ -478,7 +478,7 @@ abstract class Locale extends Hookable {
 	public function nowString(Timestamp|string|int $ts, string $min_unit = '', string $zero_string = ''): string {
 		if ($ts instanceof Timestamp) {
 			$ts = $ts->unixTimestamp();
-		} elseif (!is_int($ts) && Types::isDate($ts)) {
+		} else if (!is_int($ts) && Types::isDate($ts)) {
 			$ts = self::_parse_time($ts);
 		}
 		$now = time();
@@ -487,7 +487,7 @@ abstract class Locale extends Hookable {
 		$duration = $this->durationString($delta, $min_unit, $number);
 		if ($number === 0 && $zero_string !== '') {
 			$phrase = $zero_string;
-		} elseif ($delta < 0) {
+		} else if ($delta < 0) {
 			$phrase = 'Locale::now_string:=in {duration}';
 		} else {
 			$phrase = 'Locale::now_string:={duration} ago';
@@ -570,12 +570,16 @@ abstract class Locale extends Hookable {
 		]);
 	}
 
+	public const HOOK_SHUTDOWN = self::class . '::shutdown';
+
 	/**
 	 * Allow modules to do something with untranslated phrases, like save them.
 	 */
 	public function shutdown(): void {
 		if ($this->auto) {
-			$this->application->hooks->call(__METHOD__, $this, $this->locale_phrases, $this->locale_phrase_context);
+			$this->application->invokeHooks(self::HOOK_SHUTDOWN, [
+				$this, $this->locale_phrases, $this->locale_phrase_context,
+			]);
 		}
 	}
 

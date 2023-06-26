@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace zesk\Controller;
 
+use zesk\Application;
 use zesk\Directory;
 use zesk\Exception\DirectoryCreate;
 use zesk\Exception\DirectoryPermission;
@@ -47,8 +48,8 @@ class Cache extends Controller {
 			$args = [
 				'file' => $file, 'contents_size' => strlen($contents),
 			];
-			$this->application->logger->error($message, $args);
-			$this->application->hooks->call('security', $message, $args);
+			$this->application->error($message, $args);
+			$this->application->invokeHooks(Application::HOOK_SECURITY, [$this->application, $message, $args]);
 
 			throw new FileNotFound($file, 'Path contains invalid components');
 		}
@@ -60,8 +61,12 @@ class Cache extends Controller {
 			throw new FileNotFound($file, 'Path contains invalid components');
 		}
 		if (!str_starts_with($cache_file, $documentRoot)) {
-			$this->application->hooks->call('security', 'User cache file "{cache_file}" does not match document root "{documentRoot}"', [
-				'cache_file' => $cache_file, 'documentRoot' => $documentRoot,
+			$message = 'User cache file "{cache_file}" does not match document root "{documentRoot}"';
+
+			$this->application->invokeHooks(Application::HOOK_SECURITY, [
+				$this->application, $message, [
+					'cache_file' => $cache_file, 'documentRoot' => $documentRoot,
+				],
 			]);
 
 			throw new FileNotFound($file, 'Invalid path');

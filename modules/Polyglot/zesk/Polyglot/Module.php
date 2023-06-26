@@ -6,6 +6,7 @@ declare(strict_types=1);
  * @subpackage Polyglot
  * @copyright &copy; 2023, Market Acumen, Inc.
  */
+
 namespace zesk\Polyglot;
 
 /**
@@ -33,16 +34,18 @@ class Module extends BaseModule implements Routes {
 	 * @var array
 	 */
 	protected array $modelClasses = [
-		Token::class,
-		Update::class,
+		Token::class, Update::class,
 	];
+
+	public const OPTION_LOCALE_OPTIONS_DEFAULT = self::class . '::localeOptions';
+	public const HOOK_LOCALE_OPTIONS = self::class . '::localeOptions';
 
 	/**
 	 *
 	 * @return array
 	 */
 	public function localeOptions(): array {
-		$list = $this->callHookArguments('localeOptions', [], $this->optionArray('localeOptions'));
+		$list = $this->invokeTypedFilters(self::HOOK_LOCALE_OPTIONS, $this->optionArray(self::OPTION_LOCALE_OPTIONS_DEFAULT));
 		$where = [];
 		foreach ($list as $locale) {
 			$language = Locale::parseLanguage($locale);
@@ -55,14 +58,9 @@ class Module extends BaseModule implements Routes {
 			}
 			$where[] = $w;
 		}
-		$query = $this->application->ormRegistry(Language::class)
-			->querySelect()
-			->appendWhat([
-				'code' => 'code',
-				'dialect' => 'dialect',
-				'name' => 'name',
-			])
-			->appendWhere($where ? [
+		$query = $this->application->ormRegistry(Language::class)->querySelect()->appendWhat([
+				'code' => 'code', 'dialect' => 'dialect', 'name' => 'name',
+			])->appendWhere($where ? [
 				$where,
 			] : []);
 		$locales = $query->toArray();
@@ -88,23 +86,20 @@ class Module extends BaseModule implements Routes {
 		];
 		$router->addRoute('polyglot', $base);
 		$router->addRoute('polyglot/load/{dialect}', $base + [
-			'action' => 'load',
-			'arguments' => [
-				2,
-			],
-		]);
+				'action' => 'load', 'arguments' => [
+					2,
+				],
+			]);
 		$router->addRoute('polyglot/token/{dialect}', $base + [
-			'action' => 'token',
-			'arguments' => [
-				2,
-			],
-		]);
+				'action' => 'token', 'arguments' => [
+					2,
+				],
+			]);
 		$router->addRoute('polyglot/update/{dialect}', $base + [
-			'action' => 'update',
-			'arguments' => [
-				2,
-			],
-		]);
+				'action' => 'update', 'arguments' => [
+					2,
+				],
+			]);
 	}
 
 	/**

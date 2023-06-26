@@ -211,8 +211,13 @@ class Request extends Hookable {
 		$this->init = 'uninitialized';
 	}
 
-	public function __sleep() {
-		return array_merge(parent::__sleep(), ['method', 'uri', 'headers', 'headers_parsed', 'cookies', 'data', 'dataFile', 'requestData', 'files', 'url', 'urlParts', 'userAgent', 'ip', 'serverIP', 'remoteIP', 'init']);
+	public function __serialize(): array {
+		return parent::__serialize() + $this->variables();
+	}
+
+	public function __unserialize(array $data): void {
+		parent::__unserialize($data);
+		$this->initializeFromSettings($data);
 	}
 
 	/**
@@ -301,7 +306,7 @@ class Request extends Hookable {
 			$settings = [
 				'url' => $settings,
 			];
-		} elseif ($settings instanceof Request) {
+		} else if ($settings instanceof Request) {
 			return $this->initializeFromRequest($settings);
 		}
 		$this->setMethod($settings[self::OPTION_METHOD] ?? 'GET');
@@ -413,13 +418,13 @@ class Request extends Hookable {
 					}
 					if ($type === '*') {
 						$weight = 0;
-					} elseif ($subtype === '*') {
+					} else if ($subtype === '*') {
 						$weight = 0;
 					} else {
 						$weight = 1 + ($item_index * 0.01);
 					}
 					$attr['weight'] = $weight;
-				} elseif (strpos($item_part, '=')) {
+				} else if (strpos($item_part, '=')) {
 					[$name, $value] = explode('=', $item_part, 2);
 					if ($name === 'q') {
 						$value = floatval($value);
@@ -432,8 +437,8 @@ class Request extends Hookable {
 			}
 			$key = "$type/$subtype";
 			$attr['pattern'] = '#' . strtr($key, [
-				'*' => '[^/]+', '+' => '\\+',
-			]) . '#';
+					'*' => '[^/]+', '+' => '\\+',
+				]) . '#';
 			$result[$key] = $attr;
 		}
 		uasort($result, Types::weightCompare(...));
@@ -496,8 +501,7 @@ class Request extends Hookable {
 					parse_str($rawData, $this->data);
 					break;
 				case 'multipart/form-data':
-					/* Why NOT rawData? TODO KMD 2023 */
-					$this->data = $_REQUEST;
+					/* Why NOT rawData? TODO KMD 2023 */ $this->data = $_REQUEST;
 					break;
 				default:
 					break;
@@ -708,23 +712,14 @@ class Request extends Hookable {
 	 */
 	public function variables(): array {
 		return [
-			self::OPTION_METHOD => $this->method,
-			self::OPTION_URI => $this->uri,
-			self::OPTION_HEADERS => $this->headers,
-			self::OPTION_COOKIES => $this->cookies,
-			self::OPTION_DATA => $this->data(),
-			self::OPTION_DATA_FILE => $this->dataFile,
-			self::OPTION_REQUEST_DATA => $this->requestData,
-			self::OPTION_FILES => $this->files,
-			self::OPTION_URL => $this->url,
-			self::OPTION_URL_PARTS => $this->urlParts,
-			self::OPTION_USER_AGENT => $this->userAgent?->classify(),
-			self::OPTION_IP => $this->ip,
-			self::OPTION_SERVER_IP => $this->serverIP,
-			self::OPTION_REMOTE_IP => $this->remoteIP,
-			'initialized' => $this->init,
-			'DEFAULT_URI' => self::DEFAULT_URI,
-			'DEFAULT_IP' => self::DEFAULT_IP,
+			self::OPTION_METHOD => $this->method, self::OPTION_URI => $this->uri,
+			self::OPTION_HEADERS => $this->headers, self::OPTION_COOKIES => $this->cookies,
+			self::OPTION_DATA => $this->data(), self::OPTION_DATA_FILE => $this->dataFile,
+			self::OPTION_REQUEST_DATA => $this->requestData, self::OPTION_FILES => $this->files,
+			self::OPTION_URL => $this->url, self::OPTION_URL_PARTS => $this->urlParts,
+			self::OPTION_USER_AGENT => $this->userAgent?->classify(), self::OPTION_IP => $this->ip,
+			self::OPTION_SERVER_IP => $this->serverIP, self::OPTION_REMOTE_IP => $this->remoteIP,
+			'initialized' => $this->init, 'DEFAULT_URI' => self::DEFAULT_URI, 'DEFAULT_IP' => self::DEFAULT_IP,
 		];
 	}
 
@@ -890,7 +885,7 @@ class Request extends Hookable {
 	 * Parse the range value
 	 *
 	 * @throws KeyNotFound
-	 *@todo make this an object, maybe?
+	 * @todo make this an object, maybe?
 	 */
 	public function range_parse(): string {
 		$range = $this->header('Range');
@@ -1006,8 +1001,8 @@ class Request extends Hookable {
 			}
 		}
 		return $result + [
-			'limiting_factor' => $min_key,
-		];
+				'limiting_factor' => $min_key,
+			];
 	}
 
 	/**
@@ -1057,8 +1052,8 @@ class Request extends Hookable {
 			$parts = ['error' => 'syntax'];
 		}
 		$this->urlParts = $parts + [
-			'url' => $this->url, 'scheme' => 'http', 'host' => 'localhost', 'port' => 80, 'path' => '',
-		];
+				'url' => $this->url, 'scheme' => 'http', 'host' => 'localhost', 'port' => 80, 'path' => '',
+			];
 	}
 
 	/**
@@ -1089,8 +1084,8 @@ class Request extends Hookable {
 		$headers = [];
 		foreach ($server as $key => $value) {
 			foreach ([
-				'http-' => true, 'content-' => false,
-			] as $prefix => $removePrefix) {
+						 'http-' => true, 'content-' => false,
+					 ] as $prefix => $removePrefix) {
 				$len = strlen($prefix);
 				if (substr($key, 0, $len) === $prefix) {
 					$headers[$removePrefix ? substr($key, $len) : $key] = $value;
@@ -1186,8 +1181,8 @@ class Request extends Hookable {
 	 */
 	public function preferJSON(): bool {
 		return $this->acceptPriority([
-			'application/json', 'text/html',
-		]) === 'application/json';
+				'application/json', 'text/html',
+			]) === 'application/json';
 	}
 
 	/**

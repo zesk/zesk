@@ -887,7 +887,7 @@ class Timestamp extends Temporal {
 	 *            'unit_minimum' => string. Minimum time unit to display
 	 *            'zero_string' => string. What to display when closer to the unit_minimum to the
 	 *            time
-	 *            'nohook' => bool. Do not invoke the formatting hook
+	 *            'skipHook' => bool. Do not invoke the formatting hook
 	 * @return array
 	 * @see Locale::nowString
 	 * @hook Timestamp::formatting
@@ -905,13 +905,18 @@ class Timestamp extends Temporal {
 		// TODO This doesn't actually honor the current locale
 		$formatting[self::FORMATTING_TIMEZONE_OFFSET] = $this->datetime->format('e');
 		$formatting[self::FORMATTING_TIMEZONE_NAME] = $this->datetime->format('T');
-		if ($locale instanceof Locale && !($options['nohook'] ?? false)) {
-			$formatting = $locale->application->hooks->callArguments(__CLASS__ . '::formatting', [
-				$this, $formatting, $options,
-			], $formatting);
+		if ($locale instanceof Locale && !($options['skipHook'] ?? false)) {
+			$formatting = $locale->invokeTypedFilters(self::FILTER_FORMATTING, $formatting, [$this]);
 		}
 		return $formatting;
 	}
+
+	/**
+	 * Filter for formatting values in Locale
+	 *
+	 * @var string
+	 */
+	public const FILTER_FORMATTING = self::class . '::formatting';
 
 	/**
 	 * @param Locale $locale
@@ -945,7 +950,7 @@ class Timestamp extends Temporal {
 			$timestamp = clone $timestamp;
 			$timestamp->setTimeZone($this->tz->getName());
 		}
-		$options = ['nohook' => true, ];
+		$options = ['skipHook' => true,];
 		return $this->format(self::DEFAULT_FORMAT_STRING, $options) === $timestamp->format(self::DEFAULT_FORMAT_STRING, $options);
 	}
 
@@ -1370,7 +1375,7 @@ class Timestamp extends Temporal {
 		$delta = $a->unixTimestamp() - $b->unixTimestamp();
 		if ($delta < 0) {
 			return -1;
-		} elseif ($delta === 0) {
+		} else if ($delta === 0) {
 			return 0;
 		}
 		return 1;

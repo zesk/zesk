@@ -5,18 +5,20 @@ declare(strict_types=1);
  * @subpackage kernel
  * @copyright &copy; 2023, Market Acumen, Inc.
  */
+
 namespace zesk;
 
 use zesk\Application\Hooks;
 use zesk\Exception\CommandFailed;
 use zesk\Exception\FileNotFound;
 use zesk\Exception\FilePermission;
-use zesk\Exception\SemanticsException;
 
 /**
  * Current and other process status, process creation
  */
-class Process {
+class Process extends Hookable {
+	public const HOOK_FORK_CHILD = __CLASS__ . '::forkChild';
+	public const HOOK_FORK_PARENT = __CLASS__ . '::forkParent';
 	/**
 	 * Debugging enabled for execute
 	 */
@@ -30,37 +32,16 @@ class Process {
 
 	/**
 	 *
-	 * @var Application
 	 */
-	private Application $application;
-
-	/**
-	 *
-	 */
-	public function __sleep() {
+	public function __serialize(): array {
 		return [
-			'debug',
-		];
+				'debug' => $this->debug,
+			] + parent::__serialize();
 	}
 
-	/**
-	 * @return void
-	 * @throws SemanticsException
-	 */
-	public function __wakeup(): void {
-		$this->application = Kernel::wakeupApplication();
-	}
-
-	/**
-	 * Create object
-	 * @throws SemanticsException
-	 */
-	public function __construct(Application $application) {
-		$this->application = $application;
-		$application->hooks->add(Hooks::HOOK_CONFIGURED, [
-			$this,
-			'configured',
-		]);
+	public function __unserialize(array $data): void {
+		parent::__unserialize($data);
+		$this->debug = $data['debug'];
 	}
 
 	/**
@@ -95,8 +76,9 @@ class Process {
 	 *
 	 * @param Application $application
 	 */
+	#[HookMethod(handles: Hooks::HOOK_CONFIGURED)]
 	public function configured(Application $application): void {
-		$this->debug = $application->configuration->path(__CLASS__)->getBool(self::OPTION_DEBUG_EXECUTE);
+		$this->setOptions($application->configuration->path(__CLASS__)->toArray());
 	}
 
 	/**
@@ -157,12 +139,6 @@ class Process {
 		return $this->executeArguments($command, $args, $passthru);
 	}
 
-	public const EXEC = 'exec';
-
-	public const PASS = 'pass';
-
-	public const SHELL = 'shell';
-
 	/**
 	 * Execute a shell command with arguments supplied as an array
 	 *
@@ -183,12 +159,12 @@ class Process {
 	 * </code>
 	 *
 	 * @param string $command
-	 *        	Command to run
+	 *            Command to run
 	 * @param array $args
-	 *        	Arguments to escape and pass into the command
+	 *            Arguments to escape and pass into the command
 	 * @param bool $passThru Whether to use passthru vs exec
-	 * @throws CommandFailed
 	 * @return array Lines output by the command (returned by exec)
+	 * @throws CommandFailed
 	 * @see exec
 	 */
 	public function executeArguments(string $command, array $args = [], bool $passThru = false): array {
@@ -211,13 +187,21 @@ class Process {
 		}
 		$args['*'] = implode(' ', array_values($args));
 		$raw_command = ArrayTools::map($command, $args);
-		if ($this->debug) {
-			$this->application->logger->debug('Running command: {raw_command}', compact('raw_command'));
+		if ($this->optionBool(self::OPTION_DEBUG)) {
+			$this->application->debug('Running command: {raw_command}', compact('raw_command'));
 		}
 		return $raw_command;
 	}
 
 	/**
+	 * Run any shell command in the background, optionally connecting stdout and stderr to files
+	 *
+	 * TODO: connect stdin (later), use
+	 * - `mkfifo /tmp/tempIn`
+	 * - `sleep infinity > /tmp/tempIn &` (blocks for writing, so does not get closed)
+	 * - Run command using stdin `$raw_command < /tmp/tempIn > ...`
+	 * - Should be able to write to /tmp/tempIn to write to process
+	 *
 	 * @param string $command Command
 	 * @param array $args Arguments
 	 * @param string $stdout Optional output file
@@ -225,8 +209,7 @@ class Process {
 	 * @return int Process ID of background process
 	 * @throws CommandFailed
 	 */
-	public function executeBackground(string $command, array $args = [], string $stdout = '', string $stderr = ''):
-	int {
+	public function executeBackground(string $command, array $args = [], string $stdout = '', string $stderr = ''): int {
 		$raw_command = $this->generateCommand($command, $args);
 		$stdout = escapeshellarg($stdout ?: '/dev/null');
 		$stderr = escapeshellarg($stderr ?: '/dev/null');

@@ -12,6 +12,9 @@ declare(strict_types=1);
 namespace zesk\Doctrine;
 
 use Doctrine\ORM\Tools\SchemaTool;
+use zesk\Application;
+use zesk\Command\Info;
+use zesk\FilterMethod;
 use zesk\Types;
 use zesk\CacheItemPool\FileCacheItemPool;
 use zesk\Directory;
@@ -81,6 +84,12 @@ class Module extends BaseModule {
 		$this->application->registerManager('entity', $this->entityManager(...));
 	}
 
+	#[FilterMethod(handles: Info::FILTER_INFO)]
+	public function info(array $info): array {
+		$info['doctrine'] = true;
+		return $info;
+	}
+
 	/**
 	 * @param string $path
 	 * @return $this
@@ -108,7 +117,7 @@ class Module extends BaseModule {
 		$paths[] = $this->path('zesk/Doctrine');
 		$paths = array_map($this->application->paths->expand(...), $paths);
 		foreach ($paths as $path) {
-			$this->application->logger->info('ORM Path: {path}', ['path' => $path]);
+			$this->application->info('ORM Path: {path}', ['path' => $path]);
 		}
 		$cachePath = Directory::depend($this->application->cachePath('doctrine'));
 		$this->ormConfig = ORMSetup::createAttributeMetadataConfiguration(paths: $paths, isDevMode: $this->application->development(), cache: new FileCacheItemPool($cachePath));
@@ -131,7 +140,7 @@ class Module extends BaseModule {
 						self::class, 'connections', $name,
 					], 'Invalid URL {dsn}', ['dsn' => $dsn], $e);
 				}
-			} elseif (is_array($dsn)) {
+			} else if (is_array($dsn)) {
 				$parts = $dsn;
 			} else {
 				throw new ConfigurationException([

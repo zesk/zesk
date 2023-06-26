@@ -48,7 +48,7 @@ class Module extends BaseModule {
 		if (!$this->optionBool('tagOn')) {
 			return;
 		}
-		$logger = $this->application->logger;
+		$logger = $this->application->logger();
 		extract($settings, EXTR_IF_EXISTS);
 		$version = $settings['version'] ?? null;
 		$commitish = $settings['commitish'] ?? null;
@@ -66,12 +66,12 @@ class Module extends BaseModule {
 			try {
 				$result = $this->generateTag("v$version", $commitish);
 				$logger->info('Generated {version} for {owner}/{repository}: {result}', [
-					'version' => $version, 'result' => $result,
-				] + $this->options);
+						'version' => $version, 'result' => $result,
+					] + $this->options());
 			} catch (Throwable $t) {
 				$logger->error('Unable to generate a tag for {version}: {throwableClass} {message}', [
-					'version' => $version,
-				] + Exception::exceptionVariables($t));
+						'version' => $version,
+					] + Exception::exceptionVariables($t));
 			}
 		}
 	}
@@ -111,9 +111,9 @@ class Module extends BaseModule {
 			'draft' => false, 'prerelease' => false,
 		];
 		$missing = self::MISSING_TOKEN;
-		$options = $this->options + [
-			'owner' => $missing, 'repository' => $missing, 'accessToken' => $missing,
-		];
+		$options = $this->options() + [
+				'owner' => $missing, 'repository' => $missing, 'accessToken' => $missing,
+			];
 		$url = ArrayTools::map(self::API_ENDPOINT_RELEASE, $options);
 		$client = new Client($this->application, $url);
 		$client->setRequestHeader('Authorization', ArrayTools::map('token {accessToken}', $options));

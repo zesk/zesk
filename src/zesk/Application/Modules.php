@@ -26,7 +26,6 @@ use zesk\Exception\ParameterException;
 use zesk\Exception\ParseException;
 use zesk\Exception\UnsupportedException;
 use zesk\File;
-use zesk\Hookable;
 use zesk\Module;
 use zesk\PHP;
 use zesk\StringTools;
@@ -65,13 +64,6 @@ class Modules {
 	private array $loadHooks = [];
 
 	/**
-	 * Loaded modules in the system
-	 *
-	 * @var array of hook name => list of module names (ordered)
-	 */
-	private array $modulesWithHook = [];
-
-	/**
 	 *
 	 * @var string
 	 */
@@ -95,13 +87,12 @@ class Modules {
 
 	public function shutdown(): void {
 		if ($this->debug) {
-			$this->application->logger->debug(__METHOD__);
+			$this->application->debug(__METHOD__);
 		}
 		foreach ($this->modules as $module) {
 			$module->shutdown();
 		}
 		$this->modules = new CaseArray();
-		$this->modulesWithHook = [];
 		$this->moduleClassPrefix = '';
 	}
 
@@ -148,8 +139,7 @@ class Modules {
 				'#\.module\.json$#' => true, false,
 			], Directory::LIST_RULE_DIRECTORY_WALK => [
 				'#/\.#' => false, true,
-			], Directory::LIST_RULE_DIRECTORY => false,
-			Directory::LIST_ADD_PATH => true,
+			], Directory::LIST_RULE_DIRECTORY => false, Directory::LIST_ADD_PATH => true,
 		];
 		foreach ($module_paths as $module_path) {
 			try {
@@ -202,9 +192,7 @@ class Modules {
 		}
 
 		try {
-			$module = $this->modules[$name] = $this->_loadModule($name);
-			$this->modulesWithHook = [];
-			return $module;
+			return $this->modules[$name] = $this->_loadModule($name);
 		} catch (ClassNotFound|DirectoryNotFound $e) {
 			/*
 			 * ClassNotFound requirements not found, or module class not found
@@ -376,8 +364,8 @@ class Modules {
 			return Directory::findFirst($modulePath, $name);
 		} catch (NotFoundException) {
 			throw new DirectoryNotFound($name, '{name} was not found in {modulePath}', [
-				'class' => get_class($this), 'name' => $name, 'modulePath' => $modulePath, 'base' =>
-					self::moduleBaseName($name),
+				'class' => get_class($this), 'name' => $name, 'modulePath' => $modulePath,
+				'base' => self::moduleBaseName($name),
 			]);
 		}
 	}
@@ -487,7 +475,6 @@ class Modules {
 		}
 		$module_object = $this->_moduleFactory($class, $configurationPath, $moduleFactoryState);
 		assert($module_object instanceof Module);
-		$this->application->hooks->registerClass($class);
 		return $module_object;
 	}
 
@@ -516,17 +503,16 @@ class Modules {
 		try {
 			$object->initialize();
 			if ($this->debug) {
-				$this->application->logger->debug('Initialized module object {class}', [
+				$this->application->debug('Initialized module object {class}', [
 					'class' => $object::class,
 				]);
 			}
 			return $object;
 		} catch (ConfigurationException|UnsupportedException $e) {
-			$this->application->logger->error('Failed to initialize module object {class}: {message}', [
+			$this->application->error('Failed to initialize module object {class}: {message}', [
 				'class' => $object::class, 'message' => $e->getMessage(),
 			]);
-			$this->application->hooks->call('exception', $e);
-
+			$this->application->invokeHooks(Application::HOOK_EXCEPTION, [$this->application, $e]);
 			throw $e;
 		}
 	}
@@ -608,81 +594,6 @@ class Modules {
 	 */
 	final public function module(string $module): Module {
 		return $this->object($module);
-	}
-
-	/**
-	 * Run hooks across all modules loaded
-	 *
-	 * @param string $hook Hook name
-	 * @return mixed
-	 */
-	final public function allHook(string $hook): mixed {
-		$arguments = func_get_args();
-		array_shift($arguments);
-		return $this->allHookArguments($hook, $arguments);
-	}
-
-	/**
-	 * Partner to hook_all - runs with an arguments array command and a default return value
-	 * Used for filters where a specific result should be returned by each function
-	 *
-	 * @param string $hook
-	 * @param array $arguments
-	 * @param mixed $default
-	 * @param callable|null $hook_callback
-	 * @param callable|null $result_callback
-	 * @return mixed
-	 */
-	final public function allHookArguments(string $hook, array $arguments = [], mixed $default = null, callable $hook_callback = null, callable $result_callback = null): mixed {
-		$hooks = $this->collectAllHooks($hook, $arguments);
-		$result = $default;
-		foreach ($hooks as $item) {
-			[$callable, $arguments] = $item;
-			$result = Hookable::hookResults($result, $callable, $arguments, $hook_callback, $result_callback);
-		}
-		return $result;
-	}
-
-	/**
-	 * Collects all hooks
-	 *
-	 * @param string $hook
-	 * @param array $arguments
-	 * @return callable[]
-	 */
-	final public function collectAllHooks(string $hook, array $arguments): array {
-		$module_names = $this->modulesWithHook[$hook] ?? null;
-		if (!is_array($module_names)) {
-			$module_names = [];
-			foreach ($this->modules as $name => $module) {
-				if ($module->hasHook($hook)) {
-					$module_names[] = $name;
-				}
-			}
-			$this->modulesWithHook[$hook] = $module_names;
-		}
-		$hooks = [];
-		foreach ($module_names as $module_name) {
-			$module = $this->modules[$module_name];
-			$hooks = array_merge($hooks, $module->collectHooks($hook, $arguments));
-		}
-		return $hooks;
-	}
-
-	/**
-	 * List all hooks which would be called by all modules.
-	 *
-	 * @param string $hook
-	 * @return array
-	 * @todo This does not match all_hook_arguments called list? (Module::$hook, etc.)
-	 * @todo Add test for this
-	 */
-	final public function listAllHooks(string $hook): array {
-		$result = [];
-		foreach ($this->modules as $module) {
-			$result = array_merge($result, $module->listHooks($hook, true));
-		}
-		return $result;
 	}
 
 	/**

@@ -126,6 +126,6 @@ abstract class Client extends Hookable {
 	}
 
 	final protected function _log(string $message, array $arguments = []): void {
-		$this->application->logger->log($arguments['severity'] ?? LogLevel::DEBUG, $message, $arguments);
+		$this->application->log($arguments['severity'] ?? LogLevel::DEBUG, $message, $arguments);
 	}
 }

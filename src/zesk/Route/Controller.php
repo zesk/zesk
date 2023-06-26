@@ -13,14 +13,12 @@ use zesk\Request;
 use zesk\Response;
 use zesk\StringTools;
 use zesk\Model;
-use zesk\Exception\ParameterException;
 use zesk\Exception\NotFoundException;
 
 use ReflectionClass;
 use ReflectionException;
 use ReflectionMethod;
 use zesk\Exception\ClassNotFound;
-use zesk\Types;
 
 /**
  *
@@ -46,12 +44,6 @@ class Controller extends Route {
 	protected ?ReflectionClass $class = null;
 
 	/**
-	 *
-	 * @var string The class which was instantiated.
-	 */
-	protected string $class_name = '';
-
-	/**
 	 * Lazy evaluation of the controller
 	 *
 	 * @var ControllerBase
@@ -59,45 +51,27 @@ class Controller extends Route {
 	protected ControllerBase $controller;
 
 	/**
-	 * The action to invoke
-	 *
-	 * @var string
-	 */
-	protected string $controller_action = '';
-
-	/**
 	 * @return void
-	 * @throws ParameterException
 	 * @throws ClassNotFound
 	 */
 	protected function initialize(): void {
-		$action = $this->option('action', '');
-		if (!is_string($action)) {
-			throw new ParameterException('Action must be a string: {type}', [
-				'type' => Types::type($action),
-			]);
-		}
 		$this->controller = $this->controller();
 	}
 
 	/**
 	 * @return array|string[]
 	 */
-	public function __sleep() {
-		return array_merge(['controller'], parent::__sleep());
+	public function __serialize(): array {
+		return parent::__serialize();
 	}
 
 	/**
 	 *
-	 * {@inheritdoc}
-	 *
-	 * @see Route::__wakeup()
+	 * @see Route::__unserialize()
 	 */
-	public function __wakeup(): void {
-		parent::__wakeup();
-		$this->class = null;
-		$this->class_name = '';
-		$this->controller_action = '';
+	public function __unserialize(array $data): void {
+		parent::__unserialize($data);
+		$this->initialize();
 	}
 
 	/**
@@ -219,8 +193,8 @@ class Controller extends Route {
 		$url = ArrayTools::map($this->cleanPattern, $map);
 		if (!$this->match($url)) {
 			throw new NotFoundException('{method} {pattern} does not match {url} - route {original_pattern} is corrupt', [
-				'method' => __METHOD__, 'url' => $url,
-			] + $this->variables());
+					'method' => __METHOD__, 'url' => $url,
+				] + $this->variables());
 		}
 		$this->_mapOptions();
 		$controller = $this->controller();

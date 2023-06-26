@@ -21,6 +21,7 @@ use zesk\Exception\ParseException;
 use zesk\Exception\SyntaxException;
 use zesk\File;
 use zesk\Hookable;
+use zesk\HookMethod;
 use zesk\MIME;
 use zesk\Net\SMTP\Client;
 use zesk\Exception\Redirect;
@@ -173,24 +174,19 @@ class Mail extends Hookable {
 	 *
 	 * @param Application $application
 	 */
-	public static function hooks(Application $application): void {
-		$application->hooks->add(Hooks::HOOK_CONFIGURED, __CLASS__ . '::configured');
-	}
-
-	/**
-	 *
-	 * @param Application $application
-	 */
+	#[HookMethod(handles: Hooks::HOOK_CONFIGURED)]
 	public static function configured(Application $application): void {
 		$config = $application->configuration;
 
 		/*
 		 * Load globals
 		 */
-		self::$log = $application->paths->expand($config->getPath([__CLASS__, 'log', ]));
+		self::$log = $application->paths->expand($config->getPath([__CLASS__, 'log',]));
 		self::$fp = null;
-		self::$disabled = Types::toBool($config->getPath([__CLASS__, 'disabled', ]));
+		self::$disabled = Types::toBool($config->getPath([__CLASS__, 'disabled',]));
 	}
+
+	public const HOOK_SEND = __CLASS__ . '::send';
 
 	/**
 	 * Send a Mail object
@@ -200,8 +196,11 @@ class Mail extends Hookable {
 	 */
 	public function send(): self {
 		$this->_log($this->headers, $this->body);
-
-		if (!$this->callHookArguments('send', [], true)) {
+		if (!$this->invokeTypedFilters(self::HOOK_SEND, true, false, [$this])) {
+			$this->method = 'send-hook-false';
+			return $this;
+		}
+		if (!$this->invokeTypedFiltersUntil(self::HOOK_SEND, true, false, [$this])) {
 			$this->method = 'send-hook-false';
 			return $this;
 		}
@@ -341,7 +340,7 @@ class Mail extends Hookable {
 	 * @return string
 	 */
 	private static function trimMailLine(string $line): string {
-		return trim(str_replace(["\r", "\n", ], ['', '', ], $line));
+		return trim(str_replace(["\r", "\n",], ['', '',], $line));
 	}
 
 	/**
@@ -384,7 +383,7 @@ class Mail extends Hookable {
 	 * Determined length based on iPhone/AT&T.
 	 *
 	 * @param string $to Email address to send to
-	 * @param string $from  Email address from (maybe "Hello" <email@example.com> etc.)
+	 * @param string $from Email address from (maybe "Hello" <email@example.com> etc.)
 	 * @param string $subject Optional. Subject of message.
 	 * @param string $body Message to send.
 	 * @param string $cc Optional. CC email addresses.
@@ -393,16 +392,7 @@ class Mail extends Hookable {
 	 * @return Mail unsent email
 	 * @throws SyntaxException
 	 */
-	public static function sms(
-		Application $application,
-		string $to,
-		string $from,
-		string $subject,
-		string $body,
-		string $cc = '',
-		string $bcc = '',
-		array $headers = []
-	): self {
+	public static function sms(Application $application, string $to, string $from, string $subject, string $body, string $cc = '', string $bcc = '', array $headers = []): self {
 		$email_parts = self::parseAddress($from);
 		$from_part = $email_parts['name'] ?? $email_parts['email'] ?? '';
 		// FRM:name\n
@@ -418,8 +408,9 @@ class Mail extends Hookable {
 		}
 		$len += strlen('MSG:');
 
-		$remain = Types::toInteger($application->configuration->getPath([__CLASS__, 'sms_max_characters', ]), 140) -
-		$len;
+		$remain = Types::toInteger($application->configuration->getPath([
+				__CLASS__, 'sms_max_characters',
+			]), 140) - $len;
 
 		return self::sendmail($application, $to, $from, $subject, substr($body, 0, $remain), $cc, $bcc, $headers);
 	}
@@ -481,7 +472,7 @@ class Mail extends Hookable {
 		if (!self::$fp) {
 			self::$fp = fopen(self::$log, 'ab');
 			if (!self::$fp) {
-				$this->application->logger->error('Unable to open mail log {log} - mail logging disabled', ['log' => self::$log, ]);
+				$this->application->error('Unable to open mail log {log} - mail logging disabled', ['log' => self::$log,]);
 				self::$log = '';
 				return;
 			}
@@ -612,7 +603,7 @@ class Mail extends Hookable {
 		// KMD: 2015-11-05 Removed
 		//	 "Return-Receipt-To"
 		// From below as it should be handled enough by Return-Path for bounces
-		foreach (['Reply-To', 'Return-Path', ] as $k) {
+		foreach (['Reply-To', 'Return-Path',] as $k) {
 			if (!array_key_exists($k, $headers)) {
 				$headers[$k] = $headers['From'];
 			}

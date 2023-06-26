@@ -123,7 +123,7 @@ class TestCase extends BaseTestCase {
 			}
 			$options = $this->option->toArray();
 			if (count($options)) {
-				$this->application->logger->debug('{method}: {class} options is {option}', [
+				$this->application->debug('{method}: {class} options is {option}', [
 					'method' => __METHOD__, 'class' => get_class($this), 'option' => $options,
 				]);
 			}
@@ -141,7 +141,7 @@ class TestCase extends BaseTestCase {
 
 	public function checkMemoryUsage(): void {
 		$usage = memory_get_usage(true);
-		$this->application->logger->info('Memory usage: ' . Number::formatBytes($this->application->locale, $usage));
+		$this->application->info('Memory usage: ' . Number::formatBytes($this->application->locale, $usage));
 		$maxFile = $this->application->path('.memory_get_usage');
 
 		try {
@@ -493,7 +493,7 @@ class TestCase extends BaseTestCase {
 	 * @return void
 	 */
 	public function log($message, array $args = []): void {
-		$this->application->logger->debug($message, $args);
+		$this->application->debug($message, $args);
 	}
 
 	/**

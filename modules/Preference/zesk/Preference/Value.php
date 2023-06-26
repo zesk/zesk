@@ -18,6 +18,7 @@ use zesk\Exception\ParameterException;
 use zesk\Exception\ParseException;
 use zesk\Exception\SemanticsException;
 use zesk\Exception\SyntaxException;
+use zesk\Interface\Userlike;
 use zesk\ORM\Database_Query_Select;
 use zesk\ORM\ORMBase;
 use zesk\ORM\ORMDuplicate;
@@ -130,7 +131,7 @@ class Value extends ORMBase {
 	}
 
 	/**
-	 * @param User $user
+	 * @param Userlike $user
 	 * @param string $name
 	 * @return mixed
 	 * @throws Database\Exception\SQLException
@@ -141,7 +142,7 @@ class Value extends ORMBase {
 	 * @throws ParameterException
 	 * @throws SemanticsException
 	 */
-	public static function userGet(User $user, string $name): mixed {
+	public static function userGet(Userlike $user, string $name): mixed {
 		if (empty($name)) {
 			throw new ParameterException('{method}({user}, {name}, ...) Name is empty', [
 				'method' => __METHOD__, 'user' => $user->id(), 'name' => $name,
@@ -164,10 +165,10 @@ class Value extends ORMBase {
 			try {
 				return PHP::unserialize($value);
 			} catch (SyntaxException $e) {
-				$user->application->logger->warning('Invalid serialized PHP: {value}', ['value' => $value]);
+				$user->application->warning('Invalid serialized PHP: {value}', ['value' => $value]);
 			}
 		}
-		$user->application->logger->warning('Invalid preference string for {user}: {key}={value} ({valueLength} chars) - deleting ({debug})', [
+		$user->application->warning('Invalid preference string for {user}: {key}={value} ({valueLength} chars) - deleting ({debug})', [
 			'user' => $user, 'key' => $name, 'value' => $value, 'debug' => PHP::dump($row),
 			'valueLength' => $valueLength,
 		]);
@@ -186,14 +187,14 @@ class Value extends ORMBase {
 	}
 
 	/**
-	 * @param User $user
+	 * @param Userlike $user
 	 * @param array $values
 	 * @return array
 	 * @throws Database\Exception\TableNotFound
 	 * @throws ORMDuplicate
 	 * @throws ORMNotFound
 	 */
-	public static function userSet(User $user, array $values): array {
+	public static function userSet(Userlike $user, array $values): array {
 		$app = $user->application;
 		$result = [];
 		foreach ($values as $name => $value) {
@@ -234,12 +235,12 @@ class Value extends ORMBase {
 				throw new ORMNotFound(__CLASS__, '{exceptionClass} {message} doing update', $e->variables(), $e);
 			}
 		} catch (KeyNotFound|Database\Exception\NoResults|Database\Exception\Duplicate $error) {
-			$user->application->logger->error($error);
+			$user->application->error($error);
 
 			try {
 				return $app->ormRegistry(__CLASS__)->queryInsert()->setValues($where + [
-					self::MEMBER_VALUE => $serializedValue,
-				])->id();
+						self::MEMBER_VALUE => $serializedValue,
+					])->id();
 			} catch (Exception $e) {
 				throw new ORMDuplicate(__CLASS__, '{exceptionClass} {message}', $e->variables(), $e);
 			}

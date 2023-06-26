@@ -57,7 +57,7 @@ class Bootstrap extends SimpleCommand {
 		foreach ($straps as $strap) {
 			$class = self::$straps[$strap];
 			$this->log("Bootstrapping $strap ...");
-			$object = $this->application->factory($class, $this->application, $this->options);
+			$object = $this->application->factory($class, $this->application, $this->options());
 			$object->bootstrap($this->application);
 		}
 		return 0;

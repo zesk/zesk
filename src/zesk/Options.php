@@ -13,9 +13,6 @@ namespace zesk;
  * The Options object is universally used to tag various objects in the system with optional
  * configuration settings and values.
  *
- * They are also used to communicate at times between objects
- * in the system where the type of object varies.
- *
  * Options are essentially a case-insensitive associative array with a set of calls to make
  * it easy to convert and modify the type of information contained.
  *
@@ -23,8 +20,7 @@ namespace zesk;
  * in specifying options within template files, configuration files, class definitions, widget
  * definitions, and are required to be easily converted into string values for serialization.
  *
- * Most objects in the system, specifically, View, Control, Model, and Template
- * are derived from Options to allow any object in the system to be tagged and have its
+ * Most objects in the system are derived from Options to allow any object in the system to be tagged and have its
  * default behavior modified via configuration settings (globals) in the application, typically
  * through the Hookable subclass.
  *
@@ -33,6 +29,12 @@ namespace zesk;
  * @subpackage system
  */
 class Options {
+	/**
+	 * Boolean or string value
+	 *
+	 * @var string
+	 */
+	public const OPTION_DEBUG = 'debug';
 	/**
 	 * Character used for space
 	 * @var string
@@ -47,10 +49,10 @@ class Options {
 	 *
 	 * @var array
 	 */
-	protected array $options = [];
+	private array $options = [];
 
 	/**
-	 * Create a Options object.
+	 * Create an Options object.
 	 *
 	 * @param array $options An array of options to set up, or false for no options.
 	 */
@@ -64,10 +66,14 @@ class Options {
 	/**
 	 * @ignore
 	 */
-	public function __sleep() {
+	public function __serialize(): array {
 		return [
-			'options',
+			'options' => $this->options,
 		];
+	}
+
+	public function __unserialize(array $data): void {
+		$this->setOptions($data['options'] ?? []);
 	}
 
 	/**
@@ -92,7 +98,7 @@ class Options {
 	}
 
 	/**
-	 * @return array A list of all of the keys in this Options object.
+	 * @return array A list of all keys in this Options object.
 	 */
 	public function optionKeys(): array {
 		return array_keys($this->options);
@@ -107,7 +113,7 @@ class Options {
 	 * @see empty()
 	 */
 	public function hasAnyOption(string|iterable $name, bool $checkEmpty = false): bool {
-		foreach (toIterable($name) as $k) {
+		foreach (Types::toIterable($name) as $k) {
 			if ($this->hasOption($k, $checkEmpty)) {
 				return true;
 			}
@@ -247,8 +253,7 @@ class Options {
 	 */
 	final protected static function _optionKey(string|int $name): string {
 		return strtr(trim(strval($name)), [
-			'-' => self::CHARACTER_OPTION_SPACE,
-			'_' => self::CHARACTER_OPTION_SPACE,
+			'-' => self::CHARACTER_OPTION_SPACE, '_' => self::CHARACTER_OPTION_SPACE,
 			' ' => self::CHARACTER_OPTION_SPACE,
 		]);
 	}
@@ -370,9 +375,9 @@ class Options {
 	public function optionIterable(string $name, ?iterable $default = []): iterable {
 		$name = self::_optionKey($name);
 		if (!isset($this->options[$name])) {
-			return toIterable($default);
+			return Types::toIterable($default);
 		}
-		return toIterable($this->options[$name]);
+		return Types::toIterable($this->options[$name]);
 	}
 
 	/**

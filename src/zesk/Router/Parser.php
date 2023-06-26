@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace zesk\Router;
 
+use zesk\Application;
 use zesk\JSON;
 use zesk\Route;
 use zesk\Router;
@@ -66,7 +67,7 @@ class Parser {
 	 */
 	public function execute(Router $router, array $add_options = []): array {
 		$app = $router->application;
-		$logger = $app->logger;
+		$logger = $app->logger();
 
 		$lines = explode("\n", $this->contents);
 		$paths = [];
@@ -86,16 +87,16 @@ class Parser {
 			if (in_array($firstChar, $whites)) {
 				if (count($paths) === 0) {
 					$logger->warning("Line $lineno1 of router has setting without path");
-				} elseif (!str_contains($line, '=')) {
+				} else if (!str_contains($line, '=')) {
 					$logger->warning("Line $lineno1 of router has no value ($line)");
 				} else {
 					[$name, $value] = explode('=', $line, 2);
 					$value_trimmed = trim($value);
 					if ($value_trimmed === 'null') {
 						$value = null;
-					} elseif ($value_trimmed === 'true' || $value_trimmed === 'false') {
+					} else if ($value_trimmed === 'true' || $value_trimmed === 'false') {
 						$value = Types::toBool($value_trimmed);
-					} elseif (StringTools::begins($value_trimmed, str_split('"\'{['))) {
+					} else if (StringTools::begins($value_trimmed, str_split('"\'{['))) {
 						try {
 							$decoded = JSON::decode($value);
 							$value = $decoded;
@@ -103,7 +104,7 @@ class Parser {
 							$logger->error('Error parsing {id}:{lineno} decoding JSON failed', [
 								'id' => $this->id, 'lineno' => $lineno1,
 							]);
-							$app->hooks->call('exception', $e);
+							$app->invokeHooks(Application::HOOK_EXCEPTION, [$app, $e]);
 						}
 					}
 					if (is_string($value) || is_array($value)) {

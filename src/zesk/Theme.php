@@ -170,7 +170,7 @@ class Theme implements Themeable {
 		$this->_vars = [];
 		if ($variables instanceof Theme) {
 			$this->_vars = $variables->variables() + $this->_vars;
-		} elseif (is_array($variables)) {
+		} else if (is_array($variables)) {
 			foreach ($variables as $k => $v) {
 				if (is_string($k) && str_starts_with($k, '_')) {
 					continue;
@@ -430,7 +430,7 @@ class Theme implements Themeable {
 			foreach ($key as $k0 => $v0) {
 				$this->__set($k0, $v0);
 			}
-		} elseif ($key instanceof Theme) {
+		} else if ($key instanceof Theme) {
 			$this->inherit($key);
 		} else {
 			$this->__set($key, $value);
@@ -451,8 +451,8 @@ class Theme implements Themeable {
 		ob_start();
 		$this->push();
 		extract([
-			'themes' => $this->themes,
-		] + $this->_vars, EXTR_SKIP); // Avoid overwriting $this
+				'themes' => $this->themes,
+			] + $this->_vars, EXTR_SKIP); // Avoid overwriting $this
 		// This name is fairly unique to avoid conflicts with variables set in our include.
 		$_template_exception = null;
 
@@ -471,8 +471,7 @@ class Theme implements Themeable {
 		}
 		$contents = ob_get_clean();
 		if ($_template_exception) {
-			$contents .= '<!-- TEMPLATE_EXCEPTION: ' . $_template_exception::class . ' ' .
-			$_template_exception->getMessage() . ' -->';
+			$contents .= '<!-- TEMPLATE_EXCEPTION: ' . $_template_exception::class . ' ' . $_template_exception->getMessage() . ' -->';
 		}
 		if (self::$profile) {
 			ArrayTools::increment(self::$_stats['times'], $this->_path, microtime(true) - $__start);
@@ -504,7 +503,7 @@ class Theme implements Themeable {
 		self::$wrap = $config->getBool('wrap');
 		self::$debug = $config->getBool('debug');
 		self::$debug_stack = $config->getBool('debugStack');
-		$application->hooks->add('</body>', self::profileOutput(...));
+		$application->hooks->registerHook(\zesk\Response\HTML::HOOK_BODY_CLOSE, self::profileOutput(...));
 	}
 
 	/**
@@ -540,7 +539,7 @@ class Theme implements Themeable {
 			foreach ($mixed as $k => $v) {
 				$this->__set($k, $v);
 			}
-		} elseif ($mixed instanceof Theme) {
+		} else if ($mixed instanceof Theme) {
 			$this->inherit($mixed->variables());
 		} else {
 			$this->__set($mixed, $value);
@@ -574,8 +573,8 @@ class Theme implements Themeable {
 			return $this->_vars[$key];
 		}
 		return [
-			'variables' => $this->_vars, 'self' => $this,
-		][$key] ?? null;
+				   'variables' => $this->_vars, 'self' => $this,
+			   ][$key] ?? null;
 	}
 
 	/**

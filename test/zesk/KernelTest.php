@@ -54,45 +54,6 @@ class KernelTest extends TestCase {
 		$test->order++;
 	}
 
-	/**
-	 * @return void
-	 * @throws Exception\KeyNotFound
-	 * @throws Exception\SemanticsException
-	 */
-	public function test_hook_order(): void {
-		$hooks = $this->application->hooks;
-		// Nothing registered
-		$this->order = 0;
-		$hooks->call('test_hook_order', $this);
-		$this->assertEquals(0, $this->order);
-
-		// Add hooks
-		$hooks->add('test_hook_order', __CLASS__ . '::_test_hook_order_1st');
-		$hooks->add('test_hook_order', __CLASS__ . '::_test_hook_order_2nd');
-
-		// Test ordering
-		$this->order = 0;
-		$hooks->call('test_hook_order', $this);
-		$this->assertEquals(2, $this->order);
-
-		// Test clearing
-		$hooks->remove('test_hook_order');
-
-		$this->order = 0;
-		$hooks->call('test_hook_order', $this);
-		$this->assertEquals(0, $this->order);
-
-		// Test "first"
-		$hooks->add('test_hook_order', __CLASS__ . '::_test_hook_order_2nd');
-		$hooks->add('test_hook_order', __CLASS__ . '::_test_hook_order_1st', [
-			'first' => true,
-		]);
-
-		// Test ordering
-		$this->order = 0;
-		$hooks->call('test_hook_order', $this);
-		$this->assertEquals(2, $this->order);
-	}
 
 	public function test_singletons(): void {
 		SingletonSampler::$serialNo = $theId = $this->randomHex();
@@ -152,16 +113,6 @@ class KernelTest extends TestCase {
 		return $this->application->optionBool('hook_was_called');
 	}
 
-	public function _addHook(string $name = 'null'): string {
-		$closure = function ($arg): void {
-			assert($this instanceof self);
-			$this->add_hook_was_called($arg);
-		};
-		$closure->bindTo($this);
-		$this->application->hooks->add($name, $closure);
-		return $name;
-	}
-
 	public function test_application_class(): void {
 		$this->assertIsString($this->application->applicationClass());
 		$this->assertTrue(class_exists($this->application->applicationClass()));
@@ -176,8 +127,8 @@ class KernelTest extends TestCase {
 		$testDir = Directory::depend($this->test_sandbox('lower-prefix'));
 
 		$this->application->autoloader->addPath($testDir, [
-			Autoloader::OPTION_LOWER => true,
-			Autoloader::OPTION_CLASS_PREFIX => 'zesk\\AutoloaderTest\\', Autoloader::OPTION_EXTENSIONS => ['txt'],
+			Autoloader::OPTION_LOWER => true, Autoloader::OPTION_CLASS_PREFIX => 'zesk\\AutoloaderTest\\',
+			Autoloader::OPTION_EXTENSIONS => ['txt'],
 		]);
 		File::put("$testDir/hooboy.txt", '<' . "?php\nnamespace zesk\\AutoloaderTest;\nclass HooBoy {}\n");
 		$this->assertTrue(class_exists('zesk\\AutoloaderTest\\HooBoy'));
@@ -203,8 +154,10 @@ class KernelTest extends TestCase {
 		return [
 			//			[ZESK_ROOT . 'zesk/Kernel.php', Kernel::class, ['php'], []],
 			//			[ZESK_ROOT . 'zesk/Controller/Theme.php', ThemeController::class, ['php', 'sql'], []],
-			[ZESK_ROOT . 'modules/Doctrine/zesk/Doctrine/User.php', 'zesk\\Doctrine\\User', ['php', 'sql'], ['Doctrine']],
-			[null, 'zesk\\Doctrine\\User', ['other', 'none', ], ['Doctrine']],
+			[
+				ZESK_ROOT . 'modules/Doctrine/zesk/Doctrine/User.php', 'zesk\\Doctrine\\User', ['php', 'sql'],
+				['Doctrine'],
+			], [null, 'zesk\\Doctrine\\User', ['other', 'none',], ['Doctrine']],
 		];
 	}
 
@@ -331,15 +284,9 @@ class KernelTest extends TestCase {
 	 */
 	public static function data_has(): array {
 		return [
-			[true, Application::class],
-			[true, [Application::class, 'deprecated']],
-			[true, Kernel::class],
-			[true, [Application::class, Application::OPTION_HOME_PATH], ],
-			[true, Options::class],
-			[false, md5('HOME')],
-			[true, 'HOME'],
-			[false, 'HoMe'],
-			[false, '0192830128301283123'],
+			[true, Application::class], [true, [Application::class, 'deprecated']], [true, Kernel::class],
+			[true, [Application::class, Application::OPTION_HOME_PATH],], [true, Options::class], [false, md5('HOME')],
+			[true, 'HOME'], [false, 'HoMe'], [false, '0192830128301283123'],
 		];
 	}
 
@@ -349,23 +296,6 @@ class KernelTest extends TestCase {
 	 */
 	public function test_has($expected, $key): void {
 		$this->assertEquals($expected, $this->application->configuration->pathExists($key), implode('::', Types::toList($key)));
-	}
-
-	/**
-	 * @return void
-	 */
-	public function test_hook(): void {
-		$this->_addHook();
-		$this->assertFalse($this->hook_was_called());
-		$this->application->hooks->call('null', 2);
-		$this->assertTrue($this->hook_was_called());
-	}
-
-	public function test_hook_array(): void {
-		$hook = 'random';
-		$arguments = [];
-		$default = null;
-		$this->application->hooks->callArguments($hook, $arguments, $default);
 	}
 
 	public function test_load_globals(): void {
@@ -465,8 +395,8 @@ class KernelTest extends TestCase {
 			$app->setConfiguration()->configure();
 		}
 		foreach ([
-			Application::DEPRECATED_BACKTRACE, Application::DEPRECATED_IGNORE, Application::DEPRECATED_LOG,
-		] as $deprecatedSetting) {
+					 Application::DEPRECATED_BACKTRACE, Application::DEPRECATED_IGNORE, Application::DEPRECATED_LOG,
+				 ] as $deprecatedSetting) {
 			$configuration->setPath([$app::class, 'deprecated'], $deprecatedSetting);
 			$app->setConfiguration()->configure();
 		}
@@ -493,15 +423,9 @@ class KernelTest extends TestCase {
 	public function test_calling(): void {
 		$this->assertEquals(__FILE__ . ' ' . __CLASS__ . '->test_calling:' . __LINE__, Kernel::callingFunction(0));
 		$this->assertEquals([
-			'file' => __FILE__,
-			'type' => '->',
-			'function' => __FUNCTION__,
-			'args' => [],
-			'method' => __CLASS__ . '->' . __FUNCTION__,
-			'class' => __CLASS__,
-			'object' => $this,
-			'fileMethod' => __FILE__ . ' ' . __CLASS__ . '->' . __FUNCTION__,
-			'lineSuffix' => ':' . (__LINE__ + 4),
+			'file' => __FILE__, 'type' => '->', 'function' => __FUNCTION__, 'args' => [],
+			'method' => __CLASS__ . '->' . __FUNCTION__, 'class' => __CLASS__, 'object' => $this,
+			'fileMethod' => __FILE__ . ' ' . __CLASS__ . '->' . __FUNCTION__, 'lineSuffix' => ':' . (__LINE__ + 4),
 			'methodLine' => __CLASS__ . '->' . __FUNCTION__ . ':' . (__LINE__ + 3),
 			'fileMethodLine' => __FILE__ . ' ' . __CLASS__ . '->' . __FUNCTION__ . ':' . (__LINE__ + 2),
 			'line' => __LINE__ + 1,
@@ -514,10 +438,7 @@ class KernelTest extends TestCase {
 	}
 
 	public function test_calling_neg(): void {
-		$this->assertEquals(
-			$this->application->zeskHome('src/zesk/Kernel.php') . ' zesk\Kernel::callingFunction',
-			Kernel::callingFunction(-1, false)
-		);
+		$this->assertEquals($this->application->zeskHome('src/zesk/Kernel.php') . ' zesk\Kernel::callingFunction', Kernel::callingFunction(-1, false));
 	}
 }
 

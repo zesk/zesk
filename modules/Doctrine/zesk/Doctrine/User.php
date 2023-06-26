@@ -292,12 +292,12 @@ class User extends Model implements Userlike {
 			} catch (Throwable $e) {
 				$result = false;
 				$skipLog = true;
-				$this->application->logger->error("User::can({action},{context}) = {result} (Roles {roles}): Exception {throwableClass} {message}\n{backtrace}", [
-					'action' => $action, 'context' => $context, 'result' => false,
-				] + Exception::exceptionVariables($e));
+				$this->application->error("User::can({action},{context}) = {result} (Roles {roles}): Exception {throwableClass} {message}\n{backtrace}", [
+						'action' => $action, 'context' => $context, 'result' => false,
+					] + Exception::exceptionVariables($e));
 			}
 			if ($this->optionBool(self::OPTION_DEBUG_PERMISSION) && !$skipLog) {
-				$this->application->logger->debug('User::can({action},{context}) = {result} (Roles {roles}) ({extra})', [
+				$this->application->debug('User::can({action},{context}) = {result} (Roles {roles}) ({extra})', [
 					'action' => $action, 'context' => $context, 'result' => $result,
 				]);
 			}
@@ -320,7 +320,7 @@ class User extends Model implements Userlike {
 			]);
 		}
 
-		return (bool) $result;
+		return (bool)$result;
 	}
 
 	/**
@@ -387,7 +387,7 @@ class User extends Model implements Userlike {
 					if ($this->can($a_permission, $a_context, $a_options)) {
 						$actions_passed[$href] = $attributes;
 					}
-				} elseif ($this->can($permission, $context, $options)) {
+				} else if ($this->can($permission, $context, $options)) {
 					$actions_passed[$href] = $attributes;
 				}
 			} else {
