@@ -6,23 +6,35 @@
 #
 # Depends: -
 #
+err_env=1
+# err_arg=2
+
 consoleReset() {
   echo -en '\033[0m' # Reset
 }
 
 consoleCode() {
-  local start=$1 end=$2
+  local start=$1 end=$2 nl=1
   shift
   shift
+  if [ "$1" = "-n" ]; then
+    nl=
+    shift
+  fi
   if [ -z "$*" ]; then
     echo -ne "$start"
   else
     echo -ne "$start"
     echo -n "$@"
     echo -ne "$end"
-    echo
+    if test "$nl"; then
+      echo
+    fi
   fi
 }
+#
+# Color-based
+#
 consoleRed() {
   consoleCode '\033[31m' '\033[0m' "$@"
 }
@@ -72,6 +84,18 @@ consoleNoUnderline() {
 echoBar() {
   echo "======================================================="
 }
+#
+# Semantics-based
+#
+consoleInfo() {
+  consoleCyan "$@"
+}
+consoleSuccess() {
+  consoleGreen "$@"
+}
+consoleDecoration() {
+  consoleBoldMagenta "$@"
+}
 consoleError() {
   consoleCode '\033[1;31m' '\033[0m' "$@"
 }
@@ -99,5 +123,26 @@ failed() {
     tail -3 "$quietLog"
     echo
   consoleReset
-  return $err_env
+  return "$err_env"
+}
+
+beginTiming() {
+  echo "$(($(date +%s) + 0))"
+}
+plural() {
+  if [ "$1" -eq 1 ]; then
+    echo "$2";
+  else
+    echo "$3"
+  fi
+}
+reportTiming() {
+  local start delta
+  start=$1
+  shift
+  if [ -n "$*" ]; then
+    consoleGreen "$* "
+  fi
+  delta=$(($(date +%s) - start))
+  consoleBoldMagenta "$delta $(plural $delta second seconds)" && echo
 }

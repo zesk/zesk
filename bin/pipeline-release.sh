@@ -19,6 +19,8 @@ set -eo pipefail
 
 source "$top/bin/build/colors.sh"
 
+releaseStart=$(beginTiming)
+
 if [ -z "$GITHUB_ACCESS_TOKEN" ]; then
   exec 1>&2
   consoleRed "GITHUB_ACCESS_TOKEN is required";
@@ -45,6 +47,11 @@ fi
 GITHUB_REPOSITORY_OWNER=${GITHUB_REPOSITORY_OWNER:-zesk}
 GITHUB_REPOSITORY_NAME=${GITHUB_REPOSITORY_NAME:-zesk}
 
+#
+#========================================================================
+#
+consoleInfo "Generating release notes ..."
+start=$(beginTiming)
 remoteChangeLogName=".release-notes.md"
 remoteChangeLog="$top/$remoteChangeLogName"
 {
@@ -52,10 +59,19 @@ remoteChangeLog="$top/$remoteChangeLogName"
   echo
   cat "$currentChangeLog"
 } >> "$remoteChangeLog"
+reportTiming "$start" OK
+echo
+consoleMagenta
 figlet "zesk $currentVersion"
+consoleReset
 echo
-echo "Tagging release in GitHub ..."
-echo
+
+#
+#========================================================================
+#
+start=$(beginTiming)
+consoleInfo "Tagging release in GitHub ..."
+consoleDecoration "$(echoBar)"
 {
   echo 'zesk\\GitHub\\Module::access_token="'"$GITHUB_ACCESS_TOKEN"'"'
   echo 'zesk\\GitHub\\Module::owner='"$GITHUB_REPOSITORY_OWNER"
@@ -65,42 +81,59 @@ echo
 commitish=$(git rev-parse --short HEAD)
 ssh-keyscan github.com >> "$HOME/.ssh/known_hosts" 2> /dev/null
 git remote add github "git@github.com:$GITHUB_REPOSITORY_OWNER/$GITHUB_REPOSITORY_NAME.git"
+consoleDecoration "$(echoBar)"
+reportTiming "$start" OK
 
-consoleCyan "Pushing changes to GitHub ..."
-consoleGreen "$(echoBar)"
-start=$(($(date +%s) + 0))
+#
+#========================================================================
+#
+consoleInfo "Pushing changes to GitHub ..."
+consoleDecoration "$(echoBar)"
+start=$(beginTiming)
 git push github
-consoleGreen "$(echoBar)"
-consoleGreen "OK. " && consoleBoldMagenta $(($(date +%s) - start)) seconds && echo
-
-start=$(($(date +%s) + 0))
-consoleCyan "Building Zesk PHP Dockerfile ..."
+consoleDecoration "$(echoBar)"
+reportTiming "$start" OK
+#
+#========================================================================
+#
+start=$(beginTiming)
+consoleInfo "Building Zesk PHP Dockerfile ..."
 image=$(docker build -q -f ./docker/php.Dockerfile .)
-consoleGreen "OK. " && consoleBoldMagenta $(($(date +%s) - start)) seconds && echo
-
-consoleCyan "Generated container $image, running github tag ..." && echo
-consoleGreen "$(echoBar)"
-start=$(($(date +%s) + 0))
+reportTiming "$start" OK
+#
+#========================================================================
+#
+consoleInfo "Generated container $image, running github tag ..." && echo
+consoleDecoration "$(echoBar)"
+start=$(beginTiming)
 docker run -u www-data "$image" /zesk/bin/zesk --config /zesk/.github.conf module GitHub -- github --tag --description-file "/zesk/$remoteChangeLogName" --commitish "$commitish"
-consoleGreen "$(echoBar)"
-consoleGreen "OK. " && consoleBoldMagenta $(($(date +%s) - start)) seconds && echo
-
-consoleCyan "Pull github and push origin ... " && echo
-consoleGreen "$(echoBar)"
-consoleCyan "git pull github" && echo
-start=$(($(date +%s) + 0))
+consoleDecoration "$(echoBar)"
+reportTiming "$start" OK
+#
+#========================================================================
+#
+consoleInfo "Pull github and push origin ... " && echo
+consoleDecoration "$(echoBar)"
+consoleInfo "git pull github" && echo
+start=$(beginTiming)
 git pull github
-consoleCyan "git push origin" && echo
+consoleInfo "git push origin" && echo
 git push origin
-consoleGreen "$(echoBar)"
-consoleBoldMagenta $(($(date +%s) - start)) seconds
-
+consoleDecoration "$(echoBar)"
+reportTiming "$start"
+#
+#========================================================================
+#
 consoleGreen "Tagging $currentVersion and pushing ... "
-start=$(($(date +%s) + 0))
-consoleGreen "$(echoBar)"
+consoleDecoration "$(echoBar)"
+start=$(beginTiming)
 git tag "$currentVersion"
 git push origin --tags
 git push github --tags
-consoleGreen "OK. " && consoleBoldMagenta $(($(date +%s) - start)) seconds && echo
-
+consoleDecoration "$(echoBar)"
+reportTiming "$start" OK
+#
+#========================================================================
+#
 figlet "zesk $currentVersion OK"
+reportTiming "$releaseStart" "Release complete."
