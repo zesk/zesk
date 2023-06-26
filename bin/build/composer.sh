@@ -15,6 +15,8 @@ quietLog="$top/.build/$me.log"
 
 set -eo pipefail
 
+. "$top/bin/build/colors.sh"
+
 [ -d "$top/.composer" ] || mkdir "$top/.composer"
 
 vendorArgs=()
