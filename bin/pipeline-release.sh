@@ -31,7 +31,7 @@ if [ ! -d "$top/.git" ]; then
 fi
 
 "$top/bin/build/git.sh"
-# "$top/bin/build/docker-compose.sh"
+"$top/bin/build/docker-compose.sh"
 
 "$top/bin/build/composer.sh"
 
