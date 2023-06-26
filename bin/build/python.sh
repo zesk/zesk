@@ -17,12 +17,17 @@ quietLog="$top/.build/$me.log"
 
 set -eo pipefail
 
-"$top/bin/build/apt-utils.sh"
-
-[ -d "$(dirname "$quietLog")" ] || mkdir -p "$(dirname "$quietLog")"
-
 if ! which python 2> /dev/null 1>&2; then
+  "$top/bin/build/apt-utils.sh"
+
+  [ -d "$(dirname "$quietLog")" ] || mkdir -p "$(dirname "$quietLog")"
+
+  start=$(beginTiming)
   consoleCyan "Installing python3 python3-pip ..."
   export DEBIAN_FRONTEND=noninteractive
-  apt-get install -y python3 python3-pip > "$quietLog"
+  if ! apt-get install -y python3 python3-pip > "$quietLog" 2>&1; then
+    failed "$quietLog"
+    exit "$err_env"
+  fi
+  reportTiming "$start" OK
 fi

@@ -39,7 +39,7 @@ if ! apt-get update >> "$quietLog" 2>&1; then
   failed "$quietLog"
   exit $err_env
 fi
-reportTiming "$start" Ok
+reportTiming "$start" OK
 start=$(beginTiming)
 consoleInfo -n "Installing ${packages[*]} ... "
 if ! apt-get install -y "${packages[@]}" >> "$quietLog" 2>&1; then
@@ -47,4 +47,4 @@ if ! apt-get install -y "${packages[@]}" >> "$quietLog" 2>&1; then
   exit $err_env
 fi
 date > "$markerFile"
-reportTiming "$start" Ok
+reportTiming "$start" OK

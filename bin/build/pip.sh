@@ -23,9 +23,10 @@ fi
 
 [ -d "$(dirname "$quietLog")" ] || mkdir -p "$(dirname "$quietLog")"
 
-consoleCyan "Upgrading pip ..."
+start=$(beginTiming)
+consoleInfo -n "Upgrading pip ... "
 if ! pip install --upgrade pip > "$quietLog" 2>&1; then
   failed "$quietLog"
 fi
-
 date > "$markerFile"
+reportTiming "$start" OK

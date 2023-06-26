@@ -29,16 +29,13 @@ vendorArgs+=("composer:latest")
 vendorArgs+=("--ignore-platform-reqs")
 vendorArgs+=("install")
 
-start=$(($(date +%s) + 0))
-
+start=$(beginTiming)
 consoleInfo -n "Install vendor ... "
 figlet "Install vendor" >> "$quietLog"
-echo docker run "${vendorArgs[@]}" >> "$quietLog"
+echo Running: docker run "${vendorArgs[@]}" >> "$quietLog"
 
 if ! docker run "${vendorArgs[@]}" >> "$quietLog" 2>&1; then
   failed "$quietLog"
   exit $err_build
 fi
-consoleBoldMagenta $(($(date +%s) - start)) seconds
-consoleReset
-exit 0
+reportTiming "$start" OK

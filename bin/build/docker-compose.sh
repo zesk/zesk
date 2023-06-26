@@ -24,7 +24,8 @@ fi
 
 "$top/bin/build/python.sh"
 
-consoleCyan "Installing docker-compose ... "
+consoleInfo -n "Installing docker-compose ... "
+start=$(beginTiming)
 if ! pip install docker-compose > "$quietLog" 2>&1; then
   consoleError "pip install docker-compose failed $?"
   failed "$quietLog"
@@ -33,3 +34,4 @@ if ! which docker-compose 2> /dev/null; then
   consoleError "docker-compose not found after install"
   failed "$quietLog"
 fi
+reportTiming "$start" OK
