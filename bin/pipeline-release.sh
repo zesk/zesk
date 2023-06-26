@@ -70,8 +70,7 @@ echo
 #========================================================================
 #
 start=$(beginTiming)
-consoleInfo "Tagging release in GitHub ..."
-consoleDecoration "$(echoBar)"
+consoleInfo -n "Tagging release in GitHub ..."
 {
   echo 'zesk\\GitHub\\Module::access_token="'"$GITHUB_ACCESS_TOKEN"'"'
   echo 'zesk\\GitHub\\Module::owner='"$GITHUB_REPOSITORY_OWNER"
@@ -81,7 +80,6 @@ consoleDecoration "$(echoBar)"
 commitish=$(git rev-parse --short HEAD)
 ssh-keyscan github.com >> "$HOME/.ssh/known_hosts" 2> /dev/null
 git remote add github "git@github.com:$GITHUB_REPOSITORY_OWNER/$GITHUB_REPOSITORY_NAME.git"
-consoleDecoration "$(echoBar)"
 reportTiming "$start" OK
 
 #
@@ -97,7 +95,7 @@ reportTiming "$start" OK
 #========================================================================
 #
 start=$(beginTiming)
-consoleInfo "Building Zesk PHP Dockerfile ..."
+consoleInfo -n "Building Zesk PHP Dockerfile ..."
 image=$(docker build -q -f ./docker/php.Dockerfile .)
 reportTiming "$start" OK
 #
