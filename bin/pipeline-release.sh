@@ -14,6 +14,7 @@ err_env=1
 # Assumptions
 #
 top="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." || exit $err_env; pwd)"
+me=$(basename "${BASH_SOURCE[0]}")
 
 set -eo pipefail
 
@@ -46,6 +47,19 @@ fi
 
 GITHUB_REPOSITORY_OWNER=${GITHUB_REPOSITORY_OWNER:-zesk}
 GITHUB_REPOSITORY_NAME=${GITHUB_REPOSITORY_NAME:-zesk}
+
+#
+#========================================================================
+#
+start=$(beginTiming)
+consoleInfo -n "Adding remote ..."
+ssh-keyscan github.com >> "$HOME/.ssh/known_hosts" 2> /dev/null
+if git remote | grep -q github; then
+  echo -n "$(consoleInfo Remote) $(consoleMagenta github) $(consoleInfo exists, not adding again.) "
+else
+  git remote add github "git@github.com:$GITHUB_REPOSITORY_OWNER/$GITHUB_REPOSITORY_NAME.git"
+fi
+reportTiming "$start" OK
 
 #
 #========================================================================
@@ -86,7 +100,6 @@ releaseNotesGenerate() {
 
 changeLog=$top/CHANGELOG.md
 releaseNotesGenerate > "$changeLog"
-exit 0
 
 reportTiming "$start" OK
 echo
@@ -98,25 +111,15 @@ echo
 #
 #========================================================================
 #
-start=$(beginTiming)
-consoleInfo -n "Adding remote ..."
-ssh-keyscan github.com >> "$HOME/.ssh/known_hosts" 2> /dev/null
-if git remote | grep -q github; then
-  echo -n "$(consoleInfo Remote) $(consoleMagenta github) $(consoleInfo exists, not adding again.) "
-else
-  git remote add github "git@github.com:$GITHUB_REPOSITORY_OWNER/$GITHUB_REPOSITORY_NAME.git"
-fi
-reportTiming "$start" OK
-
-#
-#========================================================================
-#
 consoleInfo "Pushing changes to GitHub ..."
 consoleDecoration "$(echoBar)"
 start=$(beginTiming)
+git commit -m "$me automatic update of CHANGELOG.md" "$changeLog"
+git push origin
 git push github
 consoleDecoration "$(echoBar)"
 reportTiming "$start" OK
+
 #
 #========================================================================
 #

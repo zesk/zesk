@@ -73,3 +73,10 @@ pipelines:
           size: 2x
           script:
             - bin/pipeline-release.sh
+    deploy:
+      - step:
+          deployment: deploy
+          name: Deploy Testing
+          size: 2x
+          script:
+            - bin/pipeline-release.sh
