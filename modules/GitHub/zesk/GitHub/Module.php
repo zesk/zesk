@@ -53,7 +53,7 @@ class Module extends BaseModule {
 		$version = $settings['version'] ?? null;
 		$commitish = $settings['commitish'] ?? null;
 		if (!$commitish) {
-			$commitish = $this->option('commitish');
+			$commitish = $this->optionString('commitish');
 		}
 		if ($version) {
 			if (!$this->hasCredentials()) {
@@ -103,13 +103,13 @@ class Module extends BaseModule {
 		if (!$description) {
 			$description = "Release of version $name";
 		}
-		if (!$commitish) {
-			$commitish = 'master';
-		}
 		$json_struct = [
-			'tag_name' => $name, 'target_commitish' => $commitish, 'name' => $name, 'body' => $description,
-			'draft' => false, 'prerelease' => false,
+			'tag_name' => $name, 'name' => $name, 'body' => $description, 'draft' => false, 'prerelease' => false,
+			'generate_release_notes' => false,
 		];
+		if ($commitish) {
+			$json_struct['target_commitish'] = $commitish;
+		}
 		$missing = self::MISSING_TOKEN;
 		$options = $this->options() + [
 			'owner' => $missing, 'repository' => $missing, 'accessToken' => $missing,

@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace zesk\GitHub;
 
 use Throwable;
+use zesk\ArrayTools;
 use zesk\Command\SimpleCommand;
 use zesk\Exception;
 use zesk\Exception\FileNotFound;
@@ -34,10 +35,7 @@ class Command extends SimpleCommand {
 	 * @var array
 	 */
 	protected array $option_types = [
-		'tag' => 'boolean',
-		'description-file' => 'file',
-		self::OPTION_DESCRIPTION => 'string',
-		'commitish' => 'string',
+		'tag' => 'boolean', 'description-file' => 'file', self::OPTION_DESCRIPTION => 'string', 'commitish' => 'string',
 	];
 
 	/**
@@ -45,8 +43,7 @@ class Command extends SimpleCommand {
 	 * @var array
 	 */
 	protected array $options = [
-		'description' => 'Release of version {version}.',
-		'commitish' => 'master',
+		'description' => 'Release of version {version}.', 'commitish' => 'master',
 	];
 
 	/**
@@ -96,12 +93,14 @@ class Command extends SimpleCommand {
 			$this->error('Need a non-blank description');
 			return self::EXIT_CODE_NO_DESCRIPTION;
 		}
-		$description = map($description, $this->description_variables());
+		$description = ArrayTools::map($description, $this->description_variables());
+
+		$commitish = $this->optionString('commitish');
 
 		try {
 			/* @var $github Module */
 			$github = $this->application->modules->object('GitHub');
-			if ($github->generateTag('v' . $this->application->version(), $this->option('commitish'), $description)) {
+			if ($github->generateTag('v' . $this->application->version(), $commitish, $description)) {
 				return 0;
 			}
 			return self::EXIT_CODE_TAG_FAILED;
