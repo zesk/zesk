@@ -17,7 +17,7 @@ set -eo pipefail
 
 source "$top/bin/build/colors.sh"
 
-if [ -n "$GITHUB_ACCESS_TOKEN" ]; then
+if [ -z "$GITHUB_ACCESS_TOKEN" ]; then
   exec 1>&2
   consoleRed "GITHUB_ACCESS_TOKEN is required";
   echo
