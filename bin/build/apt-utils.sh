@@ -20,7 +20,6 @@ set -eo pipefail
 
 . "$top/bin/build/colors.sh"
 
-
 if [ -f "$markerFile" ]; then
   exit 0
 fi
@@ -28,25 +27,24 @@ fi
 [ -d "$(dirname "$quietLog")" ] || mkdir -p "$(dirname "$quietLog")"
 
 if [ -z "$apt" ]; then
-  consoleMagenta "No apt, continuing"
+  consoleInfo "No apt, continuing"
   exit 0
 fi
 
 export DEBIAN_FRONTEND=noninteractive
 
-start=$(($(date +%s) + 0))
-consoleCyan
-echo -n "Updating apt-get ... "
+start=$(beginTiming)
+consoleInfo -n "Updating apt-get ... "
 if ! apt-get update >> "$quietLog" 2>&1; then
   failed "$quietLog"
   exit $err_env
 fi
-echo -n "Installing ${packages[*]} ... "
+reportTiming "$start" Ok
+start=$(beginTiming)
+consoleInfo -n "Installing ${packages[*]} ... "
 if ! apt-get install -y "${packages[@]}" >> "$quietLog" 2>&1; then
   failed "$quietLog"
   exit $err_env
 fi
 date > "$markerFile"
-consoleBoldMagenta
-echo "$(($(date +%s) - start)) seconds"
-consoleReset
+reportTiming "$start" Ok

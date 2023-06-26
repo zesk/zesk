@@ -141,8 +141,8 @@ reportTiming() {
   start=$1
   shift
   if [ -n "$*" ]; then
-    consoleGreen "$* "
+    consoleGreen -n "$* "
   fi
   delta=$(($(date +%s) - start))
-  consoleBoldMagenta "$delta $(plural $delta second seconds)" && echo
+  consoleBoldMagenta "$delta $(plural $delta second seconds)"
 }

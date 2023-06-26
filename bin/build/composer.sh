@@ -17,19 +17,21 @@ quietLog="$top/.build/$me.log"
 set -eo pipefail
 . "$top/bin/build/colors.sh"
 
+. "$top/bin/build/apt-utils.sh"
+
 [ -d "$top/.composer" ] || mkdir "$top/.composer"
 
 vendorArgs=()
-vendorArgs+=("-q")
 vendorArgs+=("-v" "$top:/app")
 vendorArgs+=("-v" "$top/.composer:/tmp")
+vendorArgs+=("-q")
 vendorArgs+=("composer:latest")
 vendorArgs+=("--ignore-platform-reqs")
 vendorArgs+=("install")
 
 start=$(($(date +%s) + 0))
-consoleCyan
-echo -n "Install vendor ... "
+
+consoleInfo -n "Install vendor ... "
 figlet "Install vendor" >> "$quietLog"
 echo docker run "${vendorArgs[@]}" >> "$quietLog"
 
