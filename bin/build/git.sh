@@ -24,7 +24,7 @@ if ! which git 2> /dev/null 1>&2; then
   consoleInfo -n "Installing git ..."
   export DEBIAN_FRONTEND=noninteractive
   start=$(beginTiming)
-  if ! apt-get install -y git > "$quietLog" 2>&1 then
+  if ! apt-get install -y git > "$quietLog" 2>&1; then
     failed "$quietLog"
   fi
   reportTiming "$start" OK
