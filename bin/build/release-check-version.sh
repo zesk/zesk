@@ -11,8 +11,9 @@ err_arg=2
 
 top="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." || exit $err_env; pwd)"
 
-"$top/bin/build/git.sh"
 source "$top/bin/build/colors.sh"
+
+"$top/bin/build/git.sh"
 
 previousVersion=$("$top/bin/build/version-last.sh")
 currentVersion=$("$top/bin/build/version-current.sh")
@@ -51,22 +52,21 @@ while [ $# -gt 0 ]; do
 done
 
 if git show-ref --tags "$currentVersion" --quiet; then
-	echo "Version $currentVersion already exists, already tagged." 1>&2
+	consoleError "Version $currentVersion already exists, already tagged." 1>&2
 	exit 16
 fi
 if [ "$previousVersion" = "$currentVersion" ]; then
-	echo "Version $currentVersion up to date, nothing to do." 1>&2
+	consoleError "Version $currentVersion up to date, nothing to do." 1>&2
 	exit 17
 fi
-echo "Zesk previous version is: $previousVersion"
-echo " Zesk release version is: $currentVersion"
+consoleInfo "Zesk previous version is: $previousVersion"
+consoleInfo " Zesk release version is: $currentVersion"
 echo
 
 releaseNotes=$top/docs/release/$currentVersion.md
 
 if [ ! -f "$releaseNotes" ]; then
 	consoleError "Version $currentVersion no release notes \"$releaseNotes\" found, stopping." 1>&2
-	echo 1>&2
   exit 18
 fi
 cp "$releaseNotes" "$artifactReleaseNotes"
@@ -93,7 +93,7 @@ while true; do
   fi
 done
 
-consoleGreen "Tagging $label version $tryVersion and pushing ... "
+consoleInfo "Tagging $label version $tryVersion and pushing ... "
 git tag "$tryVersion"
 git push --tags
 consoleGreen OK && echo
