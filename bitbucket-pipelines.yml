@@ -70,16 +70,6 @@ pipelines:
       - step:
           name: Deploy
           trigger: manual
-          caches:
-            - docker
-            - apt-lists
-            - apt-cache
-          script:
-            - bin/pipeline-release.sh
-    deploy:
-      - step:
-          deployment: deploy
-          name: Deploy
           size: 2x
           script:
             - bin/pipeline-release.sh

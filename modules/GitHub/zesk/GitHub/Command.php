@@ -96,10 +96,6 @@ class Command extends SimpleCommand {
 		$description = ArrayTools::map($description, $this->description_variables());
 
 		$commitish = $this->optionString('commitish');
-		if (!$commitish) {
-			$this->error('Need --committish');
-			return self::EXIT_CODE_ARGUMENTS;
-		}
 
 		try {
 			/* @var $github Module */

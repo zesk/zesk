@@ -15,6 +15,7 @@ top="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." || exit $err_env; pwd)"
 quietLog="$top/.build/$me.log"
 markerFile="$top/.build/.$me.marker"
 packages=(apt-utils figlet)
+set +e
 apt=$(which apt-get)
 set -eo pipefail
 
