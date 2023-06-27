@@ -37,3 +37,4 @@
 # Build related
 /.release-notes.md
 /.github.conf
+/.env*
