@@ -1,9 +1,27 @@
 #!/usr/bin/env sh
+#
+#   _____         _
+#  |__  /___  ___| | __
+#    / // _ \/ __| |/ /
+#   / /|  __/\__ \   <
+#  /____\___||___/_|\_\
+#
+# Binary shell - finds PHP and a Zesk application and runs it.
+# Supports all Zesk installations.
+# Searches upwards from current directory to find a *.application.php file
+# Supports parsing of `--cd` and `--search` to find Zesk (simple - use these first on your CLI)
+#
 # Use sh to avoid having to install bash on virgin systems
+#
+# `zesk help` for more help
+#
 err_env=1
 err_arg=1
 ERR_NO_VENDOR=1002
 ERR_NO_ZESK_BIN=1003
+
+#DEBUG
+#set -x
 
 export PATH=$PATH:/usr/bin:/bin:/usr/local/bin
 
@@ -31,14 +49,19 @@ extractCD() {
 }
 
 findAppRoot() {
+  targetVariable="$1"
+  shift
   start="$1"
-  cd "$start" || return 0
+  if ! cd "$start" 2> /dev/null; then
+    echo "Unable to change directory to \"$start\"" 1>&2
+    return 1
+  fi
   current=
   next="$start"
   while [ "$next" != "$current" ]; do
     current="$next"
     if ls ./*.application.php 1> /dev/null 2>&1; then
-      echo "$current"
+      eval "$targetVariable=$current"
       return 0
     fi
     cd ..
@@ -48,28 +71,37 @@ findAppRoot() {
 }
 
 findFirstAppRoot() {
+  targetVariable2="$1"
+  shift
   tryDir=
   while read -r tryDir; do
-    appRoot=$(findAppRoot "$tryDir")
-    if [ -n "$appRoot" ]; then
-      echo "$appRoot"
-      return 0
+    appRoot=
+    if findAppRoot appRoot $tryDir; then
+      if [ -n "$appRoot" ]; then
+        eval "$targetVariable2=$appRoot"
+        return 0
+      fi
+    else
+      return 1
     fi
-    shift
   done
+  return 0
 }
 
 here=$(dirname "$0")
 php=$(which php)
 if [ -z "$php" ]; then
-	echo "PHP is not found in PATH: " . $PATH 1>&2
+	echo "PHP is not found in PATH: $PATH" 1>&2
 	exit $err_env
 fi
 
-appRoot=$({
-  extractCD "$@";
-  pwd
-} | findFirstAppRoot)
+# DEBUG
+# echo "extractCD: $(extractCD "$@")EOL"
+
+appRoot=
+if ! extractCD "$@" | findFirstAppRoot appRoot; then
+  exit $err_arg
+fi
 
 cd "$start" || exit $err_env
 if [ -z "$appRoot" ]; then
