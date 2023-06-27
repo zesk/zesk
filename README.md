@@ -14,8 +14,11 @@ Copyright &copy; [Market Acumen, Inc.](https://marketacumen.com/?crsource=zesk-r
 
 See [the license to use Zesk](./LICENSE.md). (the MIT license)
 
+See the [latest changes in the change log](./CHANGELOG.md).
+
 ## History
 
 Zesk was written primarily by [Market Acumen, Inc.](https://marketacumen.com/?crsource=zesk-readme) and has been in use in commercial products since 2002 and written originally in PHP 4.
 
-Zesk has been refactored a few times and the good ideas were taken out of the original and improved. Inspired over the years by CodeIgniter, Kohana, Zend Framework, Drupal, Wordpress, Laravel, and Symfony, in addition to the work of many talented developers, including [Fabian Potencier](http://fabien.potencier.org/). Currently use [Doctrine](https://www.doctrine-project.org/) for the unerlying database and ORM framework.
+Zesk has been refactored a few times and the good ideas were taken out of the original and improved. Inspired over the years by CodeIgniter, Kohana, Zend Framework, Drupal, Wordpress, Laravel, and Symfony, in addition to the work of many talented developers, including [Fabian Potencier](http://fabien.potencier.org/). Currently
+use [Doctrine](https://www.doctrine-project.org/) for the unerlying database and ORM framework.

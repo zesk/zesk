@@ -147,5 +147,5 @@ reportTiming() {
   consoleBoldMagenta "$delta $(plural $delta second seconds)"
 }
 versionSort() {
-  sort -t. -k 1.2,1n -k 2,2n -k 3,3n -k 4,4n
+  sort -t. -k 1.2,1n -k 2,2n -k 3,3n -k 4,4n "$@"
 }
