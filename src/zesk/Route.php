@@ -25,7 +25,8 @@ use zesk\Route\Theme as ThemeRoute;
  * @see Router
  * @author kent
  */
-abstract class Route extends Hookable {
+abstract class Route extends Hookable
+{
 	/**
 	 *
 	 */
@@ -204,7 +205,8 @@ abstract class Route extends Hookable {
 	 *            A regular-expression style pattern to match the URL
 	 * @param array $options
 	 */
-	public function __construct(Router $router, string $pattern, array $options) {
+	public function __construct(Router $router, string $pattern, array $options)
+	{
 		parent::__construct($router->application, $options);
 		$this->router = $router;
 		$this->originalPattern = $pattern;
@@ -218,14 +220,16 @@ abstract class Route extends Hookable {
 	/**
 	 * @return Router
 	 */
-	public function router(): Router {
+	public function router(): Router
+	{
 		return $this->router;
 	}
 
 	/**
 	 * @return string
 	 */
-	public function id(): string {
+	public function id(): string
+	{
 		return $this->optionString(self::OPTION_ID);
 	}
 
@@ -233,7 +237,8 @@ abstract class Route extends Hookable {
 	 * @param string $id
 	 * @return $this
 	 */
-	public function setId(string $id): self {
+	public function setId(string $id): self
+	{
 		return $this->setOption(self::OPTION_ID, $id);
 	}
 
@@ -242,14 +247,16 @@ abstract class Route extends Hookable {
 	 *
 	 * @return string
 	 */
-	public function getPattern(): string {
+	public function getPattern(): string
+	{
 		return $this->cleanPattern;
 	}
 
 	/**
 	 * Return list of members to save upon sleep
 	 */
-	public function __serialize(): array {
+	public function __serialize(): array
+	{
 		return parent::__serialize() + [
 			'originalOptions' => $this->originalOptions, 'originalPattern' => $this->originalPattern,
 			'cleanPattern' => $this->cleanPattern, 'methods' => $this->methods, 'pattern' => $this->pattern,
@@ -258,7 +265,8 @@ abstract class Route extends Hookable {
 		];
 	}
 
-	public function __unserialize(array $data): void {
+	public function __unserialize(array $data): void
+	{
 		parent::__unserialize($data);
 		$this->originalOptions = $data['originalOptions'];
 		$this->originalPattern = $data['originalPattern'];
@@ -273,7 +281,8 @@ abstract class Route extends Hookable {
 		$this->byClass = $data['byClass'];
 	}
 
-	public function wakeupConnect(Router $router): void {
+	public function wakeupConnect(Router $router): void
+	{
 		$this->router = $router;
 	}
 
@@ -282,7 +291,8 @@ abstract class Route extends Hookable {
 	 *
 	 * @return string[]
 	 */
-	public function variables(): array {
+	public function variables(): array
+	{
 		return [
 			'class' => get_class($this), 'originalOptions' => $this->originalOptions,
 			'originalPattern' => $this->originalPattern, 'cleanPattern' => $this->cleanPattern,
@@ -295,7 +305,8 @@ abstract class Route extends Hookable {
 	/**
 	 * Set up this route
 	 */
-	protected function initialize(): void {
+	protected function initialize(): void
+	{
 		// Generic initial, override in subclasses
 		// As a policy, always call parent::initialize();
 	}
@@ -306,7 +317,8 @@ abstract class Route extends Hookable {
 	 *
 	 * @return bool
 	 */
-	public function validate(): bool {
+	public function validate(): bool
+	{
 		return false;
 	}
 
@@ -316,7 +328,8 @@ abstract class Route extends Hookable {
 	 * @param string $message
 	 * @param array $arguments
 	 */
-	public function log(string $message, array $arguments = []): void {
+	public function log(string $message, array $arguments = []): void
+	{
 		$this->router->log($arguments['level'] ?? 'info', $message, $arguments);
 	}
 
@@ -330,7 +343,8 @@ abstract class Route extends Hookable {
 	 * @return string
 	 * @see map
 	 */
-	private function cleanPattern(string $pattern): string {
+	private function cleanPattern(string $pattern): string
+	{
 		// Clean optional parens
 		$pattern = preg_replace('/[()]/', '', $pattern);
 		// Clean value types
@@ -342,7 +356,8 @@ abstract class Route extends Hookable {
 	 *
 	 * @return float
 	 */
-	public function weight(): float {
+	public function weight(): float
+	{
 		return $this->optionFloat('weight');
 	}
 
@@ -351,7 +366,8 @@ abstract class Route extends Hookable {
 	 *
 	 * @return string
 	 */
-	public function __toString(): string {
+	public function __toString(): string
+	{
 		return $this->originalPattern;
 	}
 
@@ -362,7 +378,8 @@ abstract class Route extends Hookable {
 	 * @param Route $b
 	 * @return int
 	 */
-	public static function compareWeight(Route $a, Route $b): int {
+	public static function compareWeight(Route $a, Route $b): int
+	{
 		return Types::weightCompare($a->options(), $b->options());
 	}
 
@@ -373,7 +390,8 @@ abstract class Route extends Hookable {
 	 * @param array $options
 	 * @return array
 	 */
-	public static function preprocessOptions(string $pattern, array $options): array {
+	public static function preprocessOptions(string $pattern, array $options): array
+	{
 		// Replace parts which do not have variables set
 		$parts = explode('/', strtr($pattern, [
 			'(' => '', ')' => '',
@@ -397,7 +415,8 @@ abstract class Route extends Hookable {
 	 * @return Route
 	 * @throws ClassNotFound - Means code has been deleted on disk, I assume.
 	 */
-	public static function factory(Router $router, string $pattern, array $options): Route {
+	public static function factory(Router $router, string $pattern, array $options): Route
+	{
 		/**
 		 * Ordering of this array is important. "method" is a parameter to "controller" and others, so it should go last.
 		 * Similarly, "file" may be an argument for other Routes; so it goes last as well.
@@ -425,7 +444,8 @@ abstract class Route extends Hookable {
 	 * @param string $type
 	 * @return string
 	 */
-	private static function cleanType(string $type): string {
+	private static function cleanType(string $type): string
+	{
 		return preg_replace('/[^\\\\0-9A-Za-z_]/i', '_', $type);
 	}
 
@@ -435,7 +455,8 @@ abstract class Route extends Hookable {
 	 * @param string $pattern
 	 * @return string
 	 */
-	public function compileRoutePattern(string $pattern): string {
+	public function compileRoutePattern(string $pattern): string
+	{
 		$C_PAREN_OPEN = chr(0x01);
 		$C_PAREN_CLOSE = chr(0x02);
 		$C_WILDCARD = chr(0x03);
@@ -489,7 +510,8 @@ abstract class Route extends Hookable {
 	 *
 	 * @return array
 	 */
-	public function argumentsNamed(): array {
+	public function argumentsNamed(): array
+	{
 		return $this->named;
 	}
 
@@ -502,7 +524,8 @@ abstract class Route extends Hookable {
 	 * @throws NotFoundException
 	 * @throws SyntaxException
 	 */
-	public function argumentsByClass(string $class = null, int|string $index = null): array {
+	public function argumentsByClass(string $class = null, int|string $index = null): array
+	{
 		$this->_processArguments();
 		if ($class === null) {
 			return $this->byClass;
@@ -522,14 +545,16 @@ abstract class Route extends Hookable {
 	 *
 	 * @return array
 	 */
-	public function argumentsIndexed(): array {
+	public function argumentsIndexed(): array
+	{
 		return $this->urlParts;
 	}
 
 	/**
 	 * Retrieve the numbered arg
 	 */
-	public function arg(int $index, string $default = ''): string {
+	public function arg(int $index, string $default = ''): string
+	{
 		return $this->urlParts[$index] ?? $default;
 	}
 
@@ -542,7 +567,8 @@ abstract class Route extends Hookable {
 	 *            Optional value
 	 * @return string
 	 */
-	public function urlReplace(string|array $name, string $value = ''): string {
+	public function urlReplace(string|array $name, string $value = ''): string
+	{
 		if (is_string($name)) {
 			$named = [
 				$name => $value,
@@ -563,7 +589,8 @@ abstract class Route extends Hookable {
 	 * @param string $method
 	 * @return bool
 	 */
-	final public function match(string $url, string $method = 'GET'): bool {
+	final public function match(string $url, string $method = 'GET'): bool
+	{
 		if (!isset($this->methods[$method]) || !$this->methods[$method]) {
 			return false;
 		}
@@ -584,7 +611,8 @@ abstract class Route extends Hookable {
 	 * @throws NotFoundException
 	 * @throws SyntaxException
 	 */
-	private function _handleArgument(int $index, array $type_name): void {
+	private function _handleArgument(int $index, array $type_name): void
+	{
 		$object = null;
 		$arg = $this->urlParts[$index];
 		$application = $this->application;
@@ -635,7 +663,8 @@ abstract class Route extends Hookable {
 	 * @throws SyntaxException
 	 * @throws NotFoundException
 	 */
-	private function _processArguments(): void {
+	private function _processArguments(): void
+	{
 		if ($this->argsValid) {
 			return;
 		}
@@ -663,7 +692,8 @@ abstract class Route extends Hookable {
 	 * @return number
 	 * @throws SyntaxException
 	 */
-	final protected function convertInteger(string $x): int {
+	final protected function convertInteger(string $x): int
+	{
 		if (!is_numeric($x)) {
 			throw new SyntaxException('Invalid integer format {value}', ['value' => $x]);
 		}
@@ -679,7 +709,8 @@ abstract class Route extends Hookable {
 	 * @return Model
 	 * @throws NotFoundException
 	 */
-	final protected function convertModel(string $entityName, string $arg, string $name): Model {
+	final protected function convertModel(string $entityName, string $arg, string $name): Model
+	{
 		try {
 			$object = new $entityName($this->application);
 			return $object->invokeTypedFilters(self::FILTER_ROUTER_ARGUMENT, $object, [$this, $arg]);
@@ -697,7 +728,8 @@ abstract class Route extends Hookable {
 	 * @return number
 	 * @throws SyntaxException
 	 */
-	final protected function convertFloat(string $x): float {
+	final protected function convertFloat(string $x): float
+	{
 		if (!is_numeric($x)) {
 			throw new SyntaxException('Invalid float format {value}', ['value' => $x]);
 		}
@@ -711,19 +743,22 @@ abstract class Route extends Hookable {
 	 * @param string $name
 	 * @return string
 	 */
-	final protected function convertOption(string $x, string $name): string {
+	final protected function convertOption(string $x, string $name): string
+	{
 		$this->setOption($name, $x);
 		return $x;
 	}
 
-	private function _stringToObjectMapping(Request $request): array {
+	private function _stringToObjectMapping(Request $request): array
+	{
 		return [
 			'{application}' => $this->application, '{request}' => $request, '{route}' => $this,
 			'{router}' => $this->router,
 		];
 	}
 
-	protected function _requestMap(Request $request): array {
+	protected function _requestMap(Request $request): array
+	{
 		return ArrayTools::prefixKeys($request->variables(), 'request.') + ArrayTools::prefixKeys($request->urlComponents(), 'url.');
 	}
 
@@ -734,7 +769,8 @@ abstract class Route extends Hookable {
 	 * @param Request $request
 	 * @return string|array
 	 */
-	protected function _mapVariables(Request $request, string|array $mixed): string|array {
+	protected function _mapVariables(Request $request, string|array $mixed): string|array
+	{
 		if (is_array($mixed)) {
 			/**
 			 * Replace the tokens found here with the objects if the strings match exactly
@@ -750,7 +786,8 @@ abstract class Route extends Hookable {
 	/**
 	 * @return string
 	 */
-	private function guessContentType(): string {
+	private function guessContentType(): string
+	{
 		return $this->optionString(self::OPTION_CONTENT_TYPE);
 	}
 
@@ -758,7 +795,8 @@ abstract class Route extends Hookable {
 	 * @param Request $request
 	 * @return Response
 	 */
-	private function responseFactory(Request $request): Response {
+	private function responseFactory(Request $request): Response
+	{
 		$application = $this->application;
 		$response = $application->responseFactory($request, $this->guessContentType());
 		if ($this->hasOption(self::OPTION_CACHE)) {
@@ -803,7 +841,8 @@ abstract class Route extends Hookable {
 	 * @throws NotFoundException
 	 * @throws SyntaxException
 	 */
-	protected function _before(Request $request): void {
+	protected function _before(Request $request): void
+	{
 		$this->_processArguments();
 		$this->args = $this->_mapVariables($request, $this->args);
 	}
@@ -822,7 +861,8 @@ abstract class Route extends Hookable {
 	 * Overridable method after execution
 	 * @throws Redirect
 	 */
-	protected function _after(Response $response): void {
+	protected function _after(Response $response): void
+	{
 		if ($this->hasOption(self::OPTION_REDIRECT)) {
 			$response->redirect()->url($this->optionString(self::OPTION_REDIRECT));
 		}
@@ -832,7 +872,8 @@ abstract class Route extends Hookable {
 	 * @throws PermissionDenied
 	 * @throws ClassNotFound
 	 */
-	protected function _permissions(Request $request): void {
+	protected function _permissions(Request $request): void
+	{
 		$permission = $this->option('permission');
 		$permissions = [];
 		if ($permission) {
@@ -870,7 +911,8 @@ abstract class Route extends Hookable {
 	 *
 	 * @return self
 	 */
-	final protected function _mapOptions(): self {
+	final protected function _mapOptions(): self
+	{
 		$this->originalOptions = $this->options();
 		$this->setOptions(ArrayTools::map($this->options(), $this->urlParts + ($this->named ?? [])));
 		return $this;
@@ -880,7 +922,8 @@ abstract class Route extends Hookable {
 	 *
 	 * @return self
 	 */
-	final protected function _unmapOptions(): self {
+	final protected function _unmapOptions(): self
+	{
 		$this->setOptions($this->originalOptions + $this->options());
 		$this->originalOptions = [];
 		return $this;
@@ -895,7 +938,8 @@ abstract class Route extends Hookable {
 	 * @throws Redirect
 	 * @throws ClassNotFound
 	 */
-	final public function execute(Request $request): Response {
+	final public function execute(Request $request): Response
+	{
 		$this->_mapOptions();
 
 		try {
@@ -932,7 +976,8 @@ abstract class Route extends Hookable {
 	 *
 	 * @return array
 	 */
-	public function classActions(): array {
+	public function classActions(): array
+	{
 		if ($this->hasOption('class_actions')) {
 			return $this->optionArray('class_actions');
 		}
@@ -968,7 +1013,8 @@ abstract class Route extends Hookable {
 	 *            Optional options relating to the requested route
 	 * @return array
 	 */
-	protected function getRouteMap(string $action, Model $object = null, array $options = []): array {
+	protected function getRouteMap(string $action, Model $object = null, array $options = []): array
+	{
 		$object_hierarchy = is_object($object) ? $this->application->classes->hierarchy($object, Model::class) : [];
 		$derived_classes = Types::toArray($options['derivedClasses'] ?? []);
 		$map = [
@@ -1016,7 +1062,8 @@ abstract class Route extends Hookable {
 	 * @param array $options
 	 * @return string
 	 */
-	public function getRoute(string $action, Model $object = null, array $options = []): string {
+	public function getRoute(string $action, Model $object = null, array $options = []): string
+	{
 		$route_map = $this->getRouteMap($action, $object, $options);
 		$map = $this->invokeTypedFilters(self::FILTER_ROUTE_MAP, $route_map);
 		return rtrim(StringTools::cleanTokens(ArrayTools::map($this->cleanPattern, $map), '/'));
@@ -1027,7 +1074,8 @@ abstract class Route extends Hookable {
 	 * @return $this
 	 * @throws SemanticsException
 	 */
-	public function wasAdded(Router $router): self {
+	public function wasAdded(Router $router): self
+	{
 		if (!$this->hasOption(self::OPTION_ALIASES)) {
 			return $this;
 		}

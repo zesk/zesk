@@ -2,7 +2,8 @@
 declare(strict_types=1);
 namespace zesk;
 
-class Net_Whois_Servers {
+class Net_Whois_Servers
+{
 	private static $servers = [
 		'biz' => 'whois.neulevel.biz',
 		'com' => 'whois.internic.net',
@@ -50,7 +51,8 @@ class Net_Whois_Servers {
 	 * @return string
 	 * @throws NotFoundException
 	 */
-	public static function fromTLD(string $tld): string {
+	public static function fromTLD(string $tld): string
+	{
 		$clean = preg_replace('/[^a-z]/', '', strtolower(StringTools::right($tld, '.')));
 		if (array_key_exists($clean, self::$servers)) {
 			return self::$servers[$clean];

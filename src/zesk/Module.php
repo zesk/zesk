@@ -22,7 +22,8 @@ use zesk\Exception\UnsupportedException;
  * @see Modules
  * @author kent
  */
-class Module extends Hookable implements HookSource {
+class Module extends Hookable implements HookSource
+{
 	/**
 	 * Module code name
 	 *
@@ -65,7 +66,8 @@ class Module extends Hookable implements HookSource {
 
 	/**
 	 */
-	public function __serialize(): array {
+	public function __serialize(): array
+	{
 		return [
 			'name' => $this->name, 'path' => $this->path, 'configuration' => $this->configuration,
 			'configurationFile' => $this->configurationFile, 'configurationData' => $this->configuration,
@@ -73,7 +75,8 @@ class Module extends Hookable implements HookSource {
 		] + parent::__serialize();
 	}
 
-	public function __unserialize(array $data): void {
+	public function __unserialize(array $data): void
+	{
 		parent::__unserialize($data);
 		$this->name = $data['name'];
 		$this->path = $data['path'];
@@ -90,14 +93,16 @@ class Module extends Hookable implements HookSource {
 	 * @param string $suffix
 	 * @return string
 	 */
-	final public function path(string $suffix = ''): string {
+	final public function path(string $suffix = ''): string
+	{
 		return Directory::path($this->path, $suffix);
 	}
 
 	/**
 	 * @return string
 	 */
-	private function _defaultCodeName(): string {
+	private function _defaultCodeName(): string
+	{
 		$class = strtr(get_class($this), '\\', '_');
 		return StringTools::removeSuffix(StringTools::removePrefix($class, [
 			'zesk_Module_', 'Module_', 'Module', 'zesk_',
@@ -112,7 +117,8 @@ class Module extends Hookable implements HookSource {
 	 * @param array $moduleFactoryState
 	 * @throws UnsupportedException
 	 */
-	final public function __construct(Application $application, array $options = [], array $moduleFactoryState = []) {
+	final public function __construct(Application $application, array $options = [], array $moduleFactoryState = [])
+	{
 		parent::__construct($application, $options);
 		$this->path = $moduleFactoryState['path'];
 		$this->name = $this->name ?: $moduleFactoryState['name'] ?? $this->_defaultCodeName();
@@ -136,18 +142,21 @@ class Module extends Hookable implements HookSource {
 
 	public const HOOK_MODULE_INITIALIZE = __CLASS__ . '::initialize';
 
-	final public function moduleConfiguration(): array {
+	final public function moduleConfiguration(): array
+	{
 		return $this->configuration;
 	}
 
-	final public function moduleConfigurationFile(): string {
+	final public function moduleConfigurationFile(): string
+	{
 		return $this->configurationFile;
 	}
 
 	/**
 	 * @return array
 	 */
-	public function hookSources(): array {
+	public function hookSources(): array
+	{
 		$autoloadPath = ArrayTools::path($this->configuration, ['autoload', 'path']);
 		if ($autoloadPath) {
 			return [$this->path($autoloadPath)];
@@ -161,18 +170,21 @@ class Module extends Hookable implements HookSource {
 	 * @param string $module
 	 * @return string
 	 */
-	public static function cleanName(string $module): string {
+	public static function cleanName(string $module): string
+	{
 		return trim(File::nameClean($module), '- ');
 	}
 
 	/**
 	 * @return string
 	 */
-	public function baseName(): string {
+	public function baseName(): string
+	{
 		return basename($this->name);
 	}
 
-	final public function moduleData(): array {
+	final public function moduleData(): array
+	{
 		return [
 			'path' => $this->path, 'base' => $this->baseName(), 'name' => $this->name,
 			'configuration' => $this->configuration, 'configurationFile' => $this->configurationFile,
@@ -183,7 +195,8 @@ class Module extends Hookable implements HookSource {
 	 *
 	 * @see Options::__toString()
 	 */
-	public function __toString() {
+	public function __toString()
+	{
 		$php = new PHP();
 		$php->settingsOneLine();
 		return '$application, ' . $php->render($this->options());
@@ -194,7 +207,8 @@ class Module extends Hookable implements HookSource {
 	 * @throws ConfigurationException
 	 * @throws UnsupportedException
 	 */
-	public function initialize(): void {
+	public function initialize(): void
+	{
 		if ($this->optionBool('fakeConfigurationException')) {
 			throw new ConfigurationException([$this::class, 'fake'], 'Fake exception for testing');
 		}
@@ -206,7 +220,8 @@ class Module extends Hookable implements HookSource {
 	/**
 	 * @return void
 	 */
-	public function shutdown(): void {
+	public function shutdown(): void
+	{
 		if ($this->optionBool('debugShutdown')) {
 			$this->application->debug($this::class . '::shutdown');
 		}
@@ -217,7 +232,8 @@ class Module extends Hookable implements HookSource {
 	 *
 	 * @return string
 	 */
-	final public function name(): string {
+	final public function name(): string
+	{
 		return $this->option('name', $this->name);
 	}
 
@@ -226,7 +242,8 @@ class Module extends Hookable implements HookSource {
 	 *
 	 * @return string
 	 */
-	final public function codeName(): string {
+	final public function codeName(): string
+	{
 		return $this->name;
 	}
 
@@ -234,7 +251,8 @@ class Module extends Hookable implements HookSource {
 	 * Override in subclasses - called upon Application::classes
 	 * @return string[]
 	 */
-	public function modelClasses(): array {
+	public function modelClasses(): array
+	{
 		return $this->modelClasses;
 	}
 
@@ -246,7 +264,8 @@ class Module extends Hookable implements HookSource {
 	 * @return Model
 	 * @throws ClassNotFound
 	 */
-	final public function modelFactory(string $class, mixed $mixed = null, array $options = []): Model {
+	final public function modelFactory(string $class, mixed $mixed = null, array $options = []): Model
+	{
 		return $this->application->modelFactory($class, $mixed, $options);
 	}
 
@@ -254,7 +273,8 @@ class Module extends Hookable implements HookSource {
 	 *
 	 * @return string
 	 */
-	public function version(): string {
+	public function version(): string
+	{
 		try {
 			$version = $this->option('version') ?? $this->configuration['version'] ?? \zesk\Module\Version::extractVersion($this->configuration);
 		} catch (NotFoundException|FileNotFound) {

@@ -21,7 +21,8 @@ use zesk\Types;
  *
  * @category Documentation
  */
-class Help extends SimpleCommand {
+class Help extends SimpleCommand
+{
 	protected array $shortcuts = ['help'];
 
 	protected array $option_types = [
@@ -44,7 +45,8 @@ class Help extends SimpleCommand {
 	 */
 	private array $aliases = [];
 
-	public function run(): int {
+	public function run(): int
+	{
 		$loader = CommandLoader::factory()->setApplication($this->application);
 		$commands = $loader->collectCommands();
 		$this->collectHelp($commands);
@@ -54,7 +56,8 @@ class Help extends SimpleCommand {
 		return 0;
 	}
 
-	public function processCommandClass(string $class): bool {
+	public function processCommandClass(string $class): bool
+	{
 		$this->verboseLog("Checking $class");
 
 		try {
@@ -99,7 +102,8 @@ class Help extends SimpleCommand {
 		return true;
 	}
 
-	public function collectHelp(array $classes): void {
+	public function collectHelp(array $classes): void
+	{
 		$this->aliases = [];
 		$this->categories = [];
 		foreach ($classes as $class) {

@@ -14,11 +14,13 @@ namespace zesk\PHPUnit;
 use Throwable;
 use zesk\Exception;
 
-class ExceptionTestCase extends TestCase {
+class ExceptionTestCase extends TestCase
+{
 	/**
 	 * @param Throwable $e
 	 */
-	public function assertThrowable(Throwable $e, bool $recurse = true): void {
+	public function assertThrowable(Throwable $e, bool $recurse = true): void
+	{
 		$this->assertIsString($e->getMessage());
 
 		$this->assertIsInteger($e->getCode());

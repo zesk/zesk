@@ -3,7 +3,7 @@
 Zesk has a simple interface to enable creation of chainable, command-line functions which work within your application's context.
 
 	zesk [arguments] [command] [command-arguments]
-	
+
 The main binary is `zesk` found at `$ZESK_ROOT/bin` in turn invokes `zesk-command.php`.
 
 `zesk` scans the current directory upwards for a `.application.php` file; and then runs the installed `vendor/bin/zesk-command.php`.
@@ -18,7 +18,7 @@ The command starts at the current working directory and looks for a file ending 
 
 > The `application.php` file's location sets your application root directory, like `composer.json` does.
 
-Once found, it runs your commands in PHP after first including the primary application include file. This allows your application to load its context, such as globals, database settings, or any other basic configuration needed to run commands.
+Once found, it runs your commands in PHP after first including the primary application.phplude file. This allows your application to load its context, such as globals, database settings, or any other basic configuration needed to run commands.
 
 > Again - setting up the database, connecting to your external services, and configuration your application is all done in a single, central location.
 
@@ -36,7 +36,7 @@ Changes the file system **current directory** running the application. YMMV. See
 
 To set a global value in Zesk prior to invoking a command, the --set parameter allows setting of globals in Zesk via `zesk::set`.
 
-   zesk --set "zesk\\Database::debug=1" update
+zesk --set "zesk\\Database::debug=1" update
 
 Be sure to use proper backslash escaping when using the command line.
 
@@ -45,13 +45,13 @@ Be sure to use proper backslash escaping when using the command line.
 When specified prior to the first command, this argument will set a zesk global to true.
 
 	zesk --zesk\\Database::debug update
-	
+
 ## --[variable]=[value]  &middot; *Set arbitrary global to string value*
 
 Similarly, you can specify a value for the global as value
 
 	zesk --LOG_PATH=$HOME/log update
-	
+
 ## --define [variable]=[value]  &middot; *Set arbitrary global to string value*
 
 Similarly, you can define a variable before loading the application context:
@@ -69,7 +69,7 @@ Unset a previously set variable.
 The Zesk command can take PHP include files as parameters, or command which essentially point to a class or function to invoke. If the parameter is a file which can be included, it is included directly and no further action is taken.
 
 If the parameter is not a file, then Zesk looks to see if it corresponds to a command by searching the paths listed by `$application->zeskCommandPath()`
-	
+
 > Note: This is different from `$application->commandPath()` which is the path used to find shell commands in the system.
 
 All commands are loaded in the directory in memory before running. Shortcuts are gathered from each command class's `$this->shortcuts` member.
@@ -81,7 +81,7 @@ When a command is specified, each command is allowed to process its own argument
 If a command *does not* process a command line argument, then it *may be* handled by the **Special arguments** handling above. To debug how arguments are handled for your command, try using a global debug setting:
 
 	zesk --command_debug globals
-	
+
 For commands which are functions, the current argument list (including the name of the command as invoked) is passed to the function. The function should then process arguments as needed, and return any unprocessed arguments.
 
 For example, a very simple command which loads modules could be saved to `$ZESK_ROOT/classes/command/module.inc`:
@@ -113,17 +113,16 @@ The difference is that the `Command` class keeps track of the arguments which ha
 Certain commands can be chained, and others can not, depending on the command. A simple example which outlines how this works is as follows:
 
 	zesk module server module jquery modules --loaded
-	
+
 Outputs:
 
 	jquery: true
 	server: true
 
-Commands should be implemented such that they use only arguments which are known to it. In addition, classes which extend `zesk\Command` SHOULD specify a
-wildcard parameter for remaining parameters, unless the command is **always** last in a chain (for example `database-connect`).
+Commands should be implemented such that they use only arguments which are known to it. In addition, classes which extend `zesk\Command` SHOULD specify a wildcard parameter for remaining parameters, unless the command is **always** last in a chain (for example `database-connect`).
 
 Some commands can specify an terminating string, which **should** be standardized to the double-dash argument (e.g. "`--`"):
 
 	zesk eval "echo zesk()->configuration->init;" "zesk()->hooks->call('alert')" -- globals
-	
+
 For example the `eval` command stops when it encounters the `--` argument, and then passes control to the next command.

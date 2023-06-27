@@ -12,7 +12,8 @@ use zesk\Exception\SemanticsException;
  * @author kent
  *
  */
-interface ProgressStack {
+interface ProgressStack
+{
 	/**
 	 * @param string $name
 	 * @return void

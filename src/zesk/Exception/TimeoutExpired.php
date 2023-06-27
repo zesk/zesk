@@ -13,5 +13,6 @@ use zesk\Exception;
 /**
  *
  */
-class TimeoutExpired extends Exception {
+class TimeoutExpired extends Exception
+{
 }

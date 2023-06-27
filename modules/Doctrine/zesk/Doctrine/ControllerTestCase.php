@@ -12,5 +12,6 @@ namespace zesk\Doctrine;
 
 use zesk\PHPUnit\TestCase;
 
-class ControllerTestCase extends TestCase {
+class ControllerTestCase extends TestCase
+{
 }

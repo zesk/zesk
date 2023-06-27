@@ -14,7 +14,8 @@ use DirectoryIterator;
 use zesk\Exception\FileParseException;
 use zesk\Exception\KeyNotFound;
 
-class CharacterSet {
+class CharacterSet
+{
 	/**
 	 *
 	 */
@@ -29,7 +30,8 @@ class CharacterSet {
 	 * @throws KeyNotFound
 	 * @throws FileParseException
 	 */
-	public static function toUTF8(string $data, string $charset, array &$missing = []): string {
+	public static function toUTF8(string $data, string $charset, array &$missing = []): string
+	{
 		$charset = strtoupper($charset);
 		if ($charset === 'ISO-8859-1') {
 			return utf8_encode($data);
@@ -68,7 +70,8 @@ class CharacterSet {
 	 *@throws FileParseException if file has bad data in it
 	 * @throws KeyNotFound if unknown charset
 	 */
-	private static function loadTable(string $charset): array {
+	private static function loadTable(string $charset): array
+	{
 		if (!array_key_exists($charset, self::$tables)) {
 			$path = self::characterSetPath($charset);
 			if (!file_exists($path)) {
@@ -101,7 +104,8 @@ class CharacterSet {
 	 * @param ?string $charset Charset path to return (optional)
 	 * @return string Path to charset files or individual charset file
 	 */
-	private static function characterSetPath(string $charset = null): string {
+	private static function characterSetPath(string $charset = null): string
+	{
 		return ZESK_ROOT . 'etc/charset-data/' . ($charset === null ? '' : strtolower($charset) . '.txt');
 	}
 
@@ -112,7 +116,8 @@ class CharacterSet {
 	 * @param string $charset
 	 * @return boolean
 	 */
-	public static function isSupported(string $charset): bool {
+	public static function isSupported(string $charset): bool
+	{
 		return file_exists(self::characterSetPath($charset));
 	}
 
@@ -121,7 +126,8 @@ class CharacterSet {
 	 *
 	 * @return string[]
 	 */
-	public static function supported(): array {
+	public static function supported(): array
+	{
 		$iter = new DirectoryIterator(self::characterSetPath());
 		$result = [];
 		foreach ($iter as $file) {

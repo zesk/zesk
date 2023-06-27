@@ -11,20 +11,25 @@ namespace zesk\Locale;
 
 use zesk\StringTools;
 
-class FR extends Locale {
-	public function formatDate(): string {
+class FR extends Locale
+{
+	public function formatDate(): string
+	{
 		return 'le {DDD} {MMMM} {YYYY}';
 	}
 
-	public function formatDateTime(): string {
+	public function formatDateTime(): string
+	{
 		return '{DDD} {MMMM} {YYYY}, {hh}:{mm}:{ss}';
 	}
 
-	public function formatTime(bool $include_seconds = false): string {
+	public function formatTime(bool $include_seconds = false): string
+	{
 		return $include_seconds ? '{hh}:{mm}:{ss}' : '{hh}:{mm}';
 	}
 
-	public function nounSemanticPlural(string $noun, float $number = 2): string {
+	public function nounSemanticPlural(string $noun, float $number = 2): string
+	{
 		return $number !== 1 ? "$noun" . 's' : $noun;
 	}
 
@@ -33,7 +38,8 @@ class FR extends Locale {
 	 * @param array $context
 	 * @return string
 	 */
-	public function indefiniteArticle(string $word, array $context = []): string {
+	public function indefiniteArticle(string $word, array $context = []): string
+	{
 		$gender = $context['gender'] ?? $this->__("$word.gender") ?? 'm';
 		$caps = $context['capitalize'] ?? false;
 		if (!$gender) {
@@ -43,11 +49,13 @@ class FR extends Locale {
 		return ($caps ? ucfirst($article) : $article) . ' ' . $word;
 	}
 
-	public function possessive(string $owner, string $object): string {
+	public function possessive(string $owner, string $object): string
+	{
 		return "$object de $owner";
 	}
 
-	public function ordinal(int $number, string $gender = 'm'): string {
+	public function ordinal(int $number, string $gender = 'm'): string
+	{
 		// TODO: Check this
 		if ($number === 1) {
 			return $number . 'r';
@@ -55,7 +63,8 @@ class FR extends Locale {
 		return $number . 'e';
 	}
 
-	public function negateWord(string $word, string $preferred_prefix = ''): string {
+	public function negateWord(string $word, string $preferred_prefix = ''): string
+	{
 		if ($preferred_prefix === '') {
 			$preferred_prefix = 'pas de ';
 		}

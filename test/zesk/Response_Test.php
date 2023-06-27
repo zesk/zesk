@@ -10,11 +10,13 @@ namespace zesk;
  * @author kent
  *
  */
-class Response_Test extends UnitTest {
+class Response_Test extends UnitTest
+{
 	/**
 	 *
 	 */
-	public function test_body_attributes(): void {
+	public function test_body_attributes(): void
+	{
 		$request = new Request($this->application);
 		$response = $this->application->responseFactory($request);
 
@@ -49,7 +51,8 @@ class Response_Test extends UnitTest {
 	/**
 	 *
 	 */
-	public function test_scripts(): void {
+	public function test_scripts(): void
+	{
 		$request = new Request($this->application);
 		$response = $this->application->responseFactory($request);
 

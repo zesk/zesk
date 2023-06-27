@@ -3,7 +3,8 @@ declare(strict_types=1);
 
 namespace zesk\ORM\Database\QueryTrait;
 
-trait Where {
+trait Where
+{
 	/**
 	 * Where
 	 * @var array
@@ -15,7 +16,8 @@ trait Where {
 	 * @param mixed $value
 	 * @return static
 	 */
-	public function addWhere(string $member, mixed $value): static {
+	public function addWhere(string $member, mixed $value): static
+	{
 		$this->where[$member] = $value;
 		return $this;
 	}
@@ -24,7 +26,8 @@ trait Where {
 	 * @param string $sql
 	 * @return static
 	 */
-	public function addWhereSQL(string $sql): static {
+	public function addWhereSQL(string $sql): static
+	{
 		$this->where[] = $sql;
 		return $this;
 	}
@@ -33,7 +36,8 @@ trait Where {
 	 * @param array $where
 	 * @return static
 	 */
-	public function appendWhere(array $where): static {
+	public function appendWhere(array $where): static
+	{
 		$this->where = array_merge($this->where, $where);
 		return $this;
 	}
@@ -41,7 +45,8 @@ trait Where {
 	/**
 	 * @return static
 	 */
-	public function clearWhere(): static {
+	public function clearWhere(): static
+	{
 		$this->where = [];
 		return $this;
 	}

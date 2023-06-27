@@ -16,8 +16,10 @@ use zesk\PHPUnit\TestCase;
  * @author kent
  *
  */
-class ENTest extends TestCase {
-	public function test_everything(): void {
+class ENTest extends TestCase
+{
+	public function test_everything(): void
+	{
 		$testx = $this->application->localeFactory('en');
 
 		$testx->formatDate();
@@ -51,7 +53,8 @@ class ENTest extends TestCase {
 		$this->assertEquals('3 words', $testx->pluralNumber($s, $n));
 	}
 
-	public static function data_ordinal_tests(): array {
+	public static function data_ordinal_tests(): array
+	{
 		return [
 			[
 				1,
@@ -107,7 +110,8 @@ class ENTest extends TestCase {
 	/**
 	 * @dataProvider data_ordinal_tests
 	 */
-	public function test_ordinal(int $input, string $result): void {
+	public function test_ordinal(int $input, string $result): void
+	{
 		$testx = $this->application->localeRegistry('en');
 		$this->assertEquals($testx->ordinal($input), $result);
 	}

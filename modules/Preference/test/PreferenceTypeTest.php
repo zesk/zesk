@@ -13,20 +13,24 @@ use zesk\ORM\ORMUnitTest;
  * @author kent
  *
  */
-class PreferenceTypeTest extends ORMUnitTest {
+class PreferenceTypeTest extends ORMUnitTest
+{
 	protected array $load_modules = [
 		'Preference',
 	];
 
-	protected function initialize(): void {
+	protected function initialize(): void
+	{
 		$this->schemaSynchronize(Type::class);
 	}
 
-	public function test_ORMClass(): void {
+	public function test_ORMClass(): void
+	{
 		$this->assertORMClass(Type::class, null, [], Type::MEMBER_CODE);
 	}
 
-	public function test_object(): void {
+	public function test_object(): void
+	{
 		$x = $this->application->modelFactory(Type::class);
 		$this->assertInstanceOf(Type::class, $x);
 

@@ -5,8 +5,10 @@ namespace zesk;
 
 use zesk\Exception\SyntaxException;
 
-class CSSTest extends UnitTest {
-	public static function data_isColor(): array {
+class CSSTest extends UnitTest
+{
+	public static function data_isColor(): array
+	{
 		return [
 			[true, 'red'],
 			[true, 'green'],
@@ -25,20 +27,23 @@ class CSSTest extends UnitTest {
 	 * @return void
 	 * @dataProvider data_isColor
 	 */
-	public function test_isColor(bool $expected, string $color): void {
+	public function test_isColor(bool $expected, string $color): void
+	{
 		$this->assertEquals($expected, CSS::isColor($color));
 	}
 
 	/**
 	 * @return void@
 	 */
-	public function test_bad_color(): void {
+	public function test_bad_color(): void
+	{
 		$text = '';
 		$this->expectException(SyntaxException::class);
 		$this->assertEquals(null, CSS::colorParse($text));
 	}
 
-	public function test_colorParse(): void {
+	public function test_colorParse(): void
+	{
 		$colors = [
 			'rgb(1,2,3)' => '1;2;3',
 			'rgb(256,2,3)' => '255;2;3',
@@ -66,12 +71,14 @@ class CSSTest extends UnitTest {
 		}
 	}
 
-	public function test_colorLookup(): void {
+	public function test_colorLookup(): void
+	{
 		$text = 'blue';
 		$this->assertEquals('0000ff', CSS::colorLookup($text));
 	}
 
-	public function test_colorFormat(): void {
+	public function test_colorFormat(): void
+	{
 		$rgb = [250, 206, 190];
 		$this->assertEquals('#FACEBE', CSS::colorFormat($rgb));
 	}
@@ -80,19 +87,22 @@ class CSSTest extends UnitTest {
 	 * @return void
 	 * @throws SyntaxException
 	 */
-	public function test_colorNormalize(): void {
+	public function test_colorNormalize(): void
+	{
 		$this->assertEquals('FFFFFF', CSS::colorNormalize('#FFF'));
 	}
 
 	/**
 	 * @return void
 	 */
-	public function test_color_normalize_blank(): void {
+	public function test_color_normalize_blank(): void
+	{
 		$this->expectException(SyntaxException::class);
 		CSS::colorNormalize('');
 	}
 
-	public static function data_colorTableColors(): array {
+	public static function data_colorTableColors(): array
+	{
 		return [
 			['lightgray'],
 			['lightgrey'],
@@ -107,7 +117,8 @@ class CSSTest extends UnitTest {
 	 * @return void
 	 * @dataProvider data_colorTableColors
 	 */
-	public function test_color_table(string $key): void {
+	public function test_color_table(string $key): void
+	{
 		$result = CSS::colorTable();
 		$this->assertArrayHasKey($key, $result);
 	}
@@ -118,11 +129,13 @@ class CSSTest extends UnitTest {
 	 * @param array $rgb
 	 * @return void
 	 */
-	public function test_rgbToHex(string $expected, array $rgb): void {
+	public function test_rgbToHex(string $expected, array $rgb): void
+	{
 		$this->assertEquals($expected, CSS::rgbToHex($rgb));
 	}
 
-	public static function data_rgbToHex(): array {
+	public static function data_rgbToHex(): array
+	{
 		return [
 			['000102', [0, 1, 2]],
 			['FFFFFF', [255, 255, 255]],

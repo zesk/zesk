@@ -14,8 +14,10 @@ use zesk\Exception\SyntaxException;
 /**
  * Generic test class
  */
-class TimeSpanTest extends UnitTest {
-	public static function data_TimeSpan(): array {
+class TimeSpanTest extends UnitTest
+{
+	public static function data_TimeSpan(): array
+	{
 		$days = Date::now()->setYear(Date::now()->year()+1)->isLeapYear() ? 366 : 365;
 		return [
 			['s:0 00 m:0 00 h:0 00 d:0 00 000', '0', 0, ],
@@ -41,7 +43,8 @@ class TimeSpanTest extends UnitTest {
 	 * @dataProvider data_TimeSpan
 	 * @throws SyntaxException
 	 */
-	public function test_TimeSpan(string $expected_format, string $expected_sql, string|float|int $init): void {
+	public function test_TimeSpan(string $expected_format, string $expected_sql, string|float|int $init): void
+	{
 		$ts = TimeSpan::factory($init);
 		$actual = $ts->format('s:{seconds} {ss} m:{minutes} {mm} h:{hours} {hh} d:{days} {dd} {ddd}');
 		$this->assertEquals($expected_format, $actual);
@@ -61,7 +64,8 @@ class TimeSpanTest extends UnitTest {
 	/**
 	 * @return array
 	 */
-	public static function data_badTimeSpan(): array {
+	public static function data_badTimeSpan(): array
+	{
 		return [
 			['3 negarinos ago'], ['not a date'], ['99.64.1.2'],
 		];
@@ -73,12 +77,14 @@ class TimeSpanTest extends UnitTest {
 	 * @throws SyntaxException
 	 * @dataProvider data_badTimeSpan
 	 */
-	public function test_badTimeSpan(string $init): void {
+	public function test_badTimeSpan(string $init): void
+	{
 		$this->expectException(SyntaxException::class);
 		TimeSpan::factory($init);
 	}
 
-	public static function data_add(): array {
+	public static function data_add(): array
+	{
 		$randomInt = self::randomInteger();
 		return [
 			['s:0 00 m:0 00 h:0 00 d:0 00 000', -1, 1, ], ['s:0 00 m:0 00 h:0 00 d:0 00 000', -2, 2, ],
@@ -96,7 +102,8 @@ class TimeSpanTest extends UnitTest {
 	 * @return void
 	 * @dataProvider data_add
 	 */
-	public function test_add(string $expected_format, int $add, string|float|int $init): void {
+	public function test_add(string $expected_format, int $add, string|float|int $init): void
+	{
 		$ts = TimeSpan::factory($init)->add($add);
 		$actual = $ts->format('s:{seconds} {ss} m:{minutes} {mm} h:{hours} {hh} d:{days} {dd} {ddd}');
 		$this->assertEquals($expected_format, $actual);

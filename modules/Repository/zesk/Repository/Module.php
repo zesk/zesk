@@ -17,7 +17,8 @@ use zesk\Module as zeskModule;
  * @see Repository
  * @author kent
  */
-class Module extends zeskModule {
+class Module extends zeskModule
+{
 	/**
 	 *
 	 * @var array
@@ -36,7 +37,8 @@ class Module extends zeskModule {
 	 * @param array $aliases
 	 * @return Module
 	 */
-	public function registerRepository(string $class, array $aliases = []): self {
+	public function registerRepository(string $class, array $aliases = []): self
+	{
 		$this->repository_classes[$class] = $aliases;
 		foreach ($aliases as $alias) {
 			$this->repository_types[strtolower($alias)] = $class;
@@ -48,7 +50,8 @@ class Module extends zeskModule {
 	/**
 	 * @return array
 	 */
-	public function types(): array {
+	public function types(): array
+	{
 		return $this->repository_types;
 	}
 
@@ -58,7 +61,8 @@ class Module extends zeskModule {
 	 * @return string
 	 * @throws NotFoundException
 	 */
-	public function findRepository(string $type): string {
+	public function findRepository(string $type): string
+	{
 		$lowType = strtolower($type);
 		if (array_key_exists($lowType, $this->repository_types)) {
 			return $this->repository_types[$lowType];
@@ -72,7 +76,8 @@ class Module extends zeskModule {
 	 *
 	 * @return self
 	 */
-	public function singleton(): self {
+	public function singleton(): self
+	{
 		return $this->application->repositoryModule();
 	}
 
@@ -80,7 +85,8 @@ class Module extends zeskModule {
 	 * @param string $directory
 	 * @return array
 	 */
-	public function determineRepository(string $directory): array {
+	public function determineRepository(string $directory): array
+	{
 		$repos = [];
 		foreach ($this->repository_classes as $class => $aliases) {
 			/* @var $repo Base */
@@ -101,7 +107,8 @@ class Module extends zeskModule {
 	 * @return Base
 	 * @throws NotFoundException
 	 */
-	public function factory(string $directory): Base {
+	public function factory(string $directory): Base
+	{
 		$repos = $this->determineRepository($directory);
 		if (count($repos) > 1) {
 			$this->application->warning('{method} multiple repositories detected ({repos}), using first {repo}', [

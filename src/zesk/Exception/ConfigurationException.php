@@ -13,7 +13,8 @@ use zesk\Configuration;
 use zesk\Exception;
 use Throwable;
 
-class ConfigurationException extends Exception {
+class ConfigurationException extends Exception
+{
 	/**
 	 *
 	 * @var string
@@ -28,7 +29,8 @@ class ConfigurationException extends Exception {
 	 * @param Throwable|null $previous
 	 */
 	public function __construct(array|string $name, string $message, array $arguments = [], Throwable $previous =
-	null) {
+	null)
+	{
 		$this->name = is_array($name) ? implode(Configuration::key_separator, $name) : $name;
 		parent::__construct("Configuration error: {name}: $message", [
 			'name' => $name,

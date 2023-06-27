@@ -22,7 +22,8 @@ use zesk\File;
  * @author kent
  *
  */
-class Command extends SimpleCommand {
+class Command extends SimpleCommand
+{
 	protected array $shortcuts = ['github'];
 
 	/**
@@ -69,7 +70,8 @@ class Command extends SimpleCommand {
 	 * {@inheritDoc}
 	 * @see \zesk\Command::run()
 	 */
-	public function run(): int {
+	public function run(): int
+	{
 		if ($this->optionBool('tag')) {
 			return $this->command_tag();
 		}
@@ -81,7 +83,8 @@ class Command extends SimpleCommand {
 	 *
 	 * @return int
 	 */
-	public function command_tag(): int {
+	public function command_tag(): int
+	{
 		$file = $this->option('description-file');
 
 		try {
@@ -117,7 +120,8 @@ class Command extends SimpleCommand {
 		}
 	}
 
-	public function description_variables(): array {
+	public function description_variables(): array
+	{
 		return [
 			'version' => $this->application->version(),
 		];

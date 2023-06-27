@@ -15,12 +15,14 @@ namespace zesk\Locale;
  * @author kent
  *
  */
-class Generic extends Locale {
+class Generic extends Locale
+{
 	/**
 	 *
 	 * @see Locale::formatDate()
 	 */
-	public function formatDate(): string {
+	public function formatDate(): string
+	{
 		return '{YYYY}-{MM}-{DD}';
 	}
 
@@ -29,7 +31,8 @@ class Generic extends Locale {
 	 * {@inheritDoc}
 	 * @see Locale::formatDateTime()
 	 */
-	public function formatDateTime(): string {
+	public function formatDateTime(): string
+	{
 		return '{YYYY}-{MM}-{DD} {hh}:{mm}:{ss} {Z}';
 	}
 
@@ -38,7 +41,8 @@ class Generic extends Locale {
 	 * {@inheritDoc}
 	 * @see Locale::formatTime()
 	 */
-	public function formatTime(bool $include_seconds = false): string {
+	public function formatTime(bool $include_seconds = false): string
+	{
 		return $include_seconds ? '{h}:{mm}:{ss}' : '{h}:{mm}';
 	}
 
@@ -47,7 +51,8 @@ class Generic extends Locale {
 	 * {@inheritDoc}
 	 * @see Locale::possessive()
 	 */
-	public function possessive(string $owner, string $object): string {
+	public function possessive(string $owner, string $object): string
+	{
 		return $this->__('Locale::possessive:={owner}&lsquo;s {noun}', [
 			'owner' => $owner,
 			'noun' => $object,
@@ -60,7 +65,8 @@ class Generic extends Locale {
 	 * {@inheritDoc}
 	 * @see Locale::nounSemanticPlural()
 	 */
-	public function nounSemanticPlural(string $noun, float $number = 2): string {
+	public function nounSemanticPlural(string $noun, float $number = 2): string
+	{
 		if ($number > 0 && $number <= 1) {
 			return  $noun;
 		}
@@ -72,7 +78,8 @@ class Generic extends Locale {
 	 * {@inheritDoc}
 	 * @see Locale::indefiniteArticle()
 	 */
-	public function indefiniteArticle(string $word, array $context = []): string {
+	public function indefiniteArticle(string $word, array $context = []): string
+	{
 		if (strlen($word) === 0) {
 			return '';
 		}
@@ -84,7 +91,8 @@ class Generic extends Locale {
 	 * {@inheritDoc}
 	 * @see Locale::ordinal()
 	 */
-	public function ordinal(int $number): string {
+	public function ordinal(int $number): string
+	{
 		return strval($number);
 	}
 
@@ -94,7 +102,8 @@ class Generic extends Locale {
 	 * {@inheritDoc}
 	 * @see Locale::negateWord()
 	 */
-	public function negateWord(string $word, string $preferred_prefix = ''): string {
+	public function negateWord(string $word, string $preferred_prefix = ''): string
+	{
 		return "non-$word";
 	}
 }

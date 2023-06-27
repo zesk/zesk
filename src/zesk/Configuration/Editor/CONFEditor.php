@@ -19,7 +19,8 @@ use zesk\Text;
  * Useful for setting options which you want to also access via BASH or compatible shell.
  * @see CONF
  */
-class CONFEditor extends Editor {
+class CONFEditor extends Editor
+{
 	/**
 	 * @desc Save changes to a configuration file
 	 * @param array $edits
@@ -28,7 +29,8 @@ class CONFEditor extends Editor {
 	 * @copyright &copy; 2023 Market Acumen, Inc.
 	 * @package zesk
 	 */
-	public function edit(array $edits): string {
+	public function edit(array $edits): string
+	{
 		$parser = new CONF('', null, $this->options());
 		$edits_processed = ArrayTools::valuesFlipCopy(array_keys($edits));
 		$new_lines = [];

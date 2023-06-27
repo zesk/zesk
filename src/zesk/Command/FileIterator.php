@@ -17,7 +17,8 @@ use zesk\File;
  * @author kent
  *
  */
-abstract class FileIterator extends SimpleCommand {
+abstract class FileIterator extends SimpleCommand
+{
 	/**
 	 * Override in subclasses to include/exclude certain extensions
 	 *
@@ -56,7 +57,8 @@ abstract class FileIterator extends SimpleCommand {
 	 *
 	 * @see SimpleCommand::initialize()
 	 */
-	public function initialize(): void {
+	public function initialize(): void
+	{
 		$this->option_types += [
 			'no-recurse' => 'boolean',
 			'directory' => 'dir',
@@ -72,7 +74,8 @@ abstract class FileIterator extends SimpleCommand {
 	 *
 	 * @see Command::run()
 	 */
-	public function run(): int {
+	public function run(): int
+	{
 		if ($this->optionBool('help')) {
 			$this->usage();
 		}
@@ -122,7 +125,8 @@ abstract class FileIterator extends SimpleCommand {
 	 * @param string $path
 	 * @return bool
 	 */
-	private function recurseDirectory(string $path): bool {
+	private function recurseDirectory(string $path): bool
+	{
 		$iterator = new DirectoryIterator($path);
 		foreach ($iterator as $fileInfo) {
 			/* @var $f SplFileInfo */

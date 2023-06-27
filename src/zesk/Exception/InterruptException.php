@@ -14,5 +14,6 @@ use zesk\Exception;
 /**
  *
  */
-class InterruptException extends Exception {
+class InterruptException extends Exception
+{
 }

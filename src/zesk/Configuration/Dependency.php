@@ -10,7 +10,8 @@ use zesk\Exception\SemanticsException;
  *
  * @author kent
  */
-class Dependency {
+class Dependency
+{
 	/**
 	 * Stack of contexts we're loading
 	 *
@@ -36,7 +37,8 @@ class Dependency {
 	 * @param string $name
 	 * @return self
 	 */
-	public function push(string $name): self {
+	public function push(string $name): self
+	{
 		$this->context[] = $name;
 		return $this;
 	}
@@ -45,7 +47,8 @@ class Dependency {
 	 * @return self
 	 * @throws SemanticsException
 	 */
-	public function pop(): self {
+	public function pop(): self
+	{
 		if (count($this->context) === 0) {
 			throw new SemanticsException('Popped once to many times?');
 		}
@@ -58,7 +61,8 @@ class Dependency {
 	 * @param array $dependencies
 	 * @return $this
 	 */
-	public function defines(string $variable, array $dependencies = []): self {
+	public function defines(string $variable, array $dependencies = []): self
+	{
 		$context = ArrayTools::last($this->context);
 		if (count($dependencies) === 0) {
 			unset($this->externals[$variable]);
@@ -79,7 +83,8 @@ class Dependency {
 	/**
 	 *
 	 */
-	public function externals(): array {
+	public function externals(): array
+	{
 		return array_keys($this->externals);
 	}
 }

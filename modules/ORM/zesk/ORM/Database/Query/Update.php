@@ -25,7 +25,8 @@ use zesk\ORM\Database\QueryTrait\Where;
  * @author kent
  *
  */
-class Update extends Edit {
+class Update extends Edit
+{
 	use Where;
 	use Affected;
 
@@ -46,7 +47,8 @@ class Update extends Edit {
 	 *
 	 * @param Base $db
 	 */
-	public function __construct(Base $db) {
+	public function __construct(Base $db)
+	{
 		parent::__construct('UPDATE', $db);
 	}
 
@@ -56,7 +58,8 @@ class Update extends Edit {
 	 * @param boolean $set
 	 * @return self
 	 */
-	public function setIgnoreConstraints(bool $set): self {
+	public function setIgnoreConstraints(bool $set): self
+	{
 		$this->ignore_constraints = $set;
 		return $this;
 	}
@@ -66,7 +69,8 @@ class Update extends Edit {
 	 *
 	 * @return bool
 	 */
-	public function ignoreConstraints(): bool {
+	public function ignoreConstraints(): bool
+	{
 		return $this->ignore_constraints;
 	}
 
@@ -75,7 +79,8 @@ class Update extends Edit {
 	 *
 	 * @return string
 	 */
-	public function __toString() {
+	public function __toString()
+	{
 		try {
 			return $this->toSQL();
 		} catch (Throwable $e) {
@@ -89,7 +94,8 @@ class Update extends Edit {
 	 *
 	 * @return string
 	 */
-	public function toSQL(): string {
+	public function toSQL(): string
+	{
 		return $this->database()->sqlDialect()->update([
 			'table' => $this->table(), 'values' => $this->values, 'where' => $this->where,
 			'low_priority' => $this->low_priority, 'ignore_constraints' => $this->ignore_constraints,
@@ -100,7 +106,8 @@ class Update extends Edit {
 	 *
 	 * @return resource
 	 */
-	public function result() {
+	public function result()
+	{
 		return $this->result;
 	}
 
@@ -111,7 +118,8 @@ class Update extends Edit {
 	 * @throws NoResults
 	 * @throws TableNotFound
 	 */
-	public function execute(): self {
+	public function execute(): self
+	{
 		$this->result = $this->database()->update($this->table(), $this->values, $this->where, [
 			'low_priority' => $this->low_priority, 'ignore_constraints' => $this->ignore_constraints,
 		]);

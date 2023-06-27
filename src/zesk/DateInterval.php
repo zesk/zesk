@@ -8,7 +8,8 @@ namespace zesk;
 /**
  *
  */
-class DateInterval extends \DateInterval {
+class DateInterval extends \DateInterval
+{
 	/**
 	 * Quick way to copy around DateInterval representations using constructor
 	 *
@@ -24,7 +25,8 @@ class DateInterval extends \DateInterval {
 	 * @return self
 	 * @throws \Exception
 	 */
-	public static function factory(string $duration): self {
+	public static function factory(string $duration): self
+	{
 		return new self($duration);
 	}
 
@@ -34,14 +36,16 @@ class DateInterval extends \DateInterval {
 	 * @return self
 	 * @throws \Exception
 	 */
-	public static function extend(\DateInterval $interval): self {
+	public static function extend(\DateInterval $interval): self
+	{
 		return new self($interval->format(self::INTERVAL_SPEC_FORMAT));
 	}
 
 	/**
 	 * @return float
 	 */
-	public function toSeconds(): float {
+	public function toSeconds(): float
+	{
 		$secs = 0;
 		$secs += $this->y * Temporal::SECONDS_PER_YEAR;
 		$secs += $this->m * Temporal::SECONDS_PER_MONTH;
@@ -60,7 +64,8 @@ class DateInterval extends \DateInterval {
 	 * @param double $value
 	 * @return DateInterval
 	 */
-	public function fromSeconds(float $value): self {
+	public function fromSeconds(float $value): self
+	{
 		static $units = [
 			's' => Temporal::SECONDS_PER_MINUTE,
 			'i' => Temporal::MINUTES_PER_HOUR,
@@ -92,7 +97,8 @@ class DateInterval extends \DateInterval {
 	 *
 	 * @return string
 	 */
-	public function __toString(): string {
+	public function __toString(): string
+	{
 		return $this->format(self::INTERVAL_SPEC_FORMAT);
 	}
 }

@@ -3,7 +3,8 @@ declare(strict_types=1);
 
 namespace zesk\Database;
 
-abstract class QueryResult {
+abstract class QueryResult
+{
 	abstract public function __construct(Base $database, mixed $resource);
 
 	/**

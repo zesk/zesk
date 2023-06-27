@@ -17,7 +17,8 @@ namespace zesk;
  * @package zesk
  * @subpackage tools
  */
-class HTMLTag extends Options {
+class HTMLTag extends Options
+{
 	/**
 	 * Tag name
 	 * @var string
@@ -73,7 +74,8 @@ class HTMLTag extends Options {
 	 *
 	 * @return boolean
 	 */
-	public function isSingle(): bool {
+	public function isSingle(): bool
+	{
 		return $this->innerHTML === '';
 	}
 
@@ -81,7 +83,8 @@ class HTMLTag extends Options {
 	 *
 	 * @return string
 	 */
-	public function innerHTML(): string {
+	public function innerHTML(): string
+	{
 		return $this->innerHTML;
 	}
 
@@ -91,7 +94,8 @@ class HTMLTag extends Options {
 	 * @param string $set
 	 * @return self
 	 */
-	public function setInnerHTML(string $set): self {
+	public function setInnerHTML(string $set): self
+	{
 		$this->innerHTML = $set;
 		return $this;
 	}
@@ -101,7 +105,8 @@ class HTMLTag extends Options {
 	 *
 	 * @return string
 	 */
-	public function outerHTML(): string {
+	public function outerHTML(): string
+	{
 		return $this->outerHTML;
 	}
 
@@ -111,7 +116,8 @@ class HTMLTag extends Options {
 	 * @param string $set
 	 * @return self
 	 */
-	public function setOuterHTML(string $set): self {
+	public function setOuterHTML(string $set): self
+	{
 		$this->outerHTML = $set;
 		return $this;
 	}
@@ -121,7 +127,8 @@ class HTMLTag extends Options {
 	 *
 	 * @return string
 	 */
-	public function contents(): string {
+	public function contents(): string
+	{
 		return $this->innerHTML();
 	}
 
@@ -131,7 +138,8 @@ class HTMLTag extends Options {
 	 * @param string $set
 	 * @return self
 	 */
-	public function setContents(string $set): self {
+	public function setContents(string $set): self
+	{
 		return $this->setInnerHTML($set);
 	}
 
@@ -140,7 +148,8 @@ class HTMLTag extends Options {
 	 *
 	 * @return string
 	 */
-	public function _to_php() {
+	public function _to_php()
+	{
 		return 'new ' . __CLASS__ . '(' . implode(', ', [
 			PHP::dump($this->name),
 			PHP::dump($this->options()),
@@ -155,7 +164,8 @@ class HTMLTag extends Options {
 	 *
 	 * @return string
 	 */
-	public function __toString() {
+	public function __toString()
+	{
 		return HTML::tag($this->name, $this->options(), $this->innerHTML !== '' ? $this->innerHTML : null);
 	}
 }

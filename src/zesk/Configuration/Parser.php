@@ -14,7 +14,8 @@ use zesk\Exception\ClassNotFound;
 use zesk\Interface\SettingsInterface;
 use zesk\PHP;
 
-abstract class Parser extends Options {
+abstract class Parser extends Options
+{
 	/**
 	 * @var string
 	 */
@@ -51,7 +52,8 @@ abstract class Parser extends Options {
 	 * @return self
 	 * @throws ClassNotFound
 	 */
-	public static function factory(string $type, mixed $content, SettingsInterface $settings = null, array $options = []): self {
+	public static function factory(string $type, mixed $content, SettingsInterface $settings = null, array $options = []): self
+	{
 		$class = match (PHP::cleanFunction(strtoupper($type))) {
 			'CONF' => CONF::class,
 			'JSON' => JSON::class,
@@ -67,7 +69,8 @@ abstract class Parser extends Options {
 	 * @param SettingsInterface|null $settings
 	 * @param array $options
 	 */
-	final public function __construct(mixed $content = '', SettingsInterface $settings = null, array $options = []) {
+	final public function __construct(mixed $content = '', SettingsInterface $settings = null, array $options = [])
+	{
 		parent::__construct($options);
 		if (!$settings) {
 			$values = [];
@@ -82,7 +85,8 @@ abstract class Parser extends Options {
 	 * @param SettingsInterface $settings
 	 * @return $this
 	 */
-	public function setSettings(SettingsInterface $settings): self {
+	public function setSettings(SettingsInterface $settings): self
+	{
 		$this->settings = $settings;
 		return $this;
 	}
@@ -92,7 +96,8 @@ abstract class Parser extends Options {
 	 *
 	 * @return SettingsInterface
 	 */
-	public function settings(): SettingsInterface {
+	public function settings(): SettingsInterface
+	{
 		return $this->settings;
 	}
 
@@ -102,7 +107,8 @@ abstract class Parser extends Options {
 	 * @param Dependency $dependency
 	 * @return self
 	 */
-	public function setConfigurationDependency(Dependency $dependency): self {
+	public function setConfigurationDependency(Dependency $dependency): self
+	{
 		$this->dependency = $dependency;
 		return $this;
 	}
@@ -113,7 +119,8 @@ abstract class Parser extends Options {
 	 * @param Loader $loader
 	 * @return $this
 	 */
-	public function setConfigurationLoader(Loader $loader): self {
+	public function setConfigurationLoader(Loader $loader): self
+	{
 		$this->loader = $loader;
 		return $this;
 	}
@@ -123,7 +130,8 @@ abstract class Parser extends Options {
 	 * @param string $set
 	 * @return self
 	 */
-	public function setContent(mixed $set): self {
+	public function setContent(mixed $set): self
+	{
 		$this->content = $set;
 		return $this;
 	}
@@ -132,7 +140,8 @@ abstract class Parser extends Options {
 	 *
 	 * @return string
 	 */
-	public function content(): mixed {
+	public function content(): mixed
+	{
 		return $this->content;
 	}
 
@@ -157,7 +166,8 @@ abstract class Parser extends Options {
 	 * @return Editor
 	 * @throws UnimplementedException
 	 */
-	public function editor(string $content, array $options = []): Editor {
+	public function editor(string $content, array $options = []): Editor
+	{
 		throw new UnimplementedException(__METHOD__);
 	}
 }

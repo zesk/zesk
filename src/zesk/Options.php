@@ -28,7 +28,8 @@ namespace zesk;
  * @package zesk
  * @subpackage system
  */
-class Options {
+class Options
+{
 	/**
 	 * Boolean or string value
 	 *
@@ -57,7 +58,8 @@ class Options {
 	 *
 	 * @param array $options An array of options to set up, or false for no options.
 	 */
-	public function __construct(array $options = []) {
+	public function __construct(array $options = [])
+	{
 		if (count($this->options) > 0) {
 			$this->options = self::cleanOptionKeys($this->options);
 		}
@@ -67,13 +69,15 @@ class Options {
 	/**
 	 * @ignore
 	 */
-	public function __serialize(): array {
+	public function __serialize(): array
+	{
 		return [
 			'options' => $this->options,
 		];
 	}
 
-	public function __unserialize(array $data): void {
+	public function __unserialize(array $data): void
+	{
 		$this->setOptions($data['options'] ?? []);
 	}
 
@@ -83,7 +87,8 @@ class Options {
 	 * @param array|null $selected
 	 * @return array
 	 */
-	public function options(array $selected = null): array {
+	public function options(array $selected = null): array
+	{
 		if ($selected === null) {
 			return $this->options;
 		}
@@ -101,7 +106,8 @@ class Options {
 	/**
 	 * @return array A list of all keys in this Options object.
 	 */
-	public function optionKeys(): array {
+	public function optionKeys(): array
+	{
 		return array_keys($this->options);
 	}
 
@@ -113,7 +119,8 @@ class Options {
 	 * @return bool
 	 * @see empty()
 	 */
-	public function hasAnyOption(string|iterable $name, bool $checkEmpty = false): bool {
+	public function hasAnyOption(string|iterable $name, bool $checkEmpty = false): bool
+	{
 		foreach (Types::toIterable($name) as $k) {
 			if ($this->hasOption($k, $checkEmpty)) {
 				return true;
@@ -130,7 +137,8 @@ class Options {
 	 * @return bool
 	 * @see empty()
 	 */
-	public function hasOption(string $name, bool $checkEmpty = false): bool {
+	public function hasOption(string $name, bool $checkEmpty = false): bool
+	{
 		$name = self::_optionKey($name);
 		if (!array_key_exists($name, $this->options)) {
 			return false;
@@ -156,7 +164,8 @@ class Options {
 	 * set default options for an object only if the user has not set them already.
 	 * @return self
 	 */
-	public function setOption(string $mixed, mixed $value, bool $overwrite = true): self {
+	public function setOption(string $mixed, mixed $value, bool $overwrite = true): self
+	{
 		$name = self::_optionKey($mixed);
 		if ($overwrite || !array_key_exists($name, $this->options)) {
 			if ($value === null) {
@@ -173,7 +182,8 @@ class Options {
 	 * @param bool $overwrite
 	 * @return $this
 	 */
-	public function setOptions(array $values, bool $overwrite = true): self {
+	public function setOptions(array $values, bool $overwrite = true): self
+	{
 		foreach ($values as $key => $value) {
 			$this->setOption($key, $value, $overwrite);
 		}
@@ -184,7 +194,8 @@ class Options {
 	 * @param string $name
 	 * @return $this
 	 */
-	public function clearOption(string $name): self {
+	public function clearOption(string $name): self
+	{
 		unset($this->options[self::_optionKey($name)]);
 		return $this;
 	}
@@ -198,7 +209,8 @@ class Options {
 	 * @param mixed $value The value to append to the end of the option's value array.
 	 * @return Options
 	 */
-	public function optionAppend(string $name, mixed $value): self {
+	public function optionAppend(string $name, mixed $value): self
+	{
 		$name = self::_optionKey($name);
 		$current_value = $this->options[$name] ?? null;
 		if (is_scalar($current_value) && !empty($current_value)) {
@@ -217,7 +229,8 @@ class Options {
 	 * @param mixed|null $default
 	 * @return mixed
 	 */
-	public function option(string $name, mixed $default = null): mixed {
+	public function option(string $name, mixed $default = null): mixed
+	{
 		return $this->options[self::_optionKey($name)] ?? $default;
 	}
 
@@ -226,7 +239,8 @@ class Options {
 	 * @param mixed|null $default
 	 * @return mixed
 	 */
-	public function optionString(string $name, string $default = ''): string {
+	public function optionString(string $name, string $default = ''): string
+	{
 		return strval($this->options[self::_optionKey($name)] ?? $default);
 	}
 
@@ -237,7 +251,8 @@ class Options {
 	 * @param mixed $default The default value to return of the option is not found
 	 * @return mixed The retrieved option
 	 */
-	public function firstOption(iterable $names, mixed $default = null): mixed {
+	public function firstOption(iterable $names, mixed $default = null): mixed
+	{
 		foreach ($names as $name) {
 			$name = self::_optionKey($name);
 			if (isset($this->options[$name])) {
@@ -252,7 +267,8 @@ class Options {
 	 * @param string|int $name
 	 * @return string normalized key name
 	 */
-	final protected static function _optionKey(string|int $name): string {
+	final protected static function _optionKey(string|int $name): string
+	{
 		return strtr(trim(strval($name)), [
 			'-' => self::CHARACTER_OPTION_SPACE, '_' => self::CHARACTER_OPTION_SPACE,
 			' ' => self::CHARACTER_OPTION_SPACE,
@@ -266,7 +282,8 @@ class Options {
 	 * @param array $target
 	 * @return array
 	 */
-	final protected static function cleanOptionKeys(array $options, array $target = []): array {
+	final protected static function cleanOptionKeys(array $options, array $target = []): array
+	{
 		foreach ($options as $k => $v) {
 			$target[self::_optionKey($k)] = $v;
 		}
@@ -280,7 +297,8 @@ class Options {
 	 * @param bool $default
 	 * @return bool
 	 */
-	public function optionBool(string $name, bool $default = false): bool {
+	public function optionBool(string $name, bool $default = false): bool
+	{
 		return Types::toBool($this->options[self::_optionKey($name)] ?? $default);
 	}
 
@@ -289,7 +307,8 @@ class Options {
 	 * @param int $default
 	 * @return int
 	 */
-	public function optionInt(string $name, int $default = 0): int {
+	public function optionInt(string $name, int $default = 0): int
+	{
 		return Types::toInteger($this->options[self::_optionKey($name)] ?? $default, $default);
 	}
 
@@ -301,7 +320,8 @@ class Options {
 	 * @return float The real value of the option, or $default. The default value is passed back without modification.
 	 * @see is_numeric()
 	 */
-	public function optionFloat(string $name, float $default = 0): float {
+	public function optionFloat(string $name, float $default = 0): float
+	{
 		$name = self::_optionKey($name);
 		if (isset($this->options[$name]) && is_numeric($this->options[$name])) {
 			return floatval($this->options[$name]);
@@ -317,7 +337,8 @@ class Options {
 	 * @return array The real value of the option, or $default. The default value is passed back without modification.
 	 * @see is_array()
 	 */
-	public function optionArray(string $name, array $default = []): array {
+	public function optionArray(string $name, array $default = []): array
+	{
 		$name = self::_optionKey($name);
 		if (isset($this->options[$name]) && is_array($this->options[$name])) {
 			return $this->options[$name];
@@ -332,7 +353,8 @@ class Options {
 	 * @return mixed The real value of the option, or $default. The default value is passed back without modification.
 	 * @see is_array()
 	 */
-	public function optionPath(array $path, mixed $default = null): mixed {
+	public function optionPath(array $path, mixed $default = null): mixed
+	{
 		if (count($path) === 0) {
 			return $default;
 		}
@@ -347,7 +369,8 @@ class Options {
 	 * @param mixed $value
 	 * @return Options
 	 */
-	public function setOptionPath(array $path, mixed $value): self {
+	public function setOptionPath(array $path, mixed $value): self
+	{
 		$path[0] = self::_optionKey($path[0]);
 		ArrayTools::setPath($this->options, $path, $value);
 		return $this;
@@ -359,7 +382,8 @@ class Options {
 	 * @param array $path
 	 * @return Options
 	 */
-	public function unsetOptionPath(array $path): self {
+	public function unsetOptionPath(array $path): self
+	{
 		$path[0] = self::_optionKey($path[0]);
 		ArrayTools::unsetPath($this->options, $path);
 		return $this;
@@ -373,7 +397,8 @@ class Options {
 	 * @return array The string exploded by $delimiter, or the array value. The default value is passed back without modification.
 	 * @see is_array(), explode()
 	 */
-	public function optionIterable(string $name, ?iterable $default = []): iterable {
+	public function optionIterable(string $name, ?iterable $default = []): iterable
+	{
 		$name = self::_optionKey($name);
 		if (!isset($this->options[$name])) {
 			return Types::toIterable($default);
@@ -386,7 +411,8 @@ class Options {
 	 *
 	 * @return string
 	 */
-	public function __toString() {
+	public function __toString()
+	{
 		return PHP::dump($this->options);
 	}
 }

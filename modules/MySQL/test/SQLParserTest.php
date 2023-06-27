@@ -12,12 +12,14 @@ use zesk\PHPUnit\TestCase;
  * @author kent
  *
  */
-class SQLParserTest extends TestCase {
+class SQLParserTest extends TestCase
+{
 	protected array $load_modules = [
 		'MySQL',
 	];
 
-	public static function data_provider_split_order_by(): array {
+	public static function data_provider_split_order_by(): array
+	{
 		return [
 			// Suffix, string
 			[
@@ -84,7 +86,8 @@ class SQLParserTest extends TestCase {
 	/**
 	 * @dataProvider data_provider_split_order_by
 	 */
-	public function test_split_order_by($order_by, $expected_split, $expected_reverse): void {
+	public function test_split_order_by($order_by, $expected_split, $expected_reverse): void
+	{
 		$parser = $this->application->databaseRegistry()->sqlParser();
 
 		if (is_array($order_by)) {

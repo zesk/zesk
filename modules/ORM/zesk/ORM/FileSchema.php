@@ -25,7 +25,8 @@ use zesk\Kernel;
  * @author kent
  * @see SchemaException
  */
-class FileSchema extends Schema {
+class FileSchema extends Schema
+{
 	/**
 	 * Path of sql file loaded
 	 *
@@ -72,7 +73,8 @@ class FileSchema extends Schema {
 	 * @throws NotFoundException
 	 * @throws ParameterException
 	 */
-	public function __construct(Class_Base $class_object, ORMBase $object = null, string $sql = '') {
+	public function __construct(Class_Base $class_object, ORMBase $object = null, string $sql = '')
+	{
 		parent::__construct($class_object, $object);
 		if ($sql !== '') {
 			$this->_set_sql($sql);
@@ -103,7 +105,8 @@ class FileSchema extends Schema {
 	 *
 	 * @param string $sql
 	 */
-	private function _set_sql(string $sql): void {
+	private function _set_sql(string $sql): void
+	{
 		$this->sql = $sql;
 		$this->mapped_sql = ArrayTools::map($this->sql, $this->schemaVariables());
 	}
@@ -113,7 +116,8 @@ class FileSchema extends Schema {
 	 *
 	 * @return array
 	 */
-	public function searches(): array {
+	public function searches(): array
+	{
 		return $this->searched;
 	}
 
@@ -122,7 +126,8 @@ class FileSchema extends Schema {
 	 *
 	 * @return bool
 	 */
-	public function exists(): bool {
+	public function exists(): bool
+	{
 		return $this->schemaPath() !== null;
 	}
 
@@ -131,7 +136,8 @@ class FileSchema extends Schema {
 	 *
 	 * @return boolean
 	 */
-	public function hasSQL(): bool {
+	public function hasSQL(): bool
+	{
 		return !empty($this->sql);
 	}
 
@@ -147,7 +153,8 @@ class FileSchema extends Schema {
 	 *
 	 * @return string Path of first found file
 	 */
-	protected function schemaPath(): string {
+	protected function schemaPath(): string
+	{
 		$result = $this->_schemaPath();
 		if ($this->optionBool('debug')) {
 			$this->application->logger->debug('{class_object} found file {result}', [
@@ -163,7 +170,8 @@ class FileSchema extends Schema {
 	 *
 	 * @return string Path to schema file
 	 */
-	private function _schemaPath(): string {
+	private function _schemaPath(): string
+	{
 		$all_searches = [];
 		$class_object = $this->class_object;
 		foreach ($this->application->classes->hierarchy($class_object, Class_Base::class) as $class_name) {
@@ -192,7 +200,8 @@ class FileSchema extends Schema {
 	 *
 	 * @return int
 	 */
-	public function schemaModificationTime(): int {
+	public function schemaModificationTime(): int
+	{
 		$schema_path = $this->schemaPath();
 		if ($schema_path) {
 			return filemtime($schema_path);
@@ -206,7 +215,8 @@ class FileSchema extends Schema {
 	 * @return array
 	 * @throws SchemaException
 	 */
-	public function schema(): array {
+	public function schema(): array
+	{
 		$db = $this->database();
 		if ($this->sql === '') {
 			return [];

@@ -9,7 +9,8 @@ use zesk\Exception\FileNotFound;
 use zesk\Exception\FilePermission;
 use zesk\Timestamp;
 
-interface FileSystem {
+interface FileSystem
+{
 	public const FEATURE_MODIFICATION_TIME = 'mtime';
 
 	/**

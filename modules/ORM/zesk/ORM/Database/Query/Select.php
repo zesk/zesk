@@ -36,7 +36,8 @@ use zesk\StringTools;
  * @author kent
  *
  */
-class Select extends SelectBase {
+class Select extends SelectBase
+{
 	use Where;
 
 	/**
@@ -128,7 +129,8 @@ class Select extends SelectBase {
 	 *
 	 * @param Base $db
 	 */
-	public function __construct(Base $db) {
+	public function __construct(Base $db)
+	{
 		parent::__construct('SELECT', $db);
 	}
 
@@ -136,7 +138,8 @@ class Select extends SelectBase {
 	 *
 	 * @return self
 	 */
-	public function duplicate(): self {
+	public function duplicate(): self
+	{
 		return clone $this;
 	}
 
@@ -145,7 +148,8 @@ class Select extends SelectBase {
 	 * {@inheritDoc}
 	 * @see \zesk\Select_Base::__sleep()
 	 */
-	public function __sleep(): array {
+	public function __sleep(): array
+	{
 		return array_merge(parent::__sleep(), [
 			'what', 'what_sql', 'tables', 'alias', 'where', 'having', 'order_by', 'group_by', 'offset', 'limit',
 			'distinct', 'join_objects', 'conditions',
@@ -156,7 +160,8 @@ class Select extends SelectBase {
 	 * @param Select $query
 	 * @return $this
 	 */
-	public function copyFrom(Select $query): self {
+	public function copyFrom(Select $query): self
+	{
 		parent::_copy_from_base($query);
 
 		$this->what = $query->what;
@@ -182,7 +187,8 @@ class Select extends SelectBase {
 	 * @param string $column_reference
 	 * @return boolean
 	 */
-	public function validColumn(string $column_reference): bool {
+	public function validColumn(string $column_reference): bool
+	{
 		[$alias, $column] = StringTools::pair($column_reference, '.', $this->alias, $column_reference);
 		if ($alias === $this->alias) {
 			$class = $this->class;
@@ -201,7 +207,8 @@ class Select extends SelectBase {
 	 * @param Base $db
 	 * @return Select
 	 */
-	public static function factory(Base $db): self {
+	public static function factory(Base $db): self
+	{
 		return new Select($db);
 	}
 
@@ -210,7 +217,8 @@ class Select extends SelectBase {
 	 *
 	 * @return bool
 	 */
-	public function distinct(): bool {
+	public function distinct(): bool
+	{
 		return $this->distinct;
 	}
 
@@ -218,7 +226,8 @@ class Select extends SelectBase {
 	 * @param bool $set
 	 * @return $this
 	 */
-	public function setDistinct(bool $set = true): self {
+	public function setDistinct(bool $set = true): self
+	{
 		$this->distinct = $set;
 		return $this;
 	}
@@ -229,7 +238,8 @@ class Select extends SelectBase {
 	 * @return string
 	 * @throws ORMNotFound
 	 */
-	public function class_alias(string $class = ''): string {
+	public function class_alias(string $class = ''): string
+	{
 		if ($class === '' || $this->class === $class) {
 			return $this->alias;
 		}
@@ -246,7 +256,8 @@ class Select extends SelectBase {
 	/**
 	 * @return string
 	 */
-	public function alias(): string {
+	public function alias(): string
+	{
 		return $this->alias;
 	}
 
@@ -254,7 +265,8 @@ class Select extends SelectBase {
 	 * @param string $set
 	 * @return self
 	 */
-	public function setAlias(string $set): self {
+	public function setAlias(string $set): self
+	{
 		$this->alias = $set;
 		return $this;
 	}
@@ -262,7 +274,8 @@ class Select extends SelectBase {
 	/**
 	 * @return array
 	 */
-	public function columns(): array {
+	public function columns(): array
+	{
 		return ArrayTools::valuesRemovePrefix(array_keys($this->what), '*');
 	}
 
@@ -270,7 +283,8 @@ class Select extends SelectBase {
 	 * @param string $column
 	 * @return bool
 	 */
-	public function hasWhat(string $column): bool {
+	public function hasWhat(string $column): bool
+	{
 		return in_array($column, $this->columns());
 	}
 
@@ -280,7 +294,8 @@ class Select extends SelectBase {
 	 * @param string $what
 	 * @return self
 	 */
-	public function setWhatString(string $what): self {
+	public function setWhatString(string $what): self
+	{
 		$this->what_sql = $what;
 		$this->what = [];
 		return $this;
@@ -291,7 +306,8 @@ class Select extends SelectBase {
 	 *
 	 * @return $this
 	 */
-	public function clearWhat(): self {
+	public function clearWhat(): self
+	{
 		$this->what = [];
 		$this->what_sql = '';
 		return $this;
@@ -301,7 +317,8 @@ class Select extends SelectBase {
 	 * @param iterable $what Keys are alias, values are member
 	 * @return $this
 	 */
-	public function appendWhat(iterable $what): self {
+	public function appendWhat(iterable $what): self
+	{
 		foreach ($what as $alias => $member) {
 			$this->addWhat($alias, $member);
 		}
@@ -312,7 +329,8 @@ class Select extends SelectBase {
 	 * @param string $alias
 	 * @return $this
 	 */
-	public function removeWhat(string $alias): self {
+	public function removeWhat(string $alias): self
+	{
 		$alias = StringTools::removePrefix($alias, '*');
 		unset($this->what[$alias]);
 		unset($this->what["*$alias"]);
@@ -324,7 +342,8 @@ class Select extends SelectBase {
 	 * @param string $member
 	 * @return $this
 	 */
-	public function addWhat(string $alias, string $member = ''): self {
+	public function addWhat(string $alias, string $member = ''): self
+	{
 		$cleaned_alias = StringTools::removePrefix($alias, '*');
 		unset($this->what[$cleaned_alias]);
 		unset($this->what["*$cleaned_alias"]);
@@ -337,7 +356,8 @@ class Select extends SelectBase {
 	 * @param Select $query
 	 * @return $this
 	 */
-	public function addWhatSelect(Select $query): self {
+	public function addWhatSelect(Select $query): self
+	{
 		$this->what += $query->what;
 		return $this;
 	}
@@ -346,7 +366,8 @@ class Select extends SelectBase {
 	 * Return what clause string or array
 	 * @return string|array
 	 */
-	public function what(): string|array {
+	public function what(): string|array
+	{
 		return $this->what;
 	}
 
@@ -361,7 +382,8 @@ class Select extends SelectBase {
 	 * @return Select
 	 * @throws ORMNotFound
 	 */
-	public function ormWhat(string $class = null, string $alias = null, string $prefix = null, mixed $object_mixed = null, array $object_options = []): self {
+	public function ormWhat(string $class = null, string $alias = null, string $prefix = null, mixed $object_mixed = null, array $object_options = []): self
+	{
 		if ($class === null) {
 			$class = $this->ormClass();
 		}
@@ -383,7 +405,8 @@ class Select extends SelectBase {
 	 * @param string $alias
 	 * @return Select
 	 */
-	public function from(string $table, string $alias = ''): self {
+	public function from(string $table, string $alias = ''): self
+	{
 		$this->tables[$alias] = $table;
 		$this->setAlias($alias);
 		return $this;
@@ -396,7 +419,8 @@ class Select extends SelectBase {
 	 * @param string $join_id
 	 * @return Select
 	 */
-	public function join(array|string $sql, string $join_id = ''): self {
+	public function join(array|string $sql, string $join_id = ''): self
+	{
 		if (is_array($sql)) {
 			return $this->addJoinIterable($sql);
 		}
@@ -407,7 +431,8 @@ class Select extends SelectBase {
 	 * @param array $join_sql
 	 * @return $this
 	 */
-	public function addJoinIterable(array $join_sql): self {
+	public function addJoinIterable(array $join_sql): self
+	{
 		$this->tables = array_merge($this->tables, $join_sql);
 		return $this;
 	}
@@ -419,7 +444,8 @@ class Select extends SelectBase {
 	 * @param string $join_id
 	 * @return $this
 	 */
-	public function addJoin(string $join_sql, string $join_id = ''): self {
+	public function addJoin(string $join_sql, string $join_id = ''): self
+	{
 		if ($join_id !== '') {
 			$this->tables[$join_id] = $join_sql;
 		} else {
@@ -434,7 +460,8 @@ class Select extends SelectBase {
 	 * @param string $alias
 	 * @return string Class name associated with the alias, or "" if not found
 	 */
-	public function findAlias(string $alias): string {
+	public function findAlias(string $alias): string
+	{
 		if ($alias === $this->alias) {
 			return $this->class;
 		}
@@ -452,7 +479,8 @@ class Select extends SelectBase {
 	 * @return $this
 	 * @throws Semantics|KeyNotFound
 	 */
-	public function join_object(string $join_type, ORMBase|string $class, string $alias, array $on, string $table = ''): self {
+	public function join_object(string $join_type, ORMBase|string $class, string $alias, array $on, string $table = ''): self
+	{
 		if (is_string($class)) {
 			$object = $this->ormRegistry($class);
 		} else {
@@ -526,7 +554,8 @@ class Select extends SelectBase {
 	 * @throws Semantics
 	 * @throws SQLException
 	 */
-	public function link(string $class, string|array $mixed = []): self {
+	public function link(string $class, string|array $mixed = []): self
+	{
 		if (is_string($mixed)) {
 			$mixed = [
 				'path' => $mixed,
@@ -555,7 +584,8 @@ class Select extends SelectBase {
 	 *
 	 * @return array
 	 */
-	public function having(): array {
+	public function having(): array
+	{
 		return $this->having;
 	}
 
@@ -566,7 +596,8 @@ class Select extends SelectBase {
 	 * @param boolean $replace
 	 * @return self
 	 */
-	public function addHaving(array $add, bool $replace = false): self {
+	public function addHaving(array $add, bool $replace = false): self
+	{
 		$this->having = $replace ? $add : $add + $this->having;
 		return $this;
 	}
@@ -577,7 +608,8 @@ class Select extends SelectBase {
 	 * @param array $order_by
 	 * @return Select
 	 */
-	public function setOrderBy(array $order_by): self {
+	public function setOrderBy(array $order_by): self
+	{
 		$this->order_by = $order_by;
 		return $this;
 	}
@@ -588,7 +620,8 @@ class Select extends SelectBase {
 	 * @param array $group_by
 	 * @return Select
 	 */
-	public function setGroupBy(array $group_by): self {
+	public function setGroupBy(array $group_by): self
+	{
 		$this->group_by = $group_by;
 		return $this;
 	}
@@ -601,7 +634,8 @@ class Select extends SelectBase {
 	 * @return Select
 	 * @deprecated 2022-05
 	 */
-	public function limit(int $offset = 0, int $limit = -1): self {
+	public function limit(int $offset = 0, int $limit = -1): self
+	{
 		if ($limit < -0) {
 			$this->limit = $offset;
 			$this->offset = 0;
@@ -619,7 +653,8 @@ class Select extends SelectBase {
 	 * @param int $limit
 	 * @return Select
 	 */
-	public function setOffsetLimit(int $offset = 0, int $limit = -1): self {
+	public function setOffsetLimit(int $offset = 0, int $limit = -1): self
+	{
 		$this->offset = $offset;
 		$this->limit = $limit;
 		return $this;
@@ -630,7 +665,8 @@ class Select extends SelectBase {
 	 *
 	 * @return string
 	 */
-	public function __toString(): string {
+	public function __toString(): string
+	{
 		try {
 			return $this->toSQL();
 		} catch (Semantics $e) {
@@ -645,7 +681,8 @@ class Select extends SelectBase {
 	 * @return string
 	 * @throws Semantics
 	 */
-	public function toSQL(): string {
+	public function toSQL(): string
+	{
 		return $this->selectToSQL();
 	}
 
@@ -653,7 +690,8 @@ class Select extends SelectBase {
 	 * @return string
 	 * @throws Semantics
 	 */
-	public function selectToSQL(): string {
+	public function selectToSQL(): string
+	{
 		return $this->generated_sql = $this->db->sqlDialect()->select([
 			'what' => $this->what_sql ?: $this->what, 'distinct' => $this->distinct, 'tables' => $this->tables,
 			'where' => $this->where, 'having' => $this->having, 'group_by' => $this->group_by,
@@ -668,7 +706,8 @@ class Select extends SelectBase {
 	 * @param string $id Option key for this condition
 	 * @return $this
 	 */
-	public function addCondition(string $add, string $id = ''): self {
+	public function addCondition(string $add, string $id = ''): self
+	{
 		if ($id === '') {
 			$this->conditions[] = $add;
 		} else {
@@ -680,7 +719,8 @@ class Select extends SelectBase {
 	/**
 	 * @return array
 	 */
-	public function conditions(): array {
+	public function conditions(): array
+	{
 		return $this->conditions;
 	}
 
@@ -688,7 +728,8 @@ class Select extends SelectBase {
 	 *
 	 * @return string
 	 */
-	public function title(): string {
+	public function title(): string
+	{
 		/* @var $class Class_Base */
 		$class_name = $this->class;
 		$locale = $this->application->locale;

@@ -8,7 +8,8 @@ use zesk\Application;
 
 use zesk\Exception\ClassNotFound;
 
-abstract class Translate extends Service {
+abstract class Translate extends Service
+{
 	/**
 	 * @param string $phrase
 	 * @return string
@@ -32,7 +33,8 @@ abstract class Translate extends Service {
 	 * @throws ClassNotFound
 	 */
 	public static function translateFactory(Application $application, string $target_language, string $source_language =
-	null, array                                         $options = []): self {
+	null, array                                         $options = []): self
+	{
 		$result = self::factory($application, 'translate', [
 			'target' => $target_language,
 			'source' => $source_language,

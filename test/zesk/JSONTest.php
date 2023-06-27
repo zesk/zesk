@@ -15,13 +15,16 @@ use zesk\Exception\SemanticsException;
  * @author kent
  *
  */
-class JSONTest extends UnitTest {
-	public function test_decode(): void {
+class JSONTest extends UnitTest
+{
+	public function test_decode(): void
+	{
 		$this->expectException(ParseException::class);
 		JSON::decode('{');
 	}
 
-	public function test_decode_parse(): void {
+	public function test_decode_parse(): void
+	{
 		$this->expectException(ParseException::class);
 		JSON::decode('{');
 	}
@@ -30,23 +33,28 @@ class JSONTest extends UnitTest {
 	 * @return void
 	 * @throws SemanticsException
 	 */
-	public function test_malencode(): void {
+	public function test_malencode(): void
+	{
 		$content = file_get_contents($this->application->path('test/test-data/json/malencode.txt'));
 		$content = ['Hello' => JSON::prepare($content)];
 		$this->assertStringContainsString('{"Hello":', json_encode($content));
 	}
 
-	public static function data_prepare(): array {
+	public static function data_prepare(): array
+	{
 		$thing1 = new class {
-			public function doit(): array {
+			public function doit(): array
+			{
 				return ['yes' => 'works'];
 			}
 
-			public function doit_again($param): array {
+			public function doit_again($param): array
+			{
 				return ['param' => $param];
 			}
 
-			public function __toString(): string {
+			public function __toString(): string
+			{
 				return 'thing one';
 			}
 		};
@@ -76,15 +84,18 @@ class JSONTest extends UnitTest {
 	 * @throws SemanticsException
 	 * @dataProvider data_prepare
 	 */
-	public function test_prepare($expected, $mixed, $methods, $arguments): void {
+	public function test_prepare($expected, $mixed, $methods, $arguments): void
+	{
 		$this->assertEquals($expected, JSON::prepare($mixed, $methods, $arguments));
 	}
 
-	public function test_decode_null(): void {
+	public function test_decode_null(): void
+	{
 		$this->assertNull(JSON::decode('null'));
 	}
 
-	public static function data_encode(): array {
+	public static function data_encode(): array
+	{
 		return [
 			[null, fopen('php://stdin', 'rb')],
 			['null', null, ],
@@ -107,7 +118,8 @@ class JSONTest extends UnitTest {
 	 * @throws SemanticsException
 	 * @dataProvider data_encode
 	 */
-	public function test_encode(?string $expected, mixed $mixed): void {
+	public function test_encode(?string $expected, mixed $mixed): void
+	{
 		if ($expected === null) {
 			$this->expectException(SemanticsException::class);
 		}
@@ -120,7 +132,8 @@ class JSONTest extends UnitTest {
 	 * @return void
 	 * @dataProvider data_encodeSpecial
 	 */
-	public function test_encodeSpecial(?string $expected, mixed $mixed): void {
+	public function test_encodeSpecial(?string $expected, mixed $mixed): void
+	{
 		if ($expected === null) {
 			$this->expectException(SemanticsException::class);
 		}
@@ -130,7 +143,8 @@ class JSONTest extends UnitTest {
 	/**
 	 * @return array[]
 	 */
-	public static function data_encodeSpecial(): array {
+	public static function data_encodeSpecial(): array
+	{
 		return [
 			[
 				'null', null,
@@ -155,11 +169,13 @@ class JSONTest extends UnitTest {
 	 * @param mixed $mixed
 	 * @return void
 	 */
-	public function test_encodeJavaScript(string $expected, mixed $mixed): void {
+	public function test_encodeJavaScript(string $expected, mixed $mixed): void
+	{
 		$this->assertEquals($expected, JSON::encodeJavaScript($mixed));
 	}
 
-	public static function data_encodeJavaScript(): array {
+	public static function data_encodeJavaScript(): array
+	{
 		return [
 			[
 				'null', null,
@@ -183,11 +199,13 @@ class JSONTest extends UnitTest {
 	 * @param string $name
 	 * @param string $expected
 	 */
-	public function test_object_member_name_quote(string $name, string $expected): void {
+	public function test_object_member_name_quote(string $name, string $expected): void
+	{
 		$this->assertEquals($expected, JSON::object_member_name_quote($name));
 	}
 
-	public static function data_object_member_name_quote(): array {
+	public static function data_object_member_name_quote(): array
+	{
 		return [
 			['', '""'], ['a', 'a'], ['dude_123', 'dude_123'], [' ', '" "'], ['a b', '"a b"'], ['@#', '"@#"'],
 			['Equalit\'', '"Equalit\'"'], ['egalité', '"egalité"'],
@@ -200,11 +218,13 @@ class JSONTest extends UnitTest {
 	 * @return void
 	 * @dataProvider data_quote
 	 */
-	public function test_quote(string $expected, string $mixed): void {
+	public function test_quote(string $expected, string $mixed): void
+	{
 		$this->assertEquals($expected, JSON::quote($mixed));
 	}
 
-	public static function data_quote(): array {
+	public static function data_quote(): array
+	{
 		return [
 			['"\\\\t\\\\n\\\\r\\\\"', '\t\n\r\\'],
 			['"this.is.a.word"', 'this.is.a.word'],
@@ -215,7 +235,8 @@ class JSONTest extends UnitTest {
 		];
 	}
 
-	public static function data_valid_member_name(): array {
+	public static function data_valid_member_name(): array
+	{
 		return [
 			[false, ''], [true, 'a'], [true, 'dude_123'], [false, ' '], [false, 'a b'], [false, '@#'],
 			[false, 'Equalit\''], [false, 'egalité'],
@@ -228,11 +249,13 @@ class JSONTest extends UnitTest {
 	 * @param string $name
 	 * @return void
 	 */
-	public function test_valid_member_name(bool $expected, string $name): void {
+	public function test_valid_member_name(bool $expected, string $name): void
+	{
 		$this->assertEquals($expected, JSON::valid_member_name($name));
 	}
 
-	public static function data_internal_values(): array {
+	public static function data_internal_values(): array
+	{
 		$obj = new stdClass();
 		$obj->foo = 'foo';
 		$obj->_thing_to_save = [
@@ -271,14 +294,16 @@ class JSONTest extends UnitTest {
 	 * @return void
 	 * @throws SemanticsException
 	 */
-	public function test_internal(mixed $mixed): void {
+	public function test_internal(mixed $mixed): void
+	{
 		$encode = JSON::encode($mixed);
 		$decode = JSON::zesk_decode($encode);
 		$encode2 = JSON::encode($decode);
 		$this->assertEquals($encode, $encode2);
 	}
 
-	public static function data_zesk_decode(): array {
+	public static function data_zesk_decode(): array
+	{
 		return [
 			[
 				'{ "fructose.marketacumen.com": "fructose" }', [
@@ -341,7 +366,8 @@ class JSONTest extends UnitTest {
 	 * @param string $mixed
 	 * @param mixed $expected
 	 */
-	public function test_zesk_decode(string $mixed, mixed $expected): void {
+	public function test_zesk_decode(string $mixed, mixed $expected): void
+	{
 		$actual = JSON::zesk_decode($mixed);
 		$this->assertEquals($expected, $actual);
 	}

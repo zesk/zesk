@@ -11,6 +11,7 @@ namespace zesk\World\Controller;
 
 use zesk\Doctrine\Controller;
 
-class Province extends Controller {
+class Province extends Controller
+{
 	protected string $repository = Province::class;
 }

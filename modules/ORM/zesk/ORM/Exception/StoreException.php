@@ -13,5 +13,6 @@ use zesk\ORM\Exception;
  * @author kent
  *
  */
-class StoreException extends Exception {
+class StoreException extends Exception
+{
 }

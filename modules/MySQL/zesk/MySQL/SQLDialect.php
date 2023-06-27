@@ -27,7 +27,8 @@ use function strtr;
  * @author kent
  *
  */
-class SQLDialect extends BaseSQLDialect {
+class SQLDialect extends BaseSQLDialect
+{
 	/**
 	 * Flush privileges string
 	 *
@@ -48,7 +49,8 @@ class SQLDialect extends BaseSQLDialect {
 	 * @param Column $addColumn
 	 * @return string
 	 */
-	public function alterTableColumnAdd(Table $table, Column $addColumn): string {
+	public function alterTableColumnAdd(Table $table, Column $addColumn): string
+	{
 		$newName = $addColumn->name();
 		$newType = $this->database_column_native_type($addColumn);
 		$after_column = $addColumn->option('after_column', false);
@@ -61,7 +63,8 @@ class SQLDialect extends BaseSQLDialect {
 	 * @throws Semantics
 	 * @throws KeyNotFound
 	 */
-	public function createTable(Table $table): array {
+	public function createTable(Table $table): array
+	{
 		$columns = $table->columns();
 		$types = [];
 		$dataType = $table->database()->types();
@@ -96,7 +99,8 @@ class SQLDialect extends BaseSQLDialect {
 		return array_merge($result, $alters);
 	}
 
-	public function alterTableIndexAdd(Table $table, Index $index): string {
+	public function alterTableIndexAdd(Table $table, Index $index): string
+	{
 		$name = $index->name();
 		$indexType = $index->type();
 		$indexes = $index->columnSizes();
@@ -133,7 +137,8 @@ class SQLDialect extends BaseSQLDialect {
 		);
 	}
 
-	public function alterTableAttributes(Table $table, array $attributes): string {
+	public function alterTableAttributes(Table $table, array $attributes): string
+	{
 		$defaults = $this->database->tableAttributes();
 		$attributes = $this->database->normalizeAttributes($attributes);
 		$attributes = ArrayTools::filter($attributes, array_keys($defaults)) + $defaults;
@@ -144,7 +149,8 @@ class SQLDialect extends BaseSQLDialect {
 		return 'ALTER TABLE ' . $this->quoteTable(strval($table)) . ' ' . implode(' ', $suffix);
 	}
 
-	public function alterTableChangeColumn(Table $table, Column $oldColumn, Column $newColumn): string {
+	public function alterTableChangeColumn(Table $table, Column $oldColumn, Column $newColumn): string
+	{
 		$tableName = $table->name();
 		/*
 		 * AUTO_INCREMENT/PRIMARY KEY definitions in MySQL are strict
@@ -183,7 +189,8 @@ class SQLDialect extends BaseSQLDialect {
 	 * @param Column|string $columnNameName
 	 * @return string
 	 */
-	public function alterTableColumnDrop(Table $table, Column|string $columnName): array {
+	public function alterTableColumnDrop(Table $table, Column|string $columnName): array
+	{
 		return ['ALTER TABLE ' . $this->quoteTable($table->name()) . ' DROP COLUMN ' . $this->quoteColumn(strval($columnName))];
 	}
 
@@ -194,7 +201,8 @@ class SQLDialect extends BaseSQLDialect {
 	 * @throws Semantics
 	 * @throws KeyNotFound
 	 */
-	public function alterTableIndexDrop(Table $table, Index $index): array {
+	public function alterTableIndexDrop(Table $table, Index $index): array
+	{
 		$table_name = $table->name();
 		$table_name = $this->quoteTable($table_name);
 		$original_name = $index->name();
@@ -225,7 +233,8 @@ class SQLDialect extends BaseSQLDialect {
 	 * @param string $newType
 	 * @return string
 	 */
-	public function alterTableType(string $tableName, string $newType): string {
+	public function alterTableType(string $tableName, string $newType): string
+	{
 		if (empty($newType)) {
 			return '';
 		}
@@ -236,7 +245,8 @@ class SQLDialect extends BaseSQLDialect {
 	 * MySQL update
 	 * @see SQLDialect::update()
 	 */
-	public function update(array $options = []): string {
+	public function update(array $options = []): string
+	{
 		// Support ignore
 		$ignore_constraints = $options['ignore_constraints'] ?? false;
 		if ($ignore_constraints) {
@@ -258,7 +268,8 @@ class SQLDialect extends BaseSQLDialect {
 	 * @param array $options
 	 * @return string
 	 */
-	public function delete(string $table, array $where, array $options = []): string {
+	public function delete(string $table, array $where, array $options = []): string
+	{
 		$truncate = $options['truncate'] ?? false;
 		$where = $this->where($where);
 		$verb = 'DELETE FROM';
@@ -280,13 +291,15 @@ class SQLDialect extends BaseSQLDialect {
 	 * @param string $sql
 	 * @return string
 	 */
-	public function removeComments(string $sql): string {
+	public function removeComments(string $sql): string
+	{
 		$sql = Text::removeLineComments($sql, self::COMMENT_LINE_DASHDASH);
 		$sql = Text::removeLineComments($sql, self::COMMENT_LINE_HASH);
 		return Text::removeRangeComments($sql, self::COMMENT_RANGE_BEGIN, self::COMMENT_RANGE_END);
 	}
 
-	public function function_ip2long(string $value): string {
+	public function function_ip2long(string $value): string
+	{
 		return "INET_ATON($value)";
 	}
 
@@ -296,7 +309,8 @@ class SQLDialect extends BaseSQLDialect {
 	 * @param array $column_sizes
 	 * @return array
 	 */
-	private function _sql_column_sizes_to_quoted_list(array $column_sizes): array {
+	private function _sql_column_sizes_to_quoted_list(array $column_sizes): array
+	{
 		$sqlIndexes = [];
 		foreach ($column_sizes as $k => $size) {
 			if (is_numeric($size)) {
@@ -316,7 +330,8 @@ class SQLDialect extends BaseSQLDialect {
 	 * @return string
 	 * @throws KeyNotFound
 	 */
-	public function indexType(Table $table, string $name, string $type, array $column_sizes): string {
+	public function indexType(Table $table, string $name, string $type, array $column_sizes): string
+	{
 		switch ($type) {
 			case Index::TYPE_UNIQUE:
 			case Index::TYPE_INDEX:
@@ -340,7 +355,8 @@ class SQLDialect extends BaseSQLDialect {
 	 * @return string
 	 * @throws ClassNotFound
 	 */
-	private function _sql_column_default(string $type, mixed $default): string {
+	private function _sql_column_default(string $type, mixed $default): string
+	{
 		if ($default === null) {
 			return ' DEFAULT NULL'; // KMD 2016-05-09 Was DEFAULT 0
 		}
@@ -382,44 +398,53 @@ class SQLDialect extends BaseSQLDialect {
 	/*
 	 * String Comparison
 	 */
-	public function functionCompareBinary(string $columnName, string $cmp, string $string): string {
+	public function functionCompareBinary(string $columnName, string $cmp, string $string): string
+	{
 		return "$columnName $cmp BINARY " . $this->sql_format_string($string);
 	}
 
 	/*
 	 * Date functions
 	 */
-	public function now(): string {
+	public function now(): string
+	{
 		return 'NOW()';
 	}
 
-	public function nowUTC(): string {
+	public function nowUTC(): string
+	{
 		return 'UTC_TIMESTAMP()';
 	}
 
-	public function functionDateAdd(string $target, int $number, string $units = 'second'): string {
+	public function functionDateAdd(string $target, int $number, string $units = 'second'): string
+	{
 		$dbUnits = $this->_convert_units($number, $units);
 		return "DATE_ADD($target, INTERVAL $number $dbUnits)";
 	}
 
-	public function functionDateSubtract(string $target, int $number, string $units = 'second'): string {
+	public function functionDateSubtract(string $target, int $number, string $units = 'second'): string
+	{
 		$dbUnits = $this->_convert_units($number, $units);
 		return "DATE_SUB($target, INTERVAL $number $dbUnits)";
 	}
 
-	public function functionAbsolute(string $target): string {
+	public function functionAbsolute(string $target): string
+	{
 		return "ABS($target)";
 	}
 
-	public function functionAverage(string $target): string {
+	public function functionAverage(string $target): string
+	{
 		return "AVG($target)";
 	}
 
-	public function functionDecodeHexadecimal(string $target): string {
+	public function functionDecodeHexadecimal(string $target): string
+	{
 		return "UNHEX($target)";
 	}
 
-	public function functionHexadecimal(string $target): string {
+	public function functionHexadecimal(string $target): string
+	{
 		return "HEX($target)";
 	}
 
@@ -431,7 +456,8 @@ class SQLDialect extends BaseSQLDialect {
 	 * @return string
 	 * @throws Semantics
 	 */
-	private function _convert_units(int &$number, string $units): string {
+	private function _convert_units(int &$number, string $units): string
+	{
 		switch ($units) {
 			case Temporal::UNIT_MILLISECOND:
 				$number = intval($number / 1000);
@@ -460,7 +486,8 @@ class SQLDialect extends BaseSQLDialect {
 	 * @param string $sql
 	 * @return string
 	 */
-	public function sql_format_string(string $sql): string {
+	public function sql_format_string(string $sql): string
+	{
 		return '\'' . addslashes($sql) . '\'';
 	}
 
@@ -472,28 +499,32 @@ class SQLDialect extends BaseSQLDialect {
 	/*
 	 * Platform SQL Tools
 	 */
-	public function sql_table_as(string $table, string $name = ''): string {
+	public function sql_table_as(string $table, string $name = ''): string
+	{
 		if (empty($name)) {
 			return $table;
 		}
 		return "$table AS $name";
 	}
 
-	public function sql_boolean($value): string {
+	public function sql_boolean($value): string
+	{
 		return Types::toBool($value) ? '1' : '0';
 	}
 
 	/*
 	 * Password Type
 	 */
-	public function sql_password(string $value): string {
+	public function sql_password(string $value): string
+	{
 		return 'MD5(' . $this->sql_format_string($value) . ')';
 	}
 
 	/*
 	 * Functions
 	 */
-	public function sqlFunction(string $func, string $memberName, string $alias = ''): string {
+	public function sqlFunction(string $func, string $memberName, string $alias = ''): string
+	{
 		$memberName = $this->quoteColumn($memberName);
 		switch (strtolower(trim($func))) {
 			case 'min':
@@ -538,7 +569,8 @@ class SQLDialect extends BaseSQLDialect {
 	 * @throws Deprecated
 	 */
 	private function database_column_native_type(Column $dbCol, bool $add_increment = true, bool $add_primary = true):
-	string {
+	string
+	{
 		$sql_type = $dbCol->sqlType();
 		$sql = "$sql_type";
 		if ($dbCol->optionBool('unsigned')) {
@@ -570,7 +602,8 @@ class SQLDialect extends BaseSQLDialect {
 		return $sql;
 	}
 
-	public function dropTable(Table|string $table): array {
+	public function dropTable(Table|string $table): array
+	{
 		if ($table instanceof Table) {
 			$table = $table->name();
 		}
@@ -582,7 +615,8 @@ class SQLDialect extends BaseSQLDialect {
 	 * @param string $name
 	 * @return string
 	 */
-	final public function quoteColumn(string $name): string {
+	final public function quoteColumn(string $name): string
+	{
 		[$alias, $col] = StringTools::pair($name, '.', '', $name);
 		if ($alias) {
 			return $this->quoteColumn($alias) . '.' . $this->quoteColumn($col);
@@ -595,7 +629,8 @@ class SQLDialect extends BaseSQLDialect {
 	 *
 	 * @see SQLDialect::quoteText()
 	 */
-	final public function quoteText(string $text): string {
+	final public function quoteText(string $text): string
+	{
 		return $this->database->nativeQuoteText($text);
 	}
 
@@ -605,7 +640,8 @@ class SQLDialect extends BaseSQLDialect {
 	 * @param string $name
 	 * @return string
 	 */
-	final public function unquoteColumn(string $name): string {
+	final public function unquoteColumn(string $name): string
+	{
 		return strtr(StringTools::unquote($name, '``'), ['``' => '`', ]);
 	}
 
@@ -614,7 +650,8 @@ class SQLDialect extends BaseSQLDialect {
 	 * @param string $name
 	 * @return string
 	 */
-	final public function quoteTable(string $name): string {
+	final public function quoteTable(string $name): string
+	{
 		return $this->quoteColumn($name);
 	}
 
@@ -623,15 +660,18 @@ class SQLDialect extends BaseSQLDialect {
 	 * @param string $name
 	 * @return string
 	 */
-	final public function unquoteTable(string $name): string {
+	final public function unquoteTable(string $name): string
+	{
 		return $this->unquoteColumn($name);
 	}
 
-	public function functionDateDifference(string $date_a, string $date_b): string {
+	public function functionDateDifference(string $date_a, string $date_b): string
+	{
 		return "TIMESTAMPDIFF(SECOND,$date_b,$date_a)";
 	}
 
-	public function hook_schema(array $sql_list): array {
+	public function hook_schema(array $sql_list): array
+	{
 		$alter_combine_prefixes = ['ALTER TABLE  ', ];
 		foreach ($alter_combine_prefixes as $alter_combine_prefix) {
 			$alters = [];
@@ -656,7 +696,8 @@ class SQLDialect extends BaseSQLDialect {
 	 * @param string $option_key
 	 * @return array
 	 */
-	private function _permute(array $options_list, array $list, string $option_key): array {
+	private function _permute(array $options_list, array $list, string $option_key): array
+	{
 		$new_list = [];
 		foreach ($list as $item) {
 			foreach ($options_list as $index => $options) {
@@ -683,7 +724,8 @@ class SQLDialect extends BaseSQLDialect {
 	 * @return array
 	 * @throws ParameterException
 	 */
-	public function grant(array $options): array {
+	public function grant(array $options): array
+	{
 		$members = [
 			'user' => null, 'pass' => null, 'from_host' => 'localhost', 'tables' => '*',
 			'privileges' => 'ALL PRIVILEGES', 'name' => '%',

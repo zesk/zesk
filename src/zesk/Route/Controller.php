@@ -25,7 +25,8 @@ use zesk\Exception\ClassNotFound;
  * @author kent
  *
  */
-class Controller extends Route {
+class Controller extends Route
+{
 	/**
 	 *
 	 */
@@ -54,14 +55,16 @@ class Controller extends Route {
 	 * @return void
 	 * @throws ClassNotFound
 	 */
-	protected function initialize(): void {
+	protected function initialize(): void
+	{
 		$this->controller = $this->controller();
 	}
 
 	/**
 	 * @return array|string[]
 	 */
-	public function __serialize(): array {
+	public function __serialize(): array
+	{
 		return parent::__serialize();
 	}
 
@@ -69,7 +72,8 @@ class Controller extends Route {
 	 *
 	 * @see Route::__unserialize()
 	 */
-	public function __unserialize(array $data): void {
+	public function __unserialize(array $data): void
+	{
 		parent::__unserialize($data);
 		$this->initialize();
 	}
@@ -78,7 +82,8 @@ class Controller extends Route {
 	 *
 	 * @return string
 	 */
-	public function actionMethodPrefix(): string {
+	public function actionMethodPrefix(): string
+	{
 		return strval($this->option('method prefix', 'action_'));
 	}
 
@@ -90,7 +95,8 @@ class Controller extends Route {
 	 * @param Request $request
 	 * @return array
 	 */
-	public function determineAction(Request $request): array {
+	public function determineAction(Request $request): array
+	{
 		$action = $this->optionString(self::OPTION_ACTION, self::DEFAULT_ACTION);
 		if (StringTools::hasTokens($action)) {
 			$action = $this->_mapVariables($request, $action);
@@ -106,7 +112,8 @@ class Controller extends Route {
 	 * @throws NotFoundException
 	 * @see Route::internalExecute()
 	 */
-	public function internalExecute(Request $request): Response {
+	public function internalExecute(Request $request): Response
+	{
 		$response = $this->application->responseFactory($request);
 		[$action, $actionArguments] = $this->determineAction($request);
 		return $this->controller->execute($request, $response, $action, $actionArguments);
@@ -118,7 +125,8 @@ class Controller extends Route {
 	 * @return ControllerBase
 	 * @throws ClassNotFound
 	 */
-	public function controller(): ControllerBase {
+	public function controller(): ControllerBase
+	{
 		$reflectionClass = $this->_controllerReflection();
 
 		try {
@@ -139,7 +147,8 @@ class Controller extends Route {
 	 * @return ReflectionClass
 	 * @throws ClassNotFound
 	 */
-	private function _controllerReflection(): ReflectionClass {
+	private function _controllerReflection(): ReflectionClass
+	{
 		$className = $this->optionString('controller');
 
 		try {
@@ -165,7 +174,8 @@ class Controller extends Route {
 	 * @return array
 	 * @throws ClassNotFound
 	 */
-	public function classActions(): array {
+	public function classActions(): array
+	{
 		$actions = parent::classActions();
 		$reflection = $this->_controllerReflection();
 		$action_prefix = $this->actionMethodPrefix();
@@ -188,7 +198,8 @@ class Controller extends Route {
 	 * @throws ClassNotFound
 	 * @throws NotFoundException
 	 */
-	protected function getRouteMap(string $action, Model $object = null, array $options = []): array {
+	protected function getRouteMap(string $action, Model $object = null, array $options = []): array
+	{
 		$map = parent::getRouteMap($action, $object, $options);
 		$url = ArrayTools::map($this->cleanPattern, $map);
 		if (!$this->match($url)) {

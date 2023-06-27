@@ -20,8 +20,10 @@ require_once __DIR__ . '/vendor/autoload.php';
 /**
  * Test Application
  */
-class TestApplicationFactory {
-	public static function application(): Application {
+class TestApplicationFactory
+{
+	public static function application(): Application
+	{
 		try {
 			$fileCache = __DIR__ . '/fileCache';
 			Directory::depend($fileCache);

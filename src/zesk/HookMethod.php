@@ -14,7 +14,8 @@ use zesk\Exception\ParameterException;
  * @see Hooks
  */
 #[Attribute(flags: Attribute::TARGET_METHOD)]
-class HookMethod implements HookableAttribute {
+class HookMethod implements HookableAttribute
+{
 	/**
 	 * @var Closure
 	 */
@@ -52,7 +53,8 @@ class HookMethod implements HookableAttribute {
 	 * @param bool $filter True when this hook is used as a filter and should have a compatible method signatures of
 	 * other filters of this hook name.
 	 */
-	public function __construct(string|array $handles, array $argumentTypes = [], object $object = null, bool $filter = false) {
+	public function __construct(string|array $handles, array $argumentTypes = [], object $object = null, bool $filter = false)
+	{
 		$this->handles = ArrayTools::valuesFlipCopy(Types::toList($handles));
 		$this->argumentTypes = $argumentTypes;
 		$this->filter = $filter;
@@ -66,7 +68,8 @@ class HookMethod implements HookableAttribute {
 	 * @param string $name
 	 * @return $this
 	 */
-	public function setClosure(Closure $closure, string $name = ''): self {
+	public function setClosure(Closure $closure, string $name = ''): self
+	{
 		$this->method = $closure;
 		if ($name) {
 			$this->name = $name;
@@ -82,7 +85,8 @@ class HookMethod implements HookableAttribute {
 	 * @param ReflectionMethod $method
 	 * @return $this
 	 */
-	public function setMethod(ReflectionMethod $method): self {
+	public function setMethod(ReflectionMethod $method): self
+	{
 		$this->method = fn () => $method->invokeArgs($this->object, func_get_args());
 		$this->name = $method->getName();
 		return $this;
@@ -93,7 +97,8 @@ class HookMethod implements HookableAttribute {
 	 *
 	 * @return string
 	 */
-	public function name(): string {
+	public function name(): string
+	{
 		return $this->name;
 	}
 
@@ -103,7 +108,8 @@ class HookMethod implements HookableAttribute {
 	 * @param Hookable|null $object
 	 * @return $this
 	 */
-	public function setObject(Hookable|null $object): self {
+	public function setObject(Hookable|null $object): self
+	{
 		$this->object = $object;
 		return $this;
 	}
@@ -113,7 +119,8 @@ class HookMethod implements HookableAttribute {
 	 *
 	 * @return bool
 	 */
-	public function isFilter(): bool {
+	public function isFilter(): bool
+	{
 		return $this->filter;
 	}
 
@@ -123,7 +130,8 @@ class HookMethod implements HookableAttribute {
 	 * @param string $name
 	 * @return bool
 	 */
-	public function handlesHook(string $name): bool {
+	public function handlesHook(string $name): bool
+	{
 		return array_key_exists($name, $this->handles);
 	}
 
@@ -134,7 +142,8 @@ class HookMethod implements HookableAttribute {
 	 * @return mixed
 	 * @throws ParameterException
 	 */
-	public function run(array $arguments = []): mixed {
+	public function run(array $arguments = []): mixed
+	{
 		foreach ($this->argumentTypes as $index => $argumentType) {
 			if (!array_key_exists($index, $arguments)) {
 				throw new ParameterException("Require argument of type $argumentType at position $index");

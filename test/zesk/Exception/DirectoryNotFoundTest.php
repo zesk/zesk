@@ -10,8 +10,10 @@ namespace zesk\Exception;
 
 use zesk\PHPUnit\ExceptionTestCase;
 
-class DirectoryNotFoundTest extends ExceptionTestCase {
-	public function test_basics(): void {
+class DirectoryNotFoundTest extends ExceptionTestCase
+{
+	public function test_basics(): void
+	{
 		$testx = new DirectoryNotFound();
 		$this->assertThrowable($testx);
 	}

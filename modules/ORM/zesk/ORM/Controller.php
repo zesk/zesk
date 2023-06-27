@@ -30,7 +30,8 @@ use zesk\Types;
  * @author kent
  *
  */
-abstract class Controller extends Controller_Authenticated {
+abstract class Controller extends Controller_Authenticated
+{
 	/**
 	 * ORM class to control
 	 *
@@ -80,7 +81,8 @@ abstract class Controller extends Controller_Authenticated {
 	 *
 	 * @return array:
 	 */
-	public function hook_actions(): array {
+	public function hook_actions(): array
+	{
 		return array_keys($this->actions);
 	}
 
@@ -89,7 +91,8 @@ abstract class Controller extends Controller_Authenticated {
 	 *
 	 * @return array
 	 */
-	public function hook_classes(): array {
+	public function hook_classes(): array
+	{
 		return [
 			$this->class,
 		];
@@ -99,7 +102,8 @@ abstract class Controller extends Controller_Authenticated {
 	 * Initialize a Controller_ORM
 	 *
 	 */
-	protected function initialize(): void {
+	protected function initialize(): void
+	{
 		parent::initialize();
 		if ($this->class) {
 			$controller_class = get_class($this);
@@ -128,7 +132,8 @@ abstract class Controller extends Controller_Authenticated {
 	 * @param string $id
 	 * @return ORMBase
 	 */
-	private function _action_default_arguments(string $action = null, string $id = null): array {
+	private function _action_default_arguments(string $action = null, string $id = null): array
+	{
 		$args = func_get_args();
 		if (!empty($id)) {
 			$object = $this->ormFactory($id);
@@ -147,7 +152,8 @@ abstract class Controller extends Controller_Authenticated {
 	 * @param string $default_url
 	 * @return string
 	 */
-	private function _compute_url(ORMBase $object, string $option, string $default_action = '', string $default_url = ''): string {
+	private function _compute_url(ORMBase $object, string $option, string $default_action = '', string $default_url = ''): string
+	{
 		$class = $object::class;
 		$url = '';
 		$action = $this->firstOption(["$class::{$option}_action", "{$option}_action"], $default_action);
@@ -170,7 +176,8 @@ abstract class Controller extends Controller_Authenticated {
 	 * @param array $options
 	 * @throws Redirect
 	 */
-	private function _redirect_response(string $redirect_url, string $message, array $options): void {
+	private function _redirect_response(string $redirect_url, string $message, array $options): void
+	{
 		$format = $this->request->get('format');
 		if ($format === 'json') {
 			$this->setAutoRender(false);
@@ -187,7 +194,8 @@ abstract class Controller extends Controller_Authenticated {
 	 * @param string|int|array|ORMBase $parameter
 	 * @return array
 	 */
-	private function _arguments_load(string|int|array|ORMBase $parameter): array {
+	private function _arguments_load(string|int|array|ORMBase $parameter): array
+	{
 		if ($parameter instanceof ORMBase) {
 			return [
 				$parameter,
@@ -203,7 +211,8 @@ abstract class Controller extends Controller_Authenticated {
 	 * @param mixed $parameter
 	 * @return ORMBase[]
 	 */
-	public function arguments_delete(mixed $parameter): array {
+	public function arguments_delete(mixed $parameter): array
+	{
 		$result = $this->_arguments_load($parameter);
 		if ($result[0] === null) {
 			$this->response->redirect('/', $this->application->locale->__('No such object to delete'));
@@ -216,7 +225,8 @@ abstract class Controller extends Controller_Authenticated {
 	 * @param string $parameter
 	 * @return ORMBase[]
 	 */
-	public function arguments_duplicate(mixed $parameter): array {
+	public function arguments_duplicate(mixed $parameter): array
+	{
 		return $this->_arguments_load($parameter);
 	}
 
@@ -228,7 +238,8 @@ abstract class Controller extends Controller_Authenticated {
 	 * @throws ParameterException
 	 * @see self::action_DELETE_index()
 	 */
-	public function arguments_DELETE_index(Request $request, Response $response, array $arguments): array {
+	public function arguments_DELETE_index(Request $request, Response $response, array $arguments): array
+	{
 		$first = ArrayTools::first($arguments);
 		if (!$first instanceof ORMBase) {
 			throw new ParameterException('Need ORMBase as first parameter {first} ({type})', [
@@ -246,7 +257,8 @@ abstract class Controller extends Controller_Authenticated {
 	 * @throws Redirect
 	 * @see self::arguments_DELETE_index()
 	 */
-	public function action_DELETE_index(ORMBase $object, Response $response): Response {
+	public function action_DELETE_index(ORMBase $object, Response $response): Response
+	{
 		$user = $this->user;
 		if ($user->can('delete', $object)) {
 			$words = $object->words();
@@ -279,7 +291,8 @@ abstract class Controller extends Controller_Authenticated {
 	 * @param ORMBase $object
 	 * @throws Redirect
 	 */
-	public function action_POST_duplicate(ORMBase $object): void {
+	public function action_POST_duplicate(ORMBase $object): void
+	{
 		$user = $this->user;
 		$class = $object::class;
 		if ($user->can('duplicate', $object)) {
@@ -311,7 +324,8 @@ abstract class Controller extends Controller_Authenticated {
 	 * @param array $options
 	 * @return ORMBase
 	 */
-	protected function ormFactory(mixed $mixed = null, array $options = null): ORMBase {
+	protected function ormFactory(mixed $mixed = null, array $options = null): ORMBase
+	{
 		return $this->application->ormFactory($this->class, $mixed, Types::toArray($options))->fetch();
 	}
 
@@ -323,7 +337,8 @@ abstract class Controller extends Controller_Authenticated {
 	 * @return ORMBase
 	 * @throws ParameterException
 	 */
-	protected function orm_from_id(string $class, int|string|array $id): ORMBase {
+	protected function orm_from_id(string $class, int|string|array $id): ORMBase
+	{
 		$object = $this->application->ormFactory($class, $id);
 		$name = $object->class_orm()->name;
 		$__ = [
@@ -355,7 +370,8 @@ abstract class Controller extends Controller_Authenticated {
 	 * @throws ORMNotFound|Authentication|PermissionDenied
 	 * @see \zesk\Controller::_action_default()
 	 */
-	public function _action_default_object(string $action = null, mixed $object = null): mixed {
+	public function _action_default_object(string $action = null, mixed $object = null): mixed
+	{
 		try {
 			$router = $this->router;
 			$route = $this->route;

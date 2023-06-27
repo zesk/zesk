@@ -14,7 +14,8 @@ namespace zesk;
  * The text class deals with manipulation of text, specifically for output to a console or
  * fixed-width font output, or email.
  */
-class Text {
+class Text
+{
 	/**
 	 * Indent plain text
 	 *
@@ -25,7 +26,8 @@ class Text {
 	 * @param string $newline
 	 * @return string
 	 */
-	public static function indent(string $text, int $indent_count = 1, bool $trim_line_white = false, string $indent_char = "\t", string $newline = "\n"): string {
+	public static function indent(string $text, int $indent_count = 1, bool $trim_line_white = false, string $indent_char = "\t", string $newline = "\n"): string
+	{
 		$lines = explode($newline, $text);
 		$indent_string = is_string($indent_count) ? $indent_count : str_repeat($indent_char, $indent_count);
 		foreach ($lines as $i => $line) {
@@ -48,7 +50,8 @@ class Text {
 	 * @see Text_Test::test_indentString()
 	 * @see StringTools::prefixMatch() - Used to generate whitespace to remove
 	 */
-	public static function indentString(string $text, string $indentString, string $newline = "\n"): string {
+	public static function indentString(string $text, string $indentString, string $newline = "\n"): string
+	{
 		$prefix = null;
 		$lines = explode($newline, $text);
 		foreach ($lines as $line) {
@@ -83,7 +86,8 @@ class Text {
 	 * @return string
 	 * @see str_replace()
 	 */
-	public static function setLineBreaks(string $string, string $br = "\n"): string {
+	public static function setLineBreaks(string $string, string $br = "\n"): string
+	{
 		$temp_char = '\x00\x10\x00';
 		$string = str_replace("\r\n", $temp_char, $string);
 		$string = str_replace("\r", $temp_char, $string);
@@ -106,7 +110,8 @@ class Text {
 	 *            End of line character
 	 * @return string Array formatted
 	 */
-	public static function formatArray(array $fields, string $padding = ' ', string $prefix = ' ', string $suffix = ': ', string $line_end = "\n"): string {
+	public static function formatArray(array $fields, string $padding = ' ', string $prefix = ' ', string $suffix = ': ', string $line_end = "\n"): string
+	{
 		$n = 0;
 		foreach ($fields as $k => $v) {
 			$n = max(strlen($k), $n);
@@ -130,7 +135,8 @@ class Text {
 		return $result;
 	}
 
-	public static function wrapLines(string $text, string $prefix = '', string $suffix = '', string $first_prefix = null, string $last_suffix = null): string {
+	public static function wrapLines(string $text, string $prefix = '', string $suffix = '', string $first_prefix = null, string $last_suffix = null): string
+	{
 		if ($first_prefix === null) {
 			$first_prefix = $prefix;
 		}
@@ -140,7 +146,8 @@ class Text {
 		return $first_prefix . implode("$suffix\n$prefix", explode("\n", $text)) . $last_suffix;
 	}
 
-	public static function fill(int $n, string $pad = ' '): string {
+	public static function fill(int $n, string $pad = ' '): string
+	{
 		return substr(str_repeat($pad, $n), 0, $n);
 	}
 
@@ -158,7 +165,8 @@ class Text {
 	 * @see self::leftAlign
 	 * @see self::fill
 	 */
-	private static function _alignHelper(string $text, int $length, string $pad, string &$fill, bool $chop_text = false): string {
+	private static function _alignHelper(string $text, int $length, string $pad, string &$fill, bool $chop_text = false): string
+	{
 		$fill = '';
 		if ($length <= 0) {
 			return $text;
@@ -186,7 +194,8 @@ class Text {
 	 * @return string The text with padding to fill $n characters (aligned right), or the original string
 	 * (optionally trimmed) if length is greater than $n
 	 */
-	public static function rightAlign(string $text, int $length = -1, string $pad = ' ', bool $chop_text = false): string {
+	public static function rightAlign(string $text, int $length = -1, string $pad = ' ', bool $chop_text = false): string
+	{
 		$fill = '';
 		$text = self::_alignHelper($text, $length, $pad, $fill, $chop_text);
 		return $fill . $text;
@@ -202,7 +211,8 @@ class Text {
 	 * length returned is $n.
 	 * @return string Text, aligned left, using padding.
 	 */
-	public static function leftAlign(string $text, int $length = -1, string $pad = ' ', bool $chop_text = false): string {
+	public static function leftAlign(string $text, int $length = -1, string $pad = ' ', bool $chop_text = false): string
+	{
 		$fill = '';
 		$text = self::_alignHelper($text, $length, $pad, $fill, $chop_text);
 		return $text . $fill;
@@ -220,7 +230,8 @@ class Text {
 	 *            comments at the end of a line
 	 * @return string The contents with line comments removed
 	 */
-	public static function removeLineComments(string $data, string $line_comment = '#', bool $alone = true): string {
+	public static function removeLineComments(string $data, string $line_comment = '#', bool $alone = true): string
+	{
 		$new_data = [];
 		if ($alone) {
 			$line_comment_len = strlen($line_comment);
@@ -247,11 +258,13 @@ class Text {
 	 *            Optional ending string - is preg_quoted
 	 * @return string
 	 */
-	public static function removeRangeComments(string $text, string $begin_comment = '/*', string $end_comment = '*/'): string {
+	public static function removeRangeComments(string $text, string $begin_comment = '/*', string $end_comment = '*/'): string
+	{
 		return preg_replace('#' . preg_quote($begin_comment) . '.*?' . preg_quote($end_comment) . '#s', '', $text);
 	}
 
-	public static function fill_pattern(string $pattern, int $char_length): string {
+	public static function fill_pattern(string $pattern, int $char_length): string
+	{
 		$pattern_length = strlen($pattern);
 		if ($pattern_length < $char_length) {
 			$pattern = str_repeat($pattern, intval(round($char_length / $pattern_length)));
@@ -269,7 +282,8 @@ class Text {
 	 * @param string $br End of line character
 	 * @return string
 	 */
-	public static function formatPairs(array $map, string $prefix = '', string $space = ' ', string $suffix = ': ', string $br = PHP_EOL): string {
+	public static function formatPairs(array $map, string $prefix = '', string $space = ' ', string $suffix = ': ', string $br = PHP_EOL): string
+	{
 		$n = array_reduce(array_keys($map), fn ($n, $k) => max(strlen(strval($k)), $n), 0);
 		$r = [];
 		foreach ($map as $k => $value) {
@@ -286,7 +300,8 @@ class Text {
 	 * @param string $delimiter
 	 * @return string
 	 */
-	public static function trimWordsLength(string $string, int $length, string $delimiter = ' '): string {
+	public static function trimWordsLength(string $string, int $length, string $delimiter = ' '): string
+	{
 		$string = toList($string, [], $delimiter);
 		$delim_len = strlen($delimiter);
 		$remain = $length;
@@ -311,7 +326,8 @@ class Text {
 	 * @param int $wordCount
 	 * @return string
 	 */
-	public static function trimWords(string $string, int $wordCount): string {
+	public static function trimWords(string $string, int $wordCount): string
+	{
 		if ($wordCount <= 0) {
 			return '';
 		}
@@ -328,7 +344,8 @@ class Text {
 	 * @param string $string
 	 * @return int
 	 */
-	public static function words(string $string): int {
+	public static function words(string $string): int
+	{
 		return count(preg_split('/(\s+)/', $string, -1, PREG_SPLIT_NO_EMPTY));
 	}
 
@@ -372,7 +389,8 @@ class Text {
 	 *            String to prefix every line with. Used for indenting
 	 * @return string The resulting text table, with \n on each line.
 	 */
-	public static function formatTable(array $table, string $prefix = ''): string {
+	public static function formatTable(array $table, string $prefix = ''): string
+	{
 		if (!isset($table[0]) || !is_array($table[0])) {
 			return '';
 		}
@@ -429,7 +447,8 @@ class Text {
 	 * @return array The line split into $num_columns or fewer columns as an array.
 	 * @see explode()
 	 */
-	private static function splitLine(string $line, int $num_columns = 99, string $delimiters = " \t"): array {
+	private static function splitLine(string $line, int $num_columns = 99, string $delimiters = " \t"): array
+	{
 		return explode($delimiters[0], preg_replace('/[' . preg_quote($delimiters) . ']+/', $delimiters[0], $line), $num_columns);
 	}
 
@@ -452,7 +471,8 @@ class Text {
 	 * @return array An array of associative arrays representing the table. Can be passed to
 	 *         outputTable directly.
 	 */
-	public static function parseTable(string $content, int $num_columns, string $delimiters = " \t", string $newline = "\n"): array {
+	public static function parseTable(string $content, int $num_columns, string $delimiters = " \t", string $newline = "\n"): array
+	{
 		$lines = explode($newline, $content);
 		$hh = false;
 		while (($line = array_shift($lines)) !== null) {
@@ -497,7 +517,8 @@ class Text {
 	 *            Max words to count
 	 * @return integer The number of words found
 	 */
-	public static function countWords(string $string, int $limit = -1): int {
+	public static function countWords(string $string, int $limit = -1): int
+	{
 		$words = trim($string);
 		if ($words === '') {
 			return 0;
@@ -513,7 +534,8 @@ class Text {
 	 * @param string $newline
 	 * @return string
 	 */
-	public static function head(string $string, int $count = 20, string $newline = "\n"): string {
+	public static function head(string $string, int $count = 20, string $newline = "\n"): string
+	{
 		return implode($newline, array_slice(explode($newline, $string), 0, $count));
 	}
 
@@ -525,7 +547,8 @@ class Text {
 	 * @param string $newline
 	 * @return string
 	 */
-	public static function tail(string $string, int $count = 20, string $newline = "\n"): string {
+	public static function tail(string $string, int $count = 20, string $newline = "\n"): string
+	{
 		return implode($newline, array_slice(explode($newline, $string), -$count, $count));
 	}
 
@@ -553,7 +576,8 @@ class Text {
 	 * @param string $whitespace
 	 * @return array
 	 */
-	public static function parseColumns(array $lines, string $whitespace = " \t"): array {
+	public static function parseColumns(array $lines, string $whitespace = " \t"): array
+	{
 		$spaces = [];
 		$whitespace_in_array = str_split($whitespace);
 		foreach ($lines as $line) {

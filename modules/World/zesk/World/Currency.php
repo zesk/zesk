@@ -50,7 +50,8 @@ use zesk\ORM\Exception\ORMEmpty;
  */
 #[Entity]
 #[UniqueConstraint(fields: ['code'])]
-class Currency extends Model {
+class Currency extends Model
+{
 	use AutoID;
 
 	#[ManyToOne]
@@ -84,7 +85,8 @@ class Currency extends Model {
 	 * @param float|int $value
 	 * @return string
 	 */
-	public function format(float|int $value = 0): string {
+	public function format(float|int $value = 0): string
+	{
 		$locale = $this->application->locale;
 		$decimals = $this->option('decimal_point', $locale->__('Currency::decimalPoint:=.'));
 		$thousands = $this->option('thousands_separator', $locale->__('Currency::thousandsSeparator:=.'));
@@ -103,7 +105,8 @@ class Currency extends Model {
 	 * @return self
 	 * @throws ORMException
 	 */
-	public static function euro(Application $application): self {
+	public static function euro(Application $application): self
+	{
 		$em = $application->entityManager();
 		$code = 'EUR';
 		$currency = $em->getRepository(self::class)->findOneBy(['code' => $code]);
@@ -130,7 +133,8 @@ class Currency extends Model {
 	 * @return self
 	 * @throws ORMException
 	 */
-	public static function USD(Application $application): self {
+	public static function USD(Application $application): self
+	{
 		$em = $application->entityManager();
 		$code = 'USD';
 		$currency = $em->getRepository(self::class)->findOneBy(['code' => $code]);
@@ -153,7 +157,8 @@ class Currency extends Model {
 
 	/**
 	 */
-	public function precision(): int {
+	public function precision(): int
+	{
 		return $this->precision;
 	}
 
@@ -165,7 +170,8 @@ class Currency extends Model {
 	 * @return Currency
 	 * @throws NotFoundException
 	 */
-	public static function fromCode(Application $application, string $code): Currency {
+	public static function fromCode(Application $application, string $code): Currency
+	{
 		$em = $application->entityManager();
 		$currency = $em->getRepository(self::class)->findOneBy(['code' => $code]);
 		if ($currency) {

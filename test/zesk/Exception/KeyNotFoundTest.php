@@ -10,8 +10,10 @@ namespace zesk\Exception;
 
 use zesk\PHPUnit\ExceptionTestCase;
 
-class KeyNotFoundTest extends ExceptionTestCase {
-	public function test_basics(): void {
+class KeyNotFoundTest extends ExceptionTestCase
+{
+	public function test_basics(): void
+	{
 		$testx = new KeyNotFound();
 		$this->assertThrowable($testx);
 	}

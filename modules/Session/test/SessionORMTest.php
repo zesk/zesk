@@ -19,7 +19,8 @@ use zesk;
  * @author kent
  *
  */
-class SessionORMTest extends ORMUnitTest {
+class SessionORMTest extends ORMUnitTest
+{
 	protected array $load_modules = [
 		'Session',
 	];
@@ -31,7 +32,8 @@ class SessionORMTest extends ORMUnitTest {
 	 * @throws KeyNotFound
 	 * @expectedException zesk\ParseException
 	 */
-	public function test_no_userId(): void {
+	public function test_no_userId(): void
+	{
 		$testx = new Session($this->application);
 		$testx->userId();
 	}
@@ -42,13 +44,15 @@ class SessionORMTest extends ORMUnitTest {
 	 * @throws Deprecated
 	 * @throws KeyNotFound
 	 */
-	public function test_userId(): void {
+	public function test_userId(): void
+	{
 		$testx = new Session($this->application);
 		$testx->setMember('user', 2);
 		$testx->userId();
 	}
 
-	public function test_main(): void {
+	public function test_main(): void
+	{
 		$testx = new Session($this->application);
 
 		$user = new User($this->application);

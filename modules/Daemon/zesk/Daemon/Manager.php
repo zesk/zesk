@@ -12,6 +12,7 @@ namespace zesk\Daemon;
 
 use zesk\Hookable;
 
-abstract class Manager extends Hookable {
+abstract class Manager extends Hookable
+{
 	abstract public function minimumProcessCount(): int;
 }

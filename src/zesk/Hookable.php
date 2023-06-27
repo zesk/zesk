@@ -22,7 +22,8 @@ use zesk\Exception\ParameterException;
  *
  * @author kent
  */
-class Hookable extends Options {
+class Hookable extends Options
+{
 	public Application $application;
 
 	/**
@@ -30,7 +31,8 @@ class Hookable extends Options {
 	 * @param Application $application
 	 * @param array $options
 	 */
-	public function __construct(Application $application, array $options = []) {
+	public function __construct(Application $application, array $options = [])
+	{
 		$this->application = $application;
 		parent::__construct($options);
 		// Decided to NOT place a ->initialize() call here, largely because subclasses who override
@@ -42,7 +44,8 @@ class Hookable extends Options {
 	 * @param Application $application
 	 * @return void
 	 */
-	private static function loadApplication(Application $application): void {
+	private static function loadApplication(Application $application): void
+	{
 		try {
 			$newIncluded = false;
 			foreach ($application->hookSources() as $path) {
@@ -70,7 +73,8 @@ class Hookable extends Options {
 	 * @param string $attributeClassName
 	 * @return array:HookableAttribute
 	 */
-	public static function staticAttributeMethods(Hookable $hookable, string $attributeClassName): array {
+	public static function staticAttributeMethods(Hookable $hookable, string $attributeClassName): array
+	{
 		$app = $hookable->application;
 		self::loadApplication($app);
 		$results = [];
@@ -113,7 +117,8 @@ class Hookable extends Options {
 	 * @param string $attributeClassName
 	 * @return array:HookableAttribute
 	 */
-	public function attributeMethods(string $attributeClassName): array {
+	public function attributeMethods(string $attributeClassName): array
+	{
 		$reflection = new ReflectionClass($this);
 		$flags = ReflectionMethod::IS_PROTECTED | ReflectionMethod::IS_PUBLIC;
 		$attributes = [];
@@ -135,7 +140,8 @@ class Hookable extends Options {
 	 * @param string $hookName
 	 * @return array:HookMethod
 	 */
-	public function hookMethods(string $hookName): array {
+	public function hookMethods(string $hookName): array
+	{
 		return array_filter($this->attributeMethods(HookMethod::class), fn (HookMethod $method) => $method->handlesHook($hookName));
 	}
 
@@ -145,7 +151,8 @@ class Hookable extends Options {
 	 * @param string $hookName
 	 * @return bool
 	 */
-	public function hasHooks(string $hookName): bool {
+	public function hasHooks(string $hookName): bool
+	{
 		return count(self::_hooksFor($hookName)) !== 0;
 	}
 
@@ -156,7 +163,8 @@ class Hookable extends Options {
 	 * @param bool $isFilter
 	 * @return bool
 	 */
-	public function hasObjectHooks(string $hookName, bool $isFilter = false): bool {
+	public function hasObjectHooks(string $hookName, bool $isFilter = false): bool
+	{
 		return count(self::objectHookMethods([$this], $hookName, $isFilter)) !== 0;
 	}
 
@@ -166,7 +174,8 @@ class Hookable extends Options {
 	 * @param string $hookName
 	 * @return bool
 	 */
-	public function hasObjectFilters(string $hookName): bool {
+	public function hasObjectFilters(string $hookName): bool
+	{
 		return $this->hasObjectHooks($hookName, true);
 	}
 
@@ -177,7 +186,8 @@ class Hookable extends Options {
 	 * @param bool $isFilter
 	 * @return array
 	 */
-	protected function _hooksFor(string $hookName, bool $isFilter = false): array {
+	protected function _hooksFor(string $hookName, bool $isFilter = false): array
+	{
 		return array_merge(self::staticHooksFor($this, $hookName, $isFilter), self::applicationHookMethods($this, $hookName, [$this], $isFilter), $this->application->hooks->peekHooks($hookName, $isFilter));
 	}
 
@@ -188,7 +198,8 @@ class Hookable extends Options {
 	 * @param array $arguments
 	 * @return void
 	 */
-	public function invokeHooks(string $hookName, array $arguments = []): void {
+	public function invokeHooks(string $hookName, array $arguments = []): void
+	{
 		$hooks = $this->_hooksFor($hookName);
 		foreach ($hooks as $method) {
 			$method->run($arguments);
@@ -202,7 +213,8 @@ class Hookable extends Options {
 	 * @param array $arguments
 	 * @return mixed
 	 */
-	public function invokeHooksUntil(string $hookName, array $arguments = []): mixed {
+	public function invokeHooksUntil(string $hookName, array $arguments = []): mixed
+	{
 		$hooks = $this->_hooksFor($hookName);
 		foreach ($hooks as $method) {
 			$result = $method->run($arguments);
@@ -222,7 +234,8 @@ class Hookable extends Options {
 	 * @return void
 	 * @throws ParameterException
 	 */
-	public function invokeObjectHooks(string $hookName, array $arguments = [], bool $isFilter = false): void {
+	public function invokeObjectHooks(string $hookName, array $arguments = [], bool $isFilter = false): void
+	{
 		$hooks = self::objectHookMethods([$this], $hookName, $isFilter);
 		foreach ($hooks as $method) {
 			$method->run($arguments);
@@ -237,7 +250,8 @@ class Hookable extends Options {
 	 * @return mixed
 	 * @throws ParameterException
 	 */
-	private static function _invokeFilters(array $hookMethods, mixed $mixed, array $arguments = [], int $filterArgumentIndex = -1): mixed {
+	private static function _invokeFilters(array $hookMethods, mixed $mixed, array $arguments = [], int $filterArgumentIndex = -1): mixed
+	{
 		if ($filterArgumentIndex < 0) {
 			$filterArgumentIndex = count($arguments);
 		}
@@ -261,7 +275,8 @@ class Hookable extends Options {
 	 * @return mixed
 	 * @throws ParameterException
 	 */
-	private function _invokeTypedFilters(string $hookName, array $hookMethods, mixed $mixed, Closure|null $loopEndTest, array $arguments = [], int $filterArgumentIndex = -1): mixed {
+	private function _invokeTypedFilters(string $hookName, array $hookMethods, mixed $mixed, Closure|null $loopEndTest, array $arguments = [], int $filterArgumentIndex = -1): mixed
+	{
 		$type = Types::type($mixed);
 		if ($filterArgumentIndex < 0) {
 			$filterArgumentIndex = count($arguments);
@@ -294,7 +309,8 @@ class Hookable extends Options {
 	 * @return mixed
 	 * @throws ParameterException
 	 */
-	public function invokeFilters(string $hookName, mixed $mixed, array $arguments = [], int $filterArgumentIndex = -1): mixed {
+	public function invokeFilters(string $hookName, mixed $mixed, array $arguments = [], int $filterArgumentIndex = -1): mixed
+	{
 		$hooks = $this->_hooksFor($hookName, true);
 		return self::_invokeFilters($hooks, $mixed, $arguments, $filterArgumentIndex);
 	}
@@ -310,7 +326,8 @@ class Hookable extends Options {
 	 * @return mixed
 	 * @throws ParameterException
 	 */
-	public function invokeTypedFilters(string $hookName, mixed $mixed, array $arguments = [], int $filterArgumentIndex = -1): mixed {
+	public function invokeTypedFilters(string $hookName, mixed $mixed, array $arguments = [], int $filterArgumentIndex = -1): mixed
+	{
 		$hooks = $this->_hooksFor($hookName, true);
 		return self::_invokeTypedFilters($hookName, $hooks, $mixed, null, $arguments, $filterArgumentIndex);
 	}
@@ -327,7 +344,8 @@ class Hookable extends Options {
 	 * @return mixed
 	 * @throws ParameterException
 	 */
-	public function invokeTypedFiltersUntil(string $hookName, mixed $mixed, Closure|null|bool|int|string $untilValue, array $arguments = [], int $filterArgumentIndex = -1): mixed {
+	public function invokeTypedFiltersUntil(string $hookName, mixed $mixed, Closure|null|bool|int|string $untilValue, array $arguments = [], int $filterArgumentIndex = -1): mixed
+	{
 		$hooks = $this->_hooksFor($hookName, true);
 		if ($untilValue instanceof Closure) {
 			$loopEndTest = $untilValue;
@@ -347,7 +365,8 @@ class Hookable extends Options {
 	 * @return mixed
 	 * @throws ParameterException
 	 */
-	public function invokeObjectFilters(string $hookName, mixed $mixed, array $arguments = [], int $filterArgumentIndex = -1): mixed {
+	public function invokeObjectFilters(string $hookName, mixed $mixed, array $arguments = [], int $filterArgumentIndex = -1): mixed
+	{
 		$hooks = self::objectHookMethods([$this], $hookName, true);
 		return self::_invokeFilters($hooks, $mixed, $arguments, $filterArgumentIndex);
 	}
@@ -361,7 +380,8 @@ class Hookable extends Options {
 	 * @param bool $isFilter
 	 * @return array
 	 */
-	public static function objectHookMethods(array $hookables, string $hookName, bool $isFilter = false): array {
+	public static function objectHookMethods(array $hookables, string $hookName, bool $isFilter = false): array
+	{
 		$hookMethods = [];
 		foreach ($hookables as $hookable) {
 			foreach ($hookable->hookMethods($hookName) as $name => $hookMethod) {
@@ -383,7 +403,8 @@ class Hookable extends Options {
 	 * @param bool $isFilter
 	 * @return HookMethod[]
 	 */
-	public static function applicationHookMethods(Hookable $hookable, string $hookName, array $hookables = [], bool $isFilter = false): array {
+	public static function applicationHookMethods(Hookable $hookable, string $hookName, array $hookables = [], bool $isFilter = false): array
+	{
 		return self::objectHookMethods(array_merge($hookable->hookables(), $hookables), $hookName, $isFilter);
 	}
 
@@ -398,7 +419,8 @@ class Hookable extends Options {
 	 *
 	 * @return array:self
 	 */
-	final public function hookables(): array {
+	final public function hookables(): array
+	{
 		return array_merge([
 			$this->application, $this->application->locale, $this->application->router,
 		], $this->application->modules->all(), $this->application->objects->hookables());
@@ -413,7 +435,8 @@ class Hookable extends Options {
 	 * @return array:HookMethod
 	 * @see HookMethod
 	 */
-	public static function staticHooksFor(Hookable $hookable, string $name, bool $isFilter): array {
+	public static function staticHooksFor(Hookable $hookable, string $name, bool $isFilter): array
+	{
 		return self::_staticHookMethodsFor($hookable, $name, $isFilter);
 	}
 
@@ -425,7 +448,8 @@ class Hookable extends Options {
 	 * @param bool $isFilter
 	 * @return array
 	 */
-	public static function _staticHookMethodsFor(Hookable $hookable, string $name, bool $isFilter): array {
+	public static function _staticHookMethodsFor(Hookable $hookable, string $name, bool $isFilter): array
+	{
 		return array_filter(self::staticAttributeMethods($hookable, HookMethod::class), fn (HookMethod $method) => $method->handlesHook($name) && $method->isFilter() === $isFilter);
 	}
 
@@ -434,14 +458,16 @@ class Hookable extends Options {
 	 *
 	 * @return string[]
 	 */
-	public function __serialize(): array {
+	public function __serialize(): array
+	{
 		return parent::__serialize();
 	}
 
 	/**
 	 * Problem with globals.
 	 */
-	public function __unserialize(array $data): void {
+	public function __unserialize(array $data): void
+	{
 		$this->application = Kernel::wakeupApplication();
 		parent::__unserialize($data);
 	}
@@ -452,7 +478,8 @@ class Hookable extends Options {
 	 * @param string $class
 	 * @return array
 	 */
-	private function _defaultOptions(string $class): array {
+	private function _defaultOptions(string $class): array
+	{
 		$references = [];
 		// Class hierarchy is given from child -> parent
 		$config = $this->application->configuration;
@@ -477,7 +504,8 @@ class Hookable extends Options {
 	 * @param string $class
 	 * @return array
 	 */
-	public function defaultOptions(string $class): array {
+	public function defaultOptions(string $class): array
+	{
 		// Class hierarchy is given from child -> parent
 		$config = new Configuration();
 		foreach ($this->_defaultOptions($class) as $configuration) {
@@ -495,11 +523,13 @@ class Hookable extends Options {
 	 * @param string $class Class to inherit configuration from
 	 * @return $this
 	 */
-	final public function inheritConfiguration(string $class = ''): self {
+	final public function inheritConfiguration(string $class = ''): self
+	{
 		return $this->_configure($class, false);
 	}
 
-	private function _configure(string $class = '', bool $overwrite = true): self {
+	private function _configure(string $class = '', bool $overwrite = true): self
+	{
 		return $this->setOptions($this->defaultOptions($class ?: get_class($this)), $overwrite);
 	}
 
@@ -510,7 +540,8 @@ class Hookable extends Options {
 	 *
 	 * @return $this
 	 */
-	final public function setConfiguration(string $class = ''): self {
+	final public function setConfiguration(string $class = ''): self
+	{
 		return $this->_configure($class);
 	}
 }

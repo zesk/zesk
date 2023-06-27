@@ -3,8 +3,10 @@ declare(strict_types=1);
 
 namespace zesk;
 
-class Text_Test extends UnitTest {
-	public static function data_fill(): array {
+class Text_Test extends UnitTest
+{
+	public static function data_fill(): array
+	{
 		return [
 			['          ', 10, ' '],
 			['=-=-=-=-=-', 10, '=-'],
@@ -19,11 +21,13 @@ class Text_Test extends UnitTest {
 	 * @return void
 	 * @dataProvider data_fill
 	 */
-	public function test_fill(string $expected, int $n, string $pad): void {
+	public function test_fill(string $expected, int $n, string $pad): void
+	{
 		$this->assertEquals($expected, Text::fill($n, $pad));
 	}
 
-	public static function data_tail(): array {
+	public static function data_tail(): array
+	{
 		$lines1 = "how\nmany\nlines\ncan\nwe\nmake\nup\na\nb\nc";
 		return [
 			[$lines1, $lines1, 1000],
@@ -42,7 +46,8 @@ class Text_Test extends UnitTest {
 	 * @return void
 	 * @dataProvider data_tail
 	 */
-	public function test_tail(string $expected, string $content, int $lines): void {
+	public function test_tail(string $expected, string $content, int $lines): void
+	{
 		$this->assertEquals($expected, Text::tail($content, $lines));
 	}
 
@@ -50,7 +55,8 @@ class Text_Test extends UnitTest {
 	 * @return void
 	 * @see Text::formatPairs()
 	 */
-	public function test_format_pairs(): void {
+	public function test_format_pairs(): void
+	{
 		$map = [
 			[
 				'a' => 'A',
@@ -95,7 +101,8 @@ class Text_Test extends UnitTest {
 		$this->assertEquals(" Name: John\n", Text::formatPairs($map, $prefix, $space, $suffix, $br));
 	}
 
-	public static function data_format_table(): array {
+	public static function data_format_table(): array
+	{
 		$rowset1 = [
 			['ID' => 1, 'Name' => 'Dude', 'Role' => 'Administrator'],
 			['ID' => 2, 'Name' => 'Rod', 'Role' => 'Admin'],
@@ -124,11 +131,13 @@ class Text_Test extends UnitTest {
 	 * @return void
 	 * @dataProvider data_format_table
 	 */
-	public function test_format_table(string $expected, array $table, string $prefix): void {
+	public function test_format_table(string $expected, array $table, string $prefix): void
+	{
 		$this->assertEquals($expected, Text::formatTable($table, $prefix));
 	}
 
-	public static function data_indent(): array {
+	public static function data_indent(): array
+	{
 		return [
 			["    Hello, world\n    How is life\n", "Hello, world\nHow is life", 4, true, ' ', "\n"],
 		];
@@ -144,11 +153,13 @@ class Text_Test extends UnitTest {
 	 * @return void
 	 * @dataProvider data_indent
 	 */
-	public function test_indent(string $expected, string $text, int $indent_count, bool $trim_line_white, string $indent_char, string $newline): void {
+	public function test_indent(string $expected, string $text, int $indent_count, bool $trim_line_white, string $indent_char, string $newline): void
+	{
 		$this->assertEquals($expected, Text::indent($text, $indent_count, $trim_line_white, $indent_char, $newline));
 	}
 
-	public static function data_indentString(): array {
+	public static function data_indentString(): array
+	{
 		return [
 			["xxxxxxHello, world\nxxxxxxHow is life\nxxxxxx Extra space", "Hello, world\nHow is life\n Extra space", 'xxxxxx', "\n"],
 			["\tHello, world\n\tHow is life\n\t Extra space", "Hello, world\nHow is life\n Extra space", "\t", "\n"],
@@ -164,11 +175,13 @@ class Text_Test extends UnitTest {
 	 * @return void
 	 * @see Text::indentString()
 	 */
-	public function test_indentString(string $expected, string $text, string $indentString, string $newline): void {
+	public function test_indentString(string $expected, string $text, string $indentString, string $newline): void
+	{
 		$this->assertEquals($expected, Text::indentString($text, $indentString, $newline));
 	}
 
-	public static function data_leftAlign() {
+	public static function data_leftAlign()
+	{
 		return [
 			['Hello--------', 'Hello', 13, '-', true],
 			['Hello========', 'Hello', 13, '=', false],
@@ -189,11 +202,13 @@ class Text_Test extends UnitTest {
 	 * @return void
 	 * @dataProvider data_leftAlign
 	 */
-	public function test_leftAlign($expected, $text, $n, $pad, $trim): void {
+	public function test_leftAlign($expected, $text, $n, $pad, $trim): void
+	{
 		$this->assertEquals($expected, Text::leftAlign($text, $n, $pad, $trim));
 	}
 
-	public static function data_lines_wrap(): array {
+	public static function data_lines_wrap(): array
+	{
 		return [
 			['', '', '', '', null, null],
 			['a', 'a', '', '', null, null],
@@ -216,11 +231,13 @@ class Text_Test extends UnitTest {
 	 * @return void
 	 * @dataProvider data_lines_wrap
 	 */
-	public function test_lines_wrap($expected, $text, $prefix, $suffix, $first_prefix, $last_suffix): void {
+	public function test_lines_wrap($expected, $text, $prefix, $suffix, $first_prefix, $last_suffix): void
+	{
 		$this->assertEquals($expected, Text::wrapLines($text, $prefix, $suffix, $first_prefix, $last_suffix));
 	}
 
-	public static function data_parse_table(): array {
+	public static function data_parse_table(): array
+	{
 		return [
 			[
 				[
@@ -248,11 +265,13 @@ class Text_Test extends UnitTest {
 	 * @return void
 	 * @dataProvider data_parse_table
 	 */
-	public function test_parse_table($expected, $content, $num_columns, $delimiters, $newline): void {
+	public function test_parse_table($expected, $content, $num_columns, $delimiters, $newline): void
+	{
 		$this->assertEquals($expected, Text::parseTable($content, $num_columns, $delimiters, $newline));
 	}
 
-	public static function data_rightAlign() {
+	public static function data_rightAlign()
+	{
 		return [
 			['--------Hello', 'Hello', 13, '-', true],
 			['========Hello', 'Hello', 13, '=', false],
@@ -273,11 +292,13 @@ class Text_Test extends UnitTest {
 	 * @return void
 	 * @dataProvider data_rightAlign
 	 */
-	public function test_rightAlign(string $expected, string $text, int $n, string $pad, bool $trim): void {
+	public function test_rightAlign(string $expected, string $text, int $n, string $pad, bool $trim): void
+	{
 		$this->assertEquals($expected, Text::rightAlign($text, $n, $pad, $trim));
 	}
 
-	public static function data_remove_line_comments(): array {
+	public static function data_remove_line_comments(): array
+	{
 		return [
 			['', '#', '#', true],
 			['', '#', '#', false],
@@ -300,11 +321,13 @@ class Text_Test extends UnitTest {
 	 * @param bool $alone
 	 * @return void
 	 */
-	public function test_remove_line_comments(string $expected, string $data, string $line_comment, bool $alone): void {
+	public function test_remove_line_comments(string $expected, string $data, string $line_comment, bool $alone): void
+	{
 		$this->assertEquals($expected, Text::removeLineComments($data, $line_comment, $alone));
 	}
 
-	public static function data_set_line_breaks(): array {
+	public static function data_set_line_breaks(): array
+	{
 		return [
 			['1x2x3x4x5', "1\r\n2\n3\r4\r\n5", 'x'],
 			['1x2x3x4x5x', "1\r\n2\n3\r4\r\n5\r", 'x'],
@@ -319,11 +342,13 @@ class Text_Test extends UnitTest {
 	 * @return void
 	 * @dataProvider data_set_line_breaks
 	 */
-	public function test_set_line_breaks($expected, $string, $br): void {
+	public function test_set_line_breaks($expected, $string, $br): void
+	{
 		$this->assertEquals($expected, Text::setLineBreaks($string, $br));
 	}
 
-	public static function data_trim_words(): array {
+	public static function data_trim_words(): array
+	{
 		return [
 			[' nine ten ', ' nine ten ', 2],
 			[' a  ', ' a  b c d ', 1],
@@ -345,11 +370,13 @@ class Text_Test extends UnitTest {
 	 * @return void
 	 * @dataProvider data_trim_words
 	 */
-	public function test_trim_words(string $expected, string $string, int $wordCount): void {
+	public function test_trim_words(string $expected, string $string, int $wordCount): void
+	{
 		$this->assertEquals($expected, Text::trimWords($string, $wordCount));
 	}
 
-	public static function data_words(): array {
+	public static function data_words(): array
+	{
 		return [
 			[1, 'friend'],
 			[1, 'dog'],
@@ -363,11 +390,13 @@ class Text_Test extends UnitTest {
 	 * @return void
 	 * @dataProvider data_words
 	 */
-	public function test_words(int $expected, string $word): void {
+	public function test_words(int $expected, string $word): void
+	{
 		$this->assertEquals($expected, Text::words($word));
 	}
 
-	public static function data_format_array(): array {
+	public static function data_format_array(): array
+	{
 		$fields = [
 			'Kind' => 'Apple',
 			'Consumer' => 'Bear',
@@ -389,11 +418,13 @@ class Text_Test extends UnitTest {
 	 * @return void
 	 * @dataProvider data_format_array
 	 */
-	public function test_format_array(string $expected, array $fields, string $padding, string $prefix, string $suffix, string $line_end): void {
+	public function test_format_array(string $expected, array $fields, string $padding, string $prefix, string $suffix, string $line_end): void
+	{
 		$this->assertEquals($expected, Text::formatArray($fields, $padding, $prefix, $suffix, $line_end));
 	}
 
-	public static function data_provider_parse_columns() {
+	public static function data_provider_parse_columns()
+	{
 		return [
 			[
 				[
@@ -778,7 +809,8 @@ class Text_Test extends UnitTest {
 	/**
 	 * @dataProvider data_provider_parse_columns
 	 */
-	public function test_parse_columns($content, array $expected): void {
+	public function test_parse_columns($content, array $expected): void
+	{
 		$this->assertEquals(Text::parseColumns(is_array($content) ? $content : explode("\n", $content)), $expected);
 	}
 }

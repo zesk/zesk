@@ -15,7 +15,8 @@ namespace zesk;
  * @author kent
  *
  */
-class Timer {
+class Timer
+{
 	/**
 	 * Seconds offset of the time this timer was started
 	 *
@@ -46,7 +47,8 @@ class Timer {
 	 * @param string $start Optional. Float value for starting time of this timer, in seconds.
 	 * @param double $offset Offset to add to the start time, in seconds.
 	 */
-	public function __construct($start = null, $offset = 0.0) {
+	public function __construct($start = null, $offset = 0.0)
+	{
 		$this->stop = null;
 		if ($start === null) {
 			$start = self::now();
@@ -67,7 +69,8 @@ class Timer {
 	 * @see microtime
 	 * @return double
 	 */
-	private static function microtime_to_seconds($value) {
+	private static function microtime_to_seconds($value)
+	{
 		[$integer_seconds, $fractional_seconds] = explode(' ', $value, 2);
 		return ((float) $integer_seconds + (float) $fractional_seconds);
 	}
@@ -77,7 +80,8 @@ class Timer {
 	 *
 	 * @return double
 	 */
-	public static function now() {
+	public static function now()
+	{
 		return microtime(true);
 	}
 
@@ -86,7 +90,8 @@ class Timer {
 	 *
 	 * @return double Total elapsed time
 	 */
-	public function stop() {
+	public function stop()
+	{
 		$this->stop = self::now();
 		return $this->stop - $this->start;
 	}
@@ -96,7 +101,8 @@ class Timer {
 	 *
 	 * @return double
 	 */
-	public function mark() {
+	public function mark()
+	{
 		$now = self::now();
 		$result = $now - $this->last;
 		$this->last = $now;
@@ -109,14 +115,16 @@ class Timer {
 	 *
 	 * @return double
 	 */
-	public function elapsed() {
+	public function elapsed()
+	{
 		return self::now() - $this->last;
 	}
 
 	/**
 	 * Reset timer to zero
 	 */
-	public function reset(): void {
+	public function reset(): void
+	{
 		$this->last = $this->start = self::now();
 	}
 
@@ -127,7 +135,8 @@ class Timer {
 	 * @param string $comment Comment to be included in output
 	 * @return string HTML of output
 	 */
-	public function output($comment = '') {
+	public function output($comment = '')
+	{
 		$now = self::now();
 		$delta = $this->elapsed();
 		$elapsed = self::now() - $this->start;
@@ -151,7 +160,8 @@ class Timer {
 	 *
 	 * @param string $comment Comment to be included in output
 	 */
-	public function dump($comment = ''): void {
+	public function dump($comment = ''): void
+	{
 		echo $this->output($comment);
 	}
 }

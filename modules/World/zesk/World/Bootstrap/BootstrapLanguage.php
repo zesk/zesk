@@ -12,7 +12,8 @@ namespace zesk\World\Bootstrap;
 use zesk\Application;
 use zesk\Hookable;
 
-class BootstrapLanguage extends Hookable {
+class BootstrapLanguage extends Hookable
+{
 	/**
 	 *
 	 * @var array
@@ -31,7 +32,8 @@ class BootstrapLanguage extends Hookable {
 	 * @param array $options
 	 * @return self
 	 */
-	public static function factory(Application $application, array $options = []): self {
+	public static function factory(Application $application, array $options = []): self
+	{
 		return new self($application, $options);
 	}
 
@@ -39,7 +41,8 @@ class BootstrapLanguage extends Hookable {
 	 * @param Application $application
 	 * @param array $options
 	 */
-	public function __construct(Application $application, array $options = []) {
+	public function __construct(Application $application, array $options = [])
+	{
 		parent::__construct($application, $options);
 		$this->inheritConfiguration(Module::class);
 		$include_language = $this->option('include_language');
@@ -48,7 +51,8 @@ class BootstrapLanguage extends Hookable {
 		}
 	}
 
-	private function is_included(BootstrapLanguage $language) {
+	private function is_included(BootstrapLanguage $language)
+	{
 		if ($this->include_language) {
 			$name = strtolower($language->code);
 			return $this->include_language[$name] ?? false;
@@ -56,7 +60,8 @@ class BootstrapLanguage extends Hookable {
 		return true;
 	}
 
-	public function bootstrap(): void {
+	public function bootstrap(): void
+	{
 		$application = $this->application;
 		$prefix = __NAMESPACE__ . '\\';
 		$x = $application->ormFactory($prefix . StringTools::removePrefix(__CLASS__, $prefix . 'World_Bootstrap_'));
@@ -75,7 +80,8 @@ class BootstrapLanguage extends Hookable {
 		}
 	}
 
-	private static function _language_codes_en() {
+	private static function _language_codes_en()
+	{
 		return [
 			'aa' => 'Afar', 'ab' => 'Abkhazian', 'af' => 'Afrikaans', 'am' => 'Amharic', 'ar' => 'Arabic',
 			'as' => 'Assamese', 'ay' => 'Aymara', 'az' => 'Azerbaijani', 'ba' => 'Bashkir', 'be' => 'Byelorussian',

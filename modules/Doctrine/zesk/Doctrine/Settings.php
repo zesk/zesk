@@ -30,7 +30,8 @@ use zesk\Types;
  * @author kent
  * @see Class_Settings
  */
-class Settings extends Hookable implements MetaInterface, SettingsInterface {
+class Settings extends Hookable implements MetaInterface, SettingsInterface
+{
 	/**
 	 * Enable debugging on the Settings save step
 	 *
@@ -49,7 +50,8 @@ class Settings extends Hookable implements MetaInterface, SettingsInterface {
 	 * @throws ClassNotFound
 	 */
 	#[HookMethod(handles: Hooks::HOOK_CONFIGURED)]
-	public static function configured(Application $application): void {
+	public static function configured(Application $application): void
+	{
 		$settings = $application->settings();
 		$variables = $settings->variables();
 		$depends = [];
@@ -67,7 +69,8 @@ class Settings extends Hookable implements MetaInterface, SettingsInterface {
 	 * @param int|string $name Setting to retrieve
 	 * @return mixed
 	 */
-	public function __get(int|string $name): mixed {
+	public function __get(int|string $name): mixed
+	{
 		return $this->application->configuration->getPath($name);
 	}
 
@@ -79,7 +82,8 @@ class Settings extends Hookable implements MetaInterface, SettingsInterface {
 	 * @return mixed
 	 * @see Model::get()
 	 */
-	public function get(int|string $name, mixed $default = null): mixed {
+	public function get(int|string $name, mixed $default = null): mixed
+	{
 		return $this->application->configuration->getPath($name, $default);
 	}
 
@@ -90,7 +94,8 @@ class Settings extends Hookable implements MetaInterface, SettingsInterface {
 	 * @return mixed
 	 * @see Model::get()
 	 */
-	public function has(int|string $name): bool {
+	public function has(int|string $name): bool
+	{
 		return $this->application->configuration->has($name, true);
 	}
 
@@ -99,7 +104,8 @@ class Settings extends Hookable implements MetaInterface, SettingsInterface {
 	 * @return bool
 	 * @see Model::__isset()
 	 */
-	public function __isset(int|string $name): bool {
+	public function __isset(int|string $name): bool
+	{
 		return $this->application->configuration->pathExists($name);
 	}
 
@@ -108,7 +114,8 @@ class Settings extends Hookable implements MetaInterface, SettingsInterface {
 	 *
 	 * @see Model::__set($member, $value)
 	 */
-	public function __set(int|string $name, mixed $value): void {
+	public function __set(int|string $name, mixed $value): void
+	{
 		SettingsValue::register($this->application, $name, $value);
 	}
 
@@ -120,7 +127,8 @@ class Settings extends Hookable implements MetaInterface, SettingsInterface {
 	 * @return self
 	 * @see Model::set($member, $value)
 	 */
-	public function set(int|string $name, mixed $value = null): self {
+	public function set(int|string $name, mixed $value = null): self
+	{
 		$this->__set($name, $value);
 		return $this;
 	}
@@ -132,7 +140,8 @@ class Settings extends Hookable implements MetaInterface, SettingsInterface {
 	 * @param string $name
 	 * @return mixed
 	 */
-	public function meta(string $name): mixed {
+	public function meta(string $name): mixed
+	{
 		try {
 			return SettingsValue::find($this->application, $name)->value;
 		} catch (NotFoundException) {
@@ -146,7 +155,8 @@ class Settings extends Hookable implements MetaInterface, SettingsInterface {
 	 * @param mixed $value
 	 * @return $this
 	 */
-	public function setMeta(string $name, mixed $value): self {
+	public function setMeta(string $name, mixed $value): self
+	{
 		SettingsValue::register($this->application, $name, $value);
 		return $this;
 	}
@@ -155,7 +165,8 @@ class Settings extends Hookable implements MetaInterface, SettingsInterface {
 	 *
 	 * @return $this
 	 */
-	public function clearMeta(): self {
+	public function clearMeta(): self
+	{
 		foreach ($this->em->getRepository(SettingsValue::class)->findAll() as $value) {
 			$this->em->remove($value);
 		}
@@ -163,7 +174,8 @@ class Settings extends Hookable implements MetaInterface, SettingsInterface {
 		return $this;
 	}
 
-	public function variables(): array {
+	public function variables(): array
+	{
 		$result = [];
 		foreach ($this->em->getRepository(SettingsValue::class)->findAll() as $value) {
 			/* @var $value SettingsValue */
@@ -178,7 +190,8 @@ class Settings extends Hookable implements MetaInterface, SettingsInterface {
 	 * @return $this
 	 * @see MetaInterface::deleteData()
 	 */
-	public function deleteMeta(array|string $name): self {
+	public function deleteMeta(array|string $name): self
+	{
 		foreach (Types::toArray($name) as $item) {
 			$this->__set($item, null);
 		}
@@ -193,7 +206,8 @@ class Settings extends Hookable implements MetaInterface, SettingsInterface {
 	 * @return $this|void
 	 * @throws Deprecated
 	 */
-	public function deprecated(string $old_setting, string $new_setting) {
+	public function deprecated(string $old_setting, string $new_setting)
+	{
 		if (!$this->__isset($old_setting)) {
 			return;
 		}
@@ -213,7 +227,8 @@ class Settings extends Hookable implements MetaInterface, SettingsInterface {
 	 * @param string $newPrefix
 	 * @return integer
 	 */
-	public function prefixUpdated(string $oldPrefix, string $newPrefix): int {
+	public function prefixUpdated(string $oldPrefix, string $newPrefix): int
+	{
 		$em = $this->application->entityManager();
 		$query = $em->createQuery('UPDATE ' . SettingsValue::class . ' SET name=REPLACE(name, :old, :new) WHERE name LIKE :oldPattern)');
 		$rowCount = $query->execute(['old' => $oldPrefix, 'new' => $newPrefix, 'oldPattern' => $oldPrefix . '%']);

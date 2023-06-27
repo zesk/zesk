@@ -15,7 +15,8 @@ use zesk\Module as BaseModule;
  * @author kent
  *
  */
-class Module extends BaseModule {
+class Module extends BaseModule
+{
 	/*
 	 * This port is based on the etc/diff.c.txt file
 	 */

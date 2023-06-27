@@ -9,7 +9,8 @@ declare(strict_types=1);
  */
 namespace zesk;
 
-class HTTP {
+class HTTP
+{
 	// From http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
 	/*
 	 * 100 - carry on

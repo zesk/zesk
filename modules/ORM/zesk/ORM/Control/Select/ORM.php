@@ -15,7 +15,8 @@ namespace zesk\ORM;
  * @author kent
  *
  */
-class Control_Select_ORM extends Control_Select {
+class Control_Select_ORM extends Control_Select
+{
 	/**
 	 *
 	 * @var ?Class_Base
@@ -25,7 +26,8 @@ class Control_Select_ORM extends Control_Select {
 	/**
 	 * @return ORMBase
 	 */
-	protected function model(): ORMBase {
+	protected function model(): ORMBase
+	{
 		$class = $this->class;
 		if (empty($class)) {
 			return parent::model();
@@ -33,7 +35,8 @@ class Control_Select_ORM extends Control_Select {
 		return $this->application->ormFactory($this->class);
 	}
 
-	protected function initialize(): void {
+	protected function initialize(): void
+	{
 		if (empty($this->class)) {
 			// Do not use "class" option - is also attribute on HTML tags. Use object_class
 			$this->class = $this->option('object_class');
@@ -45,7 +48,8 @@ class Control_Select_ORM extends Control_Select {
 		parent::initialize();
 	}
 
-	protected function _where() {
+	protected function _where()
+	{
 		$where = $this->option('where', '');
 		if (!is_array($where)) {
 			return [];
@@ -56,16 +60,19 @@ class Control_Select_ORM extends Control_Select {
 		return $where;
 	}
 
-	public function setValue(mixed $set): self {
+	public function setValue(mixed $set): self
+	{
 		$this->object->set($this->column(), null);
 		return $this;
 	}
 
-	protected function idColumn() {
+	protected function idColumn()
+	{
 		return $this->option('idcolumn', $this->class_object->id_column);
 	}
 
-	protected function text_columns() {
+	protected function text_columns()
+	{
 		$text_column = $this->option('text_column', $this->class_object->name_column);
 		if (!$text_column) {
 			$text_column = $this->class_object->name_column;
@@ -75,7 +82,8 @@ class Control_Select_ORM extends Control_Select {
 		return $text_column;
 	}
 
-	protected function hook_options() {
+	protected function hook_options()
+	{
 		$db = $this->class_object->database();
 		$query = $this->application->ormRegistry($this->class)->querySelect();
 		$prefix = $query->alias() . '.';
@@ -94,7 +102,8 @@ class Control_Select_ORM extends Control_Select {
 		return $this->callHook('options_query_format', $query);
 	}
 
-	protected function hook_options_queryFormat(Database_Query_Select $query) {
+	protected function hook_options_queryFormat(Database_Query_Select $query)
+	{
 		$format = $this->option('format');
 		$rows = $query->toArray('id');
 		foreach ($rows as $key => $row) {
@@ -106,7 +115,8 @@ class Control_Select_ORM extends Control_Select {
 		return $rows;
 	}
 
-	public function where($where = null, $append = false) {
+	public function where($where = null, $append = false)
+	{
 		if ($where !== null) {
 			if ($append) {
 				if (is_array($where)) {

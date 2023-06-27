@@ -37,7 +37,8 @@ use zesk\Timestamp;
  * @property User $user
  * @property Timestamp $updated
  */
-class Update extends Model {
+class Update extends Model
+{
 	/**
 	 * @param Application $application
 	 * @param string $locale
@@ -56,7 +57,8 @@ class Update extends Model {
 	 * @throws ORMNotFound
 	 * @throws StoreException
 	 */
-	public static function registerUpdate(Application $application, string $locale, User $user = null): self {
+	public static function registerUpdate(Application $application, string $locale, User $user = null): self
+	{
 		$object = $application->ormFactory(__CLASS__, [
 			'locale' => Locale::normalize($locale),
 		]);
@@ -92,7 +94,8 @@ class Update extends Model {
 	 * @throws TimeoutExpired
 	 * @throws ORMEmpty
 	 */
-	public static function cron_minute(Application $application): void {
+	public static function cron_minute(Application $application): void
+	{
 		$server = Server::singleton($application);
 		$path = $application->configuration->getPath([
 			Module::class, 'update_path',
@@ -177,7 +180,8 @@ class Update extends Model {
 	 * @param string $translation
 	 * @throws FileSystemException
 	 */
-	private static function writeTranslationLine(mixed $f, string $filename, string $original, string $translation): void {
+	private static function writeTranslationLine(mixed $f, string $filename, string $original, string $translation): void
+	{
 		if (!fwrite($f, '$tt[' . PHP::dump($original) . '] = ' . PHP::dump($translation) . ";\n")) {
 			throw new FileSystemException($filename, 'Unable to write to {filename}');
 		}
@@ -195,7 +199,8 @@ class Update extends Model {
 	 * @throws FilePermission
 	 * @throws ORMNotFound
 	 */
-	public static function updateLocale(Application $application, string $path, string $locale): void {
+	public static function updateLocale(Application $application, string $path, string $locale): void
+	{
 		$iterator = Token::localeQuery($application, $locale)->addWhere('status', Token::STATUS_DONE)->setOrderBy([
 			'updated DESC', 'original',
 		])->iterator('original', 'translation');

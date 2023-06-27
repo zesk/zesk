@@ -15,8 +15,10 @@ use zesk\PHPUnit\TestCase;
  * @author kent
  *
  */
-class Net_SMTP_Client_Test extends TestCase {
-	public function test_main(): void {
+class Net_SMTP_Client_Test extends TestCase
+{
+	public function test_main(): void
+	{
 		$url = $this->option('url');
 		if (!$url) {
 			$this->markTestSkipped('No URL specified for ' . __CLASS__);

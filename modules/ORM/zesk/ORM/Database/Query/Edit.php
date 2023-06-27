@@ -21,7 +21,8 @@ use zesk\StringTools;
  * @author kent
  *
  */
-abstract class Edit extends Query {
+abstract class Edit extends Query
+{
 	/**
 	 * Low priority update/insert
 	 *
@@ -59,14 +60,16 @@ abstract class Edit extends Query {
 	/**
 	 * @return string|null
 	 */
-	public function table(): ?string {
+	public function table(): ?string
+	{
 		return $this->table[$this->default_alias] ?? null;
 	}
 
 	/**
 	 * @return string
 	 */
-	public function defaultAlias(): string {
+	public function defaultAlias(): string
+	{
 		return $this->default_alias;
 	}
 
@@ -77,7 +80,8 @@ abstract class Edit extends Query {
 	 * @param string $alias Optional alias. Blank ("") is the default table.
 	 * @return self
 	 */
-	public function setTable(string $table, string $alias = ''): self {
+	public function setTable(string $table, string $alias = ''): self
+	{
 		if (count($this->table) === 0) {
 			$this->default_alias = $alias;
 		}
@@ -92,7 +96,8 @@ abstract class Edit extends Query {
 	 * @param string $alias Optional table alias
 	 * @return self
 	 */
-	public function addClassColumns(string $class, string $alias = ''): self {
+	public function addClassColumns(string $class, string $alias = ''): self
+	{
 		$object_class = $this->application->class_ormRegistry($class);
 		/* @var $object_class Class_Base */
 		if (count($this->table) === 0) {
@@ -109,7 +114,8 @@ abstract class Edit extends Query {
 	 * @param string $name
 	 * @return boolean
 	 */
-	private function validColumn(string $name): bool {
+	private function validColumn(string $name): bool
+	{
 		$clean_name = ltrim($name, '*');
 		[$alias, $clean_name] = StringTools::pair($clean_name, '.', $this->default_alias, $clean_name);
 		$columns = $this->valid_columns[$alias] ?? null;
@@ -127,7 +133,8 @@ abstract class Edit extends Query {
 	 * @return self
 	 * @throws KeyNotFound
 	 */
-	public function value(array|string $name, mixed $value = null): self {
+	public function value(array|string $name, mixed $value = null): self
+	{
 		if (is_array($name)) {
 			foreach ($name as $k => $v) {
 				$this->value($k, $v);
@@ -146,7 +153,8 @@ abstract class Edit extends Query {
 	 * @param string $name
 	 * @throws KeyNotFound
 	 */
-	private function check_column(string $name): void {
+	private function check_column(string $name): void
+	{
 		if (!$this->validColumn($name)) {
 			throw new KeyNotFound('Column {name} is not in table {table} (columns are {columns})', [
 				'name' => $name,
@@ -162,7 +170,8 @@ abstract class Edit extends Query {
 	 *
 	 * @return array
 	 */
-	public function values(): array {
+	public function values(): array
+	{
 		return $this->values;
 	}
 
@@ -173,7 +182,8 @@ abstract class Edit extends Query {
 	 * @return self
 	 * @throws KeyNotFound
 	 */
-	public function setValues(array $values): self {
+	public function setValues(array $values): self
+	{
 		return $this->value($values);
 	}
 
@@ -183,7 +193,8 @@ abstract class Edit extends Query {
 	 * @param boolean $low_priority
 	 * @return self
 	 */
-	public function setLowPriority(bool $low_priority): self {
+	public function setLowPriority(bool $low_priority): self
+	{
 		$this->low_priority = $low_priority;
 		return $this;
 	}
@@ -193,7 +204,8 @@ abstract class Edit extends Query {
 	 *
 	 * @return boolean
 	 */
-	public function lowPriority(): bool {
+	public function lowPriority(): bool
+	{
 		return $this->low_priority;
 	}
 
@@ -204,7 +216,8 @@ abstract class Edit extends Query {
 	 * @param string $alias
 	 * @return $this
 	 */
-	public function setValidColumns(array $columns, string $alias = ''): self {
+	public function setValidColumns(array $columns, string $alias = ''): self
+	{
 		$this->valid_columns[$alias] = $columns;
 		return $this;
 	}

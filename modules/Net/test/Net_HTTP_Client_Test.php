@@ -11,10 +11,12 @@ namespace zesk;
  * @author kent
  *
  */
-class Net_HTTP_Client_Test extends UnitTest {
+class Net_HTTP_Client_Test extends UnitTest
+{
 	public const TEST_URL = 'https://marketacumen.com/';
 
-	public function test_all(): void {
+	public function test_all(): void
+	{
 		$url = self::TEST_URL;
 
 		$x = new Net_HTTP_Client($this->application, $url);
@@ -54,12 +56,14 @@ class Net_HTTP_Client_Test extends UnitTest {
 		$x->domain();
 	}
 
-	public function do_not_test_simpleGet(): void {
+	public function do_not_test_simpleGet(): void
+	{
 		$url = 'https://127.0.0.1/';
 		Net_HTTP_Client::simpleGet($url);
 	}
 
-	public function test_main(): void {
+	public function test_main(): void
+	{
 		$url = self::TEST_URL;
 
 		$result = Net_HTTP_Client::simpleGet($url);
@@ -67,19 +71,22 @@ class Net_HTTP_Client_Test extends UnitTest {
 		$this->assertTrue(str_contains($result, 'Market Acumen'), $result);
 	}
 
-	public function test_url_content_length(): void {
+	public function test_url_content_length(): void
+	{
 		$url = self::TEST_URL . 'images/marketacumen-logo.png';
 		$n = Net_HTTP_Client::url_content_length($this->application, $url);
 		$this->assertGreaterThan(0, $n);
 	}
 
-	public function test_url_headers(): void {
+	public function test_url_headers(): void
+	{
 		$url = self::TEST_URL;
 		$headers = Net_HTTP_Client::url_headers($this->application, $url);
 		$this->assertStringStartsWith('text/html', $headers['Content-Type']);
 	}
 
-	public function test_default_userAgent(): void {
+	public function test_default_userAgent(): void
+	{
 		$client = new Net_HTTP_Client($this->application);
 		$this->assertStringStartsWith('zesk', $client->defaultUserAgent());
 	}

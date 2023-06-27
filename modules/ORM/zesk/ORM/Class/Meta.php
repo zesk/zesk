@@ -16,7 +16,8 @@ use zesk\PHP;
  * @see Meta
  * @author kent
  */
-class Class_Meta extends Class_Base {
+class Class_Meta extends Class_Base
+{
 	public array $primary_keys = [
 		'parent', 'name',
 	];
@@ -37,7 +38,8 @@ class Class_Meta extends Class_Base {
 	 * Only thing set is "$this->class"
 	 * @throws ORMNotFound
 	 */
-	protected function configure(ORMBase $object): void {
+	protected function configure(ORMBase $object): void
+	{
 		if (!$this->table) {
 			try {
 				$this->initializeDatabase($object);

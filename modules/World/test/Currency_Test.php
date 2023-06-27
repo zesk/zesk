@@ -5,12 +5,14 @@ namespace zesk\World;
 
 use zesk\ORM\ORMUnitTest;
 
-class Currency_Test extends ORMUnitTest {
+class Currency_Test extends ORMUnitTest
+{
 	protected array $load_modules = [
 		'World',
 	];
 
-	public function initialize(): void {
+	public function initialize(): void
+	{
 		$this->schemaSynchronize([
 			Currency::class,
 		], [
@@ -18,7 +20,8 @@ class Currency_Test extends ORMUnitTest {
 		]);
 	}
 
-	public static function sampleCountry(): Country {
+	public static function sampleCountry(): Country
+	{
 		$app = self::app();
 		$result = $app->ormFactory(Country::class, [
 			Country::MEMBER_CODE => 'US', Country::MEMBER_NAME => 'United States',
@@ -30,7 +33,8 @@ class Currency_Test extends ORMUnitTest {
 	/**
 	 * @return array[]
 	 */
-	public static function classes_to_test(): array {
+	public static function classes_to_test(): array
+	{
 		return [
 			[
 				Currency::class, [Currency::MEMBER_BANK_COUNTRY => fn () => self::sampleCountry()], [],
@@ -45,7 +49,8 @@ class Currency_Test extends ORMUnitTest {
 	 * @param array $options
 	 * @dataProvider classes_to_test
 	 */
-	public function test_classes(string $class, mixed $mixed = null, array $options = []): void {
+	public function test_classes(string $class, mixed $mixed = null, array $options = []): void
+	{
 		$mixed = $this->applyClosures($mixed);
 		$this->assertORMClass($class, $mixed, $options);
 	}

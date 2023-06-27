@@ -32,7 +32,8 @@ use zesk\PHP;
 use zesk\Text;
 use zesk\Types;
 
-abstract class Schema extends Hookable {
+abstract class Schema extends Hookable
+{
 	/**
 	 * Boolean value
 	 */
@@ -117,7 +118,8 @@ abstract class Schema extends Hookable {
 	 * @param ORMBase|null $object
 	 * @param array $options
 	 */
-	public function __construct(Class_Base $class_object, ORMBase $object = null, array $options = []) {
+	public function __construct(Class_Base $class_object, ORMBase $object = null, array $options = [])
+	{
 		parent::__construct($class_object->application, $options);
 		$this->class_object = $class_object;
 		$this->object = $object;
@@ -129,7 +131,8 @@ abstract class Schema extends Hookable {
 	 * @param Application $application
 	 * @throws Semantics
 	 */
-	public static function hooks(Application $application): void {
+	public static function hooks(Application $application): void
+	{
 		$application->hooks->add('configured', __CLASS__ . '::configured');
 		$application->configuration->path(__CLASS__);
 	}
@@ -138,7 +141,8 @@ abstract class Schema extends Hookable {
 	 *
 	 * @return bool
 	 */
-	public function debug(): bool {
+	public function debug(): bool
+	{
 		return $this->optionBool(self::OPTION_DEBUG);
 	}
 
@@ -148,7 +152,8 @@ abstract class Schema extends Hookable {
 	 * @param bool $set
 	 * @return self
 	 */
-	public function setDebug(bool $set): self {
+	public function setDebug(bool $set): self
+	{
 		$this->setOption(self::OPTION_DEBUG, $set);
 		return $this;
 	}
@@ -157,7 +162,8 @@ abstract class Schema extends Hookable {
 	 * @param Application $application
 	 * @return bool
 	 */
-	public static function schemaDebugging(Application $application): bool {
+	public static function schemaDebugging(Application $application): bool
+	{
 		return $application->configuration->path(self::class)->getBool(self::OPTION_DEBUG);
 	}
 
@@ -166,14 +172,16 @@ abstract class Schema extends Hookable {
 	 * @param bool $set
 	 * @return void
 	 */
-	public static function setSchemaDebugging(Application $application, bool $set): void {
+	public static function setSchemaDebugging(Application $application, bool $set): void
+	{
 		$application->configuration->path(self::class)->set(self::OPTION_DEBUG, $set);
 	}
 
 	/**
 	 * @return Base
 	 */
-	final public function database(): Base {
+	final public function database(): Base
+	{
 		return $this->db;
 	}
 
@@ -183,7 +191,8 @@ abstract class Schema extends Hookable {
 	 *
 	 * @return array
 	 */
-	protected function schemaVariables(): array {
+	protected function schemaVariables(): array
+	{
 		$map = $this->object ? $this->object->schema_map() : [];
 		$map += $this->class_object->schemaMap();
 		return $map;
@@ -195,7 +204,8 @@ abstract class Schema extends Hookable {
 	 * @param string|array $mixed
 	 * @return string|array
 	 */
-	final public function map(string|array $mixed): string|array {
+	final public function map(string|array $mixed): string|array
+	{
 		if (is_array($mixed)) {
 			$mixed = ArrayTools::mapKeys($mixed, $this->schemaVariables());
 		}
@@ -206,7 +216,8 @@ abstract class Schema extends Hookable {
 	 *
 	 * @return string
 	 */
-	final public function primaryTable(): string {
+	final public function primaryTable(): string
+	{
 		return $this->class_object->table();
 	}
 
@@ -226,7 +237,8 @@ abstract class Schema extends Hookable {
 	 * @param array $columns
 	 * @return string|bool
 	 */
-	private static function validate_index_column_specification(Base $db, array $columns): string|bool {
+	private static function validate_index_column_specification(Base $db, array $columns): string|bool
+	{
 		foreach ($columns as $k => $v) {
 			if (is_numeric($k) && $db->validColumnName($v)) {
 				continue;
@@ -252,7 +264,8 @@ abstract class Schema extends Hookable {
 	 * @throws SyntaxException
 	 * @throws NotFoundException
 	 */
-	public static function schema_to_database_table(Base $db, string $table_name, array $table_schema, string $context = null): Table {
+	public static function schema_to_database_table(Base $db, string $table_name, array $table_schema, string $context = null): Table
+	{
 		$logger = $db->application->logger;
 
 		$table = new Table($db, $table_name, $table_schema['engine'] ?? '');
@@ -342,7 +355,8 @@ abstract class Schema extends Hookable {
 	 * @throws Semantics
 	 * @throws SyntaxException|NotFoundException
 	 */
-	public function tables(): array {
+	public function tables(): array
+	{
 		$logger = $this->application->logger;
 		$schema = $this->schema();
 		$tables = [];
@@ -370,7 +384,8 @@ abstract class Schema extends Hookable {
 	 * @return string
 	 * @see Options::__toString()
 	 */
-	public function __toString() {
+	public function __toString()
+	{
 		$result = [];
 
 		try {
@@ -396,7 +411,8 @@ abstract class Schema extends Hookable {
 	 * @throws Semantics
 	 * @throws SyntaxException
 	 */
-	public static function update_object(ORMBase $object): array {
+	public static function update_object(ORMBase $object): array
+	{
 		$logger = $object->application->logger;
 
 		/* @var $db Base */
@@ -421,7 +437,8 @@ abstract class Schema extends Hookable {
 	 * @throws SchemaException
 	 * @see update_object
 	 */
-	protected function _update_object(): array {
+	protected function _update_object(): array
+	{
 		$db = $this->database();
 
 		$tables = $this->tables();
@@ -455,7 +472,8 @@ abstract class Schema extends Hookable {
 	 * @throws ClassNotFound
 	 * @throws ParameterException
 	 */
-	public static function tableSynchronize(Base $db, string $create_sql, bool $change_permanently = true): array {
+	public static function tableSynchronize(Base $db, string $create_sql, bool $change_permanently = true): array
+	{
 		$table = $db->parseCreateTable($create_sql, __METHOD__);
 		return self::synchronize($db, $table, $change_permanently);
 	}
@@ -467,7 +485,8 @@ abstract class Schema extends Hookable {
 	 * @param boolean $change_permanently
 	 * @return string[]
 	 */
-	public static function synchronize(Base $db, Table $table, bool $change_permanently = true): array {
+	public static function synchronize(Base $db, Table $table, bool $change_permanently = true): array
+	{
 		$name = $table->name();
 
 		try {
@@ -487,7 +506,8 @@ abstract class Schema extends Hookable {
 	 * @param boolean $change_permanently
 	 * @return array
 	 */
-	public static function update(Base $db, Table $db_table_old, Table $db_table_new, bool $change_permanently = false): array {
+	public static function update(Base $db, Table $db_table_old, Table $db_table_new, bool $change_permanently = false): array
+	{
 		$app = $db->application;
 		$logger = $app->logger;
 		$debug = self::schemaDebugging($app);

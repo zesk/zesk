@@ -11,7 +11,8 @@ namespace zesk\ORM;
  * @property ORMBase $parent
  * @property string $value
  */
-class Meta extends ORMBase {
+class Meta extends ORMBase
+{
 	/**
 	 *
 	 * @var boolean
@@ -23,7 +24,8 @@ class Meta extends ORMBase {
 	 * @param string $name
 	 * @return self
 	 */
-	protected static function classMetaFactory(string $class, ORMBase $parent, string $name): ORMBase {
+	protected static function classMetaFactory(string $class, ORMBase $parent, string $name): ORMBase
+	{
 		$name = self::clean_code_name($name, '_');
 		$ormBase = $parent->application->ormFactory($class, [
 			'parent' => $parent,
@@ -46,7 +48,8 @@ class Meta extends ORMBase {
 	 * @param mixed $value
 	 * @return self
 	 */
-	public function metaSet(string $value): self {
+	public function metaSet(string $value): self
+	{
 		$this->_meta_fetch = true;
 		return $this->setMember('value', $value)->store();
 	}
@@ -55,7 +58,8 @@ class Meta extends ORMBase {
 	 *
 	 * @return string
 	 */
-	public function metaGet(): string {
+	public function metaGet(): string
+	{
 		if (!$this->_meta_fetch) {
 			try {
 				$this->fetch();

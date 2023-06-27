@@ -92,6 +92,7 @@ consoleInfo -n "Setting up database ... "
   echo "TODO TRY COMMAND:"
   echo docker run -t zesk:latest mariadb "${databaseArguments[@]}"
 } >> "$quietLog"
+reportTiming "$start" OK
 
 "$top/bin/build/mariadb-client.sh"
 
@@ -135,4 +136,5 @@ consoleInfo
 "$top/bin/build/release-check-version.sh" "${versionArgs[@]}"
 consoleReset
 
+export GITHUB_ACCESS_TOKEN
 env > "$envFile"

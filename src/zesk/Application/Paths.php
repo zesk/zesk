@@ -21,7 +21,8 @@ use zesk\Types;
  * @author kent
  *
  */
-class Paths {
+class Paths
+{
 	/**
 	 * @see self::__construct()
 	 * @see self::setHome()
@@ -104,7 +105,8 @@ class Paths {
 	 * @see self::ENVIRONMENT_HOME
 	 * @see Application::OPTION_HOME_PATH
 	 */
-	public function __construct(Configuration $configuration) {
+	public function __construct(Configuration $configuration)
+	{
 		$env = [];
 		if (array_key_exists(self::ENVIRONMENT_HOME, $_SERVER)) {
 			$env += [Application::OPTION_HOME_PATH => $_SERVER[self::ENVIRONMENT_HOME]];
@@ -120,7 +122,8 @@ class Paths {
 	 *
 	 * @return array
 	 */
-	private function _initializeZesk(): array {
+	private function _initializeZesk(): array
+	{
 		$zeskRoot = realpath(dirname(__DIR__, 3)) . '/';
 		if (!defined('ZESK_ROOT')) {
 			define('ZESK_ROOT', $zeskRoot);
@@ -140,7 +143,8 @@ class Paths {
 	 * @param array $options
 	 * @return array
 	 */
-	public function configure(array $options): array {
+	public function configure(array $options): array
+	{
 		$setters = [
 			Application::OPTION_PATH => $this->setApplication(...),
 			Application::OPTION_CACHE_PATH => $this->setTemporary(...),
@@ -160,7 +164,8 @@ class Paths {
 	/**
 	 * @return void
 	 */
-	public function shutdown(): void {
+	public function shutdown(): void
+	{
 		// Pass. Maybe delete temporary directories?
 	}
 
@@ -171,7 +176,8 @@ class Paths {
 	 * @return $this
 	 * @throws DirectoryNotFound
 	 */
-	public function setApplication(string $set): self {
+	public function setApplication(string $set): self
+	{
 		if (!is_dir($set)) {
 			throw new DirectoryNotFound($set);
 		}
@@ -187,7 +193,8 @@ class Paths {
 	 * @return $this
 	 * @throws DirectoryNotFound
 	 */
-	public function setHome(string $home): self {
+	public function setHome(string $home): self
+	{
 		$home = $this->expand($home);
 		if (!is_dir($home)) {
 			throw new DirectoryNotFound($home);
@@ -204,7 +211,8 @@ class Paths {
 	 * @return $this
 	 * @throws DirectoryNotFound
 	 */
-	public function setUserHome(string $home): self {
+	public function setUserHome(string $home): self
+	{
 		if (!is_dir($this->expand($home))) {
 			throw new DirectoryNotFound($home);
 		}
@@ -220,7 +228,8 @@ class Paths {
 	 * @return $this
 	 * @throws DirectoryNotFound
 	 */
-	public function setTemporary(string $path): self {
+	public function setTemporary(string $path): self
+	{
 		if (!is_dir($this->expand($path))) {
 			throw new DirectoryNotFound($path);
 		}
@@ -236,7 +245,8 @@ class Paths {
 	 * @return $this
 	 * @throws DirectoryNotFound
 	 */
-	public function setData(string $path): self {
+	public function setData(string $path): self
+	{
 		if (!is_dir($this->expand($path))) {
 			throw new DirectoryNotFound($path);
 		}
@@ -250,7 +260,8 @@ class Paths {
 	 * @param string $suffix
 	 * @return string
 	 */
-	public function zesk(string $suffix = ''): string {
+	public function zesk(string $suffix = ''): string
+	{
 		return Directory::path(ZESK_ROOT, $suffix);
 	}
 
@@ -260,7 +271,8 @@ class Paths {
 	 * @param string $suffix
 	 * @return string
 	 */
-	public function application(string $suffix = ''): string {
+	public function application(string $suffix = ''): string
+	{
 		return Directory::path($this->application, $suffix);
 	}
 
@@ -271,7 +283,8 @@ class Paths {
 	 * @return array
 	 * @see self::which
 	 */
-	public function command(): array {
+	public function command(): array
+	{
 		return Types::toList($_SERVER[self::ENVIRONMENT_PATH], [], PATH_SEPARATOR);
 	}
 
@@ -283,7 +296,8 @@ class Paths {
 	 * @return $this
 	 * @see self::which
 	 */
-	public function addCommand(string $add): self {
+	public function addCommand(string $add): self
+	{
 		$command_paths = $this->command();
 		if (is_dir($add)) {
 			$add = realpath($add);
@@ -301,7 +315,8 @@ class Paths {
 	 * @param string $suffix
 	 * @return string
 	 */
-	public function temporary(string $suffix = ''): string {
+	public function temporary(string $suffix = ''): string
+	{
 		return Directory::path($this->expand($this->temporary), $suffix);
 	}
 
@@ -311,7 +326,8 @@ class Paths {
 	 * @param string $suffix
 	 * @return string
 	 */
-	public function data(string $suffix = ''): string {
+	public function data(string $suffix = ''): string
+	{
 		return Directory::path($this->expand($this->data), $suffix);
 	}
 
@@ -325,7 +341,8 @@ class Paths {
 	 *            Added file or directory to add to home path
 	 * @return string Path to file within the current user's home path
 	 */
-	public function home(string $suffix = ''): string {
+	public function home(string $suffix = ''): string
+	{
 		return $this->home ? Directory::path($this->home, $suffix) : '';
 	}
 
@@ -338,7 +355,8 @@ class Paths {
 	 * @param string $suffix Append to uid path
 	 * @return string
 	 */
-	public function userHome(string $suffix = ''): string {
+	public function userHome(string $suffix = ''): string
+	{
 		return $this->userHome ? Directory::path($this->expand($this->userHome), $suffix) : '';
 	}
 
@@ -347,7 +365,8 @@ class Paths {
 	 *
 	 * @param Application $application
 	 */
-	public function created(Application $application): void {
+	public function created(Application $application): void
+	{
 		$application->configuration->merge(new Configuration($this->_updateConfiguration()));
 	}
 
@@ -356,7 +375,8 @@ class Paths {
 	 *
 	 * @return array
 	 */
-	private function _updateConfiguration(): array {
+	private function _updateConfiguration(): array
+	{
 		$_SERVER[self::ENVIRONMENT_HOME] = $this->home();
 		return [Application::OPTION_HOME_PATH => $this->home()];
 	}
@@ -372,7 +392,8 @@ class Paths {
 	 * @param mixed $file
 	 * @return string
 	 */
-	public function expand(string $file): string {
+	public function expand(string $file): string
+	{
 		if ($file === '') {
 			return $file;
 		}
@@ -402,7 +423,8 @@ class Paths {
 	 * @return string
 	 * @throws NotFoundException
 	 */
-	public function which(string $command): string {
+	public function which(string $command): string
+	{
 		if (array_key_exists($command, $this->which_cache)) {
 			return $this->which_cache[$command];
 		}
@@ -426,7 +448,8 @@ class Paths {
 	 *
 	 * @return string[]
 	 */
-	public function variables(): array {
+	public function variables(): array
+	{
 		return [
 			'zesk' => ZESK_ROOT, 'application' => $this->application, 'temporary' => $this->temporary,
 			'data' => $this->data, 'home' => $this->home, 'uid' => $this->userHome, 'command' => $this->command(),

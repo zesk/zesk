@@ -5,7 +5,8 @@ namespace zesk\Application;
 
 use TypeError;
 
-class Classes {
+class Classes
+{
 	/**
 	 *
 	 * @var integer
@@ -51,14 +52,16 @@ class Classes {
 	/**
 	 * Classes constructor.
 	 */
-	public function __construct() {
+	public function __construct()
+	{
 		$this->loadDeclared();
 	}
 
 	/**
 	 * @return void
 	 */
-	private function loadDeclared(): void {
+	private function loadDeclared(): void
+	{
 		foreach (get_declared_classes() as $class) {
 			$this->register($class);
 		}
@@ -68,7 +71,8 @@ class Classes {
 	 *
 	 * @param string $class
 	 */
-	private function _add(string $class): void {
+	private function _add(string $class): void
+	{
 		$this->class_case[strtolower($class)] = $class;
 		$parent_classes = $this->hierarchy($class);
 		$this->classes[$class] = [];
@@ -88,7 +92,8 @@ class Classes {
 	 * @param string|array $class
 	 * @return string|array
 	 */
-	public function register(string|array $class): string|array {
+	public function register(string|array $class): string|array
+	{
 		if (is_array($class)) {
 			$result = [];
 			foreach ($class as $classy) {
@@ -114,7 +119,8 @@ class Classes {
 	 * @param string $class
 	 * @return string[]
 	 */
-	public function subclasses(string $class): array {
+	public function subclasses(string $class): array
+	{
 		$classes = [
 			$class,
 		];
@@ -140,7 +146,8 @@ class Classes {
 	 * @param string $stop_class Return up to and including this class, blank to include all classes.
 	 * @return array
 	 */
-	public function hierarchy(object|string $mixed, string $stop_class = ''): array {
+	public function hierarchy(object|string $mixed, string $stop_class = ''): array
+	{
 		if (!is_string($mixed)) {
 			$mixed = $mixed::class;
 		}

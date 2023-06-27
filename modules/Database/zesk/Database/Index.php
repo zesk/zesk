@@ -18,7 +18,8 @@ use zesk\Text;
  * @author kent
  * @package zesk
  */
-class Index {
+class Index
+{
 	public const SIZE_DEFAULT = -1;
 
 	/**
@@ -74,7 +75,8 @@ class Index {
 
 	public const TYPE_PRIMARY = 'PRIMARY KEY';
 
-	final public function variables(): array {
+	final public function variables(): array
+	{
 		return [
 			'database_name' => $this->database->codeName(),
 			'table' => $this->table(),
@@ -93,7 +95,8 @@ class Index {
 	 * @param ?string $structure
 	 * @throws Semantics
 	 */
-	public function __construct(Table $table, string $name = '', string $type = self::TYPE_INDEX, string $structure = null) {
+	public function __construct(Table $table, string $name = '', string $type = self::TYPE_INDEX, string $structure = null)
+	{
 		$this->table = $table;
 		$this->database = $table->database();
 		$this->columns = [];
@@ -124,7 +127,8 @@ class Index {
 	 * @return $this
 	 * @throws Semantics
 	 */
-	public function addColumns(array $columns): self {
+	public function addColumns(array $columns): self
+	{
 		$table = $this->table;
 		foreach ($columns as $col => $size) {
 			if (is_numeric($size) || is_bool($size)) {
@@ -160,7 +164,8 @@ class Index {
 	/**
 	 *
 	 */
-	public function __destruct() {
+	public function __destruct()
+	{
 		unset($this->table);
 		unset($this->database);
 		unset($this->columns);
@@ -172,7 +177,8 @@ class Index {
 	 * @return string
 	 * @todo Move into database implementation
 	 */
-	public static function determineType(string $sqlType): string {
+	public static function determineType(string $sqlType): string
+	{
 		if (empty($sqlType)) {
 			return self::TYPE_INDEX;
 		}
@@ -195,7 +201,8 @@ class Index {
 	 * @param ?string $structure
 	 * @return string
 	 */
-	public function determineStructure(string $structure = null): string {
+	public function determineStructure(string $structure = null): string
+	{
 		if (is_string($structure)) {
 			$structure = strtoupper($structure);
 			switch ($structure) {
@@ -211,28 +218,32 @@ class Index {
 	 *
 	 * @return string
 	 */
-	public function name(): string {
+	public function name(): string
+	{
 		return $this->name;
 	}
 
 	/**
 	 * @return Table
 	 */
-	public function table(): Table {
+	public function table(): Table
+	{
 		return $this->table;
 	}
 
 	/**
 	 * @return array
 	 */
-	public function columns(): array {
+	public function columns(): array
+	{
 		return array_keys($this->columns);
 	}
 
 	/**
 	 *
 	 */
-	public function columnSizes(): array {
+	public function columnSizes(): array
+	{
 		return $this->columns;
 	}
 
@@ -240,7 +251,8 @@ class Index {
 	 *
 	 * @return int
 	 */
-	public function columnCount(): int {
+	public function columnCount(): int
+	{
 		return count($this->columns);
 	}
 
@@ -248,7 +260,8 @@ class Index {
 	 *
 	 * @return string
 	 */
-	public function type(): string {
+	public function type(): string
+	{
 		return $this->type;
 	}
 
@@ -256,7 +269,8 @@ class Index {
 	 * @param string $set
 	 * @return $this
 	 */
-	public function setType(string $set): self {
+	public function setType(string $set): self
+	{
 		$this->type = self::determineType($set);
 		if ($this->type === self::TYPE_PRIMARY) {
 			$this->name = self::NAME_PRIMARY;
@@ -268,7 +282,8 @@ class Index {
 	 *
 	 * @return string
 	 */
-	public function structure(): string {
+	public function structure(): string
+	{
 		return $this->structure;
 	}
 
@@ -277,7 +292,8 @@ class Index {
 	 * @param int $size
 	 * @return $this
 	 */
-	public function addDatabaseColumn(Column $database_column, int $size = self::SIZE_DEFAULT): self {
+	public function addDatabaseColumn(Column $database_column, int $size = self::SIZE_DEFAULT): self
+	{
 		$column = $database_column->name();
 		if ($this->type === self::TYPE_PRIMARY) {
 			$database_column->setPrimaryKey(true);
@@ -292,7 +308,8 @@ class Index {
 	 * @return $this
 	 * @throws NotFoundException
 	 */
-	public function addColumn(string $column, int $size = self::SIZE_DEFAULT): self {
+	public function addColumn(string $column, int $size = self::SIZE_DEFAULT): self
+	{
 		try {
 			$database_column = $this->table->column($column);
 			return $this->addDatabaseColumn($database_column, $size);
@@ -311,7 +328,8 @@ class Index {
 	 * @param bool $debug
 	 * @return boolean
 	 */
-	public function isSimilar(Index $that, bool $debug = false): bool {
+	public function isSimilar(Index $that, bool $debug = false): bool
+	{
 		$logger = $this->database->application->logger;
 		if ($this->type() !== $that->type()) {
 			if ($debug) {
@@ -359,7 +377,8 @@ class Index {
 	/**
 	 *
 	 */
-	public function sqlIndexType(): string {
+	public function sqlIndexType(): string
+	{
 		return $this->database->sqlDialect()->indexType($this->table, $this->name, $this->type, $this->columnSizes());
 	}
 
@@ -367,7 +386,8 @@ class Index {
 	 *
 	 * @return string
 	 */
-	public function sqlIndexAdd(): string {
+	public function sqlIndexAdd(): string
+	{
 		return $this->database->sqlDialect()->alterTableIndexAdd($this->table, $this);
 	}
 
@@ -375,7 +395,8 @@ class Index {
 	 *
 	 * @return string
 	 */
-	public function sqlIndexDrop(): string {
+	public function sqlIndexDrop(): string
+	{
 		return $this->database->sqlDialect()->alterTableIndexDrop($this->table, $this);
 	}
 
@@ -383,7 +404,8 @@ class Index {
 	 *
 	 * @return boolean
 	 */
-	public function isPrimary(): bool {
+	public function isPrimary(): bool
+	{
 		return $this->type === self::TYPE_PRIMARY;
 	}
 
@@ -391,7 +413,8 @@ class Index {
 	 *
 	 * @return boolean
 	 */
-	public function isIndex(): bool {
+	public function isIndex(): bool
+	{
 		return $this->type === self::TYPE_INDEX;
 	}
 
@@ -399,7 +422,8 @@ class Index {
 	 *
 	 * @return boolean
 	 */
-	public function isUnique(): bool {
+	public function isUnique(): bool
+	{
 		return $this->type === self::TYPE_UNIQUE;
 	}
 
@@ -407,7 +431,8 @@ class Index {
 	 *
 	 * @return string
 	 */
-	public function _debug_dump(): string {
+	public function _debug_dump(): string
+	{
 		$vars = get_object_vars($this);
 		$vars['database'] = $this->database->codeName();
 		$vars['table'] = $this->table->name();

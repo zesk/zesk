@@ -18,7 +18,8 @@ use zesk\PHPUnit\TestCase;
  * @author kent
  *
  */
-class Net_POP_Client_Test extends TestCase {
+class Net_POP_Client_Test extends TestCase
+{
 	/**
 	 *
 	 * @var string
@@ -39,7 +40,8 @@ class Net_POP_Client_Test extends TestCase {
 
 	/**
 	 */
-	public function test_outgoing_requirements(): void {
+	public function test_outgoing_requirements(): void
+	{
 		$mail = new Mail($this->application, [], '');
 		if (!$mail->option('SMTP_URL')) {
 			$this->markTestSkipped($mail::class . '::SMTP_URL not set');
@@ -60,7 +62,8 @@ class Net_POP_Client_Test extends TestCase {
 	 * @return void
 	 * @depends test_outgoing_requirements
 	 */
-	public function test_mail_delivery(): void {
+	public function test_mail_delivery(): void
+	{
 		$test_email = $this->email;
 		$test_url = $this->url;
 
@@ -113,7 +116,8 @@ class Net_POP_Client_Test extends TestCase {
 	/**
 	 * @depends test_outgoing_requirements
 	 */
-	public function test_bad_password(): void {
+	public function test_bad_password(): void
+	{
 		$this->expectException(Authentication::class);
 		$parts = ArrayTools::filter($this->parts, 'scheme;host;user');
 		$parts['pass'] = 'bad-password';

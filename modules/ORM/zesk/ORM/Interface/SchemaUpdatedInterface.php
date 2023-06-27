@@ -7,6 +7,7 @@ namespace zesk\ORM\Interface;
  * Hook is called after the schema has been updated
  */
 
-interface SchemaUpdatedInterface {
+interface SchemaUpdatedInterface
+{
 	public function hook_schema_updated(): void;
 }

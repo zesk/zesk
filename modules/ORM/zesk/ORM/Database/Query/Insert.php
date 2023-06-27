@@ -26,7 +26,8 @@ use zesk\PHP;
  * @author kent
  *
  */
-class Insert extends Edit {
+class Insert extends Edit
+{
 	/**
 	 * This is a REPLACE command
 	 *
@@ -59,7 +60,8 @@ class Insert extends Edit {
 	 *
 	 * @param Base $db
 	 */
-	public function __construct(Base $db) {
+	public function __construct(Base $db)
+	{
 		parent::__construct('INSERT', $db);
 	}
 
@@ -68,7 +70,8 @@ class Insert extends Edit {
 	 *
 	 * @return string
 	 */
-	public function into(): string {
+	public function into(): string
+	{
 		return $this->into;
 	}
 
@@ -78,7 +81,8 @@ class Insert extends Edit {
 	 * @param string $set Into table name
 	 * @return self
 	 */
-	public function setInto(string $set): self {
+	public function setInto(string $set): self
+	{
 		$this->setTable($set);
 		$this->into = $set;
 		return $this;
@@ -89,7 +93,8 @@ class Insert extends Edit {
 	 *
 	 * @return bool
 	 */
-	public function replace(): bool {
+	public function replace(): bool
+	{
 		return $this->replace;
 	}
 
@@ -97,7 +102,8 @@ class Insert extends Edit {
 	 * @param bool $set
 	 * @return $this
 	 */
-	public function setReplace(bool $set): self {
+	public function setReplace(bool $set): self
+	{
 		$this->replace = $set;
 		return $this;
 	}
@@ -107,7 +113,8 @@ class Insert extends Edit {
 	 *
 	 * @return self
 	 */
-	public function insert(): self {
+	public function insert(): self
+	{
 		$this->replace = false;
 		return $this;
 	}
@@ -118,7 +125,8 @@ class Insert extends Edit {
 	 * @param Select $query
 	 * @return self
 	 */
-	public function select(Select $query): self {
+	public function select(Select $query): self
+	{
 		$this->select = $query;
 		return $this;
 	}
@@ -129,7 +137,8 @@ class Insert extends Edit {
 	 * @return string
 	 * @throws 0
 	 */
-	public function __toString() {
+	public function __toString()
+	{
 		try {
 			return $this->toSQL();
 		} catch (Throwable $t) {
@@ -143,7 +152,8 @@ class Insert extends Edit {
 	 *
 	 * @return string
 	 */
-	public function toSQL(): string {
+	public function toSQL(): string
+	{
 		$options = [
 			'table' => $this->into, 'low_priority' => $this->low_priority,
 		];
@@ -164,7 +174,8 @@ class Insert extends Edit {
 	 * @throws SQLException
 	 * @throws TableNotFound
 	 */
-	private function _execute(): QueryResult|int {
+	private function _execute(): QueryResult|int
+	{
 		if ($this->select) {
 			$sql = $this->__toString();
 			return $this->database()->query($sql);
@@ -189,7 +200,8 @@ class Insert extends Edit {
 	 * @throws SQLException
 	 * @throws TableNotFound
 	 */
-	public function id(): int {
+	public function id(): int
+	{
 		if ($this->low_priority) {
 			throw new Semantics('Can not execute query as low priority and retrieve id: ' . $this->__toString());
 		}
@@ -206,7 +218,8 @@ class Insert extends Edit {
 	 * @throws SQLException
 	 * @throws TableNotFound
 	 */
-	public function execute(): self {
+	public function execute(): self
+	{
 		$this->_execute();
 		return $this;
 	}
@@ -216,7 +229,8 @@ class Insert extends Edit {
 	 *
 	 * @return ?int
 	 */
-	public function result(): ?int {
+	public function result(): ?int
+	{
 		return $this->result;
 	}
 }

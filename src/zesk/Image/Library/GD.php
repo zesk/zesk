@@ -23,7 +23,8 @@ use zesk\MIME;
  * @author kent
  *
  */
-class GD extends Library {
+class GD extends Library
+{
 	private static array $output_map = [
 		'png' => 'png', 'gif' => 'gif', 'jpeg' => 'jpeg', 'jpg' => 'jpeg',
 	];
@@ -32,7 +33,8 @@ class GD extends Library {
 	 *
 	 * @return boolean
 	 */
-	public function installed(): bool {
+	public function installed(): bool
+	{
 		return function_exists('imagecreate');
 	}
 
@@ -44,7 +46,8 @@ class GD extends Library {
 	 * @return string|bool
 	 * @throws ParseException
 	 */
-	private function _image_scale_resource(GdImage $src, string $dest, array $options): string|bool {
+	private function _image_scale_resource(GdImage $src, string $dest, array $options): string|bool
+	{
 		// Must convert to int to ensure "divide by zero" test below works
 		$actual_width = intval(imagesx($src));
 		$actual_height = intval(imagesy($src));
@@ -145,7 +148,8 @@ class GD extends Library {
 	 * @throws SemanticsException
 	 * @throws ParseException
 	 */
-	public function imageScaleData(string $data, array $options): string {
+	public function imageScaleData(string $data, array $options): string
+	{
 		if (empty($data)) {
 			throw new SemanticsException('{method} passed an empty string', [
 				'method' => __METHOD__,
@@ -171,7 +175,8 @@ class GD extends Library {
 	 * @throws SemanticsException
 	 * @see Image_Library::imageScale()
 	 */
-	public function imageScale(string $source, string $dest, array $options): bool {
+	public function imageScale(string $source, string $dest, array $options): bool
+	{
 		$src = $this->_imageLoad($source);
 		return $this->_image_scale_resource($src, $dest, $options);
 	}
@@ -184,7 +189,8 @@ class GD extends Library {
 	 * @throws FileNotFound
 	 * @throws SemanticsException
 	 */
-	private function _imageLoad(string $source): GdImage {
+	private function _imageLoad(string $source): GdImage
+	{
 		$contents = @file_get_contents($source);
 		if (!is_string($contents)) {
 			throw new FileNotFound($source, __METHOD__);
@@ -204,7 +210,8 @@ class GD extends Library {
 	 * @param int $height
 	 * @return GdImage
 	 */
-	private function _imageCreate(int $width, int $height): GdImage {
+	private function _imageCreate(int $width, int $height): GdImage
+	{
 		if (!$res = imagecreatetruecolor($width, $height)) {
 			$res = imagecreate($width, $height);
 		}
@@ -223,7 +230,8 @@ class GD extends Library {
 	 * @return void
 	 * @throws ParseException
 	 */
-	private function _imageExecute(GdImage $dst, string $type, null|string $dest): void {
+	private function _imageExecute(GdImage $dst, string $type, null|string $dest): void
+	{
 		$output = self::$output_map[$type] ?? 'png';
 		$method = "image$output";
 		$result = match ($method) {
@@ -243,7 +251,8 @@ class GD extends Library {
 	 * @return string
 	 * @throws ParseException
 	 */
-	private function _imageOutputDirect(GdImage $dst, string $type): string {
+	private function _imageOutputDirect(GdImage $dst, string $type): string
+	{
 		ob_start();
 
 		try {
@@ -263,7 +272,8 @@ class GD extends Library {
 	 * @param mixed $dest Filename to output to, or if blank, returns image data
 	 * @throws ParseException
 	 */
-	private function _imageOutputFile(GdImage $dst, string $dest): void {
+	private function _imageOutputFile(GdImage $dst, string $dest): void
+	{
 		try {
 			$type = MIME::fromExtension($dest);
 		} catch (KeyNotFound) {
@@ -278,7 +288,8 @@ class GD extends Library {
 	 * @param mixed $value
 	 * @return integer[]
 	 */
-	private function parseColor(array|string $value): array {
+	private function parseColor(array|string $value): array
+	{
 		$defaultColor = [0, 0, 0, ];
 		if (is_array($value)) {
 			if (ArrayTools::isList($value)) {
@@ -302,7 +313,8 @@ class GD extends Library {
 	 * {@inheritDoc}
 	 * @see Image_Library::imageRotate()
 	 */
-	public function imageRotate(string $source, string $destination, float $degrees, array $options = []): bool {
+	public function imageRotate(string $source, string $destination, float $degrees, array $options = []): bool
+	{
 		$source_resource = $this->_imageLoad($source);
 		$backgroundColor = $options['background_color'] ?? 0;
 		$gdBackgroundColor = 0;

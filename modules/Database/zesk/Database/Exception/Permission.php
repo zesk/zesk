@@ -14,5 +14,6 @@ use zesk\Database\Exception;
  *
  *
  */
-class Permission extends Exception {
+class Permission extends Exception
+{
 }

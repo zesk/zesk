@@ -12,6 +12,7 @@ use zesk\Theme;
 /**
  * Add this to modules to enforce correct hook syntax for hook_foot
  */
-interface Foot {
+interface Foot
+{
 	public function hook_foot(Request $request, Response $response, Theme $template): void;
 }

@@ -17,13 +17,15 @@ use zesk\Command;
  * @category Debugging
  * @alias uname
  */
-class Host extends Command {
+class Host extends Command
+{
 	/**
 	 * @var array
 	 */
 	protected array $shortcuts = ['host'];
 
-	public function run(): int {
+	public function run(): int
+	{
 		echo System::uname() . "\n";
 		return 0;
 	}

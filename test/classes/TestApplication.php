@@ -10,7 +10,8 @@ use zesk\Router\RouterFile;
 /**
  * @see ApplicationTest
  */
-class TestApplication extends Application {
+class TestApplication extends Application
+{
 	public const TEST_MAINTENANCE_FILE = './.testMaint.json';
 
 	protected array $options = [
@@ -25,11 +26,13 @@ class TestApplication extends Application {
 		Request::class => TestRequest::class,
 	];
 
-	public function hookSources(): array {
+	public function hookSources(): array
+	{
 		return array_merge([$this->zeskHome('test/classes')], parent::hookSources());
 	}
 
-	public function beforeConfigure(): void {
+	public function beforeConfigure(): void
+	{
 		$this->router = RouterFile::load($this->router, File::setExtension(__FILE__, 'router'));
 		parent::beforeConfigure();
 		$this->hooks->registerHook(Application::HOOK_COMMAND, function (Command $command): void {
@@ -54,7 +57,8 @@ class TestApplication extends Application {
 		Directory::depend($this->path('etc'));
 	}
 
-	public function registrationBasedObjectHook(TestApplication $test, Locale $locale): void {
+	public function registrationBasedObjectHook(TestApplication $test, Locale $locale): void
+	{
 		$this->hooksCalled[Application::HOOK_LOCALE][] = 'object';
 	}
 
@@ -64,7 +68,8 @@ class TestApplication extends Application {
 	 * @return void
 	 */
 	#[HookMethod(handles: Application::HOOK_LOCALE)]
-	public static function attributeBasedHookTest(TestApplication $test, Locale $locale): void {
+	public static function attributeBasedHookTest(TestApplication $test, Locale $locale): void
+	{
 		$test->hooksCalled[Application::HOOK_LOCALE][] = 'static';
 	}
 }

@@ -17,7 +17,8 @@ use zesk\Response;
  * @author kent
  *
  */
-class Controller extends \zesk\Controller {
+class Controller extends \zesk\Controller
+{
 	protected array $argumentMethods = [
 	];
 
@@ -38,7 +39,8 @@ class Controller extends \zesk\Controller {
 	 * @param Response $response
 	 * @return Response
 	 */
-	public function action_OPTIONS_js(Request $request, Response $response): Response {
+	public function action_OPTIONS_js(Request $request, Response $response): Response
+	{
 		assert($request->method() === HTTP::METHOD_OPTIONS);
 		return $this->handleOPTIONS($response, 'js');
 	}
@@ -46,7 +48,8 @@ class Controller extends \zesk\Controller {
 	/**
 	 *
 	 */
-	public function action_GET_js(Request $request, Response $response): Response {
+	public function action_GET_js(Request $request, Response $response): Response
+	{
 		$app = $this->application;
 		$code = $request->get('ll');
 		$locales = [];

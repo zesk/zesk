@@ -14,7 +14,8 @@ use zesk\Exception\ConnectionFailed;
 use zesk\Exception_Protocol;
 use zesk\TimeoutExpired;
 
-class SocketClient extends Client {
+class SocketClient extends Client
+{
 	/**
 	 * Option to enable debugging of read calls.
 	 *
@@ -94,7 +95,8 @@ class SocketClient extends Client {
 	 * @return self
 	 * @throws ConnectionFailed
 	 */
-	public function connect(): self {
+	public function connect(): self
+	{
 		$this->EOL = strval($this->option(self::OPTION_END_OF_LINE, $this->EOL));
 
 		if ($this->isConnected()) {
@@ -127,7 +129,8 @@ class SocketClient extends Client {
 	 * @throws ConnectionFailed
 	 * @throws Exception_Protocol
 	 */
-	public function connectGreeting(): string {
+	public function connectGreeting(): string
+	{
 		$this->greeting = $this->connect()->read();
 		return $this->greeting;
 	}
@@ -137,7 +140,8 @@ class SocketClient extends Client {
 	 *
 	 * @return void
 	 */
-	public function disconnect(): void {
+	public function disconnect(): void
+	{
 		if ($this->socket) {
 			fclose($this->socket);
 			$this->socket = null;
@@ -148,7 +152,8 @@ class SocketClient extends Client {
 	 *
 	 * @see Net_Client::isConnected()
 	 */
-	public function isConnected(): bool {
+	public function isConnected(): bool
+	{
 		return $this->socket !== null;
 	}
 
@@ -157,7 +162,8 @@ class SocketClient extends Client {
 	 *
 	 * @throws ConnectionFailed
 	 */
-	protected function _check(): void {
+	protected function _check(): void
+	{
 		if (!$this->isConnected()) {
 			throw new ConnectionFailed('Not connected to server');
 		}
@@ -172,7 +178,8 @@ class SocketClient extends Client {
 	 * @throws Exception_Protocol
 	 * @throws ConnectionFailed
 	 */
-	protected function command(string $command, string $expect = ''): string {
+	protected function command(string $command, string $expect = ''): string
+	{
 		$this->write(trim($command));
 		if ($expect === '') {
 			return '';
@@ -191,7 +198,8 @@ class SocketClient extends Client {
 	 * @throws ConnectionFailed
 	 * @throws Exception_Protocol
 	 */
-	protected function expect(string $expect, string $command): string {
+	protected function expect(string $expect, string $command): string
+	{
 		$result = [];
 		do {
 			$line = $this->read();
@@ -213,7 +221,8 @@ class SocketClient extends Client {
 	 * @return number of bytes written
 	 * @throws ConnectionFailed
 	 */
-	public function write(string $data): int {
+	public function write(string $data): int
+	{
 		$this->_check();
 		$this->log("> $data");
 		return $this->writeData($data . $this->EOL);
@@ -224,7 +233,8 @@ class SocketClient extends Client {
 	 * @return int
 	 * @throws ConnectionFailed
 	 */
-	public function writeData(string $data): int {
+	public function writeData(string $data): int
+	{
 		$bytes = strlen($data);
 		$result = fwrite($this->socket, $data, $bytes);
 		if ($result !== $bytes) {
@@ -242,7 +252,8 @@ class SocketClient extends Client {
 	 * @throws SemanticsException
 	 * @throws TimeoutExpired
 	 */
-	public function readWait(int $milliseconds = self::DEFAULT_READ_TIMEOUT_MILLISECONDS): string {
+	public function readWait(int $milliseconds = self::DEFAULT_READ_TIMEOUT_MILLISECONDS): string
+	{
 		$timeout = microtime(true) + $milliseconds;
 		do {
 			$status = stream_get_meta_data($this->socket);
@@ -264,7 +275,8 @@ class SocketClient extends Client {
 	 * @throws ConnectionFailed
 	 * @throws Exception_Protocol
 	 */
-	public function read(): string {
+	public function read(): string
+	{
 		$this->_check();
 		if (($pos = strpos($this->buffer, $this->EOL)) === false) {
 			$this->buffer .= $this->_read($this->optionInt(self::OPTION_READ_BUFFER_SIZE, self::DEFAULT_OPTION_READ_BUFFER_SIZE));
@@ -285,7 +297,8 @@ class SocketClient extends Client {
 	 * @throws SemanticsException
 	 * @throws Exception_Protocol
 	 */
-	public function readData(int $length): string {
+	public function readData(int $length): string
+	{
 		$this->_check();
 		if (strlen($this->buffer) > $length) {
 			$data = substr($this->buffer, 0, $length);
@@ -305,7 +318,8 @@ class SocketClient extends Client {
 	 * @return string
 	 * @throws Exception_Protocol
 	 */
-	protected function _read(int $characterCount): string {
+	protected function _read(int $characterCount): string
+	{
 		$result = fread($this->socket, $characterCount);
 		if ($this->optionBool(self::OPTION_DEBUG_READ)) {
 			$this->_log('->read({count}) = {result}', [

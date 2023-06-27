@@ -19,7 +19,8 @@ use zesk\Exception\Redirect;
  * @author kent
  *
  */
-class Model extends Hookable {
+class Model extends Hookable
+{
 	public const OPTION_DEFAULT_THEME = 'default_theme';
 
 	/**
@@ -38,7 +39,8 @@ class Model extends Hookable {
 	 * @param array $value
 	 * @return $this
 	 */
-	public function initializeFromArray(array $value): self {
+	public function initializeFromArray(array $value): self
+	{
 		foreach ($value as $member => $memberValue) {
 			if (property_exists($this, $member)) {
 				$this->$member = $value;
@@ -63,7 +65,8 @@ class Model extends Hookable {
 	 * @param string|array $theme_names
 	 * @return array
 	 */
-	public function themePaths(string|array $theme_names = ''): array {
+	public function themePaths(string|array $theme_names = ''): array
+	{
 		if ($theme_names === '') {
 			$theme_names = [
 				$this->option(self::OPTION_DEFAULT_THEME, self::DEFAULT_OPTION_DEFAULT_THEME),
@@ -105,7 +108,8 @@ class Model extends Hookable {
 	 * @return ?string
 	 * @throws Redirect
 	 */
-	public function theme(array|string $theme_names = '', string|array $variables = [], string $default = ''): ?string {
+	public function theme(array|string $theme_names = '', string|array $variables = [], string $default = ''): ?string
+	{
 		$variables = is_string($variables) ? [
 			'content' => $variables,
 		] : $variables;
@@ -124,7 +128,8 @@ class Model extends Hookable {
 	 * @return int|string|array
 	 * @throws ParseException
 	 */
-	public static function mixedToID(mixed $mixed): int|string|array {
+	public static function mixedToID(mixed $mixed): int|string|array
+	{
 		if (is_object($mixed)) {
 			if (method_exists($mixed, 'id')) {
 				return $mixed->id();

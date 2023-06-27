@@ -11,7 +11,8 @@ namespace zesk;
 /**
  * @see Base26_Test
  */
-class Base26 {
+class Base26
+{
 	/**
 	 * Convert an integer into a base-26 alphabetic string with a minimum length of $nChars.
 	 *
@@ -20,7 +21,8 @@ class Base26 {
 	 * @return string Base-26 alphabetic string
 	 * @see self::toInteger()
 	 */
-	public static function fromInteger(int $integer, int $nChars): string {
+	public static function fromInteger(int $integer, int $nChars): string
+	{
 		$A = ord('A');
 		$s = '';
 		while ($integer > 0) {
@@ -44,7 +46,8 @@ class Base26 {
 	 * @return integer Numeric value of the input string.
 	 * @see self::fromInteger()
 	 */
-	public static function toInteger(string $token): int {
+	public static function toInteger(string $token): int
+	{
 		$token = preg_replace('/[^A-Z]/', '', strtoupper($token));
 		$A = ord('A');
 		$mul = 1;

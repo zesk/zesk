@@ -17,7 +17,8 @@ use zesk\Locale\Locale;
  * @author kent
  *
  */
-class Number {
+class Number
+{
 	/**
 	 * Kilobytes, Megabytes, Gigabytes, Terabytes
 	 *
@@ -36,7 +37,8 @@ class Number {
 	 * @param string $string
 	 * @return integer
 	 */
-	public static function parse_bytes(string $string): float {
+	public static function parse_bytes(string $string): float
+	{
 		$matches = false;
 		if (!preg_match("/([0-9.]+)\s*([KMGT])B?/i", $string, $matches)) {
 			return intval($string);
@@ -52,7 +54,8 @@ class Number {
 	 * @param int $precision
 	 * @return string
 	 */
-	public static function format_bytes(Locale $locale, int $n, int $precision = 1): string {
+	public static function format_bytes(Locale $locale, int $n, int $precision = 1): string
+	{
 		return self::formatBytes($locale, $n, $precision);
 	}
 
@@ -64,7 +67,8 @@ class Number {
 	 * @param int $precision
 	 * @return string
 	 */
-	public static function formatBytes(Locale $locale, int $n, int $precision = 1): string {
+	public static function formatBytes(Locale $locale, int $n, int $precision = 1): string
+	{
 		if ($n >= 1099511627776) {
 			return $locale('Number::format_bytes:={0} TB', [
 				round(($n / self::$magnitudes['T']), $precision),
@@ -96,7 +100,8 @@ class Number {
 	 * @param float|null $mean Use this value as the computed mean, otherwise compute it
 	 * @return float
 	 */
-	public static function stddev(array $a, float $mean = null): float {
+	public static function stddev(array $a, float $mean = null): float
+	{
 		$n = count($a);
 		if ($n <= 1) {
 			return 0;
@@ -119,7 +124,8 @@ class Number {
 	 * @param float $zero What to return if array is empty
 	 * @return float
 	 */
-	public static function mean(array $a, float $zero = 0): float {
+	public static function mean(array $a, float $zero = 0): float
+	{
 		if (count($a) == 0) {
 			return $zero;
 		}
@@ -138,7 +144,8 @@ class Number {
 	 * @param float $epsilon
 	 * @return boolean
 	 */
-	public static function floatsEqual(float $a, float $b, float $epsilon = 1e-5): bool {
+	public static function floatsEqual(float $a, float $b, float $epsilon = 1e-5): bool
+	{
 		return abs($a - $b) <= $epsilon;
 	}
 
@@ -149,7 +156,8 @@ class Number {
 	 * @param float $epsilon
 	 * @return boolean
 	 */
-	public static function isZero(float|int $value, float $epsilon = 1e-5): bool {
+	public static function isZero(float|int $value, float $epsilon = 1e-5): bool
+	{
 		return abs($value) < $epsilon;
 	}
 
@@ -161,7 +169,8 @@ class Number {
 	 * @param int $maximum
 	 * @return bool
 	 */
-	public static function intBetween(int $minimum, int $value, int $maximum): bool {
+	public static function intBetween(int $minimum, int $value, int $maximum): bool
+	{
 		return ($value >= $minimum) && ($value <= $maximum);
 	}
 
@@ -176,7 +185,8 @@ class Number {
 	 *            A scalar value which serves as the value to clamp
 	 * @return mixed
 	 */
-	public static function clamp(mixed $minValue, mixed $value, mixed $maxValue): mixed {
+	public static function clamp(mixed $minValue, mixed $value, mixed $maxValue): mixed
+	{
 		if ($value < $minValue) {
 			return $minValue;
 		}

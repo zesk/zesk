@@ -28,7 +28,8 @@ use const STDOUT;
  * @author kent
  *
  */
-abstract class SimpleCommand extends Command {
+abstract class SimpleCommand extends Command
+{
 	/**
 	 *
 	 * @var boolean
@@ -51,7 +52,8 @@ abstract class SimpleCommand extends Command {
 	 * @param Stringable|string $message
 	 * @param array $context
 	 */
-	public function log($level, Stringable|string $message, array $context = []): void {
+	public function log($level, Stringable|string $message, array $context = []): void
+	{
 		if ($this->quiet) {
 			$severity = $context['severity'] ?? LogLevel::INFO;
 			if (array_key_exists($severity, self::$quiet_levels)) {
@@ -66,7 +68,8 @@ abstract class SimpleCommand extends Command {
 	 *
 	 * @see Command::initialize()
 	 */
-	protected function initialize(): void {
+	protected function initialize(): void
+	{
 		$this->inheritConfiguration();
 		$this->option_types['log'] = 'string';
 		$this->option_types['log-level'] = 'string';
@@ -96,7 +99,8 @@ abstract class SimpleCommand extends Command {
 		parent::initialize();
 	}
 
-	public function stdout() {
+	public function stdout()
+	{
 		if (defined('STDOUT')) {
 			return STDOUT;
 		}
@@ -109,7 +113,8 @@ abstract class SimpleCommand extends Command {
 
 	/**
 	 */
-	protected function configureLogger(): void {
+	protected function configureLogger(): void
+	{
 		if ($this->optionBool('quiet')) {
 			$this->quiet = true;
 			$logger = new NullLogger();
@@ -144,7 +149,8 @@ abstract class SimpleCommand extends Command {
 	 * @see self::runBefore()
 	 */
 	#[HookMethod(handles: self::HOOK_RUN_BEFORE)]
-	public function runBefore(): void {
+	public function runBefore(): void
+	{
 		$this->configureLogger();
 		if ($this->optionBool('help')) {
 			$this->usage();
@@ -156,7 +162,8 @@ abstract class SimpleCommand extends Command {
 		}
 	}
 
-	protected function handle_base_options(): int {
+	protected function handle_base_options(): int
+	{
 		if ($this->optionBool('debug-config')) {
 			return $this->action_debug_configured(false);
 		}
@@ -165,7 +172,8 @@ abstract class SimpleCommand extends Command {
 
 	/**
 	 */
-	public function action_debug_configured(Application $application): void {
+	public function action_debug_configured(Application $application): void
+	{
 		$config = new Configuration($application, $this->options());
 		$result = $config->parseArguments([])->run();
 		if ($this->optionBool('debug-config')) {

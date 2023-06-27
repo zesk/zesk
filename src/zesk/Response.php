@@ -40,7 +40,8 @@ use zesk\Response\Type;
  * @package zesk
  * @subpackage system
  */
-class Response extends Hookable {
+class Response extends Hookable
+{
 	/**
 	 *
 	 */
@@ -258,7 +259,8 @@ class Response extends Hookable {
 	 */
 	private bool $rendering = false;
 
-	public function __serialize(): array {
+	public function __serialize(): array
+	{
 		return parent::__serialize() + [
 			'content' => $this->content, 'status_code' => $this->status_code,
 			'status_message' => $this->status_message, 'contentType' => $this->contentType,
@@ -267,7 +269,8 @@ class Response extends Hookable {
 		];
 	}
 
-	public function __unserialize(array $data): void {
+	public function __unserialize(array $data): void
+	{
 		parent::__unserialize($data);
 		$this->id = self::$response_index++;
 		$this->content = $data['content'];
@@ -288,7 +291,8 @@ class Response extends Hookable {
 	 * @param array $options
 	 * @return self
 	 */
-	public static function factory(Application $application, Request $request, array $options = []): self {
+	public static function factory(Application $application, Request $request, array $options = []): self
+	{
 		return new Response($application, $request, $options);
 	}
 
@@ -303,7 +307,8 @@ class Response extends Hookable {
 	 * @param Request $request
 	 * @param array $options
 	 */
-	public function __construct(Application $application, Request $request, array $options = []) {
+	public function __construct(Application $application, Request $request, array $options = [])
+	{
 		$this->request = $request;
 		parent::__construct($application, $options);
 		$this->id = self::$response_index++;
@@ -318,14 +323,16 @@ class Response extends Hookable {
 	 *
 	 * @return integer
 	 */
-	final public function id(): int {
+	final public function id(): int
+	{
 		return $this->id;
 	}
 
 	/**
 	 * @return int
 	 */
-	public function status(): int {
+	public function status(): int
+	{
 		return $this->status_code;
 	}
 
@@ -333,7 +340,8 @@ class Response extends Hookable {
 	 *
 	 * @return string
 	 */
-	public function statusMessage(): string {
+	public function statusMessage(): string
+	{
 		return $this->status_message;
 	}
 
@@ -342,7 +350,8 @@ class Response extends Hookable {
 	 * @param string $error_string
 	 * @return $this
 	 */
-	public function setStatusMessage(string $error_string): self {
+	public function setStatusMessage(string $error_string): self
+	{
 		$this->status_message = $error_string;
 		return $this;
 	}
@@ -355,7 +364,8 @@ class Response extends Hookable {
 	 * @param ?string $error_string
 	 * @return $this
 	 */
-	public function setStatus(int $error_code, string $error_string = null): self {
+	public function setStatus(int $error_code, string $error_string = null): self
+	{
 		$codes = HTTP::$status_text;
 		$code = array_key_exists($error_code, $codes) ? $error_code : 500;
 		$this->status_code = $code;
@@ -375,7 +385,8 @@ class Response extends Hookable {
 	 * @return self
 	 * @throws SemanticsException
 	 */
-	public function setCookie(string $name, array|string $value = null, array $options = []): self {
+	public function setCookie(string $name, array|string $value = null, array $options = []): self
+	{
 		$expire = $options['expire'] ?? $this->option('cookie_expire');
 		if ($expire instanceof Timestamp) {
 			$n_seconds = $expire->subtract(Timestamp::now($expire->timeZone()));
@@ -414,7 +425,8 @@ class Response extends Hookable {
 	 * @param string $string
 	 *            Complete header line (e.g. "Location: /failed")
 	 */
-	private function _header(string $string): void {
+	private function _header(string $string): void
+	{
 		if ($this->cache_settings) {
 			$this->cache_settings['headers'][] = $string;
 		}
@@ -429,7 +441,8 @@ class Response extends Hookable {
 	 *
 	 * @throws SemanticsException
 	 */
-	private function responseHeaders(bool $skip_hooks = false): void {
+	private function responseHeaders(bool $skip_hooks = false): void
+	{
 		static $called = false;
 
 		$do_hooks = !$skip_hooks;
@@ -493,7 +506,8 @@ class Response extends Hookable {
 	 *
 	 * @return bool
 	 */
-	final public function isHTML(): bool {
+	final public function isHTML(): bool
+	{
 		return $this->contentType === self::CONTENT_TYPE_HTML;
 	}
 
@@ -502,7 +516,8 @@ class Response extends Hookable {
 	 *
 	 * @return self
 	 */
-	final public function makeHTML(): self {
+	final public function makeHTML(): self
+	{
 		$this->contentType = self::CONTENT_TYPE_HTML;
 		return $this;
 	}
@@ -512,7 +527,8 @@ class Response extends Hookable {
 	 *
 	 * @return self
 	 */
-	final public function makeJSON(): self {
+	final public function makeJSON(): self
+	{
 		$this->contentType = self::CONTENT_TYPE_JSON;
 		return $this;
 	}
@@ -522,7 +538,8 @@ class Response extends Hookable {
 	 *
 	 * @return bool
 	 */
-	final public function isJSON(): bool {
+	final public function isJSON(): bool
+	{
 		return $this->contentType === self::CONTENT_TYPE_JSON;
 	}
 
@@ -531,7 +548,8 @@ class Response extends Hookable {
 	 *
 	 * @return Response
 	 */
-	final public function noCache(): self {
+	final public function noCache(): self
+	{
 		$this->cache_settings = [];
 		$this->setHeader('Cache-Control', 'no-cache, must-revalidate');
 		$this->setHeader('Pragma', 'no-cache');
@@ -545,7 +563,8 @@ class Response extends Hookable {
 	 * @param string $set
 	 * @return self
 	 */
-	final public function setContentType(string $set): self {
+	final public function setContentType(string $set): self
+	{
 		$this->application->debug('Set content type to {set} at {where}', [
 			'set' => $set, 'where' => Kernel::callingFunction(),
 		]);
@@ -558,7 +577,8 @@ class Response extends Hookable {
 	 *
 	 * @return string
 	 */
-	final public function contentType(): string {
+	final public function contentType(): string
+	{
 		return $this->contentType;
 	}
 
@@ -569,7 +589,8 @@ class Response extends Hookable {
 	 *
 	 * @return string
 	 */
-	final public function outputHandler(): string {
+	final public function outputHandler(): string
+	{
 		return $this->output_handler;
 	}
 
@@ -581,7 +602,8 @@ class Response extends Hookable {
 	 * @param string $set
 	 * @return Response
 	 */
-	final public function setOutputHandler(string $set): self {
+	final public function setOutputHandler(string $set): self
+	{
 		$this->application->debug('{method} set to {set} from {calling}', [
 			'method' => __METHOD__, 'set' => $set, 'calling' => Kernel::callingFunction(2),
 		]);
@@ -596,7 +618,8 @@ class Response extends Hookable {
 	 * @param int|Timestamp $value
 	 * @return $this
 	 */
-	final public function setHeaderDate(string $name, int|Timestamp $value): self {
+	final public function setHeaderDate(string $name, int|Timestamp $value): self
+	{
 		if ($value instanceof Timestamp) {
 			$value = $value->unixTimestamp();
 		}
@@ -610,7 +633,8 @@ class Response extends Hookable {
 	 * @return string|array
 	 * @throws KeyNotFound
 	 */
-	final public function header(string $name): string|array {
+	final public function header(string $name): string|array
+	{
 		$lowName = strtolower($name);
 		if ($lowName === 'content-type') {
 			return $this->contentType();
@@ -626,7 +650,8 @@ class Response extends Hookable {
 	/**
 	 * @return array
 	 */
-	final public function headers(): array {
+	final public function headers(): array
+	{
 		return $this->headers;
 	}
 
@@ -636,7 +661,8 @@ class Response extends Hookable {
 	 * @param array $values
 	 * @return $this
 	 */
-	final public function setHeaders(array $values): self {
+	final public function setHeaders(array $values): self
+	{
 		foreach ($values as $k => $v) {
 			$this->setHeader($k, $v);
 		}
@@ -653,7 +679,8 @@ class Response extends Hookable {
 	 * @return mixed All headers if name is null, header value if name is set, $this if name and
 	 *         value are set
 	 */
-	final public function setHeader(string $name, array|string $value): self {
+	final public function setHeader(string $name, array|string $value): self
+	{
 		$lowName = strtolower($name);
 		if ($lowName === 'content-type') {
 			return $this->setContentType(Types::toText($value));
@@ -669,7 +696,8 @@ class Response extends Hookable {
 	 * @return Type
 	 * @throws SemanticsException
 	 */
-	private function _output_handler(): Type {
+	private function _output_handler(): Type
+	{
 		$type = $this->output_handler;
 		if (!$type) {
 			$type = $this->contentType;
@@ -689,7 +717,8 @@ class Response extends Hookable {
 	 * @return string
 	 * @throws SemanticsException
 	 */
-	final public function render(array $options = []): string {
+	final public function render(array $options = []): string
+	{
 		ob_start();
 		$this->output($options);
 		return ob_get_clean();
@@ -706,7 +735,8 @@ class Response extends Hookable {
 	 * @return void
 	 * @throws SemanticsException
 	 */
-	public function output(array $options = []): void {
+	public function output(array $options = []): void
+	{
 		if ($this->rendering) {
 			return;
 		}
@@ -731,7 +761,8 @@ class Response extends Hookable {
 	 * @return array
 	 * @throws SemanticsException
 	 */
-	public function toJSON(): array {
+	public function toJSON(): array
+	{
 		return $this->_output_handler()->toJSON() + $this->response_data;
 	}
 
@@ -745,7 +776,8 @@ class Response extends Hookable {
 	 * @param boolean $append
 	 * @return self
 	 */
-	public function setCache(array $options, bool $append = true): self {
+	public function setCache(array $options, bool $append = true): self
+	{
 		$this->cache_settings = $append ? $options + $this->cache_settings : $options;
 		return $this;
 	}
@@ -754,7 +786,8 @@ class Response extends Hookable {
 	 *
 	 * @return self
 	 */
-	public function setCacheForever(): self {
+	public function setCacheForever(): self
+	{
 		return $this->setCache([
 			'seconds' => 1576800000,
 		]);
@@ -769,7 +802,8 @@ class Response extends Hookable {
 	 *            What cache pattern to use to store this content
 	 * @return Response
 	 */
-	public function setCacheFor(int $seconds, int $level = self::CACHE_SCHEME): self {
+	public function setCacheFor(int $seconds, int $level = self::CACHE_SCHEME): self
+	{
 		return $this->setCache([
 			'seconds' => $seconds, 'level' => $level,
 		]);
@@ -781,7 +815,8 @@ class Response extends Hookable {
 	 * @param string $url
 	 * @return array
 	 */
-	private static function cacheURLParts(string $url): array {
+	private static function cacheURLParts(string $url): array
+	{
 		try {
 			$parts = Types::toArray(URL::parse($url)) + [
 				'scheme' => 'none',
@@ -804,7 +839,8 @@ class Response extends Hookable {
 	 * @param string|array $mixed
 	 * @return bool
 	 */
-	public function isContentType(string|array $mixed): bool {
+	public function isContentType(string|array $mixed): bool
+	{
 		foreach (Types::toList($mixed) as $type) {
 			if (str_contains($this->contentType, $type)) {
 				return true;
@@ -820,7 +856,8 @@ class Response extends Hookable {
 	 * @param string $id
 	 * @return CacheItemInterface
 	 */
-	private static function fetchCacheID(CacheItemPoolInterface $pool, string $id): CacheItemInterface {
+	private static function fetchCacheID(CacheItemPoolInterface $pool, string $id): CacheItemInterface
+	{
 		$key = __CLASS__ . '::' . $id;
 
 		try {
@@ -840,7 +877,8 @@ class Response extends Hookable {
 	 * @return boolean
 	 * @throws SemanticsException
 	 */
-	public function cacheSave(CacheItemPoolInterface $pool, string $url): bool {
+	public function cacheSave(CacheItemPoolInterface $pool, string $url): bool
+	{
 		if (count($this->cache_settings) === 0) {
 			return false;
 		}
@@ -891,7 +929,8 @@ class Response extends Hookable {
 	 * @param string $url
 	 * @return ?Response
 	 */
-	public static function cached(CacheItemPoolInterface $pool, string $url): ?Response {
+	public static function cached(CacheItemPoolInterface $pool, string $url): ?Response
+	{
 		$parts = self::cacheURLParts($url);
 		foreach (self::$cache_pattern as $id) {
 			$id = ArrayTools::map($id, $parts);
@@ -908,7 +947,8 @@ class Response extends Hookable {
 	 *
 	 * @return int
 	 */
-	public function id_counter(): int {
+	public function id_counter(): int
+	{
 		return $this->id_counter++;
 	}
 
@@ -918,7 +958,8 @@ class Response extends Hookable {
 	 * @param string $type String of content type to find/create.
 	 * @return Type
 	 */
-	private function _type(string $type): Type {
+	private function _type(string $type): Type
+	{
 		if (isset($this->types[$type])) {
 			return $this->types[$type];
 		}
@@ -944,7 +985,8 @@ class Response extends Hookable {
 	 *
 	 * @return HTMLResponse
 	 */
-	final public function html(): HTMLResponse {
+	final public function html(): HTMLResponse
+	{
 		$result = $this->_type(self::CONTENT_TYPE_HTML);
 		assert($result instanceof HTMLResponse);
 		return $result;
@@ -956,7 +998,8 @@ class Response extends Hookable {
 	 * @param string $set
 	 * @return self
 	 */
-	public function setTitle(string $set): self {
+	public function setTitle(string $set): self
+	{
 		return $this->html()->setTitle($set);
 	}
 
@@ -965,7 +1008,8 @@ class Response extends Hookable {
 	 *
 	 * @return string
 	 */
-	public function title(): string {
+	public function title(): string
+	{
 		return $this->html()->title();
 	}
 
@@ -975,7 +1019,8 @@ class Response extends Hookable {
 	 * @param string $add
 	 * @return Response
 	 */
-	final public function bodyAddClass(string $add): self {
+	final public function bodyAddClass(string $add): self
+	{
 		return $this->html()->bodyAddClass($add);
 	}
 
@@ -984,7 +1029,8 @@ class Response extends Hookable {
 	 *
 	 * @return array
 	 */
-	final public function htmlAttributes(): array {
+	final public function htmlAttributes(): array
+	{
 		return $this->html()->attributes();
 	}
 
@@ -993,7 +1039,8 @@ class Response extends Hookable {
 	 *
 	 * @return array
 	 */
-	final public function bodyAttributes(): array {
+	final public function bodyAttributes(): array
+	{
 		return $this->html()->bodyAttributes();
 	}
 
@@ -1003,7 +1050,8 @@ class Response extends Hookable {
 	 * @param array $attributes
 	 * @return self
 	 */
-	final public function setBodyAttributes(array $attributes): self {
+	final public function setBodyAttributes(array $attributes): self
+	{
 		return $this->html()->setBodyAttributes($attributes);
 	}
 
@@ -1014,7 +1062,8 @@ class Response extends Hookable {
 	 * @param bool $merge
 	 * @return Response
 	 */
-	final public function setHTMLAttributes(array $attributes, bool $merge = false): Response {
+	final public function setHTMLAttributes(array $attributes, bool $merge = false): Response
+	{
 		return $this->html()->setAttributes($attributes, $merge);
 	}
 
@@ -1024,7 +1073,8 @@ class Response extends Hookable {
 	 * @param string $content
 	 * @return Response
 	 */
-	final public function setMetaKeywords(string $content): self {
+	final public function setMetaKeywords(string $content): self
+	{
 		return $this->html()->setMetaKeywords($content);
 	}
 
@@ -1032,7 +1082,8 @@ class Response extends Hookable {
 	 * @return string
 	 * @throws KeyNotFound
 	 */
-	final public function metaKeywords(): string {
+	final public function metaKeywords(): string
+	{
 		return $this->html()->metaKeywords();
 	}
 
@@ -1042,7 +1093,8 @@ class Response extends Hookable {
 	 * @return string
 	 * @throws KeyNotFound
 	 */
-	final public function metaDescription(): string {
+	final public function metaDescription(): string
+	{
 		return $this->html()->metaDescription();
 	}
 
@@ -1052,7 +1104,8 @@ class Response extends Hookable {
 	 * @param string $content
 	 * @return self
 	 */
-	final public function setMetaDescription(string $content): self {
+	final public function setMetaDescription(string $content): self
+	{
 		return $this->html()->setMetaDescription($content);
 	}
 
@@ -1068,7 +1121,8 @@ class Response extends Hookable {
 	 * @return self
 	 * @throws SemanticsException
 	 */
-	final public function css(string $path, array $options = []): self {
+	final public function css(string $path, array $options = []): self
+	{
 		return $this->html()->css($path, $options);
 	}
 
@@ -1077,7 +1131,8 @@ class Response extends Hookable {
 	 *
 	 * @return string
 	 */
-	final public function pageTheme(): string {
+	final public function pageTheme(): string
+	{
 		return $this->html()->pageTheme();
 	}
 
@@ -1087,7 +1142,8 @@ class Response extends Hookable {
 	 * @param string $set
 	 * @return self
 	 */
-	final public function setPageTheme(string $set): self {
+	final public function setPageTheme(string $set): self
+	{
 		$this->html()->setPageTheme($set);
 		return $this;
 	}
@@ -1104,7 +1160,8 @@ class Response extends Hookable {
 	 * @return Response
 	 * @throws SemanticsException
 	 */
-	final public function javascript(string|array $path, array $options = []): Response {
+	final public function javascript(string|array $path, array $options = []): Response
+	{
 		return $this->html()->javascript($path, $options);
 	}
 
@@ -1116,7 +1173,8 @@ class Response extends Hookable {
 	 * @return Response
 	 * @throws SemanticsException
 	 */
-	final public function inlineJavaScript(string $script, array $options = []): self {
+	final public function inlineJavaScript(string $script, array $options = []): self
+	{
 		return $this->html()->inlineJavaScript($script, $options);
 	}
 
@@ -1129,7 +1187,8 @@ class Response extends Hookable {
 	 *
 	 * @return JSONResponse
 	 */
-	final public function json(): JSONResponse {
+	final public function json(): JSONResponse
+	{
 		$result = $this->_type(self::CONTENT_TYPE_JSON);
 		assert($result instanceof JSONResponse);
 		return $result;
@@ -1152,7 +1211,8 @@ class Response extends Hookable {
 	 * @param bool $add
 	 * @return Response
 	 */
-	final public function setResponseData(array $data, bool $add = true): self {
+	final public function setResponseData(array $data, bool $add = true): self
+	{
 		$this->response_data = $add ? $data + $this->response_data : $data;
 		return $this;
 	}
@@ -1160,7 +1220,8 @@ class Response extends Hookable {
 	/**
 	 * @return array
 	 */
-	final public function responseData(): array {
+	final public function responseData(): array
+	{
 		return $this->response_data;
 	}
 
@@ -1173,7 +1234,8 @@ class Response extends Hookable {
 	 *
 	 * @return Raw
 	 */
-	final public function raw(): Raw {
+	final public function raw(): Raw
+	{
 		$result = $this->_type(self::CONTENT_TYPE_RAW);
 		assert($result instanceof Raw);
 		return $result;
@@ -1187,7 +1249,8 @@ class Response extends Hookable {
 	 * @throws FileNotFound
 	 * @throws SemanticsException
 	 */
-	final public function file(string $file = null): string|self {
+	final public function file(string $file = null): string|self
+	{
 		return $file ? $this->setRawFile($file) : $this->raw()->file();
 	}
 
@@ -1198,7 +1261,8 @@ class Response extends Hookable {
 	 * @return $this
 	 * @throws FileNotFound
 	 */
-	final public function setRawFile(string $file): self {
+	final public function setRawFile(string $file): self
+	{
 		return $this->raw()->setFile($file);
 	}
 
@@ -1214,7 +1278,8 @@ class Response extends Hookable {
 	 * @return Response
 	 * @throws FileNotFound
 	 */
-	final public function download(string $file, string $name = null, string $type = null): Response {
+	final public function download(string $file, string $name = null, string $type = null): Response
+	{
 		return $this->raw()->download($file, $name, $type);
 	}
 
@@ -1227,7 +1292,8 @@ class Response extends Hookable {
 	 *
 	 * @return RedirectResponse
 	 */
-	final public function redirect(): RedirectResponse {
+	final public function redirect(): RedirectResponse
+	{
 		$result = $this->setOutputHandler(self::HANDLER_REDIRECT)->_type(self::HANDLER_REDIRECT);
 		assert($result instanceof RedirectResponse);
 		return $result;
@@ -1242,7 +1308,8 @@ class Response extends Hookable {
 	 * @return void
 	 * @throws RedirectException
 	 */
-	public function redirectDefault(string $url, string $message = null): void {
+	public function redirectDefault(string $url, string $message = null): void
+	{
 		$ref = $this->request->get('ref', '');
 		if (!empty($ref)) {
 			$url = $ref;
@@ -1254,7 +1321,8 @@ class Response extends Hookable {
 	 *
 	 * @return self
 	 */
-	public function redirectMessageClear(): self {
+	public function redirectMessageClear(): self
+	{
 		$this->redirect()->messageClear();
 		return $this;
 	}
@@ -1265,7 +1333,8 @@ class Response extends Hookable {
 	 * @param array $attributes
 	 * @return Response
 	 */
-	public function addRedirectMessage(string $message, array $attributes = []): Response {
+	public function addRedirectMessage(string $message, array $attributes = []): Response
+	{
 		return $this->redirect()->addMessage($message, $attributes);
 	}
 
@@ -1273,7 +1342,8 @@ class Response extends Hookable {
 	 *
 	 * @return array
 	 */
-	public function redirectMessages(): array {
+	public function redirectMessages(): array
+	{
 		return $this->redirect()->messages();
 	}
 
@@ -1282,7 +1352,8 @@ class Response extends Hookable {
 	 *
 	 * @return bool
 	 */
-	public function skipResponseHeaders(): bool {
+	public function skipResponseHeaders(): bool
+	{
 		return $this->optionBool(self::OPTION_SKIP_HEADERS);
 	}
 
@@ -1292,7 +1363,8 @@ class Response extends Hookable {
 	 * @param boolean $set
 	 * @return self
 	 */
-	public function setSkipResponseHeaders(bool $set): self {
+	public function setSkipResponseHeaders(bool $set): self
+	{
 		return $this->setOption(self::OPTION_SKIP_HEADERS, $set);
 	}
 
@@ -1301,7 +1373,8 @@ class Response extends Hookable {
 	 *
 	 * @return ?string
 	 */
-	public function content(): ?string {
+	public function content(): ?string
+	{
 		return $this->content;
 	}
 
@@ -1311,7 +1384,8 @@ class Response extends Hookable {
 	 * @param string|NULL $content
 	 * @return self
 	 */
-	public function setContent(string $content = null): self {
+	public function setContent(string $content = null): self
+	{
 		$this->content = $content;
 		return $this;
 	}
@@ -1321,7 +1395,8 @@ class Response extends Hookable {
 	 *
 	 * @return int
 	 */
-	public function resourceExpireSeconds(): int {
+	public function resourceExpireSeconds(): int
+	{
 		return $this->optionInt(self::OPTION_RESOURCE_CACHE_EXPIRE_SECONDS, self::DEFAULT_RESOURCE_CACHE_EXPIRE_SECONDS);
 	}
 }

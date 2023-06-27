@@ -29,7 +29,8 @@ use const ZESK_ROOT;
  *
  * @author kent
  */
-class CommandLoader {
+class CommandLoader
+{
 	/**
 	 *
 	 */
@@ -102,7 +103,8 @@ class CommandLoader {
 	/**
 	 * Set up PHP basics, to allow detecting errors while testing, etc.
 	 */
-	public function __construct() {
+	public function __construct()
+	{
 		global $_ZESK;
 
 		if (!is_array($_ZESK)) {
@@ -121,7 +123,8 @@ class CommandLoader {
 	 *
 	 * @return self
 	 */
-	public static function factory(): self {
+	public static function factory(): self
+	{
 		return new self();
 	}
 
@@ -129,7 +132,8 @@ class CommandLoader {
 	 *
 	 * @return array
 	 */
-	public function context(): array {
+	public function context(): array
+	{
 		return $this->global_context;
 	}
 
@@ -139,7 +143,8 @@ class CommandLoader {
 	 * @param Application $application
 	 * @return $this
 	 */
-	public function setApplication(Application $application): self {
+	public function setApplication(Application $application): self
+	{
 		$this->application = $application;
 		return $this;
 	}
@@ -154,7 +159,8 @@ class CommandLoader {
 	 * @throws SemanticsException
 	 * @throws UnsupportedException
 	 */
-	public function run(): int {
+	public function run(): int
+	{
 		if (!array_key_exists('argv', $_SERVER) || !is_array($_SERVER['argv'])) {
 			throw new ParameterException('No argv in $_SERVER');
 		}
@@ -231,7 +237,8 @@ class CommandLoader {
 	 * @throws ExitedException
 	 * @throws SemanticsException
 	 */
-	private function bootstrapApplication(): int {
+	private function bootstrapApplication(): int
+	{
 		$first_command = $this->findApplication();
 		if (!$first_command) {
 			return self::EXIT_CODE_ENVIRONMENT;
@@ -251,7 +258,8 @@ class CommandLoader {
 		return 0;
 	}
 
-	private function applicationWasLoaded(): void {
+	private function applicationWasLoaded(): void
+	{
 		$this->application = Kernel::singleton()->application();
 	}
 
@@ -264,7 +272,8 @@ class CommandLoader {
 	 * @throws DirectoryPermission
 	 * @throws ParameterException
 	 */
-	private function handleCoreArguments(string $arg, array $args): array {
+	private function handleCoreArguments(string $arg, array $args): array
+	{
 		return match ($arg) {
 			'--cd' => $this->handleCD($args),
 			'--config' => $this->handleConfig($args),
@@ -279,7 +288,8 @@ class CommandLoader {
 	 * @param string $arg
 	 * @return bool
 	 */
-	private function isIncludeCommand(string $arg): bool {
+	private function isIncludeCommand(string $arg): bool
+	{
 		return str_starts_with($arg, '/') || str_starts_with($arg, './');
 	}
 
@@ -287,7 +297,8 @@ class CommandLoader {
 	 * @param string $arg
 	 * @return int
 	 */
-	private function runIncludeCommand(string $arg): int {
+	private function runIncludeCommand(string $arg): int
+	{
 		try {
 			File::depends($arg);
 		} catch (FileNotFound) {
@@ -308,7 +319,8 @@ class CommandLoader {
 	 * @param int $exit
 	 * @return int
 	 */
-	public function terminate(int $exit): int {
+	public function terminate(int $exit): int
+	{
 		$this->application?->shutdown();
 		return $exit;
 	}
@@ -318,7 +330,8 @@ class CommandLoader {
 	 * @param string $message
 	 * @return void
 	 */
-	private function error(string $message): void {
+	private function error(string $message): void
+	{
 		fprintf($this->stderr(), $message);
 	}
 
@@ -327,7 +340,8 @@ class CommandLoader {
 	 *
 	 * @return resource
 	 */
-	private function stderr(): mixed {
+	private function stderr(): mixed
+	{
 		if (defined('STDERR')) {
 			return STDERR;
 		}
@@ -342,7 +356,8 @@ class CommandLoader {
 	/**
 	 * @return array
 	 */
-	public function collectCommands(): array {
+	public function collectCommands(): array
+	{
 		$failures = [];
 		foreach ($this->application->zeskCommandPath() as $path => $prefix) {
 			if (is_numeric($path)) {
@@ -383,7 +398,8 @@ class CommandLoader {
 		return $this->application->classes->subclasses(Command::class);
 	}
 
-	public function collectCommandShortcuts(): array {
+	public function collectCommandShortcuts(): array
+	{
 		$allShortcuts = [];
 		$failures = [];
 		foreach ($this->collectCommands() as $commandClass) {
@@ -436,7 +452,8 @@ class CommandLoader {
 	 * @return array
 	 * @throws NotFoundException
 	 */
-	public function runCommand(string $shortcut, array $args): array {
+	public function runCommand(string $shortcut, array $args): array
+	{
 		$commands = $this->collectCommandShortcuts();
 		if (!array_key_exists($shortcut, $commands)) {
 			throw new NotFoundException('Command {command} not found', [
@@ -488,7 +505,8 @@ class CommandLoader {
 	 * @param int $exitCode
 	 * @return int
 	 */
-	private function usage(string $error = '', int $exitCode = 2): int {
+	private function usage(string $error = '', int $exitCode = 2): int
+	{
 		if ($error) {
 			$message[] = $error;
 			$message[] = '';
@@ -537,7 +555,8 @@ class CommandLoader {
 	 * @param array $args
 	 * @return array
 	 */
-	private function argumentSugar(array $args): array {
+	private function argumentSugar(array $args): array
+	{
 		foreach ($args as $index => $arg) {
 			$args[$index] = strtr($arg, [
 				'___' => '\\',
@@ -546,7 +565,8 @@ class CommandLoader {
 		return $args;
 	}
 
-	private function getApplicationPatterns(): array {
+	private function getApplicationPatterns(): array
+	{
 		global $_ZESK;
 		$root_files = null;
 		$keys = ['ZESK_APPLICATION_PATTERNS', 'zesk_root_files'];
@@ -569,7 +589,8 @@ class CommandLoader {
 		return explode(' ', $root_files);
 	}
 
-	private function findApplicationAbove(string $dir): string {
+	private function findApplicationAbove(string $dir): string
+	{
 		$root_files = $this->getApplicationPatterns();
 		while (!empty($dir)) {
 			foreach ($root_files as $root_file) {
@@ -593,7 +614,8 @@ class CommandLoader {
 	 *
 	 * @return string
 	 */
-	public function findApplication(): string {
+	public function findApplication(): string
+	{
 		$root_files = $this->getApplicationPatterns();
 		if (count($this->search) === 0) {
 			$this->search[] = getcwd();
@@ -614,7 +636,8 @@ class CommandLoader {
 	 * @return int
 	 * @throws ExitedException
 	 */
-	private function zeskLoaded(string $arg): int {
+	private function zeskLoaded(string $arg): int
+	{
 		if ($this->application instanceof Application) {
 			return 0;
 		}
@@ -644,7 +667,8 @@ class CommandLoader {
 	 *
 	 * @return boolean
 	 */
-	private function zeskIsLoaded(): bool {
+	private function zeskIsLoaded(): bool
+	{
 		return class_exists('zesk\Kernel', false);
 	}
 
@@ -657,7 +681,8 @@ class CommandLoader {
 	 * @param array $args
 	 * @return array
 	 */
-	private function handleSet(array $args): array {
+	private function handleSet(array $args): array
+	{
 		$pair = array_shift($args);
 		if ($pair === null) {
 			$this->usage('--set missing argument');
@@ -689,7 +714,8 @@ class CommandLoader {
 	 * @param array $args
 	 * @return array
 	 */
-	private function handleUnset(array $args): array {
+	private function handleUnset(array $args): array
+	{
 		$key = array_shift($args);
 		if ($key === null) {
 			$this->usage('--unset missing argument');
@@ -715,7 +741,8 @@ class CommandLoader {
 	 * @throws DirectoryNotFound
 	 * @throws DirectoryPermission
 	 */
-	private function handleCD(array $args): array {
+	private function handleCD(array $args): array
+	{
 		$arg = array_shift($args);
 		if ($arg === null) {
 			throw new ParameterException('--cd missing directory argument');
@@ -735,7 +762,8 @@ class CommandLoader {
 	 * @param array $args
 	 * @return array
 	 */
-	private function handleDefine(array $args): array {
+	private function handleDefine(array $args): array
+	{
 		$arg = array_shift($args);
 		if ($arg === null) {
 			$this->usage('--define missing argument');
@@ -758,7 +786,8 @@ class CommandLoader {
 	 * @return array
 	 * @throws ParseException
 	 */
-	private function handleConfig(array $args): array {
+	private function handleConfig(array $args): array
+	{
 		$arg = array_shift($args);
 		if ($arg === null) {
 			$this->usage('--config missing argument');
@@ -786,7 +815,8 @@ class CommandLoader {
 	 * @param string[] $array
 	 * @return string[]
 	 */
-	public static function wrap_brackets(array $array): array {
+	public static function wrap_brackets(array $array): array
+	{
 		$result = [];
 		foreach ($array as $k => $v) {
 			$result['{' . $k . '}'] = $v;
@@ -801,7 +831,8 @@ class CommandLoader {
 	 * @param array $context
 	 * @return void
 	 */
-	private function debug(string $message, array $context = []): void {
+	private function debug(string $message, array $context = []): void
+	{
 		if ($this->debug) {
 			$context = self::wrap_brackets($context);
 			echo __CLASS__ . ' ' . rtrim(strtr($message, $context), "\n") . "\n";

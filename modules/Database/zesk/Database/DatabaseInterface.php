@@ -21,7 +21,8 @@ use zesk\Exception\Unsupported;
  *
  * @todo 2022-12
  */
-interface DatabaseInterface {
+interface DatabaseInterface
+{
 	public function __construct(Application $application, string $url = '', array $options = []);
 
 	/*========================================================================================\

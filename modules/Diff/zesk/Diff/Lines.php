@@ -15,7 +15,8 @@ use zesk\Exception\NotFoundException;
  * @author kent
  *
  */
-class Lines extends Base {
+class Lines extends Base
+{
 	/**
 	 *
 	 * @var array
@@ -47,7 +48,8 @@ class Lines extends Base {
 	 * @param bool $skipWhitespace
 	 * @throws NotFoundException
 	 */
-	public function __construct(string $left, string $right, bool $skipWhitespace = false) {
+	public function __construct(string $left, string $right, bool $skipWhitespace = false)
+	{
 		$this->leftLines = toList($left, [], "\n");
 		$this->rightLines = toList($right, [], "\n");
 
@@ -64,7 +66,8 @@ class Lines extends Base {
 		$this->processResults();
 	}
 
-	private function processResults(): void {
+	private function processResults(): void
+	{
 		foreach ($this->diffs() as $edit) {
 			if ($edit->op === Edit::DIFF_INSERT) {
 				$edit->data = array_slice($this->rightLines, $edit->off, $edit->len);
@@ -80,7 +83,8 @@ class Lines extends Base {
 	 * @param bool $skip_whitespace
 	 * @return array
 	 */
-	private function hashLines(array $lines, bool $skip_whitespace = false): array {
+	private function hashLines(array $lines, bool $skip_whitespace = false): array
+	{
 		$result = [];
 		foreach ($lines as $line) {
 			if ($skip_whitespace) {
@@ -101,7 +105,8 @@ class Lines extends Base {
 	/**
 	 * @return string
 	 */
-	public function output(): string {
+	public function output(): string
+	{
 		$result = [];
 		$diffs = $this->diffs();
 		foreach ($diffs as $edit) {

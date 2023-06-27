@@ -11,6 +11,7 @@ namespace zesk\Interface;
  * @author kent
  *
  */
-interface Themeable {
+interface Themeable
+{
 	public function theme(array|string $types, array $arguments = [], array $options = []): ?string;
 }

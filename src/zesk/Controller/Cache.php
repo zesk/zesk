@@ -29,7 +29,8 @@ use zesk\Response;
  * @author kent
  *
  */
-class Cache extends Controller {
+class Cache extends Controller
+{
 	/**
 	 * Convert a request for file stored elsewhere and store it where the web server will then serve it thereafter.
 	 *
@@ -41,7 +42,8 @@ class Cache extends Controller {
 	 * @return Response
 	 * @throws FileNotFound
 	 */
-	protected function request_to_file(Request $request, Response $response, string $contents): Response {
+	protected function request_to_file(Request $request, Response $response, string $contents): Response
+	{
 		$file = $request->path();
 		if (!File::pathCheck($file)) {
 			$message = 'User accessed {file} which contains suspicious path components while trying to write {contents_size} bytes.';

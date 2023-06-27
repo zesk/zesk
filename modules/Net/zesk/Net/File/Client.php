@@ -17,7 +17,8 @@ use zesk\Net\FileSystem;
  * @author kent
  *
  */
-class Client extends NetClient implements FileSystem {
+class Client extends NetClient implements FileSystem
+{
 	/**
 	 * Are we "connected"? Simply for semantic integrity between clients.
 	 * @var boolean
@@ -28,7 +29,8 @@ class Client extends NetClient implements FileSystem {
 	 * Connect to the remote host
 	 * @see Net_Client::connect()
 	 */
-	public function connect(): self {
+	public function connect(): self
+	{
 		if ($this->connected) {
 			throw new Semantics('Already connected');
 		}
@@ -41,7 +43,8 @@ class Client extends NetClient implements FileSystem {
 	 * @return boolean
 	 * @see Net_Client::connect()
 	 */
-	public function isConnected() {
+	public function isConnected()
+	{
 		return $this->connected;
 	}
 
@@ -50,13 +53,15 @@ class Client extends NetClient implements FileSystem {
 	 * @return boolean true if disconnected, false if already disconnected
 	 * @see Net_Client::connect()
 	 */
-	public function disconnect() {
+	public function disconnect()
+	{
 		$old_connected = $this->connected;
 		$this->connected = false;
 		return $old_connected;
 	}
 
-	public function ls($path = null) {
+	public function ls($path = null)
+	{
 		if ($path === null) {
 			$path = getcwd();
 		}
@@ -80,23 +85,28 @@ class Client extends NetClient implements FileSystem {
 		return $entries;
 	}
 
-	public function mkdir($path) {
+	public function mkdir($path)
+	{
 		return mkdir($path);
 	}
 
-	public function rmdir($path) {
+	public function rmdir($path)
+	{
 		return rmdir($path);
 	}
 
-	public function unlink($path) {
+	public function unlink($path)
+	{
 		return unlink($path);
 	}
 
-	public function download($remote_path, $local_path) {
+	public function download($remote_path, $local_path)
+	{
 		return copy($remote_path, $local_path);
 	}
 
-	public function upload($local_path, $remote_path, $temporary = false) {
+	public function upload($local_path, $remote_path, $temporary = false)
+	{
 		if ($temporary) {
 			$temp = null;
 			if (is_file($remote_path)) {
@@ -119,19 +129,23 @@ class Client extends NetClient implements FileSystem {
 		}
 	}
 
-	public function pwd() {
+	public function pwd()
+	{
 		return getcwd();
 	}
 
-	public function cd($path) {
+	public function cd($path)
+	{
 		return chdir($path);
 	}
 
-	public function chmod($path, $mode = 0o770) {
+	public function chmod($path, $mode = 0o770)
+	{
 		return chmod($path, $mode);
 	}
 
-	public function stat($path) {
+	public function stat($path)
+	{
 		$entry = [];
 		$entry['name'] = basename($path);
 
@@ -152,11 +166,13 @@ class Client extends NetClient implements FileSystem {
 		return $entry;
 	}
 
-	public function mtime($path, Timestamp $ts) {
+	public function mtime($path, Timestamp $ts)
+	{
 		return touch($path, $ts->unixTimestamp());
 	}
 
-	public function has_feature($feature) {
+	public function has_feature($feature)
+	{
 		switch ($feature) {
 			case self::feature_mtime:
 				return true;

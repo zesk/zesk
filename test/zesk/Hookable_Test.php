@@ -3,45 +3,53 @@ declare(strict_types=1);
 
 namespace zesk;
 
-class hookable_test_a extends Hookable {
+class hookable_test_a extends Hookable
+{
 	public const HOOK_TEST = __CLASS__ . '::test';
 
 	public static Application $app;
 
-	public function hookit(array $data) {
+	public function hookit(array $data)
+	{
 		$data['hookit'] = microtime(true);
 		$data = $this->invokeFilters(self::HOOK_TEST, $data);
 		return $data;
 	}
 
-	public static function appendTracking(string $whatever): void {
+	public static function appendTracking(string $whatever): void
+	{
 		$calls = Types::toArray(self::$app->configuration->get('hookable'));
 		$calls[] = $whatever;
 		self::$app->configuration->set('hookable', $calls);
 	}
 
 	#[HookMethod(handles: self::HOOK_TEST, filter: true)]
-	public static function doit(array $data): array {
+	public static function doit(array $data): array
+	{
 		$data['test_a'] = 99;
 		return $data;
 	}
 }
 
-class hookable_test_b extends hookable_test_a {
+class hookable_test_b extends hookable_test_a
+{
 	#[HookMethod(handles: self::HOOK_TEST, filter: true)]
-	public function requiresObjectHookB(array $data): array {
+	public function requiresObjectHookB(array $data): array
+	{
 		$data['test_b'] = 99;
 		return $data;
 	}
 
 	#[HookMethod(handles: self::HOOK_TEST, filter: true)]
-	public static function hook_test2(array $data) {
+	public static function hook_test2(array $data)
+	{
 		$data['test2'] = '2';
 		return $data;
 	}
 
 	#[HookMethod(handles: self::HOOK_TEST, filter: true)]
-	public function hook_test3(array $data) {
+	public function hook_test3(array $data)
+	{
 		$data['test3'] = 'three';
 		$data['test1a'] = 'three not 1a';
 		$data['dude'] = 'the';
@@ -50,10 +58,12 @@ class hookable_test_b extends hookable_test_a {
 	}
 }
 
-class Hookable_Test extends UnitTest {
+class Hookable_Test extends UnitTest
+{
 	public static $counter = 0;
 
-	public function test_hook_series(): void {
+	public function test_hook_series(): void
+	{
 		$this->application->configure();
 		$this->application->hooks->registerFilter(hookable_test_a::HOOK_TEST, $this->hook_test1(...));
 
@@ -112,14 +122,16 @@ class Hookable_Test extends UnitTest {
 } */
 	}
 
-	public function hook_test1(array $data) {
+	public function hook_test1(array $data)
+	{
 		$data[__METHOD__] = microtime(true);
 		$data['test1'] = '1';
 		$data['test1a'] = '1a';
 		return $data;
 	}
 
-	public function test_options_inherit(): void {
+	public function test_options_inherit(): void
+	{
 		$options = new hookable_test_a($this->application);
 
 		$conf = $this->application->configuration;

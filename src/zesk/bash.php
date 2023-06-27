@@ -10,13 +10,15 @@ use zesk\Interface\SettingsInterface;
  * @author kent
  *
  */
-class bash {
+class bash
+{
 	/**
 	 *
 	 */
 	private const UNQUOTE_PAIRS = '\'\'""';
 
-	public static function substitute($value, SettingsInterface $settings, array &$dependencies = null, $lower_dependencies = false) {
+	public static function substitute($value, SettingsInterface $settings, array &$dependencies = null, $lower_dependencies = false)
+	{
 		if (!is_array($dependencies)) {
 			$dependencies = [];
 		}

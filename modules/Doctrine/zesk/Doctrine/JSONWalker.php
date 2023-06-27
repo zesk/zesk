@@ -18,7 +18,8 @@ namespace zesk\Doctrine;
  * @author kent
  *
  */
-class JSONWalker extends Walker {
+class JSONWalker extends Walker
+{
 	/**
 	 * List of methods to call on ORM objects, in order
 	 *
@@ -45,7 +46,8 @@ class JSONWalker extends Walker {
 	 *
 	 * @return JSONWalker
 	 */
-	public static function factory(): self {
+	public static function factory(): self
+	{
 		return new self();
 	}
 
@@ -55,7 +57,8 @@ class JSONWalker extends Walker {
 	 * @param Walker $from
 	 * @return JSONWalker
 	 */
-	public function inherit(Walker $from): JSONWalker {
+	public function inherit(Walker $from): JSONWalker
+	{
 		$result = parent::inherit($from);
 		assert($result instanceof JSONWalker);
 		return $result;
@@ -66,7 +69,8 @@ class JSONWalker extends Walker {
 	 *
 	 * @return self
 	 */
-	public function child(): self {
+	public function child(): self
+	{
 		return self::factory()->inherit($this);
 	}
 }

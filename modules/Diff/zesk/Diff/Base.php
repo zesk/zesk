@@ -10,6 +10,9 @@ namespace zesk\Diff;
 
 use zesk\Exception\NotFoundException;
 
+use zesk\Kernel;
+
+echo Kernel::callingFunction() . "\n";
 /*
  * diff - compute shortest edit script (SES) given two sequences
  * Copyright (c) 2004 Michael B. Allen <mba2000 ioplex.com>
@@ -55,7 +58,8 @@ use zesk\Exception\NotFoundException;
  * @author kent
  *
  */
-class Base {
+class Base
+{
 	/**
 	 * Track state of matching
 	 *
@@ -106,7 +110,8 @@ class Base {
 	 * @param int $distanceMaximum Maximum distance to search for matches.
 	 * @throws NotFoundException
 	 */
-	public function __construct(array $left, array $right, int $distanceMaximum = 0) {
+	public function __construct(array $left, array $right, int $distanceMaximum = 0)
+	{
 		$this->buf = [];
 		$this->edits = [];
 		$this->diffs = [];
@@ -141,7 +146,8 @@ class Base {
 	 *
 	 * @return Edit[]
 	 */
-	public function edits(): array {
+	public function edits(): array
+	{
 		return $this->edits;
 	}
 
@@ -149,7 +155,8 @@ class Base {
 	 *
 	 * @return boolean
 	 */
-	public function isIdentical(): bool {
+	public function isIdentical(): bool
+	{
 		return (count($this->diffs()) === 0);
 	}
 
@@ -157,7 +164,8 @@ class Base {
 	 *
 	 * @return Edit[]
 	 */
-	public function diffs(): array {
+	public function diffs(): array
+	{
 		if (count($this->diffs) !== 0) {
 			return $this->diffs;
 		}
@@ -171,24 +179,29 @@ class Base {
 		return $diffs;
 	}
 
-	private static function index(int $k, int $r): int {
+	private static function index(int $k, int $r): int
+	{
 		return ($k <= 0) ? (-$k * 4 + $r) : ($k * 4 + ($r - 2));
 	}
 
-	private function _setValue(int $k, int $r, int $value): void {
+	private function _setValue(int $k, int $r, int $value): void
+	{
 		$j = self::index($k, $r);
 		$this->buf[$j] = $value;
 	}
 
-	private function FV($k) {
+	private function FV($k)
+	{
 		return $this->_getValue($k, 0);
 	}
 
-	private function RV($k) {
+	private function RV($k)
+	{
 		return $this->_getValue($k, 1);
 	}
 
-	private function _getValue($k, $r) {
+	private function _getValue($k, $r)
+	{
 		$j = self::index($k, $r);
 		if (!array_key_exists($j, $this->buf)) {
 			$this->buf[$j] = 0;
@@ -206,7 +219,8 @@ class Base {
 	 * @return int
 	 * @throws NotFoundException
 	 */
-	private function _findMiddleSnake(int $aOffset, int $n, int $bOffset, int $m, MiddleSnake $ms): int {
+	private function _findMiddleSnake(int $aOffset, int $n, int $bOffset, int $m, MiddleSnake $ms): int
+	{
 		$delta = $n - $m;
 		$odd = $delta & 1;
 		$mid = ($n + $m) / 2;
@@ -279,7 +293,8 @@ class Base {
 		throw new NotFoundException('No middle snake found?');
 	}
 
-	private function _edit(string $op, int $off, int $len): void {
+	private function _edit(string $op, int $off, int $len): void
+	{
 		if ($len === 0) {
 			return;
 		}
@@ -311,7 +326,8 @@ class Base {
 	 * @return int
 	 * @throws NotFoundException
 	 */
-	private function _ses(int $aOffset, int $n, int $bOffset, int $m): int {
+	private function _ses(int $aOffset, int $n, int $bOffset, int $m): int
+	{
 		$ms = new MiddleSnake();
 
 		if ($n == 0) {

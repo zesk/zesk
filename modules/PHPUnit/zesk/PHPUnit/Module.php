@@ -13,5 +13,6 @@ namespace zesk\PHPUnit;
 
 use zesk\Module as BaseModule;
 
-class Module extends BaseModule {
+class Module extends BaseModule
+{
 }

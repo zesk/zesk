@@ -15,7 +15,8 @@ use zesk\PHP;
  * Output all globals
  * @category Debugging
  */
-class Globals extends SimpleCommand {
+class Globals extends SimpleCommand
+{
 	protected array $shortcuts = ['globals', 'g'];
 
 	/**
@@ -41,7 +42,8 @@ class Globals extends SimpleCommand {
 	 * {@inheritDoc}
 	 * @see Command::run()
 	 */
-	public function run(): int {
+	public function run(): int
+	{
 		PHP::dump_settings_one();
 		$globals = $this->application->configuration->toArray();
 		ksort($globals);

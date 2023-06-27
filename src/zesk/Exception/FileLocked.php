@@ -12,5 +12,6 @@ namespace zesk\Exception;
 /**
  *
  */
-class FileLocked extends FileSystemException {
+class FileLocked extends FileSystemException
+{
 }

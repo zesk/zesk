@@ -17,7 +17,8 @@ use zesk\Types;
  * @author kent
  *
  */
-class Parser {
+class Parser
+{
 	/**
 	 *
 	 * @var string
@@ -42,7 +43,8 @@ class Parser {
 	 * @param string $contents
 	 * @param string $id
 	 */
-	public function __construct(string $contents, string $id = '') {
+	public function __construct(string $contents, string $id = '')
+	{
 		$this->contents = $contents;
 		$this->id = $id ?: md5($contents);
 	}
@@ -54,7 +56,8 @@ class Parser {
 	 * @param string $id
 	 * @return static
 	 */
-	public static function factory(string $contents, string $id = ''): self {
+	public static function factory(string $contents, string $id = ''): self
+	{
 		return new self($contents, $id);
 	}
 
@@ -65,7 +68,8 @@ class Parser {
 	 * @return Route[]
 	 * @throws SyntaxException
 	 */
-	public function execute(Router $router, array $add_options = []): array {
+	public function execute(Router $router, array $add_options = []): array
+	{
 		$app = $router->application;
 		$logger = $app->logger();
 

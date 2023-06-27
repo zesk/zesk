@@ -16,5 +16,6 @@ use zesk\Exception;
  * @author kent
  *
  */
-class KeyNotFound extends Exception {
+class KeyNotFound extends Exception
+{
 }

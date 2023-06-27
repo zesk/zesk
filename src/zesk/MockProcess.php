@@ -13,7 +13,8 @@ use zesk\Interface\SystemProcess;
  *
  * @author kent
  */
-class MockProcess extends Hookable implements SystemProcess {
+class MockProcess extends Hookable implements SystemProcess
+{
 	/**
 	 * @var bool
 	 */
@@ -37,7 +38,8 @@ class MockProcess extends Hookable implements SystemProcess {
 	 * @param Application $application
 	 * @param array $options
 	 */
-	public function __construct(Application $application, array $options = []) {
+	public function __construct(Application $application, array $options = [])
+	{
 		parent::__construct($application, $options);
 		$this->timer = new Timer();
 		$this->quit_after = $this->optionInt('quit_after', 60); // 60 seconds should be good, right?
@@ -47,7 +49,8 @@ class MockProcess extends Hookable implements SystemProcess {
 	/**
 	 * @return Application
 	 */
-	public function application(): Application {
+	public function application(): Application
+	{
 		return $this->application;
 	}
 
@@ -55,12 +58,14 @@ class MockProcess extends Hookable implements SystemProcess {
 	 * @param Application $set
 	 * @return $this
 	 */
-	public function setApplication(Application $set): self {
+	public function setApplication(Application $set): self
+	{
 		$this->application = $set;
 		return $this;
 	}
 
-	private function _done(): void {
+	private function _done(): void
+	{
 		$this->invokeHooks(SystemProcess::HOOK_DONE, [$this]);
 		$this->done = true;
 	}
@@ -70,7 +75,8 @@ class MockProcess extends Hookable implements SystemProcess {
 	 *
 	 * @return bool
 	 */
-	public function done(): bool {
+	public function done(): bool
+	{
 		if ($this->done) {
 			return true;
 		}
@@ -85,7 +91,8 @@ class MockProcess extends Hookable implements SystemProcess {
 	 * Kill/interrupt this process.
 	 * Not nice way to do it.
 	 */
-	public function kill(): void {
+	public function kill(): void
+	{
 		$this->terminate();
 	}
 
@@ -93,7 +100,8 @@ class MockProcess extends Hookable implements SystemProcess {
 	 * Terminate this process.
 	 * Nice way to do it.
 	 */
-	public function terminate(): void {
+	public function terminate(): void
+	{
 		if (!$this->done) {
 			$this->_done();
 		}
@@ -103,7 +111,8 @@ class MockProcess extends Hookable implements SystemProcess {
 	 * Take a nap.
 	 * I love naps.
 	 */
-	public function sleep($seconds = 1.0): void {
+	public function sleep($seconds = 1.0): void
+	{
 		usleep($seconds * 1000000);
 	}
 
@@ -115,7 +124,8 @@ class MockProcess extends Hookable implements SystemProcess {
 	 * @param array $context
 	 * @return void
 	 */
-	public function log($level, $message, array $context = []): void {
+	public function log($level, $message, array $context = []): void
+	{
 		$this->application->log($context['severity'] ?? 'info', $message, $context);
 	}
 }

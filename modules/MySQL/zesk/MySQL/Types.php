@@ -7,7 +7,8 @@ namespace zesk\MySQL;
 
 use zesk\Database\Types as BaseTypes;
 
-class Types extends BaseTypes {
+class Types extends BaseTypes
+{
 	/**
 	 * Override in subclasses to configure alternate native types
 	 *
@@ -65,7 +66,8 @@ class Types extends BaseTypes {
 	 *
 	 * @see zesk\Database::parse_native_type()
 	 */
-	final public function parse_native_type(string $sql_type): string {
+	final public function parse_native_type(string $sql_type): string
+	{
 		$s0 = false;
 		$t = $this->parse_sql_type($sql_type, $s0);
 		return $this->native_type_to_sql_type($t, $sql_type);
@@ -80,7 +82,8 @@ class Types extends BaseTypes {
 	 * @see Database_Types::sql_type_default()
 	 */
 	public function sql_type_default(string $native_type, string|int|float|null $default_value = null):
-	string|int|float|null {
+	string|int|float|null
+	{
 		$type = $this->native_type_to_sql_type($native_type, $native_type);
 		switch ($type) {
 			case self::SQL_TYPE_STRING:

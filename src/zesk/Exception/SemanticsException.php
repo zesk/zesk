@@ -16,5 +16,6 @@ use zesk\Exception;
  * @author kent
  * Throw when a function, method, or system semantics issue occurs.
  */
-class SemanticsException extends Exception {
+class SemanticsException extends Exception
+{
 }

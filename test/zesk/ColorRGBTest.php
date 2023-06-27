@@ -5,8 +5,10 @@ namespace zesk;
 
 use zesk\PHPUnit\TestCase;
 
-class ColorRGBTest extends TestCase {
-	public function test_basics(): void {
+class ColorRGBTest extends TestCase
+{
+	public function test_basics(): void
+	{
 		$r = 1;
 		$g = 2;
 		$b = 255;
@@ -15,7 +17,8 @@ class ColorRGBTest extends TestCase {
 		$this->assertEquals($x->__toString(), '0102FF');
 	}
 
-	public static function data_factory(): array {
+	public static function data_factory(): array
+	{
 		return [
 			['010203', '010203', 257, 255], ['000000', 0, 0, 0], ['010203', 1, 2, 3], ['000000', -1, -2, -3],
 			['FFFFFF', 257, 257, 255], ['FFFFFF', 'FFFFFF', 257, 255], ['000000', '000000', 0, 0],
@@ -35,7 +38,8 @@ class ColorRGBTest extends TestCase {
 	 * @throws SyntaxException
 	 * @dataProvider data_factory
 	 */
-	public function test_factory($expected, int|string|array $r, int $g, int $b): void {
+	public function test_factory($expected, int|string|array $r, int $g, int $b): void
+	{
 		$this->assertEquals($expected, ColorRGB::factory($r, $g, $b)->__toString());
 	}
 }

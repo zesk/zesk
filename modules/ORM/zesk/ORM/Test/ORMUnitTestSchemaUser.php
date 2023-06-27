@@ -4,5 +4,6 @@ namespace zesk\ORM\Test;
 
 use zesk\ORM\User;
 
-class ORMUnitTestSchemaUser extends User {
+class ORMUnitTestSchemaUser extends User
+{
 }

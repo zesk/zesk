@@ -22,7 +22,8 @@ use zesk\Controller;
  * @author kent
  *
  */
-class Controller_Authenticated extends Controller {
+class Controller_Authenticated extends Controller
+{
 	/**
 	 * Current logged in user
 	 *
@@ -43,7 +44,8 @@ class Controller_Authenticated extends Controller {
 	 * @return void
 	 * @throws Authentication
 	 */
-	protected function before(Request $request, Response $response): void {
+	protected function before(Request $request, Response $response): void
+	{
 		parent::before($request, $response);
 
 		try {
@@ -61,7 +63,8 @@ class Controller_Authenticated extends Controller {
 	 *
 	 * @return array
 	 */
-	public function variables(): array {
+	public function variables(): array
+	{
 		return [
 			'user' => $this->user, 'session' => $this->session,
 		] + parent::variables();

@@ -21,7 +21,8 @@ use zesk\Exception\Semantics;
  * @author kent
  *
  */
-class InsertSelect extends Select {
+class InsertSelect extends Select
+{
 	/**
 	 * Low priority insert/replace
 	 *
@@ -53,7 +54,8 @@ class InsertSelect extends Select {
 	 * @param Base $db
 	 * @return self
 	 */
-	public static function factory(Base $db): self {
+	public static function factory(Base $db): self
+	{
 		return new self($db);
 	}
 
@@ -62,7 +64,8 @@ class InsertSelect extends Select {
 	 * @param Select $query
 	 * @return self
 	 */
-	public static function fromSelect(Select $query): self {
+	public static function fromSelect(Select $query): self
+	{
 		$new = self::factory($query->database());
 		$new->copyFrom($query);
 		return $new;
@@ -72,7 +75,8 @@ class InsertSelect extends Select {
 	 * Getter for low priority state of this query
 	 * @return boolean
 	 */
-	public function lowPriority(): bool {
+	public function lowPriority(): bool
+	{
 		return $this->low_priority;
 	}
 
@@ -82,7 +86,8 @@ class InsertSelect extends Select {
 	 * @param boolean $low_priority
 	 * @return self
 	 */
-	public function setLowPriority(bool $low_priority = true): self {
+	public function setLowPriority(bool $low_priority = true): self
+	{
 		$this->low_priority = $low_priority;
 		return $this;
 	}
@@ -92,7 +97,8 @@ class InsertSelect extends Select {
 	 *
 	 * @return bool
 	 */
-	public function replace(): bool {
+	public function replace(): bool
+	{
 		return $this->verb === 'REPLACE';
 	}
 
@@ -102,7 +108,8 @@ class InsertSelect extends Select {
 	 * @param boolean $replace
 	 * @return self
 	 */
-	public function setReplace(bool $replace = true): self {
+	public function setReplace(bool $replace = true): self
+	{
 		$this->verb = $replace ? 'REPLACE' : 'INSERT';
 		return $this;
 	}
@@ -112,7 +119,8 @@ class InsertSelect extends Select {
 	 * @param string $table
 	 * @return self
 	 */
-	public function into(string $table): self {
+	public function into(string $table): self
+	{
 		$this->into = $table;
 		return $this;
 	}
@@ -122,14 +130,16 @@ class InsertSelect extends Select {
 	 * @return self
 	 * @throws Semantics
 	 */
-	public function setWhatString(string $what): self {
+	public function setWhatString(string $what): self
+	{
 		throw new Semantics("{class} must have an associative array for what (passed in \"$what\")", ['class' => __CLASS__]);
 	}
 
 	/**
 	 * @return string
 	 */
-	public function __toString(): string {
+	public function __toString(): string
+	{
 		try {
 			return $this->toSQL();
 		} catch (Semantics $e) {
@@ -142,7 +152,8 @@ class InsertSelect extends Select {
 	 * @throws Semantics
 	 * @return string
 	 */
-	public function toSQL(): string {
+	public function toSQL(): string
+	{
 		return $this->sql()->insertSelect($this->into, $this->what, $this->selectToSQL(), [
 			'verb' => $this->verb, 'low_priority' => $this->low_priority,
 		]);
@@ -154,7 +165,8 @@ class InsertSelect extends Select {
 	 * @throws NoResults
 	 * @throws TableNotFound
 	 */
-	public function execute(): QueryResult {
+	public function execute(): QueryResult
+	{
 		return $this->database()->query($this->__toString());
 	}
 }

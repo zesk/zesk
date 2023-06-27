@@ -22,7 +22,8 @@ use zesk\Response;
  * @author kent
  *
  */
-class Controller extends Controller_Authenticated {
+class Controller extends Controller_Authenticated
+{
 	/**
 	 *
 	 * @var Module
@@ -34,7 +35,8 @@ class Controller extends Controller_Authenticated {
 	 * {@inheritDoc}
 	 * @see \zesk\Controller_Authenticated::initialize()
 	 */
-	public function initialize(): void {
+	public function initialize(): void
+	{
 		$module = $this->application->modules->object('Polyglot');
 		assert($module instanceof Module);
 		$this->module = $module;
@@ -45,7 +47,8 @@ class Controller extends Controller_Authenticated {
 	 *
 	 * @see Controller_Authenticated::before()
 	 */
-	public function before(Request $request, Response $response): void {
+	public function before(Request $request, Response $response): void
+	{
 		parent::before($request, $response);
 
 		try {
@@ -65,7 +68,8 @@ class Controller extends Controller_Authenticated {
 	 * @return string
 	 *@throws PermissionDenied|Redirect
 	 */
-	public function action_index() {
+	public function action_index()
+	{
 		if (!$this->user->can('zesk\\Module_PolyGlot::translate')) {
 			$app_locale = $this->application->locale;
 
@@ -83,7 +87,8 @@ class Controller extends Controller_Authenticated {
 	 *
 	 * @param string $locale
 	 */
-	public function action_load($locale_string) {
+	public function action_load($locale_string)
+	{
 		$app_locale = $this->application->locale;
 		$__ = [
 			'lang_name' => Language::lang_name($this->application, $locale_string, $app_locale),
@@ -109,7 +114,8 @@ class Controller extends Controller_Authenticated {
 	 *
 	 * @param string $locale_string
 	 */
-	public function action_update(string $locale_string) {
+	public function action_update(string $locale_string)
+	{
 		$locale = $this->application->locale;
 		$locale_string = Locale::normalize($locale_string);
 		$__ = [
@@ -142,7 +148,8 @@ class Controller extends Controller_Authenticated {
 	 * @param unknown $locale
 	 * @return Ambigous <Response, boolean>
 	 */
-	public function action_token(Request $request, Response $response, string $locale): Response {
+	public function action_token(Request $request, Response $response, string $locale): Response
+	{
 		$__ = [
 			'lang_name' => Language::lang_name($this->application, $locale),
 			'locale' => $locale,

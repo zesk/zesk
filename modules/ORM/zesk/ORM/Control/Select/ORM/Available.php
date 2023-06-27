@@ -10,13 +10,15 @@ namespace zesk\ORM;
  * @author kent
  *
  */
-class Control_Select_ORM_Available extends Control_Select_ORM {
+class Control_Select_ORM_Available extends Control_Select_ORM
+{
 	/**
 	 *
 	 * {@inheritDoc}
 	 * @see Control_Select_ORM::hook_options()
 	 */
-	protected function hook_options() {
+	protected function hook_options()
+	{
 		$sql = $this->class_object->database()->sqlDialect();
 
 		$column = $this->queryColumn();

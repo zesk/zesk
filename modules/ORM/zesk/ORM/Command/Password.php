@@ -13,7 +13,8 @@ use zesk\ORM\User;
  * @author kent
  * @category Management
  */
-class Command_Password extends SimpleCommand {
+class Command_Password extends SimpleCommand
+{
 	protected array $option_types = [
 		'user' => 'string', 'password' => 'string', 'list' => 'boolean',
 	];
@@ -23,7 +24,8 @@ class Command_Password extends SimpleCommand {
 		'list' => 'List the active users in the database',
 	];
 
-	public function _optionIterable(): void {
+	public function _optionIterable(): void
+	{
 		$user = $this->application->ormFactory(User::class);
 		$col = $user->columnLogin();
 		$iterator = $user->querySelect()->addWhat($col)->order_by($col)->iterator(null, $col);
@@ -35,7 +37,8 @@ class Command_Password extends SimpleCommand {
 		fprintf(STDERR, '# ' . $this->application->locale->pluralWord('user', $n) . "\n");
 	}
 
-	public function run(): int {
+	public function run(): int
+	{
 		if ($this->optionBool('list')) {
 			$this->_optionIterable();
 			return 0;

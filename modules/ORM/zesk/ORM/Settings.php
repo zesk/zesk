@@ -44,7 +44,8 @@ use zesk\Types;
  * @author kent
  * @see Class_Settings
  */
-class Settings extends ORMBase implements MetaInterface, SettingsInterface {
+class Settings extends ORMBase implements MetaInterface, SettingsInterface
+{
 	/**
 	 * Default cache expiration
 	 *
@@ -79,7 +80,8 @@ class Settings extends ORMBase implements MetaInterface, SettingsInterface {
 	 * @return SettingsInterface
 	 * @throws ClassNotFound
 	 */
-	public static function singleton(Application $application): SettingsInterface {
+	public static function singleton(Application $application): SettingsInterface
+	{
 		return $application->settings();
 	}
 
@@ -87,14 +89,16 @@ class Settings extends ORMBase implements MetaInterface, SettingsInterface {
 	 * @return void
 	 * @throws Semantics
 	 */
-	public function hook_initialized(): void {
+	public function hook_initialized(): void
+	{
 		$this->application->hooks->add(Hooks::HOOK_EXIT, $this->flush_instance(...));
 	}
 
 	/**
 	 * Hook ORM::hooks
 	 */
-	public static function hooks(Application $application): void {
+	public static function hooks(Application $application): void
+	{
 		$hooks = $application->hooks;
 		// Ensure Database gets a chance to register first
 		$hooks->registerClass(Base::class);
@@ -108,7 +112,8 @@ class Settings extends ORMBase implements MetaInterface, SettingsInterface {
 	 * @param Application $application
 	 * @return CacheItemInterface
 	 */
-	private static function _getCacheItem(Application $application): CacheItemInterface {
+	private static function _getCacheItem(Application $application): CacheItemInterface
+	{
 		try {
 			return $application->cacheItemPool()->getItem(self::CACHE_ITEM_KEY);
 		} catch (InvalidArgumentException) {
@@ -123,7 +128,8 @@ class Settings extends ORMBase implements MetaInterface, SettingsInterface {
 	 * @param CacheItemInterface $item
 	 * @return void
 	 */
-	private static function _setCacheItem(Application $application, CacheItemInterface $item): void {
+	private static function _setCacheItem(Application $application, CacheItemInterface $item): void
+	{
 		$expires = $application->configuration->getPath([
 			__CLASS__, 'cache_expire_after',
 		], self::SETTINGS_CACHE_EXPIRE_AFTER);
@@ -139,7 +145,8 @@ class Settings extends ORMBase implements MetaInterface, SettingsInterface {
 	 * @return mixed|null
 	 * @throws SyntaxException
 	 */
-	private static function unserialize(string $serialized): mixed {
+	private static function unserialize(string $serialized): mixed
+	{
 		$value = @unserialize($serialized);
 		if ($value === false && $serialized !== 'b:0;') {
 			throw new SyntaxException('Serialized value has an error');
@@ -158,7 +165,8 @@ class Settings extends ORMBase implements MetaInterface, SettingsInterface {
 	 * @throws SQLException
 	 * @throws TableNotFound
 	 */
-	private static function load_globals_from_database(Application $application, bool $debug_load = false): array {
+	private static function load_globals_from_database(Application $application, bool $debug_load = false): array
+	{
 		$globals = [];
 		$size_loaded = 0;
 		$n_loaded = 0;
@@ -215,7 +223,8 @@ class Settings extends ORMBase implements MetaInterface, SettingsInterface {
 	 * @return void
 	 * @throws ClassNotFound
 	 */
-	public static function configured(Application $application): void {
+	public static function configured(Application $application): void
+	{
 		$debugLoad = $application->configuration->getPath([
 			__CLASS__, self::OPTION_DEBUG_LOAD,
 		]);
@@ -276,7 +285,8 @@ class Settings extends ORMBase implements MetaInterface, SettingsInterface {
 	 * @param Throwable|null $exception
 	 * @return void
 	 */
-	private function setDatabaseDown(Throwable $exception = null): void {
+	private function setDatabaseDown(Throwable $exception = null): void
+	{
 		$this->db_down = $exception !== null;
 		$this->db_down_why = $exception;
 	}
@@ -301,7 +311,8 @@ class Settings extends ORMBase implements MetaInterface, SettingsInterface {
 	 * @throws StoreException
 	 * @throws TableNotFound
 	 */
-	public function flush_instance(bool $force = false): void {
+	public function flush_instance(bool $force = false): void
+	{
 		if (count($this->changes) === 0) {
 			return;
 		}
@@ -335,7 +346,8 @@ class Settings extends ORMBase implements MetaInterface, SettingsInterface {
 	 * @throws StoreException
 	 * @throws TableNotFound
 	 */
-	public function flush(): void {
+	public function flush(): void
+	{
 		$debug_save = $this->optionBool('debug_save');
 		foreach ($this->changes as $name => $value) {
 			$settings = $this->application->ormFactory(__CLASS__, [
@@ -375,7 +387,8 @@ class Settings extends ORMBase implements MetaInterface, SettingsInterface {
 	 * @param int|string $name Setting to retrieve
 	 * @return mixed
 	 */
-	public function __get(int|string $name): mixed {
+	public function __get(int|string $name): mixed
+	{
 		return $this->application->configuration->getPath($name);
 	}
 
@@ -387,7 +400,8 @@ class Settings extends ORMBase implements MetaInterface, SettingsInterface {
 	 * @param mixed|null $default
 	 * @return mixed
 	 */
-	public function get(int|string $name, mixed $default = null): mixed {
+	public function get(int|string $name, mixed $default = null): mixed
+	{
 		return $this->application->configuration->getPath($name, $default);
 	}
 
@@ -396,7 +410,8 @@ class Settings extends ORMBase implements MetaInterface, SettingsInterface {
 	 * @param int|string $name
 	 * @return bool
 	 */
-	public function __isset(int|string $name): bool {
+	public function __isset(int|string $name): bool
+	{
 		return $this->application->configuration->pathExists($name);
 	}
 
@@ -405,7 +420,8 @@ class Settings extends ORMBase implements MetaInterface, SettingsInterface {
 	 *
 	 * @see ORMBase::__set($member, $value)
 	 */
-	public function __set(int|string $name, mixed $value): void {
+	public function __set(int|string $name, mixed $value): void
+	{
 		$old_value = $this->application->configuration->getPath($name);
 		if ($old_value === $value) {
 			return;
@@ -423,7 +439,8 @@ class Settings extends ORMBase implements MetaInterface, SettingsInterface {
 	 * @return self
 	 * @see ORMBase::set($member, $value)
 	 */
-	public function set(int|string $name, mixed $value = null): self {
+	public function set(int|string $name, mixed $value = null): self
+	{
 		$this->__set($name, $value);
 		return $this;
 	}
@@ -439,7 +456,8 @@ class Settings extends ORMBase implements MetaInterface, SettingsInterface {
 	 * @throws NoResults
 	 * @throws TableNotFound
 	 */
-	public function meta(string $name): mixed {
+	public function meta(string $name): mixed
+	{
 		$value = $this->application->ormRegistry(__CLASS__)->querySelect()->addWhere('name', $name)->addWhat('value', 'value')->one('value');
 		if ($value === null) {
 			return null;
@@ -467,7 +485,8 @@ class Settings extends ORMBase implements MetaInterface, SettingsInterface {
 	 * @throws StoreException
 	 * @throws TableNotFound
 	 */
-	public function setMeta(string $name, mixed $value): self {
+	public function setMeta(string $name, mixed $value): self
+	{
 		$this->__set($name, $value);
 		$this->flush();
 		return $this;
@@ -493,7 +512,8 @@ class Settings extends ORMBase implements MetaInterface, SettingsInterface {
 	 * @throws TableNotFound
 	 * @see MetaInterface::deleteData()
 	 */
-	public function deleteMeta(array|string $name): self {
+	public function deleteMeta(array|string $name): self
+	{
 		foreach (Types::toArray($name) as $item) {
 			$this->__set($item, null);
 		}
@@ -509,7 +529,8 @@ class Settings extends ORMBase implements MetaInterface, SettingsInterface {
 	 * @return $this|void
 	 * @throws Deprecated
 	 */
-	public function deprecated(string $old_setting, string $new_setting) {
+	public function deprecated(string $old_setting, string $new_setting)
+	{
 		if (!$this->__isset($old_setting)) {
 			return;
 		}
@@ -534,7 +555,8 @@ class Settings extends ORMBase implements MetaInterface, SettingsInterface {
 	 * @throws Semantics
 	 * @throws TableNotFound
 	 */
-	public function prefixUpdated(string $old_prefix, string $new_prefix): int {
+	public function prefixUpdated(string $old_prefix, string $new_prefix): int
+	{
 		$update = $this->application->ormRegistry(Settings::class)->queryUpdate();
 		$old_prefix_quoted = $update->sql()->quoteText($old_prefix);
 		$old_prefix_like_quoted = Types::replaceSubstrings($old_prefix, [

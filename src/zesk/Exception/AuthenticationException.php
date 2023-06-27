@@ -15,5 +15,6 @@ use zesk\Exception;
  *
  * @author kent
  */
-class AuthenticationException extends Exception {
+class AuthenticationException extends Exception
+{
 }

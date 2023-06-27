@@ -21,7 +21,8 @@ use zesk\Exception\NotFoundException;
  */
 #[Entity]
 #[UniqueConstraint(name: 'uq', columns: ['code'])]
-class Country extends Model {
+class Country extends Model
+{
 	/**
 	 *
 	 */
@@ -46,7 +47,8 @@ class Country extends Model {
 	 * @param string $name
 	 * @param array $options
 	 */
-	public function __construct(Application $application, string $code, string $name, array $options = []) {
+	public function __construct(Application $application, string $code, string $name, array $options = [])
+	{
 		parent::__construct($application, $options);
 		$this->code = substr($code, 0, self::CODE_COLUMN_LENGTH);
 		$this->name = substr($name, 0, self::NAME_COLUMN_LENGTH);
@@ -58,7 +60,8 @@ class Country extends Model {
 	 * @return self
 	 * @throws NotFoundException
 	 */
-	public static function findCountry(Application $application, string|int $mixed): self {
+	public static function findCountry(Application $application, string|int $mixed): self
+	{
 		$em = $application->entityManager();
 
 		try {

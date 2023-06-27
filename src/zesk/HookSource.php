@@ -12,7 +12,8 @@ namespace zesk;
 /**
  * For an object which provides hook source paths to load PHP files.
  */
-interface HookSource {
+interface HookSource
+{
 	/**
 	 * @return array
 	 */

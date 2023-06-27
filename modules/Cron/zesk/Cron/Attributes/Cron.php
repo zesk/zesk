@@ -9,7 +9,8 @@ use ReflectionMethod;
 use zesk\HookableAttribute;
 
 #[Attribute(Attribute::TARGET_METHOD)]
-class Cron implements HookableAttribute {
+class Cron implements HookableAttribute
+{
 	/**
 	 * At scheduled time, run a process on every instance of the application. (Everywhere)
 	 */
@@ -30,7 +31,8 @@ class Cron implements HookableAttribute {
 	 * @param string $scope
 	 * @psalm-param self::SCOPE_SERVER|self::SCOPE_APPLICATION $scope
 	 */
-	public function __construct(string $schedule = '*', string $scope = self::SCOPE_APPLICATION) {
+	public function __construct(string $schedule = '*', string $scope = self::SCOPE_APPLICATION)
+	{
 		$this->schedule = $schedule;
 		$this->scope = $scope;
 	}
@@ -54,7 +56,8 @@ class Cron implements HookableAttribute {
 	 * @param ReflectionMethod $method
 	 * @return $this
 	 */
-	public function setMethod(ReflectionMethod $method): self {
+	public function setMethod(ReflectionMethod $method): self
+	{
 		$this->method = $method;
 		return $this;
 	}
@@ -64,7 +67,8 @@ class Cron implements HookableAttribute {
 	 * @return mixed
 	 * @throws ReflectionException
 	 */
-	public function run(array $arguments = []): mixed {
+	public function run(array $arguments = []): mixed
+	{
 		return $this->method->invokeArgs(null, $arguments);
 	}
 }

@@ -14,12 +14,14 @@ use Doctrine\ORM\Tools\Console\EntityManagerProvider\SingleManagerProvider;
 
 use zesk\Command as BaseCommand;
 
-class Doctrine extends BaseCommand {
+class Doctrine extends BaseCommand
+{
 	protected array $shortcuts = ['doctrine'];
 
 	protected array $option_types = ['*' => 'string'];
 
-	public function run(): int {
+	public function run(): int
+	{
 		$entityManager = $this->application->entityManager();
 		$argv = $this->argumentsRemaining();
 		array_unshift($argv, self::class);

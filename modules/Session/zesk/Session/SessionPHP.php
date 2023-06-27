@@ -16,7 +16,8 @@ use zesk\Request;
 
 /**
  */
-class SessionPHP implements SessionInterface {
+class SessionPHP implements SessionInterface
+{
 	/**
 	 * Have we started the session yet?
 	 *
@@ -41,7 +42,8 @@ class SessionPHP implements SessionInterface {
 	 * @param mixed $mixed
 	 * @param array $options
 	 */
-	public function __construct(Application $application, mixed $mixed = null, array $options = []) {
+	public function __construct(Application $application, mixed $mixed = null, array $options = [])
+	{
 		$this->application = $application;
 		$this->started = false;
 		$this->init = is_array($mixed) ? $mixed : [];
@@ -52,12 +54,14 @@ class SessionPHP implements SessionInterface {
 	 * @param Request $request
 	 * @return self
 	 */
-	public function initializeSession(Request $request): self {
+	public function initializeSession(Request $request): self
+	{
 		$this->need();
 		return $this;
 	}
 
-	private function need(): void {
+	private function need(): void
+	{
 		if ($this->started) {
 			return;
 		}
@@ -78,15 +82,18 @@ class SessionPHP implements SessionInterface {
 	 *
 	 * @see SessionInterface::id()
 	 */
-	public function id(): int|string|array {
+	public function id(): int|string|array
+	{
 		return session_id();
 	}
 
-	public function has(int|string $name): bool {
+	public function has(int|string $name): bool
+	{
 		return $this->__isset($name);
 	}
 
-	public function __isset(int|string $name): bool {
+	public function __isset(int|string $name): bool
+	{
 		$this->need();
 		return isset($_SESSION[$name]);
 	}
@@ -95,7 +102,8 @@ class SessionPHP implements SessionInterface {
 	 *
 	 * @see SettingsInterface::get()
 	 */
-	public function get(int|string $name, mixed $default = null): mixed {
+	public function get(int|string $name, mixed $default = null): mixed
+	{
 		$this->need();
 		return $_SESSION[$name] ?? $default;
 	}
@@ -106,7 +114,8 @@ class SessionPHP implements SessionInterface {
 	 * @return mixed
 	 * @see SettingsInterface::__get()
 	 */
-	public function __get(int|string $name): mixed {
+	public function __get(int|string $name): mixed
+	{
 		$this->need();
 		return $_SESSION[$name] ?? null;
 	}
@@ -118,7 +127,8 @@ class SessionPHP implements SessionInterface {
 	 * @return void
 	 * @see SettingsInterface::__set()
 	 */
-	public function __set(int|string $name, mixed $value): void {
+	public function __set(int|string $name, mixed $value): void
+	{
 		$this->need();
 		$_SESSION[$name] = $value;
 	}
@@ -129,7 +139,8 @@ class SessionPHP implements SessionInterface {
 	 *
 	 * @see SettingsInterface::set()
 	 */
-	public function set(int|string $name, $value = null): self {
+	public function set(int|string $name, $value = null): self
+	{
 		$this->__set($name, $value);
 		return $this;
 	}
@@ -138,7 +149,8 @@ class SessionPHP implements SessionInterface {
 	 *
 	 * @return string
 	 */
-	private function globalSessionUserId(): string {
+	private function globalSessionUserId(): string
+	{
 		return $this->application->configuration->path('session')->get('user_id_variable', 'user');
 	}
 
@@ -148,7 +160,8 @@ class SessionPHP implements SessionInterface {
 	 * @throws AuthenticationException
 	 * @see SessionInterface::userId()
 	 */
-	public function userId(): int {
+	public function userId(): int
+	{
 		$result = $this->__get($this->globalSessionUserId());
 		if (is_int($result)) {
 			return $result;
@@ -164,7 +177,8 @@ class SessionPHP implements SessionInterface {
 	 * @throws AuthenticationException
 	 * @see SessionInterface::user()
 	 */
-	public function user(): Userlike {
+	public function user(): Userlike
+	{
 		$userId = $this->userId();
 		if (empty($userId)) {
 			throw new AuthenticationException('Not authenticated');
@@ -194,7 +208,8 @@ class SessionPHP implements SessionInterface {
 	 * @throws AuthenticationException
 	 * @see SessionInterface::authenticate()
 	 */
-	public function authenticate(Userlike $user, Request $request): void {
+	public function authenticate(Userlike $user, Request $request): void
+	{
 		try {
 			$this->__set($this->globalSessionUserId(), $user->id());
 		} catch (Throwable $t) {
@@ -209,7 +224,8 @@ class SessionPHP implements SessionInterface {
 	 *
 	 * @see SessionInterface::isAuthenticated()
 	 */
-	public function isAuthenticated(): bool {
+	public function isAuthenticated(): bool
+	{
 		$user = $this->__get($this->globalSessionUserId());
 		return !empty($user);
 	}
@@ -220,7 +236,8 @@ class SessionPHP implements SessionInterface {
 	 *
 	 * @see SessionInterface::relinquish()
 	 */
-	public function relinquish(): void {
+	public function relinquish(): void
+	{
 		$this->__set($this->globalSessionUserId(), null);
 	}
 
@@ -230,7 +247,8 @@ class SessionPHP implements SessionInterface {
 	 *
 	 * @see SettingsInterface::variables()
 	 */
-	public function variables(): array {
+	public function variables(): array
+	{
 		return $_SESSION;
 	}
 
@@ -240,7 +258,8 @@ class SessionPHP implements SessionInterface {
 	 *
 	 * @see SessionInterface::delete()
 	 */
-	public function delete(): void {
+	public function delete(): void
+	{
 		if (!$this->application->console()) {
 			session_destroy();
 		}

@@ -12,7 +12,8 @@ namespace zesk\Database;
 use Throwable;
 use zesk\Exception as BaseException;
 
-class Exception extends BaseException {
+class Exception extends BaseException
+{
 	/**
 	 *
 	 * @var Base
@@ -28,7 +29,8 @@ class Exception extends BaseException {
 	 * @param Exception|null $previous
 	 * @return void
 	 */
-	public function __construct(Base $database, string $message, array $arguments = [], int $code = 0, Throwable $previous = null) {
+	public function __construct(Base $database, string $message, array $arguments = [], int $code = 0, Throwable $previous = null)
+	{
 		$this->database = $database;
 		parent::__construct($message, $arguments, $code, $previous);
 	}
@@ -37,7 +39,8 @@ class Exception extends BaseException {
 	 *
 	 * @return Base
 	 */
-	public function database(): Base {
+	public function database(): Base
+	{
 		return $this->database;
 	}
 }

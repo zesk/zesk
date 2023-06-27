@@ -6,7 +6,8 @@ namespace zesk\Preference;
 
 use zesk\Module as BaseModule;
 
-class Module extends BaseModule {
+class Module extends BaseModule
+{
 	/**
 	 * Type should be included by Value
 	 *

@@ -34,7 +34,8 @@ use zesk\Exception\ParseException;
  * @author kent
  * @category Management
  */
-class Command_Configure extends SimpleCommand {
+class Command_Configure extends SimpleCommand
+{
 	protected array $shortcuts = ['configure'];
 
 	/**
@@ -115,7 +116,8 @@ class Command_Configure extends SimpleCommand {
 	/**
 	 *
 	 */
-	protected function run(): int {
+	protected function run(): int
+	{
 		$this->setCompletionFunction();
 
 		$this->configure('configure', true);
@@ -154,7 +156,8 @@ class Command_Configure extends SimpleCommand {
 	 * @throws Redirect
 	 * @throws Semantics
 	 */
-	private function determineEnvironmentFile(): string {
+	private function determineEnvironmentFile(): string
+	{
 		$locale = $this->application->locale;
 		$value = $this->optionString('environment_file');
 		$times = 0;
@@ -184,7 +187,8 @@ class Command_Configure extends SimpleCommand {
 	 * @throws Redirect
 	 * @throws Semantics
 	 */
-	private function determineEnvironmentFiles():array {
+	private function determineEnvironmentFiles():array
+	{
 		$files = $this->optionIterable(self::OPTION_ENVIRONMENT_FILES);
 		if (count($files) === 0) {
 			$file = $this->determineEnvironmentFile();
@@ -201,7 +205,8 @@ class Command_Configure extends SimpleCommand {
 	 *
 	 * @return null|string
 	 */
-	private function determine_host_path_setting_name(): null|string {
+	private function determine_host_path_setting_name(): null|string
+	{
 		$locale = $this->application->locale;
 		$value = $this->host_setting_name;
 		$times = 0;
@@ -242,7 +247,8 @@ class Command_Configure extends SimpleCommand {
 	 * @throws FilePermission
 	 * @throws ParseException
 	 */
-	private function load_conf(string $path, string $extension = ''): array {
+	private function load_conf(string $path, string $extension = ''): array
+	{
 		$conf = [];
 		Parser::factory($extension ?: File::extension($path), File::contents($path), new SettingsArray($conf), [
 			'lower' => false,
@@ -257,7 +263,8 @@ class Command_Configure extends SimpleCommand {
 	 * @param array $settings
 	 * @return boolean
 	 */
-	private function save_conf(string $path, array $settings): void {
+	private function save_conf(string $path, array $settings): void
+	{
 		$conf = [];
 		$contents = File::contents($path);
 		$parser = Configuration_Parser::factory(File::extension($path), $contents, new SettingsArray($conf));
@@ -271,7 +278,8 @@ class Command_Configure extends SimpleCommand {
 	 * @param bool $output
 	 * @return array
 	 */
-	private function load_dirs(bool $output = false): array {
+	private function load_dirs(bool $output = false): array
+	{
 		$locale = $this->application->locale;
 
 		$this->verboseLog('Loading {environment_files}', [
@@ -306,7 +314,8 @@ class Command_Configure extends SimpleCommand {
 	 *
 	 * @return mixed|array
 	 */
-	private function determine_host_name() {
+	private function determine_host_name()
+	{
 		$locale = $this->application->locale;
 
 		$this->possible_host_configurations = ArrayTools::valuesRemoveSuffix(Directory::ls($this->host_path), '/', true);
@@ -344,7 +353,8 @@ class Command_Configure extends SimpleCommand {
 	 *
 	 * @return array
 	 */
-	private function determine_host_configurations() {
+	private function determine_host_configurations()
+	{
 		$locale = $this->application->locale;
 
 		$this->completions = $possible_host_configurations = $this->possible_host_configurations;
@@ -367,7 +377,8 @@ class Command_Configure extends SimpleCommand {
 	/**
 	 * Save configuration changes to the configuration file associated with this command
 	 */
-	private function save_configuration_changes(): void {
+	private function save_configuration_changes(): void
+	{
 		if ($this->need_save) {
 			$__ = [
 				'config' => $this->config,
@@ -385,7 +396,8 @@ class Command_Configure extends SimpleCommand {
 	 *
 	 * @return boolean
 	 */
-	private function configure_user() {
+	private function configure_user()
+	{
 		$locale = $this->application->locale;
 
 		$username = $this->username;

@@ -16,6 +16,7 @@ use zesk\Exception;
  * @author kent
  *
  */
-class FileSystemException extends Exception {
+class FileSystemException extends Exception
+{
 	use FileSystemTrait;
 }

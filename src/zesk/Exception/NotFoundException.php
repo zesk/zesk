@@ -15,5 +15,6 @@ use zesk\Exception;
  * @author kent
  *
  */
-class NotFoundException extends Exception {
+class NotFoundException extends Exception
+{
 }

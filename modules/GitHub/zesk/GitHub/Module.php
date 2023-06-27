@@ -29,7 +29,8 @@ use zesk\Net\HTTP\Client;
 /**
  *
  */
-class Module extends BaseModule {
+class Module extends BaseModule
+{
 	/**
 	 * @see https://developer.github.com/v3/repos/releases/#create-a-release
 	 * @var string
@@ -44,7 +45,8 @@ class Module extends BaseModule {
 	 * @see self::versionWasUpdated()
 	 */
 	#[HookMethod(handles: Version::HOOK_UPDATED)]
-	public function versionWasUpdated(array $settings): void {
+	public function versionWasUpdated(array $settings): void
+	{
 		if (!$this->optionBool('tagOn')) {
 			return;
 		}
@@ -81,7 +83,8 @@ class Module extends BaseModule {
 	 *
 	 * @return bool
 	 */
-	public function hasCredentials(): bool {
+	public function hasCredentials(): bool
+	{
 		return $this->hasOption('owner') && $this->hasOption('repository') && $this->hasOption('access_token');
 	}
 
@@ -99,7 +102,8 @@ class Module extends BaseModule {
 	 * @throws SemanticsException
 	 * @throws UnsupportedException
 	 */
-	public function generateTag(string $name, string $commitish = '', string $description = ''): array {
+	public function generateTag(string $name, string $commitish = '', string $description = ''): array
+	{
 		if (!$description) {
 			$description = "Release of version $name";
 		}

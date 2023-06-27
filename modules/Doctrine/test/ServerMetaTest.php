@@ -9,7 +9,8 @@ use zesk\Doctrine\Server;
 use zesk\Doctrine\ServerMeta;
 use zesk\Timestamp;
 
-class ServerMetaTest extends ModelTestCase {
+class ServerMetaTest extends ModelTestCase
+{
 	public string $testName0 = 'thing';
 
 	public string $testValue0 = 'value';
@@ -18,7 +19,8 @@ class ServerMetaTest extends ModelTestCase {
 
 	public array $testArrayValue0 = ['john', 'paul'];
 
-	public function test_ServerMeta(): void {
+	public function test_ServerMeta(): void
+	{
 		$server = Server::singleton($this->application);
 
 		$this->assertInstanceOf(Server::class, $server);
@@ -51,7 +53,8 @@ class ServerMetaTest extends ModelTestCase {
 		$this->assertEquals(2, $found);
 	}
 
-	public function doMetas(Server $server): void {
+	public function doMetas(Server $server): void
+	{
 		$server->setMeta($this->testName0, $this->testValue0);
 		$server->setMeta($this->testArrayName0, $this->testArrayValue0);
 	}

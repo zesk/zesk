@@ -22,14 +22,16 @@ use zesk\Exception\NotFoundException;
  */
 #[Entity]
 #[Table(name: 'Settings')]
-class SettingsValue extends Model {
+class SettingsValue extends Model
+{
 	#[Id, Column(type: 'string', nullable: false)]
 	public string $name;
 
 	#[Column(type: 'json', nullable: false)]
 	public mixed $value = null;
 
-	public function __construct(Application $application, string $name, mixed $value = null, array $options = []) {
+	public function __construct(Application $application, string $name, mixed $value = null, array $options = [])
+	{
 		parent::__construct($application, $options);
 		$this->name = $name;
 		$this->value = $value;
@@ -42,7 +44,8 @@ class SettingsValue extends Model {
 	 * @return SettingsValue
 	 * @throws NotFoundException
 	 */
-	public static function find(Application $application, string $name, string $entityManager = ''): SettingsValue {
+	public static function find(Application $application, string $name, string $entityManager = ''): SettingsValue
+	{
 		$item = $application->entityManager($entityManager)->getRepository(self::class)->find($name);
 		if ($item) {
 			return $item;
@@ -60,7 +63,8 @@ class SettingsValue extends Model {
 	 * @throws ORMException
 	 * @throws OptimisticLockException
 	 */
-	public static function register(Application $application, string $name, mixed $value = null, string $entityManager = ''): SettingsValue {
+	public static function register(Application $application, string $name, mixed $value = null, string $entityManager = ''): SettingsValue
+	{
 		$em = $application->entityManager($entityManager);
 		$repo = $em->getRepository(self::class);
 		$item = $repo->find($name);
