@@ -20,6 +20,9 @@ set -eo pipefail
 
 source "$top/bin/build/colors.sh"
 
+if [ -f "$top/.env" ]; then
+  consoleSuccess "Loaded .env ..."
+fi
 releaseStart=$(beginTiming)
 
 if [ -z "$GITHUB_ACCESS_TOKEN" ]; then
@@ -103,22 +106,8 @@ releaseNotesGenerate > "$changeLog"
 
 reportTiming "$start" OK
 echo
-consoleMagenta
 figlet "zesk $currentVersion"
-consoleReset
 echo
-
-#
-#========================================================================
-#
-consoleInfo "Pushing changes to GitHub ..."
-consoleDecoration "$(echoBar)"
-start=$(beginTiming)
-git commit -m "$me automatic update of CHANGELOG.md" "$changeLog"
-git push origin
-git push github
-consoleDecoration "$(echoBar)"
-reportTiming "$start" OK
 
 #
 #========================================================================
@@ -133,12 +122,13 @@ reportTiming "$start" OK
 consoleGreen "Tagging $currentVersion and pushing ... "
 consoleDecoration "$(echoBar)"
 start=$(beginTiming)
+git commit -m "$me automatic update of CHANGELOG.md" "$changeLog" || :
 git tag -d "$currentVersion" 2> /dev/null || :
 git push origin ":$currentVersion" 2> /dev/null || :
 git push github ":$currentVersion" 2> /dev/null || :
 git tag "$currentVersion"
-git push origin --tags
-git push github --tags
+git push origin --all
+git push github --all
 consoleDecoration "$(echoBar)"
 reportTiming "$start" OK
 #
