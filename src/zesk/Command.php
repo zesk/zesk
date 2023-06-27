@@ -962,7 +962,7 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable {
 				case 'dir':
 					$param = $this->getArgument($arg, false);
 					if (!is_dir($param)) {
-						$this->error("Argument \"--$arg $param\" is not a directory.");
+						$this->error("Argument --$arg \"$param\" is not a directory.");
 					} else {
 						$option_values[$arg] = true;
 						$this->setOption($arg, $param);
@@ -973,7 +973,7 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable {
 				case 'dir[]':
 					$param = $this->getArgument($arg, false);
 					if (!is_dir($param)) {
-						$this->error("Argument \"--$arg $param\" is not a directory.");
+						$this->error("Argument --$arg \"$param\" is not a directory.");
 					} else {
 						$option_values[$arg] = true;
 						$this->optionAppend($arg, $param);
@@ -983,7 +983,7 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable {
 				case 'file':
 					$param = $this->getArgument($arg, false);
 					if (!$this->validateFileArgument($param)) {
-						$this->error("Argument \"--$arg $param\" is not a file or link.");
+						$this->error("Argument --$arg \"$param\" is not a file or link.");
 					} else {
 						$option_values[$arg] = true;
 						$this->setOption($arg, $param);
@@ -995,7 +995,7 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable {
 				case 'file[]':
 					$param = $this->getArgument($arg, false);
 					if (!$this->validateFileArgument($param)) {
-						$this->error("Argument \"--$arg $param\" is not a file.");
+						$this->error("Argument --$arg \"$param\" is not a file.");
 					} else {
 						$option_values[$arg] = true;
 						$this->optionAppend($arg, $param);

@@ -32,8 +32,8 @@
 /test.log
 /test-reports/
 /test/test-data/conf2json/conf2json.json
-/.env*
 *.log
 # Build related
 /.release-notes.md
 /.github.conf
+/.env*

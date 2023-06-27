@@ -2,11 +2,14 @@
 #
 # version-last.sh
 #
+# Depends: git
+#
 # Copyright &copy; 2023 Market Acumen, Inc.
 #
 err_env=1
 
 top="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." || exit $err_env; pwd)"
+. "$top/build/colors.sh"
 
 if [ ! -d "$top/.git" ]; then
 	echo "No .git directory at $top, stopping" 1>&2
@@ -14,4 +17,4 @@ if [ ! -d "$top/.git" ]; then
 fi
 
 cd "$top" || exit $err_env
-git tag | sort -t. -k 1.2,1n -k 2,2n -k 3,3n -k 4,4n | tail -1
+git tag | grep -e '^v[0-9.]*$' | versionSort | tail -1

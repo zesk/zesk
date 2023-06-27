@@ -2,6 +2,8 @@
 #
 # pipeline-release.sh
 #
+# Depends: apt docker
+#
 # Push a new tag to GitHub when then triggers a new release to Packagist automatically
 #
 # Copyright &copy; 2023 Market Acumen, Inc.
@@ -12,12 +14,19 @@ err_env=1
 # Assumptions
 #
 top="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." || exit $err_env; pwd)"
+me=$(basename "${BASH_SOURCE[0]}")
+releaseDate=$(date)
 
 set -eo pipefail
 
 source "$top/bin/build/colors.sh"
 
-if [ -n "$GITHUB_ACCESS_TOKEN" ]; then
+if [ -f "$top/.env" ]; then
+  consoleSuccess "Loaded .env ..."
+fi
+releaseStart=$(beginTiming)
+
+if [ -z "$GITHUB_ACCESS_TOKEN" ]; then
   exec 1>&2
   consoleRed "GITHUB_ACCESS_TOKEN is required";
   echo
@@ -29,10 +38,10 @@ if [ ! -d "$top/.git" ]; then
 fi
 
 "$top/bin/build/git.sh"
-"$top/bin/build/docker-compose.sh"
+"$top/bin/build/composer.sh"
 
 currentVersion=$("$top/bin/build/version-current.sh")
-releaseDir=$top/docs/release/
+releaseDir=$top/docs/release
 
 currentChangeLog="$releaseDir/$currentVersion.md"
 if [ ! -f "$currentChangeLog" ]; then
@@ -43,8 +52,9 @@ fi
 GITHUB_REPOSITORY_OWNER=${GITHUB_REPOSITORY_OWNER:-zesk}
 GITHUB_REPOSITORY_NAME=${GITHUB_REPOSITORY_NAME:-zesk}
 
-#
 #========================================================================
+#
+# Add github as a remote
 #
 start=$(beginTiming)
 consoleInfo -n "Adding remote ..."
@@ -56,8 +66,10 @@ else
 fi
 reportTiming "$start" OK
 
-#
 #========================================================================
+#
+#  Generate our release notes for the online release
+#  Update the code in CHANGELOG.md which is effectively a concatenation of files
 #
 consoleInfo -n "Generating release notes and CHANGELOG ..."
 start=$(beginTiming)
@@ -66,12 +78,12 @@ remoteChangeLog="$top/$remoteChangeLogName"
 {
   figlet "zesk $currentVersion" | awk '{ print "    " $0 }'
   echo
-  echo "> Released on $(date)"
+  echo "> Released on $releaseDate"
   echo
   cat "$currentChangeLog"
 } > "$remoteChangeLog"
 
-releaseNotesGenerate() {
+changeLogGenerate() {
   local f rawVersion prevVersion linksSuffix
 
   linksSuffix=$(mktemp)
@@ -79,6 +91,7 @@ releaseNotesGenerate() {
   cat header.md
   prevVersion=
   for f in $(find . -type f -name '*.md' | cut -d / -f 2 | grep -e '^v' | versionSort -r); do
+    echo
     cat "$f"
     rawVersion="$f"
     rawVersion=${rawVersion%%.md}
@@ -94,30 +107,78 @@ releaseNotesGenerate() {
 }
 
 changeLog=$top/CHANGELOG.md
-releaseNotesGenerate > "$changeLog"
+changeLogGenerate > "$changeLog"
 
 reportTiming "$start" OK
 echo
 
+#========================================================================
+#                _
+#   _______  ___| | __
+#  |_  / _ \/ __| |/ /
+#   / /  __/\__ \   <
+#  /___\___||___/_|\_\
+#
 figlet "zesk $currentVersion"
-cat currentChangeLog
-echo
-echo "Tagging release in GitHub ..."
-echo
-yml="$top/docker-compose.yml"
-{
-  echo 'zesk\\GitHub\\Module::access_token="'"$GITHUB_ACCESS_TOKEN"'"'
-  echo 'zesk\\GitHub\\Module::owner='"$GITHUB_REPOSITORY_OWNER"
-  echo 'zesk\\GitHub\\Module::repository='"$GITHUB_REPOSITORY_NAME"
-} > "$top/.github.conf"
 
+#========================================================================
+#
+# Build the Zesk Dockerfile
+#
+start=$(beginTiming)
+consoleInfo -n "Building Zesk PHP Dockerfile ..."
+image=$(docker build -q -f ./docker/php.Dockerfile .)
+reportTiming "$start" OK
+#
+#========================================================================
+#
+# Tag our version, commit the CHANGELOG.md and push to both origin and github
+#
 consoleGreen "Tagging $currentVersion and pushing ... "
+consoleDecoration "$(echoBar)"
+start=$(beginTiming)
+git commit -m "$me automatic update of CHANGELOG.md" "$changeLog" || :
+git tag -d "$currentVersion" 2> /dev/null || :
+git push origin ":$currentVersion" 2> /dev/null || :
+git push github ":$currentVersion" 2> /dev/null || :
 git tag "$currentVersion"
-git push --tags
-consoleGreen OK && echo
-
-git push --mirror "https://github.com/$GITHUB_REPOSITORY_OWNER/$GITHUB_REPOSITORY_NAME.git"
-docker-compose -f "$yml" -T -u www-data /zesk/bin/zesk --config /zesk/.github.conf GitHub --tag --description-file "$currentChangeLog"
-
-echo
+git push origin --all
+git push github --all
+consoleDecoration "$(echoBar)"
+reportTiming "$start" OK
+#========================================================================
+#
+# Send release API call to GitHub to make tagged version a release with
+# release notes.
+#
+commitish=$(git rev-parse --short HEAD)
+echo "$(consoleInfo "Generated container $image, running github tag")" "$(consoleRedBold "$commitish")" "$(consoleInfo "===")" "$(consoleRedBold "$currentVersion")" "$(consoleInfo "...")"
+consoleDecoration "$(echoBar)"
+start=$(beginTiming)
+{
+  echo 'zesk\GitHub\Module::accessToken="'"$GITHUB_ACCESS_TOKEN"'"'
+  echo 'zesk\GitHub\Module::owner='"$GITHUB_REPOSITORY_OWNER"
+  echo 'zesk\GitHub\Module::repository='"$GITHUB_REPOSITORY_NAME"
+} > "$top/.github.conf"
+docker run -u www-data "$image" /zesk/bin/zesk --config /zesk/.github.conf module GitHub -- github --tag --description-file "/zesk/$remoteChangeLogName"
+consoleDecoration "$(echoBar)"
+reportTiming "$start" OK
+#========================================================================
+#
+# I think things change in GitHub when we do a release (maybe?) so sync back to origin here
+#
+consoleInfo "Pull github and push origin ... " && echo
+consoleDecoration "$(echoBar)"
+consoleInfo "git pull github" && echo
+start=$(beginTiming)
+# TODO Remove this if they are AOK
+git pull github || consoleRed "Failed: $?"
+consoleInfo "git push origin" && echo
+git push origin || consoleRed "Failed: $?"
+consoleDecoration "$(echoBar)"
+reportTiming "$start"
+#
+#========================================================================
+#
 figlet "zesk $currentVersion OK"
+reportTiming "$releaseStart" "Release complete."

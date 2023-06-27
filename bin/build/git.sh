@@ -2,6 +2,8 @@
 #
 # git.sh
 #
+# Depends: apt
+#
 # git install if needed
 #
 # Copyright &copy; 2023 Market Acumen, Inc.
@@ -14,12 +16,16 @@ quietLog="$top/.build/$me.log"
 
 set -eo pipefail
 
-"$top/bin/build/apt-utils.sh"
-
-[ -d "$(dirname "$quietLog")" ] || mkdir -p "$(dirname "$quietLog")"
-
 if ! which git 2> /dev/null 1>&2; then
-  echo "Installing git ..."
+  "$top/bin/build/apt-utils.sh"
+
+  [ -d "$(dirname "$quietLog")" ] || mkdir -p "$(dirname "$quietLog")"
+
+  consoleInfo -n "Installing git ..."
   export DEBIAN_FRONTEND=noninteractive
-  apt-get install -y git > "$quietLog"
+  start=$(beginTiming)
+  if ! apt-get install -y git > "$quietLog" 2>&1; then
+    failed "$quietLog"
+  fi
+  reportTiming "$start" OK
 fi

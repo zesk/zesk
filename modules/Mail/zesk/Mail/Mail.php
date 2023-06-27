@@ -181,7 +181,7 @@ class Mail extends Hookable {
 		/*
 		 * Load globals
 		 */
-		self::$log = $application->paths->expand($config->getPath([__CLASS__, 'log', ]));
+		self::$log = $application->paths->expand($config->getPath([__CLASS__, 'log', ], ''));
 		self::$fp = null;
 		self::$disabled = Types::toBool($config->getPath([__CLASS__, 'disabled', ]));
 	}
