@@ -135,4 +135,5 @@ consoleInfo
 "$top/bin/build/release-check-version.sh" "${versionArgs[@]}"
 consoleReset
 
+export GITHUB_ACCESS_TOKEN
 env > "$envFile"

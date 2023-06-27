@@ -1,10 +1,63 @@
 #!/usr/bin/env sh
 # Use sh to avoid having to install bash on virgin systems
 err_env=1
+err_arg=1
 ERR_NO_VENDOR=1002
 ERR_NO_ZESK_BIN=1003
 
 export PATH=$PATH:/usr/bin:/bin:/usr/local/bin
+
+extractCD() {
+  while [ $# -gt 1 ]; do
+    case $1 in
+      # looking for these
+      "--cd" | "--search" )
+        shift
+        echo "$1"
+        ;;
+      # --arg var
+      "--unset" | "--set" | "--config" | "--define" )
+        shift
+        ;;
+      # --name=value
+      "--[a-z]+=*")
+        return 0
+        ;;
+      *)
+        return 0
+    esac
+    shift
+  done
+}
+
+findAppRoot() {
+  start="$1"
+  cd "$start" || return 0
+  current=
+  next="$start"
+  while [ "$next" != "$current" ]; do
+    current="$next"
+    if ls ./*.application.php 1> /dev/null 2>&1; then
+      echo "$current"
+      return 0
+    fi
+    cd ..
+    next=$(pwd)
+  done
+  return 0
+}
+
+findFirstAppRoot() {
+  tryDir=
+  while read -r tryDir; do
+    appRoot=$(findAppRoot "$tryDir")
+    if [ -n "$appRoot" ]; then
+      echo "$appRoot"
+      return 0
+    fi
+    shift
+  done
+}
 
 here=$(dirname "$0")
 php=$(which php)
@@ -12,33 +65,25 @@ if [ -z "$php" ]; then
 	echo "PHP is not found in PATH: " . $PATH 1>&2
 	exit $err_env
 fi
-start=$(pwd)
-app_root=
-while [ -z "$app_root" ]; do
-	current=$(pwd)
-	if ls ./*.application.php 1> /dev/null 2>&1; then
-		app_root=$(pwd)
-	else
-		cd ..
-		next=$(pwd)
-		if [ "$next" = "$current" ]; then
-			break
-		fi
-	fi
-done
-cd "$start" || exit 1
-if [ -z "$app_root" ]; then
+
+appRoot=$({
+  extractCD "$@";
+  pwd
+} | findFirstAppRoot)
+
+cd "$start" || exit $err_env
+if [ -z "$appRoot" ]; then
 	cd "$here" || exit $err_env
 	cd .. || exit $err_env
-	app_root=$(pwd)
+	appRoot=$(pwd)
 	cd "$start" || exit $err_env
 fi
-for binary in "$app_root/bin/zesk-command.php" "$app_root/vendor/bin/zesk-command.php"; do
+for binary in "$appRoot/bin/zesk-command.php" "$appRoot/vendor/bin/zesk-command.php"; do
 	if [ -x "$binary" ]; then
 		exec "$php" "$binary" "$@"
 	fi
 done
-if [ ! -d "$app_root/vendor/bin/" ]; then
+if [ ! -d "$appRoot/vendor/bin/" ]; then
 	echo "No vendor directory exists, run: composer require zesk/zesk && composer install" 1>&2
 	exit $ERR_NO_VENDOR
 fi

@@ -71,10 +71,6 @@ Or
 
 Generally, this is used to dynamically determine the version of the software when the URL to download is always bleeding-edge (e.g. new versions overwrite the old ones, etc.). 
 
-## `sharePath` (path or list of paths)
-
-When this module is loaded, a `Application::sharePath` directory is added automatically. (See [sharing](share.md)). As well, this is used for correctly creating a "local" share path for the application in the web root.
-
 ## `requires` (array of other module names)
 
 If your module requires other modules, enter that list here, e.g.
