@@ -22,6 +22,9 @@ set -eo pipefail
 source "$top/bin/build/colors.sh"
 
 if [ -f "$top/.env" ]; then
+  set -a
+  source "$top/.env"
+  set +a
   consoleSuccess "Loaded .env ..."
 fi
 releaseStart=$(beginTiming)
