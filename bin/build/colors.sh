@@ -93,5 +93,29 @@ failed() {
     tail -3 "$quietLog"
     echo
   consoleReset
-  return $err_env
+  return "$err_env"
+}
+
+beginTiming() {
+  echo "$(($(date +%s) + 0))"
+}
+plural() {
+  if [ "$1" -eq 1 ]; then
+    echo "$2";
+  else
+    echo "$3"
+  fi
+}
+reportTiming() {
+  local start delta
+  start=$1
+  shift
+  if [ -n "$*" ]; then
+    consoleGreen -n "$* "
+  fi
+  delta=$(($(date +%s) - start))
+  consoleBoldMagenta "$delta $(plural $delta second seconds)"
+}
+versionSort() {
+  sort -t. -k 1.2,1n -k 2,2n -k 3,3n -k 4,4n "$@"
 }
