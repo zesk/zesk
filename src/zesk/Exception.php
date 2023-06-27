@@ -18,14 +18,16 @@ use Throwable;
 /**
  *
  */
-abstract class Exception extends BaseException {
+abstract class Exception extends BaseException
+{
 	use Exceptional;
 
 	/**
 	 * @param BaseException $e
 	 * @return array
 	 */
-	public static function exceptionVariables(Throwable $e): array {
+	public static function exceptionVariables(Throwable $e): array
+	{
 		return method_exists($e, 'variables') ? $e->variables() :
 			($e instanceof Error ? self::phpExceptionVariables($e, 'error') : self::phpExceptionVariables($e));
 	}
@@ -35,7 +37,8 @@ abstract class Exception extends BaseException {
 	 * @param string $prefix
 	 * @return array
 	 */
-	public static function phpExceptionVariables(Throwable $e, string $prefix = 'exception'): array {
+	public static function phpExceptionVariables(Throwable $e, string $prefix = 'exception'): array
+	{
 		return [
 			'throwableClass' => $e::class,
 			"{$prefix}Class" => $e::class,

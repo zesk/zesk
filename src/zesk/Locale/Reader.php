@@ -24,7 +24,8 @@ use zesk\Types;
 /**
  * @author kent
  */
-class Reader {
+class Reader
+{
 	/**
 	 *
 	 * @var string
@@ -80,7 +81,8 @@ class Reader {
 	 * @param array $extensions
 	 * @return self
 	 */
-	public static function factory(array $paths, string $id, array $extensions = []): self {
+	public static function factory(array $paths, string $id, array $extensions = []): self
+	{
 		return new self($paths, $id, $extensions);
 	}
 
@@ -90,7 +92,8 @@ class Reader {
 	 * @param string $id
 	 * @param array $extensions
 	 */
-	public function __construct(array $paths, string $id, array $extensions = []) {
+	public function __construct(array $paths, string $id, array $extensions = [])
+	{
 		$this->paths = $paths;
 		[$language, $dialect] = Locale::parse($id);
 		$this->id = Locale::normalize($id);
@@ -107,7 +110,8 @@ class Reader {
 	 *
 	 * @return array
 	 */
-	public function missing(): array {
+	public function missing(): array
+	{
 		return $this->missing;
 	}
 
@@ -116,7 +120,8 @@ class Reader {
 	 *
 	 * @return array
 	 */
-	public function loaded(): array {
+	public function loaded(): array
+	{
 		return $this->loaded;
 	}
 
@@ -126,7 +131,8 @@ class Reader {
 	 *
 	 * @return array [string]
 	 */
-	public function errors(): array {
+	public function errors(): array
+	{
 		return $this->errors;
 	}
 
@@ -137,7 +143,8 @@ class Reader {
 	 * @return Locale
 	 * @throws ClassNotFound
 	 */
-	public function locale(Application $application, array $options = []): Locale {
+	public function locale(Application $application, array $options = []): Locale
+	{
 		return Locale::factory($application, $this->id, $options)->setTranslations($this->execute());
 	}
 
@@ -146,7 +153,8 @@ class Reader {
 	 *
 	 * @return array
 	 */
-	public function execute(): array {
+	public function execute(): array
+	{
 		$this->loaded = [];
 		$this->errors = [];
 		$this->missing = [];
@@ -170,7 +178,8 @@ class Reader {
 	 *
 	 * @return string[]
 	 */
-	public function files(): array {
+	public function files(): array
+	{
 		$files = [];
 		$prefixes = [
 			'all',
@@ -201,7 +210,8 @@ class Reader {
 	 * @throws FilePermission
 	 * @throws ParseException
 	 */
-	private function load(string $file): array {
+	private function load(string $file): array
+	{
 		$extension = File::extension($file);
 		if (in_array($extension, [
 			'php',
@@ -228,7 +238,8 @@ class Reader {
 	 * @param string $file
 	 * @return mixed
 	 */
-	private function _require(string $file): mixed {
+	private function _require(string $file): mixed
+	{
 		return require $file;
 	}
 }

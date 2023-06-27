@@ -3,8 +3,10 @@ declare(strict_types=1);
 
 namespace zesk;
 
-class TemporalTest extends UnitTest {
-	public static function data_convertUnits(): array {
+class TemporalTest extends UnitTest
+{
+	public static function data_convertUnits(): array
+	{
 		return [
 			[0, 0, Temporal::UNIT_SECOND],
 			[1, 1, Temporal::UNIT_SECOND],
@@ -28,7 +30,8 @@ class TemporalTest extends UnitTest {
 	 * @throws KeyNotFound
 	 * @dataProvider data_convertUnits
 	 */
-	public function test_convertUnits(float $expected, float $seconds, string $toUnits): void {
+	public function test_convertUnits(float $expected, float $seconds, string $toUnits): void
+	{
 		$this->assertEquals($expected, Temporal::convertUnits($seconds, $toUnits), "Temporal::convertUnits($seconds, $toUnits)");
 	}
 }

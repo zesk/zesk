@@ -29,7 +29,8 @@ use zesk\Module as BaseModule;
  *
  * @author kent
  */
-class Module extends BaseModule implements Routes {
+class Module extends BaseModule implements Routes
+{
 	/**
 	 * Call a method to wait for a job to be delivered instead of polling the database (default) every n seconds.
 	 */
@@ -46,7 +47,8 @@ class Module extends BaseModule implements Routes {
 	/**
 	 * For testing, call this statically from zesk eval, a web request, or a debugger
 	 */
-	public function mockDaemon(): void {
+	public function mockDaemon(): void
+	{
 		$application = $this->application;
 		$quit_after = $application->configuration->getPath(__CLASS__ . '::fake_daemon_quit_after', 5000);
 
@@ -73,7 +75,8 @@ class Module extends BaseModule implements Routes {
 	 * @throws ParseException
 	 * @throws SemanticsException
 	 */
-	private function runDaemon(SystemProcess $process): void {
+	private function runDaemon(SystemProcess $process): void
+	{
 		$seconds = $this->option('execute_jobs_wait', 10);
 		$app = $process->application();
 		$hasHooks = $this->hasHooks(self::HOOK_WAIT_FOR_JOB);
@@ -108,7 +111,8 @@ class Module extends BaseModule implements Routes {
 	 * @see self::daemon()
 	 */
 	#[DaemonMethod]
-	public static function daemon(SystemProcess $process): void {
+	public static function daemon(SystemProcess $process): void
+	{
 		$application = $process->application();
 		$module = $application->jobModule();
 		$module->runDaemon($process);
@@ -120,7 +124,8 @@ class Module extends BaseModule implements Routes {
 	 * @see Routes::hook_routes()
 	 */
 	#[HookMethod(handles: Application::HOOK_ROUTER)]
-	public function hook_routes(Router $router): void {
+	public function hook_routes(Router $router): void
+	{
 		$router->addRoute('job/{' . Job::class . ' job}(/{option action})', [
 			'controller' => Controller::class, 'arguments' => [
 				1,

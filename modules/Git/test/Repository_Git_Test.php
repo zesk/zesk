@@ -20,7 +20,8 @@ use zesk\URL;
  * @author kent
  *
  */
-class Repository_Git_Test extends TestCase {
+class Repository_Git_Test extends TestCase
+{
 	protected array $load_modules = ['git'];
 
 	/**
@@ -43,7 +44,8 @@ class Repository_Git_Test extends TestCase {
 	 * @depends testConfiguration
 	 * @return string
 	 */
-	public function testURL() {
+	public function testURL()
+	{
 		$this->loadConfiguration();
 		$url = $this->url;
 		$this->assertTrue(URL::valid($url), "URL $url is not a valid URL");
@@ -53,7 +55,8 @@ class Repository_Git_Test extends TestCase {
 	/**
 	 * @depends testFactory
 	 */
-	public function testInfo(Repository $repo): void {
+	public function testInfo(Repository $repo): void
+	{
 		$repo->url($this->url);
 		$repo->update();
 		$info = $repo->info();
@@ -75,7 +78,8 @@ class Repository_Git_Test extends TestCase {
 	 * @depends testFactory
 	 * @depends testURL
 	 */
-	public function testUpdate(Repository $repo, $url) {
+	public function testUpdate(Repository $repo, $url)
+	{
 		$this->assertNotEmpty($url, "Url \"$url\" is empty");
 		$this->assertTrue(URL::valid($url), "Url \"$url\" is not valid");
 		$path = $repo->path();
@@ -124,7 +128,8 @@ class Repository_Git_Test extends TestCase {
 	/**
 	 * @depends testFactory
 	 */
-	public function testNoURL(Repository $repo) {
+	public function testNoURL(Repository $repo)
+	{
 		$this->expectException(SemanticsException::class);
 		$repo->setURL('');
 		$path = $repo->path();
@@ -137,7 +142,8 @@ class Repository_Git_Test extends TestCase {
 	/**
 	 * @depends testFactory
 	 */
-	public function testBADURL(Repository $repo): void {
+	public function testBADURL(Repository $repo): void
+	{
 		$this->expectException(SyntaxException::class);
 		$repo->setURL('http:/localhost/path/to/git');
 	}

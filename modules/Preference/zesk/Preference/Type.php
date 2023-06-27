@@ -22,7 +22,8 @@ use zesk\ORM\ORMBase;
  * @author kent
  *
  */
-class Type extends ORMBase {
+class Type extends ORMBase
+{
 	public const MEMBER_CODE = 'code';
 
 	/**
@@ -34,7 +35,8 @@ class Type extends ORMBase {
 	 * @return self
 	 * @throws ORMNotFound
 	 */
-	public static function registerName(Application $application, string $code_name, string $name = ''): self {
+	public static function registerName(Application $application, string $code_name, string $name = ''): self
+	{
 		try {
 			$result = $application->ormFactory(__CLASS__, [
 				'name' => $name ?: $code_name, 'code' => $code_name,

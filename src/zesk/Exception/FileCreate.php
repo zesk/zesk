@@ -12,5 +12,6 @@ namespace zesk\Exception;
 /**
  *
  */
-class FileCreate extends FileSystemException {
+class FileCreate extends FileSystemException
+{
 }

@@ -19,7 +19,8 @@ use zesk\StringTools;
 /**
  * @author kent
  */
-class Writer {
+class Writer
+{
 	/**
 	 *
 	 * @var Application
@@ -41,7 +42,8 @@ class Writer {
 	 * @param string $file
 	 * @param string $localeHeader
 	 */
-	public function __construct(Application $application, string $file, string $localeHeader) {
+	public function __construct(Application $application, string $file, string $localeHeader)
+	{
 		$this->application = $application;
 		$this->file = $file;
 		$this->localeHeader = $localeHeader;
@@ -56,7 +58,8 @@ class Writer {
 	 * @throws FilePermission
 	 * @throws UnimplementedException
 	 */
-	public function append(array $phrases, string $context = ''): array {
+	public function append(array $phrases, string $context = ''): array
+	{
 		$extension = File::extension($this->file);
 		return match ($extension) {
 			'php' => $this->appendPHPFile($phrases, $context),
@@ -79,7 +82,8 @@ class Writer {
 	 * @throws FilePermission
 	 * @throws FileNotFound
 	 */
-	protected function appendPHPFile(array $phrases, string $context = ''): array {
+	protected function appendPHPFile(array $phrases, string $context = ''): array
+	{
 		$contents = File::contents($this->file);
 		if (strlen($contents) === 0) {
 			$contents = '<';
@@ -123,7 +127,8 @@ class Writer {
 	 * @return array
 	 * @throws FilePermission
 	 */
-	protected function appendCSVFile(array $phrases, string $context): array {
+	protected function appendCSVFile(array $phrases, string $context): array
+	{
 		$app = $this->application;
 		if (count($phrases) === 0) {
 			return [];

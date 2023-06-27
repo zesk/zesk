@@ -3,8 +3,10 @@ declare(strict_types=1);
 
 namespace zesk;
 
-class CLI_Test extends UnitTest {
-	public static function data_CLI(): array {
+class CLI_Test extends UnitTest
+{
+	public static function data_CLI(): array
+	{
 		return [
 			[['Unable to change directory to "/root/"'], ['--cd',
 				'/root/', 'cwd', ], true],
@@ -21,7 +23,8 @@ class CLI_Test extends UnitTest {
 	 * @return void
 	 * @dataProvider data_CLI
 	 */
-	public function test_CLI(array $expected, string|array $args, bool $captureError): void {
+	public function test_CLI(array $expected, string|array $args, bool $captureError): void
+	{
 		$this->assertEquals($expected, $this->zeskBinExecute(Types::toList($args, [], ' '), $captureError));
 	}
 }

@@ -23,7 +23,8 @@ use zesk\ORM\ORMBase;
  * @category Debugging
  * @author kent
  */
-class ClassCheck extends CommandBase {
+class ClassCheck extends CommandBase
+{
 	/**
 	 *
 	 * @var array
@@ -38,7 +39,8 @@ class ClassCheck extends CommandBase {
 	 *
 	 * @return array
 	 */
-	private function all_classes(): array {
+	private function all_classes(): array
+	{
 		return ArrayTools::extract($this->application->ormModule()->allClasses(), null, 'class');
 	}
 
@@ -51,7 +53,8 @@ class ClassCheck extends CommandBase {
 	 * @throws ParameterException
 	 * @throws ORMNotFound
 	 */
-	public function run(): int {
+	public function run(): int
+	{
 		$logger = $this->application->logger;
 		$classes = [];
 		$arg = '';
@@ -176,7 +179,8 @@ class ClassCheck extends CommandBase {
 	 * @param string $type
 	 * @return string
 	 */
-	private function guessType(Base $db, string $name, string $type): string {
+	private function guessType(Base $db, string $name, string $type): string
+	{
 		$schema_type = (self::$guess_names[strtoupper($type)] ?? [])[strtoupper($name)] ?? null;
 		if ($schema_type) {
 			return strtoupper($schema_type);

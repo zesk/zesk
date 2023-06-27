@@ -33,7 +33,8 @@ use zesk\Types;
  * @see Model
  * @author kent
  */
-class Module extends BaseModule {
+class Module extends BaseModule
+{
 	/**
 	 * Your basic ORM classes.
 	 *
@@ -68,7 +69,8 @@ class Module extends BaseModule {
 	 * @throws Semantics
 	 * @throws Unsupported
 	 */
-	public function initialize(): void {
+	public function initialize(): void
+	{
 		parent::initialize();
 		$this->application->setOption(Application::OPTION_USER_CLASS, User::class, false);
 		/**
@@ -140,7 +142,8 @@ class Module extends BaseModule {
 	 * @param array $daemon_hooks
 	 * @return array
 	 */
-	public function daemon_hooks(Command $daemon, array $daemon_hooks): array {
+	public function daemon_hooks(Command $daemon, array $daemon_hooks): array
+	{
 		$daemon_hooks[] = ORMBase::class . '::daemon';
 		return $daemon_hooks;
 	}
@@ -153,7 +156,8 @@ class Module extends BaseModule {
 	 * @return ORMBase
 	 * @throws ClassNotFound
 	 */
-	public function ormRegistry(string $class, mixed $mixed = null, array $options = []): ORMBase {
+	public function ormRegistry(string $class, mixed $mixed = null, array $options = []): ORMBase
+	{
 		$class = $this->application->objects->resolve($class);
 		if ($mixed === null && is_array($options) && count($options) > 0) {
 			$result = $this->_classCacheComponent($class, $mixed, $options, 'object');
@@ -173,7 +177,8 @@ class Module extends BaseModule {
 	 * @return SettingsInterface
 	 * @throws ClassNotFound
 	 */
-	public function settingsRegistry(string $class = ''): SettingsInterface {
+	public function settingsRegistry(string $class = ''): SettingsInterface
+	{
 		if ($class === '') {
 			$class = $this->option('settings_class', Settings::class);
 		}
@@ -194,7 +199,8 @@ class Module extends BaseModule {
 	 * @return ORMBase
 	 * @throws ClassNotFound
 	 */
-	public function ormFactory(string $class, mixed $mixed = null, array $options = []): ORMBase {
+	public function ormFactory(string $class, mixed $mixed = null, array $options = []): ORMBase
+	{
 		// $class is resolved deeper
 		$orm = ORMBase::factory($this->application, $class, $mixed, $options);
 		assert($orm instanceof ORMBase);
@@ -210,7 +216,8 @@ class Module extends BaseModule {
 	 * @return Class_Base
 	 * @throws ClassNotFound
 	 */
-	public function classORMRegistry(string $class, mixed $mixed = null, array $options = []): Class_Base {
+	public function classORMRegistry(string $class, mixed $mixed = null, array $options = []): Class_Base
+	{
 		$class = $this->application->objects->resolve($class);
 		$result = $this->_classCacheComponent($class, $mixed, $options, 'class');
 		if (!$result) {
@@ -224,7 +231,8 @@ class Module extends BaseModule {
 	 * When zesk\Hooks::all_hook is called, this is called first to collect all objects
 	 * in the system.
 	 */
-	public static function hooks(Application $application): void {
+	public static function hooks(Application $application): void
+	{
 		$application->hooks->add(ORMBase::class . '::register_all_hooks', self::object_register_all_hooks(...));
 	}
 
@@ -232,7 +240,8 @@ class Module extends BaseModule {
 	 *
 	 * @param Application $app
 	 */
-	public static function object_register_all_hooks(Application $app): void {
+	public static function object_register_all_hooks(Application $app): void
+	{
 		$classes = $app->ormModule()->allClasses();
 		$app->classes->register(ArrayTools::collapse($classes, 'class'));
 	}
@@ -248,7 +257,8 @@ class Module extends BaseModule {
 	 *
 	 * @return array
 	 */
-	private function _classes(): array {
+	private function _classes(): array
+	{
 		$classes = [];
 		$model_classes = $this->application->callHookArguments('orm_classes', [], []);
 		$this->application->logger->debug('Classes from {class}->model_classes = {value}', [
@@ -282,7 +292,8 @@ class Module extends BaseModule {
 	 * @throws SyntaxException
 	 * @throws ParameterException
 	 */
-	public function schemaSynchronize(Base $db = null, array $classes = null, array $options = []): array {
+	public function schemaSynchronize(Base $db = null, array $classes = null, array $options = []): array
+	{
 		if (!$db) {
 			$db = $this->application->databaseRegistry();
 		}
@@ -363,7 +374,8 @@ class Module extends BaseModule {
 	/**
 	 * @return array
 	 */
-	final public function ormClasses(): array {
+	final public function ormClasses(): array
+	{
 		if ($this->_cachedClasses === null) {
 			$this->_cachedClasses = $this->_classes();
 		}
@@ -374,7 +386,8 @@ class Module extends BaseModule {
 	 *
 	 * @param string|array $add List of classes to add
 	 */
-	final public function addORMClasses(string|array $add): self {
+	final public function addORMClasses(string|array $add): self
+	{
 		if ($this->_cachedClasses === null) {
 			$this->_cachedClasses = $this->_classes();
 		}
@@ -391,7 +404,8 @@ class Module extends BaseModule {
 	 * @todo move ORM related to hooks
 	 *
 	 */
-	final public function allClasses(): array {
+	final public function allClasses(): array
+	{
 		$classes = $this->ormClasses();
 		$objects_by_class = [];
 		while (count($classes) > 0) {
@@ -429,7 +443,8 @@ class Module extends BaseModule {
 	/**
 	 * @return $this
 	 */
-	public function clearCache(): self {
+	public function clearCache(): self
+	{
 		$this->class_cache = [];
 		return $this;
 	}
@@ -438,7 +453,8 @@ class Module extends BaseModule {
 	 * @param string|ORMBase|Class_Base $class
 	 * @return $this
 	 */
-	public function clearNamedCache(string|ORMBase|Class_Base $class): self {
+	public function clearNamedCache(string|ORMBase|Class_Base $class): self
+	{
 		if ($class instanceof ORMBase) {
 			$class = $class::class;
 		} elseif ($class instanceof Class_Base) {
@@ -460,7 +476,8 @@ class Module extends BaseModule {
 	 * @return array
 	 * @throws ClassNotFound
 	 */
-	private function _classCache(string $class, mixed $mixed = null, array $options = []): array {
+	private function _classCache(string $class, mixed $mixed = null, array $options = []): array
+	{
 		if (!array_key_exists($class, $this->class_cache)) {
 			$object = $this->modelFactory($class, $mixed, ['immutable' => true, ] + $options);
 			assert($object instanceof ORMBase);
@@ -482,7 +499,8 @@ class Module extends BaseModule {
 	 * @return mixed
 	 * @throws ClassNotFound
 	 */
-	private function _classCacheComponent(string $class, mixed $mixed, array $options, string $component): mixed {
+	private function _classCacheComponent(string $class, mixed $mixed, array $options, string $component): mixed
+	{
 		$result = $this->_classCache($class, $mixed, $options);
 		assert(array_key_exists($component, $result));
 		return $result[$component];
@@ -491,7 +509,8 @@ class Module extends BaseModule {
 	/**
 	 * While developing, check schema every minute
 	 */
-	public function cron_cluster_minute(): void {
+	public function cron_cluster_minute(): void
+	{
 		if ($this->application->development()) {
 			$this->_schema_check();
 		}
@@ -502,7 +521,8 @@ class Module extends BaseModule {
 	 * Check hourly on production to avoid
 	 * checking the database incessantly.
 	 */
-	public function cron_cluster_hour(Application $application): void {
+	public function cron_cluster_hour(Application $application): void
+	{
 		if (!$application->development()) {
 			$this->_schema_check();
 		}
@@ -513,7 +533,8 @@ class Module extends BaseModule {
 	 *
 	 * @todo some sort of communication, a hook?
 	 */
-	protected function _schema_check(): array {
+	protected function _schema_check(): array
+	{
 		/* @var $application Application */
 		$results = $this->schemaSynchronize();
 		if (count($results) === 0) {
@@ -543,7 +564,8 @@ class Module extends BaseModule {
 	 * @param Table $table
 	 * @param Column $column
 	 */
-	public function database_table_add_column(Table $table, Column $column): void {
+	public function database_table_add_column(Table $table, Column $column): void
+	{
 		if ($column->hasSQLType()) {
 			return;
 		}
@@ -562,7 +584,8 @@ class Module extends BaseModule {
 	/**
 	 * Run beforehand.
 	 */
-	public function hook_cron_before(): void {
+	public function hook_cron_before(): void
+	{
 		$application = $this->application;
 		$server = $application->ormFactory(Server::class);
 		/* @var $server Server */

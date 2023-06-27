@@ -15,7 +15,8 @@ use zesk\Theme;
  *
  * @author kent
  */
-abstract class JSLib extends Module implements Head {
+abstract class JSLib extends Module implements Head
+{
 	/**
 	 * Array of css paths for this page
 	 *
@@ -90,7 +91,8 @@ abstract class JSLib extends Module implements Head {
 	 *
 	 * @return bool
 	 */
-	public function disabled(): bool {
+	public function disabled(): bool
+	{
 		return $this->optionBool('disabled');
 	}
 
@@ -98,7 +100,8 @@ abstract class JSLib extends Module implements Head {
 	 * @param bool $set
 	 * @return $this
 	 */
-	public function setDisabled(bool $set): self {
+	public function setDisabled(bool $set): self
+	{
 		$this->setOption('disabled', $set);
 		return $this;
 	}
@@ -106,14 +109,16 @@ abstract class JSLib extends Module implements Head {
 	/**
 	 * @return array
 	 */
-	public function javascript_settings(): array {
+	public function javascript_settings(): array
+	{
 		return $this->compute_javascript_settings()->javascript_settings;
 	}
 
 	/**
 	 * @return self
 	 */
-	public function compute_javascript_settings(): self {
+	public function compute_javascript_settings(): self
+	{
 		if ($this->javascript_settings_inherit) {
 			foreach ($this->javascript_settings_inherit as $key => $value) {
 				if ($this->hasOption($key)) {
@@ -136,7 +141,8 @@ abstract class JSLib extends Module implements Head {
 	 * @param Response $response
 	 * @param Theme $template
 	 */
-	public function hook_head(Request $request, Response $response, Theme $template): void {
+	public function hook_head(Request $request, Response $response, Theme $template): void
+	{
 		if (!$this->optionBool('disabled')) {
 			$this->javascript_settings['enabled'] = true;
 			$this->compute_javascript_settings();
@@ -180,12 +186,13 @@ abstract class JSLib extends Module implements Head {
 	 *
 	 * @param Response $response
 	 */
-	public function ready(Response $response): void {
+	public function ready(Response $response): void
+	{
 		// TODO FIX
-//		$this->invokeHooks(self::HOOK_READY);
-//		foreach ($this->jquery_ready as $code) {
-//			$response->inlineJavaScript($code, ['weight' => $this->jquery_ready_weight]);
-//		}
+		//		$this->invokeHooks(self::HOOK_READY);
+		//		foreach ($this->jquery_ready as $code) {
+		//			$response->inlineJavaScript($code, ['weight' => $this->jquery_ready_weight]);
+		//		}
 	}
 
 	public const HOOK_READY = __CLASS__ . '::ready';

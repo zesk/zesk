@@ -12,14 +12,17 @@ use zesk\PHPUnit\ExceptionTestCase;
  * @author kent
  *
  */
-class Exception_Test extends ExceptionTestCase {
-	public function test_exception_directory_not_found(): void {
+class Exception_Test extends ExceptionTestCase
+{
+	public function test_exception_directory_not_found(): void
+	{
 		$x = new DirectoryNotFound(__DIR__);
 
 		$this->assertThrowable($x);
 	}
 
-	public function test_exception_directory_create(): void {
+	public function test_exception_directory_create(): void
+	{
 		$x = new DirectoryCreate(__DIR__);
 
 		$this->assertThrowable($x);

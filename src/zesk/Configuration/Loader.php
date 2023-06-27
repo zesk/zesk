@@ -11,7 +11,8 @@ use zesk\File;
 use zesk\Interface\SettingsInterface;
 use zesk\Types;
 
-class Loader {
+class Loader
+{
 	/**
 	 *
 	 * @var string
@@ -88,7 +89,8 @@ class Loader {
 	 * @param array $files
 	 * @param SettingsInterface $settings
 	 */
-	public function __construct(array $files, SettingsInterface $settings) {
+	public function __construct(array $files, SettingsInterface $settings)
+	{
 		$this->settings = $settings;
 		$this->files = $files;
 		$this->dependency = new Dependency();
@@ -100,7 +102,8 @@ class Loader {
 	 * @param array $files
 	 * @return self
 	 */
-	public function appendFiles(array $files): self {
+	public function appendFiles(array $files): self
+	{
 		$this->files = array_merge($this->files, $files);
 		return $this;
 	}
@@ -108,7 +111,8 @@ class Loader {
 	/**
 	 * @return string
 	 */
-	public function current(): string {
+	public function current(): string
+	{
 		return $this->current;
 	}
 
@@ -117,7 +121,8 @@ class Loader {
 	 * @return void
 	 * @throws SystemException
 	 */
-	public function load(): void {
+	public function load(): void
+	{
 		while (count($this->files) > 0) {
 			$file = array_shift($this->files);
 			if (!is_string($file)) {
@@ -144,7 +149,8 @@ class Loader {
 	 * @return self
 	 * @throws ParseException
 	 */
-	public function loadFile(string $file, string $handler = ''): self {
+	public function loadFile(string $file, string $handler = ''): self
+	{
 		if (!file_exists($file)) {
 			$this->missingFiles[] = $file;
 			return $this;
@@ -163,7 +169,8 @@ class Loader {
 	 * @return self
 	 * @throws FileParseException
 	 */
-	public function loadContent(string $content, string $handler, string $file_name = ''): self {
+	public function loadContent(string $content, string $handler, string $file_name = ''): self
+	{
 		if (!$file_name) {
 			$file_name = strlen($content) . "-bytes-by-$handler";
 		}
@@ -196,7 +203,8 @@ class Loader {
 	 *
 	 * @return string[]
 	 */
-	public function externals(): array {
+	public function externals(): array
+	{
 		return $this->dependency->externals();
 	}
 
@@ -204,7 +212,8 @@ class Loader {
 	 *
 	 * @return array
 	 */
-	public function variables(): array {
+	public function variables(): array
+	{
 		return [
 			self::PROCESSED => $this->processedFiles, self::MISSING => $this->missingFiles,
 			self::SKIPPED => $this->skippedFiles, self::EXTERNALS => $this->externals(),

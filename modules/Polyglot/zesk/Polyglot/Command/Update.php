@@ -11,8 +11,10 @@ use zesk\Polyglot\Update as UpdateObject;
  * @author kent
  *
  */
-class Update extends SimpleCommand {
-	protected function run(): int {
+class Update extends SimpleCommand
+{
+	protected function run(): int
+	{
 		UpdateObject::cron_minute($this->application);
 		return 0;
 	}

@@ -5,5 +5,6 @@ namespace zesk\ORM\Test;
 
 use zesk\ORM\ORMBase;
 
-class TestSite extends ORMBase {
+class TestSite extends ORMBase
+{
 }

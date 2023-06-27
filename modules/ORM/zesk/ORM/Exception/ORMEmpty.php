@@ -12,5 +12,6 @@ use zesk\ORM\Exception;
  * @author kent
  *
  */
-class ORMEmpty extends Exception {
+class ORMEmpty extends Exception
+{
 }

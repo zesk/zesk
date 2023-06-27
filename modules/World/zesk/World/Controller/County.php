@@ -11,6 +11,7 @@ namespace zesk\World\Controller;
 
 use zesk\Doctrine\Controller;
 
-class County extends Controller {
+class County extends Controller
+{
 	protected string $repository = County::class;
 }

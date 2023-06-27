@@ -15,7 +15,8 @@ namespace zesk\FileMonitor;
  * @author kent
  * @see Base
  */
-class IncludeFilesMonitor extends Base {
+class IncludeFilesMonitor extends Base
+{
 	/**
 	 * Retrieve the list of included files, currently.
 	 *
@@ -23,7 +24,8 @@ class IncludeFilesMonitor extends Base {
 	 *
 	 * @see Base::files()
 	 */
-	protected function files(): array {
+	protected function files(): array
+	{
 		return get_included_files();
 	}
 }

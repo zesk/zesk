@@ -25,7 +25,8 @@ use zesk\URL;
  * @see \zesk\Git\Repository
  * @author kent
  */
-abstract class Base extends Hookable {
+abstract class Base extends Hookable
+{
 	/**
 	 * When setting the path, find valid parent directory which appears to be the repository root. Value is a boolean (true/false).
 	 *
@@ -169,7 +170,8 @@ abstract class Base extends Hookable {
 	 * @param string $root Path to repository root directory or a file within the repository
 	 * @param array $options
 	 */
-	final public function __construct(Application $application, $root = null, array $options = []) {
+	final public function __construct(Application $application, $root = null, array $options = [])
+	{
 		parent::__construct($application, $options);
 		$this->inheritConfiguration();
 		if (is_string($root) && !empty($root)) {
@@ -184,7 +186,8 @@ abstract class Base extends Hookable {
 	 * @return string
 	 * @throws SemanticsException
 	 */
-	public function path(string $suffix = ''): string {
+	public function path(string $suffix = ''): string
+	{
 		if (!$this->path) {
 			throw new SemanticsException('Need to set the path before using path call');
 		}
@@ -198,7 +201,8 @@ abstract class Base extends Hookable {
 	 * @return string
 	 * @throws SemanticsException
 	 */
-	protected function resolve_target(string $target = ''): string {
+	protected function resolve_target(string $target = ''): string
+	{
 		if (empty($target)) {
 			return $this->path;
 		}
@@ -216,7 +220,8 @@ abstract class Base extends Hookable {
 	 * @param string $path
 	 * @return Base
 	 */
-	public function setPath(string $path): self {
+	public function setPath(string $path): self
+	{
 		$this->path = $path;
 		return $this;
 	}
@@ -224,7 +229,8 @@ abstract class Base extends Hookable {
 	/**
 	 *
 	 */
-	protected function initialize(): void {
+	protected function initialize(): void
+	{
 	}
 
 	/**
@@ -232,7 +238,8 @@ abstract class Base extends Hookable {
 	 *
 	 * @return string
 	 */
-	final public function code(): string {
+	final public function code(): string
+	{
 		return $this->code;
 	}
 
@@ -246,7 +253,8 @@ abstract class Base extends Hookable {
 	 * @throws NotFoundException
 	 */
 	public static function factory(Application $application, string $type, string $root = null, array $options = []):
-	Base {
+	Base
+	{
 		$repo = $application->repository_module();
 		$class = $repo->findRepository($type);
 
@@ -265,7 +273,8 @@ abstract class Base extends Hookable {
 	 * @param string $url
 	 * @return boolean
 	 */
-	protected function validate_url(string $url): bool {
+	protected function validate_url(string $url): bool
+	{
 		return URL::valid($url);
 	}
 
@@ -276,7 +285,8 @@ abstract class Base extends Hookable {
 	 * @return self
 	 * @throws SyntaxException
 	 */
-	public function setURL(string $set): self {
+	public function setURL(string $set): self
+	{
 		$set = URL::normalize($set);
 		if (!$this->validate_url($set)) {
 			throw new SyntaxException('Not a valid URL {url}', [
@@ -293,7 +303,8 @@ abstract class Base extends Hookable {
 	 * @return string
 	 * @throws SemanticsException
 	 */
-	public function url(): string {
+	public function url(): string
+	{
 		if ($this->url) {
 			return $this->url;
 		}
@@ -380,7 +391,8 @@ abstract class Base extends Hookable {
 	/**
 	 * @return string[]
 	 */
-	public function versions(): array {
+	public function versions(): array
+	{
 		return [];
 	}
 }

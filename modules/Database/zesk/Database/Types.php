@@ -3,7 +3,8 @@ declare(strict_types=1);
 
 namespace zesk\Database;
 
-abstract class Types {
+abstract class Types
+{
 	/**
 	 *
 	 * @var Base
@@ -61,7 +62,8 @@ abstract class Types {
 	 * Construct Database_Types
 	 * @param Base $database
 	 */
-	public function __construct(Base $database) {
+	public function __construct(Base $database)
+	{
 		$this->database = $database;
 	}
 
@@ -124,11 +126,13 @@ abstract class Types {
 	 * @param string $type
 	 * @return string
 	 */
-	public function native_type_to_data_type(string $type): string {
+	public function native_type_to_data_type(string $type): string
+	{
 		return $this->sql_type_to_php_type[$this->native_type_to_sql_type($type, 'string')] ?? '';
 	}
 
-	public function is_text(string $native_type): bool {
+	public function is_text(string $native_type): bool
+	{
 		$sql_type = $this->native_type_to_sql_type($native_type, '');
 		return in_array($sql_type, [
 			self::SQL_TYPE_STRING,
@@ -154,11 +158,13 @@ abstract class Types {
 	 * @param string|int|float|null $default_value  default value supplied
 	 * @return string|int|float|null Canonical default for this type
 	 */
-	public function native_type_default(string $type, string|int|float|null $default_value = null): string|int|float|null {
+	public function native_type_default(string $type, string|int|float|null $default_value = null): string|int|float|null
+	{
 		return $this->sql_type_default($this->parse_native_type($type), $default_value);
 	}
 
-	public function parseSQLType($sql_type, &$size = null) {
+	public function parseSQLType($sql_type, &$size = null)
+	{
 		if (empty($sql_type)) {
 			return null;
 		}
@@ -180,7 +186,8 @@ abstract class Types {
 	 * @param string $default
 	 * @see Database::sql_type_string etc.
 	 */
-	final public function native_type_to_sql_type(string $native_type, string $default): string {
+	final public function native_type_to_sql_type(string $native_type, string $default): string
+	{
 		$t = $this->parseSQLType($native_type);
 		foreach ($this->sql_type_natives as $type => $types) {
 			if (in_array($t, $types)) {
@@ -199,7 +206,8 @@ abstract class Types {
 	 * @param string $sqlType1
 	 *            A database-specific data type
 	 */
-	public function native_types_compatible(string $sql_type0, string $sql_type1): bool {
+	public function native_types_compatible(string $sql_type0, string $sql_type1): bool
+	{
 		$s0 = 0;
 		$s1 = 0;
 		$t0 = $this->parseSQLType($sql_type0, $s0);
@@ -227,7 +235,8 @@ abstract class Types {
 	 * @param string $b
 	 * @return boolean
 	 */
-	protected function basic_types_compatible(string $a, string $b): bool {
+	protected function basic_types_compatible(string $a, string $b): bool
+	{
 		return strcasecmp($a, $b) === 0;
 	}
 
@@ -238,7 +247,8 @@ abstract class Types {
 	 * @param string $native_type1
 	 * @return boolean
 	 */
-	public function native_types_equal(string $native_type0, string $native_type1): bool {
+	public function native_types_equal(string $native_type0, string $native_type1): bool
+	{
 		$s0 = false;
 		$s1 = false;
 		$t0 = $this->parseSQLType($native_type0, $s0);

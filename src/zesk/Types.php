@@ -18,7 +18,8 @@ use zesk\Exception\ParseException;
 use zesk\Exception\SemanticsException;
 use zesk\Interface\Simplifiable;
 
-class Types {
+class Types
+{
 	/**
 	 *
 	 */
@@ -107,7 +108,8 @@ class Types {
 	 *            A string to check
 	 * @return boolean true if $x is a valid date
 	 */
-	public static function isDate(mixed $x): bool {
+	public static function isDate(mixed $x): bool
+	{
 		if (empty($x) || !is_string($x)) {
 			return false;
 		}
@@ -124,7 +126,8 @@ class Types {
 	 * @param string $email
 	 * @return boolean
 	 */
-	public static function isEmail(string $email): bool {
+	public static function isEmail(string $email): bool
+	{
 		return preg_match('/^' . self::PREG_PATTERN_EMAIL . '$/i', $email) !== 0;
 	}
 
@@ -134,7 +137,8 @@ class Types {
 	 * @param string $email
 	 * @return boolean
 	 */
-	public static function isSimpleEmail(string $email): bool {
+	public static function isSimpleEmail(string $email): bool
+	{
 		return preg_match('/^' . self::PREG_PATTERN_SIMPLE_EMAIL . '$/i', $email) !== 0;
 	}
 
@@ -144,7 +148,8 @@ class Types {
 	 * @param string $content
 	 * @return boolean
 	 */
-	public static function isIP4(string $content): bool {
+	public static function isIP4(string $content): bool
+	{
 		return preg_match('/^' . self::PREG_PATTERN_IP4_1 . '$/i', $content) !== 0;
 	}
 
@@ -154,7 +159,8 @@ class Types {
 	 * @param string $phone
 	 * @return boolean
 	 */
-	public static function isPhone(string $phone): bool {
+	public static function isPhone(string $phone): bool
+	{
 		return preg_match('/^\s*\+?[- \t0-9.)(x]{7,}\s*$/', $phone) !== 0;
 	}
 
@@ -164,7 +170,8 @@ class Types {
 	 * @param mixed $mixed
 	 * @return boolean
 	 */
-	public static function canIterate(mixed $mixed): bool {
+	public static function canIterate(mixed $mixed): bool
+	{
 		return is_array($mixed) || $mixed instanceof Traversable;
 	}
 
@@ -176,7 +183,8 @@ class Types {
 	 * @param int $default The value if we can not convert to integer
 	 * @return integer The integer value, or $def if it can not be converted to an integer
 	 */
-	public static function toInteger(mixed $s, int $default = 0): int {
+	public static function toInteger(mixed $s, int $default = 0): int
+	{
 		return is_scalar($s) ? intval($s) : $default;
 	}
 
@@ -186,7 +194,8 @@ class Types {
 	 * @param mixed $key
 	 * @return string|int
 	 */
-	public static function toKey(mixed $key): string|int {
+	public static function toKey(mixed $key): string|int
+	{
 		return is_int($key) ? $key : strval($key);
 	}
 
@@ -199,7 +208,8 @@ class Types {
 	 * @param ?float $def The default value. Not converted to float.
 	 * @return float The value, or $def if it can not be converted to a float
 	 */
-	public static function toFloat(mixed $s, float $def = null): float {
+	public static function toFloat(mixed $s, float $def = null): float
+	{
 		return floatval(is_numeric($s) ? $s : $def);
 	}
 
@@ -215,7 +225,8 @@ class Types {
 	 *            String list delimiter (";" is default)
 	 * @return array or $default
 	 */
-	public static function toList(mixed $mixed, array $default = [], string $delimiter = ';'): array {
+	public static function toList(mixed $mixed, array $default = [], string $delimiter = ';'): array
+	{
 		if ($mixed === '' || $mixed === null) {
 			return $default;
 		} elseif (is_scalar($mixed)) {
@@ -239,7 +250,8 @@ class Types {
 	 *            Default value to return if can't easily convert to an array.
 	 * @return array
 	 */
-	public static function toArray(mixed $mixed, array $default = []): array {
+	public static function toArray(mixed $mixed, array $default = []): array
+	{
 		if (is_array($mixed)) {
 			return $mixed;
 		}
@@ -260,7 +272,8 @@ class Types {
 	 * @param mixed $mixed
 	 * @return string
 	 */
-	public static function toText(mixed $mixed): string {
+	public static function toText(mixed $mixed): string
+	{
 		if (is_bool($mixed)) {
 			return $mixed ? 'true' : 'false';
 		}
@@ -279,7 +292,8 @@ class Types {
 	 * @param mixed $mixed
 	 * @return iterable
 	 */
-	public static function toIterable(mixed $mixed): iterable {
+	public static function toIterable(mixed $mixed): iterable
+	{
 		if (is_iterable($mixed)) {
 			return $mixed;
 		}
@@ -298,7 +312,8 @@ class Types {
 	 * @param int $default
 	 * @return int
 	 */
-	public static function toBytes(string|int $mixed, int $default = 0): int {
+	public static function toBytes(string|int $mixed, int $default = 0): int
+	{
 		if (is_int($mixed)) {
 			return $mixed;
 		}
@@ -332,7 +347,8 @@ class Types {
 	 *            A value to return if parsing is unsuccessful
 	 * @return ?bool Returns true or false, or null if parsing fails
 	 */
-	public static function toBool(mixed $value, ?bool $default = false): ?bool {
+	public static function toBool(mixed $value, ?bool $default = false): ?bool
+	{
 		static $true_values = [
 			1, '1', 't', 'y', 'yes', 'on', 'enabled', 'true',
 		];
@@ -367,7 +383,8 @@ class Types {
 	 * @param mixed $mixed
 	 * @return bool|int|float|array|string
 	 */
-	public static function simplify(mixed $mixed): bool|int|float|array|string {
+	public static function simplify(mixed $mixed): bool|int|float|array|string
+	{
 		if (is_scalar($mixed)) {
 			return $mixed;
 		}
@@ -393,7 +410,8 @@ class Types {
 	 * @return string|int|float|bool
 	 * @throws SemanticsException
 	 */
-	public static function flatten(mixed $mixed): string|int|float|bool {
+	public static function flatten(mixed $mixed): string|int|float|bool
+	{
 		if (is_array($mixed)) {
 			$mixed = ArrayTools::flatten($mixed);
 		}
@@ -419,7 +437,8 @@ class Types {
 	 *            Tokens to convert from/to
 	 * @return mixed Whatever passed in is returned (string/array)
 	 */
-	public static function replaceSubstrings(mixed $mixed, array $map): mixed {
+	public static function replaceSubstrings(mixed $mixed, array $map): mixed
+	{
 		/* Used to flatten map the leaf, this is probably really slow so do it at the top */
 		return self::_replaceSubstrings($mixed, ArrayTools::flatten($map));
 	}
@@ -434,7 +453,8 @@ class Types {
 	 *            Tokens to convert from/to
 	 * @return mixed Whatever passed in is returned (string/array)
 	 */
-	private static function _replaceSubstrings(mixed $mixed, array $map): mixed {
+	private static function _replaceSubstrings(mixed $mixed, array $map): mixed
+	{
 		if (Types::canIterate($mixed)) {
 			foreach ($mixed as $k => $v) {
 				$mixed[$k] = self::_replaceSubstrings($v, $map);
@@ -455,7 +475,8 @@ class Types {
 	 * @param mixed $mixed
 	 * @return string
 	 */
-	public static function type(mixed $mixed): string {
+	public static function type(mixed $mixed): string
+	{
 		return is_resource($mixed) ? get_resource_type($mixed) : (is_object($mixed) ? $mixed::class : gettype($mixed));
 	}
 
@@ -465,7 +486,8 @@ class Types {
 	 * @param string|float|int $weight
 	 * @return float
 	 */
-	private static function _weight(string|float|int $weight): float {
+	private static function _weight(string|float|int $weight): float
+	{
 		static $weights = [
 			self::INTERNAL_WEIGHT_FIRST => -1e300, self::WEIGHT_FIRST => -1e299, self::WEIGHT_LAST => 1e299,
 			self::INTERNAL_WEIGHT_LAST => 1e300,
@@ -480,7 +502,8 @@ class Types {
 	 * @param array $b
 	 * @return int
 	 */
-	public static function weightCompareReverse(array $a, array $b): int {
+	public static function weightCompareReverse(array $a, array $b): int
+	{
 		return -self::weightCompare($a, $b);
 	}
 
@@ -504,7 +527,8 @@ class Types {
 	 * @see uasort
 	 * @see usort
 	 */
-	public static function weightCompare(array $left, array $right): int {
+	public static function weightCompare(array $left, array $right): int
+	{
 		// Get weight left, convert to double
 		$aw = array_key_exists('weight', $left) ? self::_weight($left['weight']) : 0;
 
@@ -528,7 +552,8 @@ class Types {
 	 * @param string $key
 	 * @return array
 	 */
-	public static function configurationKey(string $key): array {
+	public static function configurationKey(string $key): array
+	{
 		return explode(self::KEY_SEPARATOR, strtr(strtolower($key), [
 			'__' => self::KEY_SEPARATOR, '.' => '_', '/' => '_', '-' => '_', ' ' => '_',
 		]));
@@ -538,7 +563,8 @@ class Types {
 	 * @param array $key
 	 * @return string
 	 */
-	public static function keyToString(array $key): string {
+	public static function keyToString(array $key): string
+	{
 		return implode(self::KEY_SEPARATOR, $key);
 	}
 
@@ -551,7 +577,8 @@ class Types {
 	 * @throws ParseException
 	 * @see PHP::autoType()
 	 */
-	public static function autoType(mixed $value, bool $throw = true): mixed {
+	public static function autoType(mixed $value, bool $throw = true): mixed
+	{
 		if (is_object($value)) {
 			return $value;
 		}

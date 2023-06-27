@@ -138,7 +138,8 @@ define('MYSQL_PATTERN_TIP_ALTER', '/^--+\s*([+-])' . MYSQL_PATTERN_COLUMN_NAME .
  * @author kent
  *
  */
-class SQLParser extends SQLParserBase {
+class SQLParser extends SQLParserBase
+{
 	/**
 	 *
 	 * @var Database
@@ -152,7 +153,8 @@ class SQLParser extends SQLParserBase {
 	 * @param string $column_options
 	 * @return array
 	 */
-	private function parseColumnOptionsSQL(string $sql_type, string $column_options): array {
+	private function parseColumnOptionsSQL(string $sql_type, string $column_options): array
+	{
 		static $patterns = [
 			'not null', 'default null', 'default \'([^\']*)\'', 'default b\'([01]+)\'', 'default (-?[0-9:]+)',
 			'default ([a-zA-Z_]+)', 'default current_timestamp', 'character set ([A-Za-z][-_A-Za-z0-9]*)',
@@ -223,7 +225,8 @@ class SQLParser extends SQLParserBase {
 	 * @throws Semantics
 	 * @throws SQLException
 	 */
-	private function parseColumnSQL(Table $table, string $sql): string {
+	private function parseColumnSQL(Table $table, string $sql): string
+	{
 		$columns_matches = [];
 		if (!preg_match_all(MYSQL_PATTERN_COLUMN_LIST, $sql, $columns_matches, PREG_SET_ORDER)) {
 			throw new ParseException('Unable to parse table {name} column definition: {sqlSample}', [
@@ -277,7 +280,8 @@ class SQLParser extends SQLParserBase {
 	 * @param string $sql
 	 * @return array Options to set to table
 	 */
-	private static function createTableOptions(string $sql): array {
+	private static function createTableOptions(string $sql): array
+	{
 		/*
 		 * Parse table options (end of table declaration)
 		 */
@@ -302,7 +306,8 @@ class SQLParser extends SQLParserBase {
 	 * @param mixed $indexes_state
 	 * @return string
 	 */
-	private static function parseIndexSQL(Table $table, string $sql_columns, array &$indexes_state): string {
+	private static function parseIndexSQL(Table $table, string $sql_columns, array &$indexes_state): string
+	{
 		/*
 		 * Extract indexes from definition
 		 */
@@ -329,7 +334,8 @@ class SQLParser extends SQLParserBase {
 	 * @return void
 	 * @throws ParseException
 	 */
-	private static function processIndexes(Table $table, array $indexes): void {
+	private static function processIndexes(Table $table, array $indexes): void
+	{
 		foreach ($indexes as $state) {
 			$index_type = strval($state['index_type'] ?? '');
 			$index_name = strval($state['index_type'] ?? '');
@@ -371,7 +377,8 @@ class SQLParser extends SQLParserBase {
 	 * @param string $sql
 	 * @return array
 	 */
-	private static function tips(string &$sql): array {
+	private static function tips(string &$sql): array
+	{
 		$matches = [];
 		$renamed_columns = [];
 		if (preg_match_all(MYSQL_PATTERN_TIP_COLUMN, $sql, $matches, PREG_SET_ORDER)) {
@@ -407,7 +414,8 @@ class SQLParser extends SQLParserBase {
 	 * @param array $tips
 	 * @return void
 	 */
-	private function applyTips(Table $table, array $tips): void {
+	private function applyTips(Table $table, array $tips): void
+	{
 		$rename_tips = $tips['rename'] ?? [];
 		foreach ($rename_tips as $columnName => $previousColumnName) {
 			try {
@@ -443,7 +451,8 @@ class SQLParser extends SQLParserBase {
 	 * @return bool
 	 * @see parent::createIndex()
 	 */
-	public function createIndex(Table $table, string $sql): bool {
+	public function createIndex(Table $table, string $sql): bool
+	{
 		return false;
 	}
 
@@ -459,7 +468,8 @@ class SQLParser extends SQLParserBase {
 	 * @throws ParseException
 	 * @throws Semantics
 	 */
-	public function createTable(string $sql): Table {
+	public function createTable(string $sql): Table
+	{
 		$matches = false;
 		$source_sql = $sql;
 

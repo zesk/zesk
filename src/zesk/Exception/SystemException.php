@@ -16,5 +16,6 @@ use zesk\Exception;
  * @author kent
  *
  */
-class SystemException extends Exception {
+class SystemException extends Exception
+{
 }

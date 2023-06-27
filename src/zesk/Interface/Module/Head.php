@@ -12,6 +12,7 @@ use zesk\Theme;
 /**
  * Add this to modules to enforce correct hook syntax for hook_head
  */
-interface Head {
+interface Head
+{
 	public function hook_head(Request $request, Response $response, Theme $template): void;
 }

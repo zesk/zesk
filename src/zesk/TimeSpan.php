@@ -14,7 +14,8 @@ use zesk\Exception\SyntaxException;
  * @author kent
  *
  */
-class TimeSpan extends Temporal {
+class TimeSpan extends Temporal
+{
 	/**
 	 *
 	 * @var integer
@@ -30,7 +31,8 @@ class TimeSpan extends Temporal {
 	 * @param int|float|string $seconds
 	 * @throws SyntaxException
 	 */
-	public function __construct(int|float|string $seconds = 0) {
+	public function __construct(int|float|string $seconds = 0)
+	{
 		$this->setSeconds($seconds);
 	}
 
@@ -39,7 +41,8 @@ class TimeSpan extends Temporal {
 	 * @return self
 	 * @throws SyntaxException
 	 */
-	public static function factory(int|float|string $seconds = 0): self {
+	public static function factory(int|float|string $seconds = 0): self
+	{
 		return new self($seconds);
 	}
 
@@ -52,7 +55,8 @@ class TimeSpan extends Temporal {
 	 * @return int
 	 * @throws SyntaxException if it can't convert mixed into a time
 	 */
-	public static function parse(int|float|string $mixed): int {
+	public static function parse(int|float|string $mixed): int
+	{
 		if (is_numeric($mixed)) {
 			return intval($mixed);
 		}
@@ -79,7 +83,8 @@ class TimeSpan extends Temporal {
 	 *
 	 * @return $this
 	 */
-	public function add(int $seconds): self {
+	public function add(int $seconds): self
+	{
 		$this->duration = $this->duration + $seconds;
 		return $this;
 	}
@@ -89,7 +94,8 @@ class TimeSpan extends Temporal {
 	 *
 	 * @return int
 	 */
-	public function seconds(): int {
+	public function seconds(): int
+	{
 		return $this->duration;
 	}
 
@@ -100,7 +106,8 @@ class TimeSpan extends Temporal {
 	 * @return $this
 	 * @throws SyntaxException
 	 */
-	public function setSeconds(int|float|string $set): self {
+	public function setSeconds(int|float|string $set): self
+	{
 		$this->duration = $this->parse($set);
 		if ($this->duration < 0) {
 			$this->duration = -$this->duration;
@@ -116,7 +123,8 @@ class TimeSpan extends Temporal {
 	 *
 	 * @return string
 	 */
-	public function sql(): string {
+	public function sql(): string
+	{
 		return strval($this->duration);
 	}
 
@@ -127,7 +135,8 @@ class TimeSpan extends Temporal {
 	 * @param array $options
 	 * @return string
 	 */
-	public function format(string $format = '', array $options = []): string {
+	public function format(string $format = '', array $options = []): string
+	{
 		if (!$format) {
 			$format = '{seconds}';
 		}
@@ -140,7 +149,8 @@ class TimeSpan extends Temporal {
 	 * @param array $options
 	 * @return array
 	 */
-	public function formatting(array $options = []): array {
+	public function formatting(array $options = []): array
+	{
 		$seconds = $this->seconds();
 		$ss = $seconds % 60;
 		$minutes = floor($seconds / 60);

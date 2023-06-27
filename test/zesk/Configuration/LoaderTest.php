@@ -25,8 +25,10 @@ use zesk\Types;
  * @author kent
  *
  */
-class LoaderTest extends TestCase {
-	public function test_implements(): void {
+class LoaderTest extends TestCase
+{
+	public function test_implements(): void
+	{
 		$config = new Configuration();
 		$settings = new SettingsConfiguration($config);
 		$this->assertInstanceOf(SettingsConfiguration::class, $settings);
@@ -34,7 +36,8 @@ class LoaderTest extends TestCase {
 		$this->assertImplements(SettingsInterface::class, $settings);
 	}
 
-	public function test_new(): void {
+	public function test_new(): void
+	{
 		$path = $this->test_sandbox();
 		Directory::depend($one = Directory::path($path, 'one'));
 		Directory::depend($two = Directory::path($path, 'two'));
@@ -110,7 +113,8 @@ class LoaderTest extends TestCase {
 		], Types::toArray($config));
 	}
 
-	public function test_load_globals_lines1(): void {
+	public function test_load_globals_lines1(): void
+	{
 		$lines = [
 			'FOO=/foo/foo', 'BAR=/bar/bar', 'B_R=red', 'UNQ0="quotes0"', 'UNQ1=\'quotes1\'', 'FOOTEST0=${FOO:-123}',
 			'FOOTEST1=${UNDEF:-123}', 'FOOTEST2=${FOO:-123}${BAR:-456}', 'FOOTEST3=${UNDEF:-123}${BAR:-456}',
@@ -143,7 +147,8 @@ class LoaderTest extends TestCase {
 		$this->assertCount(0, $actual);
 	}
 
-	public static function data_provider_test_no_dependencies(): array {
+	public static function data_provider_test_no_dependencies(): array
+	{
 		$dir = dirname(__DIR__) . '/test-data/';
 		return [
 			[
@@ -163,7 +168,8 @@ class LoaderTest extends TestCase {
 	 * @dataProvider data_provider_test_no_dependencies
 	 * @param array $files
 	 */
-	public function test_no_dependencies(array $files): void {
+	public function test_no_dependencies(array $files): void
+	{
 		$dir = dirname(__DIR__) . '/test-data/';
 		$result = [];
 		$settings = new SettingsArray($result);

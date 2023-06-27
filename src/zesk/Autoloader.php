@@ -23,7 +23,8 @@ use zesk\Exception\SemanticsException;
  *
  * @author kent
  */
-class Autoloader {
+class Autoloader
+{
 	/**
 	 * Used in ->path("path/to", [ Autoloader::CLASS_PREFIX => "foo\\", Autoloader::LOWER => false ]);
 	 *
@@ -134,7 +135,8 @@ class Autoloader {
 	/**
 	 * Create default autoloader for most of Zesk
 	 */
-	public function __construct(CacheItemPoolInterface $pool) {
+	public function __construct(CacheItemPoolInterface $pool)
+	{
 		$this->loaded = [];
 		$this->pool = $pool;
 		$this->autoload_register();
@@ -146,7 +148,8 @@ class Autoloader {
 	 * @param CacheItemPoolInterface $pool
 	 * @return self
 	 */
-	public function setCache(CacheItemPoolInterface $pool): self {
+	public function setCache(CacheItemPoolInterface $pool): self
+	{
 		$this->pool = $pool;
 		return $this;
 	}
@@ -158,7 +161,8 @@ class Autoloader {
 	 * @param string $id
 	 * @return $this
 	 */
-	public function addLoaded(Closure $closure, string $id = ''): self {
+	public function addLoaded(Closure $closure, string $id = ''): self
+	{
 		$hash = $id ?: Hooks::callableString($closure);
 		$this->loaded[$hash] = $closure;
 		return $this;
@@ -168,7 +172,8 @@ class Autoloader {
 	 * Should be called once and only once.
 	 * Registers Autoloader for Zesk.
 	 */
-	private function autoload_register(): void {
+	private function autoload_register(): void
+	{
 		spl_autoload_register($this->php_autoloader(...));
 	}
 
@@ -177,7 +182,8 @@ class Autoloader {
 	 *
 	 * @return ?CacheItemInterface
 	 */
-	private function _autoloadCache(): ?CacheItemInterface {
+	private function _autoloadCache(): ?CacheItemInterface
+	{
 		try {
 			return $this->pool->getItem('autoload_cache');
 		} catch (InvalidArgumentException) {
@@ -185,7 +191,8 @@ class Autoloader {
 		}
 	}
 
-	public function shutdown(): void {
+	public function shutdown(): void
+	{
 		// Pass
 	}
 
@@ -198,7 +205,8 @@ class Autoloader {
 	 * @return boolean
 	 * @throws ClassNotFound|SemanticsException
 	 */
-	public function php_autoloader(string $class): bool {
+	public function php_autoloader(string $class): bool
+	{
 		if ($this->load($class)) {
 			foreach ($this->loaded as $closure) {
 				assert($closure instanceof Closure);
@@ -223,7 +231,8 @@ class Autoloader {
 	 * @see ZESK_NO_CONFLICT
 	 * @see $this->no_exception
 	 */
-	public function load(string $class, bool $no_exception = false): string {
+	public function load(string $class, bool $no_exception = false): string
+	{
 		$cacheItem = $this->_autoloadCache();
 		$include = null;
 		$cache_items = $cacheItem?->get();
@@ -284,7 +293,8 @@ class Autoloader {
 	 *            A list of extensions to search for in each target path. If supplied, is forced.
 	 * @return array[string]
 	 */
-	public function possibilities(string $file_prefix, array $extensions = null): array {
+	public function possibilities(string $file_prefix, array $extensions = null): array
+	{
 		$result = [];
 		foreach ($this->path() as $path => $options) {
 			$classPrefix = rtrim($options[self::OPTION_CLASS_PREFIX], '_');
@@ -328,7 +338,8 @@ class Autoloader {
 	 * @param array|null $tried_path
 	 * @return string|null
 	 */
-	public function search(string $class, array $extensions = null, array &$tried_path = null): ?string {
+	public function search(string $class, array $extensions = null, array &$tried_path = null): ?string
+	{
 		$possibilities = $this->possibilities($class, $extensions);
 		$tried_path = [];
 		foreach ($possibilities as $path) {
@@ -345,7 +356,8 @@ class Autoloader {
 	 *
 	 * @return string[]
 	 */
-	public function extensions(): array {
+	public function extensions(): array
+	{
 		return $this->autoload_extensions;
 	}
 
@@ -355,7 +367,8 @@ class Autoloader {
 	 * @param string $add
 	 * @return void
 	 */
-	public function addExtension(string $add): void {
+	public function addExtension(string $add): void
+	{
 		$add = trim($add, ". \t\r\n");
 		if (!in_array($add, $this->autoload_extensions)) {
 			$this->autoload_extensions[] = $add;
@@ -393,7 +406,8 @@ class Autoloader {
 	 * @return void
 	 * @throws DirectoryNotFound
 	 */
-	public function addPath(string $add, string|array $options = []): void {
+	public function addPath(string $add, string|array $options = []): void
+	{
 		if (!is_dir($add)) {
 			throw new DirectoryNotFound($add);
 		}
@@ -426,7 +440,8 @@ class Autoloader {
 	/**
 	 * @return array[]
 	 */
-	public function path(): array {
+	public function path(): array
+	{
 		if ($this->cached) {
 			return $this->cached;
 		}

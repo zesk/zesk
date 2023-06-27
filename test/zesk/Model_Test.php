@@ -12,8 +12,10 @@ namespace zesk;
 /**
  * Generic test class
  */
-class Model_Test extends UnitTest {
-	public static function data_themePaths(): array {
+class Model_Test extends UnitTest
+{
+	public static function data_themePaths(): array
+	{
 		$model = Model::class;
 		$testModel = TestModel::class;
 		return [
@@ -33,7 +35,8 @@ class Model_Test extends UnitTest {
 	 * @throws Exception\ClassNotFound
 	 * @dataProvider data_themePaths
 	 */
-	public function test_themePaths(array $expected, string $modelClass, array|string $theme_names): void {
+	public function test_themePaths(array $expected, string $modelClass, array|string $theme_names): void
+	{
 		$model = $this->application->modelFactory($modelClass);
 		$this->assertEquals($expected, $model->themePaths($theme_names));
 	}
@@ -41,7 +44,8 @@ class Model_Test extends UnitTest {
 	/**
 	 * @return void
 	 */
-	public function test_access(): void {
+	public function test_access(): void
+	{
 		$model = new TestModel($this->application);
 
 		$this->assertInstanceOf(TestModel::class, $model);
@@ -54,7 +58,8 @@ class Model_Test extends UnitTest {
 		$this->assertEquals(9421, $model->thingTwo);
 	}
 
-	public function test_base(): void {
+	public function test_base(): void
+	{
 		$model = new TestModel($this->application);
 
 		$model->thingTwo = 3;

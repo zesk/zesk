@@ -19,14 +19,16 @@ use zesk\Exception\FilePermission;
  * @author kent
  *
  */
-class Cache extends SimpleCommand {
+class Cache extends SimpleCommand
+{
 	protected array $shortcuts = ['cache'];
 
 	protected array $option_types = [
 		'*' => 'string',
 	];
 
-	protected function run(): int {
+	protected function run(): int
+	{
 		if ($this->hasArgument()) {
 			do {
 				$arg = $this->getArgument('command');
@@ -38,7 +40,8 @@ class Cache extends SimpleCommand {
 		return $this->hasErrors() ? 1 : 0;
 	}
 
-	protected function run_arg($arg) {
+	protected function run_arg($arg)
+	{
 		$methods = ['clear' => [$this, '_exec_clear'], 'print' => [$this, '_exec_print']];
 		$method = $methods[$arg] ?? null;
 		if ($method) {
@@ -50,7 +53,8 @@ class Cache extends SimpleCommand {
 		return 1;
 	}
 
-	protected function _exec_print(): int {
+	protected function _exec_print(): int
+	{
 		print(get_class($this->application->cacheItemPool()) . "\n");
 		return 0;
 	}
@@ -61,7 +65,8 @@ class Cache extends SimpleCommand {
 	 * @throws DirectoryPermission
 	 * @throws FilePermission
 	 */
-	protected function _exec_clear(): int {
+	protected function _exec_clear(): int
+	{
 		$this->application->cacheClear();
 		return 0;
 	}

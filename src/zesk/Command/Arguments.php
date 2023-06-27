@@ -15,14 +15,16 @@ use zesk\Command;
  *
  * @category Debugging
  */
-class Arguments extends Command {
+class Arguments extends Command
+{
 	protected array $shortcuts = ['arguments'];
 
 	public array $option_types = [
 		'*' => 'string',
 	];
 
-	protected function run(): int {
+	protected function run(): int
+	{
 		$arguments = $this->argumentsRemaining();
 		echo json_encode($arguments) . "\n";
 		return 0;

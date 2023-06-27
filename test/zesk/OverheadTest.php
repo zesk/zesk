@@ -14,12 +14,14 @@ namespace zesk;
  * @author kent
  *
  */
-class OverheadTest extends UnitTest {
+class OverheadTest extends UnitTest
+{
 	protected array $load_modules = [
 		'Doctrine',
 	];
 
-	public function test_usage(): void {
+	public function test_usage(): void
+	{
 		$test_limit = 10 * 1024 * 1024; // 10M
 		$servers = [];
 		$start = memory_get_usage();
@@ -40,7 +42,8 @@ class OverheadTest extends UnitTest {
 		]);
 	}
 
-	private function run_php_sandbox($sandbox): bool|string {
+	private function run_php_sandbox($sandbox): bool|string
+	{
 		$php = $this->application->paths->which('php');
 		ob_start();
 		$result = system("$php $sandbox");
@@ -51,7 +54,8 @@ class OverheadTest extends UnitTest {
 	/**
 	 * @no_buffer true
 	 */
-	public function test_kernel_usage(): void {
+	public function test_kernel_usage(): void
+	{
 		$sandbox = $this->test_sandbox('run.php');
 		file_put_contents($sandbox, "<?php\necho memory_get_usage();");
 		$result = $this->run_php_sandbox($sandbox);

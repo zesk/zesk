@@ -16,7 +16,8 @@ use zesk\Timestamp;
  * @author kent
  *
  */
-class Cookie {
+class Cookie
+{
 	/**
 	 *
 	 * @var string
@@ -53,7 +54,8 @@ class Cookie {
 	 */
 	public bool $secure;
 
-	public function __construct(string $name, string $value, string $domain, string $path, int|Timestamp $expires = 0, $secure = false) {
+	public function __construct(string $name, string $value, string $domain, string $path, int|Timestamp $expires = 0, $secure = false)
+	{
 		$this->name = $name;
 		$this->value = $value;
 		$this->domain = strtolower($domain);
@@ -64,19 +66,23 @@ class Cookie {
 		$this->secure = $secure;
 	}
 
-	public function name(): string {
+	public function name(): string
+	{
 		return $this->name;
 	}
 
-	public function value(): string {
+	public function value(): string
+	{
 		return $this->value;
 	}
 
-	public function secure(): bool {
+	public function secure(): bool
+	{
 		return $this->secure;
 	}
 
-	public function setExpires(int|Timestamp $expires): void {
+	public function setExpires(int|Timestamp $expires): void
+	{
 		if ($expires instanceof Timestamp) {
 			$this->expires = $expires->unixTimestamp();
 		} else {
@@ -84,18 +90,21 @@ class Cookie {
 		}
 	}
 
-	public function matches(string $domain, string $path): bool {
+	public function matches(string $domain, string $path): bool
+	{
 		return (strcasecmp($domain, $this->domain) === 0) && (strcasecmp($path, $this->path) === 0);
 	}
 
-	public function update($value, int|Timestamp $expires = 0): void {
+	public function update($value, int|Timestamp $expires = 0): void
+	{
 		$this->value = $value;
 		if ($expires) {
 			$this->setExpires($expires);
 		}
 	}
 
-	public function __toString() {
+	public function __toString()
+	{
 		return $this->name . '=' . urlencode($this->value);
 	}
 }

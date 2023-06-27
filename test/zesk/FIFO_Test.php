@@ -6,13 +6,16 @@ namespace zesk;
 use zesk\Exception\DirectoryNotFound;
 use zesk\Exception\FilePermission;
 
-class FIFO_Test extends UnitTest {
-	public function test_fifo_create_false(): void {
+class FIFO_Test extends UnitTest
+{
+	public function test_fifo_create_false(): void
+	{
 		$fifo = new FIFO('does not matter whatever if create is false', false);
 		$this->assertInstanceOf(FIFO::class, $fifo);
 	}
 
-	public function test_fifo_dnf(): void {
+	public function test_fifo_dnf(): void
+	{
 		$dir = $this->test_sandbox();
 
 		$badFile = path($dir, 'notpath/notfind.pipe');
@@ -22,13 +25,15 @@ class FIFO_Test extends UnitTest {
 		$this->assertInstanceOf(FIFO::class, $fifo);
 	}
 
-	public function test_fifo_permissions(): void {
+	public function test_fifo_permissions(): void
+	{
 		$this->expectException(FilePermission::class);
 		$fifo = new FIFO('/proc/sys/fail', true);
 		$this->assertInstanceOf(FIFO::class, $fifo);
 	}
 
-	public function test_fifo_permissions2(): void {
+	public function test_fifo_permissions2(): void
+	{
 		$dir = $this->test_sandbox();
 
 		$parentDir = path($dir, 'foo');
@@ -42,7 +47,8 @@ class FIFO_Test extends UnitTest {
 		$this->assertInstanceOf(FIFO::class, $fifo);
 	}
 
-	public static function data_fifo_dataSet(): array {
+	public static function data_fifo_dataSet(): array
+	{
 		return [
 			[[0, 1, 2, 3, null, 'alphabet', ['array'], ['a' => 1, 'b' => 2]]],
 		];
@@ -56,7 +62,8 @@ class FIFO_Test extends UnitTest {
 	 * @throws SyntaxException
 	 * @dataProvider data_fifo_dataSet
 	 */
-	public function test_fifo_reader(array $expected): void {
+	public function test_fifo_reader(array $expected): void
+	{
 		$dir = $this->test_sandbox();
 
 		$fifo_path = path($dir, 'reader.fifo');
@@ -96,7 +103,8 @@ class FIFO_Test extends UnitTest {
 	 * @throws SyntaxException
 	 * @dataProvider data_fifo_dataSet
 	 */
-	public function test_fifo_writer(array $expected): void {
+	public function test_fifo_writer(array $expected): void
+	{
 		$dir = $this->test_sandbox();
 
 		$writer_path = path($dir, 'writer.fifo');

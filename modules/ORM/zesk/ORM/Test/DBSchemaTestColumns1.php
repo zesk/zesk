@@ -6,8 +6,10 @@ namespace zesk\ORM\Test;
 use zesk\ORM\ORMBase;
 use zesk\ORM\Schema;
 
-class DBSchemaTestColumns1 extends ORMBase {
-	public function schema(): string|array|null|Schema {
+class DBSchemaTestColumns1 extends ORMBase
+{
+	public function schema(): string|array|null|Schema
+	{
 		return 'CREATE TABLE `{table}` (
 					`ID` int(11) unsigned NOT NULL auto_increment,
 					`Hash` char(32) NOT NULL,

@@ -14,7 +14,8 @@ use zesk\FileMonitor\IncludeFilesMonitor;
 /**
  *
  */
-class ProcessTools {
+class ProcessTools
+{
 	/**
 	 * Test to see if any files have changed in this process.
 	 *
@@ -23,7 +24,8 @@ class ProcessTools {
 	 * @param Application $application
 	 * @return bool
 	 */
-	public static function includesChanged(Application $application): bool {
+	public static function includesChanged(Application $application): bool
+	{
 		return $application->objects->singletonArguments(IncludeFilesMonitor::class)->changed();
 	}
 
@@ -33,7 +35,8 @@ class ProcessTools {
 	 * @param Application $application
 	 * @return array
 	 */
-	public static function includesChangedFiles(Application $application): array {
+	public static function includesChangedFiles(Application $application): array
+	{
 		return $application->objects->singletonArguments(IncludeFilesMonitor::class)->changedFiles();
 	}
 }

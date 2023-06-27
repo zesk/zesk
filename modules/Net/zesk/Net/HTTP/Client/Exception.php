@@ -17,7 +17,8 @@ use zesk\Exception as BaseException;
  * @author kent
  *
  */
-class Exception extends BaseException {
+class Exception extends BaseException
+{
 	/**
 	 * Error code given by curl_errno
 	 *
@@ -39,7 +40,8 @@ class Exception extends BaseException {
 	 * @param string $error_code
 	 * @param Throwable|null $previous
 	 */
-	public function __construct(string $message, array $arguments = [], int $errno = 0, string $error_code = '', Throwable $previous = null) {
+	public function __construct(string $message, array $arguments = [], int $errno = 0, string $error_code = '', Throwable $previous = null)
+	{
 		parent::__construct($message, $arguments + [
 			'errno' => $errno, 'error_code' => $error_code,
 		], $errno, $previous);

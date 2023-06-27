@@ -15,10 +15,12 @@ use zesk\Application;
  *
  * Provides utilities
  */
-class Model extends \zesk\Model {
+class Model extends \zesk\Model
+{
 	protected EntityManager $em;
 
-	public function __construct(Application $application, array $options = []) {
+	public function __construct(Application $application, array $options = [])
+	{
 		parent::__construct($application, $options);
 		$this->em = $this->application->entityManager();
 	}
@@ -27,7 +29,8 @@ class Model extends \zesk\Model {
 	 * @return void
 	 * @throws ORMException
 	 */
-	public function delete(): void {
+	public function delete(): void
+	{
 		$this->em->remove($this);
 	}
 
@@ -35,7 +38,8 @@ class Model extends \zesk\Model {
 	 * @param JSONWalker $options
 	 * @return array
 	 */
-	public function json(JSONWalker $options): array {
+	public function json(JSONWalker $options): array
+	{
 		return $options->walk($this);
 	}
 }

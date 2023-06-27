@@ -11,14 +11,16 @@ use zesk\File;
 use zesk\JSON;
 use zesk\PHP;
 
-class Version {
+class Version
+{
 	/**
 	 * @param array $configuration
 	 * @return string
 	 * @throws NotFoundException
 	 * @throws FileNotFound
 	 */
-	public static function extractVersion(array $configuration): string {
+	public static function extractVersion(array $configuration): string
+	{
 		$version = ($configuration['version'] ?? null);
 		if ($version !== null) {
 			return strval($version);

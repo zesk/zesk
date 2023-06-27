@@ -9,18 +9,21 @@ declare(strict_types=1);
  */
 namespace zesk\Logger;
 
-class FileHandler implements Handler {
+class FileHandler implements Handler
+{
 	/**
 	 * File
 	 * @var mixed $resource
 	 */
 	public mixed $resource;
 
-	public function __construct(string $name) {
+	public function __construct(string $name)
+	{
 		$this->resource = fopen($name, 'ab');
 	}
 
-	public function log(string $message, array $context = []): void {
+	public function log(string $message, array $context = []): void
+	{
 		$prefix = $context['_levelString'] ?? '';
 		if ($prefix) {
 			$prefix .= ': ';
@@ -33,7 +36,8 @@ class FileHandler implements Handler {
 		fflush($this->resource);
 	}
 
-	public function __destruct() {
+	public function __destruct()
+	{
 		fclose($this->resource);
 	}
 }

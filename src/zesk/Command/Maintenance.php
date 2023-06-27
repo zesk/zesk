@@ -21,14 +21,16 @@ use zesk\Types;
  * @author kent
  *
  */
-class Maintenance extends SimpleCommand {
+class Maintenance extends SimpleCommand
+{
 	protected array $shortcuts = ['maintenance'];
 
 	protected array $option_types = [
 		'*' => 'string',
 	];
 
-	public function run(): int {
+	public function run(): int
+	{
 		if ($this->hasArgument()) {
 			$arg = $this->getArgument('message');
 			$bool = Types::toBool($arg, null);
@@ -66,7 +68,8 @@ class Maintenance extends SimpleCommand {
 	 * @see self::maintenanceEnabled()
 	 */
 	#[FilterMethod(handles: Application::FILTER_MAINTENANCE)]
-	public function maintenanceEnabled(Application $app, array $values): array {
+	public function maintenanceEnabled(Application $app, array $values): array
+	{
 		assert($app->isConfigured());
 		$values['message'] = $this->optionString('message');
 		return $values;

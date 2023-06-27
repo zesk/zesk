@@ -12,7 +12,8 @@ use zesk\Exception\SemanticsException;
  * @author kent
  *
  */
-class ThemeStack {
+class ThemeStack
+{
 	/**
 	 *
 	 * @var Theme[]
@@ -30,7 +31,8 @@ class ThemeStack {
 	 *
 	 * @param Theme $template
 	 */
-	final public function push(Theme $template): void {
+	final public function push(Theme $template): void
+	{
 		$this->stack[] = $template;
 		$this->log[] = 'push ' . $template->path() . ' ' . Kernel::callingFunction(2);
 	}
@@ -41,7 +43,8 @@ class ThemeStack {
 	 * @return Theme
 	 * @throws SemanticsException
 	 */
-	final public function pop(): Theme {
+	final public function pop(): Theme
+	{
 		if (count($this->stack) <= 1) {
 			throw new SemanticsException('Popped top template from template stack - not allowed: {log}', [
 				'log' => nl2br(implode("\n", $this->log)),
@@ -55,7 +58,8 @@ class ThemeStack {
 	/**
 	 * @return Theme
 	 */
-	final public function top(): Theme {
+	final public function top(): Theme
+	{
 		$template = ArrayTools::last($this->stack);
 		assert($template instanceof Theme);
 		return $template;
@@ -64,7 +68,8 @@ class ThemeStack {
 	/**
 	 * @return Theme
 	 */
-	final public function bottom(): Theme {
+	final public function bottom(): Theme
+	{
 		$template = ArrayTools::first($this->stack);
 		assert($template instanceof Theme);
 		return $template;
@@ -76,7 +81,8 @@ class ThemeStack {
 	 * @param mixed $value
 	 * @return self
 	 */
-	public function set(string $name, mixed $value): self {
+	public function set(string $name, mixed $value): self
+	{
 		foreach ($this->stack as $template) {
 			$template->set($name, $value);
 		}

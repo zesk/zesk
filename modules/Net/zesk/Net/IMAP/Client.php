@@ -6,7 +6,8 @@ namespace zesk\Net\IMAP;
 use zesk\Exception\ConnectionFailed;
 use zesk\Net\Client as NetClient;
 
-class Client extends NetClient {
+class Client extends NetClient
+{
 	protected mixed $imap_conn = null;
 
 	/**
@@ -14,7 +15,8 @@ class Client extends NetClient {
 	 *
 	 * @return string
 	 */
-	private function imap_server(): string {
+	private function imap_server(): string
+	{
 		$port = $this->urlParts['port'] ?? 143;
 		$path = ltrim($this->urlParts['path'] ?? 'INBOX', '/');
 		return '{' . imap_utf7_encode($this->urlParts['host']) . ':' . $port . '}' . $path;
@@ -25,7 +27,8 @@ class Client extends NetClient {
 	 * @return $this
 	 * @throws ConnectionFailed
 	 */
-	public function connect(): self {
+	public function connect(): self
+	{
 		$options = 0;
 		$server = $this->imap_server();
 		$this->imap_conn = imap_open($server, $this->urlParts['user'], $this->urlParts['password'], $options);
@@ -40,7 +43,8 @@ class Client extends NetClient {
 	 * @return string
 	 * @throws ConnectionFailed
 	 */
-	public function connectGreeting(): string {
+	public function connectGreeting(): string
+	{
 		$this->connect();
 		return '';
 	}
@@ -48,14 +52,16 @@ class Client extends NetClient {
 	/**
 	 * @return bool
 	 */
-	public function isConnected(): bool {
+	public function isConnected(): bool
+	{
 		return $this->imap_conn !== null;
 	}
 
 	/**
 	 * @return void
 	 */
-	public function disconnect(): void {
+	public function disconnect(): void
+	{
 		if ($this->imap_conn) {
 			imap_close($this->imap_conn);
 			$this->imap_conn = null;

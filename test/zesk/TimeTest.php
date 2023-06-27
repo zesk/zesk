@@ -6,15 +6,18 @@ namespace zesk;
 use OutOfBoundsException;
 use zesk\Exception\ParameterException;
 
-class TimeTest extends UnitTest {
-	public function test_instance(): void {
+class TimeTest extends UnitTest
+{
+	public function test_instance(): void
+	{
 		$hh = 0;
 		$mm = 0;
 		$ss = 0;
 		Time::instance($hh, $mm, $ss);
 	}
 
-	public function test_parse(): void {
+	public function test_parse(): void
+	{
 		$x = new Time();
 
 		$x = $x->parse('23:29:19');
@@ -24,14 +27,16 @@ class TimeTest extends UnitTest {
 		$this->assertEquals(19, $x->second());
 	}
 
-	public function test_parse_fail(): void {
+	public function test_parse_fail(): void
+	{
 		$x = new Time();
 
 		$this->expectException(OutOfBoundsException::class);
 		$x->parse('23:61:19');
 	}
 
-	public function test_basics(): void {
+	public function test_basics(): void
+	{
 		$value = null;
 		$x = new Time($value);
 
@@ -107,7 +112,8 @@ class TimeTest extends UnitTest {
 		$this->assertEquals('00:02:23', $x->format());
 	}
 
-	public function test_invalid_unit(): void {
+	public function test_invalid_unit(): void
+	{
 		$this->expectException(ParameterException::class);
 		$time = new Time();
 		$time->addUnit(1, 'money');

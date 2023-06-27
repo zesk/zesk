@@ -16,5 +16,6 @@ use zesk\Exception;
  *
  * @author kent
  */
-class LockedException extends Exception {
+class LockedException extends Exception
+{
 }

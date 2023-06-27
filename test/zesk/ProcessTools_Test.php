@@ -10,11 +10,13 @@ declare(strict_types=1);
  */
 namespace zesk;
 
-class ProcessTools_Test extends UnitTest {
+class ProcessTools_Test extends UnitTest
+{
 	/**
 	 * @todo this
 	 */
-	public function alt_test_code_changed(): void {
+	public function alt_test_code_changed(): void
+	{
 		$php_file = $this->test_sandbox('change-php-file.php');
 
 		file_put_contents($php_file, "<?php\ndefine('TEST_PGT',true);\n");
@@ -38,7 +40,8 @@ class ProcessTools_Test extends UnitTest {
 		$db->query('DROP TABLE IF EXISTS test_PGT');
 	}
 
-	public function test_code_changed(): void {
+	public function test_code_changed(): void
+	{
 		$result = ProcessTools::includesChanged($this->application);
 		if ($result) {
 			$changed = ProcessTools::includesChangedFiles($this->application);

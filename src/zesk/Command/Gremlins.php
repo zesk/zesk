@@ -15,7 +15,8 @@ use SplFileInfo;
  * @category Debugging
  * @author kent
  */
-class Gremlins extends FileIterator {
+class Gremlins extends FileIterator
+{
 	protected array $shortcuts = ['gremlins'];
 
 	protected array $extensions = [
@@ -26,12 +27,14 @@ class Gremlins extends FileIterator {
 
 	protected int $found = 0;
 
-	protected function start(): void {
+	protected function start(): void
+	{
 		$this->parsed = 0;
 		$this->found = 0;
 	}
 
-	protected function process_file(SplFileInfo $file): bool {
+	protected function process_file(SplFileInfo $file): bool
+	{
 		$name = $file->getPathname();
 		ob_start();
 		$contents = file_get_contents($name);
@@ -43,7 +46,8 @@ class Gremlins extends FileIterator {
 		return true;
 	}
 
-	protected function finish(): int {
+	protected function finish(): int
+	{
 		$this->log('Completed: {parsed} parsed, {whites} with whitespace', [
 			'parsed' => $this->parsed,
 			'whites' => $this->found,

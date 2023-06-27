@@ -18,7 +18,8 @@ use Throwable;
  * @author kent
  *
  */
-class SQLException extends Exception {
+class SQLException extends Exception
+{
 	/**
 	 *
 	 * @var string
@@ -33,7 +34,8 @@ class SQLException extends Exception {
 	 * @param int $errno
 	 * @param Throwable|null $previous
 	 */
-	public function __construct(Base $db, string $sql = '', string $message = '', array $arguments = [], int $errno = 0, \Throwable $previous = null) {
+	public function __construct(Base $db, string $sql = '', string $message = '', array $arguments = [], int $errno = 0, \Throwable $previous = null)
+	{
 		$this->sql = $sql;
 
 		$message = "Message: $message\nDatabase: " . $db->codeName() . "\nSQL: " . rtrim($this->sql) . "\n";
@@ -44,7 +46,8 @@ class SQLException extends Exception {
 	 *
 	 * @return string
 	 */
-	public function sql(): string {
+	public function sql(): string
+	{
 		return $this->sql;
 	}
 
@@ -53,7 +56,8 @@ class SQLException extends Exception {
 	 * {@inheritDoc}
 	 * @see POPException::__toString()
 	 */
-	public function __toString(): string {
+	public function __toString(): string
+	{
 		$result = parent::__toString();
 		$result .= 'Error Number: ' . $this->getCode() . "\n\n";
 		return $result;
@@ -64,7 +68,8 @@ class SQLException extends Exception {
 	 * {@inheritDoc}
 	 * @see zesk\Exception::variables()
 	 */
-	public function variables(): array {
+	public function variables(): array
+	{
 		return [
 			'errno' => $this->getCode(), 'sql' => $this->sql(),
 		] + parent::variables();

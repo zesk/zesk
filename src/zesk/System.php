@@ -19,7 +19,8 @@ use zesk\Exception\FilePermission;
 /**
  * @author kent
  */
-class System {
+class System
+{
 	public const BINARY_UPTIME = '/usr/bin/uptime';
 
 	/**
@@ -58,7 +59,8 @@ class System {
 	 *
 	 * @return string
 	 */
-	public static function uname(): string {
+	public static function uname(): string
+	{
 		return php_uname('n');
 	}
 
@@ -67,7 +69,8 @@ class System {
 	 *
 	 * @return int
 	 */
-	public static function processId(): int {
+	public static function processId(): int
+	{
 		return getmypid();
 	}
 
@@ -76,7 +79,8 @@ class System {
 	 *
 	 * @return array of interface => $ip
 	 */
-	public static function ipAddresses(Application $application): array {
+	public static function ipAddresses(Application $application): array
+	{
 		$interfaces = self::iffilter(self::ifconfig($application), ['inet', 'ether']);
 		$ips = [];
 		foreach ($interfaces as $interface => $values) {
@@ -95,7 +99,8 @@ class System {
 	 *
 	 * @return array of interface => $ip
 	 */
-	public static function macAddresses(Application $application): array {
+	public static function macAddresses(Application $application): array
+	{
 		$interfaces = self::ifconfig($application);
 		$macs = [];
 		foreach ($interfaces as $interface => $values) {
@@ -113,7 +118,8 @@ class System {
 	 * @throws FileNotFound
 	 * @throws FilePermission
 	 */
-	public static function users(string $userFile = ''): array {
+	public static function users(string $userFile = ''): array
+	{
 		if ($userFile === '') {
 			$userFile = self::DEFAULT_USERS_FILE;
 		}
@@ -146,7 +152,8 @@ class System {
 	 * @param array|string|null $filter
 	 * @return array
 	 */
-	public static function iffilter(array $results, array|string $filter = null): array {
+	public static function iffilter(array $results, array|string $filter = null): array
+	{
 		$output = [];
 		foreach ($results as $interface => $values) {
 			if (is_array($values)) {
@@ -164,7 +171,8 @@ class System {
 	 * @param Application $application
 	 * @return array
 	 */
-	public static function ifconfig(Application $application): array {
+	public static function ifconfig(Application $application): array
+	{
 		$command = null;
 		$cache = null;
 
@@ -229,7 +237,8 @@ class System {
 	 * @return array
 	 * @throws FilePermission
 	 */
-	private static function uptimeBinary(): array {
+	private static function uptimeBinary(): array
+	{
 		if (!is_executable(self::BINARY_UPTIME)) {
 			throw new FilePermission(self::BINARY_UPTIME, 'No access to load averages');
 		}
@@ -253,7 +262,8 @@ class System {
 	 *         (typically)
 	 * @throws FilePermission
 	 */
-	public static function loadAverages(): array {
+	public static function loadAverages(): array
+	{
 		try {
 			$uptime_string = explode(' ', File::contents('/proc/loadavg'));
 		} catch (FileNotFound|FilePermission) {
@@ -269,7 +279,8 @@ class System {
 	 *            Request for a specific volume (passed to df)
 	 * @return array:array
 	 */
-	public static function volumeInfo(string $volume = ''): array {
+	public static function volumeInfo(string $volume = ''): array
+	{
 		ob_start();
 		$arg_volume = $volume ? escapeshellarg($volume) . ' ' : '';
 		// Added -P to avoid issue on Mac OS X where Capacity and iused overlap
@@ -363,7 +374,8 @@ class System {
 	 * @return array:array
 	 * @see System_Test::test_distro()
 	 */
-	public static function distro(): array {
+	public static function distro(): array
+	{
 		$result = [
 			'system' => $system = php_uname('s'),
 			'release' => php_uname('r'),
@@ -390,7 +402,8 @@ class System {
 	 *
 	 * @return int
 	 */
-	public static function memoryLimit(): int {
+	public static function memoryLimit(): int
+	{
 		$limit = ini_get('memory_limit');
 		if (intval($limit) < 0) {
 			return 0xFFFFFFFF;

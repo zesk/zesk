@@ -17,7 +17,8 @@ use zesk\Types;
  * @author kent
  *
  */
-class SettingsModel extends Model {
+class SettingsModel extends Model
+{
 	protected array $_changed = [];
 
 	protected array $_accessor = [];
@@ -47,7 +48,8 @@ class SettingsModel extends Model {
 	/**
 	 *
 	 */
-	public function hook_construct(): void {
+	public function hook_construct(): void
+	{
 		$this->configuration = $this->application->configuration;
 		$this->inheritConfiguration();
 	}
@@ -55,7 +57,8 @@ class SettingsModel extends Model {
 	/**
 	 * @return array
 	 */
-	public function ignoreVariables(): array {
+	public function ignoreVariables(): array
+	{
 		return $this->ignore_variables;
 	}
 
@@ -64,7 +67,8 @@ class SettingsModel extends Model {
 	 * @param string|array $mixed
 	 * @return $this
 	 */
-	public function addIgnoreVariables(string|array $mixed): self {
+	public function addIgnoreVariables(string|array $mixed): self
+	{
 		$mixed = Types::toList($mixed);
 		foreach ($mixed as $item) {
 			if (!in_array($item, $this->ignore_variables)) {
@@ -78,7 +82,8 @@ class SettingsModel extends Model {
 	 *
 	 * @return array
 	 */
-	public function allowVariables(): array {
+	public function allowVariables(): array
+	{
 		return $this->variables;
 	}
 
@@ -86,7 +91,8 @@ class SettingsModel extends Model {
 	 *
 	 * @param mixed $mixed
 	 */
-	public function addAllowVariable(string|array $mixed): self {
+	public function addAllowVariable(string|array $mixed): self
+	{
 		$mixed = Types::toList($mixed);
 		foreach ($mixed as $item) {
 			if (!in_array($item, $this->variables)) {
@@ -102,7 +108,8 @@ class SettingsModel extends Model {
 		return $this;
 	}
 
-	public function __isset(int|string $key): bool {
+	public function __isset(int|string $key): bool
+	{
 		if (array_key_exists($key, $this->_changed)) {
 			return true;
 		}
@@ -112,11 +119,13 @@ class SettingsModel extends Model {
 		return isset($this->state[$key]);
 	}
 
-	private function _ignore_variable(string $key): bool {
+	private function _ignore_variable(string $key): bool
+	{
 		return in_array($key, $this->ignore_variables);
 	}
 
-	protected function _internal_set(int|string $key, mixed $value): void {
+	protected function _internal_set(int|string $key, mixed $value): void
+	{
 		$old = $this->_internal_get($key);
 		if ($value === $old) {
 			return;
@@ -153,7 +162,8 @@ class SettingsModel extends Model {
 	 * @param string $key
 	 * @return mixed
 	 */
-	protected function _internal_get(string $key): mixed {
+	protected function _internal_get(string $key): mixed
+	{
 		if (array_key_exists($key, $this->_changed)) {
 			return $this->_changed[$key];
 		}
@@ -168,7 +178,8 @@ class SettingsModel extends Model {
 		return $this->state[$key] ?? null;
 	}
 
-	public function variables(): array {
+	public function variables(): array
+	{
 		$result = $this->configuration->getPath($this->variables);
 		foreach ($result as $k => $v) {
 			if ($v instanceof Configuration) {
@@ -178,7 +189,8 @@ class SettingsModel extends Model {
 		return $result;
 	}
 
-	public function __get(int|string $key): mixed {
+	public function __get(int|string $key): mixed
+	{
 		if (array_key_exists($key, $this->_accessor)) {
 			return call_user_func([
 				$this,
@@ -188,7 +200,8 @@ class SettingsModel extends Model {
 		return $this->_internal_get($key);
 	}
 
-	public function __set(int|string $key, mixed $value): void {
+	public function __set(int|string $key, mixed $value): void
+	{
 		if (array_key_exists($key, $this->_accessor)) {
 			call_user_func([
 				$this,
@@ -199,14 +212,16 @@ class SettingsModel extends Model {
 		$this->_internal_set($key, $value);
 	}
 
-	public function __unset($key): void {
+	public function __unset($key): void
+	{
 		$this->__set($key, null);
 	}
 
 	/**
 	 * @throws ClassNotFound
 	 */
-	public function store(): self {
+	public function store(): self
+	{
 		$this->application->logger->debug('{method} called', [
 			'method' => __METHOD__,
 		]);
@@ -227,7 +242,8 @@ class SettingsModel extends Model {
 		return parent::store();
 	}
 
-	public function access_class_member($name, $class, $set = null) {
+	public function access_class_member($name, $class, $set = null)
+	{
 		if ($set === null) {
 			if (array_key_exists($name, $this->_access_cache)) {
 				return $this->_access_cache[$name];

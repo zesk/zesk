@@ -23,14 +23,16 @@ use zesk\Exception\FilePermission;
  * @author kent
  *
  */
-class CONF2JSON extends FileIterator {
+class CONF2JSON extends FileIterator
+{
 	protected array $shortcuts = ['conf2json'];
 
 	protected array $extensions = [
 		'conf',
 	];
 
-	public function initialize(): void {
+	public function initialize(): void
+	{
 		$this->option_types += [
 			'dry-run' => 'boolean',
 			'noclobber' => 'boolean',
@@ -42,10 +44,12 @@ class CONF2JSON extends FileIterator {
 		parent::initialize();
 	}
 
-	protected function start(): void {
+	protected function start(): void
+	{
 	}
 
-	protected function process_file(SplFileInfo $file): bool {
+	protected function process_file(SplFileInfo $file): bool
+	{
 		$source_name = $file->getPathname();
 		$target_name = File::setExtension($source_name, 'json');
 
@@ -91,7 +95,8 @@ class CONF2JSON extends FileIterator {
 		return true;
 	}
 
-	protected function finish(): int {
+	protected function finish(): int
+	{
 		return 0;
 	}
 }

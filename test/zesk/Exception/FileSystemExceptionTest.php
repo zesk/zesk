@@ -10,8 +10,10 @@ namespace zesk\Exception;
 
 use zesk\PHPUnit\ExceptionTestCase;
 
-class FileSystemExceptionTest extends ExceptionTestCase {
-	public function test_basics(): void {
+class FileSystemExceptionTest extends ExceptionTestCase
+{
+	public function test_basics(): void
+	{
 		$filename = '/etc';
 		$message = 'Nothing';
 		$arguments = [

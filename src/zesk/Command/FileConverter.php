@@ -22,7 +22,8 @@ use zesk\File;
  * @api
  *
  */
-abstract class FileConverter extends SimpleCommand {
+abstract class FileConverter extends SimpleCommand
+{
 	/**
 	 * Scan for files matching this extension pattern (no delimiters), use vertical bar only
 	 *
@@ -57,7 +58,8 @@ abstract class FileConverter extends SimpleCommand {
 	 * {@inheritDoc}
 	 * @see SimpleCommand::initialize()
 	 */
-	public function initialize(): void {
+	public function initialize(): void
+	{
 		$this->option_types += [
 			'nomtime' => 'boolean', 'noclobber' => 'boolean', 'extension' => 'string', 'dry-run' => 'boolean',
 			'force' => 'boolean', 'target-path' => 'string', 'mkdir-target' => 'boolean', '*' => 'files',
@@ -80,7 +82,8 @@ abstract class FileConverter extends SimpleCommand {
 	/**
 	 * @throws SyntaxException
 	 */
-	private function target_filename(string $file): string {
+	private function target_filename(string $file): string
+	{
 		$extension = trim($this->option('extension', $this->destination_extension), '.');
 		$target_prefix = $this->option('target-path');
 		$new_file = $this->overwrite ? $file : File::setExtension($file, ".$extension");
@@ -91,7 +94,8 @@ abstract class FileConverter extends SimpleCommand {
 	/**
 	 *
 	 */
-	protected function run(): int {
+	protected function run(): int
+	{
 		$this->verboseLog('Configuring using config file: ' . $this->configuration_file);
 		$this->configure($this->configuration_file);
 		$app = $this->application;
@@ -184,7 +188,8 @@ abstract class FileConverter extends SimpleCommand {
 	 * @param resource $fp File opened for reading with file pointer cued to the file start position.
 	 * @api
 	 */
-	protected function convert_fp(mixed $fp): string {
+	protected function convert_fp(mixed $fp): string
+	{
 		$content = '';
 		while (!feof($fp)) {
 			$content .= fread($fp, 1024);
@@ -215,7 +220,8 @@ abstract class FileConverter extends SimpleCommand {
 	 * @return void
 	 * @throws FilePermission
 	 */
-	final protected function default_convert_file(string $file, string $new_file): void {
+	final protected function default_convert_file(string $file, string $new_file): void
+	{
 		$this->application->notice('Writing {new_file}', compact('new_file'));
 		File::put($new_file, $this->convert_raw(file_get_contents($file)));
 	}
@@ -226,7 +232,8 @@ abstract class FileConverter extends SimpleCommand {
 	 * @return string
 	 * @throws SyntaxException
 	 */
-	final protected function default_convert_raw($content) {
+	final protected function default_convert_raw($content)
+	{
 		$src = File::temporary($this->application->paths->temporary(), '.source');
 		$dst = File::temporary($this->application->paths->temporary(), '.' . $this->destination_extension);
 		File::put($src, $content);

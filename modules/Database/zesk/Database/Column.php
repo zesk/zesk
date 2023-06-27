@@ -21,7 +21,8 @@ use zesk\Text;
  * @author kent
  *
  */
-class Column extends Options {
+class Column extends Options
+{
 	public const OPTION_REQUIRED = 'required';
 
 	public const OPTION_DEFAULT = 'default';
@@ -68,7 +69,8 @@ class Column extends Options {
 	 * @param string $name
 	 * @param array $options
 	 */
-	public function __construct(Table $table, string $name, array $options = []) {
+	public function __construct(Table $table, string $name, array $options = [])
+	{
 		parent::__construct($options);
 		$this->table = $table;
 		$this->setName($name);
@@ -78,7 +80,8 @@ class Column extends Options {
 	/**
 	 * @return Table
 	 */
-	public function table(): Table {
+	public function table(): Table
+	{
 		return $this->table;
 	}
 
@@ -86,7 +89,8 @@ class Column extends Options {
 	 * @param Table $set
 	 * @return $this
 	 */
-	public function setTable(Table $set): self {
+	public function setTable(Table $set): self
+	{
 		$this->table = $set;
 		return $this;
 	}
@@ -96,7 +100,8 @@ class Column extends Options {
 	 *
 	 * @return int
 	 */
-	public function size(): int {
+	public function size(): int
+	{
 		return $this->optionInt(self::OPTION_SIZE);
 	}
 
@@ -104,14 +109,16 @@ class Column extends Options {
 	 * @param int $set
 	 * @return void
 	 */
-	public function setSize(int $set): void {
+	public function setSize(int $set): void
+	{
 		$this->setOption(self::OPTION_SIZE, $set);
 	}
 
 	/**
 	 * @return bool
 	 */
-	public function isText(): bool {
+	public function isText(): bool
+	{
 		$db = $this->table->database();
 		$data_type = $db->types();
 		return $data_type->is_text($this->sqlType());
@@ -121,7 +128,8 @@ class Column extends Options {
 	 * Get previous name for a column
 	 * @return string
 	 */
-	public function previousName(): string {
+	public function previousName(): string
+	{
 		return strval($this->option(self::OPTION_PREVIOUS_NAME, ''));
 	}
 
@@ -130,7 +138,8 @@ class Column extends Options {
 	 * @param string $name
 	 * @return self
 	 */
-	public function setPreviousName(string $name): self {
+	public function setPreviousName(string $name): self
+	{
 		$this->setOption(self::OPTION_PREVIOUS_NAME, $name);
 		return $this;
 	}
@@ -139,7 +148,8 @@ class Column extends Options {
 	 * Get column name
 	 * @return Column string
 	 */
-	public function name(): string {
+	public function name(): string
+	{
 		return $this->name;
 	}
 
@@ -148,7 +158,8 @@ class Column extends Options {
 	 * @param string $set
 	 * @return Column string
 	 */
-	public function setName(string $set): self {
+	public function setName(string $set): self
+	{
 		$this->name = $set;
 		return $this;
 	}
@@ -159,7 +170,8 @@ class Column extends Options {
 	 * @param Column $that
 	 * @return array
 	 */
-	public function differences(Column $that): array {
+	public function differences(Column $that): array
+	{
 		$db = $this->table()->database();
 		$data_type = $db->types();
 		$this_name = $this->name();
@@ -223,7 +235,8 @@ class Column extends Options {
 	 * @param null|string|array $filter Only show differences between selected attributes
 	 * @return array
 	 */
-	public function attributes_differences(Base $db, Column $that, string|array $filter = null): array {
+	public function attributes_differences(Base $db, Column $that, string|array $filter = null): array
+	{
 		$this_extras = $db->columnAttributes($this);
 		$that_extras = $db->columnAttributes($that);
 		$diffs = [];
@@ -248,7 +261,8 @@ class Column extends Options {
 	 * @param bool $debug
 	 * @return bool
 	 */
-	final public function isSimilar(Column $that, bool $debug = false): bool {
+	final public function isSimilar(Column $that, bool $debug = false): bool
+	{
 		$diffs = $this->differences($that);
 		if (count($diffs) > 0 && $debug) {
 			$name = $this->name();
@@ -265,14 +279,16 @@ class Column extends Options {
 	 *
 	 * @return bool
 	 */
-	final public function hasSQLType(): bool {
+	final public function hasSQLType(): bool
+	{
 		return $this->hasOption(self::OPTION_SQL_TYPE, true);
 	}
 
 	/**
 	 * @return string
 	 */
-	final public function sqlType(): string {
+	final public function sqlType(): string
+	{
 		return $this->option(self::OPTION_SQL_TYPE, '');
 	}
 
@@ -282,7 +298,8 @@ class Column extends Options {
 	 * @param string $set
 	 * @return $this
 	 */
-	final public function setSQLType(string $set): self {
+	final public function setSQLType(string $set): self
+	{
 		$this->setOption(self::OPTION_SQL_TYPE, strtolower($set));
 		return $this;
 	}
@@ -293,7 +310,8 @@ class Column extends Options {
 	 * @param bool $checkEmpty
 	 * @return bool
 	 */
-	final public function hasDefaultValue(bool $checkEmpty = false): bool {
+	final public function hasDefaultValue(bool $checkEmpty = false): bool
+	{
 		return $this->hasOption(self::OPTION_DEFAULT, $checkEmpty);
 	}
 
@@ -301,7 +319,8 @@ class Column extends Options {
 	 *
 	 * @return mixed
 	 */
-	final public function defaultValue(): mixed {
+	final public function defaultValue(): mixed
+	{
 		return $this->option(self::OPTION_DEFAULT);
 	}
 
@@ -309,7 +328,8 @@ class Column extends Options {
 	 * @param mixed $set
 	 * @return $this
 	 */
-	final public function setDefaultValue(mixed $set): self {
+	final public function setDefaultValue(mixed $set): self
+	{
 		return $set === null ? $this->clearOption(self::OPTION_DEFAULT) : $this->setOption(self::OPTION_DEFAULT, $set);
 	}
 
@@ -318,7 +338,8 @@ class Column extends Options {
 	 *
 	 * @return bool
 	 */
-	final public function binary(): bool {
+	final public function binary(): bool
+	{
 		return $this->optionBool(self::OPTION_BINARY);
 	}
 
@@ -328,14 +349,16 @@ class Column extends Options {
 	 * @param bool $set
 	 * @return $this
 	 */
-	final public function setBinary(bool $set): self {
+	final public function setBinary(bool $set): self
+	{
 		return $this->setOption(self::OPTION_BINARY, $set);
 	}
 
 	/**
 	 * @return bool
 	 */
-	final public function primaryKey(): bool {
+	final public function primaryKey(): bool
+	{
 		return $this->optionBool(self::OPTION_PRIMARY_KEY);
 	}
 
@@ -343,7 +366,8 @@ class Column extends Options {
 	 * @param bool $set
 	 * @return $this
 	 */
-	final public function setPrimaryKey(bool $set): self {
+	final public function setPrimaryKey(bool $set): self
+	{
 		$this->setOption(self::OPTION_PRIMARY_KEY, $set);
 		return $this;
 	}
@@ -352,7 +376,8 @@ class Column extends Options {
 	 * @param bool $set
 	 * @return $this
 	 */
-	final public function setIncrement(bool $set): self {
+	final public function setIncrement(bool $set): self
+	{
 		$this->setOption(self::OPTION_SERIAL, $set);
 		$this->clearOption(self::OPTION_INCREMENT);
 		return $this;
@@ -361,14 +386,16 @@ class Column extends Options {
 	/**
 	 * @return bool
 	 */
-	final public function increment(): bool {
+	final public function increment(): bool
+	{
 		return $this->isIncrement();
 	}
 
 	/**
 	 * @return bool
 	 */
-	final public function isIncrement(): bool {
+	final public function isIncrement(): bool
+	{
 		return toBool($this->firstOption([self::OPTION_SERIAL, self::OPTION_INCREMENT]));
 	}
 
@@ -378,7 +405,8 @@ class Column extends Options {
 	 * @return $this
 	 * @throws Unimplemented
 	 */
-	final public function addIndex(string $name, string $type = Index::TYPE_INDEX): self {
+	final public function addIndex(string $name, string $type = Index::TYPE_INDEX): self
+	{
 		if ($type == Index::TYPE_INDEX) {
 			$opt = 'index';
 		} elseif ($type == Index::TYPE_UNIQUE) {
@@ -402,7 +430,8 @@ class Column extends Options {
 	/**
 	 * @return array
 	 */
-	final public function indexesTypes(): array {
+	final public function indexesTypes(): array
+	{
 		$indexNames = $this->optionArray(self::OPTION_INDEX);
 		$uniqueNames = $this->optionArray(self::OPTION_UNIQUE);
 		$isPrimary = $this->primaryKey();
@@ -429,7 +458,8 @@ class Column extends Options {
 	 * @param bool $set
 	 * @return self
 	 */
-	final public function setNotNull(bool $set): self {
+	final public function setNotNull(bool $set): self
+	{
 		return $this->setOption(self::OPTION_NOT_NULL, $set);
 	}
 
@@ -437,7 +467,8 @@ class Column extends Options {
 	 * @param bool $set
 	 * @return self
 	 */
-	final public function setNull(bool $set): self {
+	final public function setNull(bool $set): self
+	{
 		return $this->setOption(self::OPTION_NOT_NULL, !$set);
 	}
 
@@ -446,32 +477,37 @@ class Column extends Options {
 	 *
 	 * @return bool
 	 */
-	final public function null(): bool {
+	final public function null(): bool
+	{
 		return !$this->optionBool(self::OPTION_NOT_NULL);
 	}
 
-	final public function notNull(): bool {
+	final public function notNull(): bool
+	{
 		return $this->optionBool(self::OPTION_NOT_NULL);
 	}
 
 	/**
 	 * @return bool
 	 */
-	final public function required(): bool {
+	final public function required(): bool
+	{
 		return $this->optionBool(self::OPTION_REQUIRED, $this->optionBool(self::OPTION_NOT_NULL, $this->primaryKey()));
 	}
 
 	/**
 	 * @return bool
 	 */
-	final public function inUniqueIndex(): bool {
+	final public function inUniqueIndex(): bool
+	{
 		return $this->hasOption(self::OPTION_UNIQUE, true);
 	}
 
 	/**
 	 * @return bool
 	 */
-	final public function inIndex(): bool {
+	final public function inIndex(): bool
+	{
 		return $this->hasOption(self::OPTION_INDEX, true);
 	}
 
@@ -479,7 +515,8 @@ class Column extends Options {
 	 * @param string $of_type
 	 * @return bool
 	 */
-	final public function isIndex(string $of_type = ''): bool {
+	final public function isIndex(string $of_type = ''): bool
+	{
 		return match ($of_type) {
 			Index::TYPE_INDEX => $this->inIndex(),
 			Index::TYPE_UNIQUE => $this->inUniqueIndex(),
@@ -491,7 +528,8 @@ class Column extends Options {
 	/**
 	 * @return bool
 	 */
-	public function hasExtras(): bool {
+	public function hasExtras(): bool
+	{
 		return $this->hasOption(self::OPTION_COLUMN_EXTRAS, true);
 	}
 
@@ -500,7 +538,8 @@ class Column extends Options {
 	 * @return mixed|void
 	 * @throws Deprecated
 	 */
-	public function extras($set = null) {
+	public function extras($set = null)
+	{
 		if ($set !== null) {
 			$this->table->application->deprecated('extras setter');
 			$this->setOption(self::OPTION_COLUMN_EXTRAS, $set);
@@ -512,14 +551,16 @@ class Column extends Options {
 	 * @param string $set
 	 * @return self
 	 */
-	public function setExtras(string $set): self {
+	public function setExtras(string $set): self
+	{
 		return $this->setOption(self::OPTION_COLUMN_EXTRAS, $set);
 	}
 
 	/**
 	 * @return string
 	 */
-	public function _debug_dump(): string {
+	public function _debug_dump(): string
+	{
 		$vars = get_object_vars($this);
 		$vars['table'] = $this->table->name();
 		return 'Object:' . __CLASS__ . " (\n" . Text::indent(_dump($vars)) . "\n)";
@@ -528,7 +569,8 @@ class Column extends Options {
 	/**
 	 * @return string
 	 */
-	public function __toString(): string {
+	public function __toString(): string
+	{
 		return $this->name;
 	}
 }

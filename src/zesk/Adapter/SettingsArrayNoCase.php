@@ -10,7 +10,8 @@ use zesk\Interface\SettingsInterface;
 /**
  * SettingsInterface adapter
  */
-class SettingsArrayNoCase implements SettingsInterface {
+class SettingsArrayNoCase implements SettingsInterface
+{
 	/**
 	 *
 	 */
@@ -19,7 +20,8 @@ class SettingsArrayNoCase implements SettingsInterface {
 	/**
 	 *
 	 */
-	public function __construct(array &$array) {
+	public function __construct(array &$array)
+	{
 		$this->data = &$array;
 	}
 
@@ -29,7 +31,8 @@ class SettingsArrayNoCase implements SettingsInterface {
 	 * @param int|string $name
 	 * @return bool
 	 */
-	public function __isset(int|string $name): bool {
+	public function __isset(int|string $name): bool
+	{
 		return isset($this->data[strtolower($name)]);
 	}
 
@@ -39,7 +42,8 @@ class SettingsArrayNoCase implements SettingsInterface {
 	 * @param int|string $name
 	 * @return boolean
 	 */
-	public function has(int|string $name): bool {
+	public function has(int|string $name): bool
+	{
 		return $this->__isset($name);
 	}
 
@@ -48,7 +52,8 @@ class SettingsArrayNoCase implements SettingsInterface {
 	 * @param mixed $name A string or key value (integer, float)
 	 * @return mixed The value of the session variable, or null if nothing set
 	 */
-	public function __get(int|string $name): mixed {
+	public function __get(int|string $name): mixed
+	{
 		$name = strtolower($name);
 		return $this->data[$name] ?? null;
 	}
@@ -59,7 +64,8 @@ class SettingsArrayNoCase implements SettingsInterface {
 	 * @param mixed $default A value to return if the session value is null
 	 * @return mixed The value of the session variable, or $default if nothing set
 	 */
-	public function get(int|string $name, mixed $default = null): mixed {
+	public function get(int|string $name, mixed $default = null): mixed
+	{
 		$name = strtolower($name);
 		return $this->data[$name] ?? $default;
 	}
@@ -71,7 +77,8 @@ class SettingsArrayNoCase implements SettingsInterface {
 	 * @param mixed $value Value to save. As a general rule, best to use scalar types
 	 * @see SettingsInterface::__set
 	 */
-	public function __set(int|string $name, mixed $value): void {
+	public function __set(int|string $name, mixed $value): void
+	{
 		$this->data[strtolower($name)] = $value;
 	}
 
@@ -82,7 +89,8 @@ class SettingsArrayNoCase implements SettingsInterface {
 	 * @param mixed $value Value to save. As a general rule, best to use scalar types
 	 * @return self
 	 */
-	public function set(int|string $name, mixed $value = null): self {
+	public function set(int|string $name, mixed $value = null): self
+	{
 		$this->data[strtolower($name)] = $value;
 		return $this;
 	}
@@ -92,7 +100,8 @@ class SettingsArrayNoCase implements SettingsInterface {
 	 *
 	 * @return array
 	 */
-	public function variables(): array {
+	public function variables(): array
+	{
 		return $this->data;
 	}
 }

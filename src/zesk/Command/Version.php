@@ -35,7 +35,8 @@ use zesk\Version as ZeskVersion;
  * @author kent
  * @category Management
  */
-class Version extends SimpleCommand {
+class Version extends SimpleCommand
+{
 	/**
 	 * When the version is updated
 	 */
@@ -115,7 +116,8 @@ class Version extends SimpleCommand {
 	 * @throws FilePermission
 	 * @throws SemanticsException
 	 */
-	public function run(): int {
+	public function run(): int
+	{
 		if ($this->optionBool('init')) {
 			return $this->_commandInitializeSchema();
 		}
@@ -235,7 +237,8 @@ class Version extends SimpleCommand {
 	 *
 	 * @return string
 	 */
-	private function versionSchemaPath(): string {
+	private function versionSchemaPath(): string
+	{
 		return $this->application->path('etc/version-schema.json');
 	}
 
@@ -243,7 +246,8 @@ class Version extends SimpleCommand {
 	 *
 	 *
 	 */
-	private function _commandInitializeSchema(): int {
+	private function _commandInitializeSchema(): int
+	{
 		$schema_file_path = $this->versionSchemaPath();
 		if (file_exists($schema_file_path)) {
 			$this->error('{file} exists, will not overwrite', [
@@ -298,7 +302,8 @@ class Version extends SimpleCommand {
 	 * @return Closure
 	 * @throws SemanticsException
 	 */
-	private function versionParser(array $__parser): Closure {
+	private function versionParser(array $__parser): Closure
+	{
 		$pattern = $__parser['pattern'] ?? '/([0-9]+)\\.([0-9]+)\\.([0-9]+)(?:\\.([0-9]+))?([a-z][a-z0-9]*)?/i';
 		$matches = $__parser['matches'] ?? [
 			'version', 'major', 'minor', 'maintenance', 'patch', 'tag',
@@ -327,7 +332,8 @@ class Version extends SimpleCommand {
 	 * @param array $__reader
 	 * @return Closure
 	 */
-	private function versionReader(array $__reader): Closure {
+	private function versionReader(array $__reader): Closure
+	{
 		$json = $__reader['json'] ?? null;
 		$path = $__reader['path'] ?? [
 			Application::class, 'version',
@@ -356,7 +362,8 @@ class Version extends SimpleCommand {
 	 * @return Closure
 	 * @throws SemanticsException
 	 */
-	private function versionGenerator(array $__generator): Closure {
+	private function versionGenerator(array $__generator): Closure
+	{
 		$map = $__generator['map'] ?? null;
 		if (is_array($map) || is_string($map)) {
 			return fn (array $version_structure): string|array => ArrayTools::map($map, $version_structure);
@@ -371,7 +378,8 @@ class Version extends SimpleCommand {
 	 * @param array $__writer
 	 * @return Closure
 	 */
-	private function versionWriter(array $__writer): Closure {
+	private function versionWriter(array $__writer): Closure
+	{
 		$json = $__writer['json'] ?? null;
 		$application_root = $this->application->path();
 		if ($json) {

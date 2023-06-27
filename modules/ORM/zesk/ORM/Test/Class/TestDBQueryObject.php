@@ -10,7 +10,8 @@ use zesk\ORM\Schema;
  * @author kent
  *
  */
-class Class_TestDBQueryObject extends Class_Base {
+class Class_TestDBQueryObject extends Class_Base
+{
 	public string $id_column = 'id';
 
 	public array $column_types = [
@@ -18,7 +19,8 @@ class Class_TestDBQueryObject extends Class_Base {
 		'foo' => self::TYPE_STRING,
 	];
 
-	public function schema(ORMBase $object): string|array|Schema {
+	public function schema(ORMBase $object): string|array|Schema
+	{
 		return 'CREATE TABLE {table} ( id integer unsigned NOT NULL PRIMARY KEY AUTO_INCREMENT, foo varchar(128) )';
 	}
 }

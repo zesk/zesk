@@ -6,7 +6,8 @@ namespace zesk\Repository;
 use zesk\Exception\NotFoundException;
 use zesk\UnitTest;
 
-class TestCase extends UnitTest {
+class TestCase extends UnitTest
+{
 	/**
 	 *
 	 * @var string
@@ -41,7 +42,8 @@ class TestCase extends UnitTest {
 	 *
 	 * @return string
 	 */
-	public function loadConfiguration(): string {
+	public function loadConfiguration(): string
+	{
 		$this_class = get_class($this);
 		$config_path = [
 			$this_class,
@@ -65,7 +67,8 @@ class TestCase extends UnitTest {
 	/**
 	 *
 	 */
-	public function testConfiguration(): string {
+	public function testConfiguration(): string
+	{
 		$this->loadConfiguration();
 		// Do not assume repo is created here
 		$this->assertStringIsURL($this->url);
@@ -77,7 +80,8 @@ class TestCase extends UnitTest {
 	 * @depends testConfiguration
 	 * @throws NotFoundException
 	 */
-	public function testFactory($path): Base {
+	public function testFactory($path): Base
+	{
 		$this->assertNotCount(0, $this->repository_types, 'Must initialize ' . get_class($this) . '->repository_types to a non-zero list of types');
 		$repo = null;
 		$this->repository_options = toArray($this->configuration->getPath([

@@ -6,12 +6,14 @@ namespace zesk\ORM\Test;
 use zesk\ORM\ORMBase;
 use zesk\ORM\Schema;
 
-class DBSchemaTest4 extends ORMBase {
+class DBSchemaTest4 extends ORMBase
+{
 	public static $test_table = '';
 
 	public static $test_table2 = '';
 
-	public function schema(): Schema|array|string|null {
+	public function schema(): Schema|array|string|null
+	{
 		$table = self::$test_table;
 		$table2 = self::$test_table2;
 		return "CREATE TABLE `$table` (

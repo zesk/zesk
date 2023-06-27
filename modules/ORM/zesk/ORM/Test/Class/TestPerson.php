@@ -7,10 +7,12 @@ use zesk\ORM\Class_Base;
 use zesk\ORM\ORMBase;
 use zesk\ORM\Schema;
 
-class Class_TestPerson extends Class_Base {
+class Class_TestPerson extends Class_Base
+{
 	public string $id_column = 'PersonID';
 
-	public function schema(ORMBase $object): array|string|Schema {
+	public function schema(ORMBase $object): array|string|Schema
+	{
 		return [
 			'CREATE TABLE {table} ( PersonID integer unsigned NOT NULL AUTO_INCREMENT, Name varchar(64), Parent integer unsigned NULL, PRIMARY KEY (PersonID) )',
 		];

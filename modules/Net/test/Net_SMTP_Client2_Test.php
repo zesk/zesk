@@ -12,10 +12,12 @@ use zesk\PHPUnit\TestCase;
  * @author kent
  *
  */
-class Net_SMTP_Client2_Test extends TestCase {
+class Net_SMTP_Client2_Test extends TestCase
+{
 	private string $url;
 
-	public function test_outgoing_requirements(): void {
+	public function test_outgoing_requirements(): void
+	{
 		$this->url = $this->option('url', '');
 		if (!URL::valid($this->url)) {
 			$this->markTestSkipped(get_class($this) . '::url not valid (' . $this->url . ')');
@@ -30,7 +32,8 @@ class Net_SMTP_Client2_Test extends TestCase {
 	 * @throws SyntaxException
 	 * @depends test_outgoing_requirements
 	 */
-	public function test_Net_SMTP_Client(): void {
+	public function test_Net_SMTP_Client(): void
+	{
 		$options = [
 			'timeout' => 30,
 		];

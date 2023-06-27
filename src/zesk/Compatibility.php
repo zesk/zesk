@@ -14,14 +14,16 @@ declare(strict_types=1);
  */
 namespace zesk;
 
-class Compatibility {
+class Compatibility
+{
 	public const PHP_VERSION_MINIMUM = 80000;
 
 	/**
 	 * @throws Unsupported
 	 * @codeCoverageIgnore
 	 */
-	public static function check(): void {
+	public static function check(): void
+	{
 		$v = self::PHP_VERSION_MINIMUM;
 		if (!defined('PHP_VERSION_ID') || PHP_VERSION_ID < $v) {
 			throw new Unsupported('Zesk requires PHP version {maj}.{min}.{patch} or greater', [

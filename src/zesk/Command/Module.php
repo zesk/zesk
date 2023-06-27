@@ -16,7 +16,8 @@ use zesk\Exception;
  *
  * @category Modules
  */
-class Module extends SimpleCommand {
+class Module extends SimpleCommand
+{
 	protected array $shortcuts = ['module', 'm'];
 
 	protected array $option_types = [
@@ -26,7 +27,8 @@ class Module extends SimpleCommand {
 	/**
 	 * @return int
 	 */
-	public function run(): int {
+	public function run(): int
+	{
 		if ($this->hasArgument()) {
 			return $this->loadArgumentModules();
 		} else {
@@ -39,7 +41,8 @@ class Module extends SimpleCommand {
 	 * @return int
 	 * @throws Semantics
 	 */
-	private function loadArgumentModules(): int {
+	private function loadArgumentModules(): int
+	{
 		do {
 			$module = $this->getArgument('module');
 
@@ -53,7 +56,8 @@ class Module extends SimpleCommand {
 		return 0;
 	}
 
-	public function listModules(): int {
+	public function listModules(): int
+	{
 		$onlyLoaded = $this->optionBool('loaded');
 		$modules = $this->application->modules;
 		$loadedModules = [];

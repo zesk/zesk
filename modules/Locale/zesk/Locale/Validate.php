@@ -19,7 +19,8 @@ use zesk\StringTools;
  * @author kent
  *
  */
-class Validate extends Hookable {
+class Validate extends Hookable
+{
 	/**
 	 * @see self::checkTranslationTokenNames()
 	 */
@@ -40,12 +41,14 @@ class Validate extends Hookable {
 	 * @param Application $application
 	 * @param array $options
 	 */
-	public function __construct(Application $application, array $options = []) {
+	public function __construct(Application $application, array $options = [])
+	{
 		parent::__construct($application, $options);
 		$this->inheritConfiguration();
 	}
 
-	private function defaultMethodsToClosures(): array {
+	private function defaultMethodsToClosures(): array
+	{
 		return [
 			self::METHOD_TOKEN_NAMES => $this->checkTranslationTokenNames(...),
 			self::METHOD_BRACES => $this->checkTranslationBraces(...),
@@ -58,7 +61,8 @@ class Validate extends Hookable {
 	 * @return array
 	 * @throws KeyNotFound
 	 */
-	private function checkMethodsToClosures(array $methodNames): array {
+	private function checkMethodsToClosures(array $methodNames): array
+	{
 		$methods = $this->defaultMethodsToClosures();
 		$results = [];
 		foreach ($methodNames as $methodName) {
@@ -90,7 +94,8 @@ class Validate extends Hookable {
 	 * @return array
 	 * @throws ConfigurationException
 	 */
-	public function checkTranslation(string $source, string $translation): array {
+	public function checkTranslation(string $source, string $translation): array
+	{
 		[$group] = pair($source, ':=', '', $source);
 		$methods = $this->defaultMethodsToClosures();
 		if ($group !== '') {
@@ -125,7 +130,8 @@ class Validate extends Hookable {
 	 * @param string $string
 	 * @return string[]
 	 */
-	private function extractTokens(string $string): array {
+	private function extractTokens(string $string): array
+	{
 		$matches = [];
 		preg_match_all('/\{[^}]+}/', $string, $matches, PREG_PATTERN_ORDER);
 		$matches = $matches[0];
@@ -139,7 +145,8 @@ class Validate extends Hookable {
 	 * @param string $string
 	 * @return array
 	 */
-	private function extractBraces(string $string): array {
+	private function extractBraces(string $string): array
+	{
 		$matches = [];
 		preg_match_all('/[\[\]]/', $string, $matches, PREG_PATTERN_ORDER);
 		return $matches[0];
@@ -152,7 +159,8 @@ class Validate extends Hookable {
 	 * @param string $translation
 	 * @return string[] An array of errors found in the two strings when compared
 	 */
-	public function checkTranslationTokenCount(string $source, string $translation): array {
+	public function checkTranslationTokenCount(string $source, string $translation): array
+	{
 		$source = StringTools::right($source, ':=', $source);
 		$source_matches = $this->extractTokens($source);
 		$translation_matches = $this->extractTokens($translation);
@@ -178,7 +186,8 @@ class Validate extends Hookable {
 	 * @param string $translation
 	 * @return string[] An array of errors found in the two strings when compared
 	 */
-	public function checkTranslationTokenNames(string $source, string $translation): array {
+	public function checkTranslationTokenNames(string $source, string $translation): array
+	{
 		$source = StringTools::right($source, ':=', $source);
 		$source_matches = $this->extractTokens($source);
 		$translation_matches = $this->extractTokens($translation);
@@ -209,7 +218,8 @@ class Validate extends Hookable {
 	 * @return string[] An array of errors found when the two strings are compared
 	 * @throws SemanticsException
 	 */
-	public function checkTranslationBraces(string $source, string $translation): array {
+	public function checkTranslationBraces(string $source, string $translation): array
+	{
 		$source = StringTools::right($source, ':=', $source);
 		$source_matches = $this->extractBraces($source);
 		$translation_matches = $this->extractBraces($translation);

@@ -13,12 +13,14 @@ use zesk\CSV\MapReader;
 use zesk\Exception\KeyNotFound;
 use zesk\PHPUnit\TestCase;
 
-class ReaderMapTest extends TestCase {
+class ReaderMapTest extends TestCase
+{
 	protected array $load_modules = [
 		'CSV',
 	];
 
-	public function sample_reader(): MapReader {
+	public function sample_reader(): MapReader
+	{
 		$x = new MapReader();
 
 		$f = $this->test_sandbox('test.csv');
@@ -29,7 +31,8 @@ class ReaderMapTest extends TestCase {
 		return $x;
 	}
 
-	public function test_main(): void {
+	public function test_main(): void
+	{
 		$x = $this->sample_reader();
 		$success = [];
 
@@ -85,7 +88,8 @@ class ReaderMapTest extends TestCase {
 
 	/**
 	 */
-	public function test_bad_read_map_key(): void {
+	public function test_bad_read_map_key(): void
+	{
 		$this->expectException(KeyNotFound::class);
 		$x = $this->sample_reader();
 		$success = false;

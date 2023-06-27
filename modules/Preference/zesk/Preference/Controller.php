@@ -24,7 +24,8 @@ use zesk\Types;
  *
  * @author kent
  */
-class Controller extends BaseController {
+class Controller extends BaseController
+{
 	protected array $argumentMethods = [
 		'arguments_{METHOD}', 'arguments',
 	];
@@ -47,7 +48,8 @@ class Controller extends BaseController {
 	 *
 	 * @return string
 	 */
-	public function _whitelistFile(): string {
+	public function _whitelistFile(): string
+	{
 		$file = $this->optionString('whitelistFile', './etc/preferences.txt');
 		return $this->application->paths->expand($file);
 	}
@@ -55,7 +57,8 @@ class Controller extends BaseController {
 	/**
 	 *
 	 */
-	public function save_preferences(): void {
+	public function save_preferences(): void
+	{
 		file_put_contents($this->_whitelistFile(), implode("\n", array_keys($this->whitelist)));
 	}
 
@@ -63,7 +66,8 @@ class Controller extends BaseController {
 	 * @return array
 	 * @throws FilePermission
 	 */
-	private function _whitelist(): array {
+	private function _whitelist(): array
+	{
 		if (count($this->whitelist) === 0) {
 			try {
 				$this->whitelist = array_flip(ArrayTools::clean(explode("\n", File::contents($this->_whitelistFile())), ''));
@@ -84,7 +88,8 @@ class Controller extends BaseController {
 	 * @return void
 	 * @throws FilePermission
 	 */
-	private function _addToWhitelist(string $name): void {
+	private function _addToWhitelist(string $name): void
+	{
 		$this->_whitelist();
 		$this->whitelist[$name] = true;
 	}
@@ -97,7 +102,8 @@ class Controller extends BaseController {
 	 * @throws ParameterException
 	 * @throws FilePermission
 	 */
-	public function arguments(Request $request, Response $response, array $arguments): array {
+	public function arguments(Request $request, Response $response, array $arguments): array
+	{
 		if (count($arguments) === 0) {
 			throw new ParameterException('Need a name');
 		}
@@ -118,7 +124,8 @@ class Controller extends BaseController {
 	 * @param Response $response
 	 * @return array
 	 */
-	public function argument_OPTIONS(Request $request, Response $response): array {
+	public function argument_OPTIONS(Request $request, Response $response): array
+	{
 		return [$response, $request];
 	}
 
@@ -129,7 +136,8 @@ class Controller extends BaseController {
 	 * @return Response
 	 * @dataProvider argument_OPTIONS
 	 */
-	public function action_OPTIONS(Response $response): Response {
+	public function action_OPTIONS(Response $response): Response
+	{
 		return $this->handleOPTIONS($response, '');
 	}
 
@@ -141,7 +149,8 @@ class Controller extends BaseController {
 	 * @return Response
 	 * @dataProvider arguments
 	 */
-	public function action_GET(Request $request, Response $response, string $name): Response {
+	public function action_GET(Request $request, Response $response, string $name): Response
+	{
 		$user = $this->application->requireUser($request);
 		return $response->json()->setData(['name' => $name, 'value' => Value::userGet($user, $name)]);
 	}
@@ -153,7 +162,8 @@ class Controller extends BaseController {
 	 * @return Response
 	 * @dataProvider arguments
 	 */
-	public function action_POST(Request $request, Response $response, string $name): Response {
+	public function action_POST(Request $request, Response $response, string $name): Response
+	{
 		$user = $this->application->requireUser($request);
 		$value = Types::autoType($request->get('value'));
 

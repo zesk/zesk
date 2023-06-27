@@ -78,7 +78,8 @@ use function str_ends_with;
  * @method SessionInterface sessionFactory()
  * @method SessionModule sessionModule()
  */
-class Application extends Hookable implements ModelFactory, HookSource, LoggerInterface {
+class Application extends Hookable implements ModelFactory, HookSource, LoggerInterface
+{
 	use LoggerTrait;
 
 	public const HOOK_MAIN = __CLASS__ . '::main';
@@ -614,7 +615,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @throws DirectoryNotFound
 	 * @throws SemanticsException
 	 */
-	public function __construct(Configuration $configuration, CacheItemPoolInterface $cacheItemPool) {
+	public function __construct(Configuration $configuration, CacheItemPoolInterface $cacheItemPool)
+	{
 		/*
 		 * Zesk start time in microseconds
 		 */
@@ -635,7 +637,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 *            and exit immediately
 	 * @return string Previous value
 	 */
-	public function setDeprecated(string $set): string {
+	public function setDeprecated(string $set): string
+	{
 		$old = $this->deprecated;
 		$this->deprecated = [
 			self::DEPRECATED_BACKTRACE => self::DEPRECATED_BACKTRACE,
@@ -654,7 +657,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @throws Deprecated
 	 * @see self::obsolete()
 	 */
-	public function deprecated(string $reason = '', array $arguments = []): void {
+	public function deprecated(string $reason = '', array $arguments = []): void
+	{
 		if ($this->deprecated === self::DEPRECATED_IGNORE) {
 			return;
 		}
@@ -681,7 +685,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * For cordoning off old, dead code
 	 * @codeCoverageIgnore
 	 */
-	public function obsolete(): void {
+	public function obsolete(): void
+	{
 		$this->logger->alert('Obsolete function called {function}', ['function' => Kernel::callingFunction(2), ]);
 		if ($this->application->development()) {
 			echo Kernel::backtrace();
@@ -692,7 +697,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	/**
 	 * Internal call to initialize profiler structure
 	 */
-	private function _profiler(): Profiler {
+	private function _profiler(): Profiler
+	{
 		if ($this->profiler === null) {
 			$this->profiler = new Profiler($this->hooks);
 		}
@@ -707,7 +713,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @param float $seconds
 	 *            How long it took
 	 */
-	public function profileTimer(string $item, float $seconds): void {
+	public function profileTimer(string $item, float $seconds): void
+	{
 		$profiler = $this->_profiler();
 		if (array_key_exists($item, $profiler->times)) {
 			$profiler->times[$item] = $profiler->times[$item] + $seconds;
@@ -722,7 +729,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 *
 	 * @param int $depth
 	 */
-	public function profiler(int $depth = 2): void {
+	public function profiler(int $depth = 2): void
+	{
 		$profiler = $this->_profiler();
 		$functionKey = Kernel::callingFunction($depth + 1);
 		if (array_key_exists($functionKey, $this->profiler->calls)) {
@@ -737,7 +745,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 *
 	 * @return array
 	 */
-	public function hookSources(): array {
+	public function hookSources(): array
+	{
 		$sources = [$this->application->zeskHome('src')];
 		foreach ($this->modules->all() as $module) {
 			/* @var $module Module */
@@ -752,7 +761,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @param boolean $set
 	 * @return self
 	 */
-	public function setConsole(bool $set = false): self {
+	public function setConsole(bool $set = false): self
+	{
 		$this->console = $set;
 		return $this;
 	}
@@ -762,7 +772,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 *
 	 * @return boolean
 	 */
-	public function console(): bool {
+	public function console(): bool
+	{
 		return $this->console;
 	}
 
@@ -774,7 +785,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @throws DirectoryNotFound
 	 * @throws SemanticsException
 	 */
-	protected function _initialize(Configuration $configuration, CacheItemPoolInterface $pool): void {
+	protected function _initialize(Configuration $configuration, CacheItemPoolInterface $pool): void
+	{
 		$this->configuration = $configuration;
 		$this->classes = new Classes();
 
@@ -880,7 +892,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @return Locale
 	 * @throws ClassNotFound
 	 */
-	public function localeFactory(string $code = '', array $extensions = [], array $options = []): Locale {
+	public function localeFactory(string $code = '', array $extensions = [], array $options = []): Locale
+	{
 		return Reader::factory($this->localePath(), $code, $extensions)->locale($this, $options);
 	}
 
@@ -889,7 +902,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @param array $options
 	 * @return Router
 	 */
-	protected function routerFactory(array $options = []): Router {
+	protected function routerFactory(array $options = []): Router
+	{
 		return new Router($this, $options);
 	}
 
@@ -900,7 +914,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @return object
 	 * @throws ClassNotFound
 	 */
-	public function factory(string $class): object {
+	public function factory(string $class): object
+	{
 		$arguments = func_get_args();
 		$class = array_shift($arguments);
 		return $this->factoryArguments($class, $arguments);
@@ -910,7 +925,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @param LoggerInterface $logger
 	 * @return $this
 	 */
-	public function setLogger(LoggerInterface $logger): self {
+	public function setLogger(LoggerInterface $logger): self
+	{
 		$this->logger = $logger;
 		return $this;
 	}
@@ -918,7 +934,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	/**
 	 * @return LoggerInterface
 	 */
-	public function logger(): LoggerInterface {
+	public function logger(): LoggerInterface
+	{
 		return $this->logger;
 	}
 
@@ -928,7 +945,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @param array $context
 	 * @return void
 	 */
-	public function log($level, $message, array $context = []): void {
+	public function log($level, $message, array $context = []): void
+	{
 		$this->logger->log($level, $message, $context);
 	}
 
@@ -938,7 +956,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @return object
 	 * @throws ClassNotFound
 	 */
-	public function factoryArguments(string $class, array $arguments = []): object {
+	public function factoryArguments(string $class, array $arguments = []): object
+	{
 		return $this->objects->factoryArguments($class, $arguments);
 	}
 
@@ -950,7 +969,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 *
 	 * @return array
 	 */
-	final public function localePath(): array {
+	final public function localePath(): array
+	{
 		return $this->localePath;
 	}
 
@@ -971,7 +991,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @throws DirectoryNotFound
 	 *
 	 */
-	private function _initializeDocumentRoot(): void {
+	private function _initializeDocumentRoot(): void
+	{
 		$http_document_root = rtrim($_SERVER['DOCUMENT_ROOT'] ?? '', '/');
 		if ($http_document_root) {
 			$this->setDocumentRoot($http_document_root);
@@ -994,7 +1015,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @return self
 	 * @throws DirectoryNotFound
 	 */
-	final public function setDocumentRoot(string $set, string $prefix = ''): self {
+	final public function setDocumentRoot(string $set, string $prefix = ''): self
+	{
 		if (!is_dir($set)) {
 			throw new DirectoryNotFound($set);
 		}
@@ -1010,7 +1032,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @param string $set
 	 * @return $this
 	 */
-	final public function setDocumentRootPrefix(string $set): self {
+	final public function setDocumentRootPrefix(string $set): self
+	{
 		$this->documentPrefix = rtrim($set, '/');
 		return $this;
 	}
@@ -1020,7 +1043,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @return self
 	 * @throws DirectoryNotFound
 	 */
-	final public function addZeskCommandPath(array|string $add): self {
+	final public function addZeskCommandPath(array|string $add): self
+	{
 		foreach (Types::toList($add) as $path) {
 			if (!is_dir($path)) {
 				throw new DirectoryNotFound($path);
@@ -1041,7 +1065,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	/**
 	 * @return string
 	 */
-	private function defaultZeskCommandPath(): string {
+	private function defaultZeskCommandPath(): string
+	{
 		return $this->paths->zesk('src/zesk/Command');
 	}
 
@@ -1052,7 +1077,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @return $this
 	 * @throws DirectoryNotFound
 	 */
-	final public function addModulePath(string $add): self {
+	final public function addModulePath(string $add): self
+	{
 		if (!is_dir($add)) {
 			throw new DirectoryNotFound($add);
 		}
@@ -1064,7 +1090,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 *
 	 * @return string
 	 */
-	private function defaultModulesPath(): string {
+	private function defaultModulesPath(): string
+	{
 		return $this->paths->zesk('modules');
 	}
 
@@ -1080,7 +1107,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @return self
 	 * @throws DirectoryNotFound
 	 */
-	final public function addThemePath(array|string $paths, string $prefix = ''): self {
+	final public function addThemePath(array|string $paths, string $prefix = ''): self
+	{
 		$this->themes->addThemePath($paths, $prefix);
 		return $this;
 	}
@@ -1089,7 +1117,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 *
 	 * @return string
 	 */
-	private function defaultThemePath(): string {
+	private function defaultThemePath(): string
+	{
 		return $this->paths->zesk('theme');
 	}
 
@@ -1103,7 +1132,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @return $this
 	 * @throws DirectoryNotFound
 	 */
-	final public function addLocalePath(string $add): self {
+	final public function addLocalePath(string $add): self
+	{
 		$add = $this->paths->expand($add);
 		if (!is_dir($add)) {
 			throw new DirectoryNotFound($add);
@@ -1116,14 +1146,16 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 *
 	 * @return string
 	 */
-	private function defaultLocalePath(): string {
+	private function defaultLocalePath(): string
+	{
 		return $this->paths->zesk('etc/language');
 	}
 
 	/**
 	 * Initialize part 2
 	 */
-	protected function _initialize_fixme(): void {
+	protected function _initialize_fixme(): void
+	{
 		// These two calls mess up reconfigure and do not reset state correctly.
 		// Need a robust globals monitor to ensure reconfigure resets state back to default
 		// Difficult issue is that the class loader modifies state (sort of)
@@ -1136,7 +1168,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 *
 	 * @return void
 	 */
-	private function _loadMaintenance(): void {
+	private function _loadMaintenance(): void
+	{
 		$file = $this->maintenanceFile();
 		if (!file_exists($file)) {
 			$result = [
@@ -1170,14 +1203,16 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 *
 	 * @return string
 	 */
-	private function maintenanceFile(): string {
+	private function maintenanceFile(): string
+	{
 		return $this->paths->expand($this->option(self::OPTION_MAINTENANCE_FILE, self::DEFAULT_MAINTENANCE_FILE));
 	}
 
 	/**
 	 * Return a path relative to the application root
 	 */
-	final public function path(string|array $suffix = ''): string {
+	final public function path(string|array $suffix = ''): string
+	{
 		return $this->paths->application($suffix);
 	}
 
@@ -1186,14 +1221,16 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 *
 	 * @return string
 	 */
-	public function id(): string {
+	public function id(): string
+	{
 		return get_class($this);
 	}
 
 	/**
 	 * @return void
 	 */
-	public function shutdown(): void {
+	public function shutdown(): void
+	{
 		if (!$this->applicationShutdown) {
 			/* Ordering here matters */
 			/* Hooks - notify all other code first that we are shutting down */
@@ -1218,7 +1255,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @param Command $set
 	 * @return self
 	 */
-	public function setCommand(Command $set): self {
+	public function setCommand(Command $set): self
+	{
 		if ($this->command) {
 			if ($set === $this->command) {
 				return $this;
@@ -1235,7 +1273,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @return SettingsInterface
 	 * @throws ClassNotFound
 	 */
-	public function settings(): SettingsInterface {
+	public function settings(): SettingsInterface
+	{
 		$settingsClass = $this->optionString('settingsClass', FileSystemSettings::class);
 		$settingsClassStaticMethods = $this->optionIterable('settingsClassStaticMethods');
 		if ($settingsClassStaticMethods) {
@@ -1254,7 +1293,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @throws ClassNotFound
 	 * @throws SemanticsException
 	 */
-	final public function singletonArguments(string $class, array $arguments = []): object {
+	final public function singletonArguments(string $class, array $arguments = []): object
+	{
 		$desiredClass = $this->objects->resolve($class);
 		$hookName = self::HOOK_SINGLETON_PREFIX . $desiredClass;
 		$object = $this->invokeHooksUntil($hookName, $arguments);
@@ -1276,7 +1316,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @return object
 	 * @throws ClassNotFound
 	 */
-	final public function singletonArgumentsStatic(string $class, array $arguments = [], array $staticMethods = ['singleton']): object {
+	final public function singletonArgumentsStatic(string $class, array $arguments = [], array $staticMethods = ['singleton']): object
+	{
 		$desiredClass = $this->objects->resolve($class);
 		return $this->objects->singletonArgumentsStatic($desiredClass, $arguments, $staticMethods);
 	}
@@ -1294,7 +1335,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @throws ClassNotFound
 	 * @throws SemanticsException
 	 */
-	final public function modelSingleton(string $class): Model {
+	final public function modelSingleton(string $class): Model
+	{
 		$args = func_get_args();
 		$args[0] = $this;
 		$result = $this->singletonArguments($class, $args);
@@ -1307,7 +1349,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 *
 	 * @return string
 	 */
-	public function version(): string {
+	public function version(): string
+	{
 		return strval($this->option(self::OPTION_VERSION));
 	}
 
@@ -1317,7 +1360,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @param string $set
 	 * @return self
 	 */
-	public function setVersion(string $set): self {
+	public function setVersion(string $set): self
+	{
 		$this->setOption(self::OPTION_VERSION, $set);
 		return $this;
 	}
@@ -1325,7 +1369,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	/**
 	 * @return array
 	 */
-	final public function includes(): array {
+	final public function includes(): array
+	{
 		return array_keys($this->includes);
 	}
 
@@ -1343,7 +1388,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @throws SystemException
 	 * @throws UnsupportedException
 	 */
-	final public function configure(): self {
+	final public function configure(): self
+	{
 		$this->applicationShutdown = false;
 		$this->_configure();
 		$this->_configured();
@@ -1359,7 +1405,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @throws UnsupportedException
 	 * @throws SystemException
 	 */
-	private function _configure(): void {
+	private function _configure(): void
+	{
 		$application = $this;
 		$this->hooks->registerHook(Hooks::HOOK_EXIT, function () use ($application): void {
 			$application->cacheItemPool()->commit();
@@ -1389,14 +1436,16 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @param array|string $classes
 	 * @return self
 	 */
-	final public function registerClass(array|string $classes): self {
+	final public function registerClass(array|string $classes): self
+	{
 		$this->classes->register($classes);
 		return $this;
 	}
 
 	/**
 	 */
-	private function configureCachePath(): void {
+	private function configureCachePath(): void
+	{
 		if ($this->cachePath === '') {
 			$this->cachePath = $this->paths->expand($this->optionString(self::OPTION_CACHE_PATH, './cache'));
 		}
@@ -1405,14 +1454,16 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	/**
 	 * Run before configuration setup
 	 */
-	protected function beforeConfigure(): void {
+	protected function beforeConfigure(): void
+	{
 	}
 
 	/**
 	 * Load configuration files
 	 * @throws SystemException
 	 */
-	private function _configureFiles(): void {
+	private function _configureFiles(): void
+	{
 		if (count($this->includes) === 0) {
 			$this->configureInclude($this->defaultConfigurationFiles());
 		}
@@ -1432,7 +1483,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @param bool $overwrite Replace existing include list (otherwise appends)
 	 * @return self
 	 */
-	final public function configureInclude(array $includes, bool $overwrite = true): self {
+	final public function configureInclude(array $includes, bool $overwrite = true): self
+	{
 		$includes = $this->expandIncludes($includes);
 		if ($overwrite) {
 			$this->includes = $includes;
@@ -1448,7 +1500,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @param array $includes
 	 * @return string[]
 	 */
-	private function expandIncludes(array $includes): array {
+	private function expandIncludes(array $includes): array
+	{
 		$result = [];
 		foreach ($includes as $include) {
 			$expand = $this->paths->expand($include);
@@ -1462,7 +1515,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 *
 	 * @return array
 	 */
-	private function defaultConfigurationFiles(): array {
+	private function defaultConfigurationFiles(): array
+	{
 		$files_default = [];
 		$files_default[] = $this->path('etc/application.json');
 		$files_default[] = $this->path('etc/host/' . strtolower(System::uname()) . '.json');
@@ -1474,7 +1528,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @return void
 	 * @throws SystemException
 	 */
-	public function configureFiles(array $files): void {
+	public function configureFiles(array $files): void
+	{
 		$this->loader->appendFiles($files);
 		$this->loader->load();
 		$this->_loadMaintenance();
@@ -1489,7 +1544,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 *            File to include
 	 * @return mixed Whatever is returned by the include file
 	 */
-	public function load(string $__file__): mixed {
+	public function load(string $__file__): mixed
+	{
 		$application = $this;
 		return include $this->application->paths->expand($__file__);
 	}
@@ -1497,7 +1553,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	/**
 	 * @return void
 	 */
-	protected function configuredFiles(): void {
+	protected function configuredFiles(): void
+	{
 		/* Function called after files are loaded */
 	}
 
@@ -1508,7 +1565,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @throws ParseException
 	 * @throws UnsupportedException
 	 */
-	private function loadOptionModules(): void {
+	private function loadOptionModules(): void
+	{
 		$modules = $this->optionArray(self::OPTION_MODULES);
 		if (count($modules) > 0) {
 			$this->modules->loadMultiple($modules);
@@ -1524,7 +1582,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @return boolean
 	 * @throws ConfigurationException
 	 */
-	public function configured(bool $force = false): bool {
+	public function configured(bool $force = false): bool
+	{
 		if ($force || !$this->configuredWasRun) {
 			$this->_configured();
 			return true;
@@ -1536,7 +1595,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @return void
 	 * @throws ConfigurationException
 	 */
-	private function _configured(): void {
+	private function _configured(): void
+	{
 		// Now run all configurations: System, Modules, then Application
 		Theme::configured($this);
 		$this->inheritConfiguration();
@@ -1554,7 +1614,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * Load configuration
 	 * @throws ConfigurationException
 	 */
-	final public function configuredAssert(): void {
+	final public function configuredAssert(): void
+	{
 		if (!$this->hasOption(self::OPTION_ASSERT)) {
 			return;
 		}
@@ -1584,7 +1645,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 
 	/**
 	 */
-	private function configuredHooks(): void {
+	private function configuredHooks(): void
+	{
 		foreach ([Hooks::HOOK_DATABASE_CONFIGURE, Hooks::HOOK_CONFIGURED] as $hook) {
 			$this->invokeHooks($hook, [$this]);
 			$this->modules->addLoadHook($hook);
@@ -1594,14 +1656,16 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	/**
 	 * Run post configuration setup
 	 */
-	protected function afterConfigure(): void {
+	protected function afterConfigure(): void
+	{
 	}
 
 	/**
 	 *
 	 * @return boolean
 	 */
-	public function isConfigured(): bool {
+	public function isConfigured(): bool
+	{
 		return $this->configuredWasRun;
 	}
 
@@ -1618,7 +1682,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @throws UnsupportedException
 	 * @see Application::configure
 	 */
-	public function reconfigure(): self {
+	public function reconfigure(): self
+	{
 		$this->applicationShutdown = false;
 		$this->invokeHooks(Hooks::HOOK_RESET, [$this]);
 		$this->_configure();
@@ -1632,7 +1697,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @param CacheItemPoolInterface $pool
 	 * @return self
 	 */
-	final public function setCacheItemPool(CacheItemPoolInterface $pool): self {
+	final public function setCacheItemPool(CacheItemPoolInterface $pool): self
+	{
 		$this->pool = $pool;
 		$this->autoloader->setCache($pool);
 		$this->invokeHooks(self::HOOK_SET_CACHE);
@@ -1642,7 +1708,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	/**
 	 * @return CacheItemPoolInterface
 	 */
-	final public function cacheItemPool(): CacheItemPoolInterface {
+	final public function cacheItemPool(): CacheItemPoolInterface
+	{
 		return $this->pool;
 	}
 
@@ -1654,7 +1721,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @throws FilePermission
 	 * @throws ParameterException
 	 */
-	final public function cacheClear(): void {
+	final public function cacheClear(): void
+	{
 		$this->pool->clear();
 		foreach (array_unique([
 			$this->cachePath(),
@@ -1687,7 +1755,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @param string|array $suffix
 	 * @return string
 	 */
-	final public function cachePath(string|array $suffix = ''): string {
+	final public function cachePath(string|array $suffix = ''): string
+	{
 		return Directory::path($this->cachePath, $suffix);
 	}
 
@@ -1699,7 +1768,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @return Controller[]
 	 * @throws ClassNotFound
 	 */
-	final public function controllers(): array {
+	final public function controllers(): array
+	{
 		return $this->router()->controllers();
 	}
 	/**
@@ -1716,14 +1786,16 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 *
 	 * @return Router NULL
 	 */
-	final public function router(): Router {
+	final public function router(): Router
+	{
 		return $this->router;
 	}
 
 	/**
 	 * @return void
 	 */
-	private function initializeRouter(): void {
+	private function initializeRouter(): void
+	{
 		$this->invokeHooks(self::HOOK_ROUTER, [$this->router]);
 		$this->invokeHooks(self::HOOK_ROUTES, [$this->router]);
 		$this->invokeHooks(self::HOOK_ROUTES_POSTPROCESS, [$this->router]);
@@ -1732,7 +1804,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	/**
 	 * @return bool
 	 */
-	final public function maintenance(): bool {
+	final public function maintenance(): bool
+	{
 		return Types::toBool($this->optionPath(['maintenance', 'enabled'], false));
 	}
 
@@ -1743,7 +1816,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @return void
 	 * @throws SemanticsException
 	 */
-	final public function setMaintenance(bool $set): void {
+	final public function setMaintenance(bool $set): void
+	{
 		try {
 			$result = $this->invokeFilters(self::FILTER_MAINTENANCE, ['maintenance' => $set], [$this]);
 			if (($result['maintenance'] ?? null) !== $set) {
@@ -1766,7 +1840,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 		}
 	}
 
-	private function _maintenanceEnabled(array $context): void {
+	private function _maintenanceEnabled(array $context): void
+	{
 		$context['time'] = date('Y-m-d H:i:s');
 
 		try {
@@ -1775,7 +1850,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 		}
 	}
 
-	private function _disableMaintenance(array $context): void {
+	private function _disableMaintenance(array $context): void
+	{
 		$maintenance_file = $this->maintenanceFile();
 		if (file_exists($maintenance_file)) {
 			unlink($maintenance_file);
@@ -1789,7 +1865,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * Utility for index.php file for all public-served content.
 	 * @throws SemanticsException
 	 */
-	final public function content(string $path): string {
+	final public function content(string $path): string
+	{
 		if (isset($this->contentRecursion[$path])) {
 			return '';
 		}
@@ -1834,7 +1911,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @param Request|null $inherit
 	 * @return Request
 	 */
-	public function requestFactory(Request $inherit = null): Request {
+	public function requestFactory(Request $inherit = null): Request
+	{
 		$request = new Request($this);
 
 		try {
@@ -1856,7 +1934,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @return Response
 	 * @throws SemanticsException
 	 */
-	public function main(Request $request): Response {
+	public function main(Request $request): Response
+	{
 		try {
 			$response = $this->invokeFilters(self::HOOK_MAIN, null, [$request]);
 			if ($response instanceof Response) {
@@ -1879,7 +1958,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @throws ParameterException
 	 * @throws ReflectionException
 	 */
-	private function determineRoute(Request $request): Route {
+	private function determineRoute(Request $request): Route
+	{
 		$router = $this->router();
 		$this->logger->debug('App bootstrap took {seconds} seconds', [
 			'seconds' => sprintf('%.3f', microtime(true) - $this->initializationMicrotime),
@@ -1905,7 +1985,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @param Request $request
 	 * @return void
 	 */
-	protected function routeNotFound(Request $request): void {
+	protected function routeNotFound(Request $request): void
+	{
 		$this->invokeHooks(self::HOOK_ROUTE_NOT_FOUND, [$request]);
 	}
 
@@ -1916,7 +1997,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @throws ParameterException
 	 * @throws ReflectionException
 	 */
-	protected function routeFound(Request $request, Route $route): Route {
+	protected function routeFound(Request $request, Route $route): Route
+	{
 		$route = $this->invokeTypedFilters(self::HOOK_ROUTE_FOUND, $route, [$request]);
 		if ($this->optionBool('debug_route')) {
 			$this->logger->debug('Matched route {class} Pattern: "{clean_pattern}" {options}', $route->variables());
@@ -1932,7 +2014,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 *
 	 * @return array
 	 */
-	public function variables(): array {
+	public function variables(): array
+	{
 		$parameters['application'] = $this;
 		$parameters['router'] = $this->router;
 		// Do not include "request" in here as it may be NULL; and it should NOT override subclass values
@@ -1943,7 +2026,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @param Request $request
 	 * @return self
 	 */
-	final public function pushRequest(Request $request): self {
+	final public function pushRequest(Request $request): self
+	{
 		$this->requestStack[] = $request;
 		$request->setOption('stack_index', count($this->requestStack));
 		$this->beforeRequest($request);
@@ -1956,7 +2040,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @param Request $request
 	 * @return void
 	 */
-	public function beforeRequest(Request $request): void {
+	public function beforeRequest(Request $request): void
+	{
 	}
 
 	/**
@@ -1965,7 +2050,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @param \Exception $exception
 	 * @return Response
 	 */
-	private function mainException(Request $request, Throwable $exception): Response {
+	private function mainException(Request $request, Throwable $exception): Response
+	{
 		$response = $this->responseFactory($request, Response::CONTENT_TYPE_HTML);
 
 		try {
@@ -1994,7 +2080,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @param string $content_type
 	 * @return Response
 	 */
-	final public function responseFactory(Request $request, string $content_type = ''): Response {
+	final public function responseFactory(Request $request, string $content_type = ''): Response
+	{
 		return Response::factory($this, $request, $content_type ? [
 			Response::OPTION_CONTENT_TYPE => $content_type,
 		] : []);
@@ -2005,7 +2092,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @return self
 	 * @throws SemanticsException
 	 */
-	final public function popRequest(Request $request): self {
+	final public function popRequest(Request $request): self
+	{
 		$starting_depth = $request->optionInt('stack_index');
 		$ending_depth = count($this->requestStack);
 		if ($ending_depth === 0) {
@@ -2035,7 +2123,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 *            Optional path to add to the application path
 	 * @return string
 	 */
-	final public function zeskHome(string|array $suffix = ''): string {
+	final public function zeskHome(string|array $suffix = ''): string
+	{
 		return $this->paths->zesk($suffix);
 	}
 
@@ -2045,7 +2134,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * KMD 2018-01 Made this more Response-centric and less content-centric
 	 * @throws SemanticsException
 	 */
-	public function index(): Response {
+	public function index(): Response
+	{
 		$final_map = [];
 
 		$request = $this->requestFactory();
@@ -2082,7 +2172,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @param Response $response
 	 * @return void
 	 */
-	public function beforeOutput(Request $request, Response $response): void {
+	public function beforeOutput(Request $request, Response $response): void
+	{
 		// pass
 	}
 
@@ -2092,7 +2183,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @param Locale $set
 	 * @return self
 	 */
-	public function setLocale(Locale $set): self {
+	public function setLocale(Locale $set): self
+	{
 		$this->locale = $set;
 		$this->invokeHooks(self::HOOK_LOCALE, [$this, $set]);
 		return $this;
@@ -2107,7 +2199,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @return Locale
 	 * @throws ClassNotFound
 	 */
-	public function localeRegistry(string $code, array $extensions = [], array $options = []): Locale {
+	public function localeRegistry(string $code, array $extensions = [], array $options = []): Locale
+	{
 		$code = Locale::normalize($code);
 		if (isset($this->locales[$code])) {
 			return $this->locales[$code];
@@ -2121,7 +2214,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @param string $suffix
 	 * @return string Current data_path value
 	 */
-	final public function dataPath(string $suffix = ''): string {
+	final public function dataPath(string $suffix = ''): string
+	{
 		return $this->paths->data($suffix);
 	}
 
@@ -2139,7 +2233,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 *
 	 * @return array
 	 */
-	final public function zeskCommandPath(): array {
+	final public function zeskCommandPath(): array
+	{
 		return $this->zeskCommandPath;
 	}
 
@@ -2148,7 +2243,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 *
 	 * @return array
 	 */
-	final public function autoloadPath(): array {
+	final public function autoloadPath(): array
+	{
 		return $this->autoloader->path();
 	}
 
@@ -2160,7 +2256,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @return self
 	 * @throws DirectoryNotFound
 	 */
-	final public function addAutoloadPath(string $add, array|bool|string $options = []): self {
+	final public function addAutoloadPath(string $add, array|bool|string $options = []): self
+	{
 		$this->autoloader->addPath($add, $options);
 		return $this;
 	}
@@ -2170,7 +2267,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 *
 	 * @return array The ordered list of paths to search for system commands
 	 */
-	final public function commandPath(): array {
+	final public function commandPath(): array
+	{
 		return $this->paths->command();
 	}
 
@@ -2179,7 +2277,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @return Command
 	 * @throws SemanticsException
 	 */
-	public function command(): Command {
+	public function command(): Command
+	{
 		if ($this->command) {
 			return $this->command;
 		}
@@ -2193,7 +2292,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @param string $path
 	 * @return self
 	 */
-	final public function addCommandPath(string $path): self {
+	final public function addCommandPath(string $path): self
+	{
 		$this->paths->addCommand($path);
 		return $this;
 	}
@@ -2203,7 +2303,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 *
 	 * @return string
 	 */
-	final public function applicationClass(): string {
+	final public function applicationClass(): string
+	{
 		return $this->optionString(self::OPTION_APPLICATION_CLASS);
 	}
 
@@ -2221,7 +2322,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @param null|string|array $suffix Optionally append to web root
 	 * @return string Path relative to document root
 	 */
-	final public function documentRoot(null|string|array $suffix = ''): string {
+	final public function documentRoot(null|string|array $suffix = ''): string
+	{
 		return Directory::path($this->document, $suffix);
 	}
 
@@ -2233,7 +2335,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * prefixed to any generated url.
 	 * @return string
 	 */
-	final public function documentRootPrefix(): string {
+	final public function documentRootPrefix(): string
+	{
 		return $this->documentPrefix;
 	}
 
@@ -2242,7 +2345,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 *
 	 * @return string[] List of paths searched
 	 */
-	final public function modulePath(): array {
+	final public function modulePath(): array
+	{
 		return $this->modulePaths;
 	}
 
@@ -2251,7 +2355,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 *
 	 * @return boolean
 	 */
-	public function development(): bool {
+	public function development(): bool
+	{
 		return $this->optionBool(self::OPTION_DEVELOPMENT);
 	}
 
@@ -2261,7 +2366,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @param boolean $set Set value
 	 * @return self
 	 */
-	public function setDevelopment(bool $set): self {
+	public function setDevelopment(bool $set): self
+	{
 		return $this->setOption(self::OPTION_DEVELOPMENT, $set);
 	}
 
@@ -2275,7 +2381,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @throws ClassNotFound
 	 * @see ModelFactory
 	 */
-	public function modelFactory(string $class, array $value = [], array $options = []): Model {
+	public function modelFactory(string $class, array $value = [], array $options = []): Model
+	{
 		$model = $this->objects->factoryArguments($class, [$this, $options]);
 		assert($model instanceof Model);
 		return $model->initializeFromArray($value);
@@ -2287,7 +2394,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @param bool $require
 	 * @return SessionInterface|null
 	 */
-	public function session(Request $request, bool $require = true): ?SessionInterface {
+	public function session(Request $request, bool $require = true): ?SessionInterface
+	{
 		return $require ? $this->requireSession($request) : $this->optionalSession($request);
 	}
 
@@ -2302,7 +2410,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @param Request $request
 	 * @return SessionInterface
 	 */
-	public function requireSession(Request $request): SessionInterface {
+	public function requireSession(Request $request): SessionInterface
+	{
 		$session = $this->requestGetSession($request);
 		return $session ?: $this->sessionRequestFactory($request);
 	}
@@ -2311,7 +2420,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @param Request $request
 	 * @return SessionInterface|null
 	 */
-	private function requestGetSession(Request $request): ?SessionInterface {
+	private function requestGetSession(Request $request): ?SessionInterface
+	{
 		if ($request->hasOption(self::REQUEST_OPTION_SESSION)) {
 			$session = $request->option(self::REQUEST_OPTION_SESSION);
 			if ($session instanceof SessionInterface) {
@@ -2327,7 +2437,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @param Request $request
 	 * @return SessionInterface
 	 */
-	private function sessionRequestFactory(Request $request): SessionInterface {
+	private function sessionRequestFactory(Request $request): SessionInterface
+	{
 		$session = $this->sessionFactory();
 		$session->initializeSession($request);
 		$request->setOption(self::REQUEST_OPTION_SESSION, $session);
@@ -2340,7 +2451,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @param Request $request
 	 * @return ?SessionInterface
 	 */
-	public function optionalSession(Request $request): ?SessionInterface {
+	public function optionalSession(Request $request): ?SessionInterface
+	{
 		return $this->requestGetSession($request);
 	}
 
@@ -2348,7 +2460,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 *
 	 * @return float Microseconds initialization time
 	 */
-	final public function initializationTime(): float {
+	final public function initializationTime(): float
+	{
 		return $this->initializationMicrotime;
 	}
 
@@ -2356,7 +2469,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 *
 	 * @return string
 	 */
-	final public function copyrightHolder(): string {
+	final public function copyrightHolder(): string
+	{
 		return Kernel::copyrightHolder();
 	}
 
@@ -2367,7 +2481,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @param callable|Closure $callable $callable
 	 * @return callable|Closure|null
 	 */
-	final public function registerFactory(string $code, callable|Closure $callable): null|callable|Closure {
+	final public function registerFactory(string $code, callable|Closure $callable): null|callable|Closure
+	{
 		return $this->_registerCallable($code . 'Factory', $callable);
 	}
 
@@ -2379,7 +2494,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @param callable|Closure $callable $callable
 	 * @return callable|Closure|null
 	 */
-	final public function registerRegistry(string $code, callable|Closure $callable): null|callable|Closure {
+	final public function registerRegistry(string $code, callable|Closure $callable): null|callable|Closure
+	{
 		return $this->_registerCallable($code . 'Registry', $callable);
 	}
 
@@ -2391,7 +2507,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @param callable|Closure $callable $callable
 	 * @return callable|Closure|null
 	 */
-	final public function registerManager(string $code, callable|Closure $callable): null|callable|Closure {
+	final public function registerManager(string $code, callable|Closure $callable): null|callable|Closure
+	{
 		return $this->_registerCallable($code . 'Manager', $callable);
 	}
 
@@ -2402,7 +2519,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @param callable|Closure $callable
 	 * @return null|callable|Closure
 	 */
-	private function _registerCallable(string $code, callable|Closure $callable): null|callable|Closure {
+	private function _registerCallable(string $code, callable|Closure $callable): null|callable|Closure
+	{
 		$old_factory = $this->callables[$code] ?? null;
 		$this->callables[$code] = $callable;
 		$this->logger->debug('Adding factory for {code}', [
@@ -2421,7 +2539,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @throws NotFoundException
 	 * @throws UnsupportedException
 	 */
-	final public function __call(string $name, array $args): mixed {
+	final public function __call(string $name, array $args): mixed
+	{
 		if (isset($this->callables[$name])) {
 			return call_user_func_array($this->callables[$name], $args);
 		}
@@ -2440,7 +2559,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	/**
 	 * Clone application
 	 */
-	protected function __clone() {
+	protected function __clone()
+	{
 		$this->configuration = clone $this->configuration;
 		$this->loader = new Loader($this->includes(), new SettingsConfiguration($this->configuration));
 		$this->router = clone $this->router;
@@ -2451,7 +2571,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @return Userlike
 	 * @throws AuthenticationException
 	 */
-	private function sessionUser(Request $request): Userlike {
+	private function sessionUser(Request $request): Userlike
+	{
 		$user = $this->requireSession($request)->user();
 		assert($user instanceof Userlike);
 		return $user;
@@ -2467,7 +2588,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @throws KeyNotFound
 	 * @throws SemanticsException
 	 */
-	public function user(Request $request = null, bool $require = true): Userlike|null {
+	public function user(Request $request = null, bool $require = true): Userlike|null
+	{
 		return $require ? $this->requireUser($request) : $this->optionalUser($request);
 	}
 
@@ -2480,7 +2602,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @throws KeyNotFound
 	 * @throws SemanticsException
 	 */
-	public function requireUser(Request $request = null): Userlike {
+	public function requireUser(Request $request = null): Userlike
+	{
 		try {
 			if (!$request) {
 				$request = $this->request();
@@ -2505,7 +2628,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @return Request
 	 * @throws SemanticsException
 	 */
-	final public function request(): Request {
+	final public function request(): Request
+	{
 		$request = ArrayTools::last($this->requestStack);
 		if ($request) {
 			return $request;
@@ -2525,7 +2649,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @throws KeyNotFound
 	 * @throws SemanticsException
 	 */
-	public function userFactory(): Userlike {
+	public function userFactory(): Userlike
+	{
 		$className = $this->optionString(self::OPTION_USER_CLASS);
 		if (empty($className)) {
 			throw new KeyNotFound('No userClass configured');
@@ -2541,7 +2666,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @param Request|null $request
 	 * @return Userlike|null
 	 */
-	public function optionalUser(Request $request = null): ?Userlike {
+	public function optionalUser(Request $request = null): ?Userlike
+	{
 		try {
 			$request = $request ?: $this->request();
 		} catch (SemanticsException) {

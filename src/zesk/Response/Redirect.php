@@ -23,13 +23,15 @@ use zesk\Types;
  * @see Type
  * @author kent
  */
-class Redirect extends Type {
+class Redirect extends Type
+{
 	/**
 	 *
 	 * @return SessionInterface
 	 * @throws SemanticsException
 	 */
-	private function session(): SessionInterface {
+	private function session(): SessionInterface
+	{
 		return $this->application->requireSession($this->application->request());
 	}
 
@@ -37,7 +39,8 @@ class Redirect extends Type {
 	 *
 	 * @todo Move this elsewhere. Response addon?
 	 */
-	public function messageClear(): void {
+	public function messageClear(): void
+	{
 		try {
 			$this->session()->redirect_message = null;
 		} catch (Throwable $e) {
@@ -58,7 +61,8 @@ class Redirect extends Type {
 	 * @throws KeyNotFound
 	 * @todo Move this elsewhere. Response addon?
 	 */
-	public function addMessage(string $message, array $attributes = []): Response {
+	public function addMessage(string $message, array $attributes = []): Response
+	{
 		$session = $this->session();
 		$messages = Types::toArray($session->get(self::SESSION_KEY_REDIRECT_STATE));
 		$messages[md5($message)] = ['content' => $message] + $attributes;
@@ -70,7 +74,8 @@ class Redirect extends Type {
 	 *
 	 * @return array
 	 */
-	public function messages(): array {
+	public function messages(): array
+	{
 		$session = $this->session();
 		$messages = Types::toArray($session->get(self::SESSION_KEY_REDIRECT_STATE));
 		return array_values($messages);
@@ -83,14 +88,16 @@ class Redirect extends Type {
 	 * @return string
 	 * @throws Redirect
 	 */
-	public function render(string $content): string {
+	public function render(string $content): string
+	{
 		return $this->parent->html()->render($content);
 	}
 
 	/**
 	 * @return array
 	 */
-	public function toJSON(): array {
+	public function toJSON(): array
+	{
 		return [];
 	}
 
@@ -99,7 +106,8 @@ class Redirect extends Type {
 	 * @return void
 	 * @throws Redirect
 	 */
-	public function output(string $content): void {
+	public function output(string $content): void
+	{
 		echo $this->render($content);
 	}
 
@@ -108,7 +116,8 @@ class Redirect extends Type {
 	 * @param string $message
 	 * @throws RedirectException
 	 */
-	public function url(string $url, string $message = ''): void {
+	public function url(string $url, string $message = ''): void
+	{
 		throw new RedirectException($url, $message);
 	}
 
@@ -117,7 +126,8 @@ class Redirect extends Type {
 	 * @param string $message
 	 * @throws RedirectTemporary
 	 */
-	public function urlTemporary(string $url, string $message = ''): void {
+	public function urlTemporary(string $url, string $message = ''): void
+	{
 		throw new RedirectTemporary($url, $message);
 	}
 
@@ -128,7 +138,8 @@ class Redirect extends Type {
 	 * @param string $url
 	 * @return string
 	 */
-	public function processURL(string $url): string {
+	public function processURL(string $url): string
+	{
 		/* Clean out any unwanted characters from the URL */
 		$url = preg_replace("/[\x01-\x1F\x7F-\xFF]/", '', $url);
 		$altered_url = $this->parent->invokeTypedFilters(self::HOOK_URL_ALTER, $url, [$this->parent]);
@@ -144,7 +155,8 @@ class Redirect extends Type {
 	 * @param Redirect $exception
 	 * @return string
 	 */
-	public function handleException(RedirectException $exception): string {
+	public function handleException(RedirectException $exception): string
+	{
 		$original_url = $exception->url();
 		$message = $exception->getMessage();
 

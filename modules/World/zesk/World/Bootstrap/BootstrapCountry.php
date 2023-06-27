@@ -25,7 +25,8 @@ use zesk\Net\Sync;
  * @author kent
  *
  */
-class BootstrapCountry extends Hookable {
+class BootstrapCountry extends Hookable
+{
 	/**
 	 * Source http://download.geonames.org/export/dump/countryInfo.txt
 	 *
@@ -45,7 +46,8 @@ class BootstrapCountry extends Hookable {
 	 * @param array $options
 	 * @return self
 	 */
-	public static function factory(Application $application, array $options = []): self {
+	public static function factory(Application $application, array $options = []): self
+	{
 		return new self($application, $options);
 	}
 
@@ -55,14 +57,16 @@ class BootstrapCountry extends Hookable {
 	 * @global Module_World::include_country List of country codes to include
 	 *
 	 */
-	public function __construct(Application $application, array $options = []) {
+	public function __construct(Application $application, array $options = [])
+	{
 		parent::__construct($application, $options);
 		$this->inheritConfiguration(Module::class);
 		$include_country = $this->optionIterable('include_country');
 		$this->include_country = array_change_key_case(ArrayTools::keysFromValues(Types::toList($include_country), true));
 	}
 
-	public function bootstrap(): void {
+	public function bootstrap(): void
+	{
 		$application = $this->application;
 		$em = $application->entityManager();
 		$em->getConnection()->executeQuery('TRUNCATE ' . Country::class);
@@ -76,7 +80,8 @@ class BootstrapCountry extends Hookable {
 		$em->flush();
 	}
 
-	private function is_included(Country $country) {
+	private function is_included(Country $country)
+	{
 		if ($this->include_country) {
 			return $this->include_country[strtolower($country->code)] ?? false;
 		}
@@ -92,7 +97,8 @@ class BootstrapCountry extends Hookable {
 	 * @throws FilePermission
 	 * @throws NotFoundException
 	 */
-	private function load_countryinfo(Application $application): array {
+	private function load_countryinfo(Application $application): array
+	{
 		$world_path = $application->modules->path('world');
 		$file = $this->option('geonames_country_cache_file', path($world_path, 'bootstrap-data/countryinfo.txt'));
 		Sync::urlToFile($application, self::url_geonames_country_file, $file, [

@@ -32,7 +32,8 @@ use zesk\Theme;
  * @author kent
  *
  */
-class Module extends \zesk\Module implements Head, Routes {
+class Module extends \zesk\Module implements Head, Routes
+{
 	/**
 	 * @param Locale $locale
 	 * @param array $phrases
@@ -41,7 +42,8 @@ class Module extends \zesk\Module implements Head, Routes {
 	 * @see self::shutdownLocale()
 	 */
 	#[HookMethod(handles: Locale::HOOK_SHUTDOWN)]
-	public function shutdownLocale(Locale $locale, array $phrases, string $phrasesContext): void {
+	public function shutdownLocale(Locale $locale, array $phrases, string $phrasesContext): void
+	{
 		if (count($phrases) === 0) {
 			return;
 		}
@@ -71,7 +73,8 @@ class Module extends \zesk\Module implements Head, Routes {
 	 * @param Request $request
 	 * @param Response $response
 	 */
-	public function hook_head(Request $request, Response $response, Theme $template): void {
+	public function hook_head(Request $request, Response $response, Theme $template): void
+	{
 		try {
 			$response->html()->javascript('/share/Locale/js/locale.js', [
 				'weight' => -20, 'share' => true,
@@ -89,7 +92,8 @@ class Module extends \zesk\Module implements Head, Routes {
 	 *
 	 * @param Router $router
 	 */
-	public function hook_routes(Router $router): void {
+	public function hook_routes(Router $router): void
+	{
 		$router->addRoute('locale(/{option action})', [
 			'controller' => Controller::class,
 		]);

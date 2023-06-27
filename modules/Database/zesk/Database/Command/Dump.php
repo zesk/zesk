@@ -16,7 +16,8 @@ use zesk\Timestamp;
  * Dump the database to a file for this application.
  * @category Database
  */
-class Dump extends SimpleCommand {
+class Dump extends SimpleCommand
+{
 	protected array $load_modules = [
 		'database',
 	];
@@ -56,7 +57,8 @@ class Dump extends SimpleCommand {
 	 * {@inheritDoc}
 	 * @see Command::run()
 	 */
-	public function run(): int {
+	public function run(): int
+	{
 		$dbname = $this->option('name');
 		$db = $this->application->databaseRegistry($dbname);
 		if (!$db) {

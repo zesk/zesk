@@ -16,7 +16,8 @@ use zesk\Request;
  * @author kent
  *
  */
-interface SessionInterface extends SettingsInterface {
+interface SessionInterface extends SettingsInterface
+{
 	/**
 	 * Configure session connected to the Request
 	 * @param Request $request

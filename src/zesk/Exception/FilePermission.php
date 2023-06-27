@@ -14,5 +14,6 @@ namespace zesk\Exception;
  * @author kent
  *
  */
-class FilePermission extends FileSystemException {
+class FilePermission extends FileSystemException
+{
 }

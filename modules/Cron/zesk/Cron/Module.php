@@ -44,7 +44,8 @@ use zesk\Timestamp;
  * @author kent
  *
  */
-class Module extends BaseModule {
+class Module extends BaseModule
+{
 	/**
 	 *
 	 */
@@ -114,7 +115,8 @@ class Module extends BaseModule {
 	/**
 	 * @return string
 	 */
-	public function lockName(): string {
+	public function lockName(): string
+	{
 		return $this->lock_name;
 	}
 
@@ -123,7 +125,8 @@ class Module extends BaseModule {
 	 * @return $this
 	 * @throws ParameterException
 	 */
-	public function setLockName(string $name): self {
+	public function setLockName(string $name): self
+	{
 		if (empty($name)) {
 			throw new ParameterException('Blank lock name for {method} {name}', [
 				'method' => __METHOD__, 'name' => $name,
@@ -136,7 +139,8 @@ class Module extends BaseModule {
 	/**
 	 * @return string
 	 */
-	private function page_runner_script(): string {
+	private function page_runner_script(): string
+	{
 		return $this->optionString('runnerScript', 'js/cron.js');
 	}
 
@@ -153,7 +157,8 @@ class Module extends BaseModule {
 	 * @see self::hook_routes()
 	 */
 	#[HookMethod(handles: Application::HOOK_ROUTES, argumentTypes: [Router::class])]
-	public function hook_routes(Router $router): void {
+	public function hook_routes(Router $router): void
+	{
 		$router->addRoute($this->page_runner_script(), [
 			'method' => [
 				$this, 'run_js',
@@ -166,7 +171,8 @@ class Module extends BaseModule {
 	 * @see self::hook_configured()
 	 */
 	#[HookMethod(handles: Hooks::HOOK_CONFIGURED)]
-	public function hook_configured(): void {
+	public function hook_configured(): void
+	{
 		if ($this->optionBool('page_runner')) {
 			$this->application->hooks->registerHook(Response\HTML::HOOK_HTML_OPEN, $this->page_runner(...));
 		}
@@ -179,7 +185,8 @@ class Module extends BaseModule {
 	 * @param string $unit
 	 * @return string
 	 */
-	private static function _lastCronVariableName(string $prefix, string $unit): string {
+	private static function _lastCronVariableName(string $prefix, string $unit): string
+	{
 		return __CLASS__ . '::last' . $prefix . ($unit ? "_$unit" : '');
 	}
 
@@ -191,11 +198,13 @@ class Module extends BaseModule {
 	 * @param string $unit
 	 * @return Timestamp
 	 */
-	private static function _lastCronRun(MetaInterface $object, string $prefix = '', string $unit = ''): Timestamp {
+	private static function _lastCronRun(MetaInterface $object, string $prefix = '', string $unit = ''): Timestamp
+	{
 		return Timestamp::factory($object->meta(self::_lastCronVariableName($prefix, $unit)));
 	}
 
-	private static function _cronJustRan(MetaInterface $object, $prefix, $unit, Timestamp $when): void {
+	private static function _cronJustRan(MetaInterface $object, $prefix, $unit, Timestamp $when): void
+	{
 		$object->setMeta(self::_lastCronVariableName($prefix, $unit), $when->unixTimestamp());
 	}
 
@@ -205,7 +214,8 @@ class Module extends BaseModule {
 	 * @param string $unit
 	 * @return void
 	 */
-	private static function _cronReset(MetaInterface $object, string $prefix = '', string $unit = null): void {
+	private static function _cronReset(MetaInterface $object, string $prefix = '', string $unit = null): void
+	{
 		$name = self::_lastCronVariableName($prefix, $unit);
 		if ($object instanceof Server) {
 			$object->deleteAllMeta($name);
@@ -221,7 +231,8 @@ class Module extends BaseModule {
 	 *
 	 * @return array
 	 */
-	private function _collectCrons(): array {
+	private function _collectCrons(): array
+	{
 		return Hookable::staticAttributeMethods($this, Cron::class);
 	}
 
@@ -231,7 +242,8 @@ class Module extends BaseModule {
 	 * @return array
 	 * @throws ClassNotFound
 	 */
-	private function _cronScopes(): array {
+	private function _cronScopes(): array
+	{
 		if (count($this->scopes)) {
 			return $this->scopes;
 		}
@@ -253,7 +265,8 @@ class Module extends BaseModule {
 	 * @return $this
 	 * @throws ClassNotFound
 	 */
-	public function reset(): self {
+	public function reset(): self
+	{
 		$scopes = $this->_cronScopes();
 		foreach ($scopes as $settings) {
 			$state = $settings['state'];
@@ -269,7 +282,8 @@ class Module extends BaseModule {
 	/**
 	 *
 	 */
-	public function listStatus(): array {
+	public function listStatus(): array
+	{
 		$allCronMethods = $this->_collectCrons();
 		return array_keys($allCronMethods);
 	}
@@ -279,7 +293,8 @@ class Module extends BaseModule {
 	 * @return array
 	 * @throws ClassNotFound
 	 */
-	public function lastRun(): array {
+	public function lastRun(): array
+	{
 		$scopes = $this->_cronScopes();
 		$results = [];
 		foreach ($scopes as $method => $settings) {
@@ -301,7 +316,8 @@ class Module extends BaseModule {
 	 * @param Throwable $e
 	 * @param string|array $cron_hooks
 	 */
-	private function _exception(Throwable $e, string|array $cron_hooks): void {
+	private function _exception(Throwable $e, string|array $cron_hooks): void
+	{
 		$this->application->error("Exception during {hooks}: {message}\n{backtrace}", [
 			'hooks' => $cron_hooks, 'message' => $e->getMessage(), 'backtrace' => $e->getTraceAsString(),
 			'exception' => $e,
@@ -312,7 +328,8 @@ class Module extends BaseModule {
 	/**
 	 * Do things which cron depends on
 	 */
-	private function _critical_cron_tasks(): void {
+	private function _critical_cron_tasks(): void
+	{
 		// This may never run if our locks do not get cleaned
 		Lock::deleteUnusedLocks($this->application);
 	}
@@ -321,7 +338,8 @@ class Module extends BaseModule {
 	 * Internal function to run tasks
 	 * @throws ClassNotFound
 	 */
-	private function _run(): void {
+	private function _run(): void
+	{
 		$now = Timestamp::now();
 
 		$app = $this->application;
@@ -411,7 +429,8 @@ class Module extends BaseModule {
 	 * @return string
 	 * @throws UnimplementedException
 	 */
-	public function run_js(): string {
+	public function run_js(): string
+	{
 		$run = $this->run();
 		$js = [];
 		$js[] = '(function (x) {';
@@ -432,7 +451,8 @@ class Module extends BaseModule {
 	 * @return array
 	 * @throws UnimplementedException
 	 */
-	public function run(): array {
+	public function run(): array
+	{
 		$this->methods = [];
 
 		foreach (Hookable::staticHooksFor($this, self::HOOK_BEFORE, true) as $hook) {
@@ -458,7 +478,8 @@ class Module extends BaseModule {
 	 * @throws SemanticsException
 	 */
 	#[HookMethod(Response\HTML::HOOK_HTML_OPEN)]
-	public function page_runner(Request $request, Response $response): void {
+	public function page_runner(Request $request, Response $response): void
+	{
 		$response->html()->javascript('/share/zesk/js/zesk.js', [
 			'weight' => 'first', 'share' => true,
 		]);
@@ -492,7 +513,8 @@ class Module extends BaseModule {
 	 * @return Closure|null
 	 * @throws ParameterException
 	 */
-	public function hourly(SettingsInterface $settings, string $prefix, int $minute_to_hit = 0): Closure|null {
+	public function hourly(SettingsInterface $settings, string $prefix, int $minute_to_hit = 0): Closure|null
+	{
 		if (empty($prefix)) {
 			throw new ParameterException('Prefix mus be non-empty to hourly');
 		}
@@ -534,7 +556,8 @@ class Module extends BaseModule {
 	 * @return Closure|null
 	 * @throws ParameterException
 	 */
-	public function dailyHourOfDay(SettingsInterface $settings, string $prefix, int $hour_to_hit): Closure|null {
+	public function dailyHourOfDay(SettingsInterface $settings, string $prefix, int $hour_to_hit): Closure|null
+	{
 		if (empty($prefix)) {
 			throw new ParameterException('Prefix mus be non-empty to daily_hour_of_day');
 		}
@@ -565,7 +588,8 @@ class Module extends BaseModule {
 	 * @return Closure|null
 	 * @throws ParseException
 	 */
-	private function _manageRepeatState(SettingsInterface $settings, string $lastRunSetting, string $lastCheckSetting, string $settingFormat, string $targetUnit, int $targetValue, Timestamp $targetTimestamp): Closure|null {
+	private function _manageRepeatState(SettingsInterface $settings, string $lastRunSetting, string $lastCheckSetting, string $settingFormat, string $targetUnit, int $targetValue, Timestamp $targetTimestamp): Closure|null
+	{
 		$now = Timestamp::now();
 
 		$last_run = $settings->get($lastRunSetting);

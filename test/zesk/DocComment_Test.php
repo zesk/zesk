@@ -10,8 +10,10 @@ namespace zesk;
  * @author kent
  *
  */
-class DocComment_Test extends UnitTest {
-	public function test_extract(): void {
+class DocComment_Test extends UnitTest
+{
+	public function test_extract(): void
+	{
 		$testfile = ZESK_ROOT . 'src/zesk/ArrayTools.php';
 		$content = file_get_contents($testfile);
 		$comments = DocComment::extract($content);
@@ -24,7 +26,8 @@ class DocComment_Test extends UnitTest {
 		}
 	}
 
-	public static function data_provider_clean() {
+	public static function data_provider_clean()
+	{
 		return [
 			[
 				'	/**
@@ -47,7 +50,8 @@ class DocComment_Test extends UnitTest {
 		];
 	}
 
-	public function test_desc_no_tag(): void {
+	public function test_desc_no_tag(): void
+	{
 		$doc = DocComment::instance([
 			'desc' => 'Hello, world',
 			'see' => '\\zesk\\Kernel',
@@ -65,7 +69,8 @@ class DocComment_Test extends UnitTest {
 	/**
 	 * @dataProvider data_provider_clean
 	 */
-	public function test_clean($test, $expected): void {
+	public function test_clean($test, $expected): void
+	{
 		$this->assertEquals(DocComment::clean($test), $expected);
 	}
 
@@ -73,7 +78,8 @@ class DocComment_Test extends UnitTest {
 	 *
 	 * @return array
 	 */
-	public static function data_provider_parse() {
+	public static function data_provider_parse()
+	{
 		return [
 			[
 				'	/**
@@ -185,12 +191,14 @@ class DocComment_Test extends UnitTest {
 	/**
 	 * @dataProvider data_provider_parse
 	 */
-	public function test_parse($test, $expected, $unparse_expected): void {
+	public function test_parse($test, $expected, $unparse_expected): void
+	{
 		$this->assertEquals($parsed = DocComment::instance($test)->variables(), $expected, JSON::encodePretty($test));
 		$this->assertEquals(DocComment::instance($parsed)->content(), $unparse_expected, JSON::encodePretty($parsed));
 	}
 
-	public static function data_provider_content() {
+	public static function data_provider_content()
+	{
 		return [
 			[
 				[
@@ -210,7 +218,8 @@ class DocComment_Test extends UnitTest {
 	 * @param string $test
 	 * @param string $expect
 	 */
-	public function test_content($test, $expect): void {
+	public function test_content($test, $expect): void
+	{
 		$this->assertIsArray($test);
 		$this->assertIsString($expect);
 		$this->assertEquals($expect, DocComment::instance($test)->content());

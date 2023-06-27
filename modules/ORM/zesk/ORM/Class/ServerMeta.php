@@ -10,7 +10,8 @@ namespace zesk\ORM;
  * @author kent
  *
  */
-class Class_ServerMeta extends Class_Base {
+class Class_ServerMeta extends Class_Base
+{
 	public string $id_column = 'id';
 
 	public array $primary_keys = [

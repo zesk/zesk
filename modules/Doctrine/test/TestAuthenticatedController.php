@@ -6,12 +6,14 @@ use zesk\Doctrine\AuthenticatedController;
 use zesk\Request;
 use zesk\Response;
 
-class TestAuthenticatedController extends AuthenticatedController {
+class TestAuthenticatedController extends AuthenticatedController
+{
 	protected array $argumentMethods = ['arguments'];
 
 	protected array $actionMethods = ['action_default'];
 
-	public function arguments(Request $request, Response $response): array {
+	public function arguments(Request $request, Response $response): array
+	{
 		return [$response, $request];
 	}
 
@@ -20,7 +22,8 @@ class TestAuthenticatedController extends AuthenticatedController {
 	 * @return Response
 	 * @see self::action_default()
 	 */
-	public function action_default(Response $response): Response {
+	public function action_default(Response $response): Response
+	{
 		return $response->setContent('Yes');
 	}
 }

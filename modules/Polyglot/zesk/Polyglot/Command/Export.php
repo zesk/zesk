@@ -17,7 +17,8 @@ use zesk\Polyglot\Token;
  * @author kent
  *
  */
-class Export extends SimpleCommand {
+class Export extends SimpleCommand
+{
 	protected array $shortcuts = ['polyglot-export'];
 
 	public array $option_types = [
@@ -30,7 +31,8 @@ class Export extends SimpleCommand {
 		'no-exclude' => 'Do not exclude database values which have been deleted already',
 	];
 
-	protected function run(): int {
+	protected function run(): int
+	{
 		$source_language_file = $this->option('language-file', $this->application->configuration->getPath([
 			Module::class, 'sourceFile',
 		]));
@@ -70,7 +72,8 @@ class Export extends SimpleCommand {
 		return 0;
 	}
 
-	protected function loadExclusions(): array {
+	protected function loadExclusions(): array
+	{
 		$column = 'original';
 		return $this->application->ormRegistry(Token::class)->querySelect()->addWhere('status', 'delete')->appendWhat([
 			'key' => $column, 'exists' => 1,

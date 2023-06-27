@@ -17,7 +17,8 @@ use zesk\Logger\Processor;
 /**
  * @author kent
  */
-class Logger implements LoggerInterface {
+class Logger implements LoggerInterface
+{
 	/**
 	 *
 	 * @var array
@@ -60,7 +61,8 @@ class Logger implements LoggerInterface {
 	private array $handlers = [];
 
 	#[HookMethod(handles: Hooks::HOOK_CONFIGURED)]
-	public static function configured(Application $application): void {
+	public static function configured(Application $application): void
+	{
 		$logUTC = [Logger::class, 'utc_time'];
 		if ($application->configuration->pathExists($logUTC)) {
 			$logger = $application->logger();
@@ -75,7 +77,8 @@ class Logger implements LoggerInterface {
 	 *
 	 * @return array
 	 */
-	public static function logLevels(): array {
+	public static function logLevels(): array
+	{
 		return array_keys(self::$levels);
 	}
 
@@ -88,7 +91,8 @@ class Logger implements LoggerInterface {
 	 *
 	 * @return array
 	 */
-	public static function logMap(): array {
+	public static function logMap(): array
+	{
 		return self::$levels;
 	}
 
@@ -97,7 +101,8 @@ class Logger implements LoggerInterface {
 	 *
 	 * @return string
 	 */
-	public function dump_config(): string {
+	public function dump_config(): string
+	{
 		$pairs = [];
 		$pairs['Currently sending'] = $this->sending ? 'yes' : 'no';
 		$pairs['UTC Logging'] = $this->utc_time ? 'yes' : 'no';
@@ -126,7 +131,8 @@ class Logger implements LoggerInterface {
 	 * @return void
 	 * @see LoggerInterface::emergency()
 	 */
-	public function emergency($message, array $context = []): void {
+	public function emergency($message, array $context = []): void
+	{
 		$this->log(LogLevel::EMERGENCY, $message, $context);
 	}
 
@@ -140,7 +146,8 @@ class Logger implements LoggerInterface {
 	 * @param array $context
 	 * @return void
 	 */
-	public function alert($message, array $context = []): void {
+	public function alert($message, array $context = []): void
+	{
 		$this->log(LogLevel::ALERT, $message, $context);
 	}
 
@@ -153,7 +160,8 @@ class Logger implements LoggerInterface {
 	 * @param array $context
 	 * @return void
 	 */
-	public function critical($message, array $context = []): void {
+	public function critical($message, array $context = []): void
+	{
 		$this->log(LogLevel::CRITICAL, $message, $context);
 	}
 
@@ -165,7 +173,8 @@ class Logger implements LoggerInterface {
 	 * @param array $context
 	 * @return void
 	 */
-	public function error($message, array $context = []): void {
+	public function error($message, array $context = []): void
+	{
 		$this->log(LogLevel::ERROR, $message, $context);
 	}
 
@@ -179,7 +188,8 @@ class Logger implements LoggerInterface {
 	 * @param array $context
 	 * @return void
 	 */
-	public function warning($message, array $context = []): void {
+	public function warning($message, array $context = []): void
+	{
 		$this->log(LogLevel::WARNING, $message, $context);
 	}
 
@@ -190,7 +200,8 @@ class Logger implements LoggerInterface {
 	 * @param array $context
 	 * @return void
 	 */
-	public function notice($message, array $context = []): void {
+	public function notice($message, array $context = []): void
+	{
 		$this->log(LogLevel::NOTICE, $message, $context);
 	}
 
@@ -203,7 +214,8 @@ class Logger implements LoggerInterface {
 	 * @param array $context
 	 * @return void
 	 */
-	public function info($message, array $context = []): void {
+	public function info($message, array $context = []): void
+	{
 		$this->log(LogLevel::INFO, $message, $context);
 	}
 
@@ -214,11 +226,13 @@ class Logger implements LoggerInterface {
 	 * @param array $context
 	 * @return void
 	 */
-	public function debug($message, array $context = []): void {
+	public function debug($message, array $context = []): void
+	{
 		$this->log(LogLevel::DEBUG, $message, $context);
 	}
 
-	public static function contextualize($level, string|Stringable $message, array $context): array {
+	public static function contextualize($level, string|Stringable $message, array $context): array
+	{
 		if (array_key_exists('_formatted', $context)) {
 			return $context;
 		}
@@ -248,7 +262,8 @@ class Logger implements LoggerInterface {
 	 * @param array $context
 	 * @return void
 	 */
-	public function log($level, $message, array $context = []): void {
+	public function log($level, $message, array $context = []): void
+	{
 		if ($this->sending) {
 			// Doh. Recursion. Bad usually.
 			return;
@@ -298,7 +313,8 @@ class Logger implements LoggerInterface {
 	/**
 	 * @return array
 	 */
-	public function handlerNames(): array {
+	public function handlerNames(): array
+	{
 		return array_values($this->handler_names);
 	}
 
@@ -307,7 +323,8 @@ class Logger implements LoggerInterface {
 	 * @param array $levels
 	 * @return int
 	 */
-	public function unregisterHandler(string|array $name, array $levels = []): int {
+	public function unregisterHandler(string|array $name, array $levels = []): int
+	{
 		$levels = count($levels) === 0 ? array_keys(self::$levels) : $levels;
 		$numberFound = 0;
 		if (is_array($name)) {
@@ -335,7 +352,8 @@ class Logger implements LoggerInterface {
 	 * @param array $levels
 	 * @return $this
 	 */
-	public function registerHandler(string $name, Handler $handler, array $levels = []): self {
+	public function registerHandler(string $name, Handler $handler, array $levels = []): self
+	{
 		$levels = count($levels) === 0 ? array_keys(self::$levels) : $levels;
 		foreach ($levels as $level) {
 			if (isset(self::$levels[$level])) {
@@ -352,7 +370,8 @@ class Logger implements LoggerInterface {
 	 * @param Processor $processor
 	 * @return self
 	 */
-	public function registerProcessor(string $name, Processor $processor): self {
+	public function registerProcessor(string $name, Processor $processor): self
+	{
 		$this->processors[$name] = $processor;
 		return $this;
 	}
@@ -362,7 +381,8 @@ class Logger implements LoggerInterface {
 	 * @param string $name
 	 * @return Logger
 	 */
-	public function unregisterProcessor(string $name): self {
+	public function unregisterProcessor(string $name): self
+	{
 		unset($this->processors[$name]);
 		return $this;
 	}
@@ -370,14 +390,16 @@ class Logger implements LoggerInterface {
 	/**
 	 * @return string[]
 	 */
-	public function processorNames(): array {
+	public function processorNames(): array
+	{
 		return array_keys($this->processors);
 	}
 
 	/**
 	 * @return array
 	 */
-	public function levels(): array {
+	public function levels(): array
+	{
 		return self::$levels;
 	}
 
@@ -385,7 +407,8 @@ class Logger implements LoggerInterface {
 	 * @param string $severity
 	 * @return array
 	 */
-	public function levelsSelect(string $severity): array {
+	public function levelsSelect(string $severity): array
+	{
 		$result = [];
 		foreach (self::$levels as $k => $v) {
 			$result[$k] = $v;

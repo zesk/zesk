@@ -11,7 +11,8 @@ use zesk\ORM\User;
  * @author kent
  *
  */
-class Class_Token extends Class_Base {
+class Class_Token extends Class_Base
+{
 	public string $code_name = 'Polyglot_Token';
 
 	public string $id_column = 'id';

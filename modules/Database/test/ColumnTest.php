@@ -11,12 +11,14 @@ namespace zesk\Database;
 
 use zesk\PHPUnit\TestCase;
 
-class ColumnTest extends TestCase {
+class ColumnTest extends TestCase
+{
 	protected array $load_modules = [
 		'MySQL',
 	];
 
-	public function test_main(): void {
+	public function test_main(): void
+	{
 		$db = $this->application->databaseRegistry();
 
 		$table = new Table($db, __METHOD__);
@@ -82,7 +84,8 @@ class ColumnTest extends TestCase {
 	 * @return void
 	 * @dataProvider data_differences
 	 */
-	public function test_differences(array $expected, mixed $a, mixed $b): void {
+	public function test_differences(array $expected, mixed $a, mixed $b): void
+	{
 		$a = $this->applyClosures($a);
 		$b = $this->applyClosures($b);
 		$result_a = $a->differences($b);
@@ -96,7 +99,8 @@ class ColumnTest extends TestCase {
 		$this->assertEquals($expected, $result_b_keys);
 	}
 
-	public static function data_differences(): array {
+	public static function data_differences(): array
+	{
 		$col1 = function () {
 			$db = self::app()->databaseRegistry();
 			$table = new Table($db, __METHOD__);

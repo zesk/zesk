@@ -21,7 +21,8 @@ use zesk\RuntimeException;
  * @author kent
  *
  */
-class Hooks {
+class Hooks
+{
 	/**
 	 *
 	 * @var string
@@ -79,7 +80,8 @@ class Hooks {
 	 *
 	 * @param Application $application
 	 */
-	public function __construct(Application $application) {
+	public function __construct(Application $application)
+	{
 		$this->application = $application;
 	}
 
@@ -91,7 +93,8 @@ class Hooks {
 	/**
 	 * Shutdown function to log errors
 	 */
-	private function _applicationExitCheck(): void {
+	private function _applicationExitCheck(): void
+	{
 		$prefix = 'Application Exit Check: ';
 		if ($err = error_get_last()) {
 			if (isset(self::$fatalErrors[$err['type']])) {
@@ -108,7 +111,8 @@ class Hooks {
 	 * @param bool $filter
 	 * @return self
 	 */
-	public function registerHook(string $hookName, callable|Closure $method, bool $filter = false): self {
+	public function registerHook(string $hookName, callable|Closure $method, bool $filter = false): self
+	{
 		$this->_enforceFilterType($hookName, $filter);
 		$hookMethod = new HookMethod($hookName, [], null, $filter);
 		$hookMethod->setClosure($method instanceof Closure ? $method : $method(...), Hooks::callableString($method));
@@ -122,7 +126,8 @@ class Hooks {
 	 * @param callable|Closure $method
 	 * @return $this
 	 */
-	public function registerFilter(string $hookName, callable|Closure $method): self {
+	public function registerFilter(string $hookName, callable|Closure $method): self
+	{
 		return $this->registerHook($hookName, $method, true);
 	}
 
@@ -131,7 +136,8 @@ class Hooks {
 	 * @param bool $isFilter
 	 * @return void
 	 */
-	private function _enforceFilterType(string $hookName, bool $isFilter): void {
+	private function _enforceFilterType(string $hookName, bool $isFilter): void
+	{
 		if (!array_key_exists($hookName, $this->hooksQueueType)) {
 			return;
 		}
@@ -148,7 +154,8 @@ class Hooks {
 	 * @param bool $isFilter
 	 * @return array
 	 */
-	public function peekHooks(string $hookName, bool $isFilter = false): array {
+	public function peekHooks(string $hookName, bool $isFilter = false): array
+	{
 		$this->_enforceFilterType($hookName, $isFilter);
 		return $this->hooksQueue[$hookName] ?? [];
 	}
@@ -157,7 +164,8 @@ class Hooks {
 	 * @param string $hookName
 	 * @return array
 	 */
-	public function peekFilters(string $hookName): array {
+	public function peekFilters(string $hookName): array
+	{
 		$this->_enforceFilterType($hookName, true);
 		return $this->hooksQueue[$hookName] ?? [];
 	}
@@ -167,7 +175,8 @@ class Hooks {
 	 * @param bool $isFilter
 	 * @return array
 	 */
-	public function hooksDequeue(string $hookName, bool $isFilter = false): array {
+	public function hooksDequeue(string $hookName, bool $isFilter = false): array
+	{
 		$hooks = $this->peekHooks($hookName, $isFilter);
 		unset($this->hooksQueue[$hookName]);
 		unset($this->hooksQueueType[$hookName]);
@@ -180,7 +189,8 @@ class Hooks {
 	 * @param string $hookName
 	 * @return array
 	 */
-	public function filtersDequeue(string $hookName): array {
+	public function filtersDequeue(string $hookName): array
+	{
 		return $this->hooksDequeue($hookName, true);
 	}
 
@@ -191,7 +201,8 @@ class Hooks {
 	 * @param mixed $callable
 	 * @return string
 	 */
-	public static function callableString(mixed $callable): string {
+	public static function callableString(mixed $callable): string
+	{
 		if (is_array($callable)) {
 			return is_object($callable[0]) ? strtolower(get_class($callable[0])) . '::' . $callable[1] : implode('::', $callable);
 		} elseif (is_string($callable)) {
@@ -208,7 +219,8 @@ class Hooks {
 	 * @param Callable[] $callables
 	 * @return string[]
 	 */
-	public static function callableStrings(array $callables): array {
+	public static function callableStrings(array $callables): array
+	{
 		$result = [];
 		foreach ($callables as $callable) {
 			$result[] = self::callableString($callable);
@@ -216,7 +228,8 @@ class Hooks {
 		return $result;
 	}
 
-	public function shutdown(): void {
+	public function shutdown(): void
+	{
 		try {
 			$this->application->invokeHooks(Hooks::HOOK_EXIT, [$this->application]);
 		} catch (Throwable $e) {

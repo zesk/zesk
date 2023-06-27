@@ -12,6 +12,7 @@ namespace zesk\Exception;
 /**
  *
  */
-class FileParseException extends ParseException {
+class FileParseException extends ParseException
+{
 	use FileSystemTrait;
 }

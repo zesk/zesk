@@ -16,7 +16,8 @@ use Psr\Cache\CacheItemInterface;
  *
  * @author kent
  */
-class CacheItemNULL implements CacheItemInterface {
+class CacheItemNULL implements CacheItemInterface
+{
 	/**
 	 *
 	 * @var string
@@ -27,7 +28,8 @@ class CacheItemNULL implements CacheItemInterface {
 	 *
 	 * @param string $key
 	 */
-	public function __construct(string $key) {
+	public function __construct(string $key)
+	{
 		$this->key = $key;
 	}
 
@@ -40,7 +42,8 @@ class CacheItemNULL implements CacheItemInterface {
 	 * @return string
 	 *   The key string for this cache item.
 	 */
-	public function getKey(): string {
+	public function getKey(): string
+	{
 		return $this->key;
 	}
 
@@ -56,7 +59,8 @@ class CacheItemNULL implements CacheItemInterface {
 	 * @return mixed
 	 *   The value corresponding to this cache item's key, or null if not found.
 	 */
-	public function get(): mixed {
+	public function get(): mixed
+	{
 		return null;
 	}
 
@@ -69,7 +73,8 @@ class CacheItemNULL implements CacheItemInterface {
 	 * @return bool
 	 *   True if the request resulted in a cache hit. False otherwise.
 	 */
-	public function isHit(): bool {
+	public function isHit(): bool
+	{
 		return false;
 	}
 
@@ -86,7 +91,8 @@ class CacheItemNULL implements CacheItemInterface {
 	 * @return static
 	 *   The invoked object.
 	 */
-	public function set(mixed $value): static {
+	public function set(mixed $value): static
+	{
 		return $this;
 	}
 
@@ -102,7 +108,8 @@ class CacheItemNULL implements CacheItemInterface {
 	 * @return static
 	 *   The called object.
 	 */
-	public function expiresAt(DateTimeInterface|null $expiration): static {
+	public function expiresAt(DateTimeInterface|null $expiration): static
+	{
 		return $this;
 	}
 
@@ -119,7 +126,8 @@ class CacheItemNULL implements CacheItemInterface {
 	 * @return static
 	 *   The called object.
 	 */
-	public function expiresAfter(int|DateInterval|null $time): static {
+	public function expiresAfter(int|DateInterval|null $time): static
+	{
 		return $this;
 	}
 }

@@ -10,7 +10,8 @@ use zesk\File;
 use zesk\MIME;
 use zesk\Response;
 
-class Raw extends Type {
+class Raw extends Type
+{
 	/**
 	 *
 	 * @var string
@@ -26,13 +27,15 @@ class Raw extends Type {
 	/**
 	 *
 	 */
-	public function initialize(): void {
+	public function initialize(): void
+	{
 	}
 
 	/**
 	 *
 	 */
-	public function headers(): void {
+	public function headers(): void
+	{
 		if ($this->file) {
 			try {
 				$this->parent->setContentType(MIME::fromExtension($this->file));
@@ -47,7 +50,8 @@ class Raw extends Type {
 	 *
 	 * @see fpassthru()
 	 */
-	public function output($content): void {
+	public function output($content): void
+	{
 		if ($this->file) {
 			$fp = fopen($this->file, 'rb');
 			fpassthru($fp);
@@ -63,7 +67,8 @@ class Raw extends Type {
 	 * @return Response
 	 * @throws FileNotFound
 	 */
-	public function setFile(string $file): Response {
+	public function setFile(string $file): Response
+	{
 		if (!file_exists($file)) {
 			throw new FileNotFound($file);
 		}
@@ -80,7 +85,8 @@ class Raw extends Type {
 	/**
 	 * @throws SemanticsException
 	 */
-	public function file(): string {
+	public function file(): string
+	{
 		if (empty($this->file)) {
 			throw new SemanticsException('file not set');
 		}
@@ -99,7 +105,8 @@ class Raw extends Type {
 	 * @return Response
 	 * @throws FileNotFound
 	 */
-	final public function download(string $file, string $name = '', string $type = ''): Response {
+	final public function download(string $file, string $name = '', string $type = ''): Response
+	{
 		if (!$name) {
 			$name = basename($file);
 		}
@@ -114,7 +121,8 @@ class Raw extends Type {
 	 *
 	 * @return array
 	 */
-	public function toJSON(): array {
+	public function toJSON(): array
+	{
 		return [
 			'content' => $this->binary,
 		];

@@ -8,8 +8,10 @@ use zesk\Exception\KeyNotFound;
 use zesk\Exception\ParseException;
 use zesk\Exception\UnimplementedException;
 
-class PHPTest extends UnitTest {
-	public function test_php_basics(): void {
+class PHPTest extends UnitTest
+{
+	public function test_php_basics(): void
+	{
 		$this->assertFalse(!![]);
 		$this->assertTrue(!![1, ]);
 		$truthy = [new stdClass(), [1, ], ['', ], [0, ], [null, ], ];
@@ -27,7 +29,8 @@ class PHPTest extends UnitTest {
 	 *
 	 * JS: var a = arg || {};
 	 */
-	public function test_php_andor(): void {
+	public function test_php_andor(): void
+	{
 		$a = new stdClass();
 		$a->val = 'a';
 		$b = new stdClass();
@@ -43,7 +46,8 @@ class PHPTest extends UnitTest {
 		$this->assertEquals(false, $c);
 	}
 
-	public function test_ini_path(): void {
+	public function test_ini_path(): void
+	{
 		$file = PHP::ini_path();
 		$this->assertFileExists($file);
 	}
@@ -52,7 +56,8 @@ class PHPTest extends UnitTest {
 	 * @return void
 	 * @throws KeyNotFound
 	 */
-	public function test_setSettings(): void {
+	public function test_setSettings(): void
+	{
 		$result = new PHP();
 		$settings = $result->setSettings(['array_value_separator' => "\t\t"])->settings();
 		$this->assertArrayHasKey('array_value_separator', $settings);
@@ -61,7 +66,8 @@ class PHPTest extends UnitTest {
 		$this->assertEquals("\t\t", $settings['array_value_separator']);
 	}
 
-	public static function data_provider_render(): array {
+	public static function data_provider_render(): array
+	{
 		return [
 			[false, 'false', ],
 			[true, 'true', ],
@@ -75,11 +81,13 @@ class PHPTest extends UnitTest {
 	/**
 	 * @dataProvider data_provider_render
 	 */
-	public function test_render($test, $expected): void {
+	public function test_render($test, $expected): void
+	{
 		$this->assertEquals(PHP::singleton()->settingsOneLine()->render($test), $expected);
 	}
 
-	public static function data_setFeature(): array {
+	public static function data_setFeature(): array
+	{
 		return [
 			[PHP::FEATURE_MEMORY_LIMIT, 512 * 1024 * 1024], [PHP::FEATURE_TIME_LIMIT, null],
 			['not-a-feature', null],
@@ -93,7 +101,8 @@ class PHPTest extends UnitTest {
 	 * @return void
 	 * @throws UnimplementedException;
 	 */
-	public function test_setFeature(string $setting, ?int $value): void {
+	public function test_setFeature(string $setting, ?int $value): void
+	{
 		if ($value === null) {
 			$this->expectException(UnimplementedException::class);
 			$value = 1024;
@@ -102,7 +111,8 @@ class PHPTest extends UnitTest {
 		$this->assertEquals($value, PHP::setFeature($setting, $old_value));
 	}
 
-	public function test_php_references(): void {
+	public function test_php_references(): void
+	{
 		$bigthing = [
 			'a' => ['kind' => 'letter', 'code' => 65, ], 'b' => ['kind' => 'letter', 'code' => 66, ],
 			'9' => ['kind' => 'number', 'code' => ord('9'), ],
@@ -128,14 +138,16 @@ class PHPTest extends UnitTest {
 	 * @throws ParseException
 	 * @dataProvider data_autoType
 	 */
-	public function test_autoType($expected, $mixed, bool $throw = false): void {
+	public function test_autoType($expected, $mixed, bool $throw = false): void
+	{
 		if ($throw) {
 			$this->expectException(ParseException::class);
 		}
 		$this->assertEquals($expected, PHP::autoType($mixed, $throw));
 	}
 
-	public static function data_autoType(): array {
+	public static function data_autoType(): array
+	{
 		$stdClass = new stdClass();
 		return
 		[

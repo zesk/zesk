@@ -32,7 +32,8 @@ use zesk\PHP;
  *         (--set debug.db-connect=1)
  * @global boolean db-connect Set this global to alternate database
  */
-class Connect extends SimpleCommand {
+class Connect extends SimpleCommand
+{
 	protected array $shortcuts = ['connect'];
 
 	/**
@@ -65,7 +66,8 @@ class Connect extends SimpleCommand {
 	 * @throws UnsupportedException
 	 * @throws KeyNotFound
 	 */
-	public function run(): int {
+	public function run(): int
+	{
 		if ($this->optionBool('db-name') || $this->optionBool('db-url')) {
 			return $this->handle_info();
 		}
@@ -99,7 +101,8 @@ class Connect extends SimpleCommand {
 		return 0;
 	}
 
-	public function databaseShellCommand(Connection $connection): array {
+	public function databaseShellCommand(Connection $connection): array
+	{
 		//		$platform = $connection->getDatabasePlatform();
 		//		if (!$platform) {
 		//			throw new NotFoundException("No database platform for connection");
@@ -119,7 +122,8 @@ class Connect extends SimpleCommand {
 		'non-blocking' => 'boolean. Used in conjunction with sql-dump-command - dump database in a non-blocking manner.',
 	];
 
-	public function mysqlShellCommand(array $options = []): array {
+	public function mysqlShellCommand(array $options = []): array
+	{
 		/**
 		 * @param array $options
 		 * @return array
@@ -180,7 +184,8 @@ class Connect extends SimpleCommand {
 	 * @return int
 	 * @throws KeyNotFound
 	 */
-	private function handle_info(): int {
+	private function handle_info(): int
+	{
 		$name = $this->option('name');
 		$dbs = $this->application->databaseModule()->databases();
 		if (!$this->optionBool('show-passwords')) {
@@ -210,7 +215,8 @@ class Connect extends SimpleCommand {
 	 *
 	 * @return int
 	 */
-	private function handle_test(): int {
+	private function handle_test(): int
+	{
 		$db = [];
 		foreach ($this->application->databaseModule()->names() as $name) {
 			try {
@@ -227,7 +233,8 @@ class Connect extends SimpleCommand {
 	/**
 	 * TODO
 	 */
-	private function handle_grants(): int {
+	private function handle_grants(): int
+	{
 		$module = $this->application->databaseModule();
 		$result = [];
 		foreach ($module->names() as $name) {

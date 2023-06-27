@@ -21,7 +21,8 @@ use zesk\Exception\Semantics;
  * @author kent
  *
  */
-class ResultIterator implements Iterator {
+class ResultIterator implements Iterator
+{
 	/**
 	 *
 	 * @var SelectableInterface
@@ -105,7 +106,8 @@ class ResultIterator implements Iterator {
 	 * @param string $key
 	 * @param string $value
 	 */
-	public function __construct(SelectableInterface $query, string $key = '', string $value = '') {
+	public function __construct(SelectableInterface $query, string $key = '', string $value = '')
+	{
 		$this->query = $query;
 		$this->db = $query->database();
 		$this->resource = null;
@@ -122,7 +124,8 @@ class ResultIterator implements Iterator {
 	/**
 	 * Delete it
 	 */
-	public function __destruct() {
+	public function __destruct()
+	{
 		if ($this->resource) {
 			$this->db->free($this->resource);
 			$this->resource = null;
@@ -138,7 +141,8 @@ class ResultIterator implements Iterator {
 	 *            Value to use
 	 * @return self
 	 */
-	public function setExtract(string $key = '', string $value = ''): self {
+	public function setExtract(string $key = '', string $value = ''): self
+	{
 		$this->_key = $key;
 		$this->_value = $value;
 		return $this;
@@ -150,7 +154,8 @@ class ResultIterator implements Iterator {
 	 * @param boolean $set
 	 * @return self
 	 */
-	public function setUnbuffered(bool $set): self {
+	public function setUnbuffered(bool $set): self
+	{
 		$this->unbuffered = $set;
 		return $this;
 	}
@@ -160,7 +165,8 @@ class ResultIterator implements Iterator {
 	 *
 	 * @return bool
 	 */
-	public function unbuffered(): bool {
+	public function unbuffered(): bool
+	{
 		return $this->unbuffered;
 	}
 
@@ -168,7 +174,8 @@ class ResultIterator implements Iterator {
 	 *
 	 * @return SelectableInterface
 	 */
-	public function query(): SelectableInterface {
+	public function query(): SelectableInterface
+	{
 		return $this->query;
 	}
 
@@ -178,7 +185,8 @@ class ResultIterator implements Iterator {
 	 * @return mixed
 	 * @throws Semantics
 	 */
-	public function current(): mixed {
+	public function current(): mixed
+	{
 		if (!$this->_valid) {
 			return null;
 		}
@@ -197,7 +205,8 @@ class ResultIterator implements Iterator {
 	 * @return mixed
 	 * @throws Semantics
 	 */
-	public function key(): mixed {
+	public function key(): mixed
+	{
 		if ($this->_key) {
 			if (!array_key_exists($this->_key, $this->_row)) {
 				throw new Semantics('Query result does not contain key {key}', ['key' => $this->_key, ]);
@@ -212,7 +221,8 @@ class ResultIterator implements Iterator {
 	 *
 	 * @return void
 	 */
-	protected function databaseNext(): void {
+	protected function databaseNext(): void
+	{
 		$row = $this->db->fetchAssoc($this->resource);
 		if (is_array($row)) {
 			$this->_row_index = $this->_row_index + 1;
@@ -229,7 +239,8 @@ class ResultIterator implements Iterator {
 	 *
 	 * @see Iterator::next()
 	 */
-	public function next(): void {
+	public function next(): void
+	{
 		$this->databaseNext();
 	}
 
@@ -238,7 +249,8 @@ class ResultIterator implements Iterator {
 	 *
 	 * @see Iterator::rewind()
 	 */
-	public function rewind(): void {
+	public function rewind(): void
+	{
 		if ($this->resource) {
 			$this->db->free($this->resource);
 		}
@@ -250,7 +262,8 @@ class ResultIterator implements Iterator {
 	 *
 	 * @return bool
 	 */
-	public function valid(): bool {
+	public function valid(): bool
+	{
 		try {
 			$this->_load();
 		} catch (Throwable) {
@@ -263,7 +276,8 @@ class ResultIterator implements Iterator {
 	 *
 	 * @return bool
 	 */
-	public function debug(): bool {
+	public function debug(): bool
+	{
 		return $this->_debug;
 	}
 
@@ -274,7 +288,8 @@ class ResultIterator implements Iterator {
 	 * @return self
 	 * @todo test this
 	 */
-	public function setDebug(bool $set): self {
+	public function setDebug(bool $set): self
+	{
 		$this->_debug = $set;
 		return $this;
 	}
@@ -284,7 +299,8 @@ class ResultIterator implements Iterator {
 	 *
 	 * @return array
 	 */
-	public function toArray(): array {
+	public function toArray(): array
+	{
 		$result = [];
 		foreach ($this as $k => $v) {
 			$result[$k] = $v;
@@ -300,7 +316,8 @@ class ResultIterator implements Iterator {
 	 * @throws SQLException
 	 * @throws TableNotFound
 	 */
-	private function _load(): void {
+	private function _load(): void
+	{
 		if ($this->_loaded) {
 			return;
 		}

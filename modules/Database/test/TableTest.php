@@ -19,12 +19,14 @@ use zesk\PHPUnit\TestCase;
  * @author kent
  *
  */
-class TableTest extends TestCase {
+class TableTest extends TestCase
+{
 	protected array $load_modules = [
 		'MySQL',
 	];
 
-	public function test_main(): void {
+	public function test_main(): void
+	{
 		$db = $this->application->databaseRegistry();
 		$table_name = PHP::parseClass(__CLASS__) . '_' . __FUNCTION__;
 		$table = new Table($db, $table_name);
@@ -86,7 +88,8 @@ class TableTest extends TestCase {
 		$this->assertFalse($table->isSimilar($that, $debug));
 	}
 
-	public function test_main2(): void {
+	public function test_main2(): void
+	{
 		$db = $this->application->databaseRegistry();
 		$table_name = 'test_table';
 		$x = new Table($db, $table_name);

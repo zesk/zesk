@@ -29,7 +29,8 @@ use zesk\HTML;
  * @author kent
  * @see docs/share.md
  */
-class Share extends Controller {
+class Share extends Controller
+{
 	/**
 	 * Paths to search for shared content
 	 *
@@ -70,7 +71,8 @@ class Share extends Controller {
 	 * @return void
 	 * @throws DirectoryNotFound
 	 */
-	protected function initialize(): void {
+	protected function initialize(): void
+	{
 		parent::initialize();
 		// Share files for Controller_Share
 		$this->sharePath = [];
@@ -89,7 +91,8 @@ class Share extends Controller {
 	 * @return self
 	 * @throws DirectoryNotFound
 	 */
-	final public function addSharePath(string $add, string $name): self {
+	final public function addSharePath(string $add, string $name): self
+	{
 		if (!is_dir($add)) {
 			throw new DirectoryNotFound($add);
 		}
@@ -108,7 +111,8 @@ class Share extends Controller {
 	 *
 	 *  `[ "home" => "/publish/app/api/modules/home/share/" ]`
 	 */
-	final public function sharePath(): array {
+	final public function sharePath(): array
+	{
 		return $this->sharePath;
 	}
 
@@ -116,7 +120,8 @@ class Share extends Controller {
 	 *
 	 * @return string
 	 */
-	private function defaultSharePath(): string {
+	private function defaultSharePath(): string
+	{
 		return $this->application->zeskHome('share');
 	}
 
@@ -124,7 +129,8 @@ class Share extends Controller {
 	 *
 	 * @return string
 	 */
-	public function optionSharePrefix(): string {
+	public function optionSharePrefix(): string
+	{
 		return $this->optionString(self::OPTION_SHARE_PREFIX, self::SHARE_PREFIX_DEFAULT);
 	}
 
@@ -138,7 +144,8 @@ class Share extends Controller {
 	 * @throws DirectoryPermission
 	 * @throws FilePermission
 	 */
-	public function buildDirectory(): void {
+	public function buildDirectory(): void
+	{
 		$app = $this->application;
 		$sharePaths = $this->sharePath();
 		$document_root = $app->documentRoot();
@@ -167,7 +174,8 @@ class Share extends Controller {
 	 * @param string $path
 	 * @return ?string
 	 */
-	public function pathToFile(string $path): ?string {
+	public function pathToFile(string $path): ?string
+	{
 		$uri = StringTools::removePrefix($path, '/');
 		$uri = StringTools::pair($uri, '/', '', $uri)[1];
 		$sharePaths = $this->sharePath();
@@ -191,7 +199,8 @@ class Share extends Controller {
 	 * @see self::action_GET()
 	 * @see $this->argumentsMethods
 	 */
-	public function arguments_GET(Request $request, Response $response): array {
+	public function arguments_GET(Request $request, Response $response): array
+	{
 		return [$request, $response];
 	}
 
@@ -201,7 +210,8 @@ class Share extends Controller {
 	 * @see Controller::_action_default()
 	 * @see $this->actionsMethods
 	 */
-	public function action_GET(Request $request, Response $response): Response {
+	public function action_GET(Request $request, Response $response): Response
+	{
 		$original_uri = $request->path();
 		$uri = StringTools::removePrefix($original_uri, '/');
 		if ($this->application->development() && $uri === 'share/debug') {
@@ -255,7 +265,8 @@ class Share extends Controller {
 	 * @param string $file
 	 * @return void
 	 */
-	private function _buildOption(string $original_uri, string $file): void {
+	private function _buildOption(string $original_uri, string $file): void
+	{
 		if ($this->optionBool(self::OPTION_BUILD)) {
 			try {
 				$this->build($original_uri, $file);
@@ -273,7 +284,8 @@ class Share extends Controller {
 	 * @throws DirectoryCreate
 	 * @throws DirectoryPermission
 	 */
-	private function build(string $path, string $file): void {
+	private function build(string $path, string $file): void
+	{
 		$target = Directory::path($this->application->documentRoot(), $path);
 		Directory::depend(dirname($target), 0o775);
 		$status = copy($file, $target);
@@ -285,7 +297,8 @@ class Share extends Controller {
 	/**
 	 * Output debug information during development
 	 */
-	private function share_debug(Request $request, Response $response): string {
+	private function share_debug(Request $request, Response $response): string
+	{
 		$content = HTML::tag('h1', 'Server') . HTML::tag('pre', PHP::dump($_SERVER));
 		$content .= HTML::tag('h1', 'Request headers') . HTML::tag('pre', PHP::dump($request->headers()));
 		$content .= HTML::tag('h1', 'Response') . HTML::tag('pre', PHP::dump($response->toJSON()));
@@ -299,7 +312,8 @@ class Share extends Controller {
 	 * @return string
 	 * @throws KeyNotFound
 	 */
-	public function realpath(string $path): string {
+	public function realpath(string $path): string
+	{
 		$path = explode('/', trim($path, '/'));
 		array_shift($path);
 		$share = array_shift($path);
@@ -314,7 +328,8 @@ class Share extends Controller {
 	/**
 	 * Clear the share build path upon cache clear
 	 */
-	public function hook_cacheClear(): void {
+	public function hook_cacheClear(): void
+	{
 		$logger = $this->application->logger();
 		if (!$this->optionBool(self::OPTION_BUILD)) {
 			return;

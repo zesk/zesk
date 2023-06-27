@@ -46,7 +46,8 @@ use zesk\Timestamp;
  * @property timestamp $locked
  * @property timestamp $used
  */
-class Lock extends ORMBase {
+class Lock extends ORMBase
+{
 	private static int $serverLocks = 0;
 
 	/**
@@ -59,7 +60,8 @@ class Lock extends ORMBase {
 	 * Register all zesk hooks.
 	 * @throws Semantics
 	 */
-	public static function hooks(Application $application): void {
+	public static function hooks(Application $application): void
+	{
 		$application->hooks->add(Server::class . '::delete', self::server_delete(...));
 		$application->hooks->add(Hooks::HOOK_RESET, self::releaseAll(...));
 		$application->hooks->add(Hooks::HOOK_EXIT, self::releaseAll(...), ['first' => true]);
@@ -80,7 +82,8 @@ class Lock extends ORMBase {
 	 * @throws Semantics
 	 * @throws SQLException
 	 */
-	public static function instance(Application $application, string $code): self {
+	public static function instance(Application $application, string $code): self
+	{
 		/* @var $lock Lock */
 		$lock = self::$locks[strtolower($code)] ?? null;
 		if (!$lock) {
@@ -99,7 +102,8 @@ class Lock extends ORMBase {
 	/**
 	 * Once per hour, cull locks which are old
 	 */
-	public static function cron_cluster_hour(Application $application): void {
+	public static function cron_cluster_hour(Application $application): void
+	{
 		try {
 			self::deleteUnused($application);
 		} catch (TableNotFound $e) {
@@ -115,7 +119,8 @@ class Lock extends ORMBase {
 	 * @throws SQLException
 	 * @throws TableNotFound
 	 */
-	public static function cron_cluster_minute(Application $application): void {
+	public static function cron_cluster_minute(Application $application): void
+	{
 		self::deleteDeadProcesses($application);
 		self::deleteDangling($application);
 	}
@@ -124,7 +129,8 @@ class Lock extends ORMBase {
 	 * Delete Locks which have not been used in the past 24 hours
 	 * @throws TableNotFound
 	 */
-	public static function deleteUnused(Application $application): int {
+	public static function deleteUnused(Application $application): int
+	{
 		$query = $application->ormRegistry(__CLASS__)->queryDelete();
 
 		try {
@@ -147,7 +153,8 @@ class Lock extends ORMBase {
 	 * @param string $context
 	 * @return void
 	 */
-	private static function releaseLock(Lock $lock, string $context = ''): void {
+	private static function releaseLock(Lock $lock, string $context = ''): void
+	{
 		try {
 			$server_id = $lock->memberInteger('server');
 		} catch (ParseException|ORMEmpty|KeyNotFound|ORMNotFound $e) {
@@ -166,7 +173,8 @@ class Lock extends ORMBase {
 	 * @throws SQLException
 	 * @throws TableNotFound
 	 */
-	public static function deleteDangling(Application $application): int {
+	public static function deleteDangling(Application $application): int
+	{
 		// Deleting unlinked locks
 		$rowCount = 0;
 
@@ -190,7 +198,8 @@ class Lock extends ORMBase {
 	/**
 	 * Delete Locks associated with this server which do not have a valid PID
 	 */
-	public static function deleteDeadProcesses(Application $application): void {
+	public static function deleteDeadProcesses(Application $application): void
+	{
 		$timeout_seconds = -abs($application->configuration->getPath([__CLASS__, 'timeout_seconds'], 100));
 
 		try {
@@ -232,7 +241,8 @@ class Lock extends ORMBase {
 	 * @return Lock
 	 * @throws TimeoutExpired
 	 */
-	public function acquire(int $timeout = 0): Lock {
+	public function acquire(int $timeout = 0): Lock
+	{
 		if ($this->_isMine()) {
 			return $this;
 		}
@@ -258,14 +268,16 @@ class Lock extends ORMBase {
 	 * @return $this
 	 * @throws TimeoutExpired
 	 */
-	public function expect(int $timeout = null): self {
+	public function expect(int $timeout = null): self
+	{
 		return $this->acquire($timeout);
 	}
 
 	/**
 	 * Release all locks from my server/process
 	 */
-	public static function releaseAll(Application $application): void {
+	public static function releaseAll(Application $application): void
+	{
 		self::$locks = [];
 		$application->logger->debug(__METHOD__);
 
@@ -290,7 +302,8 @@ class Lock extends ORMBase {
 	 *
 	 * @param Server $server
 	 */
-	public static function server_delete(Server $server): void {
+	public static function server_delete(Server $server): void
+	{
 		$application = $server->application;
 		$query = $application->ormRegistry(__CLASS__)->queryDelete()->addWhere('server', $server);
 		$query->execute();
@@ -318,7 +331,8 @@ class Lock extends ORMBase {
 	 * @throws SQLException
 	 * @throws Semantics
 	 */
-	public function crack(): self {
+	public function crack(): self
+	{
 		$this->pid = $this->server = null;
 		return $this->store();
 	}
@@ -326,7 +340,8 @@ class Lock extends ORMBase {
 	/**
 	 * Locked by SOMEONE ELSE
 	 */
-	public function isLocked(): bool {
+	public function isLocked(): bool
+	{
 		if ($this->memberIsEmpty('pid') && $this->memberIsEmpty('server')) {
 			return false;
 		}
@@ -338,7 +353,8 @@ class Lock extends ORMBase {
 	 *
 	 * @return Lock
 	 */
-	public function release(): self {
+	public function release(): self
+	{
 		$this->queryUpdate()->setValues([
 			'pid' => null, 'server' => null, 'locked' => null,
 		])->appendWhere([
@@ -355,7 +371,8 @@ class Lock extends ORMBase {
 	 *
 	 * @param string $code
 	 */
-	private static function _create_lock(Application $application, string $code): self {
+	private static function _create_lock(Application $application, string $code): self
+	{
 		$lock = $application->ormFactory(__CLASS__, [
 			'code' => $code,
 		]);
@@ -384,7 +401,8 @@ class Lock extends ORMBase {
 	 *
 	 * @return boolean
 	 */
-	private function _isLocked(): bool {
+	private function _isLocked(): bool
+	{
 		// Each server is responsible for keeping locks clean.
 		// Allow a hook to enable inter-server connection, later
 		if (!$this->isMyServer()) {
@@ -411,7 +429,8 @@ class Lock extends ORMBase {
 	 * @param array $where
 	 * @throws LockedException
 	 */
-	private function _acquire_where(array $where = []): self {
+	private function _acquire_where(array $where = []): self
+	{
 		$update = $this->queryUpdate();
 		$sql = $update->sql();
 		$server = Server::singleton($this->application);
@@ -433,7 +452,8 @@ class Lock extends ORMBase {
 	/**
 	 * Acquire an inactive lock
 	 */
-	private function _acquireOnce(): self {
+	private function _acquireOnce(): self
+	{
 		return $this->_acquire_where([
 			'pid' => null,
 		]);
@@ -443,7 +463,8 @@ class Lock extends ORMBase {
 	 * Acquire a dead lock, requires that the pid and server don't change between now and
 	 * acquisition
 	 */
-	private function _acquireDead(): self {
+	private function _acquireDead(): self
+	{
 		return $this->_acquire_where([
 			'pid' => $this->pid, 'server' => $this->server,
 		]);
@@ -455,7 +476,8 @@ class Lock extends ORMBase {
 	 * @param int $timeout
 	 * @throws TimeoutExpired
 	 */
-	private function _acquire(int $timeout): void {
+	private function _acquire(int $timeout): void
+	{
 		$timer = new Timer();
 		// Defaults to 0.5 seconds
 		$sleep = $this->optionFloat('sleep_seconds', 0.5);
@@ -493,7 +515,8 @@ class Lock extends ORMBase {
 	 *
 	 * @return boolean
 	 */
-	private function isProcessAlive(): bool {
+	private function isProcessAlive(): bool
+	{
 		return $this->application->process->alive($this->pid);
 	}
 
@@ -502,7 +525,8 @@ class Lock extends ORMBase {
 	 *
 	 * @return boolean
 	 */
-	private function isMyServer(): bool {
+	private function isMyServer(): bool
+	{
 		try {
 			return Server::singleton($this->application)->id() === $this->memberInteger('server');
 		} catch (Throwable) {
@@ -515,7 +539,8 @@ class Lock extends ORMBase {
 	 *
 	 * @return boolean
 	 */
-	private function isMyPID(): bool {
+	private function isMyPID(): bool
+	{
 		try {
 			return $this->application->process->id() === $this->memberInteger('pid');
 		} catch (KeyNotFound|ParseException|ORMEmpty|ORMNotFound) {
@@ -528,7 +553,8 @@ class Lock extends ORMBase {
 	 *
 	 * @return boolean
 	 */
-	private function isFree(): bool {
+	private function isFree(): bool
+	{
 		return $this->memberIsEmpty('pid') && $this->memberIsEmpty('server');
 	}
 
@@ -537,7 +563,8 @@ class Lock extends ORMBase {
 	 *
 	 * @return boolean
 	 */
-	private function _isMine(): bool {
+	private function _isMine(): bool
+	{
 		return $this->isMyServer() && $this->isMyPID();
 	}
 }

@@ -36,7 +36,8 @@ use zesk\Interface\Themeable;
  * @see Application::themePaths
  * @author kent
  */
-class Theme implements Themeable {
+class Theme implements Themeable
+{
 	use GetTyped;
 
 	/**
@@ -151,7 +152,8 @@ class Theme implements Themeable {
 	 * @param array|Theme $variables
 	 * @return self
 	 */
-	public static function factory(Themes $app, string $path = '', array|self $variables = []): self {
+	public static function factory(Themes $app, string $path = '', array|self $variables = []): self
+	{
 		return new self($app, $path, $variables);
 	}
 
@@ -164,7 +166,8 @@ class Theme implements Themeable {
 	 * @param ?mixed $variables
 	 *            Name/Value pairs to be set in the template execution
 	 */
-	public function __construct(Themes $app, string $path = '', array|self $variables = null) {
+	public function __construct(Themes $app, string $path = '', array|self $variables = null)
+	{
 		$this->themes = $app;
 
 		$this->_vars = [];
@@ -194,7 +197,8 @@ class Theme implements Themeable {
 	 *
 	 * @return string
 	 */
-	public function id(): string {
+	public function id(): string
+	{
 		return $this->_id;
 	}
 
@@ -206,7 +210,8 @@ class Theme implements Themeable {
 	 * @param ?mixed $variables
 	 * @return self
 	 */
-	public function begin(string $path, mixed $variables = null): self {
+	public function begin(string $path, mixed $variables = null): self
+	{
 		$path .= '.tpl';
 		$this->wrappers[] = $t = new Theme($this->themes, $path, $variables);
 		$t->push();
@@ -225,7 +230,8 @@ class Theme implements Themeable {
 	 * @return string
 	 * @throws SemanticsException|Redirect
 	 */
-	public function end(array $variables = [], string $content_variable = 'content'): string {
+	public function end(array $variables = [], string $content_variable = 'content'): string
+	{
 		if (count($this->wrappers) === 0) {
 			throw new SemanticsException('Template::end when no template on the wrapper stack');
 		}
@@ -243,7 +249,8 @@ class Theme implements Themeable {
 	/**
 	 * @return self
 	 */
-	public function push(): self {
+	public function push(): self
+	{
 		$top = $this->themes->pushTemplate($this);
 		$this->_vars += $top->variables();
 		$this->_running++;
@@ -256,7 +263,8 @@ class Theme implements Themeable {
 	 * @return $this
 	 * @throws SemanticsException
 	 */
-	public function pop(): self {
+	public function pop(): self
+	{
 		$top = $this->themes->popTemplate();
 		if ($top !== $this) {
 			throw new SemanticsException("Popped template ($top->_path) not this ($this->_path)");
@@ -279,7 +287,8 @@ class Theme implements Themeable {
 	 *
 	 * @return array
 	 */
-	public function variables(): array {
+	public function variables(): array
+	{
 		return $this->_vars;
 	}
 
@@ -288,7 +297,8 @@ class Theme implements Themeable {
 	 *
 	 * @return array
 	 */
-	public function values(): array {
+	public function values(): array
+	{
 		return $this->_vars;
 	}
 
@@ -298,7 +308,8 @@ class Theme implements Themeable {
 	 * @param string $path
 	 * @return string Found path
 	 */
-	public function findPath(string $path): string {
+	public function findPath(string $path): string
+	{
 		[$path] = $this->_findPath($path);
 		return $path;
 	}
@@ -309,7 +320,8 @@ class Theme implements Themeable {
 	 * @param string $path
 	 * @return array In the form `["path", "id"]`
 	 */
-	protected function _findPath(string $path): array {
+	protected function _findPath(string $path): array
+	{
 		if (Directory::isAbsolute($path)) {
 			$id = '';
 			if (file_exists($path)) {
@@ -345,7 +357,8 @@ class Theme implements Themeable {
 	 * @param string $path
 	 * @return boolean
 	 */
-	public function wouldExist(string $path): bool {
+	public function wouldExist(string $path): bool
+	{
 		$path = $this->findPath($path);
 		return file_exists($path);
 	}
@@ -356,7 +369,8 @@ class Theme implements Themeable {
 	 *
 	 * @return string
 	 */
-	public function path(): string {
+	public function path(): string
+	{
 		return $this->_path;
 	}
 
@@ -364,7 +378,8 @@ class Theme implements Themeable {
 	 * @param string $set Value to set the path to
 	 * @return $this
 	 */
-	public function setPath(string $set): self {
+	public function setPath(string $set): self
+	{
 		[$this->_path, $this->_id] = $this->_findPath($set);
 		return $this;
 	}
@@ -374,7 +389,8 @@ class Theme implements Themeable {
 	 *
 	 * @return boolean
 	 */
-	public function exists(): bool {
+	public function exists(): bool
+	{
 		return $this->_path && file_exists($this->_path);
 	}
 
@@ -382,7 +398,8 @@ class Theme implements Themeable {
 	 *
 	 * @return string
 	 */
-	public function className(): string {
+	public function className(): string
+	{
 		return 'Template';
 	}
 
@@ -391,14 +408,16 @@ class Theme implements Themeable {
 	 *
 	 * @return mixed
 	 */
-	public function result(): mixed {
+	public function result(): mixed
+	{
 		return $this->return;
 	}
 
 	/**
 	 * @return string
 	 */
-	public function objectName(): string {
+	public function objectName(): string
+	{
 		try {
 			$contents = File::contents($this->_path);
 			$matches = [];
@@ -415,7 +434,8 @@ class Theme implements Themeable {
 	 *
 	 * @return array
 	 */
-	public function changed(): array {
+	public function changed(): array
+	{
 		return $this->_changed;
 	}
 
@@ -425,7 +445,8 @@ class Theme implements Themeable {
 	 * @param array|string|Theme|int $key Thing to set
 	 * @param mixed $value Value to set (string or int $key only)
 	 */
-	public function set(array|string|int|Theme $key, mixed $value = null): void {
+	public function set(array|string|int|Theme $key, mixed $value = null): void
+	{
 		if (is_array($key)) {
 			foreach ($key as $k0 => $v0) {
 				$this->__set($k0, $v0);
@@ -443,7 +464,8 @@ class Theme implements Themeable {
 	 * @return string
 	 * @throws Redirect
 	 */
-	public function render(): string {
+	public function render(): string
+	{
 		if (!$this->_path) {
 			return '';
 		}
@@ -488,7 +510,8 @@ class Theme implements Themeable {
 	 * @param string $key
 	 * @return string
 	 */
-	private static function _template_key(string $key): string {
+	private static function _template_key(string $key): string
+	{
 		return strtolower($key);
 	}
 
@@ -497,7 +520,8 @@ class Theme implements Themeable {
 	 * @param Application $application
 	 * @return void
 	 */
-	public static function configured(Application $application): void {
+	public static function configured(Application $application): void
+	{
 		$config = $application->configuration->path(__CLASS__);
 		self::$profile = $config->getBool('profile');
 		self::$wrap = $config->getBool('wrap');
@@ -513,7 +537,8 @@ class Theme implements Themeable {
 	 * @return string
 	 * @throws Redirect
 	 */
-	public static function profileOutput(Request $request, Response $response): string {
+	public static function profileOutput(Request $request, Response $response): string
+	{
 		if (!self::$profile) {
 			return '';
 		}
@@ -534,7 +559,8 @@ class Theme implements Themeable {
 	 * @param mixed $value When $mixed is a string or int, the value to set
 	 * @return $this
 	 */
-	public function inherit(array|Theme|string|int $mixed, mixed $value = null): self {
+	public function inherit(array|Theme|string|int $mixed, mixed $value = null): self
+	{
 		if (is_array($mixed)) {
 			foreach ($mixed as $k => $v) {
 				$this->__set($k, $v);
@@ -553,7 +579,8 @@ class Theme implements Themeable {
 	 * @param mixed $value Value
 	 * @see stdClass::__set
 	 */
-	public function __set(string|int $key, mixed $value): void {
+	public function __set(string|int $key, mixed $value): void
+	{
 		$key = self::_template_key($key);
 		if ($this->_running > 0) {
 			$this->_changed[$key] = $value;
@@ -567,7 +594,8 @@ class Theme implements Themeable {
 	 * @return mixed
 	 * @see stdClass::__get
 	 */
-	public function __get(string|int $key): mixed {
+	public function __get(string|int $key): mixed
+	{
 		$key = self::_template_key($key);
 		if (array_key_exists($key, $this->_vars)) {
 			return $this->_vars[$key];
@@ -583,7 +611,8 @@ class Theme implements Themeable {
 	 * @return bool
 	 * @see stdClass::__isset
 	 */
-	public function __isset(string|int $key): bool {
+	public function __isset(string|int $key): bool
+	{
 		$key = self::_template_key($key);
 		return isset($this->_vars[$key]);
 	}
@@ -593,7 +622,8 @@ class Theme implements Themeable {
 	 * @param string|int $key
 	 * @see stdClass::__unset
 	 */
-	public function __unset(string|int $key): void {
+	public function __unset(string|int $key): void
+	{
 		$key = self::_template_key($key);
 		unset($this->_vars[$key]);
 	}
@@ -601,7 +631,8 @@ class Theme implements Themeable {
 	/**
 	 * @return string
 	 */
-	public function __toString(): string {
+	public function __toString(): string
+	{
 		return PHP::dump($this->_original_path);
 	}
 
@@ -618,7 +649,8 @@ class Theme implements Themeable {
 	 * @throws Redirect
 	 * @see Application::theme
 	 */
-	final public function theme(array|string $types, array $arguments = [], array $options = []): ?string {
+	final public function theme(array|string $types, array $arguments = [], array $options = []): ?string
+	{
 		return $this->themes->theme($types, $arguments, $options);
 	}
 
@@ -633,7 +665,8 @@ class Theme implements Themeable {
 	 * @param array $arguments
 	 * @return bool
 	 */
-	final public function themeExists(string|array $types, array $arguments = []): bool {
+	final public function themeExists(string|array $types, array $arguments = []): bool
+	{
 		return $this->themes->themeExists($types, $arguments);
 	}
 }

@@ -16,8 +16,10 @@ use zesk\Repository\ModuleBase;
  *
  * @author kent
  */
-class Module extends ModuleBase {
-	public function initialize(): void {
+class Module extends ModuleBase
+{
+	public function initialize(): void
+	{
 		parent::initialize();
 		$this->registerRepository(Repository::class, [
 			'git',

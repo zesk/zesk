@@ -25,7 +25,8 @@ use zesk\StringTools;
  * @package zesk
  * @subpackage system
  */
-abstract class Base extends Options {
+abstract class Base extends Options
+{
 	/**
 	 * @var resource
 	 */
@@ -100,7 +101,8 @@ abstract class Base extends Options {
 	 *
 	 * @param mixed $options Array of options
 	 */
-	public function __construct(array $options = []) {
+	public function __construct(array $options = [])
+	{
 		parent::__construct($options);
 
 		$this->RowIndex = 0;
@@ -122,7 +124,8 @@ abstract class Base extends Options {
 	 * @throws FilePermission
 	 * @see fopen
 	 */
-	protected function _setFile(string $filename, string $mode, bool $create = false): self {
+	protected function _setFile(string $filename, string $mode, bool $create = false): self
+	{
 		if (!$create && !file_exists($filename)) {
 			throw new FileNotFound($filename);
 		}
@@ -142,7 +145,8 @@ abstract class Base extends Options {
 	 *
 	 * @return void
 	 */
-	public function close(): void {
+	public function close(): void
+	{
 		if (is_resource($this->File)) {
 			fclose($this->File);
 			$this->File = null;
@@ -157,7 +161,8 @@ abstract class Base extends Options {
 	 * @return Base
 	 * @throws KeyNotFound
 	 */
-	public function addHeaders(array $headers, bool $is_map = true): self {
+	public function addHeaders(array $headers, bool $is_map = true): self
+	{
 		if ($is_map) {
 			foreach ($headers as $column => $header_name) {
 				$index = count($this->Headers);
@@ -195,7 +200,8 @@ abstract class Base extends Options {
 	 * @return $this
 	 * @throws KeyNotFound
 	 */
-	public function setHeaders(array $headers, bool $is_map = true): self {
+	public function setHeaders(array $headers, bool $is_map = true): self
+	{
 		$this->Headers = [];
 		$this->HeadersToIndex = [];
 		return $this->addHeaders($headers, $is_map);
@@ -204,7 +210,8 @@ abstract class Base extends Options {
 	/**
 	 * @return array
 	 */
-	public function headers(): array {
+	public function headers(): array
+	{
 		if (method_exists($this, '_cleanHeaders')) {
 			$this->_cleanHeaders();
 		}
@@ -216,7 +223,8 @@ abstract class Base extends Options {
 	 *
 	 * @return string
 	 */
-	public function filename(): string {
+	public function filename(): string
+	{
 		return $this->FileName;
 	}
 
@@ -227,7 +235,8 @@ abstract class Base extends Options {
 	 * @param string $default Value to return if not found
 	 * @return string
 	 */
-	public function column(string $name, string $default = ''): string {
+	public function column(string $name, string $default = ''): string
+	{
 		$name = strtolower($name);
 		if (array_key_exists($name, $this->HeadersToIndex)) {
 			return $this->Row[$this->HeadersToIndex[$name]];
@@ -240,7 +249,8 @@ abstract class Base extends Options {
 	 *
 	 * @return int
 	 */
-	public function rowIndex(): int {
+	public function rowIndex(): int
+	{
 		if ($this->RowIndex === 0) {
 			return 0;
 		}
@@ -252,7 +262,8 @@ abstract class Base extends Options {
 	 *
 	 * @return array
 	 */
-	public function row(): array {
+	public function row(): array
+	{
 		return $this->Row;
 	}
 
@@ -261,7 +272,8 @@ abstract class Base extends Options {
 	 *
 	 * @throws SemanticsException
 	 */
-	protected function _check_file(): void {
+	protected function _check_file(): void
+	{
 		if (!is_resource($this->File)) {
 			throw new SemanticsException('Must set a file first.');
 		}
@@ -281,7 +293,8 @@ abstract class Base extends Options {
 	 * @return string A correctly quoted CSV value
 	 * @see StringTools::csvQuote
 	 */
-	public static function quote(string $x): string {
+	public static function quote(string $x): string
+	{
 		return StringTools::csvQuote($x);
 	}
 
@@ -292,7 +305,8 @@ abstract class Base extends Options {
 	 * @return string
 	 * @see StringTools::csvQuoteRow
 	 */
-	public static function quoteRow(array $x): string {
+	public static function quoteRow(array $x): string
+	{
 		return StringTools::csvQuoteRow($x);
 	}
 
@@ -303,7 +317,8 @@ abstract class Base extends Options {
 	 * @return string
 	 * @see StringTools::csvQuoteRows
 	 */
-	public static function quoteRows(array $x): string {
+	public static function quoteRows(array $x): string
+	{
 		return StringTools::csvQuoteRows($x);
 	}
 }

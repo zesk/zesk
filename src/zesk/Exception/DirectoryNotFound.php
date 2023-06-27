@@ -14,5 +14,6 @@ namespace zesk\Exception;
  * @author kent
  *
  */
-class DirectoryNotFound extends FileSystemException {
+class DirectoryNotFound extends FileSystemException
+{
 }

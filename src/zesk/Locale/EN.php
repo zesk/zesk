@@ -11,14 +11,16 @@ namespace zesk\Locale;
 
 use zesk\StringTools;
 
-class EN extends Locale {
+class EN extends Locale
+{
 	/**
 	 * @desc {@inheritDoc}
 	 * @see Locale::formatDate()
 	 * @copyright &copy; 2023 Market Acumen, Inc.
 	 * @package zesk
 	 */
-	public function formatDate(): string {
+	public function formatDate(): string
+	{
 		return '{MMMM} {DDD}, {YYYY}';
 	}
 
@@ -27,7 +29,8 @@ class EN extends Locale {
 	 * {@inheritDoc}
 	 * @see Locale::formatDateTime()
 	 */
-	public function formatDateTime(): string {
+	public function formatDateTime(): string
+	{
 		return '{MMMM} {DDD}, {YYYY} {12hh}:{mm} {AMPM}';
 	}
 
@@ -36,7 +39,8 @@ class EN extends Locale {
 	 * {@inheritDoc}
 	 * @see Locale::formatTime()
 	 */
-	public function formatTime(bool $include_seconds = false): string {
+	public function formatTime(bool $include_seconds = false): string
+	{
 		return $include_seconds ? '{12h}:{mm}:{ss} {ampm}' : '{12h}:{mm} {AMPM}';
 	}
 
@@ -45,7 +49,8 @@ class EN extends Locale {
 	 * {@inheritDoc}
 	 * @see Locale::possessive()
 	 */
-	public function possessive(string $owner, string $object): string {
+	public function possessive(string $owner, string $object): string
+	{
 		if (str_ends_with($owner, 's')) {
 			return "$owner' $object";
 		} else {
@@ -59,7 +64,8 @@ class EN extends Locale {
 	 * @param string $s Word to pluralize
 	 * @return ?string plural string case matched to input, or null if not an exception
 	 */
-	private function plural_en_exception(string $s): string|null {
+	private function plural_en_exception(string $s): string|null
+	{
 		$exceptions = [
 			'company' => 'companies',
 			'day' => 'days',
@@ -84,7 +90,8 @@ class EN extends Locale {
 	 * {@inheritDoc}
 	 * @see Locale::nounSemanticPlural()
 	 */
-	public function nounSemanticPlural(string $noun, float $number = 2): string {
+	public function nounSemanticPlural(string $noun, float $number = 2): string
+	{
 		if ($number > 0 && $number <= 1) {
 			/* Singular */
 			return $noun;
@@ -110,7 +117,8 @@ class EN extends Locale {
 	 * {@inheritDoc}
 	 * @see Locale::indefiniteArticle()
 	 */
-	public function indefiniteArticle(string $word, array $context = []): string {
+	public function indefiniteArticle(string $word, array $context = []): string
+	{
 		if (strlen($word) === 0) {
 			return '';
 		}
@@ -131,7 +139,8 @@ class EN extends Locale {
 	 * {@inheritDoc}
 	 * @see Locale::ordinal()
 	 */
-	public function ordinal(int $number): string {
+	public function ordinal(int $number): string
+	{
 		$number = floatval($number);
 		$mod_100 = $number % 100;
 		if ($mod_100 > 10 && $mod_100 < 20) {
@@ -156,7 +165,8 @@ class EN extends Locale {
 	 * {@inheritDoc}
 	 * @see Locale::negateWord()
 	 */
-	public function negateWord(string $word, string $preferred_prefix = ''): string {
+	public function negateWord(string $word, string $preferred_prefix = ''): string
+	{
 		if ($preferred_prefix === '') {
 			$preferred_prefix = 'Non-';
 		}

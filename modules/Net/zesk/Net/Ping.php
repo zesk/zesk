@@ -2,10 +2,12 @@
 declare(strict_types=1);
 namespace zesk;
 
-class Net_Ping {
+class Net_Ping
+{
 	private static $icmp_proto = null;
 
-	public static function _init(): void {
+	public static function _init(): void
+	{
 		if (self::$icmp_proto === null) {
 			self::$icmp_proto = getprotobyname('icmp');
 		}
@@ -18,7 +20,8 @@ class Net_Ping {
 	 * @param double $timeout_seconds Seconds or fractional seconds to require a response by remote host. By default timeout is 1 second.
 	 * @return double Ping response time, or false if host did not reply in time/unreachable.
 	 */
-	public static function ping($host, $timeout_seconds = 1) {
+	public static function ping($host, $timeout_seconds = 1)
+	{
 		self::_init();
 		/* ICMP ping packet with a pre-calculated checksum */
 		$package = "\x08\x00\x7d\x4b\x00\x00\x00\x00PingHost";

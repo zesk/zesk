@@ -20,7 +20,8 @@ use zesk\Exception\UnimplementedException;
 use zesk\File;
 use zesk\Image\Library;
 
-class ImageMagick extends Library {
+class ImageMagick extends Library
+{
 	/**
 	 *
 	 * @var string
@@ -38,7 +39,8 @@ class ImageMagick extends Library {
 	 * @return string
 	 * @throws NotFoundException
 	 */
-	private function shellCommand(): string {
+	private function shellCommand(): string
+	{
 		$command = $this->application->configuration->getPath([
 			__CLASS__, 'command',
 		], self::command_default);
@@ -50,7 +52,8 @@ class ImageMagick extends Library {
 	 * @return string
 	 * @throws NotFoundException
 	 */
-	private function shellCommandScale(): string {
+	private function shellCommandScale(): string
+	{
 		$command = $this->shellCommand();
 		$pattern = $this->application->configuration->getPath([
 			__CLASS__, 'command_scale',
@@ -64,7 +67,8 @@ class ImageMagick extends Library {
 	 *
 	 * @return boolean
 	 */
-	public function installed(): bool {
+	public function installed(): bool
+	{
 		try {
 			$this->shellCommand();
 			return true;
@@ -85,7 +89,8 @@ class ImageMagick extends Library {
 	 * @throws FilePermission
 	 * @throws NotFoundException
 	 */
-	public function imageScaleData(string $data, array $options): string {
+	public function imageScaleData(string $data, array $options): string
+	{
 		$extension = Content_Image::determine_extension_simple_data($data);
 		$source = File::temporary($this->application->paths->temporary(), $extension);
 		$dest = File::temporary($this->application->paths->temporary(), $extension);
@@ -110,7 +115,8 @@ class ImageMagick extends Library {
 	 * @throws FilePermission
 	 * @throws NotFoundException
 	 */
-	public function imageScale(string $source, string $dest, array $options): bool {
+	public function imageScale(string $source, string $dest, array $options): bool
+	{
 		File::depends($source);
 		Directory::must(dirname($dest));
 		[$actual_width, $actual_height] = getimagesize($source);
@@ -147,7 +153,8 @@ class ImageMagick extends Library {
 	 * @return bool
 	 * @throws UnimplementedException
 	 */
-	public function imageRotate(string $source, string $destination, float $degrees, array $options = []): bool {
+	public function imageRotate(string $source, string $destination, float $degrees, array $options = []): bool
+	{
 		throw new UnimplementedException('TODO');
 	}
 }

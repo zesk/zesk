@@ -13,8 +13,10 @@ use stdClass;
 /**
  * Generic test class
  */
-class Generic_Test extends UnitTest {
-	public static function data_something(): array {
+class Generic_Test extends UnitTest
+{
+	public static function data_something(): array
+	{
 		$true_ish = [true, 1, 'yes', ' 0', new stdClass()];
 		$false_ish = [false, 0, null, '', '', '0', []];
 		$arguments_list = [];
@@ -35,7 +37,8 @@ class Generic_Test extends UnitTest {
 	 * @return void
 	 * @dataProvider data_something
 	 */
-	public function test_something($expected, $tested): void {
+	public function test_something($expected, $tested): void
+	{
 		$this->assertEquals($expected, !(!($tested)), type($tested) . ' failed');
 	}
 }

@@ -16,7 +16,8 @@ use Throwable;
  * @author kent
  *
  */
-trait FileSystemTrait {
+trait FileSystemTrait
+{
 	/**
 	 *
 	 * @var string
@@ -51,7 +52,8 @@ trait FileSystemTrait {
 	 *
 	 * @return string
 	 */
-	public function path(): string {
+	public function path(): string
+	{
 		return $this->path;
 	}
 
@@ -59,7 +61,8 @@ trait FileSystemTrait {
 	 *
 	 * @return string
 	 */
-	public function __toString(): string {
+	public function __toString(): string
+	{
 		$path = $this->path();
 		$result = parent::__toString();
 		if (str_contains($result, $path)) {

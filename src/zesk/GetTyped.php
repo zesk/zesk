@@ -8,7 +8,8 @@ declare(strict_types=1);
 
 namespace zesk;
 
-trait GetTyped {
+trait GetTyped
+{
 	/**
 	 * Check for a value and check optionally that it is not empty.
 	 *
@@ -16,7 +17,8 @@ trait GetTyped {
 	 * @param boolean $check_empty
 	 * @return boolean
 	 */
-	public function has(string $key, bool $check_empty = false): bool {
+	public function has(string $key, bool $check_empty = false): bool
+	{
 		if (!$this->__isset($key)) {
 			return false;
 		}
@@ -34,7 +36,8 @@ trait GetTyped {
 	 * @param mixed $default
 	 * @return mixed
 	 */
-	public function get(string|int $k, mixed $default = null): mixed {
+	public function get(string|int $k, mixed $default = null): mixed
+	{
 		return $this->__get($k) ?? $default;
 	}
 
@@ -45,7 +48,8 @@ trait GetTyped {
 	 * @param mixed $default
 	 * @return mixed
 	 */
-	public function getFirst(string|array $keys, mixed $default = null): mixed {
+	public function getFirst(string|array $keys, mixed $default = null): mixed
+	{
 		foreach (toList($keys) as $key) {
 			if ($this->__isset($key)) {
 				return $this->__get($key);
@@ -61,7 +65,8 @@ trait GetTyped {
 	 * @param mixed $default
 	 * @return mixed
 	 */
-	public function getNotEmpty(string $key, mixed $default = null): mixed {
+	public function getNotEmpty(string $key, mixed $default = null): mixed
+	{
 		if (!$this->__isset($key)) {
 			return $default;
 		}
@@ -76,7 +81,8 @@ trait GetTyped {
 	 * @param int $default
 	 * @return integer
 	 */
-	public function getInt(string|int $key, int $default = 0): int {
+	public function getInt(string|int $key, int $default = 0): int
+	{
 		return toInteger($this->__get($key), $default);
 	}
 
@@ -87,7 +93,8 @@ trait GetTyped {
 	 * @param string $default
 	 * @return string
 	 */
-	public function getString(string|int $key, string $default = ''): string {
+	public function getString(string|int $key, string $default = ''): string
+	{
 		$r = $this->__get($key);
 		if ($r !== null) {
 			return strval($r);
@@ -102,7 +109,8 @@ trait GetTyped {
 	 * @param float $default
 	 * @return float
 	 */
-	public function getFloat(string $name, float $default = 0.0): float {
+	public function getFloat(string $name, float $default = 0.0): float
+	{
 		return toFloat($this->get($name), $default);
 	}
 
@@ -113,7 +121,8 @@ trait GetTyped {
 	 * @param mixed $default
 	 * @return boolean
 	 */
-	public function getBool(string|int $key, bool $default = false): bool {
+	public function getBool(string|int $key, bool $default = false): bool
+	{
 		return toBool($this->__get($key), $default);
 	}
 
@@ -124,7 +133,8 @@ trait GetTyped {
 	 * @param mixed $default
 	 * @return array
 	 */
-	public function getArray(string|int $key, array $default = []): array {
+	public function getArray(string|int $key, array $default = []): array
+	{
 		$value = $this->__get($key);
 		if (is_array($value)) {
 			return $value;
@@ -141,7 +151,8 @@ trait GetTyped {
 	 *            For string values, split on this character
 	 * @return array
 	 */
-	public function getList(string $name, array $default = [], string $sep = ';'): array {
+	public function getList(string $name, array $default = [], string $sep = ';'): array
+	{
 		$x = $this->__get($name);
 		if (is_array($x)) {
 			return $x;

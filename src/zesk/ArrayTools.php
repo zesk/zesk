@@ -19,7 +19,8 @@ use zesk\Exception\SemanticsException;
  *
  * @see ArrayTools_Test
  */
-class ArrayTools {
+class ArrayTools
+{
 	/**
 	 * Default whitespace trimming characters
 	 *
@@ -39,7 +40,8 @@ class ArrayTools {
 	 * @param mixed $default value to return if value is not found
 	 * @return mixed
 	 */
-	public static function &path(array $array, array $path, mixed $default = null): mixed {
+	public static function &path(array $array, array $path, mixed $default = null): mixed
+	{
 		if (count($path) === 0) {
 			return $array;
 		}
@@ -66,7 +68,8 @@ class ArrayTools {
 	 * @see self::path()
 	 * @see self::unsetPath()
 	 */
-	public static function &setPath(array &$array, array $path, mixed $value = null): mixed {
+	public static function &setPath(array &$array, array $path, mixed $value = null): mixed
+	{
 		$current = &$array;
 		// Split the keys by separator
 		while (count($path) > 1) {
@@ -92,7 +95,8 @@ class ArrayTools {
 	 * @param array $keys Path to item in the tree
 	 * @return bool Value was found and unset.
 	 */
-	public static function unsetPath(array &$array, array $keys): bool {
+	public static function unsetPath(array &$array, array $keys): bool
+	{
 		$current = &$array;
 		// Split the keys by separator
 		while (count($keys) > 1) {
@@ -124,7 +128,8 @@ class ArrayTools {
 	 *            Tokens to convert from/to
 	 * @return mixed Whatever passed in is returned (string/array)
 	 */
-	public static function replaceSubstrings(mixed $mixed, array $map): mixed {
+	public static function replaceSubstrings(mixed $mixed, array $map): mixed
+	{
 		if (Types::canIterate($mixed)) {
 			foreach ($mixed as $key => $value) {
 				$mixed[$key] = self::replaceSubstrings($value, $map);
@@ -145,7 +150,8 @@ class ArrayTools {
 	 * @param string $suffixChar
 	 * @return Stringable|array|string
 	 */
-	public static function map(Stringable|array|string $mixed, array $map, bool $insensitive = false, string $prefixChar = '{', string $suffixChar = '}'): array|string|Stringable {
+	public static function map(Stringable|array|string $mixed, array $map, bool $insensitive = false, string $prefixChar = '{', string $suffixChar = '}'): array|string|Stringable
+	{
 		if ($insensitive) {
 			$map = array_change_key_case($map);
 		}
@@ -192,7 +198,8 @@ class ArrayTools {
 	 *            Suffix character for tokens (defaults to '}')
 	 * @return array
 	 */
-	public static function mapKeysAndValues(array $target, array $map, bool $insensitive = false, string $prefix_char = '{', string $suffix_char = '}'): array {
+	public static function mapKeysAndValues(array $target, array $map, bool $insensitive = false, string $prefix_char = '{', string $suffix_char = '}'): array
+	{
 		return self::map(self::mapKeys($target, $map, $insensitive, $prefix_char, $suffix_char), $map, $insensitive, $prefix_char, $suffix_char);
 	}
 
@@ -210,7 +217,8 @@ class ArrayTools {
 	 *            Suffix character for tokens (defaults to "}")
 	 * @return array
 	 */
-	public static function mapKeys(array $target, array $map, bool $insensitive = false, string $prefix_char = '{', string $suffix_char = '}'): array {
+	public static function mapKeys(array $target, array $map, bool $insensitive = false, string $prefix_char = '{', string $suffix_char = '}'): array
+	{
 		$new_mixed = [];
 		foreach ($target as $key => $value) {
 			$new_mixed[self::map($key, $map, $insensitive, $prefix_char, $suffix_char)] = $value;
@@ -224,7 +232,8 @@ class ArrayTools {
 	 * @param array $array
 	 * @return array
 	 */
-	public static function capitalize(array $array): array {
+	public static function capitalize(array $array): array
+	{
 		foreach ($array as $k => $v) {
 			if (is_array($v)) {
 				$array[$k] = self::capitalize($v);
@@ -243,7 +252,8 @@ class ArrayTools {
 	 * @return array
 	 * @see flatten
 	 */
-	public static function flatten(array $a): array {
+	public static function flatten(array $a): array
+	{
 		foreach ($a as $k => $v) {
 			if (!is_scalar($v)) {
 				try {
@@ -263,7 +273,8 @@ class ArrayTools {
 	 * @throws SemanticsException
 	 * @see flatten
 	 */
-	public static function simplify(array $a): array {
+	public static function simplify(array $a): array
+	{
 		foreach ($a as $k => $v) {
 			if (is_object($v)) {
 				$a[$k] = method_exists($v, '__toString') ? strval($v) : self::simplify(get_object_vars($v));
@@ -283,7 +294,8 @@ class ArrayTools {
 	 * @param mixed $values_to_remove Value or array of values to remove. Must match explicitly (===)
 	 * @return array
 	 */
-	public static function clean(array $array_to_clean, mixed $values_to_remove = [null, '', false]): array {
+	public static function clean(array $array_to_clean, mixed $values_to_remove = [null, '', false]): array
+	{
 		if (is_array($values_to_remove)) {
 			foreach ($values_to_remove as $v) {
 				$array_to_clean = self::clean($array_to_clean, $v);
@@ -307,7 +319,8 @@ class ArrayTools {
 	 * @return array
 	 * @see trim()
 	 */
-	public static function trim(array $a, string $character_list = self::TRIM_WHITESPACE): array {
+	public static function trim(array $a, string $character_list = self::TRIM_WHITESPACE): array
+	{
 		foreach ($a as $i => $v) {
 			$a[$i] = is_array($v) ? self::trim($v, $character_list) : (is_string($v) ? trim($v, $character_list) : '');
 		}
@@ -321,7 +334,8 @@ class ArrayTools {
 	 * @param string $character_list
 	 * @return array
 	 */
-	public static function listTrim(array $a, string $character_list = self::TRIM_WHITESPACE): array {
+	public static function listTrim(array $a, string $character_list = self::TRIM_WHITESPACE): array
+	{
 		return self::listTrimTail(self::listTrimHead($a, $character_list), $character_list);
 	}
 
@@ -330,7 +344,8 @@ class ArrayTools {
 	 * @param string $character_list
 	 * @return array
 	 */
-	public static function listTrimHead(array $a, string $character_list = self::TRIM_WHITESPACE): array {
+	public static function listTrimHead(array $a, string $character_list = self::TRIM_WHITESPACE): array
+	{
 		while (count($a) > 0) {
 			$item = ArrayTools::first($a);
 			if (empty($item) || (is_scalar($item) && trim(strval($item), $character_list) === '')) {
@@ -349,7 +364,8 @@ class ArrayTools {
 	 * @param string $character_list
 	 * @return array
 	 */
-	public static function listTrimTail(array $a, string $character_list = self::TRIM_WHITESPACE): array {
+	public static function listTrimTail(array $a, string $character_list = self::TRIM_WHITESPACE): array
+	{
 		while (count($a) > 0) {
 			$item = ArrayTools::last($a);
 			if (empty($item) || (is_scalar($item) && trim(strval($item), $character_list) === '')) {
@@ -371,7 +387,8 @@ class ArrayTools {
 	 */
 	public static function listTrimClean(array $arr, string $character_list = self::TRIM_WHITESPACE, array $values = [
 		null, '', false,
-	]): array {
+	]): array
+	{
 		return self::clean(self::trim($arr, $character_list), $values);
 	}
 
@@ -385,7 +402,8 @@ class ArrayTools {
 	 * @return array
 	 * @see trim()
 	 */
-	public static function rtrim(array $array_to_trim, string $character_list = self::TRIM_WHITESPACE): array {
+	public static function rtrim(array $array_to_trim, string $character_list = self::TRIM_WHITESPACE): array
+	{
 		foreach ($array_to_trim as $i => $v) {
 			$array_to_trim[$i] = is_string($v) ? rtrim($v, $character_list) : (is_array($v) ? self::rtrim($v, $character_list) : $v);
 		}
@@ -401,7 +419,8 @@ class ArrayTools {
 	 * @return array
 	 * @see trim()
 	 */
-	public static function valuesLeftTrim(array $array_to_trim, string $character_list = self::TRIM_WHITESPACE): array {
+	public static function valuesLeftTrim(array $array_to_trim, string $character_list = self::TRIM_WHITESPACE): array
+	{
 		foreach ($array_to_trim as $i => $v) {
 			$array_to_trim[$i] = is_string($v) ? ltrim($v, $character_list) : (is_array($v) ? self::valuesLeftTrim($v, $character_list) : $v);
 		}
@@ -418,7 +437,8 @@ class ArrayTools {
 	 * @return array
 	 * @see ltrim()
 	 */
-	public static function keysLeftTrim(array $array_keys_to_trim, string $character_list = self::TRIM_WHITESPACE): array {
+	public static function keysLeftTrim(array $array_keys_to_trim, string $character_list = self::TRIM_WHITESPACE): array
+	{
 		$b = [];
 		foreach ($array_keys_to_trim as $i => $v) {
 			$b[ltrim($i, $character_list)] = $v;
@@ -435,7 +455,8 @@ class ArrayTools {
 	 * @return array
 	 * @see ltrim()
 	 */
-	public static function keysTrim(array $array_keys_to_trim, string $character_list = self::TRIM_WHITESPACE): array {
+	public static function keysTrim(array $array_keys_to_trim, string $character_list = self::TRIM_WHITESPACE): array
+	{
 		$b = [];
 		foreach ($array_keys_to_trim as $i => $v) {
 			$b[trim($i, $character_list)] = $v;
@@ -450,7 +471,8 @@ class ArrayTools {
 	 * @param string $str
 	 * @return array
 	 */
-	public static function prefixValues(array $array_values_to_prefix, string $str): array {
+	public static function prefixValues(array $array_values_to_prefix, string $str): array
+	{
 		foreach ($array_values_to_prefix as $k => $v) {
 			$array_values_to_prefix[$k] = $str . $v;
 		}
@@ -464,7 +486,8 @@ class ArrayTools {
 	 * @param string $str
 	 * @return array
 	 */
-	public static function suffixValues(array $arr, string $str): array {
+	public static function suffixValues(array $arr, string $str): array
+	{
 		foreach ($arr as $k => $v) {
 			$arr[$k] = $v . $str;
 		}
@@ -479,7 +502,8 @@ class ArrayTools {
 	 * @param string $suffix
 	 * @return array
 	 */
-	public static function wrapValues(array $arr, string $prefix = '', string $suffix = ''): array {
+	public static function wrapValues(array $arr, string $prefix = '', string $suffix = ''): array
+	{
 		foreach ($arr as $k => $v) {
 			$arr[$k] = $prefix . $v . $suffix;
 		}
@@ -493,7 +517,8 @@ class ArrayTools {
 	 * @param string $str
 	 * @return array
 	 */
-	public static function prefixKeys(array $arr, string $str): array {
+	public static function prefixKeys(array $arr, string $str): array
+	{
 		$result = [];
 		foreach ($arr as $k => $v) {
 			$result[$str . $k] = $v;
@@ -508,7 +533,8 @@ class ArrayTools {
 	 * @param string $str
 	 * @return array
 	 */
-	public static function suffixKeys(array $arr, string $str): array {
+	public static function suffixKeys(array $arr, string $str): array
+	{
 		$result = [];
 		foreach ($arr as $k => $v) {
 			$result[$k . $str] = $v;
@@ -524,7 +550,8 @@ class ArrayTools {
 	 * @param string $suffix
 	 * @return array
 	 */
-	public static function wrapKeys(array $arr, string $prefix = '', string $suffix = ''): array {
+	public static function wrapKeys(array $arr, string $prefix = '', string $suffix = ''): array
+	{
 		$result = [];
 		foreach ($arr as $k => $v) {
 			$result[$prefix . $k . $suffix] = $v;
@@ -542,7 +569,8 @@ class ArrayTools {
 	 *            Remove unmatched entries
 	 * @return array
 	 */
-	public static function valuesRemovePrefix(array $arr, array|string $prefixes, bool $remove = false): array {
+	public static function valuesRemovePrefix(array $arr, array|string $prefixes, bool $remove = false): array
+	{
 		foreach (Types::toList($prefixes) as $prefix) {
 			$n = strlen($prefix);
 			foreach ($arr as $k => $v) {
@@ -570,7 +598,8 @@ class ArrayTools {
 	 *            Remove unmatched entries
 	 * @return array
 	 */
-	public static function valuesRemoveSuffix(array $arr, string $str, bool $remove = false): array {
+	public static function valuesRemoveSuffix(array $arr, string $str, bool $remove = false): array
+	{
 		$n = strlen($str);
 		foreach ($arr as $k => $v) {
 			if (is_string($v)) {
@@ -597,7 +626,8 @@ class ArrayTools {
 	 *            Remove unmatched entries
 	 * @return array
 	 */
-	public static function valuesUnwrap(array $arr, string $prefix, string $suffix, bool $remove = false): array {
+	public static function valuesUnwrap(array $arr, string $prefix, string $suffix, bool $remove = false): array
+	{
 		$n_prefix = strlen($prefix);
 		$n_suffix = strlen($suffix);
 		foreach ($arr as $k => $v) {
@@ -623,7 +653,8 @@ class ArrayTools {
 	 *            Remove unmatched entries
 	 * @return array
 	 */
-	public static function keysRemovePrefix(array $arr, string $str, bool $remove = false): array {
+	public static function keysRemovePrefix(array $arr, string $str, bool $remove = false): array
+	{
 		$n = strlen($str);
 		$result = [];
 		foreach ($arr as $k => $v) {
@@ -645,7 +676,8 @@ class ArrayTools {
 	 *            Remove unmatched entries
 	 * @return array
 	 */
-	public static function keysRemoveSuffix(array $arr, string $str, bool $remove = false): array {
+	public static function keysRemoveSuffix(array $arr, string $str, bool $remove = false): array
+	{
 		$n = strlen($str);
 		$result = [];
 		foreach ($arr as $k => $v) {
@@ -666,7 +698,8 @@ class ArrayTools {
 	 *            Array or list of keys to remove
 	 * @return array
 	 */
-	public static function keysRemove(array $arr, array $keys): array {
+	public static function keysRemove(array $arr, array $keys): array
+	{
 		foreach ($keys as $k) {
 			unset($arr[$k]);
 		}
@@ -680,7 +713,8 @@ class ArrayTools {
 	 * @param array $values List of values to remove
 	 * @return array
 	 */
-	public static function valuesRemove(array $arr, array $values): array {
+	public static function valuesRemove(array $arr, array $values): array
+	{
 		$keys = array_flip($values);
 		foreach ($arr as $k => $v) {
 			if (array_key_exists($v, $keys)) {
@@ -697,7 +731,8 @@ class ArrayTools {
 	 * @return array
 	 * @todo Is this used
 	 */
-	public static function merge(): array {
+	public static function merge(): array
+	{
 		$result = [];
 		for ($i = 0, $total = func_num_args(); $i < $total; $i++) {
 			foreach (func_get_arg($i) as $key => $val) {
@@ -730,7 +765,8 @@ class ArrayTools {
 	 * @param mixed $default_value
 	 * @return array
 	 */
-	public static function extract(array $arrays, string|int $key_key = null, string|int $value_key = null, mixed $default_value = null): array {
+	public static function extract(array $arrays, string|int $key_key = null, string|int $value_key = null, mixed $default_value = null): array
+	{
 		$result = [];
 		if ($key_key === null) {
 			if ($value_key === null) {
@@ -769,7 +805,8 @@ class ArrayTools {
 	 * @param array $values
 	 * @return array
 	 */
-	public static function rekey(array $keys, array $values): array {
+	public static function rekey(array $keys, array $values): array
+	{
 		$result = [];
 		foreach ($keys as $i => $key) {
 			if ($key === null) {
@@ -792,7 +829,8 @@ class ArrayTools {
 	 *            Array of old_key => new_key to convert
 	 * @return array The converted array
 	 */
-	public static function keysMap(array $array, array $key_map): array {
+	public static function keysMap(array $array, array $key_map): array
+	{
 		if (count($key_map) === 0) {
 			return $array;
 		}
@@ -816,7 +854,8 @@ class ArrayTools {
 	 * @param array $value_map Array of old_value => new_value to convert
 	 * @return array The converted array
 	 */
-	public static function valuesMap(array $array, array $value_map): array {
+	public static function valuesMap(array $array, array $value_map): array
+	{
 		if (count($value_map) === 0) {
 			return $array;
 		}
@@ -839,7 +878,8 @@ class ArrayTools {
 	 *            Delimiter to split on
 	 * @return array
 	 */
-	public static function pairValues(array $array, string $delim = ' '): array {
+	public static function pairValues(array $array, string $delim = ' '): array
+	{
 		$result = [];
 		foreach ($array as $k => $item) {
 			if (is_string($item)) {
@@ -863,7 +903,8 @@ class ArrayTools {
 	 * @param array $array
 	 * @return boolean
 	 */
-	public static function isAssoc(mixed $array): bool {
+	public static function isAssoc(mixed $array): bool
+	{
 		if (!is_array($array)) {
 			return false;
 		}
@@ -884,7 +925,8 @@ class ArrayTools {
 	 * @param mixed $mixed
 	 * @return boolean
 	 */
-	public static function isList(mixed $mixed): bool {
+	public static function isList(mixed $mixed): bool
+	{
 		if (!is_array($mixed)) {
 			return false;
 		}
@@ -901,7 +943,8 @@ class ArrayTools {
 	 * @return boolean
 	 * @see Types::toList()
 	 */
-	public static function has(array $array, string|array|int $keys): bool {
+	public static function has(array $array, string|array|int $keys): bool
+	{
 		$keys = Types::toList($keys);
 		foreach ($keys as $key) {
 			if (!array_key_exists($key, $array)) {
@@ -921,7 +964,8 @@ class ArrayTools {
 	 * @return boolean
 	 * @see Types::toList
 	 */
-	public static function hasAnyKey(array $array, array|string|int $keys): bool {
+	public static function hasAnyKey(array $array, array|string|int $keys): bool
+	{
 		foreach (Types::toList($keys) as $key) {
 			if (array_key_exists($key, $array)) {
 				return true;
@@ -940,7 +984,8 @@ class ArrayTools {
 	 * @return boolean
 	 * @see Types::toList
 	 */
-	public static function hasAnyValue(array $array, string|array $values): bool {
+	public static function hasAnyValue(array $array, string|array $values): bool
+	{
 		foreach (Types::toList($values) as $value) {
 			if (in_array($value, $array)) {
 				return true;
@@ -958,7 +1003,8 @@ class ArrayTools {
 	 *            Value to return of no minimum value found in array
 	 * @return mixed Minimum numerical value found in array, or $default if none found.
 	 */
-	public static function min(array $a, mixed $default = null): mixed {
+	public static function min(array $a, mixed $default = null): mixed
+	{
 		$min = null;
 		foreach ($a as $i) {
 			if (!is_numeric($i)) {
@@ -981,7 +1027,8 @@ class ArrayTools {
 	 *            Value to return of no maximum value found in array
 	 * @return mixed Maximum numerical value found in array, or $default if none found.
 	 */
-	public static function max(array $a, mixed $default = null): mixed {
+	public static function max(array $a, mixed $default = null): mixed
+	{
 		$max = null;
 		foreach ($a as $i) {
 			if (!is_numeric($i)) {
@@ -1002,7 +1049,8 @@ class ArrayTools {
 	 * @param array $arr
 	 * @return array with values lowercase
 	 */
-	public static function changeValueCase(array $arr): array {
+	public static function changeValueCase(array $arr): array
+	{
 		$r = [];
 		foreach ($arr as $k => $v) {
 			if (is_string($v)) {
@@ -1025,7 +1073,8 @@ class ArrayTools {
 	 *            array('k1' => 'newK1','k2' => 'newK2') to convert extracted keys
 	 * @return array The array with only the keys passed in which already exist in the array
 	 */
-	public static function filter(array $arr, string|array $keys): array {
+	public static function filter(array $arr, string|array $keys): array
+	{
 		$keys = Types::toList($keys);
 		$r = [];
 		foreach ($keys as $src_key => $dest_key) {
@@ -1050,7 +1099,8 @@ class ArrayTools {
 	 * @param boolean $case_insensitive Case-insensitive search when true
 	 * @return array
 	 */
-	public static function filterKeyPrefixes(array $a, array|string $prefixes, bool $case_insensitive = false): array {
+	public static function filterKeyPrefixes(array $a, array|string $prefixes, bool $case_insensitive = false): array
+	{
 		$prefixes = Types::toList($prefixes);
 		$r = [];
 		foreach ($a as $k => $v) {
@@ -1075,7 +1125,8 @@ class ArrayTools {
 	 *            default false (no changes to input).
 	 * @return array Filtered by include/exclude criteria
 	 */
-	public static function include_exclude(array $a, string|array $include = [], string|array $exclude = [], bool $lower = false): array {
+	public static function include_exclude(array $a, string|array $include = [], string|array $exclude = [], bool $lower = false): array
+	{
 		$new_array = $lower ? self::changeValueCase($a) : $a;
 		$include = Types::toList($include);
 		if (count($include) > 0) {
@@ -1117,7 +1168,8 @@ class ArrayTools {
 	 *            Whether the array keys are case-sensitive or not
 	 * @return array The filtered array
 	 */
-	public static function filterKeys(array $array_to_filter, array $include = null, array $exclude = [], bool $lower = false): array {
+	public static function filterKeys(array $array_to_filter, array $include = null, array $exclude = [], bool $lower = false): array
+	{
 		$ak = array_keys($array_to_filter);
 		$exclude = array_flip($exclude);
 		if ($lower) {
@@ -1180,7 +1232,8 @@ class ArrayTools {
 	 * @return void
 	 * @see ArrayTools::prepend
 	 */
-	public static function append(array &$arr, int|string $k, mixed $v = null): void {
+	public static function append(array &$arr, int|string $k, mixed $v = null): void
+	{
 		if (!isset($arr[$k])) {
 			$arr[$k] = $v;
 		} elseif (is_array($arr[$k])) {
@@ -1225,7 +1278,8 @@ class ArrayTools {
 	 * @return void
 	 * @see ArrayTools::append
 	 */
-	public static function prepend(array &$arr, string $k, mixed $v = null): void {
+	public static function prepend(array &$arr, string $k, mixed $v = null): void
+	{
 		if (!isset($arr[$k])) {
 			$arr[$k] = $v;
 		} elseif (is_array($arr[$k])) {
@@ -1255,7 +1309,8 @@ class ArrayTools {
 	 *            Array to modify
 	 * @return array An array where the keys and values identical (or lowercase equivalent)
 	 */
-	public static function valuesFlipCopy(array $x): array {
+	public static function valuesFlipCopy(array $x): array
+	{
 		$result = [];
 		foreach ($x as $k) {
 			$result[$k] = $k;
@@ -1279,7 +1334,8 @@ class ArrayTools {
 	 * @param array $arr
 	 * @return array
 	 */
-	public static function valuesFlipAppend(array $arr): array {
+	public static function valuesFlipAppend(array $arr): array
+	{
 		$result = [];
 		foreach ($arr as $k => $v) {
 			if (array_key_exists($v, $result)) {
@@ -1312,7 +1368,8 @@ class ArrayTools {
 	 * @param mixed $value
 	 * @return array
 	 */
-	public static function keysFromValues(array $x, mixed $value = null): array {
+	public static function keysFromValues(array $x, mixed $value = null): array
+	{
 		$result = [];
 		foreach ($x as $k) {
 			$result[$k] = $value;
@@ -1332,7 +1389,8 @@ class ArrayTools {
 	 *            default value to return if found key is empty
 	 * @return mixed Key found, default, or false if none found
 	 */
-	public static function keysFind(array $source, array $source_keys, mixed $default = null): mixed {
+	public static function keysFind(array $source, array $source_keys, mixed $default = null): mixed
+	{
 		foreach ($source_keys as $k) {
 			if (array_key_exists($k, $source)) {
 				if (empty($source[$k])) {
@@ -1356,7 +1414,8 @@ class ArrayTools {
 	 * @param boolean $before insert before the given key. defaults to inserting after
 	 * @return array merged
 	 */
-	public static function insert(array $arr1, string $key, array $arr2, bool $before = false): array {
+	public static function insert(array $arr1, string $key, array $arr2, bool $before = false): array
+	{
 		$result = [];
 		if (!array_key_exists($key, $arr1)) {
 			return $before ? array_merge($arr2, $arr1) : array_merge($arr1, $arr2);
@@ -1385,7 +1444,8 @@ class ArrayTools {
 	 * @param int|float $amount Amount to increment
 	 * @return int|float
 	 */
-	public static function increment(array &$array, string $k, int|float $amount = 1): int|float {
+	public static function increment(array &$array, string $k, int|float $amount = 1): int|float
+	{
 		if (array_key_exists($k, $array)) {
 			return $array[$k] += $amount;
 		}
@@ -1404,7 +1464,8 @@ class ArrayTools {
 	 * @return null|string|int Integer or string key of found needle in $needles
 	 * @see stristr()
 	 */
-	public static function stristr(string $haystack, array $needles): null|string|int {
+	public static function stristr(string $haystack, array $needles): null|string|int
+	{
 		foreach ($needles as $k => $needle) {
 			if (stristr($haystack, $needle) !== false) {
 				return $k;
@@ -1422,7 +1483,8 @@ class ArrayTools {
 	 * @return array|null
 	 * @see str_contains()
 	 */
-	public static function find(string|array $haystack, string|array $needles): array|null {
+	public static function find(string|array $haystack, string|array $needles): array|null
+	{
 		if (is_array($haystack)) {
 			foreach ($haystack as $haystack_key => $haystack_value) {
 				$result = self::find($haystack_value, $needles);
@@ -1453,7 +1515,8 @@ class ArrayTools {
 	 * @return null|array Returns matching [haystack,needle,haystack-key,needle-key] or [haystack,needle]
 	 * @see stripos()
 	 */
-	public static function findInsensitive(array|string $haystack, array|string $needle): ?array {
+	public static function findInsensitive(array|string $haystack, array|string $needle): ?array
+	{
 		if (is_array($haystack)) {
 			foreach ($haystack as $haystack_key => $haystack_value) {
 				$result = self::findInsensitive($haystack_value, $needle);
@@ -1484,7 +1547,8 @@ class ArrayTools {
 	 * @return array Array of values which match
 	 * @see strstr()
 	 */
-	public static function match(array $haystack, array|string $needles): array {
+	public static function match(array $haystack, array|string $needles): array
+	{
 		$result = [];
 		if (is_array($needles)) {
 			foreach ($needles as $needle) {
@@ -1509,7 +1573,8 @@ class ArrayTools {
 	 * @return array Array of values which match
 	 * @see strstr()
 	 */
-	public static function matchInsensitive(array $haystack, array|string $needles): array {
+	public static function matchInsensitive(array $haystack, array|string $needles): array
+	{
 		$result = [];
 		if (is_array($needles)) {
 			foreach ($needles as $needle) {
@@ -1534,7 +1599,8 @@ class ArrayTools {
 	 *            Delimiter passed to preg_quote
 	 * @return string|array
 	 */
-	public static function preg_quote(array|string $string, string $delimiter = null): string|array {
+	public static function preg_quote(array|string $string, string $delimiter = null): string|array
+	{
 		if (is_string($string)) {
 			return preg_quote($string, $delimiter);
 		} else {
@@ -1552,7 +1618,8 @@ class ArrayTools {
 	 * @param array $arr
 	 * @return array
 	 */
-	public static function transpose(array $arr): array {
+	public static function transpose(array $arr): array
+	{
 		$new = [];
 		foreach ($arr as $y => $row) {
 			if (is_array($row)) {
@@ -1573,7 +1640,8 @@ class ArrayTools {
 	 * @param mixed $default
 	 * @return mixed
 	 */
-	public static function top(array $array, mixed $default = null): mixed {
+	public static function top(array $array, mixed $default = null): mixed
+	{
 		if (count($array) === 0) {
 			return $default;
 		}
@@ -1605,7 +1673,8 @@ class ArrayTools {
 	 * @param mixed $default
 	 * @return array
 	 */
-	public static function collapse(array $array, string $key, mixed $default = null): array {
+	public static function collapse(array $array, string $key, mixed $default = null): array
+	{
 		foreach ($array as $k => $subarray) {
 			$array[$k] = $subarray[$key] ?? $default;
 		}
@@ -1620,7 +1689,8 @@ class ArrayTools {
 	 *            If value can not be converted to integer, use this value instead
 	 * @return array
 	 */
-	public static function integer(array $arr, int $def = 0): array {
+	public static function integer(array $arr, int $def = 0): array
+	{
 		foreach ($arr as $k => $v) {
 			$arr[$k] = Types::toInteger($v, $def);
 		}
@@ -1635,7 +1705,8 @@ class ArrayTools {
 	 * @param string $replace
 	 * @return array
 	 */
-	public static function keysReplace(array $arr, string $find, string $replace): array {
+	public static function keysReplace(array $arr, string $find, string $replace): array
+	{
 		$new = [];
 		foreach ($arr as $k => $v) {
 			$new[strtr($k, [$find => $replace, ])] = $v;
@@ -1650,7 +1721,8 @@ class ArrayTools {
 	 * @param array $add
 	 * @return array
 	 */
-	public static function sum(array $term, array $add): array {
+	public static function sum(array $term, array $add): array
+	{
 		foreach ($term as $k => $v) {
 			$term[$k] += intval($add[$k] ?? 0);
 		}
@@ -1666,7 +1738,8 @@ class ArrayTools {
 	 * @param int|float|array $scale Int or float or array of key => number pairs.
 	 * @return array With updated values. If scale is invalid type, returns $target.
 	 */
-	public static function scale(array $target, int|float|array $scale): array {
+	public static function scale(array $target, int|float|array $scale): array
+	{
 		if (is_array($scale)) {
 			foreach ($scale as $k => $v) {
 				if (array_key_exists($k, $target) && is_numeric($target[$k])) {
@@ -1689,7 +1762,8 @@ class ArrayTools {
 	 * @param array|float|int $add Double or array of key => number pairs.
 	 * @return array
 	 */
-	public static function add(array $target, array|float|int $add): array {
+	public static function add(array $target, array|float|int $add): array
+	{
 		if (is_array($add)) {
 			foreach ($add as $k => $v) {
 				if (array_key_exists($k, $target) && is_numeric($target[$k])) {
@@ -1713,7 +1787,8 @@ class ArrayTools {
 	 * @param string $suffix
 	 * @return string
 	 */
-	public static function joinWrap(array $array, string $prefix = '', string $suffix = ''): string {
+	public static function joinWrap(array $array, string $prefix = '', string $suffix = ''): string
+	{
 		if (count($array) === 0) {
 			return '';
 		}
@@ -1728,7 +1803,8 @@ class ArrayTools {
 	 * @param string $prefix
 	 * @return string
 	 */
-	public static function joinPrefix(array $array, string $prefix): string {
+	public static function joinPrefix(array $array, string $prefix): string
+	{
 		return self::joinWrap($array, $prefix);
 	}
 
@@ -1740,7 +1816,8 @@ class ArrayTools {
 	 * @param string $suffix
 	 * @return string
 	 */
-	public static function joinSuffix(array $array, string $suffix): string {
+	public static function joinSuffix(array $array, string $suffix): string
+	{
 		return self::joinWrap($array, '', $suffix);
 	}
 
@@ -1750,7 +1827,8 @@ class ArrayTools {
 	 * @param array $array
 	 * @return array
 	 */
-	public static function scalars(array $array): array {
+	public static function scalars(array $array): array
+	{
 		foreach ($array as $k => $v) {
 			if (is_array($v)) {
 				$array[$k] = ArrayTools::scalars($v);
@@ -1769,7 +1847,8 @@ class ArrayTools {
 	 * @param boolean $strict
 	 * @return mixed
 	 */
-	public static function includeValues(array $array, int|string|array $values, bool $strict = true): array {
+	public static function includeValues(array $array, int|string|array $values, bool $strict = true): array
+	{
 		if (is_scalar($values)) {
 			$values = [$values, ];
 		}
@@ -1793,7 +1872,8 @@ class ArrayTools {
 	 * @param string|array $ends
 	 * @return array
 	 */
-	public static function includeValuesEndsWith(array $array, string|array $ends): array {
+	public static function includeValuesEndsWith(array $array, string|array $ends): array
+	{
 		$result = [];
 		foreach ($array as $k => $v) {
 			if (StringTools::ends($v, $ends)) {
@@ -1809,7 +1889,8 @@ class ArrayTools {
 	 * @param array $array
 	 * @return integer
 	 */
-	public static function keyMaximumLength(array $array): int {
+	public static function keyMaximumLength(array $array): int
+	{
 		$len = 0;
 		foreach ($array as $key => $value) {
 			$len = max($len, strlen($key));
@@ -1823,7 +1904,8 @@ class ArrayTools {
 	 * @param array $array
 	 * @return integer
 	 */
-	public static function keyMinimumLength(array $array): int {
+	public static function keyMinimumLength(array $array): int
+	{
 		$len = PHP_INT_MAX;
 		foreach ($array as $key => $value) {
 			$len = min($len, strlen($key));
@@ -1840,7 +1922,8 @@ class ArrayTools {
 	 * @param bool $flattenLists Flatten lists
 	 * @return array
 	 */
-	public static function keysFlatten(array $array, string $separator, bool $flattenLists = false): array {
+	public static function keysFlatten(array $array, string $separator, bool $flattenLists = false): array
+	{
 		$result = [];
 		foreach ($array as $key => $item) {
 			if (is_array($item) && ($flattenLists || ArrayTools::isAssoc($item))) {
@@ -1864,7 +1947,8 @@ class ArrayTools {
 	 * @param mixed|null $default
 	 * @return mixed
 	 */
-	public static function first(array $a, mixed $default = null): mixed {
+	public static function first(array $a, mixed $default = null): mixed
+	{
 		return count($a) !== 0 ? $a[key($a)] : $default;
 	}
 
@@ -1876,7 +1960,8 @@ class ArrayTools {
 	 * @param mixed|null $default
 	 * @return mixed
 	 */
-	public static function last(array $a, mixed $default = null): mixed {
+	public static function last(array $a, mixed $default = null): mixed
+	{
 		if (count($a) === 0) {
 			return $default;
 		}

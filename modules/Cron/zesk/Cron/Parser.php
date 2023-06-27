@@ -22,7 +22,8 @@ use zesk\Timestamp;
  * @author kent
  *
  */
-class Parser {
+class Parser
+{
 	/**
 	 *
 	 * @var boolean
@@ -83,7 +84,8 @@ class Parser {
 	 * @param string $text Some text in the locale's language
 	 * @param string $locale The locale. If null, uses the current global locale.
 	 */
-	public function __construct(string $phrase, Locale $locale) {
+	public function __construct(string $phrase, Locale $locale)
+	{
 		$this->locale = $locale;
 		$this->phrase = $phrase;
 		$this->cron_codes = array_fill(0, self::CRON_WEEKDAY + 1, null);
@@ -96,7 +98,8 @@ class Parser {
 	 * @param mixed $add
 	 * @return self
 	 */
-	private function cron_add($index, $add) {
+	private function cron_add($index, $add)
+	{
 		if ($add === null) {
 			return $this;
 		}
@@ -150,7 +153,8 @@ class Parser {
 	 * @return Timestamp
 	 * @throws SemanticsException
 	 */
-	public function compute_next(Timestamp $now): Timestamp {
+	public function compute_next(Timestamp $now): Timestamp
+	{
 		[$cron_minute, $cron_hour, $cron_monthday, $cron_month, $cron_weekday] = $this->cron_codes;
 		$match_list = [
 			[
@@ -285,7 +289,8 @@ class Parser {
 	 * @param string $text Some text in the locale's language
 	 * @param string $locale The locale. If null, uses the current global locale.
 	 */
-	private function parse_language_en($text) {
+	private function parse_language_en($text)
+	{
 		$locale = $this->locale;
 		// Examples:
 		// 	Every [night|day|morning|afternoon|evening] at [midnight|noon|time-value]
@@ -575,7 +580,8 @@ class Parser {
 		return $result;
 	}
 
-	private function days_to_language($code) {
+	private function days_to_language($code)
+	{
 		$items = explode(',', $code);
 		$result = [];
 		foreach ($items as $item) {
@@ -586,7 +592,8 @@ class Parser {
 		return $this->locale->conjunction($result, $this->locale->__('and'));
 	}
 
-	private function months_to_language($code) {
+	private function months_to_language($code)
+	{
 		$items = explode(',', $code);
 		$result = [];
 		$months = Date::monthNames($this->locale);
@@ -598,7 +605,8 @@ class Parser {
 		return $this->locale->conjunction($result, $this->locale->__('and'));
 	}
 
-	private function dow_to_language($code, $locale, $plural = false) {
+	private function dow_to_language($code, $locale, $plural = false)
+	{
 		if ($code === '1,2,3,4,5') {
 			return $plural ? $this->locale->__('weekdays', $locale) : $this->locale->__('weekday', $locale);
 		}
@@ -623,7 +631,8 @@ class Parser {
 		return $this->locale->conjunction($result, $this->locale->__('and', $locale));
 	}
 
-	private function time_repeat_to_language($item, $unit, $locale) {
+	private function time_repeat_to_language($item, $unit, $locale)
+	{
 		if (($number = $this->is_time_repeat($item)) !== false) {
 			$translate = ($this->locale)($number === 1 ? 'Schedule:=Every {1}' : 'Schedule:=Every {0} {1}', $locale);
 			return map($translate, [
@@ -634,7 +643,8 @@ class Parser {
 		return false;
 	}
 
-	private function is_time_repeat($item) {
+	private function is_time_repeat($item)
+	{
 		$matches = false;
 		if (preg_match('/\*\/([0-9]+)/', $item, $matches)) {
 			return intval($matches[1]);
@@ -642,7 +652,8 @@ class Parser {
 		return false;
 	}
 
-	private function time_to_language($min, $hour) {
+	private function time_to_language($min, $hour)
+	{
 		$min = explode(',', $min);
 		$hour = explode(',', $hour);
 		$times = [];
@@ -673,7 +684,8 @@ class Parser {
 	 * @param Locale $locale
 	 * @return array
 	 */
-	private function code_to_language_cron(Locale $locale): array {
+	private function code_to_language_cron(Locale $locale): array
+	{
 		[$min, $hour, $day, $month, $dow] = $this->cron_codes;
 		$month_language = '';
 		$dow_language = '';
@@ -750,11 +762,13 @@ class Parser {
 	//
 	// minute hour day-of-month month day-of-week
 	//
-	public function format() {
+	public function format()
+	{
 		return $this->code_to_language_cron($this->locale);
 	}
 
-	public function variables(): array {
+	public function variables(): array
+	{
 		return [
 			'phrase' => $this->phrase,
 			'locale' => $this->locale,

@@ -43,7 +43,8 @@ All of these formats are valid IPv6 address formats.
 
 use zesk\Exception\ParameterException;
 
-class IPv6 {
+class IPv6
+{
 	public const IP6PREFIXIP4 = '::ffff:';
 
 	/**
@@ -65,7 +66,8 @@ class IPv6 {
 	 * @param string $address
 	 * @return bool
 	 */
-	public static function valid(string $address): bool {
+	public static function valid(string $address): bool
+	{
 		/* | FILTER_FLAG_GLOBAL_RANGE */
 		return filter_var($address, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6 | FILTER_NULL_ON_FAILURE) !== null;
 	}
@@ -76,7 +78,8 @@ class IPv6 {
 	 * @param string $address
 	 * @return string
 	 */
-	public static function clean(string $address): string {
+	public static function clean(string $address): string
+	{
 		return preg_replace('/[^:.0-9a-f]/', '', strtolower($address));
 	}
 
@@ -85,7 +88,8 @@ class IPv6 {
 	 * @return string
 	 * @throws ParameterException
 	 */
-	public static function fromBinary(string $binary): string {
+	public static function fromBinary(string $binary): string
+	{
 		if (strlen($binary) !== self::BINARY_COLUMN_LENGTH) {
 			throw new ParameterException('Need string of {n} bytes, {actual} passed', [
 				'n' => self::BINARY_COLUMN_LENGTH, 'actual' => strlen($binary),
@@ -99,7 +103,8 @@ class IPv6 {
 	 * @return string
 	 * @throws ParameterException
 	 */
-	public static function toBinary(string $ip): string {
+	public static function toBinary(string $ip): string
+	{
 		if (self::valid($ip)) {
 			return inet_pton($ip);
 		}
@@ -107,7 +112,8 @@ class IPv6 {
 		throw new ParameterException('Invalid IPv6 address: {ip}', ['ip' => $ip]);
 	}
 
-	public static function expand(string $ip): string {
+	public static function expand(string $ip): string
+	{
 		$hex = unpack('H*hex', inet_pton($ip));
 		return substr(preg_replace('/([A-f0-9]{4})/', '$1:', $hex['hex']), 0, -1);
 	}
@@ -116,7 +122,8 @@ class IPv6 {
 	 * @param mixed $ip4
 	 * @return string
 	 */
-	public static function fromIPv4(mixed $ip4): string {
+	public static function fromIPv4(mixed $ip4): string
+	{
 		return self::IP6PREFIXIP4 . IPv4::fromInteger($ip4);
 	}
 
@@ -124,7 +131,8 @@ class IPv6 {
 	 * @param string $ip6
 	 * @return bool
 	 */
-	public static function isIPv4(string $ip6): bool {
+	public static function isIPv4(string $ip6): bool
+	{
 		$simplified = self::simplify($ip6);
 		$items = explode(':', $simplified);
 		return IPv4::valid($items[count($items) - 1]);
@@ -134,7 +142,8 @@ class IPv6 {
 	 * @param string $address
 	 * @return string
 	 */
-	public static function simplify(string $address): string {
+	public static function simplify(string $address): string
+	{
 		$address = strtolower($address);
 		$address = substr(preg_replace('/:0+([0-9a-f])/', ':$1', ":$address"), 1);
 		$address = preg_replace('/^(0:)+|:(0:)+/', '::', $address);

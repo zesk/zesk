@@ -2,7 +2,8 @@
 declare(strict_types=1);
 namespace zesk;
 
-class MySQL_Database_Parse_Test extends UnitTest {
+class MySQL_Database_Parse_Test extends UnitTest
+{
 	protected array $load_modules = ['mysql'];
 
 	public static $schema = <<<EOF
@@ -65,7 +66,8 @@ CREATE TABLE `TestTable` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
 EOF;
 
-	public function test_schema(): void {
+	public function test_schema(): void
+	{
 		$db = $this->application->databaseRegistry();
 		$table = $db->parseCreateTable(self::$schema, __METHOD__);
 		$this->assertInstanceOf(Database_Table::class, $table);
@@ -77,7 +79,8 @@ EOF;
 		$this->assertEquals(64, $week->size());
 	}
 
-	public function test_parse_pattern(): void {
+	public function test_parse_pattern(): void
+	{
 		class_exists("\zesk\MySQL\SQLParser");
 		foreach ([
 			'CREATE TABLE `TestTable` (
