@@ -20,6 +20,9 @@ set -eo pipefail
 
 source "$top/bin/build/colors.sh"
 
+if [ -f "$top/.env" ]; then
+  consoleSuccess "Loaded .env ..."
+fi
 releaseStart=$(beginTiming)
 
 if [ -z "$GITHUB_ACCESS_TOKEN" ]; then

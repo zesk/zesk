@@ -5,8 +5,6 @@ definitions:
   caches:
     apt-lists: /var/lib/apt/lists
     apt-cache: /var/cache/apt
-  docker:
-    memory: 6144
   services:
     mariadb:
       memory: 1024
@@ -59,7 +57,6 @@ pipelines:
             - docker
             - apt-lists
             - apt-cache
-          deployment: production
           size: 2x
           script:
             - while true; do date && echo -n "Memory usage in megabytes:" && echo $(($(cat /sys/fs/cgroup/memory/memory.memsw.usage_in_bytes | awk '{print $1}')/1048576)) && echo "" && sleep 30; done >> memory-logs.txt &
@@ -69,9 +66,10 @@ pipelines:
             - bin/pipeline-setup.sh --testsuite core
       - step:
           name: Deploy
-          deployment: production
           trigger: manual
           size: 2x
+          artifacts:
+            - .env
           script:
             - bin/pipeline-release.sh
     deploy:
