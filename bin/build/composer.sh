@@ -26,6 +26,7 @@ composerArgs=()
 composerArgs+=("-v" "$top:/app")
 composerArgs+=("-v" "$top/.composer:/tmp")
 composerArgs+=("$dockerImage")
+composerArgs+=("--ignore-platform-reqs")
 
 start=$(beginTiming)
 consoleInfo -n "Composer ... "
@@ -45,7 +46,6 @@ if ! docker run "${composerArgs[@]}" install >> "$quietLog" 2>&1; then
   exit $err_build
 fi
 
-composerArgs+=("--ignore-platform-reqs")
 composerArgs+=("install")
 consoleInfo -n "installing ... "
 echo Running: docker run "${composerArgs[@]}" >> "$quietLog"
