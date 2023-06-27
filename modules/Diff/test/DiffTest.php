@@ -12,7 +12,7 @@ use zesk\PHPUnit\TestCase;
  */
 class DiffTest extends TestCase {
 	protected array $load_modules = [
-		'diff',
+		'Diff',
 	];
 
 	public function test_diff_binary(): void {
