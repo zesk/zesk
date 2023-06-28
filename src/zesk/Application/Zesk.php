@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace zesk\Application;
 
@@ -22,8 +22,8 @@ use Psr\Log\LogLevel;
 /**
  * Used internally for deployment and version management
  */
-class Zesk extends Application {
-
+class Zesk extends Application
+{
 	/**
 	 * @return void
 	 * @throws ConfigurationException
@@ -36,10 +36,11 @@ class Zesk extends Application {
 	{
 		parent::beforeConfigure();
 		$logger = new FileLogger($this->path('test.log'));
+
 		try {
 			$logger->setLevels([LogLevel::NOTICE => true, LogLevel::INFO => true, LogLevel::DEBUG => false]);
 		} catch (KeyNotFound) {
-			throw new RuntimeException("Where did we go wrong");
+			throw new RuntimeException('Where did we go wrong');
 		}
 		$this->setLogger($logger->setChild($this->logger()));
 
@@ -73,7 +74,7 @@ class Zesk extends Application {
 		$releaseNotes = $this->path("docs/release/$stringVersion.md");
 		if (!file_exists($releaseNotes)) {
 			File::put($releaseNotes, "# [$stringVersion][]\n\n- Great new things\n");
-			$this->process->executeArguments("git add {x}", ['x' => $releaseNotes]);
+			$this->process->executeArguments('git add {x}', ['x' => $releaseNotes]);
 		}
 	}
 }

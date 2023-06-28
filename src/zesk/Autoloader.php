@@ -19,7 +19,8 @@ use zesk\Exception\SemanticsException;
  *
  * @author kent
  */
-class Autoloader {
+class Autoloader
+{
 	/**
 	 * Used in ->path("path/to", [ Autoloader::CLASS_PREFIX => "foo\\", Autoloader::LOWER => false ]);
 	 *
@@ -188,6 +189,7 @@ class Autoloader {
 			if ($this->no_exception || $no_exception) {
 				return '';
 			}
+
 			throw new ClassNotFound($class, "Class {class} called from {calling_function} invoked from:\n{backtrace}\n{tried_path}", [
 				'class' => $class, 'calling_function' => Kernel::callingFunction(2),
 				'tried_path' => Text::indent(implode("\n", $tried_path)),
@@ -336,7 +338,7 @@ class Autoloader {
 			$options = [
 				$options => true,
 			];
-		} else if (!is_array($options)) {
+		} elseif (!is_array($options)) {
 			$options = [
 				self::OPTION_LOWER => Types::toBool($options),
 			];
@@ -350,7 +352,7 @@ class Autoloader {
 		];
 		if ($options[self::OPTION_FIRST] ?? null) {
 			$this->first[$add] = $options;
-		} else if ($options[self::OPTION_LAST] ?? null) {
+		} elseif ($options[self::OPTION_LAST] ?? null) {
 			$this->last[$add] = $options;
 		} else {
 			$this->paths[$add] = $options;
