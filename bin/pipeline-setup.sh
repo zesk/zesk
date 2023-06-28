@@ -15,7 +15,6 @@
 requireEnvironment=(DEPLOYMENT GITHUB_REPOSITORY_OWNER GITHUB_REPOSITORY_NAME)
 # Will be exported to the environment file
 buildEnvironment=(GITHUB_ACCESS_TOKEN "${requireEnvironment[@]}")
-envFile="$top/.env"
 
 #
 # Exit codes
@@ -29,6 +28,7 @@ if ! cd "$(dirname "${BASH_SOURCE[0]}")/.."; then
   exit $err_env
 fi
 top="$(pwd)"
+envFile="$top/.env"
 
 #
 # Variables and constants
