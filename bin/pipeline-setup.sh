@@ -40,6 +40,7 @@ me=$(basename "$0")
 # Optional binaries in build image
 quietLog="$top/.build/$me.log"
 
+
 #
 # Additional test configuration
 #
@@ -96,7 +97,10 @@ while [ $# -gt 0 ]; do
   esac
 done
 
-consoleInfo "Started on $(date)" > "$quietLog"
+consoleInfo "Started on $(date)"
+
+[ -d "$top/.build" ] || mkdir -p "$top/.build"
+echo "Started on $(date)" > "$quietLog"
 
 #==========================================================================================
 #
