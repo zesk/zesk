@@ -161,10 +161,11 @@ reportTiming "$start" OK
 #
 consoleInfo "Pull github and push origin ... " && echo
 consoleDecoration "$(echoBar)"
-consoleInfo "git pull github" && echo
+consoleInfo "git pull --all" && echo
 start=$(beginTiming)
 # TODO Remove this if they are AOK
-git pull github || consoleRed "Failed: $?"
+git pull --all || consoleRed "Failed: $?"
+echo
 consoleInfo "git push origin" && echo
 git push origin || consoleRed "Failed: $?"
 consoleDecoration "$(echoBar)"
