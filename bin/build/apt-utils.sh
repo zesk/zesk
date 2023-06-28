@@ -14,9 +14,9 @@ me=$(basename "$0")
 top="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." || exit $err_env; pwd)"
 quietLog="$top/.build/$me.log"
 markerFile="$top/.build/.$me.marker"
-packages=(apt-utils figlet)
+packages=(apt-utils figlet jq)
 set +e
-apt=$(which apt-get jq)
+apt=$(which apt-get)
 set -eo pipefail
 
 . "$top/bin/build/colors.sh"
