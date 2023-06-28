@@ -22,6 +22,9 @@ set -eo pipefail
 source "$top/bin/build/colors.sh"
 
 if [ -f "$top/.env" ]; then
+  set -a
+  source "$top/.env"
+  set +a
   consoleSuccess "Loaded .env ..."
 fi
 releaseStart=$(beginTiming)
@@ -127,15 +130,6 @@ figlet "zesk $currentVersion"
 
 #========================================================================
 #
-# Build the Zesk Dockerfile
-#
-start=$(beginTiming)
-consoleInfo -n "Building Zesk PHP Dockerfile ..."
-image=$(docker build -q -f ./docker/php.Dockerfile .)
-reportTiming "$start" OK
-#
-#========================================================================
-#
 # Tag our version, commit the CHANGELOG.md and push to both origin and github
 #
 consoleGreen "Tagging $currentVersion and pushing ... "
@@ -150,33 +144,28 @@ git push origin --all
 git push github --all
 consoleDecoration "$(echoBar)"
 reportTiming "$start" OK
+
 #========================================================================
 #
 # Send release API call to GitHub to make tagged version a release with
 # release notes.
 #
-commitish=$(git rev-parse --short HEAD)
-echo "$(consoleInfo "Generated container $image, running github tag")" "$(consoleRedBold "$commitish")" "$(consoleInfo "===")" "$(consoleRedBold "$currentVersion")" "$(consoleInfo "...")"
-consoleDecoration "$(echoBar)"
+consoleInfo -n "Mark release in GitHub ... "
 start=$(beginTiming)
-{
-  echo 'zesk\GitHub\Module::accessToken="'"$GITHUB_ACCESS_TOKEN"'"'
-  echo 'zesk\GitHub\Module::owner='"$GITHUB_REPOSITORY_OWNER"
-  echo 'zesk\GitHub\Module::repository='"$GITHUB_REPOSITORY_NAME"
-} > "$top/.github.conf"
-docker run -u www-data "$image" /zesk/bin/zesk --config /zesk/.github.conf module GitHub -- github --tag --description-file "/zesk/$remoteChangeLogName"
-consoleDecoration "$(echoBar)"
+"$top/bin/build/github-release.sh" "$remoteChangeLog" "$currentVersion"
 reportTiming "$start" OK
+
 #========================================================================
 #
 # I think things change in GitHub when we do a release (maybe?) so sync back to origin here
 #
 consoleInfo "Pull github and push origin ... " && echo
 consoleDecoration "$(echoBar)"
-consoleInfo "git pull github" && echo
+consoleInfo "git pull --all" && echo
 start=$(beginTiming)
 # TODO Remove this if they are AOK
-git pull github || consoleRed "Failed: $?"
+git pull --all || consoleRed "Failed: $?"
+echo
 consoleInfo "git push origin" && echo
 git push origin || consoleRed "Failed: $?"
 consoleDecoration "$(echoBar)"

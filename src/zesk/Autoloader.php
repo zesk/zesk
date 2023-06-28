@@ -10,10 +10,6 @@ declare(strict_types=1);
 namespace zesk;
 
 use Closure;
-use Psr\Cache\CacheItemInterface;
-use Psr\Cache\CacheItemPoolInterface;
-use Psr\Cache\InvalidArgumentException;
-use zesk\Application\Hooks;
 use zesk\Exception\ClassNotFound;
 use zesk\Exception\DirectoryNotFound;
 use zesk\Exception\SemanticsException;
@@ -128,44 +124,12 @@ class Autoloader
 	protected array $loaded;
 
 	/**
-	 * @var CacheItemPoolInterface
-	 */
-	protected CacheItemPoolInterface $pool;
-
-	/**
 	 * Create default autoloader for most of Zesk
 	 */
-	public function __construct(CacheItemPoolInterface $pool)
+	public function __construct()
 	{
 		$this->loaded = [];
-		$this->pool = $pool;
 		$this->autoload_register();
-	}
-
-	/**
-	 * Inject our cache dependency
-	 *
-	 * @param CacheItemPoolInterface $pool
-	 * @return self
-	 */
-	public function setCache(CacheItemPoolInterface $pool): self
-	{
-		$this->pool = $pool;
-		return $this;
-	}
-
-	/**
-	 * Add a callback when a class is loaded
-	 *
-	 * @param Closure $closure
-	 * @param string $id
-	 * @return $this
-	 */
-	public function addLoaded(Closure $closure, string $id = ''): self
-	{
-		$hash = $id ?: Hooks::callableString($closure);
-		$this->loaded[$hash] = $closure;
-		return $this;
 	}
 
 	/**
@@ -175,20 +139,6 @@ class Autoloader
 	private function autoload_register(): void
 	{
 		spl_autoload_register($this->php_autoloader(...));
-	}
-
-	/**
-	 * Retrieve the autoloader cache structure, optionally creating if needed.
-	 *
-	 * @return ?CacheItemInterface
-	 */
-	private function _autoloadCache(): ?CacheItemInterface
-	{
-		try {
-			return $this->pool->getItem('autoload_cache');
-		} catch (InvalidArgumentException) {
-			return null;
-		}
 	}
 
 	public function shutdown(): void
@@ -233,39 +183,18 @@ class Autoloader
 	 */
 	public function load(string $class, bool $no_exception = false): string
 	{
-		$cacheItem = $this->_autoloadCache();
-		$include = null;
-		$cache_items = $cacheItem?->get();
-		if (!is_array($cache_items)) {
-			$cache_items = [];
-		}
-		if (array_key_exists($class, $cache_items)) {
-			$include = $cache_items[$class];
-			if (!is_file($include)) {
-				unset($cache_items[$class]);
-				$include = null;
+		$tried_path = null;
+		$include = $this->search($class, null, $tried_path);
+		if ($include === null) {
+			if ($this->no_exception || $no_exception) {
+				return '';
 			}
-		}
-		if (!$include) {
-			$tried_path = null;
-			$include = $this->search($class, null, $tried_path);
-			if ($include === null) {
-				if ($this->no_exception || $no_exception) {
-					return '';
-				}
 
-				throw new ClassNotFound($class, "Class {class} called from {calling_function} invoked from:\n{backtrace}\n{tried_path}", [
-					'class' => $class,
-					'calling_function' => Kernel::callingFunction(2),
-					'tried_path' => Text::indent(implode("\n", $tried_path)),
-					'backtrace' => Text::indent(Kernel::backtrace()),
-				]);
-			}
-			$cache_items[$class] = $include;
-			if ($cacheItem) {
-				$cacheItem->set($cache_items);
-				$this->pool->saveDeferred($cacheItem);
-			}
+			throw new ClassNotFound($class, "Class {class} called from {calling_function} invoked from:\n{backtrace}\n{tried_path}", [
+				'class' => $class, 'calling_function' => Kernel::callingFunction(2),
+				'tried_path' => Text::indent(implode("\n", $tried_path)),
+				'backtrace' => Text::indent(Kernel::backtrace()),
+			]);
 		}
 		if ($this->debug) {
 			ob_start();
@@ -314,13 +243,7 @@ class Autoloader
 			}
 			$path_file_prefix = strtr($path_file_prefix, '\\', '_');
 			$file_parts = implode('/', explode('_', $options[self::OPTION_LOWER] ? strtolower($path_file_prefix) : $path_file_prefix));
-			if ($extensions) {
-				$iterate_extensions = $extensions;
-			} elseif (isset($options[self::OPTION_EXTENSIONS])) {
-				$iterate_extensions = $options[self::OPTION_EXTENSIONS];
-			} else {
-				$iterate_extensions = $this->extensions();
-			}
+			$iterate_extensions = $extensions ?? $options[self::OPTION_EXTENSIONS] ?? $this->extensions();
 			$prefix = Directory::path($path, $file_parts);
 			foreach ($iterate_extensions as $ext) {
 				$result[] = "$prefix.$ext";

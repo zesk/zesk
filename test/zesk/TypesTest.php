@@ -90,8 +90,7 @@ class TypesTest extends UnitTest
 	public static function data_bad_dates(): array
 	{
 		return [
-			[''],
-			[-1],
+			[''], [-1],
 		];
 	}
 
@@ -258,16 +257,8 @@ class TypesTest extends UnitTest
 	public static function data_to_integer(): array
 	{
 		return [
-			['124512', 124512],
-			[124512, 124512],
-			['124512.7', 124512],
-			[124512.7, 124512],
-			[124512.999999, 124512],
-			['0.999999', 0],
-			['1.999999', 1],
-			[false, 0],
-			[true, 1],
-			[[], 0],
+			['124512', 124512], [124512, 124512], ['124512.7', 124512], [124512.7, 124512], [124512.999999, 124512],
+			['0.999999', 0], ['1.999999', 1], [false, 0], [true, 1], [[], 0],
 		];
 	}
 
@@ -358,65 +349,33 @@ class TypesTest extends UnitTest
 		return $default;
 	}
 
-	/**
-	 * As of 2017-08 the in_array version is nearly identical in speed to the strpos version and varies test-to-test.
-	 * 2022 in_array in PHP8 is faster, updated toBool wink wink
-	 *
-	 * Updated to test for whether it's 10% faster
-	 *
-	 * @see \toBool
-	 */
-	public function test_to_bool_timing(): void
-	{
-		$value = null;
-		$default = false;
-		toBool($value, $default);
-		$t = new Timer();
-		for ($i = 0; $i < 100000; $i++) {
-			self::to_bool_strpos('true');
-			self::to_bool_strpos('false');
-		}
-		$strpos_timing = $t->elapsed();
-		// echo 'to_bool_strpos: ' . $t->elapsed() . "\n";
-
-		$t = new Timer();
-		for ($i = 0; $i < 100000; $i++) {
-			self::to_bool_in_array('true');
-			self::to_bool_in_array('false');
-		}
-		$in_array_timing = $t->elapsed();
-		// echo 'to_bool_in_array: ' . $t->elapsed() . "\n";
-		$diff = 20;
-		$this->assertLessThan($strpos_timing * (1 + ($diff / 100)), $in_array_timing, "in_array toBool is more than $diff% slower than strpos implementation");
-	}
-
 	public function test_toArray(): void
 	{
-		$this->assertEquals(toArray('foo'), [
+		$this->assertEquals(Types::toArray('foo'), [
 			'foo',
 		]);
-		$this->assertEquals(toArray([
+		$this->assertEquals(Types::toArray([
 			'foo',
 		]), [
 			'foo',
 		]);
-		$this->assertNotEquals(toArray([
+		$this->assertNotEquals(Types::toArray([
 			'foo',
 		]), [
 			'foob',
 		]);
-		$this->assertEquals(toArray([
+		$this->assertEquals(Types::toArray([
 			1,
 		]), [
 			'1',
 		]);
-		$this->assertEquals(toArray(1), [
+		$this->assertEquals(Types::toArray(1), [
 			'1',
 		]);
-		$this->assertEquals(toArray(1), [
+		$this->assertEquals(Types::toArray(1), [
 			1,
 		]);
-		$this->assertEquals(toArray('1'), [
+		$this->assertEquals(Types::toArray('1'), [
 			'1',
 		]);
 	}
@@ -475,7 +434,7 @@ function MM_findObj(n, d)
     }
 EOF;
 
-		$foo = map($test, []);
+		$foo = ArrayTools::map($test, []);
 
 		//$sandbox = $this->test_sandbox();
 		// file_put_contents("$sandbox/function.map.0.txt", $foo);
@@ -487,9 +446,9 @@ EOF;
 			'a' => 'b', 'b' => 'c', 'c' => 'd', 'd' => 'e',
 		];
 		$contents = '{dudea}{a}{dudeb}{b}{duDeC}{c}{dudeD}{d}';
-		$v = map($contents, ArrayTools::prefixKeys($a, $prefix), true);
+		$v = ArrayTools::map($contents, ArrayTools::prefixKeys($a, $prefix), true);
 		$this->assertEquals('b{a}c{b}d{c}e{d}', $v);
-		$v = map($contents, ArrayTools::prefixKeys($a, $prefix), false);
+		$v = ArrayTools::map($contents, ArrayTools::prefixKeys($a, $prefix), false);
 		$this->assertEquals('b{a}c{b}{duDeC}{c}{dudeD}{d}', $v);
 	}
 

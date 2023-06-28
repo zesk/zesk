@@ -9,7 +9,7 @@
 err_env=1
 
 top="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." || exit $err_env; pwd)"
-. "$top/build/colors.sh"
+. "$top/bin/build/colors.sh"
 
 if [ ! -d "$top/.git" ]; then
 	echo "No .git directory at $top, stopping" 1>&2
