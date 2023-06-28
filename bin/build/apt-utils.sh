@@ -16,7 +16,7 @@ quietLog="$top/.build/$me.log"
 markerFile="$top/.build/.$me.marker"
 packages=(apt-utils figlet)
 set +e
-apt=$(which apt-get)
+apt=$(which apt-get jq)
 set -eo pipefail
 
 . "$top/bin/build/colors.sh"

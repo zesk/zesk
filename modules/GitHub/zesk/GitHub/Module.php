@@ -108,7 +108,8 @@ class Module extends BaseModule
 			$description = "Release of version $name";
 		}
 		$json_struct = [
-			'tag_name' => $name, 'name' => $name, 'body' => $description, 'draft' => false, 'prerelease' => false,
+			'tag_name' => $name,
+			'name' => $name, 'body' => $description, 'draft' => false, 'prerelease' => false,
 			'generate_release_notes' => false,
 		];
 		if ($commitish) {

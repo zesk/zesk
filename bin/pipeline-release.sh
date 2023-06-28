@@ -41,7 +41,6 @@ if [ ! -d "$top/.git" ]; then
 fi
 
 "$top/bin/build/git.sh"
-"$top/bin/build/composer.sh"
 
 currentVersion=$("$top/bin/build/version-current.sh")
 releaseDir=$top/docs/release
@@ -130,21 +129,6 @@ figlet "zesk $currentVersion"
 
 #========================================================================
 #
-# Build the Zesk Dockerfile
-#
-start=$(beginTiming)
-consoleInfo -n "Building Zesk PHP Dockerfile ..."
-# This bakes it in, I think.
-{
-  echo 'zesk\GitHub\Module::accessToken="'"$GITHUB_ACCESS_TOKEN"'"'
-  echo 'zesk\GitHub\Module::owner='"$GITHUB_REPOSITORY_OWNER"
-  echo 'zesk\GitHub\Module::repository='"$GITHUB_REPOSITORY_NAME"
-} > "$top/.github.conf"
-image=$(docker build -q -f ./docker/php.Dockerfile .)
-reportTiming "$start" OK
-#
-#========================================================================
-#
 # Tag our version, commit the CHANGELOG.md and push to both origin and github
 #
 consoleGreen "Tagging $currentVersion and pushing ... "
@@ -159,18 +143,17 @@ git push origin --all
 git push github --all
 consoleDecoration "$(echoBar)"
 reportTiming "$start" OK
+
 #========================================================================
 #
 # Send release API call to GitHub to make tagged version a release with
 # release notes.
 #
-commitish=$(git rev-parse --short HEAD)
-echo "$(consoleInfo "Generated container $image, running github tag")" "$(consoleRedBold "$commitish")" "$(consoleInfo "===")" "$(consoleRedBold "$currentVersion")" "$(consoleInfo "...")"
-consoleDecoration "$(echoBar)"
+consoleInfo -n "Mark release in GitHub ... "
 start=$(beginTiming)
-docker run -u www-data "$image" /zesk/bin/zesk --config /zesk/.github.conf module GitHub -- github --tag --description-file "/zesk/$remoteChangeLogName"
-consoleDecoration "$(echoBar)"
+"$top/bin/build/github-release.sh" "$remoteChangeLog" "$currentVersion"
 reportTiming "$start" OK
+
 #========================================================================
 #
 # I think things change in GitHub when we do a release (maybe?) so sync back to origin here
