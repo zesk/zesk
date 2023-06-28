@@ -11,7 +11,11 @@
 #  ▌  ▞▀▖▛▀▖▐  ▄ ▞▀▌▌ ▌▙▀▖▝▀▖▜▀ ▄ ▞▀▖▛▀▖
 #  ▌ ▖▌ ▌▌ ▌▜▀ ▐ ▚▄▌▌ ▌▌  ▞▀▌▐ ▖▐ ▌ ▌▌ ▌
 #  ▝▀ ▝▀ ▘ ▘▐  ▀▘▗▄▘▝▀▘▘  ▝▀▘ ▀ ▀▘▝▀ ▘ ▘
-buildEnvironment=(GITHUB_ACCESS_TOKEN DEPLOYMENT)
+# Must be defined and non-empty to run this script
+requireEnvironment=(DEPLOYMENT GITHUB_REPOSITORY_OWNER GITHUB_REPOSITORY_NAME)
+# Will be exported to the environment file
+buildEnvironment=(GITHUB_ACCESS_TOKEN "${requireEnvironment[@]}")
+envFile="$top/.env"
 
 #
 # Exit codes
@@ -34,13 +38,18 @@ export TERM=xterm
 export DEBIAN_FRONTEND=noninteractive
 me=$(basename "$0")
 # Optional binaries in build image
-envFile="$top/.env"
 quietLog="$top/.build/$me.log"
-envs=(DATABASE_ROOT_PASSWORD DATABASE_HOST CONTAINER_DATABASE_HOST DATABASE_PORT)
+
+#
+# Additional test configuration
+#
+requireTestEnvironment=(DATABASE_ROOT_PASSWORD DATABASE_HOST CONTAINER_DATABASE_HOST DATABASE_PORT)
 DATABASE_PORT=${DATABASE_PORT:-3306}
 DATABASE_HOST=${DATABASE_HOST:-127.0.0.1}
 DATABASE_ROOT_PASSWORD=${DATABASE_ROOT_PASSWORD:-hard-to-guess}
 CONTAINER_DATABASE_HOST=${CONTAINER_DATABASE_HOST:-host.docker.internal}
+GITHUB_REPOSITORY_OWNER=${GITHUB_REPOSITORY_OWNER:-zesk}
+GITHUB_REPOSITORY_NAME=${GITHUB_REPOSITORY_NAME:-zesk}
 
 set -eo pipefail
 
@@ -51,15 +60,15 @@ startSetup=$(beginTiming)
 #
 # Preflight our environment to make sure we have the basics defined in the calling script
 #
-for e in "${envs[@]}" "${buildEnvironment[@]}"; do
+for e in "${requireTestEnvironment[@]}" "${requireEnvironment[@]}"; do
   if [ -z "${!e}" ]; then
-    consoleMagenta "Need to have $e defined in pipeline" 1>&2
+    consoleError "Need to have $e defined in pipeline" 1>&2
     exit $err_env
   fi
 done
 
 if ! which docker > /dev/null 2>&1; then
-  consoleMagenta "No docker found in $PATH" 1>&2
+  consoleError "No docker found in $PATH" 1>&2
   exit $err_env
 fi
 
@@ -87,10 +96,13 @@ while [ $# -gt 0 ]; do
   esac
 done
 
-# apt-get update and install figlet
-"$top/bin/build/apt-utils.sh"
+consoleInfo "Started on $(date)" > "$quietLog"
 
-echo "Started on $(date)" > "$quietLog"
+#==========================================================================================
+#
+# apt-get update etc.
+#
+"$top/bin/build/apt-utils.sh"
 
 #==========================================================================================
 #
@@ -129,7 +141,7 @@ reportTiming "$start" OK
 
 #==========================================================================================
 #
-# Load the test schema
+# Load the test schema into our database
 #
 consoleInfo -n "Loading schema ... "
 start=$(beginTiming)
@@ -157,14 +169,7 @@ cleanArgs=()
 if test "$clean"; then
   cleanArgs=("--no-cache" "--pull")
 fi
-start=$(beginTiming)
-consoleInfo -n "Build container ... "
-figlet "Build container" >> "$quietLog"
-if ! docker build "${cleanArgs[@]}" --build-arg "DATABASE_HOST=$CONTAINER_DATABASE_HOST" -f ./docker/php.Dockerfile --tag zesk:latest . >> "$quietLog" 2>&1; then
-  failed "$quietLog"
-  exit $err_build
-fi
-reportTiming "$start" OK
+"$top/bin/build/zesk-latest.sh" "${cleanArgs[@]}"
 
 #==========================================================================================
 #  ▀▛▘     ▐

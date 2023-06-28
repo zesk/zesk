@@ -10,9 +10,6 @@ namespace zesk\Diff;
 
 use zesk\Exception\NotFoundException;
 
-use zesk\Kernel;
-
-echo Kernel::callingFunction() . "\n";
 /*
  * diff - compute shortest edit script (SES) given two sequences
  * Copyright (c) 2004 Michael B. Allen <mba2000 ioplex.com>

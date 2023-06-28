@@ -134,6 +134,12 @@ figlet "zesk $currentVersion"
 #
 start=$(beginTiming)
 consoleInfo -n "Building Zesk PHP Dockerfile ..."
+# This bakes it in, I think.
+{
+  echo 'zesk\GitHub\Module::accessToken="'"$GITHUB_ACCESS_TOKEN"'"'
+  echo 'zesk\GitHub\Module::owner='"$GITHUB_REPOSITORY_OWNER"
+  echo 'zesk\GitHub\Module::repository='"$GITHUB_REPOSITORY_NAME"
+} > "$top/.github.conf"
 image=$(docker build -q -f ./docker/php.Dockerfile .)
 reportTiming "$start" OK
 #
@@ -162,11 +168,6 @@ commitish=$(git rev-parse --short HEAD)
 echo "$(consoleInfo "Generated container $image, running github tag")" "$(consoleRedBold "$commitish")" "$(consoleInfo "===")" "$(consoleRedBold "$currentVersion")" "$(consoleInfo "...")"
 consoleDecoration "$(echoBar)"
 start=$(beginTiming)
-{
-  echo 'zesk\GitHub\Module::accessToken="'"$GITHUB_ACCESS_TOKEN"'"'
-  echo 'zesk\GitHub\Module::owner='"$GITHUB_REPOSITORY_OWNER"
-  echo 'zesk\GitHub\Module::repository='"$GITHUB_REPOSITORY_NAME"
-} > "$top/.github.conf"
 docker run -u www-data "$image" /zesk/bin/zesk --config /zesk/.github.conf module GitHub -- github --tag --description-file "/zesk/$remoteChangeLogName"
 consoleDecoration "$(echoBar)"
 reportTiming "$start" OK
