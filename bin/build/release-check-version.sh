@@ -53,6 +53,9 @@ while [ $# -gt 0 ]; do
   esac
 done
 
+consoleInfo "Pulling tags from origin"
+git pull --tags origin
+
 if git show-ref --tags "$currentVersion" --quiet; then
 	consoleError "Version $currentVersion already exists, already tagged." 1>&2
 	exit 16
