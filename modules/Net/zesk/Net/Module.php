@@ -11,13 +11,15 @@ use zesk\Exception\UnsupportedException;
 use zesk\Module as BaseModule;
 use zesk\URL;
 
-class Module extends BaseModule {
+class Module extends BaseModule
+{
 	/**
 	 * @return void
 	 * @throws ConfigurationException
 	 * @throws UnsupportedException
 	 */
-	public function initialize(): void {
+	public function initialize(): void
+	{
 		parent::initialize();
 		$this->application->registerFactory('netClient', [$this, 'clientFactory']);
 	}
@@ -29,7 +31,8 @@ class Module extends BaseModule {
 	 * @throws SyntaxException
 	 * @throws ClassNotFound
 	 */
-	public function clientFactory(string $url, array $options = []): Client {
+	public function clientFactory(string $url, array $options = []): Client
+	{
 		$scheme = strtolower(URL::scheme($url));
 		$scheme = ($scheme === 'https') ? 'http' : $scheme;
 		$app = $this->application;

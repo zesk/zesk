@@ -10,7 +10,8 @@ namespace zesk\ORM;
  * @author kent
  *
  */
-class Class_Domain extends Class_Base {
+class Class_Domain extends Class_Base
+{
 	/**
 	 *
 	 * @var string

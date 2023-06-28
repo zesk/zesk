@@ -25,7 +25,8 @@ use zesk\StringTools;
  * @author kent
  *
  */
-class Method extends Route {
+class Method extends Route
+{
 	/**
 	 * Method to call
 	 */
@@ -86,7 +87,8 @@ class Method extends Route {
 	 * @return bool
 	 * @throws ParameterException|FileNotFound
 	 */
-	public function validate(): bool {
+	public function validate(): bool
+	{
 		$function = $this->option(self::OPTION_METHOD);
 		return $this->validateMethod($function);
 	}
@@ -97,7 +99,8 @@ class Method extends Route {
 	 * @throws FileNotFound
 	 * @throws ParameterException
 	 */
-	private function validateMethod(array|string|callable|Closure $function): bool {
+	private function validateMethod(array|string|callable|Closure $function): bool
+	{
 		$class = $method = '';
 		if (is_string($function)) {
 			[$class, $method] = StringTools::pair($function, '::', '', $function);
@@ -143,7 +146,8 @@ class Method extends Route {
 	 * @return array
 	 * @throws FileNotFound
 	 */
-	private function _includeFiles(): array {
+	private function _includeFiles(): array
+	{
 		$includes = $this->optionIterable(self::OPTION_INCLUDE);
 		$requires = $this->optionIterable(self::OPTION_REQUIRE);
 		foreach ($requires as $require) {
@@ -175,7 +179,8 @@ class Method extends Route {
 	 * @param array $arguments
 	 * @return mixed
 	 */
-	private function executeMethod(Request $request, string|callable|Closure $method, array $arguments): mixed {
+	private function executeMethod(Request $request, string|callable|Closure $method, array $arguments): mixed
+	{
 		$app = $this->application;
 
 		try {
@@ -214,7 +219,8 @@ class Method extends Route {
 	 * @throws Redirect
 	 * @throws Throwable
 	 */
-	protected function internalExecute(Request $request): Response {
+	protected function internalExecute(Request $request): Response
+	{
 		$this->_includeFiles();
 		foreach ($this->optionIterable(self::OPTION_BEFORE_METHODS) as $beforeMethod) {
 			$beforeMethod = $this->_mapVariables($request, $beforeMethod);

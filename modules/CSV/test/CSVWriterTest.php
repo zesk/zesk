@@ -15,12 +15,14 @@ use zesk\Exception\SemanticsException;
 use zesk\UnitTest;
 use zesk\CSV\Writer;
 
-class CSVWriterTest extends UnitTest {
+class CSVWriterTest extends UnitTest
+{
 	protected array $load_modules = [
 		'csv',
 	];
 
-	public function test_main(): void {
+	public function test_main(): void
+	{
 		$x = new Writer();
 
 		$f = $this->test_sandbox('csv_writer.csv');
@@ -116,13 +118,15 @@ class CSVWriterTest extends UnitTest {
 		$this->assertIsInt($x->rowIndex());
 	}
 
-	public static function data_badkeys(): array {
+	public static function data_badkeys(): array
+	{
 		return [
 			['f!rst'], ['2ECOND'], ['THURD'], ['4'], ['random'], [5], ['5 '], ['six'],
 		];
 	}
 
-	public static function data_goodkeys(): array {
+	public static function data_goodkeys(): array
+	{
 		return [
 			['first'], ['SECOND'], ['tHIRD'], ['4th'], ['5'],
 		];
@@ -131,7 +135,8 @@ class CSVWriterTest extends UnitTest {
 	/**
 	 * @dataProvider data_badkeys
 	 */
-	public function test_badkey(string|int $badkey): void {
+	public function test_badkey(string|int $badkey): void
+	{
 		$this->expectException(KeyNotFound::class);
 		$x = new Writer();
 		$x->setHeaders([
@@ -146,7 +151,8 @@ class CSVWriterTest extends UnitTest {
 	/**
 	 * @dataProvider data_goodkeys
 	 */
-	public function test_goodkey(string $key): void {
+	public function test_goodkey(string $key): void
+	{
 		$x = new Writer();
 		$x->setHeaders([
 			'First', 'Second', 'Third', '4th', '5', '6.0',

@@ -23,7 +23,8 @@ use zesk\Response;
  * @author kent
  *
  */
-class AuthenticatedController extends Controller {
+class AuthenticatedController extends Controller
+{
 	/**
 	 * Current logged in user
 	 *
@@ -43,7 +44,8 @@ class AuthenticatedController extends Controller {
 	 * @return void
 	 * @throws AuthenticationException
 	 */
-	private function throwAuthentication(string $message): void {
+	private function throwAuthentication(string $message): void
+	{
 		throw new AuthenticationException($message, [], HTTP::STATUS_UNAUTHORIZED);
 	}
 
@@ -54,7 +56,8 @@ class AuthenticatedController extends Controller {
 	 * @throws ClassNotFound
 	 * @throws AuthenticationException
 	 */
-	protected function before(Request $request, Response $response): void {
+	protected function before(Request $request, Response $response): void
+	{
 		parent::before($request, $response);
 
 		$this->session = $this->application->requireSession($request);
@@ -79,7 +82,8 @@ class AuthenticatedController extends Controller {
 	 *
 	 * @return array
 	 */
-	public function variables(): array {
+	public function variables(): array
+	{
 		return [
 			'user' => $this->user, 'session' => $this->session,
 		] + parent::variables();

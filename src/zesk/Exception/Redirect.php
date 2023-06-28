@@ -18,7 +18,8 @@ use zesk\Types;
  * @author kent
  * @see RedirectTemporary
  */
-class Redirect extends Exception {
+class Redirect extends Exception
+{
 	/**
 	 *
 	 * @var string
@@ -46,7 +47,8 @@ class Redirect extends Exception {
 	 * @param array $arguments
 	 * @param Throwable|null $previous
 	 */
-	public function __construct(string $url, string $message = '', array $arguments = [], Throwable $previous = null) {
+	public function __construct(string $url, string $message = '', array $arguments = [], Throwable $previous = null)
+	{
 		$this->url = $url;
 		parent::__construct($message, $arguments, 0, $previous);
 	}
@@ -55,7 +57,8 @@ class Redirect extends Exception {
 	 *
 	 * @return string
 	 */
-	public function url(): string {
+	public function url(): string
+	{
 		return $this->url;
 	}
 
@@ -64,7 +67,8 @@ class Redirect extends Exception {
 	 * @param string $set
 	 * @return self
 	 */
-	public function setURL(string $set): self {
+	public function setURL(string $set): self
+	{
 		$this->url = $set;
 		return $this;
 	}
@@ -73,7 +77,8 @@ class Redirect extends Exception {
 	 *
 	 * @return string
 	 */
-	public function statusMessage(): string {
+	public function statusMessage(): string
+	{
 		return $this->arguments[self::RESPONSE_STATUS_MESSAGE] ?? '';
 	}
 
@@ -81,7 +86,8 @@ class Redirect extends Exception {
 	 *
 	 * @return int
 	 */
-	public function statusCode(): int {
+	public function statusCode(): int
+	{
 		return Types::toInteger($this->arguments[self::RESPONSE_STATUS_CODE] ?? -1, -1);
 	}
 }

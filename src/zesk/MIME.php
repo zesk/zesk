@@ -5,7 +5,8 @@ namespace zesk;
 
 use zesk\Exception\KeyNotFound;
 
-class MIME {
+class MIME
+{
 	/**
 	 *
 	 * @var string
@@ -363,7 +364,8 @@ class MIME {
 		'video/x-sgi-movie' => 'movie', 'video/x-smv' => 'smv', 'x-conference/x-cooltalk' => 'ice',
 	];
 
-	private static function _init(): void {
+	private static function _init(): void
+	{
 		if (count(self::$extensionToMIME)) {
 			return;
 		}
@@ -381,7 +383,8 @@ class MIME {
 	 * @return string
 	 * @throws KeyNotFound
 	 */
-	public static function fromExtension(string $filename): string {
+	public static function fromExtension(string $filename): string
+	{
 		self::_init();
 		$type = StringTools::reverseRight($filename, '.');
 		$key = strtolower($type);
@@ -397,7 +400,8 @@ class MIME {
 	 * @return string
 	 * @throws KeyNotFound
 	 */
-	public static function toExtension(string $mime_type): string {
+	public static function toExtension(string $mime_type): string
+	{
 		self::_init();
 		$key = strtolower($mime_type);
 		if (array_key_exists($key, self::$mimeToExtensions)) {

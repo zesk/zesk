@@ -9,7 +9,8 @@ declare(strict_types=1);
 
 namespace zesk;
 
-class StringTools {
+class StringTools
+{
 	/**
 	 * Clean tokens from a string
 	 *
@@ -21,7 +22,8 @@ class StringTools {
 	 * @param string $suffixChar
 	 * @return mixed
 	 */
-	public static function cleanTokens(string $string, string $prefixChar = '{', string $suffixChar = '}'): string {
+	public static function cleanTokens(string $string, string $prefixChar = '{', string $suffixChar = '}'): string
+	{
 		$delimiter = '#';
 		$suffix = preg_quote($suffixChar, $delimiter);
 		return preg::replace($delimiter . preg_quote($prefixChar, $delimiter) . '[^' . $suffix . ']*' . $suffix . $delimiter, '', $string);
@@ -35,7 +37,8 @@ class StringTools {
 	 * @param string $suffixChar
 	 * @return boolean
 	 */
-	public static function hasTokens(string $string, string $prefixChar = '{', string $suffixChar = '}'): bool {
+	public static function hasTokens(string $string, string $prefixChar = '{', string $suffixChar = '}'): bool
+	{
 		$tokens = self::extractTokens($string, $prefixChar, $suffixChar);
 		return count($tokens) !== 0;
 	}
@@ -48,7 +51,8 @@ class StringTools {
 	 * @param string $suffixChar
 	 * @return array
 	 */
-	public static function extractTokens(string $string, string $prefixChar = '{', string $suffixChar = '}'): array {
+	public static function extractTokens(string $string, string $prefixChar = '{', string $suffixChar = '}'): array
+	{
 		$delimiter = '#';
 		$prefix = preg_quote($prefixChar, $delimiter);
 		$suffix = preg_quote($suffixChar, $delimiter);
@@ -75,7 +79,8 @@ class StringTools {
 	 * @param string $right
 	 * @return string
 	 */
-	public static function glue(string $left, string $glue, string $right): string {
+	public static function glue(string $left, string $glue, string $right): string
+	{
 		return rtrim($left, $glue) . $glue . ltrim($right, $glue);
 	}
 
@@ -89,7 +94,8 @@ class StringTools {
 	 * @param string $leftQuote Returns the left quote removed
 	 * @return string
 	 */
-	public static function unquote(string $string, string $quotes = '\'\'""', string &$leftQuote = ''): string {
+	public static function unquote(string $string, string $quotes = '\'\'""', string &$leftQuote = ''): string
+	{
 		if (strlen($string) < 2) {
 			$leftQuote = '';
 			return $string;
@@ -123,7 +129,8 @@ class StringTools {
 	 *            delimiter in the right value Any other value the delimiter is stripped from the results
 	 * @return array A size 2 array containing the left and right portions of the pair
 	 */
-	public static function pair(string $a, string $delim = '.', string $left = '', string $right = '', string $includeDelimiter = ''): array {
+	public static function pair(string $a, string $delim = '.', string $left = '', string $right = '', string $includeDelimiter = ''): array
+	{
 		$n = strpos($a, $delim);
 		$delim_len = strlen($delim);
 		return ($n === false) ? [
@@ -152,7 +159,8 @@ class StringTools {
 	 * @return array A size 2 array containing the left and right portions of the pair
 	 * @see pair
 	 */
-	public static function reversePair(string $a, string $delim = '.', string $left = '', string $right = '', string $include_delimiter = ''): array {
+	public static function reversePair(string $a, string $delim = '.', string $left = '', string $right = '', string $include_delimiter = ''): array
+	{
 		$n = strrpos($a, $delim);
 		$delim_len = strlen($delim);
 		return ($n === false) ? [
@@ -176,7 +184,8 @@ class StringTools {
 	 * @inline_test self::joinArray("/", ["", null, false]) === "/"
 	 * @inline_test self::joinArray("/", ["", "", "", null, false, "a", "b"]) === "/a/b"
 	 */
-	public static function joinArray(string $separator, array $mixed): string {
+	public static function joinArray(string $separator, array $mixed): string
+	{
 		$r = array_shift($mixed);
 		if (is_array($r)) {
 			$r = self::joinArray($separator, $r);
@@ -206,7 +215,8 @@ class StringTools {
 	 * @return string
 	 * @see StringTools_Test::test_caseMatch()
 	 */
-	public static function caseMatch(string $string, string $pattern): string {
+	public static function caseMatch(string $string, string $pattern): string
+	{
 		$char1 = substr($pattern, 0, 1);
 		$char2 = substr($pattern, 1, 1);
 		if ($char1 == strtolower($char1)) {
@@ -230,7 +240,8 @@ class StringTools {
 	 *            $default
 	 * @return string
 	 */
-	public static function left(string $haystack, string $needle, string $default = null): string {
+	public static function left(string $haystack, string $needle, string $default = null): string
+	{
 		if (($pos = strpos($haystack, $needle)) === false) {
 			return $default === null ? $haystack : $default;
 		}
@@ -249,7 +260,8 @@ class StringTools {
 	 *            $default
 	 * @return string
 	 */
-	public static function reverseLeft(string $haystack, string $needle, string $default = null): string {
+	public static function reverseLeft(string $haystack, string $needle, string $default = null): string
+	{
 		if (($pos = strrpos($haystack, $needle)) === false) {
 			return $default === null ? $haystack : $default;
 		}
@@ -268,7 +280,8 @@ class StringTools {
 	 *            $default
 	 * @return string
 	 */
-	public static function right(string $haystack, string $needle, string $default = null): string {
+	public static function right(string $haystack, string $needle, string $default = null): string
+	{
 		if (($pos = strpos($haystack, $needle)) === false) {
 			return $default === null ? $haystack : $default;
 		}
@@ -287,7 +300,8 @@ class StringTools {
 	 *            $default
 	 * @return string
 	 */
-	public static function reverseRight(string $haystack, string $needle, string $default = null): string {
+	public static function reverseRight(string $haystack, string $needle, string $default = null): string
+	{
 		if (($pos = strrpos($haystack, $needle)) === false) {
 			return $default === null ? $haystack : $default;
 		}
@@ -304,7 +318,8 @@ class StringTools {
 	 * @return mixed Parsed boolean value, or $default
 	 * @see toBool
 	 */
-	public static function toBool(mixed $value, bool $default = false): bool {
+	public static function toBool(mixed $value, bool $default = false): bool
+	{
 		if (is_bool($value)) {
 			return $value;
 		}
@@ -320,7 +335,8 @@ class StringTools {
 	 * @param mixed $bool
 	 * @return string
 	 */
-	public static function fromBool(mixed $bool): string {
+	public static function fromBool(mixed $bool): string
+	{
 		return self::toBool($bool) ? 'true' : 'false';
 	}
 
@@ -330,7 +346,8 @@ class StringTools {
 	 * @param string $phrase
 	 * @return string
 	 */
-	public static function capitalize(string $phrase): string {
+	public static function capitalize(string $phrase): string
+	{
 		return mb_convert_case($phrase, MB_CASE_TITLE);
 	}
 
@@ -347,7 +364,8 @@ class StringTools {
 	 * @param ?integer $max_fields Maximum fields to create, if null, then all fields
 	 * @return string|array|null
 	 */
-	public static function field(string $string, int $index = null, string $delim = " \t", int $max_fields = null): string|array|null {
+	public static function field(string $string, int $index = null, string $delim = " \t", int $max_fields = null): string|array|null
+	{
 		$d = $delim[0];
 		$v = preg_replace('/[' . preg_quote($delim, '/') . ']+/', $d, $string);
 		$v = $max_fields !== null ? explode($d, $v, $max_fields) : explode($d, $v);
@@ -364,7 +382,8 @@ class StringTools {
 	 * @param ?int $max_fields Maximum fields to extract on each line
 	 * @return array
 	 */
-	public static function column(array $lines, int $index = null, string $delim = " \t", int $max_fields = null): array {
+	public static function column(array $lines, int $index = null, string $delim = " \t", int $max_fields = null): array
+	{
 		$array = [];
 		foreach ($lines as $k => $v) {
 			if (is_string($v)) {
@@ -386,7 +405,8 @@ class StringTools {
 	 * @return boolean Whether any haystack begins with any needle
 	 * @see begins
 	 */
-	public static function begins(string|array $haystack, string|array $needle, bool $case_insensitive = false): bool {
+	public static function begins(string|array $haystack, string|array $needle, bool $case_insensitive = false): bool
+	{
 		if (is_array($haystack)) {
 			foreach ($haystack as $k) {
 				if (self::begins($k, $needle, $case_insensitive)) {
@@ -418,7 +438,8 @@ class StringTools {
 	 * @return bool Whether the haystack contains the needle
 	 * @see StringTools::begins, StringTools::ends
 	 */
-	public static function contains(array|string $haystack, array|string $needle, bool $case_insensitive = false): bool {
+	public static function contains(array|string $haystack, array|string $needle, bool $case_insensitive = false): bool
+	{
 		if (is_array($haystack)) {
 			foreach ($haystack as $k) {
 				if (self::contains($k, $needle, $case_insensitive)) {
@@ -448,7 +469,8 @@ class StringTools {
 	 * @param bool $case_insensitive Case insensitive comparison
 	 * @return bool
 	 */
-	public static function ends(array|string $haystack, array|string $needle, bool $case_insensitive = false): bool {
+	public static function ends(array|string $haystack, array|string $needle, bool $case_insensitive = false): bool
+	{
 		if (is_array($haystack)) {
 			foreach ($haystack as $k) {
 				if (self::ends($k, $needle, $case_insensitive)) {
@@ -490,7 +512,8 @@ class StringTools {
 	 * @param bool $case_insensitive
 	 * @return string|array
 	 */
-	public static function removePrefix(string|array $string, string|array $prefix, bool $case_insensitive = false): string|array {
+	public static function removePrefix(string|array $string, string|array $prefix, bool $case_insensitive = false): string|array
+	{
 		/* Unwrap string first to make 2nd case simpler */
 		if (is_array($string)) {
 			$result = [];
@@ -521,7 +544,8 @@ class StringTools {
 	 *
 	 * @see StringTools_Test::test_prefixMatch()
 	 */
-	public static function prefixMatch(string $string, string $match): string {
+	public static function prefixMatch(string $string, string $match): string
+	{
 		$stringParts = str_split($string);
 		$matchParts = str_split($match);
 		$matched = [];
@@ -544,7 +568,8 @@ class StringTools {
 	 * @param bool $case_insensitive
 	 * @return string|array
 	 */
-	public static function removeSuffix(string|array $string, array|string $suffixes, bool $case_insensitive = false): string|array {
+	public static function removeSuffix(string|array $string, array|string $suffixes, bool $case_insensitive = false): string|array
+	{
 		if (is_array($string)) {
 			$result = [];
 			foreach ($string as $k => $v) {
@@ -572,7 +597,8 @@ class StringTools {
 	 * @param bool $be
 	 * @return boolean
 	 */
-	public static function isUTF16(string $str, bool &$be = false): bool {
+	public static function isUTF16(string $str, bool &$be = false): bool
+	{
 		if (strlen($str) < 2) {
 			return false;
 		}
@@ -594,7 +620,8 @@ class StringTools {
 	 * @param string $str
 	 * @return boolean
 	 */
-	public static function isASCII(string $str): bool {
+	public static function isASCII(string $str): bool
+	{
 		$n = strlen($str);
 		for ($i = 0; $i < $n; $i++) {
 			if (ord($str[$i]) > 128) {
@@ -610,7 +637,8 @@ class StringTools {
 	 * @param string $str
 	 * @return boolean
 	 */
-	public static function isUTF8(string $str): bool {
+	public static function isUTF8(string $str): bool
+	{
 		$len = strlen($str);
 		for ($i = 0; $i < $len; $i++) {
 			$c = ord($str[$i]);
@@ -665,7 +693,8 @@ class StringTools {
 	 *
 	 * @return ?bool
 	 */
-	public static function filter(string $string, array $rules, bool $default = null): ?bool {
+	public static function filter(string $string, array $rules, bool $default = null): ?bool
+	{
 		foreach ($rules as $pattern => $result) {
 			$result = Types::toBool($result);
 			if (is_string($pattern)) {
@@ -692,7 +721,8 @@ class StringTools {
 	 *            Content in which to replace string
 	 * @return string
 	 */
-	public static function replaceFirst(string $search, string $replace, string $content): string {
+	public static function replaceFirst(string $search, string $replace, string $content): string
+	{
 		$x = explode($search, $content, 2);
 		if (count($x) === 1) {
 			return $content;
@@ -708,7 +738,8 @@ class StringTools {
 	 * @param string $dot_dot_dot
 	 * @return string
 	 */
-	public static function ellipsisWord(string $text, int $length = 20, string $dot_dot_dot = ' ...'): string {
+	public static function ellipsisWord(string $text, int $length = 20, string $dot_dot_dot = ' ...'): string
+	{
 		if ($length < 0) {
 			return $text;
 		}
@@ -745,7 +776,8 @@ class StringTools {
 	 * @param int $length Number of characters to pad
 	 * @return string
 	 */
-	public static function zeroPad(int|string $number, int $length = 2): string {
+	public static function zeroPad(int|string $number, int $length = 2): string
+	{
 		$number = strval($number);
 		$number_length = strlen($number);
 		if ($number_length >= $length) {
@@ -765,7 +797,8 @@ class StringTools {
 	 * @param string $replace
 	 * @return string
 	 */
-	public static function replaceTabs(string $text, int $tab_width = -1, string $replace = ' '): string {
+	public static function replaceTabs(string $text, int $tab_width = -1, string $replace = ' '): string
+	{
 		if ($tab_width < 0) {
 			$tab_width = 4;
 		}
@@ -788,7 +821,8 @@ class StringTools {
 	 * @param string $encoding
 	 * @return array
 	 */
-	public static function split(string $string, int $split_length = 1, string $encoding = 'UTF-8'): array {
+	public static function split(string $string, int $split_length = 1, string $encoding = 'UTF-8'): array
+	{
 		if ($split_length < 1) {
 			$split_length = 1;
 		}
@@ -815,7 +849,8 @@ class StringTools {
 	 *            A value to write to a CSV file
 	 * @return string A correctly quoted CSV value
 	 */
-	public static function csvQuote(string $cell): string {
+	public static function csvQuote(string $cell): string
+	{
 		if ((str_contains($cell, '"')) || (str_contains($cell, ',')) || (str_contains($cell, "\n"))) {
 			return '"' . str_replace('"', '""', $cell) . '"';
 		}
@@ -828,7 +863,8 @@ class StringTools {
 	 * @param array $row
 	 * @return string
 	 */
-	public static function csvQuoteRow(array $row): string {
+	public static function csvQuoteRow(array $row): string
+	{
 		$yy = [];
 		foreach ($row as $col) {
 			$yy[] = self::csvQuote($col);
@@ -843,7 +879,8 @@ class StringTools {
 	 *            of arrays of strings
 	 * @return string
 	 */
-	public static function csvQuoteRows(array $rows): string {
+	public static function csvQuoteRows(array $rows): string
+	{
 		$yy = '';
 		foreach ($rows as $row) {
 			$yy .= self::csvQuoteRow($row);
@@ -856,7 +893,8 @@ class StringTools {
 	 * @param string $string
 	 * @return string
 	 */
-	public static function fromCamelCase(string $string): string {
+	public static function fromCamelCase(string $string): string
+	{
 		return preg_replace_callback('/[A-Z]/', fn ($matches) => '_' . strtolower($matches[0]), $string);
 	}
 
@@ -866,7 +904,8 @@ class StringTools {
 	 * @param string $string
 	 * @return string
 	 */
-	public static function toCamelCase(string $string): string {
+	public static function toCamelCase(string $string): string
+	{
 		$result = '';
 		foreach (explode('_', $string) as $i => $token) {
 			$result .= $i === 0 ? strtolower($token) : strtoupper($token[0]) . strtolower(substr($token, 1));
@@ -882,7 +921,8 @@ class StringTools {
 	 * @return integer
 	 * @see mb_internal_encoding
 	 */
-	public static function length(string $string, string $encoding = 'UTF-8'): int {
+	public static function length(string $string, string $encoding = 'UTF-8'): int
+	{
 		if ($encoding === '') {
 			$encoding = mb_internal_encoding();
 		}
@@ -900,7 +940,8 @@ class StringTools {
 	 * @see mb_substr
 	 * @see mb_internal_encoding
 	 */
-	public static function substring(string $string, int $start, int $length, string $encoding = 'UTF-8'): string {
+	public static function substring(string $string, int $start, int $length, string $encoding = 'UTF-8'): string
+	{
 		if ($encoding === '') {
 			$encoding = mb_internal_encoding();
 		}
@@ -931,7 +972,8 @@ class StringTools {
 	 * @param string $endOfStatement
 	 * @return array
 	 */
-	public static function splitSQLStatements(string $sqlScript, string $quote = self::SINGLE_QUOTE, string $sqlEscapedQuote = self::BACKSLASH_SINGLE_QUOTE, string $endOfStatement = self::SEMICOLON_END_OF_STATEMENT): array {
+	public static function splitSQLStatements(string $sqlScript, string $quote = self::SINGLE_QUOTE, string $sqlEscapedQuote = self::BACKSLASH_SINGLE_QUOTE, string $endOfStatement = self::SEMICOLON_END_OF_STATEMENT): array
+	{
 		$token = '*!@::@!*';
 		$map = [$sqlEscapedQuote => $token];
 		$inverseMap = [$token => $sqlEscapedQuote];

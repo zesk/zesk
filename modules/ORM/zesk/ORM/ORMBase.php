@@ -57,7 +57,8 @@ use zesk\Types;
  * @see Module_ORM
  * @see Class_Base
  */
-class ORMBase extends Model implements MemberModelFactory, RouterArgument, SettingsInterface {
+class ORMBase extends Model implements MemberModelFactory, RouterArgument, SettingsInterface
+{
 	/**
 	 * Boolean value which affects ORM::isNew() and ORM::register() which will not depend
 	 * on the auto_column's presence to determine if an ORM is new or not.
@@ -253,7 +254,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 *
 	 * @return array
 	 */
-	public static function settings(): array {
+	public static function settings(): array
+	{
 		return []; //TODO
 	}
 
@@ -266,7 +268,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @return self
 	 * @throws ClassNotFound
 	 */
-	public function ormFactory(string $class, mixed $mixed = null, array $options = []): self {
+	public function ormFactory(string $class, mixed $mixed = null, array $options = []): self
+	{
 		$object = $this->modelFactory($class, $mixed, $options);
 		assert($object instanceof ORMBase);
 		return $object;
@@ -292,7 +295,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @throws ParseException
 	 * @throws Semantics
 	 */
-	public function __construct(Application $application, $mixed = null, array $options = []) {
+	public function __construct(Application $application, $mixed = null, array $options = [])
+	{
 		parent::__construct($application, null, $options);
 		$this->inheritConfiguration();
 		$this->initializeSpecification();
@@ -305,7 +309,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	/**
 	 * Sleep functionality
 	 */
-	public function __sleep() {
+	public function __sleep()
+	{
 		return array_merge(['members', ], parent::__sleep());
 	}
 
@@ -313,7 +318,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @return void
 	 * @throws Semantics
 	 */
-	public function __wakeup(): void {
+	public function __wakeup(): void
+	{
 		$this->application = Kernel::wakeupApplication();
 
 		try {
@@ -332,7 +338,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @param mixed $default
 	 * @return mixed
 	 */
-	public function class_option(string $name, mixed $default = null): mixed {
+	public function class_option(string $name, mixed $default = null): mixed
+	{
 		return $this->class->option($name, $default);
 	}
 
@@ -342,7 +349,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 *
 	 * @return Class_Base
 	 */
-	public function class_orm(): Class_Base {
+	public function class_orm(): Class_Base
+	{
 		return $this->class;
 	}
 
@@ -352,7 +360,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 *
 	 * @return Class_Base
 	 */
-	public function class_orm_name(): string {
+	public function class_orm_name(): string
+	{
 		return $this->class_name;
 	}
 
@@ -363,7 +372,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 *
 	 * @see Model::variables()
 	 */
-	public function variables(): array {
+	public function variables(): array
+	{
 		$members = [];
 
 		try {
@@ -388,7 +398,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @see SettingsInterface::get
 	 * @see Model::get
 	 */
-	public function get(string|int $name, mixed $default = null): mixed {
+	public function get(string|int $name, mixed $default = null): mixed
+	{
 		return $this->has($name) ? $this->_get($name) : $default;
 	}
 
@@ -407,7 +418,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @throws ParseException
 	 * @throws Semantics
 	 */
-	public function set(string|int $name, mixed $value = null): self {
+	public function set(string|int $name, mixed $value = null): self
+	{
 		$this->__set($name, $value);
 		return $this;
 	}
@@ -415,7 +427,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	/**
 	 * Retrieve a list of class dependencies for this object
 	 */
-	public function dependencies(): array {
+	public function dependencies(): array
+	{
 		return $this->class->dependencies($this);
 	}
 
@@ -427,7 +440,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @throws NotFoundException
 	 * @throws Semantics
 	 */
-	protected function initializeSpecification(): void {
+	protected function initializeSpecification(): void
+	{
 		if (empty($this->class_name)) {
 			if (isset($this->options['class_object'])) {
 				$this->class_name = $this->options['class_object'];
@@ -463,7 +477,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @param string $blank
 	 * @return string
 	 */
-	public static function clean_code_name(string $name, string $blank = '-'): string {
+	public static function clean_code_name(string $name, string $blank = '-'): string
+	{
 		$codename = preg_replace('|[\s/]+|', '-', strtolower(trim($name, " \t\n$blank")));
 		$codename = preg_replace('/[^-_A-Za-z0-9]/', '', $codename);
 		if ($blank !== '-') {
@@ -480,7 +495,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @throws ParameterException
 	 * @throws ORMNotFound
 	 */
-	final public function database_schema(): ?Schema {
+	final public function database_schema(): ?Schema
+	{
 		return $this->class->database_schema($this);
 	}
 
@@ -492,7 +508,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @throws ParameterException
 	 * @throws ORMNotFound
 	 */
-	public function schema(): Schema|array|string|null {
+	public function schema(): Schema|array|string|null
+	{
 		return $this->class->schema($this);
 	}
 
@@ -500,7 +517,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * Call when the schema of an object has changed and needs to be refreshed
 	 * @throws Semantics
 	 */
-	public function schemaChanged(): void {
+	public function schemaChanged(): void
+	{
 		$this->class->schemaChanged();
 	}
 
@@ -508,7 +526,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 *
 	 * @return Base
 	 */
-	public function database(): Base {
+	public function database(): Base
+	{
 		return $this->database;
 	}
 
@@ -516,7 +535,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @param Base $database
 	 * @return $this
 	 */
-	public function setDatabase(Base $database): self {
+	public function setDatabase(Base $database): self
+	{
 		$this->database = $database;
 		$this->database_name = $database->codeName();
 		return $this;
@@ -526,7 +546,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 *
 	 * @return SQLDialect
 	 */
-	public function sql(): SQLDialect {
+	public function sql(): SQLDialect
+	{
 		return $this->database()->sqlDialect();
 	}
 
@@ -534,7 +555,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 *
 	 * @return string
 	 */
-	final public function table(): string {
+	final public function table(): string
+	{
 		return $this->table !== '' ? $this->table : $this->class->table;
 	}
 
@@ -542,14 +564,16 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 *
 	 * @return boolean
 	 */
-	public function tableExists(): bool {
+	public function tableExists(): bool
+	{
 		return $this->database()->tableExists($this->table());
 	}
 
 	/**
 	 * Default implementation of the object name
 	 */
-	public function name(): string {
+	public function name(): string
+	{
 		$name_col = $this->nameColumn();
 		if (empty($name_col)) {
 			return '';
@@ -567,7 +591,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 *
 	 * @return string|null
 	 */
-	final public function nameColumn(): string|null {
+	final public function nameColumn(): string|null
+	{
 		return $this->class->name_column;
 	}
 
@@ -576,7 +601,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 *
 	 * @return string|null
 	 */
-	final public function findKey(): ?string {
+	final public function findKey(): ?string
+	{
 		$keys = $this->class->find_keys;
 		if (is_array($keys) && count($keys) === 1) {
 			return $keys[0];
@@ -589,7 +615,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 *
 	 * @return array:string
 	 */
-	final public function findKeys(): array {
+	final public function findKeys(): array
+	{
 		return $this->class->find_keys;
 	}
 
@@ -598,7 +625,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 *
 	 * @return array:string
 	 */
-	final public function duplicateKeys(): array {
+	final public function duplicateKeys(): array
+	{
 		return $this->class->duplicate_keys;
 	}
 
@@ -609,7 +637,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 *
 	 * @return array
 	 */
-	public function memberNames(): array {
+	public function memberNames(): array
+	{
 		return $this->class->memberNames();
 	}
 
@@ -618,7 +647,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 *
 	 * @return array
 	 */
-	public function columns(): array {
+	public function columns(): array
+	{
 		return array_keys($this->class->column_types);
 	}
 
@@ -627,7 +657,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 *
 	 * @return string
 	 */
-	public function className(): string {
+	public function className(): string
+	{
 		return $this->class->name;
 	}
 
@@ -636,7 +667,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 *
 	 * @return ?string
 	 */
-	public function idColumn(): ?string {
+	public function idColumn(): ?string
+	{
 		return $this->class->id_column;
 	}
 
@@ -645,7 +677,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 *
 	 * @return boolean
 	 */
-	public function hasPrimaryKeys(): bool {
+	public function hasPrimaryKeys(): bool
+	{
 		$pk = $this->class->primary_keys;
 		if (count($pk) === 0) {
 			return false;
@@ -668,7 +701,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 *
 	 * @return array
 	 */
-	public function primaryKeys(): array {
+	public function primaryKeys(): array
+	{
 		return $this->class->primary_keys;
 	}
 
@@ -677,14 +711,16 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 *
 	 * @return boolean
 	 */
-	public function utcTimestamps(): bool {
+	public function utcTimestamps(): bool
+	{
 		return $this->class->utc_timestamps;
 	}
 
 	/**
 	 * @return Base
 	 */
-	public function selectDatabase(): Base {
+	public function selectDatabase(): Base
+	{
 		return $this->database()->selectDatabase($this->databaseName());
 	}
 
@@ -693,7 +729,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @return self
 	 * @throws ORMNotFound
 	 */
-	public function refresh(): self {
+	public function refresh(): self
+	{
 		if ($this->need_load && $this->canFetch()) {
 			try {
 				$this->fetch();
@@ -718,7 +755,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @throws ParseException
 	 * @throws Semantics
 	 */
-	private function initializeMembers(array $mixed, mixed $initialize = false): void {
+	private function initializeMembers(array $mixed, mixed $initialize = false): void
+	{
 		$this->_initialized = count($mixed) !== 0;
 		if ($initialize === true) { // Means from database
 			$mixed = $this->class->from_database($this, $mixed);
@@ -734,7 +772,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	/**
 	 * @return void
 	 */
-	private function initializeDefaults(): void {
+	private function initializeDefaults(): void
+	{
 		$this->_initialized = false;
 		$this->members = $this->class->column_defaults;
 		$this->original = [];
@@ -754,7 +793,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @throws ParseException
 	 * @throws Semantics
 	 */
-	private function initializeId(int|string|array $id): void {
+	private function initializeId(int|string|array $id): void
+	{
 		if ($this->class->id_column !== null) {
 			$this->setId($id);
 			$this->_initialized = true;
@@ -782,7 +822,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @throws ParseException
 	 * @throws Semantics
 	 */
-	public function initialize(mixed $mixed, mixed $initialize = false): self {
+	public function initialize(mixed $mixed, mixed $initialize = false): self
+	{
 		$this->is_new_cached = null;
 		$this->store_queue = [];
 		if (is_array($mixed)) {
@@ -803,14 +844,16 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 *
 	 * @return void
 	 */
-	protected function constructed(): void {
+	protected function constructed(): void
+	{
 		// pass
 	}
 
 	/**
 	 * @return bool
 	 */
-	public function initializing(): bool {
+	public function initializing(): bool
+	{
 		return !$this->classValid;
 	}
 
@@ -818,7 +861,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @param bool $isNew
 	 * @return $this
 	 */
-	public function setIsNew(bool $isNew): self {
+	public function setIsNew(bool $isNew): self
+	{
 		$this->is_new_cached = $isNew;
 		return $this;
 	}
@@ -826,7 +870,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	/**
 	 * @return bool
 	 */
-	public function isNew(): bool {
+	public function isNew(): bool
+	{
 		if (is_bool($this->is_new_cached)) {
 			return $this->is_new_cached;
 		}
@@ -859,7 +904,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 *
 	 * @return ORMBase
 	 */
-	public function clear(): self {
+	public function clear(): self
+	{
 		$this->members = $this->class->column_defaults;
 		$this->store_queue = [];
 		return $this;
@@ -870,7 +916,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 *
 	 * @return string
 	 */
-	public function displayName(): string {
+	public function displayName(): string
+	{
 		$name_column = $this->class->name_column;
 		if (!$name_column) {
 			return '';
@@ -898,7 +945,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @throws ParseException
 	 * @throws Semantics
 	 */
-	public function setId(int|string|array $set): self {
+	public function setId(int|string|array $set): self
+	{
 		$id_column = $this->class->id_column;
 		if (is_string($id_column)) {
 			return $this->set($id_column, $set);
@@ -950,7 +998,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @return int|string|array
 	 * @throws ORMEmpty
 	 */
-	public function id(): int|string|array {
+	public function id(): int|string|array
+	{
 		$id_column = $this->class->id_column;
 		/**
 		 * Single ID
@@ -987,7 +1036,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @return string
 	 * @see ORMBase::databaseName()
 	 */
-	public function databaseName(): string {
+	public function databaseName(): string
+	{
 		return $this->database_name;
 	}
 
@@ -997,7 +1047,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @param string $alias
 	 * @return Select
 	 */
-	public function querySelect(string $alias = ''): Select {
+	public function querySelect(string $alias = ''): Select
+	{
 		$query = new Select($db = $this->database());
 		$query->setORMClass(get_class($this))->setFactory($this)->setORMClassOptions($this->inheritOptions());
 		if (empty($alias)) {
@@ -1011,7 +1062,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 *
 	 * @return Insert
 	 */
-	public function queryInsert(): Insert {
+	public function queryInsert(): Insert
+	{
 		$query = new Insert($this->database());
 		$query->setORMClass(get_class($this));
 		$query->setORMClassOptions($this->inheritOptions());
@@ -1024,7 +1076,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @param string $alias
 	 * @return Select
 	 */
-	public function queryInsertSelect(string $alias = ''): Select {
+	public function queryInsertSelect(string $alias = ''): Select
+	{
 		$query = new InsertSelect($this->database());
 		$query->setORMClass(get_class($this));
 		$query->setORMClassOptions($this->inheritOptions());
@@ -1038,7 +1091,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @param string $alias
 	 * @return Update
 	 */
-	public function queryUpdate(string $alias = ''): Update {
+	public function queryUpdate(string $alias = ''): Update
+	{
 		$query = new Update($this->database());
 		$query->setORMClassOptions($this->inheritOptions());
 		return $query->setORMClass(get_class($this))->setTable($this->table(), $alias)->setValidColumns($this->columns(), $alias);
@@ -1049,7 +1103,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 *
 	 * @return Delete
 	 */
-	public function queryDelete(): Delete {
+	public function queryDelete(): Delete
+	{
 		$query = new Delete($this->database());
 		return $query->setORMClass(get_class($this))->setORMClassOptions($this->inheritOptions());
 	}
@@ -1062,7 +1117,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @return ORMIterator
 	 * @throws ClassNotFound
 	 */
-	public function iterator(Select $query, array $options = []): ORMIterator {
+	public function iterator(Select $query, array $options = []): ORMIterator
+	{
 		$class = $options['iterator_class'] ?? ORMIterator::class;
 		$object = $this->application->factory($class, get_class($this), $query, $this->inheritOptions() + $options);
 		assert($object instanceof ORMIterator);
@@ -1082,7 +1138,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @throws ORMEmpty
 	 * @throws Semantics - remove this by preflighting
 	 */
-	protected function memberIterator(string $member, array $where = []): ORMIterator {
+	protected function memberIterator(string $member, array $where = []): ORMIterator
+	{
 		$has_many = $this->class->hasMany($this, $member);
 		if (!$this->hasPrimaryKeys()) {
 			throw new KeyNotFound('Can not iterate on an uninitialized object {class}', [
@@ -1120,7 +1177,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @throws ORMEmpty
 	 * @throws Semantics - remove this by preflighting
 	 */
-	public function memberQuery(string $member, ORMBase &$object = null): Select {
+	public function memberQuery(string $member, ORMBase &$object = null): Select
+	{
 		return $this->class->memberQuery($this, $member, $object);
 	}
 
@@ -1138,7 +1196,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @throws Unimplemented
 	 * @todo Unimplemented
 	 */
-	public function memberQueryUpdate(string $member, ORMBase &$object = null): Update {
+	public function memberQueryUpdate(string $member, ORMBase &$object = null): Update
+	{
 		return $this->class->memberQueryUpdate($this, $member, $object);
 	}
 
@@ -1154,7 +1213,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @throws Semantics
 	 * @throws TableNotFound
 	 */
-	private function memberForeignList(string $member): array {
+	private function memberForeignList(string $member): array
+	{
 		if ($this->isNew()) {
 			return array_keys(Types::toArray($this->members[$member] ?? []));
 		}
@@ -1171,7 +1231,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @throws ORMEmpty
 	 * @throws Semantics
 	 */
-	private function memberForeignExists(string $member, int|string|array $id): bool {
+	private function memberForeignExists(string $member, int|string|array $id): bool
+	{
 		if ($this->isNew()) {
 			return ArrayTools::path($this->members, [$member, $id, ]) !== null;
 		}
@@ -1184,7 +1245,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @throws ClassNotFound
 	 * @throws KeyNotFound
 	 */
-	private function memberForeignDelete(string $member): void {
+	private function memberForeignDelete(string $member): void
+	{
 		$queue = $this->class->memberForeignDelete($this, $member);
 		$this->store_queue += $queue;
 		$this->members[$member] = [];
@@ -1199,7 +1261,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @throws ORMNotFound
 	 * @throws Semantics
 	 */
-	private function memberForeignAdd($member, ORMBase $object): void {
+	private function memberForeignAdd($member, ORMBase $object): void
+	{
 		$foreign_keys = $object->members($object->primaryKeys());
 		$hash = json_encode($foreign_keys);
 		$this->members[$member][$hash] = $object;
@@ -1215,7 +1278,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @throws TableNotFound
 	 * @throws ORMEmpty
 	 */
-	private function _fk_delete($table, $foreign_key): void {
+	private function _fk_delete($table, $foreign_key): void
+	{
 		$sql = $this->sql()->delete($table, [$foreign_key => $this->id()]);
 		$this->database()->query($sql);
 	}
@@ -1226,7 +1290,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @return void
 	 * @throws StoreException
 	 */
-	private function _fk_store(ORMBase $object, string $update_key): void {
+	private function _fk_store(ORMBase $object, string $update_key): void
+	{
 		try {
 			$object->set($update_key, $this->id())->store();
 		} catch (zeskException $e) {
@@ -1243,7 +1308,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @return void
 	 * @throws StoreException
 	 */
-	private function _fk_link_store(ORMBase $object, string $table, array $replace): void {
+	private function _fk_link_store(ORMBase $object, string $table, array $replace): void
+	{
 		try {
 			if ($object->isNew() || $object->changed()) {
 				$object->store();
@@ -1263,7 +1329,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 *
 	 * @return array
 	 */
-	public function inheritOptions(): array {
+	public function inheritOptions(): array
+	{
 		if ($this->class->inherit_options) {
 			return $this->options($this->class->inherit_options);
 		}
@@ -1282,7 +1349,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @throws ORMNotFound
 	 * @throws Semantics
 	 */
-	protected function original(string $member): mixed {
+	protected function original(string $member): mixed
+	{
 		$save = $this->members;
 		$this->members = $this->original;
 		$result = $this->_get($member);
@@ -1307,7 +1375,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @return ORMBase
 	 * @throws ClassNotFound
 	 */
-	public function memberModelFactory(string $member, string $class, mixed $value = null, array $options = []): ORMBase {
+	public function memberModelFactory(string $member, string $class, mixed $value = null, array $options = []): ORMBase
+	{
 		return $this->ormFactory($class, $value, $options); //->refresh();
 	}
 
@@ -1319,7 +1388,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @return void
 	 * @throws ORMNotFound
 	 */
-	private function orm_not_found_exception(ORMNotFound $e, string $member = null, mixed $data = null): void {
+	private function orm_not_found_exception(ORMNotFound $e, string $member = null, mixed $data = null): void
+	{
 		if ($this->optionBool('fix_orm_members') || $this->optionBool('fix_member_objects')) {
 			try {
 				// Prevent infinite recursion
@@ -1359,7 +1429,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @throws ORMEmpty
 	 * @throws ORMNotFound
 	 */
-	final protected function memberObject(string $member, array $options = []): self {
+	final protected function memberObject(string $member, array $options = []): self
+	{
 		$this->refresh();
 
 		if (!array_key_exists($member, $this->members)) {
@@ -1402,7 +1473,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @param string|int $name
 	 * @return bool
 	 */
-	public function has(string|int $name): bool {
+	public function has(string|int $name): bool
+	{
 		// Need to check $this->members to handle listing an object with additional query fields which may not be configured in the base object
 		// Prevents ->defaults() from setting the value to null if it's in there
 		return $this->hasMember($name) || array_key_exists($name, $this->members) || isset($this->class->has_many[$name]);
@@ -1419,7 +1491,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @throws ORMNotFound
 	 * @throws Semantics
 	 */
-	protected function _get(string $member): mixed {
+	protected function _get(string $member): mixed
+	{
 		if (!$this->classValid) {
 			return null;
 		}
@@ -1446,7 +1519,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @param int|string $key
 	 * @return mixed
 	 */
-	public function __get(int|string $key): mixed {
+	public function __get(int|string $key): mixed
+	{
 		try {
 			return $this->_get($key);
 		} catch (\Exception) {
@@ -1461,7 +1535,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @throws KeyNotFound
 	 * @throws ORMNotFound
 	 */
-	public function __unset(int|string $key): void {
+	public function __unset(int|string $key): void
+	{
 		if (array_key_exists($key, $this->class->has_many)) {
 			$this->memberForeignDelete($key);
 			$this->members[$key] = [];
@@ -1485,7 +1560,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @throws ParameterException
 	 * @throws Semantics
 	 */
-	public function memberFind(int|string|array $value): self {
+	public function memberFind(int|string|array $value): self
+	{
 		if (is_string($value) || is_int($value)) {
 			$find_keys = $this->class->find_keys;
 			if (count($find_keys) === 1) {
@@ -1504,7 +1580,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @param int|string $name
 	 * @return bool
 	 */
-	public function __isset(int|string $name): bool {
+	public function __isset(int|string $name): bool
+	{
 		if (array_key_exists($name, $this->class->has_many)) {
 			return true;
 		}
@@ -1525,7 +1602,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @throws ParseException
 	 * @throws Semantics
 	 */
-	public function __set(string|int $name, mixed $value): void {
+	public function __set(string|int $name, mixed $value): void
+	{
 		if (($method = $this->class->setters[$name] ?? null) !== null) {
 			if (!method_exists($this, $method)) {
 				throw new Semantics("ORM setter \"$method\" for " . get_class($this) . ' does not exist');
@@ -1595,7 +1673,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @throws Semantics
 	 * @throws TableNotFound
 	 */
-	public function links(string $member): array {
+	public function links(string $member): array
+	{
 		if (array_key_exists($member, $this->class->has_many)) {
 			return $this->memberForeignList($member);
 		}
@@ -1615,7 +1694,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @throws ORMEmpty
 	 * @throws Semantics
 	 */
-	public function isLinked(string $member, mixed $value): bool {
+	public function isLinked(string $member, mixed $value): bool
+	{
 		if (array_key_exists($member, $this->class->has_many)) {
 			return $this->memberForeignExists($member, $value);
 		}
@@ -1630,7 +1710,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @throws KeyNotFound
 	 * @throws ORMNotFound
 	 */
-	public function memberBool(string $member): bool {
+	public function memberBool(string $member): bool
+	{
 		$this->refresh();
 		return Types::toBool($this->member($member));
 	}
@@ -1644,7 +1725,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @throws KeyNotFound
 	 * @throws ORMNotFound
 	 */
-	public function memberTimestamp(string $member): Timestamp {
+	public function memberTimestamp(string $member): Timestamp
+	{
 		$this->refresh();
 		$value = $this->member($member);
 		if ($value instanceof Timestamp) {
@@ -1662,7 +1744,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @throws ORMNotFound
 	 * @throws ORMEmpty
 	 */
-	public function memberInteger(string $member): int {
+	public function memberInteger(string $member): int
+	{
 		$this->refresh();
 		$value = $this->member($member);
 		if (is_numeric($value)) {
@@ -1689,7 +1772,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @throws KeyNotFound
 	 * @throws ORMNotFound
 	 */
-	public function member(string $member): mixed {
+	public function member(string $member): mixed
+	{
 		if (!in_array($member, $this->class->primary_keys)) {
 			$this->refresh();
 		}
@@ -1706,7 +1790,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @param mixed $def
 	 * @return mixed
 	 */
-	protected function raw_member(string $member, mixed $def = null): mixed {
+	protected function raw_member(string $member, mixed $def = null): mixed
+	{
 		return $this->members[$member] ?: $def;
 	}
 
@@ -1718,7 +1803,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @throws KeyNotFound
 	 * @throws ORMNotFound
 	 */
-	public function setMemberData(string $member, array $data, bool $append = false): self {
+	public function setMemberData(string $member, array $data, bool $append = false): self
+	{
 		$existing = $this->memberData($member);
 		return $this->setMember($member, $append ? $existing + $data : $data);
 	}
@@ -1731,7 +1817,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @throws KeyNotFound
 	 * @throws ORMNotFound
 	 */
-	public function memberData(string $member): array {
+	public function memberData(string $member): array
+	{
 		return Types::toArray($this->member($member));
 	}
 
@@ -1745,7 +1832,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @throws KeyNotFound
 	 * @throws ORMNotFound
 	 */
-	public function membersChanged(string|array $members): bool {
+	public function membersChanged(string|array $members): bool
+	{
 		$current = [];
 		foreach (Types::toList($members) as $member) {
 			try {
@@ -1779,7 +1867,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @throws KeyNotFound
 	 * @throws ORMNotFound
 	 */
-	public function changed(array|string $members = ''): bool {
+	public function changed(array|string $members = ''): bool
+	{
 		return $this->membersChanged($members === '' ? $this->columns() : $members);
 	}
 
@@ -1789,7 +1878,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 *
 	 * @return array
 	 */
-	public function changes(): array {
+	public function changes(): array
+	{
 		$changes = [];
 		foreach ($this->columns() as $k) {
 			try {
@@ -1812,7 +1902,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @throws ORMNotFound
 	 * @throws Semantics
 	 */
-	public function members(array|string $mixed = null): array {
+	public function members(array|string $mixed = null): array
+	{
 		$this->refresh();
 		return $this->rawMembers($mixed);
 	}
@@ -1824,7 +1915,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @throws KeyNotFound
 	 * @throws Semantics
 	 */
-	public function rawMembers(array|string $mixed = null): array {
+	public function rawMembers(array|string $mixed = null): array
+	{
 		if (is_string($mixed)) {
 			$mixed = Types::toList($mixed);
 			$result = [];
@@ -1852,7 +1944,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @param string|array $member
 	 * @return boolean
 	 */
-	public function memberIsEmpty(string|array $member): bool {
+	public function memberIsEmpty(string|array $member): bool
+	{
 		if (is_array($member)) {
 			foreach ($member as $m) {
 				if ($this->memberIsEmpty($m)) {
@@ -1879,7 +1972,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @param boolean $overwrite
 	 * @return $this
 	 */
-	public function setMember(string $member, mixed $value = null, bool $overwrite = true): self {
+	public function setMember(string $member, mixed $value = null, bool $overwrite = true): self
+	{
 		try {
 			$this->refresh();
 		} catch (ORMNotFound) {
@@ -1898,7 +1992,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @param bool $overwrite
 	 * @return $this
 	 */
-	public function setMembers(array $members, bool $overwrite = true): self {
+	public function setMembers(array $members, bool $overwrite = true): self
+	{
 		foreach ($members as $key => $value) {
 			$this->setMember($key, $value, $overwrite);
 		}
@@ -1913,7 +2008,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @throws KeyNotFound
 	 * @throws ORMNotFound
 	 */
-	public function memberRemove(string $member): mixed {
+	public function memberRemove(string $member): mixed
+	{
 		$data = $this->member($member);
 		unset($this->members[$member]);
 		$this->members[$member] = $this->class->memberDefault($member);
@@ -1927,7 +2023,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @return bool
 	 * @throws KeyNotFound
 	 */
-	private function _storeMember(string $member): bool {
+	private function _storeMember(string $member): bool
+	{
 		if (!array_key_exists($member, $this->store_columns)) {
 			throw new KeyNotFound($member);
 		}
@@ -1942,7 +2039,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @return void
 	 * @throws KeyNotFound
 	 */
-	private function _setStoreMember(string $member, bool $store): void {
+	private function _setStoreMember(string $member, bool $store): void
+	{
 		if (!array_key_exists($member, $this->store_columns)) {
 			throw new KeyNotFound($member);
 		}
@@ -1953,7 +2051,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @param array $members
 	 * @return array
 	 */
-	private function _filterStoreMembers(array $members): array {
+	private function _filterStoreMembers(array $members): array
+	{
 		foreach ($members as $member => $value) {
 			if (!($this->store_columns[$member] ?? null)) {
 				unset($members[$member]);
@@ -1968,7 +2067,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @return $this
 	 * @throws KeyNotFound
 	 */
-	public function setMemberStore(string|array $members, bool $store = true): self {
+	public function setMemberStore(string|array $members, bool $store = true): self
+	{
 		foreach (Types::toList($members) as $member) {
 			$this->_setStoreMember($member, $store);
 		}
@@ -1982,7 +2082,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @return bool
 	 * @throws KeyNotFound
 	 */
-	public function memberStore(string $member): bool {
+	public function memberStore(string $member): bool
+	{
 		return $this->_storeMember($member);
 	}
 
@@ -1992,7 +2093,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @param string $member
 	 * @return boolean
 	 */
-	public function hasColumn(string $member): bool {
+	public function hasColumn(string $member): bool
+	{
 		return array_key_exists($member, $this->class->column_types);
 	}
 
@@ -2005,14 +2107,16 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @return boolean
 	 * @see ORMBase::member_empty
 	 */
-	public function hasMember(string $member): bool {
+	public function hasMember(string $member): bool
+	{
 		return array_key_exists($member, $this->class->column_types);
 	}
 
 	/**
 	 * @return string[]
 	 */
-	protected function defaultDuplicateRenamePatterns(): array {
+	protected function defaultDuplicateRenamePatterns(): array
+	{
 		$patterns = [];
 		$patterns[] = '';
 		$limit = min($this->option('duplicate_rename_limit', 100), 1000);
@@ -2042,7 +2146,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @throws Semantics
 	 * @throws TableNotFound
 	 */
-	protected function duplicateRename(string $column, Select $select, string $rename_pattern = null): self {
+	protected function duplicateRename(string $column, Select $select, string $rename_pattern = null): self
+	{
 		$name = $this->get($column);
 		$class = get_class($this);
 		if ($rename_pattern === null) {
@@ -2086,7 +2191,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @throws ORMNotFound
 	 * @throws Semantics
 	 */
-	public function duplicate(ORMDuplicateInterface $options = null): self {
+	public function duplicate(ORMDuplicateInterface $options = null): self
+	{
 		$member_names = ArrayTools::valuesRemove(array_keys($this->class->column_types), $this->class->primary_keys);
 		$this->application->logger->debug('member_names={names}', ['names' => $member_names, ]);
 		if ($options) {
@@ -2113,7 +2219,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @throws ParseException
 	 * @throws Semantics
 	 */
-	protected function prepareInsert(): array {
+	protected function prepareInsert(): array
+	{
 		$members = $this->callHookArguments('pre_insert', [$this->members, ], $this->members);
 		$members = $this->_filterStoreMembers($members);
 		$this->selectDatabase();
@@ -2132,7 +2239,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @throws StoreException
 	 * @throws TableNotFound
 	 */
-	private function insert(): void {
+	private function insert(): void
+	{
 		if ($this->optionBool('disable_database') || $this->optionBool('disable_database_insert')) {
 			return;
 		}
@@ -2173,7 +2281,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @throws Semantics
 	 * @throws StoreException
 	 */
-	private function update(): void {
+	private function update(): void
+	{
 		if ($this->optionBool('disable_database') || $this->optionBool('disable_database_update')) {
 			return;
 		}
@@ -2238,7 +2347,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @throws ORMEmpty
 	 * @throws ORMNotFound
 	 */
-	public function find(string|array $where = []): self {
+	public function find(string|array $where = []): self
+	{
 		try {
 			$data = $this->exists($where);
 		} catch (Semantics|KeyNotFound|ParseException $e) {
@@ -2262,7 +2372,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @throws ORMNotFound
 	 * @throws Semantics
 	 */
-	public function exists(string|array $where = ''): array {
+	public function exists(string|array $where = ''): array
+	{
 		if (is_string($where) && !empty($where)) {
 			if ($this->hasMember($where)) {
 				$where = [$where => $this->member($where), ];
@@ -2294,7 +2405,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	/**
 	 * @return bool
 	 */
-	public function isDuplicate(): bool {
+	public function isDuplicate(): bool
+	{
 		$duplicate_keys = $this->class->duplicate_keys;
 		if (!$duplicate_keys) {
 			return false;
@@ -2327,7 +2439,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @throws ORMNotFound
 	 * @throws ParseException
 	 */
-	public function fetchByKey(mixed $value = null, string $column = ''): ORMBase {
+	public function fetchByKey(mixed $value = null, string $column = ''): ORMBase
+	{
 		if (empty($column)) {
 			$column = $this->findKey();
 			if (empty($column)) {
@@ -2351,7 +2464,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @throws ORMNotFound
 	 * @throws Semantics
 	 */
-	protected function fetchQuery(): Select|string {
+	protected function fetchQuery(): Select|string
+	{
 		$primary_keys = $this->class->primary_keys;
 		if (count($primary_keys) === 0) {
 			throw new Semantics('{get_class} {method} can not access fetch_query when there\'s no primary keys defined', [
@@ -2371,14 +2485,16 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @throws ParseException
 	 * @throws Semantics
 	 */
-	private function toDatabase(array $data, bool $insert = false): array {
+	private function toDatabase(array $data, bool $insert = false): array
+	{
 		return $this->class->toDatabase($this, $data, $insert);
 	}
 
 	/**
 	 * @return bool
 	 */
-	public function deleted(): bool {
+	public function deleted(): bool
+	{
 		return $this->_deleted($this->members);
 	}
 
@@ -2395,7 +2511,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @throws ParseException
 	 * @throws Semantics
 	 */
-	public function setDeleted(bool $set): self {
+	public function setDeleted(bool $set): self
+	{
 		$col = $this->class->column_deleted;
 		if ($col) {
 			$this->__set($col, $set);
@@ -2409,7 +2526,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @param array $data
 	 * @return bool
 	 */
-	private function _deleted(array $data): bool {
+	private function _deleted(array $data): bool
+	{
 		$col = $this->class->column_deleted;
 		if (!$col) {
 			return false;
@@ -2425,7 +2543,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 *
 	 * @return boolean
 	 */
-	public function polymorphic(): bool {
+	public function polymorphic(): bool
+	{
 		return $this->class->polymorphic !== null;
 	}
 
@@ -2436,7 +2555,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 *            Set polymorphic class - used internally from Class_Base
 	 * @return $this boolean
 	 */
-	public function setPolymorphicLeaf(string $set): self {
+	public function setPolymorphicLeaf(string $set): self
+	{
 		$this->polymorphic_leaf = $set;
 		return $this;
 	}
@@ -2447,7 +2567,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 *
 	 * @return self
 	 */
-	protected function polymorphicChild(): self {
+	protected function polymorphicChild(): self
+	{
 		if (!$this->polymorphic_leaf) {
 			return $this;
 		}
@@ -2474,7 +2595,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 *
 	 * @return bool
 	 */
-	private function canFetch(): bool {
+	private function canFetch(): bool
+	{
 		if (!$this->classValid) {
 			$this->application->logger->error('canFetch {class} classValid=false', ['class' => get_class($this)]);
 			return false;
@@ -2501,7 +2623,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @throws ParseException
 	 * @throws Semantics
 	 */
-	public function fetch(array $name = []): self {
+	public function fetch(array $name = []): self
+	{
 		if (!$this->canFetch()) {
 			throw new ORMEmpty(get_class($this), '{class}: Missing primary key {primary_keys} values: {values}', [
 				'primary_keys' => $this->class->primary_keys, 'values' => $this->members($this->class->primary_keys),
@@ -2541,7 +2664,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @throws ORMNotFound
 	 * @throws Semantics
 	 */
-	protected function fetchObject(): array {
+	protected function fetchObject(): array
+	{
 		$sql = $this->fetchQuery();
 
 		try {
@@ -2556,7 +2680,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 *
 	 * @return array
 	 */
-	public function storeErrors(): array {
+	public function storeErrors(): array
+	{
 		return $this->optionArray(self::OPTION_STORE_ERROR);
 	}
 
@@ -2566,18 +2691,21 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 *
 	 * @return string
 	 */
-	private function errorDuplicate(): string {
+	private function errorDuplicate(): string
+	{
 		return strval($this->option(self::OPTION_DUPLICATE_ERROR, '{indefinite_article} {name} with that name already exists. ({id})'));
 	}
 
-	protected function setMemberStoreError(string $member, string $message): self {
+	protected function setMemberStoreError(string $member, string $message): self
+	{
 		$errors = $this->optionArray(self::OPTION_STORE_ERROR);
 		$errors[$member] = $message;
 		$this->setOption(self::OPTION_STORE_ERROR, $errors);
 		return $this;
 	}
 
-	protected function store_queue(): void {
+	protected function store_queue(): void
+	{
 		foreach ($this->store_queue as $q) {
 			$func = array_shift($q);
 			call_user_func_array([$this, $func, ], $q);
@@ -2599,7 +2727,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @throws Semantics
 	 * @throws StoreException
 	 */
-	public function store(): self {
+	public function store(): self
+	{
 		/*
 		 * Avoid infinite loops with objects linked back to themselves.
 		 */
@@ -2652,7 +2781,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @return boolean
 	 * @throws ORMEmpty
 	 */
-	public function isEqual(ORMBase $that): bool {
+	public function isEqual(ORMBase $that): bool
+	{
 		return $this::class === $that::class && $this->id() === $that->id();
 	}
 
@@ -2670,7 +2800,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @throws ParseException - can be removed with preflight
 	 * @throws Semantics - can be removed with preflight
 	 */
-	private function storeMembers(): void {
+	private function storeMembers(): void
+	{
 		/*
 		 * Store child objects
 		 */
@@ -2710,7 +2841,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @throws Semantics
 	 * @throws StoreException
 	 */
-	protected function beforeRegister(): void {
+	protected function beforeRegister(): void
+	{
 		foreach ($this->class->has_one as $member => $class) {
 			if ($class[0] === '*') {
 				$class = $this->member(substr($class, 1));
@@ -2748,7 +2880,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @see ORMBase::status_insert
 	 * @see ORMBase::status_unknown
 	 */
-	public function register(array|string $where = ''): self {
+	public function register(array|string $where = ''): self
+	{
 		// If we have all of our primary keys and has an auto_column, then don't bother registering.
 		// Handles case when pre_register registers any objects within it. If everything is loaded OK, then we know
 		// these are valid objects.
@@ -2772,7 +2905,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @param string $set
 	 * @return static
 	 */
-	public function setObjectStatus(string $set): static {
+	public function setObjectStatus(string $set): static
+	{
 		$this->status = $set;
 		return $this;
 	}
@@ -2782,7 +2916,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 *
 	 * @return string
 	 */
-	public function objectStatus(): string {
+	public function objectStatus(): string
+	{
 		return $this->status;
 	}
 
@@ -2790,7 +2925,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 *
 	 * @return boolean
 	 */
-	public function statusExists(): bool {
+	public function statusExists(): bool
+	{
 		return $this->status === self::STATUS_EXISTS;
 	}
 
@@ -2798,14 +2934,16 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 *
 	 * @return boolean
 	 */
-	public function statusCreated(): bool {
+	public function statusCreated(): bool
+	{
 		return $this->status === self::STATUS_INSERT;
 	}
 
 	/**
 	 * Convert to string
 	 */
-	public function __toString(): string {
+	public function __toString(): string
+	{
 		if (!$this->classValid) {
 			return '';
 		}
@@ -2834,7 +2972,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @throws ORMNotFound
 	 * @throws TableNotFound
 	 */
-	public function delete(): void {
+	public function delete(): void
+	{
 		if ($this->isNew()) {
 			return;
 		}
@@ -2869,7 +3008,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @return string
 	 * @throws ORMNotFound
 	 */
-	public function link_default_path_to(string $class): string {
+	public function link_default_path_to(string $class): string
+	{
 		return $this->class->link_default_path_to($class);
 	}
 
@@ -2896,7 +3036,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @throws ParseException
 	 * @throws Semantics
 	 */
-	public function linkWalk(Select $query, array $link_state = []): Select {
+	public function linkWalk(Select $query, array $link_state = []): Select
+	{
 		return $this->class->linkWalk($this, $query, $link_state);
 	}
 
@@ -2915,7 +3056,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @throws ParseException
 	 * @throws Semantics
 	 */
-	public function walk(Walker $options): array {
+	public function walk(Walker $options): array
+	{
 		return $options->walk($this);
 	}
 
@@ -2934,7 +3076,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @throws ParseException
 	 * @throws Semantics
 	 */
-	public function json(JSONWalker $options): array {
+	public function json(JSONWalker $options): array
+	{
 		return $options->walk($this);
 	}
 
@@ -2947,7 +3090,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @param string $class
 	 * @return array
 	 */
-	public static function default_permissions(Application $application, string $class): array {
+	public static function default_permissions(Application $application, string $class): array
+	{
 		$object = $application->ormRegistry($class);
 		$name = $object->class->name;
 		$locale = $application->locale;
@@ -2975,7 +3119,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @return string
 	 * @see Debug::_dump
 	 */
-	public function _debug_dump(): string {
+	public function _debug_dump(): string
+	{
 		try {
 			$rows['primary_keys'] = $this->primaryKeys();
 		} catch (Throwable $e) {
@@ -2996,7 +3141,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 *
 	 * @return array string
 	 */
-	public function words(): array {
+	public function words(): array
+	{
 		$locale = $this->application->locale;
 		$name = $this->class->name;
 		$localeName = $locale->__($name);
@@ -3041,7 +3187,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @throws ParseException
 	 * @throws Semantics
 	 */
-	public function hook_routerArgument(Route $route, string $arg): self {
+	public function hook_routerArgument(Route $route, string $arg): self
+	{
 		$route->setOption('routerArgument', $arg);
 		return $this->setId($arg)->fetch();
 	}
@@ -3051,7 +3198,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 *
 	 * @return array
 	 */
-	public function schema_map(): array {
+	public function schema_map(): array
+	{
 		return $this->optionArray('schema_map') + ['table' => $this->table(), ];
 	}
 
@@ -3060,7 +3208,8 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	 * @return string
 	 * @throws ParameterException
 	 */
-	public static function mixedToClass(mixed $mixed): string {
+	public static function mixedToClass(mixed $mixed): string
+	{
 		if ($mixed instanceof ORMBase) {
 			return $mixed::class;
 		}

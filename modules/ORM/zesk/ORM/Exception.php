@@ -12,7 +12,8 @@ use zesk\Exception as BaseException;
 /**
  *
  */
-abstract class Exception extends BaseException {
+abstract class Exception extends BaseException
+{
 	/**
 	 * Class of object where error occurred
 	 * @var string
@@ -27,7 +28,8 @@ abstract class Exception extends BaseException {
 	 * @param Exception|null $previous
 	 */
 	public function __construct(string|object $class, string $message = null, $arguments = [], Throwable $previous =
-	null) {
+	null)
+	{
 		$this->class = is_object($class) ? $class::class : $class;
 		if (empty($message)) {
 			$message = 'Class: {class}';
@@ -38,7 +40,8 @@ abstract class Exception extends BaseException {
 		parent::__construct($message, $arguments, 0, $previous);
 	}
 
-	public function variables(): array {
+	public function variables(): array
+	{
 		return parent::variables() + [
 			'class' => $this->class,
 		];

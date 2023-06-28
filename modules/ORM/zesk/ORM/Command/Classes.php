@@ -14,7 +14,8 @@ use zesk\Text;
  *
  * @category Database
  */
-class Classes extends SimpleCommand {
+class Classes extends SimpleCommand
+{
 	protected array $shortcuts = ['classes'];
 
 	protected array $option_types = [
@@ -28,7 +29,8 @@ class Classes extends SimpleCommand {
 		'table' => 'show table related to object',
 	];
 
-	public function run(): int {
+	public function run(): int
+	{
 		$application = $this->application;
 		$classes = $application->ormModule()->allClasses();
 		$objects_by_class = [];

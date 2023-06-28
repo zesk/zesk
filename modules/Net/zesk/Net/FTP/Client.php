@@ -15,7 +15,8 @@ use zesk\Exception\DirectoryCreate;
  * @author kent
  *
  */
-class Net_FTP_Client extends Net_Client implements Net_FileSystem {
+class Net_FTP_Client extends Net_Client implements Net_FileSystem
+{
 	/**
 	 * Resource connection to ftp_connect
 	 * @var resource
@@ -44,7 +45,8 @@ class Net_FTP_Client extends Net_Client implements Net_FileSystem {
 	 * Connect to the remote host
 	 * @see Net_Client::connect()
 	 */
-	public function connect(): void {
+	public function connect(): void
+	{
 		if ($this->isConnected()) {
 			throw new Semantics('Already connected.');
 		}
@@ -77,7 +79,8 @@ class Net_FTP_Client extends Net_Client implements Net_FileSystem {
 	 * @return boolean
 	 * @see Net_Client::connect()
 	 */
-	public function isConnected() {
+	public function isConnected()
+	{
 		return is_resource($this->ftp);
 	}
 
@@ -86,7 +89,8 @@ class Net_FTP_Client extends Net_Client implements Net_FileSystem {
 	 * @return boolean true if disconnected, false if already disconnected
 	 * @see Net_Client::connect()
 	 */
-	public function disconnect() {
+	public function disconnect()
+	{
 		if ($this->isConnected()) {
 			$this->stat_cache = [];
 			ftp_close($this->ftp);
@@ -100,7 +104,8 @@ class Net_FTP_Client extends Net_Client implements Net_FileSystem {
 	 * Get the passive mode for the FTP session
 	 * @return bool
 	 */
-	public function passive(): bool {
+	public function passive(): bool
+	{
 		return $this->passive;
 	}
 
@@ -109,19 +114,22 @@ class Net_FTP_Client extends Net_Client implements Net_FileSystem {
 	 * @param boolean $set
 	 * @return self boolean
 	 */
-	public function setPassive(bool $set): self {
+	public function setPassive(bool $set): self
+	{
 		$this->passive = $set;
 		return $this;
 	}
 
-	private function _passive(): void {
+	private function _passive(): void
+	{
 		if ($this->ftp_passive !== $this->passive) {
 			ftp_pasv($this->ftp, $this->passive);
 			$this->ftp_passive = $this->passive;
 		}
 	}
 
-	public function ls($path = null) {
+	public function ls($path = null)
+	{
 		$this->_passive();
 		$lines = ftp_rawlist($this->ftp, $path === null ? '' : $path);
 		$entries = [];
@@ -134,27 +142,32 @@ class Net_FTP_Client extends Net_Client implements Net_FileSystem {
 		return $entries;
 	}
 
-	public function mkdir($path) {
+	public function mkdir($path)
+	{
 		if (!ftp_mkdir($this->ftp, $path)) {
 			throw new DirectoryCreate($path);
 		}
 		return true;
 	}
 
-	public function rmdir($path) {
+	public function rmdir($path)
+	{
 		return ftp_rmdir($this->ftp, $path);
 	}
 
-	public function unlink($path) {
+	public function unlink($path)
+	{
 		return ftp_delete($this->ftp, $path);
 	}
 
-	public function download($remote_path, $local_path) {
+	public function download($remote_path, $local_path)
+	{
 		$this->_passive();
 		return ftp_get($this->ftp, $local_path, $remote_path, FTP_BINARY);
 	}
 
-	public function upload($local_path, $remote_path, $temporary = false) {
+	public function upload($local_path, $remote_path, $temporary = false)
+	{
 		$this->_passive();
 		$result = ftp_put($this->ftp, $remote_path, $local_path, FTP_BINARY);
 		if ($result) {
@@ -163,19 +176,23 @@ class Net_FTP_Client extends Net_Client implements Net_FileSystem {
 		return $result;
 	}
 
-	public function pwd() {
+	public function pwd()
+	{
 		return ftp_pwd($this->ftp);
 	}
 
-	public function cd($path) {
+	public function cd($path)
+	{
 		return ftp_chdir($this->ftp, $path);
 	}
 
-	public function chmod($path, $mode = 0o770) {
+	public function chmod($path, $mode = 0o770)
+	{
 		return ftp_chmod($this->ftp, $mode, $path);
 	}
 
-	public function stat($path) {
+	public function stat($path)
+	{
 		$dir = dirname($path);
 		$file = basename($path);
 		$listing = $this->stat_cache[$dir] ?? null;
@@ -188,11 +205,13 @@ class Net_FTP_Client extends Net_Client implements Net_FileSystem {
 		];
 	}
 
-	public function mtime($path, Timestamp $ts) {
+	public function mtime($path, Timestamp $ts)
+	{
 		return false;
 	}
 
-	public function has_feature($feature) {
+	public function has_feature($feature)
+	{
 		return false;
 	}
 }

@@ -3,10 +3,12 @@ declare(strict_types=1);
 
 namespace zesk;
 
-class ModuleTest extends UnitTest {
+class ModuleTest extends UnitTest
+{
 	protected array $load_modules = ['World'];
 
-	public function test_Module_World(): void {
+	public function test_Module_World(): void
+	{
 		$module = $this->application->modules->object('World');
 		$this->assertInstanceOf(\zesk\World\Module::class, $module);
 		$this->assertEquals('World', $module->baseName());
@@ -21,7 +23,8 @@ class ModuleTest extends UnitTest {
 		$this->assertEquals('', $module->version());
 	}
 
-	public function test_Module_MySQL(): void {
+	public function test_Module_MySQL(): void
+	{
 		$module = $this->application->modules->object('Doctrine');
 		$this->assertInstanceOf(\zesk\Doctrine\Module::class, $module);
 		$this->assertEquals('Doctrine', $module->baseName());

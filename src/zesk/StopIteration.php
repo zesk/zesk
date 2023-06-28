@@ -6,5 +6,6 @@ namespace zesk;
 /**
  * Used to signal the end of iteration, should always be caught.
  */
-class StopIteration extends RuntimeException {
+class StopIteration extends RuntimeException
+{
 }

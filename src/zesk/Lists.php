@@ -24,7 +24,8 @@ namespace zesk;
  *
  * @author kent
  */
-class Lists {
+class Lists
+{
 	/**
 	 * Make a list unique
 	 *
@@ -32,7 +33,8 @@ class Lists {
 	 * @param string $sep
 	 * @return string|array
 	 */
-	public static function unique(string|array $list, string $sep = ';'): string|array {
+	public static function unique(string|array $list, string $sep = ';'): string|array
+	{
 		if (is_array($list)) {
 			return array_unique($list);
 		}
@@ -47,7 +49,8 @@ class Lists {
 	 * @param string $sep List separator, defaults to ";", only relevant if string passed for first parameter
 	 * @return string|array The new list
 	 */
-	public static function keysRemove(array|string $list, string|array $item, string $sep = ';'): array|string {
+	public static function keysRemove(array|string $list, string|array $item, string $sep = ';'): array|string
+	{
 		$is_arr = is_array($list);
 		$a = $is_arr ? $list : explode($sep, $list);
 		$item = toList($item, [], $sep);
@@ -67,7 +70,8 @@ class Lists {
 	 * @param string $sep List separator, defaults to ";"
 	 * @return string|array The new list
 	 */
-	public static function append(string|array $list, string|array $item, string $sep = ';'): string|array {
+	public static function append(string|array $list, string|array $item, string $sep = ';'): string|array
+	{
 		$items = ArrayTools::clean(toList($item, [''], $sep), null);
 		if (count($items) === 0) {
 			return $list;
@@ -89,7 +93,8 @@ class Lists {
 	 * @param string $sep List separator
 	 * @return string|array Result list
 	 */
-	public static function appendUnique(string|array $list, string|array $item, string $sep = ';'): string|array {
+	public static function appendUnique(string|array $list, string|array $item, string $sep = ';'): string|array
+	{
 		$items = array_unique(ArrayTools::clean(toList($item, [''], $sep), null));
 		if (is_array($list)) {
 			return array_unique(array_merge($list, $items));
@@ -108,7 +113,8 @@ class Lists {
 	 * @param string $sep List separator, defaults to ";"
 	 * @return bool
 	 */
-	public static function contains(array|string $list, string $item, string $sep = ';'): bool {
+	public static function contains(array|string $list, string $item, string $sep = ';'): bool
+	{
 		if (is_array($list)) {
 			return in_array($item, $list);
 		}
@@ -123,7 +129,8 @@ class Lists {
 	 * @param string $sep List separator, defaults to ";"
 	 * @return array|string The new list
 	 */
-	public static function prepend(array|string $list, array|string $items, string $sep = ';'): array|string {
+	public static function prepend(array|string $list, array|string $items, string $sep = ';'): array|string
+	{
 		if (is_array($list)) {
 			return is_array($items) ? array_merge($items, $list) : array_merge([
 				$items,
@@ -142,7 +149,8 @@ class Lists {
 	 * @param string $sep
 	 * @return string|array List with the last item removed
 	 */
-	public static function pop(string|array $list, string $sep = ';'): array|string {
+	public static function pop(string|array $list, string $sep = ';'): array|string
+	{
 		if (is_array($list)) {
 			array_pop($list);
 			return $list;

@@ -13,14 +13,16 @@ namespace zesk\FileMonitor;
  * @author kent
  *
  */
-class FilesMonitor extends Base {
+class FilesMonitor extends Base
+{
 	protected array $files = [];
 
 	/**
 	 *
 	 * @param array $files
 	 */
-	public function __construct(array $files) {
+	public function __construct(array $files)
+	{
 		$this->files = $files;
 		parent::__construct();
 	}
@@ -29,11 +31,13 @@ class FilesMonitor extends Base {
 	 *
 	 * @see Base::files()
 	 */
-	protected function files(): array {
+	protected function files(): array
+	{
 		return $this->files;
 	}
 
-	public function setFiles(array $files): self {
+	public function setFiles(array $files): self
+	{
 		$this->files = $files;
 		return $this->initialize();
 	}

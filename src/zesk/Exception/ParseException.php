@@ -16,5 +16,6 @@ use zesk\Exception;
  * @author kent
  *
  */
-class ParseException extends Exception {
+class ParseException extends Exception
+{
 }

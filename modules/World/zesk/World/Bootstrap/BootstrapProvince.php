@@ -22,7 +22,8 @@ use zesk\Types;
  * @package zesk
  * @subpackage system
  */
-class BootstrapProvince extends Hookable {
+class BootstrapProvince extends Hookable
+{
 	/**
 	 * List of country codes to include
 	 */
@@ -40,7 +41,8 @@ class BootstrapProvince extends Hookable {
 	 * @param array $options
 	 * @return self
 	 */
-	public static function factory(Application $application, array $options): self {
+	public static function factory(Application $application, array $options): self
+	{
 		return new self($application, $options);
 	}
 
@@ -48,7 +50,8 @@ class BootstrapProvince extends Hookable {
 	 * @param Application $application
 	 * @param array $options
 	 */
-	public function __construct(Application $application, array $options = []) {
+	public function __construct(Application $application, array $options = [])
+	{
 		parent::__construct($application, $options);
 		$this->setConfiguration(Module::class);
 		$include_country = $this->option(self::OPTION_INCLUDE_COUNTRY);
@@ -62,7 +65,8 @@ class BootstrapProvince extends Hookable {
 	 * @param Country $country
 	 * @return bool
 	 */
-	private function isIncluded(Country $country): bool {
+	private function isIncluded(Country $country): bool
+	{
 		if (count($this->include_country) !== 0) {
 			return $this->include_country[strtolower($country->code)] ?? false;
 		}
@@ -74,7 +78,8 @@ class BootstrapProvince extends Hookable {
 	 * @return Country
 	 * @throws ORMNotFound
 	 */
-	private function findCountry(string $countryCode): Country {
+	private function findCountry(string $countryCode): Country
+	{
 		try {
 			$country = $this->application->ormFactory(Country::class, [
 				Country::MEMBER_CODE => $countryCode,
@@ -89,7 +94,8 @@ class BootstrapProvince extends Hookable {
 	/**
 	 * @throws ORMNotFound
 	 */
-	public function bootstrap(): void {
+	public function bootstrap(): void
+	{
 		$application = $this->application;
 
 		$province_class = Province::class;
@@ -118,7 +124,8 @@ class BootstrapProvince extends Hookable {
 		}
 	}
 
-	private static function _province_ca(): array {
+	private static function _province_ca(): array
+	{
 		/* From: http://canadaonline.about.com/library/bl/blpabb.htm */
 		return [
 			'AB' => 'Alberta', 'BC' => 'British Columbia', 'MB' => 'Manitoba', 'NB' => 'New Brunswick',
@@ -128,7 +135,8 @@ class BootstrapProvince extends Hookable {
 		];
 	}
 
-	private static function _province_us_outlying(): array {
+	private static function _province_us_outlying(): array
+	{
 		return [
 			'AS' => 'American Samoa', 'FM' => 'Federated States of Micronesia', 'GU' => 'Guam',
 			'MH' => 'Marshall Islands', 'MP' => 'Commonwealth of the Northern Mariana Islands', 'PW' => 'Palau',
@@ -136,7 +144,8 @@ class BootstrapProvince extends Hookable {
 		];
 	}
 
-	private static function _province_us(): array {
+	private static function _province_us(): array
+	{
 		return [
 			'AL' => 'Alabama', 'AK' => 'Alaska', 'AZ' => 'Arizona', 'AR' => 'Arkansas', 'CA' => 'California',
 			'CO' => 'Colorado', 'CT' => 'Connecticut', 'DC' => 'District of Columbia', 'DE' => 'Delaware',

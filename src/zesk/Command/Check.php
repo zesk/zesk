@@ -18,7 +18,8 @@ use zesk\Command\FileIterator;
  *
  * @category Debugging
  */
-class Command_Check extends FileIterator {
+class Command_Check extends FileIterator
+{
 	public const CODE_STRICT_TYPES = "declare(strict_types=1);\n";
 
 	/**
@@ -77,7 +78,8 @@ class Command_Check extends FileIterator {
 
 	protected int $changed = 0;
 
-	public function initialize(): void {
+	public function initialize(): void
+	{
 		parent::initialize();
 
 		$this->option_types['prefix'] = 'string';
@@ -144,7 +146,8 @@ class Command_Check extends FileIterator {
 		$this->setOption('year', date('Y'));
 	}
 
-	protected function start(): void {
+	protected function start(): void
+	{
 		$this->prefixes = map($this->prefixes, $this->options(['php-bin-path']));
 		$this->prefixes_gremlins = map($this->prefixes_gremlins, $this->options(['php-bin-path']));
 		if ($this->optionBool('show-package') || $this->optionBool('show-subpackage') || $this->optionBool('show-author') || $this->optionBool('show-copyright')) {
@@ -155,7 +158,8 @@ class Command_Check extends FileIterator {
 		$this->changed = 0;
 	}
 
-	private function lint_file($path, &$output = null): int {
+	private function lint_file($path, &$output = null): int
+	{
 		$result_var = 255;
 		$options = ' -d error_reporting=\'E_ALL|E_STRICT\'';
 		exec("php -l$options \"$path\" 2>&1", $output, $result_var);
@@ -165,7 +169,8 @@ class Command_Check extends FileIterator {
 		return intval($result_var);
 	}
 
-	private function lint_php(string $php_code): int {
+	private function lint_php(string $php_code): int
+	{
 		$tmp = path(ZESK_ROOT, '.' . md5($php_code) . '-' . $this->application->process->id() . '.php');
 		file_put_contents($tmp, $php_code);
 		$result = self::lint_file($tmp);
@@ -180,7 +185,8 @@ class Command_Check extends FileIterator {
 	 * @param callable $addFunction
 	 * @return bool
 	 */
-	private function updateComment(string &$contents, string $term, callable $fixFunction, callable $addFunction): bool {
+	private function updateComment(string &$contents, string $term, callable $fixFunction, callable $addFunction): bool
+	{
 		$translate = [];
 		$comment_options = $this->application->configuration->path(DocComment::class)->toArray();
 		$comments = DocComment::extract($contents, $comment_options);
@@ -222,7 +228,8 @@ class Command_Check extends FileIterator {
 	 * @param string $term
 	 * @return array
 	 */
-	private function showComments(string $contents, string $term): array {
+	private function showComments(string $contents, string $term): array
+	{
 		$comments = DocComment::extract($contents);
 		$results = [];
 		foreach ($comments as $comment) {
@@ -240,7 +247,8 @@ class Command_Check extends FileIterator {
 	 * @return DocComment
 	 * @throws NotFoundException
 	 */
-	private function firstComment(string $contents, string $term): DocComment {
+	private function firstComment(string $contents, string $term): DocComment
+	{
 		$comments = DocComment::extract($contents);
 		foreach ($comments as $comment) {
 			$items = $comment->variables();
@@ -252,20 +260,24 @@ class Command_Check extends FileIterator {
 		throw new NotFoundException($term);
 	}
 
-	private function fix_copyright(string $value): string {
+	private function fix_copyright(string $value): string
+	{
 		return preg_replace('/([^0-9])[12][09][0-9][0-9]([^0-9])/', '${1}' . date('Y') . '${2}', $value);
 	}
 
-	private function copyright_pattern(): string {
+	private function copyright_pattern(): string
+	{
 		return '&copy; {year} {company}{copyright_suffix}';
 	}
 
-	private function add_copyright(array $doccomment): array {
+	private function add_copyright(array $doccomment): array
+	{
 		$doccomment['copyright'] = map($this->copyright_pattern(), $this->options());
 		return $doccomment;
 	}
 
-	private function fix_prefix(string &$contents): bool {
+	private function fix_prefix(string &$contents): bool
+	{
 		$contents = ltrim($contents);
 		$author = $this->application->process->user();
 		$contents = str_replace(self::CODE_STRICT_TYPES, '', $contents);
@@ -282,62 +294,75 @@ class Command_Check extends FileIterator {
 		return true;
 	}
 
-	private function fix_suffix(&$contents): bool {
+	private function fix_suffix(&$contents): bool
+	{
 		$contents = rtrim($contents);
 		$contents = rtrim(StringTools::removeSuffix($contents, '?>')) . "\n";
 		return true;
 	}
 
-	private function fix_author(string $value): string {
+	private function fix_author(string $value): string
+	{
 		return $_SERVER['USER'] ?? $value;
 	}
 
-	private function doccomment_add_author(array $items, string $term) {
+	private function doccomment_add_author(array $items, string $term)
+	{
 		$items[$term] = $this->fix_author('');
 		return $items;
 	}
 
-	private function fix_package(string $value) {
+	private function fix_package(string $value)
+	{
 		assert(is_string($value));
 		return $this->option('package');
 	}
 
-	private function fix_subpackage($value) {
+	private function fix_subpackage($value)
+	{
 		assert(is_string($value));
 		return $this->option('subpackage');
 	}
 
-	private function isAdd(): bool {
+	private function isAdd(): bool
+	{
 		return !$this->optionBool('update-only');
 	}
 
-	private function recopyright(string &$contents): bool {
+	private function recopyright(string &$contents): bool
+	{
 		return $this->updateComment($contents, 'copyright', $this->fix_copyright(...), $this->add_copyright(...));
 	}
 
-	private function reauthor(string &$contents): bool {
+	private function reauthor(string &$contents): bool
+	{
 		return $this->updateComment($contents, 'author', $this->fix_author(...), $this->doccomment_add_author(...));
 	}
 
-	private function set_package(string &$contents): bool {
+	private function set_package(string &$contents): bool
+	{
 		return $this->updateComment($contents, 'package', $this->fix_doccomment_option(...), $this->doccomment_add_option(...));
 	}
 
-	private function doccomment_add_option(array $items, string $option) {
+	private function doccomment_add_option(array $items, string $option)
+	{
 		$items[$option] = $this->option($option);
 		return $items;
 	}
 
-	private function fix_doccomment_option(string $value, string $option) {
+	private function fix_doccomment_option(string $value, string $option)
+	{
 		assert(is_string($value));
 		return $this->option($option);
 	}
 
-	private function set_subpackage(&$contents) {
+	private function set_subpackage(&$contents)
+	{
 		return $this->updateComment($contents, 'subpackage', $this->fix_doccomment_option(...), $this->doccomment_add_option(...));
 	}
 
-	public function process_file(SplFileInfo $file): bool {
+	public function process_file(SplFileInfo $file): bool
+	{
 		$path = $file->getPathname();
 		if ($this->hasOption('ignore')) {
 			$ignore = $this->option('ignore');
@@ -450,7 +475,8 @@ class Command_Check extends FileIterator {
 		return true;
 	}
 
-	protected function finish(): int {
+	protected function finish(): int
+	{
 		$n_found = count($this->log);
 		if ($n_found === 0) {
 			$this->verboseLog('No issues found.');

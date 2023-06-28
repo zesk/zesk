@@ -5,7 +5,8 @@ namespace zesk;
 
 use zesk\Application\Hooks;
 
-class Profiler {
+class Profiler
+{
 	/**
 	 * @var array
 	 */
@@ -19,13 +20,15 @@ class Profiler {
 	/**
 	 *
 	 */
-	public function __construct(Hooks $hooks) {
+	public function __construct(Hooks $hooks)
+	{
 		$hooks->registerHook(\zesk\Response\HTML::HOOK_BODY_CLOSE, function (): void {
 			echo $this->render();
 		});
 	}
 
-	public function render(): string {
+	public function render(): string
+	{
 		$content = '<pre>';
 		asort($this->calls);
 		asort($this->times);

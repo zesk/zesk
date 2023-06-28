@@ -15,7 +15,8 @@ use zesk\Exception\SemanticsException;
  *
  * @author kent
  */
-class JavaScript {
+class JavaScript
+{
 	/**
 	 * Current obfuscation capture state
 	 *
@@ -30,7 +31,8 @@ class JavaScript {
 	 *
 	 * @return string commas-separated list of arguments
 	 */
-	public static function arguments(): string {
+	public static function arguments(): string
+	{
 		$args = func_get_args();
 		$json = [];
 		foreach ($args as $arg) {
@@ -45,7 +47,8 @@ class JavaScript {
 	 * Depends on output buffering
 	 * @throws SemanticsException
 	 */
-	public static function obfuscate_begin(): void {
+	public static function obfuscate_begin(): void
+	{
 		if (self::$obfuscated) {
 			throw new SemanticsException('Already called obfuscate_begin');
 		}
@@ -60,7 +63,8 @@ class JavaScript {
 	 * @return string
 	 * @throws SemanticsException
 	 */
-	public static function obfuscate_end(array $function_map = []): string {
+	public static function obfuscate_end(array $function_map = []): string
+	{
 		if (!self::$obfuscated) {
 			throw new SemanticsException('Need to call obfuscate_begin first');
 		}
@@ -94,7 +98,8 @@ class JavaScript {
 	 * @param string $name function name to clean
 	 * @return string
 	 */
-	public static function clean_function_name(string $name): string {
+	public static function clean_function_name(string $name): string
+	{
 		return preg_replace('/[^A-Za-z0-9_]/', '', $name);
 	}
 
@@ -104,7 +109,8 @@ class JavaScript {
 	 * @param mixed $x value to display
 	 * @return string
 	 */
-	public static function null(mixed $x): string {
+	public static function null(mixed $x): string
+	{
 		if (empty($x)) {
 			return 'null';
 		}
@@ -118,7 +124,8 @@ class JavaScript {
 	 * @param array $javascript
 	 * @return string
 	 */
-	public static function clean_code(array $javascript): string {
+	public static function clean_code(array $javascript): string
+	{
 		return implode(";\n", ArrayTools::valuesRemoveSuffix(ArrayTools::listTrimClean($javascript, ' ', ['']), ';'));
 	}
 
@@ -128,7 +135,8 @@ class JavaScript {
 	 * @param $x string to quote
 	 * @return string Quoted and properly escaped JavaScript string
 	 */
-	public static function string(string $x): string {
+	public static function string(string $x): string
+	{
 		$x = str_replace('\'', '\\\'', $x);
 		$x = str_replace("\n", "\\n' +\n'", $x);
 		return "'$x'";

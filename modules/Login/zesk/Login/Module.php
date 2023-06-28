@@ -12,8 +12,10 @@ namespace zesk\Login;
 use zesk\Module as BaseModule;
 use zesk\ORM\User;
 
-class Module extends BaseModule {
-	public function modelClasses(): array {
+class Module extends BaseModule
+{
+	public function modelClasses(): array
+	{
 		return array_merge(parent::modelClasses(), [User::class]);
 	}
 }

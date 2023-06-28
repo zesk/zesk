@@ -16,25 +16,29 @@ use zesk\ORM\User;
  * @author kent
  *
  */
-class PreferenceTest extends ORMUnitTest {
+class PreferenceTest extends ORMUnitTest
+{
 	protected array $load_modules = [
 		'Preference',
 	];
 
-	protected function initialize(): void {
+	protected function initialize(): void
+	{
 		$this->schemaSynchronize(Value::class);
 	}
 
 	/**
 	 * @return User
 	 */
-	protected function emptyUser(): User {
+	protected function emptyUser(): User
+	{
 		$user = $this->application->ormFactory(User::class);
 		$this->assertInstanceOf(User::class, $user);
 		return $user;
 	}
 
-	protected function validUser(): User {
+	protected function validUser(): User
+	{
 		$this->requireORMTables(User::class);
 		$user = $this->application->ormFactory(User::class);
 		$this->assertInstanceOf(User::class, $user);
@@ -45,7 +49,8 @@ class PreferenceTest extends ORMUnitTest {
 		return $user->setMembers($members)->register();
 	}
 
-	public function test_ORMClass(): void {
+	public function test_ORMClass(): void
+	{
 		$this->truncateClassTables(Value::class);
 		$this->assertORMClass(Value::class, [
 			'user' => $this->validUser(), 'type' => Type::registerName($this->application, $this->randomHex(8)),
@@ -55,7 +60,8 @@ class PreferenceTest extends ORMUnitTest {
 	/**
 	 *
 	 */
-	public function test_get_blank(): void {
+	public function test_get_blank(): void
+	{
 		$this->expectException(ParameterException::class);
 		$user = $this->emptyUser();
 		Value::userGet($user, '');
@@ -63,7 +69,8 @@ class PreferenceTest extends ORMUnitTest {
 
 	/**
 	 */
-	public function test_user_set(): void {
+	public function test_user_set(): void
+	{
 		$user = $this->validUser();
 		$value = $this->randomHex($this->randomInteger(32, 64));
 		$theKey = $this->randomHex(32);
@@ -74,7 +81,8 @@ class PreferenceTest extends ORMUnitTest {
 		$this->assertEquals($value, Value::userGet($user, $theKey));
 	}
 
-	public function test_Preference(): void {
+	public function test_Preference(): void
+	{
 		$user = $this->validUser();
 
 		$preference_class = Value::class;
@@ -95,7 +103,8 @@ class PreferenceTest extends ORMUnitTest {
 		$this->assertORMObject($pref);
 	}
 
-	public function test_missing(): void {
+	public function test_missing(): void
+	{
 		$user = $this->validUser();
 		$name = '-missing-';
 		$this->assertFalse(Value::userHas($user, $name));

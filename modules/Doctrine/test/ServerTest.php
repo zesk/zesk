@@ -8,8 +8,10 @@ use zesk\Doctrine\ModelTestCase;
 use zesk\Doctrine\Server;
 use zesk\Timestamp;
 
-class ServerTest extends ModelTestCase {
-	public function test_Server(): void {
+class ServerTest extends ModelTestCase
+{
+	public function test_Server(): void
+	{
 		$server = Server::singleton($this->application);
 
 		$this->assertInstanceOf(Server::class, $server);

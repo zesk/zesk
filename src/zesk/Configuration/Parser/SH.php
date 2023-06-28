@@ -13,5 +13,6 @@ namespace zesk\Configuration\Parser;
  *
  * @author kent
  */
-class SH extends CONF {
+class SH extends CONF
+{
 }

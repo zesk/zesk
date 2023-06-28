@@ -6,8 +6,10 @@ namespace zesk;
 use zesk\Exception\SemanticsException;
 use zesk\Exception\SyntaxException;
 
-class URLTest extends UnitTest {
-	public static function data_parse(): array {
+class URLTest extends UnitTest
+{
+	public static function data_parse(): array
+	{
 		return [
 			[
 				[
@@ -33,14 +35,16 @@ class URLTest extends UnitTest {
 	 *
 	 * @dataProvider data_parse
 	 */
-	public function test_parse(bool|array $expected, string $url): void {
+	public function test_parse(bool|array $expected, string $url): void
+	{
 		if ($expected === false) {
 			$this->expectException(SyntaxException::class);
 		}
 		$this->assertEquals($expected, URL::parse($url), $url);
 	}
 
-	public static function data_queryAppend(): array {
+	public static function data_queryAppend(): array
+	{
 		return [
 			['/path?a=foo', '/path', ['a' => 'foo'], ],
 		];
@@ -53,11 +57,13 @@ class URLTest extends UnitTest {
 	 * @param array $values
 	 * @return void
 	 */
-	public function test_queryAppend(string $expected, string $url, array $values): void {
+	public function test_queryAppend(string $expected, string $url, array $values): void
+	{
 		$this->assertEquals($expected, URL::queryAppend($url, $values));
 	}
 
-	public static function data_queryFormat(): array {
+	public static function data_queryFormat(): array
+	{
 		return [
 			[
 				'/foo?c=three&d=four&a=one&b=two', '/foo?c=three&d=fourish',
@@ -75,11 +81,13 @@ class URLTest extends UnitTest {
 	 * @param $remove
 	 * @dataProvider data_queryFormat
 	 */
-	public function test_queryFormat($expected, $path, $add, $remove): void {
+	public function test_queryFormat($expected, $path, $add, $remove): void
+	{
 		$this->assertEquals($expected, URL::queryFormat($path, $add, $remove));
 	}
 
-	public static function data_queryKeysRemoveInsensitive(): array {
+	public static function data_queryKeysRemoveInsensitive(): array
+	{
 		return [
 			['/foo', '/foo?BAR=one&Loo=Foo&PoP=age', ['bar', 'loo', 'pop']],
 			['/foo', '/foo?BAR=one&Loo=Foo&PoP=age', ['BAR', 'LOO', 'Pop']],
@@ -92,11 +100,13 @@ class URLTest extends UnitTest {
 	 * @param array $names
 	 * @dataProvider data_queryKeysRemoveInsensitive
 	 */
-	public function test_queryKeysRemoveInsensitive(string $expected, string $url, array $names): void {
+	public function test_queryKeysRemoveInsensitive(string $expected, string $url, array $names): void
+	{
 		$this->assertEquals($expected, URL::queryKeysRemoveInsensitive($url, $names));
 	}
 
-	public function test_queryKeysRemove(): void {
+	public function test_queryKeysRemove(): void
+	{
 		$u = 'http://www.example.com/?a=123&b=def&abcDEF=5716928736+5123123&dogfish=HEAD#marker=12&place=51';
 		$names = 'marker;a;abcDEF';
 		$result = URL::queryKeysRemove($u, $names);
@@ -116,7 +126,8 @@ class URLTest extends UnitTest {
 		$this->assertEquals($test_result, $result);
 	}
 
-	public static function data_stringify(): array {
+	public static function data_stringify(): array
+	{
 		$rows = [];
 		foreach ([
 			'http://www.test.com:81/SIMPLE.html' => 'http://www.test.com:81/SIMPLE.html',
@@ -139,7 +150,8 @@ class URLTest extends UnitTest {
 	 * @throws SyntaxException
 	 * @dataProvider data_stringify
 	 */
-	public function test_stringify(string|bool $expected, string $url): void {
+	public function test_stringify(string|bool $expected, string $url): void
+	{
 		if ($expected === false) {
 			$this->expectException(SyntaxException::class);
 		}
@@ -151,7 +163,8 @@ class URLTest extends UnitTest {
 		$this->assertEquals($u2, $expected);
 	}
 
-	public static function data_change_host(): array {
+	public static function data_change_host(): array
+	{
 		return [
 
 			[
@@ -170,11 +183,13 @@ class URLTest extends UnitTest {
 	 * @param $host
 	 * @dataProvider data_change_host
 	 */
-	public function test_change_host($expected, $url, $host): void {
+	public function test_change_host($expected, $url, $host): void
+	{
 		$this->assertEquals($expected, URL::changeHost($url, $host));
 	}
 
-	public static function data_computeHREF(): array {
+	public static function data_computeHREF(): array
+	{
 		$url = 'http://www.example.com/path/to/file.php?query=value&vale1=412#position';
 		return [
 			['http://www.example.com/path/to/another-file.php?foo=bar#place', $url, 'another-file.php?foo=bar#place'],
@@ -193,11 +208,13 @@ class URLTest extends UnitTest {
 	 * @return void
 	 * @dataProvider data_computeHREF
 	 */
-	public function test_computeHREF($expected, $url, $href): void {
+	public function test_computeHREF($expected, $url, $href): void
+	{
 		$this->assertEquals($expected, URL::computeHREF($url, $href));
 	}
 
-	public static function data_host(): array {
+	public static function data_host(): array
+	{
 		return [['www.dude.com', 'https://john:doe@www.dude.com:1234/path?query#hash'], ];
 	}
 
@@ -206,11 +223,13 @@ class URLTest extends UnitTest {
 	 * @param $url
 	 * @dataProvider data_host
 	 */
-	public function test_host($expected, $url): void {
+	public function test_host($expected, $url): void
+	{
 		$this->assertEquals($expected, URL::host($url));
 	}
 
-	public static function data_is() {
+	public static function data_is()
+	{
 		$input = [
 			'http://localhost/SIMPLE.html' => true,
 			'https://*12312:asdfasdf@localhost:9293/SIMPLE.html?asdfasdljhalskjdhfasdf=asdgasdf&foo=bar&$20=/' => true,
@@ -235,11 +254,13 @@ class URLTest extends UnitTest {
 	/**
 	 * @dataProvider data_is
 	 */
-	public function test_is($expected, $url): void {
+	public function test_is($expected, $url): void
+	{
 		$this->assertEquals($expected, URL::is($url), $url);
 	}
 
-	public static function data_isAbsolute(): array {
+	public static function data_isAbsolute(): array
+	{
 		return [
 			[true, 'https://www.dude.com/whatever'], [true, 'https://www.dude.com/'], [true, 'https://www.dude.com'],
 			[true, 'https://localhost'], [true, 'http://localhost'], [false, '//localhost'], [false, '//path'],
@@ -252,11 +273,13 @@ class URLTest extends UnitTest {
 	 * @param string $url
 	 * @dataProvider data_isAbsolute
 	 */
-	public function test_isAbsolute(bool $expected, string $url): void {
+	public function test_isAbsolute(bool $expected, string $url): void
+	{
 		$this->assertEquals($expected, URL::isAbsolute($url));
 	}
 
-	public static function data_isSecure(): array {
+	public static function data_isSecure(): array
+	{
 		return [
 			[true, 'https://www.example.com/'], [false, 'http://www.example.com/'], [true, 'sftp://user:pass@host/'],
 			[true, 'ssh://user@host'], [false, 'telnet://user@host'],
@@ -269,11 +292,13 @@ class URLTest extends UnitTest {
 	 * @return void
 	 * @dataProvider data_isSecure
 	 */
-	public function test_is_secure(bool $expected, string $url): void {
+	public function test_is_secure(bool $expected, string $url): void
+	{
 		$this->assertEquals($expected, URL::isSecure($url));
 	}
 
-	public static function data_left(): array {
+	public static function data_left(): array
+	{
 		$url = 'https://user:password@host:1234/path/to/thing.html?query=1&id=51213#hash';
 		return [
 			['https://user:password@host:1234/path/to/thing.html?query=1&id=51213#hash', $url, ''],
@@ -293,11 +318,13 @@ class URLTest extends UnitTest {
 	 * @throws SyntaxException
 	 * @dataProvider data_left
 	 */
-	public function test_left($expected, $url, $part): void {
+	public function test_left($expected, $url, $part): void
+	{
 		$this->assertEquals($expected, URL::left($url, $part));
 	}
 
-	public static function data_left_host(): array {
+	public static function data_left_host(): array
+	{
 		$tests = [
 			'http://www.test.com:81/SIMPLE.html' => 'http://www.test.com:81/',
 			'http://john:dude@www.test.com:81/SIMPLE.html' => 'http://john:dude@www.test.com:81/',
@@ -329,14 +356,16 @@ class URLTest extends UnitTest {
 	 * @return void
 	 * @throws SyntaxException
 	 */
-	public function test_left_host($expected, $url): void {
+	public function test_left_host($expected, $url): void
+	{
 		if ($expected === false) {
 			$this->expectException(SyntaxException::class);
 		}
 		$this->assertEquals($expected, URL::leftHost($url));
 	}
 
-	public static function data_left_paths() {
+	public static function data_left_paths()
+	{
 		return [
 			[
 				'https://pwned.org:443/random/url?query=string#fragment=more-query&not=query',
@@ -363,11 +392,13 @@ class URLTest extends UnitTest {
 	/**
 	 * @dataProvider data_left_paths
 	 */
-	public function test_left_path($source, $expected): void {
+	public function test_left_path($source, $expected): void
+	{
 		$this->assertEquals($expected, URL::left_path($source));
 	}
 
-	public static function data_normalize(): array {
+	public static function data_normalize(): array
+	{
 		$urls = [
 			'http://www.test.com:81/SIMPLE.html' => 'http://www.test.com:81/SIMPLE.html',
 			'http://john:dude@www.test.com:81/SIMPLE.html' => 'http://john:dude@www.test.com:81/SIMPLE.html',
@@ -398,14 +429,16 @@ class URLTest extends UnitTest {
 	 * @param $url
 	 * @dataProvider data_normalize
 	 */
-	public function test_normalize($expected, $url): void {
+	public function test_normalize($expected, $url): void
+	{
 		if ($expected === false) {
 			$this->expectException(SyntaxException::class);
 		}
 		$this->assertEquals($expected, URL::normalize($url));
 	}
 
-	public static function data_protocolPort(): array {
+	public static function data_protocolPort(): array
+	{
 		return [
 			[80, 'hTtP'], [80, 'http'], [80, 'HTTP'], [443, 'hTtPs'], [443, 'https'], [443, 'HTTPS'], [21, 'ftp'],
 			[25, 'mailto'], [-1, 'file'], [-1, 'foo'], [25, 'MAILTO'],
@@ -418,22 +451,26 @@ class URLTest extends UnitTest {
 	 * @return void
 	 * @dataProvider data_protocolPort
 	 */
-	public function test_protocolPort(int $expected, string $scheme): void {
+	public function test_protocolPort(int $expected, string $scheme): void
+	{
 		$this->assertEquals($expected, URL::protocolPort($scheme));
 	}
 
-	public static function data_query(): array {
+	public static function data_query(): array
+	{
 		return [['a=b&c=d', 'https://user@localhost:123/path-to/things?a=b&c=d#hash'], ];
 	}
 
 	/**
 	 * @dataProvider data_query
 	 */
-	public function test_query($expected, $url): void {
+	public function test_query($expected, $url): void
+	{
 		$this->assertEquals($expected, URL::query($url));
 	}
 
-	public static function data_queryParseInsensitive(): array {
+	public static function data_queryParseInsensitive(): array
+	{
 		return [
 			['12345', 'NAME=john&Id=12345', 'Id', 'nope'], ['12345', 'NAME=john&Id=12345', 'id', 'nope'],
 			['nope', 'NAME=john&Id=12345', 'Isd', 'nope'], ['john', 'NAME=john&Id=12345', 'name', 'nope'],
@@ -448,16 +485,19 @@ class URLTest extends UnitTest {
 	 * @param $default
 	 * @dataProvider data_queryParseInsensitive
 	 */
-	public function test_queryParseInsensitive($expected, $query, $name, $default): void {
+	public function test_queryParseInsensitive($expected, $query, $name, $default): void
+	{
 		$this->assertEquals($expected, URL::queryParseInsensitive($query, $name, $default));
 	}
 
-	public function test_queryUnparse(): void {
+	public function test_queryUnparse(): void
+	{
 		$m = ['A' => 'A', 'B' => 'C', 'D' => 'E', ];
 		$this->assertEquals('?A=A&B=C&D=E', URL::queryToString($m));
 	}
 
-	public static function data_remove_password(): array {
+	public static function data_remove_password(): array
+	{
 		return [
 			['http://joe@example.com/', 'http://joe:password@example.com/'],
 			['https://example.com/', 'https://:password@example.com/'],
@@ -471,11 +511,13 @@ class URLTest extends UnitTest {
 	 * @throws SyntaxException
 	 * @dataProvider data_remove_password
 	 */
-	public function test_remove_password($expected, $url): void {
+	public function test_remove_password($expected, $url): void
+	{
 		$this->assertEquals($expected, URL::removePassword($url));
 	}
 
-	public static function data_repair(): array {
+	public static function data_repair(): array
+	{
 		$output = [];
 		$f = file(ZESK_ROOT . 'test/test-data/url-repair.txt');
 		foreach ($f as $lineno => $u) {
@@ -491,13 +533,15 @@ class URLTest extends UnitTest {
 	 * @throws SyntaxException
 	 * @dataProvider data_repair
 	 */
-	public function test_repair($u, $lineno): void {
+	public function test_repair($u, $lineno): void
+	{
 		$fixu = str_replace('\'', '\\\'', $u);
 		$normu = URL::repair($fixu);
 		URL::normalize($normu);
 	}
 
-	public static function data_schema(): array {
+	public static function data_schema(): array
+	{
 		$output = [];
 		foreach ([
 			'http://www.example.com' => 'http', 'https://www.example.com' => 'https',
@@ -517,11 +561,13 @@ class URLTest extends UnitTest {
 	 * @throws SyntaxException
 	 * @dataProvider data_schema
 	 */
-	public function test_scheme($expected, $url): void {
+	public function test_scheme($expected, $url): void
+	{
 		$this->assertEquals($expected, URL::scheme($url));
 	}
 
-	public static function data_makeSecure(): array {
+	public static function data_makeSecure(): array
+	{
 		return [
 			['ssh://user@host/', 'telnet://user@host/'], ['sftp://user@host/', 'ftp://user@host/'],
 			['https://www.example.com/', 'http://www.example.com/'], [
@@ -540,14 +586,16 @@ class URLTest extends UnitTest {
 	 * @throws SemanticsException
 	 * @dataProvider data_makeSecure
 	 */
-	public function test_makeSecure(string $expected, string $url): void {
+	public function test_makeSecure(string $expected, string $url): void
+	{
 		if ($expected === '') {
 			$this->expectException(SemanticsException::class);
 		}
 		$this->assertEquals($expected, URL::makeSecure($url));
 	}
 
-	public static function data_isSameServer(): array {
+	public static function data_isSameServer(): array
+	{
 		return [
 			[true, 'http://www.example.com:80/place', 'http://www.example.com/another-place'],
 			[false, 'http://www.example.com:80/place', 'http://www.example.com:81/another-place'],
@@ -572,7 +620,8 @@ class URLTest extends UnitTest {
 	 * @return void
 	 * @dataProvider data_isSameServer
 	 */
-	public function test_isSameServer(bool $expected, string $serverLeft, string $serverRight): void {
+	public function test_isSameServer(bool $expected, string $serverLeft, string $serverRight): void
+	{
 		$this->assertEquals($expected, URL::isSameServer($serverLeft, $serverRight), "URL::isSameServer($serverLeft, $serverRight) should be " . JSON::encode($expected));
 	}
 }

@@ -20,12 +20,14 @@ use zesk\ORM\Schema;
  * Install all application classes by running their installation code
  * @category BETA - Management
  */
-class Install extends SimpleCommand {
+class Install extends SimpleCommand
+{
 	protected array $shortcuts = ['install', 'in'];
 
 	protected array $option_types = [];
 
-	public function run(): int {
+	public function run(): int
+	{
 		/* @var $application Application */
 		$application = $this->application;
 
@@ -144,7 +146,8 @@ class Install extends SimpleCommand {
 		return 0;
 	}
 
-	public function order_walk_object(ORMBase $object, array &$ordered_objects) {
+	public function order_walk_object(ORMBase $object, array &$ordered_objects)
+	{
 		if ($object->option('installed_tag')) {
 			return true;
 		}

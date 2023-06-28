@@ -13,7 +13,8 @@ use zesk\Exception\KeyNotFound;
  * @author kent
  *
  */
-interface SettingsInterface {
+interface SettingsInterface
+{
 	/**
 	 * Is a value set in this object?
 	 * @param string|int $key

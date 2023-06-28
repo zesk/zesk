@@ -10,12 +10,15 @@ namespace zesk\Response;
  * @author kent
  *
  */
-class Text extends Type {
-	public function output($content): void {
+class Text extends Type
+{
+	public function output($content): void
+	{
 		echo $content;
 	}
 
-	public function toJSON(): array {
+	public function toJSON(): array
+	{
 		return [];
 	}
 }

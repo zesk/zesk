@@ -10,8 +10,10 @@ namespace zesk;
  * @author kent
  *
  */
-class Number_Test extends UnitTest {
-	public function test_format_bytes(): void {
+class Number_Test extends UnitTest
+{
+	public function test_format_bytes(): void
+	{
 		$locale = $this->application->localeRegistry('en');
 		$tests = [
 			0 => '0 bytes',
@@ -30,7 +32,8 @@ class Number_Test extends UnitTest {
 		}
 	}
 
-	public static function data_parseBytes(): array {
+	public static function data_parseBytes(): array
+	{
 		return [
 			[2199023255552.0, '2TB'],
 			[2199023255552.0, '2T'],
@@ -48,14 +51,16 @@ class Number_Test extends UnitTest {
 	 * @return void
 	 * @dataProvider data_parseBytes
 	 */
-	public function test_parseBytes(float $expected, string $bytes): void {
+	public function test_parseBytes(float $expected, string $bytes): void
+	{
 		$this->assertEquals($expected, Number::parse_bytes($bytes));
 	}
 
 	/**
 	 *
 	 */
-	public static function data_stddev(): array {
+	public static function data_stddev(): array
+	{
 		return [
 			[0, []],
 			[1.0, [0.0, 1.0, 2.0]],
@@ -72,7 +77,8 @@ class Number_Test extends UnitTest {
 	 * @return void
 	 * @dataProvider data_stddev
 	 */
-	public function test_stddev(float $expected, array $list): void {
+	public function test_stddev(float $expected, array $list): void
+	{
 		$this->assertEqualsWithDelta($expected, Number::stddev($list), 0.01);
 		$this->assertEqualsWithDelta($expected, Number::stddev($list, Number::mean($list)), 0.01);
 	}
@@ -83,11 +89,13 @@ class Number_Test extends UnitTest {
 	 * @return void
 	 * @dataProvider data_mean
 	 */
-	public function test_mean(float $expected, array $list): void {
+	public function test_mean(float $expected, array $list): void
+	{
 		$this->assertEqualsWithDelta($expected, Number::mean($list), 0.01);
 	}
 
-	public static function data_mean(): array {
+	public static function data_mean(): array
+	{
 		return [
 			[0, []],
 			[1.0, [0.0, 1.0, 2.0]],

@@ -27,7 +27,8 @@ use zesk\Types;
  *
  * @author kent
  */
-class Walker {
+class Walker
+{
 	/**
 	 * Current depth to traverse
 	 *
@@ -105,7 +106,8 @@ class Walker {
 	 */
 	protected string $postprocess_hook = 'walked';
 
-	public function variables(): array {
+	public function variables(): array
+	{
 		return [
 			'include_members' => $this->includeMembers(), 'exclude_members' => $this->excludeMembers(),
 			'resolve_methods' => $this->resolveMethods(), 'members_handler' => array_keys($this->members_handler),
@@ -117,7 +119,8 @@ class Walker {
 	 *
 	 * @return self
 	 */
-	public static function factory(): self {
+	public static function factory(): self
+	{
 		return new self();
 	}
 
@@ -126,7 +129,8 @@ class Walker {
 	 *
 	 * @return Walker
 	 */
-	public function child(): self {
+	public function child(): self
+	{
 		return self::factory()->inherit($this);
 	}
 
@@ -136,7 +140,8 @@ class Walker {
 	 * @param self $from
 	 * @return self
 	 */
-	public function inherit(self $from): self {
+	public function inherit(self $from): self
+	{
 		return $this->setClassInfo($from->classInfo())->setSkipNull($from->skipNull())->setResolveMethods($from->resolveMethods());
 	}
 
@@ -146,7 +151,8 @@ class Walker {
 	 * @param int $set
 	 * @return self
 	 */
-	public function setDepth(int $set): self {
+	public function setDepth(int $set): self
+	{
 		$this->depth = $set;
 		return $this;
 	}
@@ -156,7 +162,8 @@ class Walker {
 	 *
 	 * @return int
 	 */
-	public function depth(): int {
+	public function depth(): int
+	{
 		return $this->depth;
 	}
 
@@ -165,7 +172,8 @@ class Walker {
 	 * @param bool $set
 	 * @return self
 	 */
-	public function setClassInfo(bool $set): self {
+	public function setClassInfo(bool $set): self
+	{
 		$this->class_info = $set;
 		return $this;
 	}
@@ -174,7 +182,8 @@ class Walker {
 	 * Getter for class info
 	 * @return bool
 	 */
-	public function classInfo(): bool {
+	public function classInfo(): bool
+	{
 		return $this->class_info;
 	}
 
@@ -182,7 +191,8 @@ class Walker {
 	 * @param bool $set
 	 * @return $this
 	 */
-	public function setSkipNull(bool $set): self {
+	public function setSkipNull(bool $set): self
+	{
 		$this->skip_null = $set;
 		return $this;
 	}
@@ -190,7 +200,8 @@ class Walker {
 	/**
 	 * @return bool
 	 */
-	public function skipNull(): bool {
+	public function skipNull(): bool
+	{
 		return $this->skip_null;
 	}
 
@@ -199,7 +210,8 @@ class Walker {
 	 *
 	 * @return array
 	 */
-	public function includeMembers(): array {
+	public function includeMembers(): array
+	{
 		return array_keys($this->include_members);
 	}
 
@@ -207,14 +219,16 @@ class Walker {
 	 * @param string $member
 	 * @return bool
 	 */
-	public function included(string $member): bool {
+	public function included(string $member): bool
+	{
 		if (count($this->include_members) === 0) {
 			return true;
 		}
 		return array_key_exists($member, $this->include_members);
 	}
 
-	public function setIncludeMembers(array $members, bool $append = false): self {
+	public function setIncludeMembers(array $members, bool $append = false): self
+	{
 		$this->include_members = $this->_set_unique($this->include_members, $members, $append, true);
 		return $this;
 	}
@@ -224,7 +238,8 @@ class Walker {
 	 *
 	 * @return array
 	 */
-	public function excludeMembers(): array {
+	public function excludeMembers(): array
+	{
 		return array_keys($this->exclude_members);
 	}
 
@@ -233,7 +248,8 @@ class Walker {
 	 * @param bool $append
 	 * @return $this
 	 */
-	public function setExcludeMembers(array $members = null, bool $append = false): self {
+	public function setExcludeMembers(array $members = null, bool $append = false): self
+	{
 		$this->exclude_members = $this->_set_unique($this->exclude_members, $members, $append);
 		return $this;
 	}
@@ -245,7 +261,8 @@ class Walker {
 	 *
 	 * @return array
 	 */
-	public function resolveMethods(): array {
+	public function resolveMethods(): array
+	{
 		return $this->resolve_methods;
 	}
 
@@ -253,7 +270,8 @@ class Walker {
 	 * @param array $methods
 	 * @return $this
 	 */
-	public function setResolveMethods(array $methods): self {
+	public function setResolveMethods(array $methods): self
+	{
 		$this->resolve_methods = $methods;
 		return $this;
 	}
@@ -262,7 +280,8 @@ class Walker {
 	 *
 	 * @return array
 	 */
-	public function membersHandler(): array {
+	public function membersHandler(): array
+	{
 		return $this->members_handler;
 	}
 
@@ -271,7 +290,8 @@ class Walker {
 	 * @param bool $append
 	 * @return $this
 	 */
-	public function setMembersHandler(array $handlers, bool $append = false): self {
+	public function setMembersHandler(array $handlers, bool $append = false): self
+	{
 		$this->members_handler = $append ? $handlers + $this->members_handler : $handlers;
 		return $this;
 	}
@@ -283,12 +303,14 @@ class Walker {
 	 * @param bool $append
 	 * @return $this
 	 */
-	public function setResolveObjects(array $resolve_objects, bool $append = false): self {
+	public function setResolveObjects(array $resolve_objects, bool $append = false): self
+	{
 		$this->resolve_objects = $this->_set_unique($this->resolve_objects, $resolve_objects, $append);
 		return $this;
 	}
 
-	public function resolveObjects(): array {
+	public function resolveObjects(): array
+	{
 		return $this->resolve_objects;
 	}
 
@@ -307,7 +329,8 @@ class Walker {
 	 * @param bool $append
 	 * @return self
 	 */
-	public function setAllowResolveObjects(array $allow_resolve_objects, bool $append = false): self {
+	public function setAllowResolveObjects(array $allow_resolve_objects, bool $append = false): self
+	{
 		$this->allow_resolve_objects = $this->_set_unique($this->allow_resolve_objects, $allow_resolve_objects, $append, true);
 		return $this;
 	}
@@ -315,7 +338,8 @@ class Walker {
 	/**
 	 * @return array
 	 */
-	public function allowResolveObjects(): array {
+	public function allowResolveObjects(): array
+	{
 		return $this->allow_resolve_objects;
 	}
 
@@ -326,7 +350,8 @@ class Walker {
 	 * @param Model $model
 	 * @return int|string|array
 	 */
-	public function walk(Model $model): int|string|array {
+	public function walk(Model $model): int|string|array
+	{
 		if ($this->preprocess_hook) {
 			$model->invokeHooks($this->preprocess_hook, [
 				$model, $this,
@@ -341,7 +366,8 @@ class Walker {
 		return $result;
 	}
 
-	private function _set_unique(null|array $member, array $list, bool $append = false, bool $allow_null = false): array {
+	private function _set_unique(null|array $member, array $list, bool $append = false, bool $allow_null = false): array
+	{
 		if ($allow_null) {
 			if (!is_array($member) || $append === false) {
 				if (count($list) === 0) {
@@ -367,7 +393,8 @@ class Walker {
 	 * @param LoggerInterface $logger
 	 * @return array
 	 */
-	private function process_resolve_objects(LoggerInterface $logger): array {
+	private function process_resolve_objects(LoggerInterface $logger): array
+	{
 		$allow_resolve_objects = $this->allowResolveObjects();
 
 		$resolve_object_match = [];
@@ -396,7 +423,8 @@ class Walker {
 	 * @param Model $model
 	 * @return int|string|array
 	 */
-	private function _walk(Model $model): int|string|array {
+	private function _walk(Model $model): int|string|array
+	{
 		/* Convert to JSON structure */
 		$class_data = $this->class_info ? [
 			'_class' => get_class($this), '_parent_class' => get_parent_class($this),
@@ -463,7 +491,8 @@ class Walker {
 	 * @param LoggerInterface $logger
 	 * @return int|string|null|Model|Timestamp
 	 */
-	private function _walk_member(Model $model, string $member, mixed $value, array $resolve_object_match, LoggerInterface $logger): int|string|null|Model|Timestamp {
+	private function _walk_member(Model $model, string $member, mixed $value, array $resolve_object_match, LoggerInterface $logger): int|string|null|Model|Timestamp
+	{
 		$handler = $this->members_handler[$member] ?? null;
 		if (is_callable($handler) || function_exists($handler)) {
 			return $handler($value, $model, $this);
@@ -508,7 +537,8 @@ class Walker {
 	 * @param LoggerInterface $logger
 	 * @return mixed
 	 */
-	private function resolve_object(Model $object, string $member, mixed $value, Walker $child_options, LoggerInterface $logger): string {
+	private function resolve_object(Model $object, string $member, mixed $value, Walker $child_options, LoggerInterface $logger): string
+	{
 		foreach ($this->resolve_methods as $resolve_method) {
 			if (is_string($resolve_method) && method_exists($value, $resolve_method)) {
 				return $value->$resolve_method($child_options);

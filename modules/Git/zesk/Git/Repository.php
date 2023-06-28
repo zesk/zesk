@@ -22,7 +22,8 @@ use zesk\Repository\CommandBase;
  * @see Module
  * @author kent
  */
-class Repository extends CommandBase {
+class Repository extends CommandBase
+{
 	/**
 	 * @var string
 	 */
@@ -48,7 +49,8 @@ class Repository extends CommandBase {
 	 * @param bool $updates
 	 * @return array
 	 */
-	public function status(string $target, bool $updates = false): array {
+	public function status(string $target, bool $updates = false): array
+	{
 		return [];
 	}
 
@@ -58,7 +60,8 @@ class Repository extends CommandBase {
 	 * @return array
 	 * @throws UnsupportedException
 	 */
-	public function info(string $path = '', string $component = ''): array {
+	public function info(string $path = '', string $component = ''): array
+	{
 		throw new UnsupportedException(__METHOD__);
 	}
 
@@ -69,7 +72,8 @@ class Repository extends CommandBase {
 	 * @return boolean
 	 * @throws SemanticsException|CommandFailed
 	 */
-	public function needUpdate(string $target): bool {
+	public function needUpdate(string $target): bool
+	{
 		if (!$this->validate()) {
 			return true;
 		}
@@ -88,7 +92,8 @@ class Repository extends CommandBase {
 	/**
 	 * @throws UnimplementedException
 	 */
-	public function need_commit(string $target): bool {
+	public function need_commit(string $target): bool
+	{
 		throw new UnimplementedException(__METHOD__);
 	}
 
@@ -99,7 +104,8 @@ class Repository extends CommandBase {
 	 * @param string $message
 	 * @throws UnimplementedException
 	 */
-	public function commit(string $target, string $message): bool {
+	public function commit(string $target, string $message): bool
+	{
 		throw new UnimplementedException(__METHOD__);
 	}
 
@@ -109,7 +115,8 @@ class Repository extends CommandBase {
 	 * @param string $target
 	 * @throws UnimplementedException
 	 */
-	public function update(string $target): void {
+	public function update(string $target): void
+	{
 		throw new UnimplementedException(__METHOD__);
 	}
 
@@ -120,7 +127,8 @@ class Repository extends CommandBase {
 	 * @return void
 	 * @throws UnimplementedException
 	 */
-	public function rollback(string $target): void {
+	public function rollback(string $target): void
+	{
 		throw new UnimplementedException(__METHOD__);
 	}
 
@@ -128,7 +136,8 @@ class Repository extends CommandBase {
 	 * @return string
 	 * @throws CommandFailed
 	 */
-	public function latest_version(): string {
+	public function latest_version(): string
+	{
 		$versions = $this->run_command('tag');
 		return $this->compute_latest_version($versions);
 	}
@@ -136,7 +145,8 @@ class Repository extends CommandBase {
 	/**
 	 * @return bool
 	 */
-	public function validate(): bool {
+	public function validate(): bool
+	{
 		return parent::validate();
 	}
 }

@@ -11,7 +11,8 @@ use zesk\Exception\ConfigurationException;
  * @author kent
  *
  */
-class Class_User extends Class_Base {
+class Class_User extends Class_Base
+{
 	/**
 	 *
 	 * @var string
@@ -91,7 +92,8 @@ class Class_User extends Class_Base {
 	 * @return void
 	 * @throws ConfigurationException
 	 */
-	protected function initialize(): void {
+	protected function initialize(): void
+	{
 		$this->column_types[$this->id_column] = self::TYPE_ID;
 		if ($this->column_login && !isset($this->column_types[$this->column_login])) {
 			$this->column_types[$this->column_login] = self::TYPE_STRING;

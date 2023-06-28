@@ -15,7 +15,8 @@ use zesk\Options;
 /**
  * Iterator for CSV files. Options allows attaching extra unstructured data.
  */
-class Iterator extends Options implements BaseIterator {
+class Iterator extends Options implements BaseIterator
+{
 	/**
 	 * CSV
 	 *
@@ -59,7 +60,8 @@ class Iterator extends Options implements BaseIterator {
 	 */
 	private bool $is_valid;
 
-	public function __construct(Reader $csv, array $options = []) {
+	public function __construct(Reader $csv, array $options = [])
+	{
 		parent::__construct($options);
 		$this->csv = $csv;
 		$this->csv_tell = $csv->tell();
@@ -69,22 +71,26 @@ class Iterator extends Options implements BaseIterator {
 		$this->is_valid = true;
 	}
 
-	public function rewind(): void {
+	public function rewind(): void
+	{
 		$this->assoc = $this->optionBool('assoc', true);
 		$this->csv->seek($this->csv_tell);
 		$this->is_valid = true;
 		$this->next();
 	}
 
-	public function current(): array {
+	public function current(): array
+	{
 		return $this->row;
 	}
 
-	public function key(): string {
+	public function key(): string
+	{
 		return strval($this->csv->rowIndex());
 	}
 
-	public function next(): void {
+	public function next(): void
+	{
 		if ($this->assoc) {
 			$this->row = $this->csv->read_row_assoc();
 		} else {
@@ -97,7 +103,8 @@ class Iterator extends Options implements BaseIterator {
 		}
 	}
 
-	public function valid(): bool {
+	public function valid(): bool
+	{
 		return $this->is_valid;
 	}
 
@@ -108,7 +115,8 @@ class Iterator extends Options implements BaseIterator {
 	 * @param string|null $value_key
 	 * @return array
 	 */
-	public function toArray(string $key_key = null, string $value_key = null): array {
+	public function toArray(string $key_key = null, string $value_key = null): array
+	{
 		$result = [];
 		foreach ($this as $index => $row) {
 			$value = $value_key === null ? $row : $row[$value_key] ?? null;

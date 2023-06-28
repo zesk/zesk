@@ -13,7 +13,8 @@ use zesk\Interface\ProgressStack;
  * @author kent
  *
  */
-class ProgressLogger implements ProgressStack {
+class ProgressLogger implements ProgressStack
+{
 	/**
 	 *
 	 * @var LoggerInterface
@@ -31,25 +32,29 @@ class ProgressLogger implements ProgressStack {
 	 * @param LoggerInterface $logger
 	 * @param string $level
 	 */
-	public function __construct(LoggerInterface $logger, string $level = 'info') {
+	public function __construct(LoggerInterface $logger, string $level = 'info')
+	{
 		$this->logger = $logger;
 		$this->level = $level;
 	}
 
-	public function progress($status = null, $percent = null): void {
+	public function progress($status = null, $percent = null): void
+	{
 		$this->logger->log($this->level, '{status} ({percent}%)', [
 			'status' => $status,
 			'percent' => $percent,
 		]);
 	}
 
-	public function progressPush($name): void {
+	public function progressPush($name): void
+	{
 		$this->logger->log($this->level, 'BEGIN {name} {', [
 			'name' => $name,
 		]);
 	}
 
-	public function progressPop(): void {
+	public function progressPop(): void
+	{
 		$this->logger->log($this->level, '} END');
 	}
 }

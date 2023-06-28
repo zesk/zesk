@@ -13,5 +13,6 @@ use zesk\PHPUnit\TestCase;
  *
  * @see TestCase
  */
-class UnitTest extends TestCase {
+class UnitTest extends TestCase
+{
 }

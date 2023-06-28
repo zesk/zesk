@@ -37,7 +37,8 @@ use zesk\URL;
  * @package zesk
  * @subpackage system
  */
-abstract class Base extends Hookable implements DatabaseInterface {
+abstract class Base extends Hookable implements DatabaseInterface
+{
 	/**
 	 *
 	 * @var string
@@ -198,7 +199,8 @@ abstract class Base extends Hookable implements DatabaseInterface {
 	 * @throws KeyNotFound
 	 * @throws SyntaxException
 	 */
-	public function __construct(Application $application, string $url = '', array $options = []) {
+	public function __construct(Application $application, string $url = '', array $options = [])
+	{
 		parent::__construct($application, $options);
 		$this->inheritConfiguration();
 		if ($url) {
@@ -210,7 +212,8 @@ abstract class Base extends Hookable implements DatabaseInterface {
 	/**
 	 * @return void
 	 */
-	protected function initialize(): void {
+	protected function initialize(): void
+	{
 		// pass
 	}
 
@@ -219,7 +222,8 @@ abstract class Base extends Hookable implements DatabaseInterface {
 	 *
 	 * @return SQLParser
 	 */
-	public function sqlParser(): SQLParser {
+	public function sqlParser(): SQLParser
+	{
 		return $this->_sqlParser;
 	}
 
@@ -228,7 +232,8 @@ abstract class Base extends Hookable implements DatabaseInterface {
 	 *
 	 * @return SQLDialect
 	 */
-	public function sqlDialect(): SQLDialect {
+	public function sqlDialect(): SQLDialect
+	{
 		return $this->_sqlDialect;
 	}
 
@@ -237,7 +242,8 @@ abstract class Base extends Hookable implements DatabaseInterface {
 	 *
 	 * @return Types
 	 */
-	public function types(): Types {
+	public function types(): Types
+	{
 		return $this->_types;
 	}
 
@@ -248,7 +254,8 @@ abstract class Base extends Hookable implements DatabaseInterface {
 	 * @param Column $column
 	 * @return array
 	 */
-	public function columnAttributes(Column $column): array {
+	public function columnAttributes(Column $column): array
+	{
 		return [];
 	}
 
@@ -258,7 +265,8 @@ abstract class Base extends Hookable implements DatabaseInterface {
 	 *
 	 * @return array
 	 */
-	public function tableAttributes(): array {
+	public function tableAttributes(): array
+	{
 		return [];
 	}
 
@@ -268,7 +276,8 @@ abstract class Base extends Hookable implements DatabaseInterface {
 	 * @param array $attributes
 	 * @return array[]
 	 */
-	public function normalizeAttributes(array $attributes): array {
+	public function normalizeAttributes(array $attributes): array
+	{
 		$new_attributes = [];
 		foreach ($attributes as $k => $v) {
 			$k = preg_replace('/[-_]/', ' ', strtolower($k));
@@ -282,7 +291,8 @@ abstract class Base extends Hookable implements DatabaseInterface {
 	 *
 	 * @return string
 	 */
-	final public function now(): string {
+	final public function now(): string
+	{
 		return $this->sqlDialect()->now();
 	}
 
@@ -291,7 +301,8 @@ abstract class Base extends Hookable implements DatabaseInterface {
 	 *
 	 * @return string
 	 */
-	final public function nowUTC(): string {
+	final public function nowUTC(): string
+	{
 		return $this->sqlDialect()->nowUTC();
 	}
 
@@ -300,7 +311,8 @@ abstract class Base extends Hookable implements DatabaseInterface {
 	 *
 	 * @return bool
 	 */
-	public function tablesCaseSensitive(): bool {
+	public function tablesCaseSensitive(): bool
+	{
 		return $this->optionBool('tables_case_sensitive', true);
 	}
 
@@ -315,7 +327,8 @@ abstract class Base extends Hookable implements DatabaseInterface {
 	 * @throws KeyNotFound
 	 * @throws Semantics
 	 */
-	public function selectOne(string $table, array $where, string|array $order_by = []): array {
+	public function selectOne(string $table, array $where, string|array $order_by = []): array
+	{
 		$sql = $this->sqlDialect()->select([
 			'what' => '*', 'tables' => $table, 'where' => $where, 'order_by' => $order_by, 'limit' => 1, 'offset' => 0,
 		]);
@@ -329,7 +342,8 @@ abstract class Base extends Hookable implements DatabaseInterface {
 	 * @throws KeyNotFound
 	 * @throws SyntaxException
 	 */
-	private function _initURL(string $url): void {
+	private function _initURL(string $url): void
+	{
 		$this->url_parts = $parts = self::urlParse($url);
 		$this->setOptions($parts);
 		$this->setOptions(URL::queryParse($parts['query'] ?? ''));
@@ -344,7 +358,8 @@ abstract class Base extends Hookable implements DatabaseInterface {
 	 * @param string $field Optional desired field.
 	 * @return string|array
 	 */
-	public function parseSQL(string $sql, string $field = ''): string|array {
+	public function parseSQL(string $sql, string $field = ''): string|array
+	{
 		$result = $this->sqlParser()->parseSQL($sql);
 		return $field !== '' ? $result[$field] ?? '' : $result;
 	}
@@ -355,7 +370,8 @@ abstract class Base extends Hookable implements DatabaseInterface {
 	 * @param string $sql
 	 * @return string
 	 */
-	public function parseSQLCommand(string $sql): string {
+	public function parseSQLCommand(string $sql): string
+	{
 		return $this->parseSQL($sql, 'command');
 	}
 
@@ -365,7 +381,8 @@ abstract class Base extends Hookable implements DatabaseInterface {
 	 * @param string $sql
 	 * @return array
 	 */
-	public function splitSQLStatements(string $sql): array {
+	public function splitSQLStatements(string $sql): array
+	{
 		return $this->sqlParser()->splitSQLStatements($sql);
 	}
 
@@ -374,7 +391,8 @@ abstract class Base extends Hookable implements DatabaseInterface {
 	 *
 	 * @see Options::__toString()
 	 */
-	public function __toString() {
+	public function __toString()
+	{
 		return $this->safe_url;
 	}
 
@@ -383,7 +401,8 @@ abstract class Base extends Hookable implements DatabaseInterface {
 	 *
 	 * @return string
 	 */
-	public function codeName(): string {
+	public function codeName(): string
+	{
 		return $this->internal_name;
 	}
 
@@ -393,7 +412,8 @@ abstract class Base extends Hookable implements DatabaseInterface {
 	 * @param string $set
 	 * @return $this
 	 */
-	public function setCodeName(string $set): self {
+	public function setCodeName(string $set): self
+	{
 		$this->internal_name = $set;
 		return $this;
 	}
@@ -403,7 +423,8 @@ abstract class Base extends Hookable implements DatabaseInterface {
 	 *
 	 * @return string
 	 */
-	public function url(): string {
+	public function url(): string
+	{
 		return $this->URL;
 	}
 
@@ -414,7 +435,8 @@ abstract class Base extends Hookable implements DatabaseInterface {
 	 * @return string
 	 * @throws KeyNotFound
 	 */
-	public function urlComponent(string $component): string {
+	public function urlComponent(string $component): string
+	{
 		if (array_key_exists($component, $this->url_parts)) {
 			return $this->url_parts[$component];
 		}
@@ -427,7 +449,8 @@ abstract class Base extends Hookable implements DatabaseInterface {
 	 *
 	 * @return string
 	 */
-	final public function type(): string {
+	final public function type(): string
+	{
 		try {
 			return $this->urlComponent('scheme');
 		} catch (KeyNotFound) {
@@ -441,7 +464,8 @@ abstract class Base extends Hookable implements DatabaseInterface {
 	 *
 	 * @return string
 	 */
-	public function databaseName(): string {
+	public function databaseName(): string
+	{
 		try {
 			return ltrim($this->urlComponent('path'), '/');
 		} catch (KeyNotFound) {
@@ -459,7 +483,8 @@ abstract class Base extends Hookable implements DatabaseInterface {
 	 * @throws KeyNotFound
 	 * @throws SyntaxException
 	 */
-	public static function urlParse(string $url, string $component = null): array|string {
+	public static function urlParse(string $url, string $component = null): array|string
+	{
 		$parts = URL::parse($url);
 		if (!$parts) {
 			return $parts;
@@ -485,7 +510,8 @@ abstract class Base extends Hookable implements DatabaseInterface {
 	 * @throws KeyNotFound
 	 * @throws SyntaxException
 	 */
-	public function changeURL(string $url): self {
+	public function changeURL(string $url): self
+	{
 		$connected = $this->connected();
 		if ($connected) {
 			$this->disconnect();
@@ -505,7 +531,8 @@ abstract class Base extends Hookable implements DatabaseInterface {
 	 *            "*****")
 	 * @return string
 	 */
-	final public function safeURL(string $filler = ''): string {
+	final public function safeURL(string $filler = ''): string
+	{
 		$parts = $this->url_parts;
 		if ($filler) {
 			$parts['pass'] = $filler;
@@ -521,7 +548,8 @@ abstract class Base extends Hookable implements DatabaseInterface {
 	 * @return self
 	 * @throws Connect
 	 */
-	final public function connect(): self {
+	final public function connect(): self
+	{
 		$this->internalConnect();
 		$this->callHook('connect');
 		if ($this->optionBool('debug')) {
@@ -533,7 +561,8 @@ abstract class Base extends Hookable implements DatabaseInterface {
 	/**
 	 * @return bool
 	 */
-	public function connected(): bool {
+	public function connected(): bool
+	{
 		return $this->connection() !== null;
 	}
 
@@ -580,7 +609,8 @@ abstract class Base extends Hookable implements DatabaseInterface {
 	/**
 	 * Disconnect from database
 	 */
-	public function disconnect(): void {
+	public function disconnect(): void
+	{
 		if ($this->optionBool(self::OPTION_DEBUG)) {
 			$this->application->logger->debug('Disconnecting from database {url}', ['url' => $this->safeURL(), ]);
 		}
@@ -613,7 +643,8 @@ abstract class Base extends Hookable implements DatabaseInterface {
 	 * Reconnect the database
 	 * @throws Connect
 	 */
-	public function reconnect(): self {
+	public function reconnect(): self
+	{
 		$this->disconnect();
 		return $this->connect();
 	}
@@ -622,7 +653,8 @@ abstract class Base extends Hookable implements DatabaseInterface {
 	 * Can I create another database in the current connection?
 	 *
 	 */
-	public function can(string $permission): bool {
+	public function can(string $permission): bool
+	{
 		return false;
 	}
 
@@ -634,7 +666,8 @@ abstract class Base extends Hookable implements DatabaseInterface {
 	 * @return bool
 	 * @throws Unimplemented
 	 */
-	public function createDatabase(string $url, array $hosts): bool {
+	public function createDatabase(string $url, array $hosts): bool
+	{
 		throw new Unimplemented(get_class($this) . "::createDatabase($url)");
 	}
 
@@ -650,7 +683,8 @@ abstract class Base extends Hookable implements DatabaseInterface {
 	 * @return array
 	 * @throws Unimplemented
 	 */
-	public function listTables(): array {
+	public function listTables(): array
+	{
 		throw new Unimplemented('{method} in {class}', [
 			'method' => __METHOD__, 'class' => get_class($this),
 		]);
@@ -712,7 +746,8 @@ abstract class Base extends Hookable implements DatabaseInterface {
 	 * @throws NotFoundException
 	 * @throws ParameterException
 	 */
-	public function parseCreateTable(string $sql, string $source = ''): Table {
+	public function parseCreateTable(string $sql, string $source = ''): Table
+	{
 		$parser = SQLParser::parseFactory($this, $sql, $source);
 		return $parser->createTable($sql);
 	}
@@ -743,7 +778,8 @@ abstract class Base extends Hookable implements DatabaseInterface {
 	 * @throws NoResults
 	 * @throws TableNotFound
 	 */
-	final public function queries(array $queries, array $options = []): array {
+	final public function queries(array $queries, array $options = []): array
+	{
 		$result = [];
 		foreach ($queries as $index => $query) {
 			$result[$index] = $this->query($query, $options);
@@ -764,7 +800,8 @@ abstract class Base extends Hookable implements DatabaseInterface {
 	 * @throws NoResults
 	 * @throws TableNotFound
 	 */
-	public function replace(string $table, array $values, array $options = []): int {
+	public function replace(string $table, array $values, array $options = []): int
+	{
 		$sql = $this->sqlDialect()->insert($table, $values, ['verb' => 'REPLACE', ] + $options);
 		$result = $this->query($sql);
 		$id = $this->insertID($result);
@@ -783,7 +820,8 @@ abstract class Base extends Hookable implements DatabaseInterface {
 	 * @throws SQLException
 	 * @throws TableNotFound
 	 */
-	public function insert(string $table, array $columns, array $options = []): int {
+	public function insert(string $table, array $columns, array $options = []): int
+	{
 		$sql = $this->sqlDialect()->insert($table, $columns, $options);
 		$result = $this->query($sql);
 		$id = ($options['id'] ?? true) ? $this->insertID($result) : -1;
@@ -839,7 +877,8 @@ abstract class Base extends Hookable implements DatabaseInterface {
 	 * @throws TableNotFound
 	 * @throws KeyNotFound
 	 */
-	final public function queryOne(string $sql, string|int $field = null, array $options = []): mixed {
+	final public function queryOne(string $sql, string|int $field = null, array $options = []): mixed
+	{
 		$res = $this->query($sql, $options);
 		$row = is_numeric($field) ? $this->fetchArray($res) : $this->fetchAssoc($res);
 		$this->free($res);
@@ -868,7 +907,8 @@ abstract class Base extends Hookable implements DatabaseInterface {
 	 * @throws TableNotFound
 	 * @throws KeyNotFound
 	 */
-	final public function queryInteger(string $sql, int|string $field = null): int {
+	final public function queryInteger(string $sql, int|string $field = null): int
+	{
 		$result = $this->queryOne($sql, $field);
 		return intval($result);
 	}
@@ -896,7 +936,8 @@ abstract class Base extends Hookable implements DatabaseInterface {
 	 * @throws SQLException
 	 * @throws TableNotFound
 	 */
-	private function _queryArray(string $method, string $sql, string|int $k = null, string|int $v = null): array {
+	private function _queryArray(string $method, string $sql, string|int $k = null, string|int $v = null): array
+	{
 		$res = $this->query($sql);
 		$result = [];
 		if ($k === null) {
@@ -928,7 +969,8 @@ abstract class Base extends Hookable implements DatabaseInterface {
 	 * @throws SQLException
 	 * @throws TableNotFound
 	 */
-	final public function queryArray(string $sql, string|int $k = null, string|int $v = null): array {
+	final public function queryArray(string $sql, string|int $k = null, string|int $v = null): array
+	{
 		return $this->_queryArray('fetchAssoc', $sql, $k, $v);
 	}
 
@@ -946,7 +988,8 @@ abstract class Base extends Hookable implements DatabaseInterface {
 	 * @throws SQLException
 	 * @throws TableNotFound
 	 */
-	final public function queryArrayIndex(string $sql, string|int $k = null, string|int $v = null): array {
+	final public function queryArrayIndex(string $sql, string|int $k = null, string|int $v = null): array
+	{
 		return $this->_queryArray('fetchArray', $sql, $k, $v);
 	}
 
@@ -956,7 +999,8 @@ abstract class Base extends Hookable implements DatabaseInterface {
 	 * @param string $word
 	 * @return bool
 	 */
-	public function isReservedWord(string $word): bool {
+	public function isReservedWord(string $word): bool
+	{
 		return false;
 	}
 
@@ -967,7 +1011,8 @@ abstract class Base extends Hookable implements DatabaseInterface {
 	 * @return string
 	 * @todo is-this-used
 	 */
-	public function sqlParseBoolean(mixed $value): string {
+	public function sqlParseBoolean(mixed $value): string
+	{
 		return $value ? '1' : '0';
 	}
 
@@ -979,7 +1024,8 @@ abstract class Base extends Hookable implements DatabaseInterface {
 	 * @throws NoResults
 	 * @throws TableNotFound
 	 */
-	public function transactionStart(): void {
+	public function transactionStart(): void
+	{
 		// TODO: Ensure database is in auto-commit mode
 		// TODO Move to subclasses
 		$this->query('START TRANSACTION');
@@ -995,17 +1041,20 @@ abstract class Base extends Hookable implements DatabaseInterface {
 	 * @throws NoResults
 	 * @throws TableNotFound
 	 */
-	public function transactionEnd(bool $success = true): void {
+	public function transactionEnd(bool $success = true): void
+	{
 		// TODO Move to subclasses
 		$sql = $success ? 'COMMIT' : 'ROLLBACK';
 		$this->query($sql);
 	}
 
-	public function defaultEngine() {
+	public function defaultEngine()
+	{
 		return $this->option('table_type_default');
 	}
 
-	public function defaultIndexStructure(string $table_type): string {
+	public function defaultIndexStructure(string $table_type): string
+	{
 		return $this->option('index_structure_default');
 	}
 
@@ -1017,7 +1066,8 @@ abstract class Base extends Hookable implements DatabaseInterface {
 	 * @param string $type Type of table structure (e.g. MyISAM, InnoDB, etc.)
 	 * @return Table Newly created Table
 	 */
-	public function newDatabaseTable(string $table, string $type = ''): Table {
+	public function newDatabaseTable(string $table, string $type = ''): Table
+	{
 		return new Table($this, $table, $type);
 	}
 
@@ -1028,7 +1078,8 @@ abstract class Base extends Hookable implements DatabaseInterface {
 	 *
 	 * @return string A string which is pre-pended to some database table names
 	 */
-	public function tablePrefix(): string {
+	public function tablePrefix(): string
+	{
 		return $this->option(self::OPTION_TABLE_PREFIX, '');
 	}
 
@@ -1038,7 +1089,8 @@ abstract class Base extends Hookable implements DatabaseInterface {
 	 * @param string $prefix
 	 * @return $this
 	 */
-	public function setTablePrefix(string $prefix): self {
+	public function setTablePrefix(string $prefix): self
+	{
 		return $this->setOption(self::OPTION_TABLE_PREFIX, $prefix);
 	}
 
@@ -1054,7 +1106,8 @@ abstract class Base extends Hookable implements DatabaseInterface {
 	 * @throws TableNotFound
 	 * @throws NoResults
 	 */
-	public function update(string $table, array $values, array $where = [], array $options = []): QueryResult {
+	public function update(string $table, array $values, array $where = [], array $options = []): QueryResult
+	{
 		$sql = $this->sqlDialect()->update([
 			'table' => $table,
 			'values' => $values,
@@ -1073,7 +1126,8 @@ abstract class Base extends Hookable implements DatabaseInterface {
 	 * @throws NoResults
 	 * @throws TableNotFound
 	 */
-	public function delete(string $table, array $where = [], array $options = []): QueryResult {
+	public function delete(string $table, array $where = [], array $options = []): QueryResult
+	{
 		$sql = $this->sqlDialect()->delete($table, $where, $options);
 		return $this->query($sql);
 	}
@@ -1088,7 +1142,8 @@ abstract class Base extends Hookable implements DatabaseInterface {
 	 * @param string $text
 	 * @return string
 	 */
-	public function quoteName(string $text): string {
+	public function quoteName(string $text): string
+	{
 		return $this->sqlDialect()->quoteColumn($text);
 	}
 
@@ -1096,7 +1151,8 @@ abstract class Base extends Hookable implements DatabaseInterface {
 	 * @param string $name
 	 * @return string
 	 */
-	public function unquoteColumn(string $name): string {
+	public function unquoteColumn(string $name): string
+	{
 		return $this->sqlDialect()->unquoteColumn($name);
 	}
 
@@ -1104,7 +1160,8 @@ abstract class Base extends Hookable implements DatabaseInterface {
 	 * @param string $text
 	 * @return string
 	 */
-	public function quoteTable(string $text): string {
+	public function quoteTable(string $text): string
+	{
 		return $this->sqlDialect()->quoteTable($text);
 	}
 
@@ -1112,7 +1169,8 @@ abstract class Base extends Hookable implements DatabaseInterface {
 	 * @param string $text
 	 * @return string
 	 */
-	public function quoteText(string $text): string {
+	public function quoteText(string $text): string
+	{
 		return $this->sqlDialect()->quoteText($text);
 	}
 
@@ -1130,19 +1188,23 @@ abstract class Base extends Hookable implements DatabaseInterface {
 	 * @param string $text
 	 * @return string
 	 */
-	public function unquoteTable(string $text): string {
+	public function unquoteTable(string $text): string
+	{
 		return $this->sqlDialect()->unquoteTable($text);
 	}
 
-	private function _validSQLName(string $name): bool {
+	private function _validSQLName(string $name): bool
+	{
 		return preg_match('/^[A-Za-z][A-Za-z0-9_]*$/', $name) !== 0;
 	}
 
-	public function validIndexName(string $name): bool {
+	public function validIndexName(string $name): bool
+	{
 		return self::_validSQLName($name);
 	}
 
-	public function validColumnName(string $name): bool {
+	public function validColumnName(string $name): bool
+	{
 		return self::_validSQLName($name);
 	}
 
@@ -1153,7 +1215,8 @@ abstract class Base extends Hookable implements DatabaseInterface {
 	 * @return array
 	 * @throws Unsupported
 	 */
-	public function tableColumns(string $tableName): array {
+	public function tableColumns(string $tableName): array
+	{
 		throw new Unsupported();
 	}
 
@@ -1166,7 +1229,8 @@ abstract class Base extends Hookable implements DatabaseInterface {
 	 * @throws KeyNotFound
 	 * @throws Unsupported
 	 */
-	public function tableColumn(string $tableName, string $column): Column {
+	public function tableColumn(string $tableName, string $column): Column
+	{
 		$columns = $this->tableColumns($tableName);
 		if (array_key_exists($column, $columns)) {
 			return $columns[$column];
@@ -1184,7 +1248,8 @@ abstract class Base extends Hookable implements DatabaseInterface {
 	 *            Various options
 	 * @return mixed
 	 */
-	final protected function _queryBefore(string $query, array $options): string {
+	final protected function _queryBefore(string $query, array $options): string
+	{
 		$do_log = ($options['log'] ?? false) || $this->optionBool('log');
 		$debug = ($options['debug'] ?? false) || $this->optionBool('debug');
 		if ($debug && $do_log) {
@@ -1202,7 +1267,8 @@ abstract class Base extends Hookable implements DatabaseInterface {
 	 * @param string $query
 	 * @param array $options
 	 */
-	final protected function _queryAfter(string $query, array $options): void {
+	final protected function _queryAfter(string $query, array $options): void
+	{
 		$do_log = ($options[self::OPTION_LOG_ENABLED] ?? false) || $this->optionBool(self::OPTION_LOG_ENABLED);
 		if ($do_log) {
 			$elapsed = $this->timer->elapsed();
@@ -1220,7 +1286,8 @@ abstract class Base extends Hookable implements DatabaseInterface {
 	 * @return self
 	 * @throws Unsupported
 	 */
-	public function setTimeZone(string|DateTimeZone $zone): self {
+	public function setTimeZone(string|DateTimeZone $zone): self
+	{
 		throw new Unsupported('Database {class} does not support {feature}', [
 			'class' => get_class($this), 'feature' => self::FEATURE_TIME_ZONE_RELATIVE_TIMESTAMP,
 		]);
@@ -1230,7 +1297,8 @@ abstract class Base extends Hookable implements DatabaseInterface {
 	 * @return string
 	 * @throws Unsupported
 	 */
-	public function timeZone(): string {
+	public function timeZone(): string
+	{
 		throw new Unsupported('Database {class} does not support {feature}', [
 			'class' => get_class($this), 'feature' => self::FEATURE_TIME_ZONE_RELATIVE_TIMESTAMP,
 		]);
@@ -1241,7 +1309,8 @@ abstract class Base extends Hookable implements DatabaseInterface {
 	 *
 	 * @return array
 	 */
-	public function variables(): array {
+	public function variables(): array
+	{
 		return $this->url_parts + [
 			'type' => $this->type(), 'url' => $this->URL, 'safeURL' => $this->safe_url, 'code' => $this->codeName(),
 			'code_name' => $this->codeName(),
@@ -1273,7 +1342,8 @@ abstract class Base extends Hookable implements DatabaseInterface {
 	 * @param string $scheme
 	 * @return boolean
 	 */
-	public function supportsScheme(string $scheme): bool {
+	public function supportsScheme(string $scheme): bool
+	{
 		try {
 			$class = $this->application->databaseModule()->getRegisteredScheme($scheme);
 			return $this instanceof $class;

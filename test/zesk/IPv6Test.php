@@ -8,8 +8,10 @@ use zesk\Exception\ParameterException;
 /**
  *
  */
-class IPv6Test extends UnitTest {
-	public static function dataFromIPv4(): array {
+class IPv6Test extends UnitTest
+{
+	public static function dataFromIPv4(): array
+	{
 		return [
 			['::ffff:192.168.0.200', 3232235720], ['::ffff:127.0.0.1', ip2long('127.0.0.1')],
 			['::ffff:192.168.0.200', 3232235720],
@@ -22,12 +24,14 @@ class IPv6Test extends UnitTest {
 	 * @param int $ip4
 	 * @return void
 	 */
-	public function testFromIPv4(string $expected, int $ip4): void {
+	public function testFromIPv4(string $expected, int $ip4): void
+	{
 		$this->assertEquals($expected, IPv6::fromIPv4($ip4), "IPv6::fromIPv4($ip4)");
 		$this->assertTrue(IPv6::isIPv4($expected), "$expected MUST be a valid IP4 in IP6 address");
 	}
 
-	public static function dataValid(): array {
+	public static function dataValid(): array
+	{
 		return [
 			[true, '::0'], [true, '0::0'], [true, '0000::0000'], [true, '0:0:0:0:0:0:0:0'],
 			[true, '0000:0000:0000:0000:0000:0000:0000:0000'], [false, '0000:0000:0000:0000:0000:0000:0000:0000:'],
@@ -42,11 +46,13 @@ class IPv6Test extends UnitTest {
 	 * @return void
 	 * @dataProvider dataValid
 	 */
-	public function testValid(bool $valid, string $address): void {
+	public function testValid(bool $valid, string $address): void
+	{
 		$this->assertEquals($valid, IPv6::valid($address));
 	}
 
-	public static function dataFromBinary(): array {
+	public static function dataFromBinary(): array
+	{
 		$expectedLength = IPv6::BINARY_COLUMN_LENGTH;
 		for ($i = 0; $i < 9; $i++) {
 			$tests[$i] = [
@@ -69,7 +75,8 @@ class IPv6Test extends UnitTest {
 	 * @return void
 	 * @dataProvider dataFromBinary
 	 */
-	public function testFromBinary(string $result, string $address): void {
+	public function testFromBinary(string $result, string $address): void
+	{
 		if ($result === '') {
 			$this->expectException(ParameterException::class);
 		}
@@ -82,11 +89,13 @@ class IPv6Test extends UnitTest {
 	 * @return void
 	 * @dataProvider dataExpand
 	 */
-	public function testExpand(string $expected, string $ip): void {
+	public function testExpand(string $expected, string $ip): void
+	{
 		$this->assertEquals($expected, IPv6::expand($ip));
 	}
 
-	public static function dataExpand(): array {
+	public static function dataExpand(): array
+	{
 		return [
 			['0000:0000:0000:0000:0000:0000:0000:0000', '::'], ['0000:0000:0000:0000:0000:0000:0000:0000', '0::0'],
 			['0000:0000:0000:0000:0000:0000:0000:0000', '0:0::0'],
@@ -96,7 +105,8 @@ class IPv6Test extends UnitTest {
 		];
 	}
 
-	public static function dataIsIPv4(): array {
+	public static function dataIsIPv4(): array
+	{
 		return [
 			[true, '::ffff:192.168.0.200'], [true, '::ffff:127.0.0.1'], [true, '0:0:0:0:0:ffff:192.168.0.200'],
 			[true, '0000:0000:0000:0000:0000:FFFF:192.168.0.200'],
@@ -109,12 +119,14 @@ class IPv6Test extends UnitTest {
 	 * @param string $ip6
 	 * @return void
 	 */
-	public function testIsIPv4(bool $expected, string $ip6): void {
+	public function testIsIPv4(bool $expected, string $ip6): void
+	{
 		$this->assertTrue(IPv6::valid($ip6), "IPv6::valid($ip6)");
 		$this->assertEquals($expected, IPv6::isIPv4($ip6));
 	}
 
-	public static function dataSimplify(): array {
+	public static function dataSimplify(): array
+	{
 		return [
 			['::ffff:192.168.0.200', '::ffff:192.168.0.200'], ['::ffff:127.0.0.1', '::ffff:127.0.0.1'],
 			['::ffff:192.168.0.200', '0:0:0:0:0:ffff:192.168.0.200'],
@@ -128,11 +140,13 @@ class IPv6Test extends UnitTest {
 	 * @return void
 	 * @dataProvider dataSimplify
 	 */
-	public function testSimplify(string $expected, string $ip6): void {
+	public function testSimplify(string $expected, string $ip6): void
+	{
 		$this->assertEquals($expected, Ipv6::simplify($ip6));
 	}
 
-	public static function dataClean(): array {
+	public static function dataClean(): array
+	{
 		return [
 			['d:e:a:d:b:e:e:f', 'Dist:Exp%:Assign:[]Druix:BlooPY^:Ex:Ex:Filtry(--)'],
 		];
@@ -144,7 +158,8 @@ class IPv6Test extends UnitTest {
 	 * @return void
 	 * @dataProvider dataClean
 	 */
-	public function testClean(string $expected, string $address): void {
+	public function testClean(string $expected, string $address): void
+	{
 		$this->assertEquals($expected, IPv6::clean($address));
 		$this->assertTrue(IPv6::valid(IPv6::clean($address)));
 	}

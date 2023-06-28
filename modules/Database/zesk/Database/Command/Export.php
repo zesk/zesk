@@ -15,14 +15,16 @@ use zesk\URL;
  * @param string $db The database name to dump
  * @category Database
  */
-class Export extends Command {
+class Export extends Command
+{
 	protected array $shortcuts = ['database-export', 'dbexport'];
 
 	protected array $option_types = [
 		'name' => 'string', 'prefix' => 'string',
 	];
 
-	public function run(): int {
+	public function run(): int
+	{
 		$dbname = $this->option('name');
 		$prefix = $this->option('prefix', 'DB_');
 

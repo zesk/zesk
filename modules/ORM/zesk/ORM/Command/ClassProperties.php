@@ -18,7 +18,8 @@ use zesk\Timestamp;
  * @category ORM Module
  * @author kent
  */
-class ClassProperties extends SimpleCommand {
+class ClassProperties extends SimpleCommand
+{
 	/**
 	 *
 	 * @var array
@@ -49,7 +50,8 @@ class ClassProperties extends SimpleCommand {
 	 *
 	 * @return string[]
 	 */
-	private function all_classes(): array {
+	private function all_classes(): array
+	{
 		return ArrayTools::extract($this->application->ormModule()->allClasses(), null, 'class');
 	}
 
@@ -58,7 +60,8 @@ class ClassProperties extends SimpleCommand {
 	 * {@inheritDoc}
 	 * @see \zesk\Command::run()
 	 */
-	public function run(): int {
+	public function run(): int
+	{
 		$classes = [];
 		while ($this->hasArgument()) {
 			$arg = $this->getArgument('class');

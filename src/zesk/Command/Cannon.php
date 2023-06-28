@@ -19,7 +19,8 @@ use zesk\StringTools;
  *
  * @category Tools
  */
-class Cannon extends SimpleCommand {
+class Cannon extends SimpleCommand
+{
 	protected array $shortcuts = ['cannon'];
 
 	protected array $option_types = [
@@ -66,7 +67,8 @@ class Cannon extends SimpleCommand {
 	/**
 	 *
 	 */
-	public function run(): int {
+	public function run(): int
+	{
 		$this->configure('cannon');
 
 		$dir = $this->firstOption(['dir', 'directory']);
@@ -168,7 +170,8 @@ class Cannon extends SimpleCommand {
 	/**
 	 * List files
 	 */
-	private function _listFiles($dir, array $extensions): array {
+	private function _listFiles($dir, array $extensions): array
+	{
 		$options = [];
 		$options[Directory::LIST_RULE_FILE] = [
 			'#\.' . implode('|', $extensions) . '$#' => true, '#.*/\.#' => true, false,
@@ -190,7 +193,8 @@ class Cannon extends SimpleCommand {
 	 * @param string $replace
 	 * @return int
 	 */
-	private function _replaceFile(string $file, string $search, string $replace): int {
+	private function _replaceFile(string $file, string $search, string $replace): int
+	{
 		$maxFileSize = $this->optionInt('max_file_size');
 		if ($maxFileSize > 0 && ($size = filesize($file)) > $maxFileSize) {
 			$locale = $this->application->locale;

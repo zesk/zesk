@@ -18,7 +18,8 @@ namespace zesk;
  * @author kent
  *
  */
-class UserAgent {
+class UserAgent
+{
 	/**
 	 * User agent raw string
 	 *
@@ -108,7 +109,8 @@ class UserAgent {
 	 *
 	 * @param string $user_agent
 	 */
-	public function __construct(string $user_agent = '') {
+	public function __construct(string $user_agent = '')
+	{
 		$this->setUserAgent($user_agent);
 	}
 
@@ -117,7 +119,8 @@ class UserAgent {
 	 * @param string $user_agent
 	 * @return self
 	 */
-	public static function factory(string $user_agent = ''): self {
+	public static function factory(string $user_agent = ''): self
+	{
 		return new self($user_agent);
 	}
 
@@ -126,11 +129,13 @@ class UserAgent {
 	 *
 	 * @return string
 	 */
-	public function __toString() {
+	public function __toString()
+	{
 		return PHP::dump($this->userAgent);
 	}
 
-	public function userAgent(): string {
+	public function userAgent(): string
+	{
 		return $this->userAgent;
 	}
 
@@ -140,7 +145,8 @@ class UserAgent {
 	 * @param string $set
 	 * @return self
 	 */
-	public function setUserAgent(string $set): self {
+	public function setUserAgent(string $set): self
+	{
 		$this->userAgent = $set;
 		$this->is = [];
 		$this->classify = [];
@@ -153,14 +159,16 @@ class UserAgent {
 	 * @param string $criteria
 	 * @return bool
 	 */
-	public function is(string $criteria): bool {
+	public function is(string $criteria): bool
+	{
 		return $this->attributes()[$criteria] ?? false;
 	}
 
 	/**
 	 * Classify user agent and return classification
 	 */
-	public function classify(): array {
+	public function classify(): array
+	{
 		if (count($this->classify) === 0) {
 			$this->classify = $this->_classify();
 		}
@@ -171,7 +179,8 @@ class UserAgent {
 	 * Return all attributes
 	 * @return array
 	 */
-	public function attributes(): array {
+	public function attributes(): array
+	{
 		if (count($this->is) === 0) {
 			$this->is = self::parse($this->userAgent);
 		}
@@ -183,7 +192,8 @@ class UserAgent {
 	 *
 	 * @return array
 	 */
-	public function classifyEN(): array {
+	public function classifyEN(): array
+	{
 		return ArrayTools::keysMap(ArrayTools::valuesMap($this->classify(), self::$langClassifications), self::$langClassificationNames);
 	}
 
@@ -221,7 +231,8 @@ class UserAgent {
 	 * @param string $userAgent
 	 * @return array string
 	 */
-	public static function parse(string $userAgent): array {
+	public static function parse(string $userAgent): array
+	{
 		$result['userAgent'] = $userAgent;
 
 		$result['lowUserAgent'] = $ua = strtolower($userAgent);
@@ -269,7 +280,8 @@ class UserAgent {
 	 *
 	 * @return array
 	 */
-	private function _classify(): array {
+	private function _classify(): array
+	{
 		$result = [];
 		foreach (self::$classifications as $type => $tests) {
 			foreach ($tests as $check => $value) {

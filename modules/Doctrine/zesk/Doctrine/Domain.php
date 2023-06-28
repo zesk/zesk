@@ -20,7 +20,8 @@ use zesk\Text;
 /**
  */
 #[Entity]
-class Domain extends Model {
+class Domain extends Model
+{
 	use AutoID;
 
 	#[Column(type: 'string')]
@@ -59,7 +60,8 @@ class Domain extends Model {
 	 *
 	 * @param Application $application
 	 */
-	public static function cron_hour(Application $application): void {
+	public static function cron_hour(Application $application): void
+	{
 		foreach ([
 			self::URL_PUBLIC_SUFFIX_LIST => self::publicSuffixListFile($application->paths),
 			self::URL_TOP_LEVEL_DOMAINS => self::topLevelDomainsFile($application->paths),
@@ -77,7 +79,8 @@ class Domain extends Model {
 	 * @throws DirectoryNotFound
 	 * @throws FilePermission
 	 */
-	public function hook_schema_updated(): void {
+	public function hook_schema_updated(): void
+	{
 		self::updateDataFiles($this->application);
 	}
 
@@ -89,7 +92,8 @@ class Domain extends Model {
 	 * @throws FileNotFound
 	 * @throws FilePermission
 	 */
-	public static function domainFactory(Application $application, string $name): self {
+	public static function domainFactory(Application $application, string $name): self
+	{
 		$domain = new Domain($application);
 		$domain->name = $name;
 		return $domain->nameChanged();
@@ -102,7 +106,8 @@ class Domain extends Model {
 	 * @throws FileNotFound
 	 * @throws FilePermission
 	 */
-	protected function nameChanged(): self {
+	protected function nameChanged(): self
+	{
 		$this->tld = $this->computeTLD();
 		return $this;
 	}
@@ -112,7 +117,8 @@ class Domain extends Model {
 	 * @throws FileNotFound
 	 * @throws FilePermission
 	 */
-	public function store(): self {
+	public function store(): self
+	{
 		if (!$this->tld) {
 			$this->tld = $this->computeTLD();
 		}
@@ -125,7 +131,8 @@ class Domain extends Model {
 	 * @throws FileNotFound
 	 * @throws FilePermission
 	 */
-	public function computeCookieDomain(): string {
+	public function computeCookieDomain(): string
+	{
 		$domains = $this->_lazyLoadTLDs();
 		$server = $this->name;
 		$x = explode('.', strrev(strtolower($server)), 4);
@@ -148,7 +155,8 @@ class Domain extends Model {
 	 * @throws FilePermission
 	 * @throws FileNotFound
 	 */
-	private function _lazyLoadTLDs(): array {
+	private function _lazyLoadTLDs(): array
+	{
 		if (!self::$publicTopLevelDomains) {
 			self::$publicTopLevelDomains = $this->loadPublicTLDs($this->application);
 		}
@@ -161,7 +169,8 @@ class Domain extends Model {
 	 * @throws FilePermission
 	 * @throws FileNotFound
 	 */
-	public function computeTLD(): string {
+	public function computeTLD(): string
+	{
 		$domains = $this->_lazyLoadTLDs();
 		$server = $this->name;
 		$x = explode('.', strrev(strtolower($server)), 4);
@@ -183,7 +192,8 @@ class Domain extends Model {
 	 * @param Paths $paths
 	 * @return string
 	 */
-	private static function publicSuffixListFile(Paths $paths): string {
+	private static function publicSuffixListFile(Paths $paths): string
+	{
 		return $paths->zesk('etc/db/public-tlds.txt');
 	}
 
@@ -191,7 +201,8 @@ class Domain extends Model {
 	 * @param Paths $paths
 	 * @return string
 	 */
-	private static function topLevelDomainsFile(Paths $paths): string {
+	private static function topLevelDomainsFile(Paths $paths): string
+	{
 		return $paths->zesk('etc/db/tlds.txt');
 	}
 
@@ -203,7 +214,8 @@ class Domain extends Model {
 	 * @throws DirectoryNotFound
 	 * @throws FilePermission
 	 */
-	private static function updateDataFiles(Application $application): void {
+	private static function updateDataFiles(Application $application): void
+	{
 		foreach ([
 			self::URL_PUBLIC_SUFFIX_LIST => self::publicSuffixListFile($application->paths),
 			self::URL_TOP_LEVEL_DOMAINS => self::topLevelDomainsFile($application->paths),
@@ -216,7 +228,8 @@ class Domain extends Model {
 	 * Load the public TLDs from the file
 	 * @throws FileNotFound|FilePermission
 	 */
-	private static function loadPublicTLDs(Application $application): array {
+	private static function loadPublicTLDs(Application $application): array
+	{
 		$contents = strtolower(File::contents(self::publicSuffixListFile($application->paths)));
 		$topDomainSuffixList = ArrayTools::listTrimClean(explode("\n", Text::removeLineComments($contents, '//')));
 		return array_change_key_case(ArrayTools::valuesFlipCopy($topDomainSuffixList));

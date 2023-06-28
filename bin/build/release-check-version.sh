@@ -11,13 +11,14 @@ err_arg=2
 
 top="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." || exit $err_env; pwd)"
 
+set -eo pipefail
+
 source "$top/bin/build/colors.sh"
 
 "$top/bin/build/git.sh"
 
 previousVersion=$("$top/bin/build/version-last.sh")
 currentVersion=$("$top/bin/build/version-current.sh")
-artifactReleaseNotes="$top/.release-notes.md"
 me=$(basename "${BASH_SOURCE[0]}")
 
 usage() {
@@ -51,6 +52,9 @@ while [ $# -gt 0 ]; do
   esac
 done
 
+consoleInfo "Pulling tags from origin"
+git pull --tags origin
+
 if git show-ref --tags "$currentVersion" --quiet; then
 	consoleError "Version $currentVersion already exists, already tagged." 1>&2
 	exit 16
@@ -69,7 +73,6 @@ if [ ! -f "$releaseNotes" ]; then
 	consoleError "Version $currentVersion no release notes \"$releaseNotes\" found, stopping." 1>&2
   exit 18
 fi
-cp "$releaseNotes" "$artifactReleaseNotes"
 
 maximumTagsPerVersion=1000
 if test $develop; then

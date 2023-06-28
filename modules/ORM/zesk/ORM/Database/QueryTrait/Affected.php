@@ -5,7 +5,8 @@ namespace zesk\ORM\Database\QueryTrait;
 
 use zesk\Exception\Semantics;
 
-trait Affected {
+trait Affected
+{
 	/**
 	 * Store affected rows after execute
 	 *
@@ -17,7 +18,8 @@ trait Affected {
 	 * @return int
 	 * @throws Semantics
 	 */
-	public function affectedRows(): int {
+	public function affectedRows(): int
+	{
 		if ($this->affected_rows < 0) {
 			throw new Semantics('No query would affect rows');
 		}
@@ -30,7 +32,8 @@ trait Affected {
 	 * @param int $value
 	 * @throws Semantics
 	 */
-	protected function setAffectedRows(int $value): void {
+	protected function setAffectedRows(int $value): void
+	{
 		if ($value < 0) {
 			throw new Semantics('Not permitted to set a negative affected rows {value}', [
 				'value' => $value,

@@ -14,14 +14,16 @@ use zesk\Repository\Base as Repository;
 /**
  * @author kent
  */
-class Latest extends SimpleCommand {
+class Latest extends SimpleCommand
+{
 	protected array $shortcuts = ['latest'];
 
 	protected array $load_modules = [
 		'Git',
 	];
 
-	public function run(): int {
+	public function run(): int
+	{
 		/* @var $git \zesk\Git\Module */
 		$git = $this->application->gitModule();
 

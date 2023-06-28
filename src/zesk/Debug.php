@@ -14,7 +14,8 @@ namespace zesk;
  *
  * @author kent
  */
-class Debug {
+class Debug
+{
 	/**
 	 *
 	 * @var string
@@ -30,7 +31,8 @@ class Debug {
 	/**
 	 * Set up PHP errors to output on web pages
 	 */
-	public static function php_errors_configure(): void {
+	public static function php_errors_configure(): void
+	{
 		error_reporting(E_ALL | E_STRICT);
 		ini_set('error_prepend_string', "\nPHP-ERROR " . str_repeat('=', 80) . "\n");
 		ini_set('error_append_string', "\n" . str_repeat('*', 80) . "\n");
@@ -43,7 +45,8 @@ class Debug {
 	 * @return string
 	 * @see debug_backtrace()
 	 */
-	public static function callingFile(): string {
+	public static function callingFile(): string
+	{
 		$bt = debug_backtrace();
 		$top = array_shift($bt);
 		return $top['file'];
@@ -59,7 +62,8 @@ class Debug {
 	 * @return void
 	 * @see print_r
 	 */
-	public static function output(): void {
+	public static function output(): void
+	{
 		$args = func_get_args();
 		$result = call_user_func_array([
 			'zesk\\Debug',
@@ -74,7 +78,8 @@ class Debug {
 	 * @return A string representation of the value
 	 * @see print_r, dump
 	 */
-	public static function dump(): string {
+	public static function dump(): string
+	{
 		$args = func_get_args();
 		$result = [];
 		foreach ($args as $x) {
@@ -89,7 +94,8 @@ class Debug {
 	 * @param string $x
 	 * @return string
 	 */
-	private static function _dump(mixed $x): string {
+	private static function _dump(mixed $x): string
+	{
 		static $indent = 0;
 		if ($x === null) {
 			return '(null)';

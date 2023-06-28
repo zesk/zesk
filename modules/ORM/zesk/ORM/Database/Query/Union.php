@@ -23,7 +23,8 @@ use zesk\Types;
  * @author kent
  *
  */
-class Union extends SelectBase {
+class Union extends SelectBase
+{
 	/**
 	 * Array of queries to UNION
 	 *
@@ -43,7 +44,8 @@ class Union extends SelectBase {
 	 *
 	 * @param Base $db
 	 */
-	public function __construct(Base $db) {
+	public function __construct(Base $db)
+	{
 		parent::__construct('UNION', $db);
 	}
 
@@ -53,7 +55,8 @@ class Union extends SelectBase {
 	 * @param Base $db
 	 * @return self
 	 */
-	public static function factory(Base $db): self {
+	public static function factory(Base $db): self
+	{
 		return new self($db);
 	}
 
@@ -61,7 +64,8 @@ class Union extends SelectBase {
 	 * @param Select $select
 	 * @return $this
 	 */
-	public function union(Select $select): self {
+	public function union(Select $select): self
+	{
 		$this->queries[] = $select;
 		return $this;
 	}
@@ -71,7 +75,8 @@ class Union extends SelectBase {
 	 * @param string $member
 	 * @return $this
 	 */
-	public function addWhat(string $alias, string $member = ''): self {
+	public function addWhat(string $alias, string $member = ''): self
+	{
 		foreach ($this->queries as $query) {
 			$query->addWhat($alias, $member);
 		}
@@ -83,7 +88,8 @@ class Union extends SelectBase {
 	 * @param string $alias
 	 * @return $this
 	 */
-	public function from(string $table, string $alias = ''): self {
+	public function from(string $table, string $alias = ''): self
+	{
 		foreach ($this->queries as $query) {
 			$query->from($table, $alias);
 		}
@@ -95,7 +101,8 @@ class Union extends SelectBase {
 	 * @param string $join_id
 	 * @return $this
 	 */
-	public function addJoin(string $join_sql, string $join_id = ''): self {
+	public function addJoin(string $join_sql, string $join_id = ''): self
+	{
 		foreach ($this->queries as $query) {
 			$query->addJoin($join_sql, $join_id);
 		}
@@ -107,7 +114,8 @@ class Union extends SelectBase {
 	 * @param mixed $v
 	 * @return $this
 	 */
-	public function addWhere(string $k, mixed $v): self {
+	public function addWhere(string $k, mixed $v): self
+	{
 		foreach ($this->queries as $query) {
 			$query->addWhere($k, $v);
 		}
@@ -118,7 +126,8 @@ class Union extends SelectBase {
 	 * @param array $group_by
 	 * @return $this
 	 */
-	public function setGroupBy(array $group_by): self {
+	public function setGroupBy(array $group_by): self
+	{
 		foreach ($this->queries as $query) {
 			$query->setGroupBy($group_by);
 		}
@@ -129,7 +138,8 @@ class Union extends SelectBase {
 	 * @param string|array $order_by
 	 * @return $this
 	 */
-	public function setOrderBy(string|array $order_by): self {
+	public function setOrderBy(string|array $order_by): self
+	{
 		$this->order_by = Types::toList($order_by);
 		return $this;
 	}
@@ -139,7 +149,8 @@ class Union extends SelectBase {
 	 * @param int $limit
 	 * @return $this
 	 */
-	public function setOffsetLimit(int $offset = 0, int $limit = -1): self {
+	public function setOffsetLimit(int $offset = 0, int $limit = -1): self
+	{
 		foreach ($this->queries as $query) {
 			$query->setOffsetLimit($offset, $limit);
 		}
@@ -151,7 +162,8 @@ class Union extends SelectBase {
 	 *
 	 * @return string
 	 */
-	public function __toString(): string {
+	public function __toString(): string
+	{
 		try {
 			return $this->toSQL();
 		} catch (Throwable $e) {
@@ -165,7 +177,8 @@ class Union extends SelectBase {
 	 *
 	 * @return string
 	 */
-	public function toSQL(): string {
+	public function toSQL(): string
+	{
 		$sql_phrases = [];
 		foreach ($this->queries as $query) {
 			$sql_phrases[] = $query->__toString();

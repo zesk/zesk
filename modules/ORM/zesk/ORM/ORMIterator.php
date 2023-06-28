@@ -20,7 +20,8 @@ use zesk\ORM\Exception\ORMNotFound;
  * @author kent
  *
  */
-class ORMIterator extends ResultIterator {
+class ORMIterator extends ResultIterator
+{
 	/**
 	 * Class we're iterating over
 	 *
@@ -69,7 +70,8 @@ class ORMIterator extends ResultIterator {
 	 * @param string $class Class to iterate over
 	 * @param SelectBase $query Executed query to iterate
 	 */
-	public function __construct(string $class, SelectBase $query, array $options = []) {
+	public function __construct(string $class, SelectBase $query, array $options = [])
+	{
 		parent::__construct($query);
 		$this->class = $class;
 		$options['initialize'] = true;
@@ -82,7 +84,8 @@ class ORMIterator extends ResultIterator {
 	 * @param string $member
 	 * @return ORMIterator
 	 */
-	public function setParent(ORMBase $parent, string $member = ''): self {
+	public function setParent(ORMBase $parent, string $member = ''): self
+	{
 		$this->parent = $parent;
 		$this->parentMember = $member;
 		return $this;
@@ -94,7 +97,8 @@ class ORMIterator extends ResultIterator {
 	 * @return null|ORMBase
 	 * @see ResultIterator::current()
 	 */
-	public function current(): null|ORMBase {
+	public function current(): null|ORMBase
+	{
 		return $this->object;
 	}
 
@@ -105,7 +109,8 @@ class ORMIterator extends ResultIterator {
 	 * @throws Semantics
 	 * @see ResultIterator::key()
 	 */
-	public function key(): mixed {
+	public function key(): mixed
+	{
 		return is_array($this->id) ? JSON::encode($this->id) : $this->id;
 	}
 
@@ -117,7 +122,8 @@ class ORMIterator extends ResultIterator {
 	 *
 	 * @todo Decide on object system caching or this method.
 	 */
-	protected function parentSupport(ORMBase $object): void {
+	protected function parentSupport(ORMBase $object): void
+	{
 		if ($this->parent) {
 			$message = '';
 			$check_id = '-';
@@ -152,7 +158,8 @@ class ORMIterator extends ResultIterator {
 	 * @see ORMIterators::next
 	 * @see ResultIterator::next()
 	 */
-	public function next(): void {
+	public function next(): void
+	{
 		parent::next();
 		$this->_updateObjectAndId();
 	}
@@ -160,7 +167,8 @@ class ORMIterator extends ResultIterator {
 	/**
 	 * @return void
 	 */
-	protected function _updateObjectAndId(): void {
+	protected function _updateObjectAndId(): void
+	{
 		if ($this->_valid) {
 			$members = $this->_row;
 			// We do create, then fetch to support polymorphism - if ORM supports factory polymorphism, then shorten this to single factory call
@@ -182,7 +190,8 @@ class ORMIterator extends ResultIterator {
 	 * @return ORMBase[]
 	 * @see ResultIterator::toArray()
 	 */
-	public function toArray($key = null): array {
+	public function toArray($key = null): array
+	{
 		$result = [];
 		if ($key === null) {
 			foreach ($this as $object) {
@@ -211,7 +220,8 @@ class ORMIterator extends ResultIterator {
 	 *
 	 * @return ORMBase[]
 	 */
-	public function toList(): array {
+	public function toList(): array
+	{
 		return $this->toArray();
 	}
 }

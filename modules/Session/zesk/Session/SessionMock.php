@@ -19,7 +19,8 @@ use zesk\Response;
 
 /**
  */
-class SessionMock extends Hookable implements SessionInterface {
+class SessionMock extends Hookable implements SessionInterface
+{
 	/**
 	 *
 	 * @var string
@@ -38,7 +39,8 @@ class SessionMock extends Hookable implements SessionInterface {
 	 * @param mixed $mixed
 	 * @param array $options
 	 */
-	public function __construct(Application $application, mixed $mixed = null, array $options = []) {
+	public function __construct(Application $application, mixed $mixed = null, array $options = [])
+	{
 		parent::__construct($application, $options);
 		$this->inheritConfiguration();
 		$this->application = $application;
@@ -54,7 +56,8 @@ class SessionMock extends Hookable implements SessionInterface {
 	 * @param Request $request
 	 * @return self
 	 */
-	public function initializeSession(Request $request): self {
+	public function initializeSession(Request $request): self
+	{
 		return $this;
 	}
 
@@ -64,15 +67,18 @@ class SessionMock extends Hookable implements SessionInterface {
 	 *
 	 * @see SessionInterface::id()
 	 */
-	public function id(): int|string|array {
+	public function id(): int|string|array
+	{
 		return $this->id;
 	}
 
-	public function has(int|string $name): bool {
+	public function has(int|string $name): bool
+	{
 		return $this->__isset($name);
 	}
 
-	public function __isset(int|string $key): bool {
+	public function __isset(int|string $key): bool
+	{
 		return isset($this->data[$key]);
 	}
 
@@ -82,7 +88,8 @@ class SessionMock extends Hookable implements SessionInterface {
 	 *
 	 * @see SettingsInterface::get()
 	 */
-	public function get(int|string|null $name = null, mixed $default = null): mixed {
+	public function get(int|string|null $name = null, mixed $default = null): mixed
+	{
 		if ($name === null) {
 			return $this->data;
 		}
@@ -95,7 +102,8 @@ class SessionMock extends Hookable implements SessionInterface {
 	 *
 	 * @see SettingsInterface::__get()
 	 */
-	public function __get(int|string $key): mixed {
+	public function __get(int|string $key): mixed
+	{
 		return $this->data[$key] ?? null;
 	}
 
@@ -105,7 +113,8 @@ class SessionMock extends Hookable implements SessionInterface {
 	 *
 	 * @see SettingsInterface::__set()
 	 */
-	public function __set(int|string $key, mixed $value): void {
+	public function __set(int|string $key, mixed $value): void
+	{
 		$this->data[$key] = $value;
 	}
 
@@ -115,7 +124,8 @@ class SessionMock extends Hookable implements SessionInterface {
 	 *
 	 * @see SettingsInterface::set()
 	 */
-	public function set(int|string $name, mixed $value = null): self {
+	public function set(int|string $name, mixed $value = null): self
+	{
 		$this->__set($name, $value);
 		return $this;
 	}
@@ -124,7 +134,8 @@ class SessionMock extends Hookable implements SessionInterface {
 	 *
 	 * @return string
 	 */
-	private function global_session_userId(): string {
+	private function global_session_userId(): string
+	{
 		return $this->application->configuration->getPath([__CLASS__, 'user_id_variable'], 'user');
 	}
 
@@ -134,7 +145,8 @@ class SessionMock extends Hookable implements SessionInterface {
 	 *
 	 * @see SessionInterface::userId()
 	 */
-	public function userId(): int {
+	public function userId(): int
+	{
 		return $this->__get($this->global_session_userId());
 	}
 
@@ -144,7 +156,8 @@ class SessionMock extends Hookable implements SessionInterface {
 	 *
 	 * @see SessionInterface::user()
 	 */
-	public function user(): Userlike {
+	public function user(): Userlike
+	{
 		$user_id = $this->userId();
 		if (empty($user_id)) {
 			throw new Authentication('No user ID');
@@ -167,7 +180,8 @@ class SessionMock extends Hookable implements SessionInterface {
 	 *
 	 * @see SessionInterface::authenticate()
 	 */
-	public function authenticate(Userlike $user, Request $request, Response $response): void {
+	public function authenticate(Userlike $user, Request $request, Response $response): void
+	{
 		$this->__set($this->global_session_userId(), ORMBase::mixedToID($user));
 		$this->__set($this->global_session_userId() . '_IP', $request->remoteIP());
 	}
@@ -177,7 +191,8 @@ class SessionMock extends Hookable implements SessionInterface {
 	 * @see SessionInterface::isAuthenticated()
 	 * @return bool
 	 */
-	public function isAuthenticated(): bool {
+	public function isAuthenticated(): bool
+	{
 		$user = $this->__get($this->global_session_userId());
 		return !empty($user);
 	}
@@ -188,7 +203,8 @@ class SessionMock extends Hookable implements SessionInterface {
 	 *
 	 * @see SessionInterface::relinquish()
 	 */
-	public function relinquish(): void {
+	public function relinquish(): void
+	{
 		$this->__set($this->global_session_userId(), null);
 	}
 
@@ -198,7 +214,8 @@ class SessionMock extends Hookable implements SessionInterface {
 	 *
 	 * @see SettingsInterface::variables()
 	 */
-	public function variables(): array {
+	public function variables(): array
+	{
 		return $this->data;
 	}
 
@@ -208,7 +225,8 @@ class SessionMock extends Hookable implements SessionInterface {
 	 *
 	 * @see SessionInterface::delete()
 	 */
-	public function delete(): void {
+	public function delete(): void
+	{
 		$this->data = [];
 	}
 }

@@ -19,10 +19,12 @@ use zesk\Interface\Userlike;
  * @author kent
  *
  */
-class PermissionDenied extends Exception {
+class PermissionDenied extends Exception
+{
 	public function __construct(Userlike $user, $action, Model $object = null, array $options = [], Throwable
 	$previous =
-	null) {
+	null)
+	{
 		parent::__construct('User {user.name} has no permission action={action} class={class} type={type}', [
 			'action' => $action,
 			'object' => $object,
@@ -34,11 +36,13 @@ class PermissionDenied extends Exception {
 		], 0, $previous);
 	}
 
-	public function action() {
+	public function action()
+	{
 		return $this->arguments['action'];
 	}
 
-	public function model() {
+	public function model()
+	{
 		return $this->arguments['object'];
 	}
 }

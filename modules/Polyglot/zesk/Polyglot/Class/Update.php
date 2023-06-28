@@ -10,7 +10,8 @@ use zesk\ORM\User;
  * @author kent
  *
  */
-class Class_Update extends Class_Base {
+class Class_Update extends Class_Base
+{
 	public string $code_name = 'Polyglot_Update';
 
 	public string $id_column = 'locale';

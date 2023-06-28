@@ -29,7 +29,8 @@ use zesk\Types as BaseTypes;
  * @author kent
  *
  */
-class Module extends BaseModule implements ConfiguredInterface {
+class Module extends BaseModule implements ConfiguredInterface
+{
 	/**
 	 *
 	 */
@@ -94,7 +95,8 @@ class Module extends BaseModule implements ConfiguredInterface {
 	 * @throws Semantics
 	 * @see Module::initialize
 	 */
-	public function initialize(): void {
+	public function initialize(): void
+	{
 		$this->names = new CaseArray();
 		$application = $this->application;
 		$application->registerRegistry('database', $this->app_databaseRegistry(...));
@@ -111,7 +113,8 @@ class Module extends BaseModule implements ConfiguredInterface {
 	 * @throws Semantics
 	 * @throws SyntaxException
 	 */
-	public function hook_database_configure(): void {
+	public function hook_database_configure(): void
+	{
 		$this->_configured();
 	}
 
@@ -119,7 +122,8 @@ class Module extends BaseModule implements ConfiguredInterface {
 	 * @param bool $set
 	 * @return $this
 	 */
-	public function setDebug(bool $set): self {
+	public function setDebug(bool $set): self
+	{
 		$this->application->configuration->setPath([Base::class, Base::OPTION_DEBUG], $set);
 		return $this;
 	}
@@ -127,7 +131,8 @@ class Module extends BaseModule implements ConfiguredInterface {
 	/**
 	 * @return bool
 	 */
-	public function debug(): bool {
+	public function debug(): bool
+	{
 		return BaseTypes::toBool($this->application->configuration->getPath([Base::class, Base::OPTION_DEBUG]));
 	}
 
@@ -136,7 +141,8 @@ class Module extends BaseModule implements ConfiguredInterface {
 	 *
 	 * @return string
 	 */
-	public function databaseDefault(): string {
+	public function databaseDefault(): string
+	{
 		return $this->default;
 	}
 
@@ -146,7 +152,8 @@ class Module extends BaseModule implements ConfiguredInterface {
 	 * @param string $set
 	 * @return $this
 	 */
-	public function setDatabaseDefault(string $set): self {
+	public function setDatabaseDefault(string $set): self
+	{
 		if ($set === '') {
 			$set = self::DEFAULT_DATABASE_NAME;
 		}
@@ -159,7 +166,8 @@ class Module extends BaseModule implements ConfiguredInterface {
 	 *
 	 * @return array
 	 */
-	public function names(): array {
+	public function names(): array
+	{
 		return $this->names->keys();
 	}
 
@@ -170,7 +178,8 @@ class Module extends BaseModule implements ConfiguredInterface {
 	 * @return string
 	 * @throws NotFoundException
 	 */
-	public function nameToURL(string $name): string {
+	public function nameToURL(string $name): string
+	{
 		$name = strtolower($name);
 		if (!isset($this->names[$name])) {
 			throw new NotFoundException('No database code named {name}', ['name' => $name]);
@@ -188,7 +197,8 @@ class Module extends BaseModule implements ConfiguredInterface {
 	 * @throws Semantics
 	 * @throws SyntaxException
 	 */
-	public function register(string $name, string $url, bool $isDefault = false): string {
+	public function register(string $name, string $url, bool $isDefault = false): string
+	{
 		try {
 			$url = URL::normalize($url);
 		} catch (SyntaxException $e) {
@@ -213,7 +223,8 @@ class Module extends BaseModule implements ConfiguredInterface {
 	 * @param string $name
 	 * @return self
 	 */
-	public function unregister(string $name): self {
+	public function unregister(string $name): self
+	{
 		$this->names[$name] = null;
 		return $this;
 	}
@@ -224,7 +235,8 @@ class Module extends BaseModule implements ConfiguredInterface {
 	 * @throws ConfigurationException
 	 * @throws Semantics
 	 */
-	public function _configured(): void {
+	public function _configured(): void
+	{
 		$application = $this->application;
 
 		if ($this->hasOption(self::OPTION_DEFAULT)) {
@@ -259,14 +271,16 @@ class Module extends BaseModule implements ConfiguredInterface {
 	 *
 	 * @return Base[]
 	 */
-	public function databases(): array {
+	public function databases(): array
+	{
 		return $this->databases;
 	}
 
 	/**
 	 * Disconnect all databases (on fork)
 	 */
-	public function disconnectAll(): void {
+	public function disconnectAll(): void
+	{
 		$this->application->logger->debug(__METHOD__);
 		foreach ($this->databases as $database) {
 			$this->application->logger->debug('Disconnecting database: {url}', ['url' => $database->safeURL(), ]);
@@ -279,7 +293,8 @@ class Module extends BaseModule implements ConfiguredInterface {
 	 * Reconnect all databases (on fork)
 	 * @throws Connect
 	 */
-	public function reconnectAll(): void {
+	public function reconnectAll(): void
+	{
 		foreach ($this->databases as $database) {
 			$this->application->logger->info('Reconnecting database: {url}', ['url' => $database->safeURL(), ]);
 			$database->reconnect();
@@ -294,7 +309,8 @@ class Module extends BaseModule implements ConfiguredInterface {
 	 * @return $this
 	 * @throws ClassNotFound
 	 */
-	public function registerScheme(string $scheme, string $classname): self {
+	public function registerScheme(string $scheme, string $classname): self
+	{
 		$scheme = strtolower($scheme);
 		if (!class_exists($classname, false)) {
 			throw new ClassNotFound($classname);
@@ -316,7 +332,8 @@ class Module extends BaseModule implements ConfiguredInterface {
 	 * @return string
 	 * @throws KeyNotFound
 	 */
-	public function getRegisteredScheme(string $scheme): string {
+	public function getRegisteredScheme(string $scheme): string
+	{
 		$scheme = strtolower($scheme);
 		if (array_key_exists($scheme, $this->schemeToClass)) {
 			return $this->schemeToClass[$scheme];
@@ -330,7 +347,8 @@ class Module extends BaseModule implements ConfiguredInterface {
 	 *
 	 * @return array
 	 */
-	public function getRegisteredSchemes(): array {
+	public function getRegisteredSchemes(): array
+	{
 		return array_keys($this->schemeToClass);
 	}
 
@@ -345,7 +363,8 @@ class Module extends BaseModule implements ConfiguredInterface {
 	 * @throws KeyNotFound
 	 * @throws NotFoundException
 	 */
-	public function schemeFactory(string $scheme, string $url = '', array $options = []): Base {
+	public function schemeFactory(string $scheme, string $url = '', array $options = []): Base
+	{
 		$class = $this->getRegisteredScheme($scheme);
 		if (!$class) {
 			throw new NotFoundException('Database scheme {scheme} does not have a registered handler. Available schemes: {schemes}', [
@@ -371,7 +390,8 @@ class Module extends BaseModule implements ConfiguredInterface {
 	 * @throws Connect
 	 * @throws NotFoundException
 	 */
-	public function app_databaseRegistry(Application $application, string $mixed = '', array $options = []): Base {
+	public function app_databaseRegistry(Application $application, string $mixed = '', array $options = []): Base
+	{
 		assert($application === $this->application);
 		return $this->databaseRegistry($mixed, $options);
 	}
@@ -392,7 +412,8 @@ class Module extends BaseModule implements ConfiguredInterface {
 	 * @throws Connect
 	 * @throws NotFoundException
 	 */
-	public function databaseRegistry(string $mixed = '', array $options = []): Base {
+	public function databaseRegistry(string $mixed = '', array $options = []): Base
+	{
 		if (empty($mixed)) {
 			$mixed = $this->databaseDefault();
 			if (empty($mixed)) {
@@ -454,7 +475,8 @@ class Module extends BaseModule implements ConfiguredInterface {
 	 * @param array $info
 	 * @return array
 	 */
-	public function hook_info(array $info): array {
+	public function hook_info(array $info): array
+	{
 		$default = $this->option('default');
 		if (empty($default)) {
 			$default = '';
@@ -493,7 +515,8 @@ class Module extends BaseModule implements ConfiguredInterface {
 	 *
 	 * @return array
 	 */
-	public function validSchemes(): array {
+	public function validSchemes(): array
+	{
 		return array_keys($this->schemeToClass);
 	}
 }

@@ -22,7 +22,8 @@ use zesk\Version;
  * @param array $arguments
  * @category Debugging
  */
-class Info extends SimpleCommand {
+class Info extends SimpleCommand
+{
 	/**
 	 * @var array
 	 */
@@ -72,7 +73,8 @@ class Info extends SimpleCommand {
 	 *
 	 * @see Command::run()
 	 */
-	public function run(): int {
+	public function run(): int
+	{
 		$app = $this->application;
 		$appScope = Application::class;
 

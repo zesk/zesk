@@ -21,7 +21,8 @@ use zesk\URL;
  * @global boolean db-connect Set this global to alternate database
  * @aliases db-reset
  */
-class Reset extends Command {
+class Reset extends Command
+{
 	protected array $option_types = [
 		'name' => 'string',
 		'yes' => 'boolean',
@@ -38,17 +39,20 @@ class Reset extends Command {
 		'dump-directory' => 'Use alternate dump directory. Default is "{default-dump-directory}"',
 	];
 
-	public function initialize(): void {
+	public function initialize(): void
+	{
 		$this->option_help = map($this->option_help, [
 			'default-dump-directory' => $this->defaultDumpDirectory(),
 		]);
 	}
 
-	public function defaultDumpDirectory(): string {
+	public function defaultDumpDirectory(): string
+	{
 		return $this->application->path('sql-dumps/');
 	}
 
-	public function run(): int {
+	public function run(): int
+	{
 		PHP::requires('pcntl', true);
 
 		$dbname = $this->option('name');

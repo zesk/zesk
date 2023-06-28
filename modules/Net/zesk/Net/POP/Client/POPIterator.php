@@ -10,7 +10,8 @@ namespace zesk\Net\POP\Client;
 
 use Iterator;
 
-class POPIterator implements Iterator {
+class POPIterator implements Iterator
+{
 	/**
 	 * @var Client
 	 */
@@ -32,7 +33,8 @@ class POPIterator implements Iterator {
 	 */
 	private array $message_headers = [];
 
-	public function __construct(Client $client) {
+	public function __construct(Client $client)
+	{
 		$this->client = $client;
 	}
 
@@ -40,7 +42,8 @@ class POPIterator implements Iterator {
 	 *
 	 * @return array
 	 */
-	public function current(): array {
+	public function current(): array
+	{
 		if (count($this->message_headers)) {
 			return $this->message_headers;
 		}
@@ -53,7 +56,8 @@ class POPIterator implements Iterator {
 	 *
 	 * @return number
 	 */
-	public function currentSize(): int {
+	public function currentSize(): int
+	{
 		return intval(current($this->messages_list));
 	}
 
@@ -62,31 +66,37 @@ class POPIterator implements Iterator {
 	 *
 	 * @return string
 	 */
-	public function currentRetrieve(): string {
+	public function currentRetrieve(): string
+	{
 		return $this->client->message_retrieve($this->key());
 	}
 
 	/**
 	 * Delete item at current iterator point
 	 */
-	public function current_delete(): void {
+	public function current_delete(): void
+	{
 		$this->client->message_delete($this->key());
 	}
 
-	public function key(): int|string {
+	public function key(): int|string
+	{
 		return key($this->messages_list);
 	}
 
-	public function next(): void {
+	public function next(): void
+	{
 		$this->valid = next($this->messages_list);
 		$this->message_headers = null;
 	}
 
-	public function valid(): bool {
+	public function valid(): bool
+	{
 		return $this->valid;
 	}
 
-	public function rewind(): void {
+	public function rewind(): void
+	{
 		$this->messages_list = $this->client->messages_list();
 		$this->valid = reset($this->messages_list);
 		$this->message_headers = null;

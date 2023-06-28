@@ -19,7 +19,8 @@ use zesk\ORM\Exception\ORMEmpty;
  * @see ORMIterator
  * @see ORMIterators
  */
-class ORMIterators extends ResultIterator {
+class ORMIterators extends ResultIterator
+{
 	/**
 	 * @var string
 	 */
@@ -55,7 +56,8 @@ class ORMIterators extends ResultIterator {
 	 * @param SelectBase $query Executed query to iterate
 	 */
 	public function __construct(string $name, SelectBase $query, array $objects_prefixes, array $classOptions =
-	[]) {
+	[])
+	{
 		parent::__construct($query);
 		$this->name = $name;
 		$this->objects_prefixes = $objects_prefixes;
@@ -67,7 +69,8 @@ class ORMIterators extends ResultIterator {
 	 * @see ResultIterator::next()
 	 * @see ORMIterator::next
 	 */
-	public function next(): void {
+	public function next(): void
+	{
 		$this->databaseNext();
 		if ($this->_valid) {
 			$result = [];
@@ -109,7 +112,8 @@ class ORMIterators extends ResultIterator {
 	 *
 	 * @return array
 	 */
-	public function current(): array {
+	public function current(): array
+	{
 		return $this->objects;
 	}
 
@@ -118,7 +122,8 @@ class ORMIterators extends ResultIterator {
 	 *
 	 * @return mixed
 	 */
-	public function key(): string {
+	public function key(): string
+	{
 		return $this->id;
 	}
 }

@@ -10,11 +10,14 @@ namespace zesk;
  * @author kent
  *
  */
-class Template_Test extends UnitTest {
-	public function initialize(): void {
+class Template_Test extends UnitTest
+{
+	public function initialize(): void
+	{
 	}
 
-	public function test_begin(): void {
+	public function test_begin(): void
+	{
 		$this->application->addThemePath($this->test_sandbox());
 
 		file_put_contents($this->test_sandbox('good.tpl'), '<?php echo 3.14159;');
@@ -27,18 +30,21 @@ class Template_Test extends UnitTest {
 		$this->assertEquals('3.14159', $result);
 	}
 
-	public function test_find_path(): void {
+	public function test_find_path(): void
+	{
 		$template = new Theme($this->application->themes);
 		$template->findPath('template.tpl');
 	}
 
-	public function test_would_exist(): void {
+	public function test_would_exist(): void
+	{
 		$path = 'foo.tpl';
 		$template = new Theme($this->application->themes);
 		$this->assertFalse($template->wouldExist($path));
 	}
 
-	public function test_output(): void {
+	public function test_output(): void
+	{
 		$this->application->addThemePath($this->test_sandbox());
 
 		$files = [];

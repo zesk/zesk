@@ -18,7 +18,8 @@ use zesk\Exception\KeyNotFound;
  *
  * @author kent
  */
-class UTF8 {
+class UTF8
+{
 	/**
 	 * @param string $mixed Data to convert
 	 * @param string $characterSet Charset string to use (see ... for examples)
@@ -27,11 +28,13 @@ class UTF8 {
 	 * @throws KeyNotFound
 	 * @throws FileParseException
 	 */
-	public static function fromCharacterSet(string $mixed, string $characterSet): string {
+	public static function fromCharacterSet(string $mixed, string $characterSet): string
+	{
 		return CharacterSet::toUTF8($mixed, $characterSet);
 	}
 
-	public static function toISO8859(string $mixed): string {
+	public static function toISO8859(string $mixed): string
+	{
 		return utf8_decode($mixed);
 	}
 }

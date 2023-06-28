@@ -9,5 +9,6 @@ declare(strict_types=1);
 
 namespace zesk\Exception;
 
-class DirectoryCreate extends FileSystemException {
+class DirectoryCreate extends FileSystemException
+{
 }

@@ -14,5 +14,6 @@ use zesk\Exception;
 /**
  * When a process or the user has sent an exited signal
  */
-class ExitedException extends Exception {
+class ExitedException extends Exception
+{
 }

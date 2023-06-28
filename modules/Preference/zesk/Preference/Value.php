@@ -34,7 +34,8 @@ use zesk\PHP;
  *
  * @author kent
  */
-class Value extends ORMBase {
+class Value extends ORMBase
+{
 	public const MEMBER_ID = 'id';
 
 	public const MEMBER_USER = 'user';
@@ -55,7 +56,8 @@ class Value extends ORMBase {
 	/**
 	 * @return string
 	 */
-	public function typeClass(): string {
+	public function typeClass(): string
+	{
 		return $this->typeClass;
 	}
 
@@ -64,7 +66,8 @@ class Value extends ORMBase {
 	 * @throws KeyNotFound
 	 * @throws ORMNotFound
 	 */
-	public function value(): mixed {
+	public function value(): mixed
+	{
 		return $this->member(self::MEMBER_VALUE);
 	}
 
@@ -86,7 +89,8 @@ class Value extends ORMBase {
 	 * @throws ParseException
 	 * @see ORMBase::store()
 	 */
-	public function store(): self {
+	public function store(): self
+	{
 		if ($this->memberIsEmpty(self::MEMBER_USER)) {
 			throw new ORMEmpty('NULL value for user');
 		}
@@ -105,7 +109,8 @@ class Value extends ORMBase {
 	 * @throws SemanticsException
 	 * @throws ConfigurationException
 	 */
-	private static function _valueQuery(User $user, string $name): Database_Query_Select {
+	private static function _valueQuery(User $user, string $name): Database_Query_Select
+	{
 		$preference = $user->application->ormRegistry(self::class);
 		assert($preference instanceof Value);
 		return $preference->querySelect(self::ALIAS_VALUE)->link($preference->typeClass(), [
@@ -122,7 +127,8 @@ class Value extends ORMBase {
 	 * @param string $name
 	 * @return boolean
 	 */
-	public static function userHas(User $user, string $name): bool {
+	public static function userHas(User $user, string $name): bool
+	{
 		try {
 			return self::_valueQuery($user, $name)->addWhat(self::ALIAS_VALUE, 'COUNT(' . self::ALIAS_VALUE . '.' . self::MEMBER_VALUE . ')')->integer(self::ALIAS_VALUE) !== 0;
 		} catch (Throwable) {
@@ -142,7 +148,8 @@ class Value extends ORMBase {
 	 * @throws ParameterException
 	 * @throws SemanticsException
 	 */
-	public static function userGet(Userlike $user, string $name): mixed {
+	public static function userGet(Userlike $user, string $name): mixed
+	{
 		if (empty($name)) {
 			throw new ParameterException('{method}({user}, {name}, ...) Name is empty', [
 				'method' => __METHOD__, 'user' => $user->id(), 'name' => $name,
@@ -194,7 +201,8 @@ class Value extends ORMBase {
 	 * @throws ORMDuplicate
 	 * @throws ORMNotFound
 	 */
-	public static function userSet(Userlike $user, array $values): array {
+	public static function userSet(Userlike $user, array $values): array
+	{
 		$app = $user->application;
 		$result = [];
 		foreach ($values as $name => $value) {
@@ -214,7 +222,8 @@ class Value extends ORMBase {
 	 * @throws ORMDuplicate
 	 * @throws ORMNotFound
 	 */
-	private static function _register(User $user, Type $type, mixed $value): int {
+	private static function _register(User $user, Type $type, mixed $value): int
+	{
 		$where = [
 			self::MEMBER_USER => $user, self::MEMBER_TYPE => $type,
 		];

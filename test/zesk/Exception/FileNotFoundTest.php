@@ -10,8 +10,10 @@ namespace zesk\Exception;
 
 use zesk\PHPUnit\ExceptionTestCase;
 
-class FileNotFoundTest extends ExceptionTestCase {
-	public function test_basics(): void {
+class FileNotFoundTest extends ExceptionTestCase
+{
+	public function test_basics(): void
+	{
 		$testx = new FileNotFound();
 		$this->assertThrowable($testx);
 	}

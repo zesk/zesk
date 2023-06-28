@@ -13,15 +13,18 @@ namespace zesk\Doctrine;
 
 use Doctrine\Persistence\ObjectRepository;
 
-class ModelTestCase extends DatabaseTestCase {
+class ModelTestCase extends DatabaseTestCase
+{
 	protected array $entities = [];
 
-	public function initialize(): void {
+	public function initialize(): void
+	{
 		parent::initialize();
 		$this->schemaSynchronize($this->entities);
 	}
 
-	public function truncateModelTable(string $entityName): void {
+	public function truncateModelTable(string $entityName): void
+	{
 		$this->em->getConnection()->executeQuery("TRUNCATE $entityName");
 		$this->em->flush($entityName);
 		$this->assertRowCount(0, $entityName);
@@ -31,7 +34,8 @@ class ModelTestCase extends DatabaseTestCase {
 	 * @param string $entityName
 	 * @return void
 	 */
-	public function deleteAllEntitiesIteratively(string $entityName): void {
+	public function deleteAllEntitiesIteratively(string $entityName): void
+	{
 		$resultSet = $this->getRepository($entityName)->findAll();
 		foreach ($resultSet as $entityObject) {
 			$this->em->remove($entityObject);
@@ -43,7 +47,8 @@ class ModelTestCase extends DatabaseTestCase {
 	/**
 	 *
 	 */
-	final public function assertModel(Model $object): void {
+	final public function assertModel(Model $object): void
+	{
 		$entityName = $object::class;
 		$this->assertEquals($entityName, $object::class); // PHP, assume
 

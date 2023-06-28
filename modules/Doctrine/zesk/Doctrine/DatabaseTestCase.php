@@ -16,10 +16,12 @@ use zesk\Types;
  *
  * @author kent
  */
-class DatabaseTestCase extends TestCase {
+class DatabaseTestCase extends TestCase
+{
 	public EntityManager $em;
 
-	public function initialize(): void {
+	public function initialize(): void
+	{
 		$this->application->modules->load('Doctrine');
 		$this->application->setOption('userClass', User::class);
 		$this->em = $this->application->entityManager();
@@ -28,14 +30,16 @@ class DatabaseTestCase extends TestCase {
 	/**
 	 * @return Module
 	 */
-	final protected function doctrineModule(): Module {
+	final protected function doctrineModule(): Module
+	{
 		return $this->application->doctrineModule();
 	}
 
 	/**
 	 * @return ObjectRepository
 	 */
-	public function getRepository(string $name): ObjectRepository {
+	public function getRepository(string $name): ObjectRepository
+	{
 		return $this->em->getRepository($name);
 	}
 
@@ -43,7 +47,8 @@ class DatabaseTestCase extends TestCase {
 	 * @param string $entity
 	 * @return string
 	 */
-	public function entityTable(string $entity): string {
+	public function entityTable(string $entity): string
+	{
 		return $this->em->getClassMetadata($entity)->getTableName();
 	}
 
@@ -51,7 +56,8 @@ class DatabaseTestCase extends TestCase {
 	 * @return EntityManager
 	 * @deprecated 2023-04
 	 */
-	public function getDatabase(): EntityManager {
+	public function getDatabase(): EntityManager
+	{
 		return $this->em;
 	}
 
@@ -78,14 +84,16 @@ class DatabaseTestCase extends TestCase {
 	 * @param string $modelClass
 	 * @return void
 	 */
-	final protected function assertRowCount(int $expected, string $modelClass): void {
+	final protected function assertRowCount(int $expected, string $modelClass): void
+	{
 		$actual = $this->em->getRepository($modelClass)->count([]);
 		$this->assertEquals($expected, $actual, "$modelClass does not have expected $expected rows (has $actual)");
 	}
 
 	/**
 	 */
-	final protected function assertRepositoryMatch(string $modelClass, array $match = []): void {
+	final protected function assertRepositoryMatch(string $modelClass, array $match = []): void
+	{
 		$objects = $this->em->getRepository($modelClass)->findAll();
 		$rows = [];
 		foreach ($objects as $item) {
@@ -116,7 +124,8 @@ class DatabaseTestCase extends TestCase {
 	 *
 	 * @return array
 	 */
-	public function schemaSynchronize(string|array $entities): array {
+	public function schemaSynchronize(string|array $entities): array
+	{
 		$doctrine = $this->doctrineModule();
 		$entities = Types::toList($entities);
 		$collection = array_flip($entities);
@@ -126,7 +135,8 @@ class DatabaseTestCase extends TestCase {
 		return $this->application->doctrineModule()->schemaSynchronize(array_keys($collection));
 	}
 
-	final protected function sqlNormalizeTrim(string $sql): string {
+	final protected function sqlNormalizeTrim(string $sql): string
+	{
 		return preg_replace('/\s+/', ' ', trim($sql));
 	}
 
@@ -138,7 +148,8 @@ class DatabaseTestCase extends TestCase {
 	 * @param string $message
 	 * @return void
 	 */
-	final protected function assertSQLEquals(string $expected, string $sql, string $message = ''): void {
+	final protected function assertSQLEquals(string $expected, string $sql, string $message = ''): void
+	{
 		$this->assertEquals($this->sqlNormalizeTrim($expected), $this->sqlNormalizeTrim($sql), $message);
 	}
 }

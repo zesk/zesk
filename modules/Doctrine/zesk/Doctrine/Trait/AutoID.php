@@ -5,7 +5,8 @@ use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\GeneratedValue;
 use Doctrine\ORM\Mapping\Id as MappingId;
 
-trait AutoID {
+trait AutoID
+{
 	#[MappingId, Column(type: 'integer'), GeneratedValue]
 	public null|int $id = null;
 }

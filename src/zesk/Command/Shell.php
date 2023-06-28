@@ -39,7 +39,8 @@ use function str_starts_with;
  *
  * @category Management
  */
-class Shell extends SimpleCommand {
+class Shell extends SimpleCommand
+{
 	protected array $shortcuts = ['shell', 'eval', 'evaluate'];
 
 	protected array $option_types = [
@@ -78,7 +79,8 @@ class Shell extends SimpleCommand {
 	 * @throws ParameterException
 	 * @throws SemanticsException
 	 */
-	public function run(): int {
+	public function run(): int
+	{
 		if (!$this->optionBool('skip-configure')) {
 			$this->configure('shell');
 		}
@@ -107,7 +109,8 @@ class Shell extends SimpleCommand {
 	 * @param string $content
 	 * @return void
 	 */
-	public function output_result(mixed $__result, string $content = ''): void {
+	public function output_result(mixed $__result, string $content = ''): void
+	{
 		if ($__result !== null) {
 			echo '# return ' . PHP::dump($__result) . "\n";
 		}
@@ -122,7 +125,8 @@ class Shell extends SimpleCommand {
 	 * @return int
 	 * @throws SemanticsException
 	 */
-	public function interactive(): int {
+	public function interactive(): int
+	{
 		$this->history_file_path = $this->application->paths->userHome('eval-history.log');
 		$name = get_class($this->application);
 		$last_exit_code = 0;
@@ -161,7 +165,8 @@ class Shell extends SimpleCommand {
 	/**
 	 * Before evaluate, save global context variables
 	 */
-	private function _before_evaluate(array $vars): array {
+	private function _before_evaluate(array $vars): array
+	{
 		$this->before_vars = $vars;
 		return $this->saved_vars;
 	}
@@ -170,7 +175,8 @@ class Shell extends SimpleCommand {
 	 * After evaluate, determine if any new variables are present
 	 * @param array $vars
 	 */
-	private function _after_evaluate(array $vars): void {
+	private function _after_evaluate(array $vars): void
+	{
 		$diff = array_diff_assoc($vars, $this->before_vars);
 		foreach ($diff as $k => $v) {
 			if (str_starts_with($k, '__')) {
@@ -189,7 +195,8 @@ class Shell extends SimpleCommand {
 		}
 	}
 
-	private function _prefix_commmand(string $string): string {
+	private function _prefix_commmand(string $string): string
+	{
 		$string = trim($string, " \n\r\t;");
 		$string = preg_replace('/^return\s/', '', $string);
 		// If contains multiple commands, then no prefix
@@ -215,7 +222,8 @@ class Shell extends SimpleCommand {
 	 * @return mixed
 	 * @throws Exception
 	 */
-	private function _eval(string $__string): mixed {
+	private function _eval(string $__string): mixed
+	{
 		$__eval = $this->_prefix_commmand($__string);
 
 		try {

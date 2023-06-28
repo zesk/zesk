@@ -3,7 +3,8 @@ namespace zesk\Doctrine\Trait;
 
 use Doctrine\ORM\Mapping\Column;
 
-trait Name {
+trait Name
+{
 	#[Column(type: 'string', nullable: false)]
 	public string $name = '';
 }

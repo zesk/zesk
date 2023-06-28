@@ -12,5 +12,6 @@ use zesk\ORM\Exception;
  * @author kent
  *
  */
-class ORMNotFound extends Exception {
+class ORMNotFound extends Exception
+{
 }

@@ -29,7 +29,8 @@ use zesk\Exception\UnimplementedException;
  *
  * @author kent
  */
-class File {
+class File
+{
 	/**
 	 * Dimension returned by expandStats related to file permissions
 	 */
@@ -222,7 +223,8 @@ class File {
 	 * @param ?string $cwd
 	 * @return string null
 	 */
-	public static function absolutePath(string $filename, string $cwd = null): string {
+	public static function absolutePath(string $filename, string $cwd = null): string
+	{
 		if ($filename[0] === '/') {
 			return $filename;
 		}
@@ -239,7 +241,8 @@ class File {
 	 * @return string
 	 * @see Directory::path()
 	 */
-	public static function path(array|string $paths): string {
+	public static function path(array|string $paths): string
+	{
 		return Directory::path(func_get_args());
 	}
 
@@ -249,7 +252,8 @@ class File {
 	 * @param array|string $mixed List of files to require
 	 * @throws FileNotFound
 	 */
-	public static function depends(array|string $mixed): void {
+	public static function depends(array|string $mixed): void
+	{
 		foreach (Types::toList($mixed) as $f) {
 			if (!file_exists($f) || !is_file($f)) {
 				throw new FileNotFound($f);
@@ -266,7 +270,8 @@ class File {
 	 *            Character to replace unwanted characters with
 	 * @return string Cleaned filename
 	 */
-	public static function nameClean(string $mixed, string $sep_char = '-'): string {
+	public static function nameClean(string $mixed, string $sep_char = '-'): string
+	{
 		$mixed = preg_replace('/[^-A-Za-z0-9_.]/', $sep_char, $mixed);
 		return preg_replace("/$sep_char$sep_char+/", $sep_char, $mixed);
 	}
@@ -281,7 +286,8 @@ class File {
 	 * @todo deprecate this, where used?
 	 *
 	 */
-	public static function cleanPath(string $path): string {
+	public static function cleanPath(string $path): string
+	{
 		return preg_replace('%[^-_./a-zA-Z0-9]%', '_', str_replace('_', '/', $path));
 	}
 
@@ -291,7 +297,8 @@ class File {
 	 * @param string $x Path name to clean
 	 * @return bool
 	 */
-	public static function pathCheck(string $x): bool {
+	public static function pathCheck(string $x): bool
+	{
 		if (preg_match('|[^-~/A-Za-z0-9_. ()@&]|', $x)) {
 			return false;
 		}
@@ -313,7 +320,8 @@ class File {
 	 * @return string
 	 * @throws FileNotFound
 	 */
-	public static function checksum(string $path): string {
+	public static function checksum(string $path): string
+	{
 		$size = self::size($path);
 		if ($size < 1024 * 1024) {
 			return strval(md5_file($path));
@@ -340,7 +348,8 @@ class File {
 	 *            the filename and includes a trailing DIRECTORY_SEPARATOR if non-blank.
 	 * @return string
 	 */
-	public static function mapPathInfo(string $filename, string $pattern): string {
+	public static function mapPathInfo(string $filename, string $pattern): string
+	{
 		$pathInfo = pathinfo($filename);
 		$dirName = $pathInfo['dirname'] ?? '.';
 		$sep = DIRECTORY_SEPARATOR;
@@ -356,7 +365,8 @@ class File {
 	 * @param string $filename
 	 * @return string
 	 */
-	public static function stripExtension(string $filename): string {
+	public static function stripExtension(string $filename): string
+	{
 		return self::mapPathInfo($filename, '{dirnamePrefix}{filename}');
 	}
 
@@ -366,7 +376,8 @@ class File {
 	 * @param string $filename File path to extract the extension from
 	 * @return string The file extension found, or $default (false) if none found
 	 */
-	public static function extension(string $filename): string {
+	public static function extension(string $filename): string
+	{
 		$name = basename($filename);
 		$dot = strrpos($name, '.');
 		if ($dot === false) {
@@ -388,7 +399,8 @@ class File {
 	 * @throws FileNotFound
 	 * @throws TimeoutExpired
 	 */
-	public static function atomicIncrement(string $path): int {
+	public static function atomicIncrement(string $path): int
+	{
 		$fp = @fopen($path, 'r+b');
 		if (!$fp) {
 			throw new FileNotFound($path, 'not found');
@@ -424,7 +436,8 @@ class File {
 	 * @return boolean true if successful, false if 100ms passes and can't
 	 * @throws FileNotFound
 	 */
-	public static function atomicPut(string $path, string $data): bool {
+	public static function atomicPut(string $path, string $data): bool
+	{
 		$fp = fopen($path, 'w+b');
 		if (!is_resource($fp)) {
 			throw new FileNotFound($path, 'File::atomicPut not found');
@@ -453,7 +466,8 @@ class File {
 	 * @throws DirectoryCreate
 	 * @throws DirectoryPermission
 	 */
-	public static function temporary(string $path, string $ext = 'tmp', int $mode = null): string {
+	public static function temporary(string $path, string $ext = 'tmp', int $mode = null): string
+	{
 		return self::path(Directory::depend($path, $mode), md5(microtime()) . '.' . ltrim($ext, '.'));
 	}
 
@@ -464,7 +478,8 @@ class File {
 	 *            File path to extract the extension from
 	 * @return string The file name without the extension
 	 */
-	public static function base(string $filename): string {
+	public static function base(string $filename): string
+	{
 		$filename = basename($filename);
 		$dot = strrpos($filename, '.');
 		if ($dot === false) {
@@ -483,7 +498,8 @@ class File {
 	 * @throws FileNotFound
 	 * @throws FilePermission
 	 */
-	public static function chmod(string $file_name, int $mode = 504 /* 0o770 */): void {
+	public static function chmod(string $file_name, int $mode = 504 /* 0o770 */): void
+	{
 		if (!file_exists($file_name)) {
 			throw new FileNotFound($file_name, 'Can not set mode to {mode}', [
 				'mode' => self::modeToOctal($mode),
@@ -504,7 +520,8 @@ class File {
 	 * @throws FileNotFound
 	 * @throws FilePermission
 	 */
-	public static function contents(string $filename): string {
+	public static function contents(string $filename): string
+	{
 		if (file_exists($filename)) {
 			$contents = @file_get_contents($filename);
 			if (is_string($contents)) {
@@ -525,7 +542,8 @@ class File {
 	 * @return int Bytes written
 	 * @throws FilePermission
 	 */
-	public static function append(string $filename, string $content): int {
+	public static function append(string $filename, string $content): int
+	{
 		$mode = file_exists($filename) ? 'a' : 'w';
 		if (!is_resource($f = fopen($filename, $mode))) {
 			throw new FilePermission($filename, 'Can not open {path} with mode {mode} to append {n} bytes of content', [
@@ -548,7 +566,8 @@ class File {
 	 * @throws FilePermission
 	 * @see file_put_contents
 	 */
-	public static function put(string $path, string $contents): void {
+	public static function put(string $path, string $contents): void
+	{
 		if (file_put_contents($path, $contents) === false) {
 			throw new FilePermission($path, 'Unable to write {n} bytes to file {file}', [
 				'file' => $path, 'n' => strlen($contents),
@@ -562,7 +581,8 @@ class File {
 	 * @param string $path
 	 * @throws FilePermission
 	 */
-	public static function unlink(string $path): void {
+	public static function unlink(string $path): void
+	{
 		if (!is_dir(dirname($path))) {
 			return;
 		}
@@ -581,7 +601,8 @@ class File {
 	 * @return int
 	 * @throws FileNotFound
 	 */
-	public static function size(string $filename): int {
+	public static function size(string $filename): int
+	{
 		if (!file_exists($filename)) {
 			throw new FileNotFound($filename);
 		}
@@ -595,7 +616,8 @@ class File {
 	 * @return array Lines in the file
 	 * @throws FileNotFound
 	 */
-	public static function lines(string $filename): array {
+	public static function lines(string $filename): array
+	{
 		if (!file_exists($filename)) {
 			throw new FileNotFound($filename);
 		}
@@ -608,7 +630,8 @@ class File {
 	 * @return resource
 	 * @throws FilePermission
 	 */
-	public static function open(string $filename, string $mode): mixed {
+	public static function open(string $filename, string $mode): mixed
+	{
 		$res = fopen($filename, $mode);
 		if (!$res) {
 			throw new FilePermission($filename, 'File::open("{path}", "{mode}") failed', [
@@ -654,7 +677,8 @@ class File {
 	 *
 	 * @return number[][]
 	 */
-	private static function _modeMap(): array {
+	private static function _modeMap(): array
+	{
 		return [
 			self::$charToMask, [
 				'r' => 0x0100, '-' => 0,
@@ -685,7 +709,8 @@ class File {
 	 * @param string $char
 	 * @return string
 	 */
-	public static function lsType(string $char): string {
+	public static function lsType(string $char): string
+	{
 		$char = substr($char, 0, 1);
 		return self::$maskToChars[self::$charToMask[$char] ?? 0] ?? self::TYPE_UNKNOWN;
 	}
@@ -696,7 +721,8 @@ class File {
 	 * @param int $mode
 	 * @return string
 	 */
-	public static function modeToString(int $mode): string {
+	public static function modeToString(int $mode): string
+	{
 		$map = self::_modeMap();
 		$result = '';
 		foreach ($map as $i => $items) {
@@ -724,7 +750,8 @@ class File {
 	 * @throws UnimplementedException
 	 * @throws SyntaxException
 	 */
-	public static function stringToMode(string $mode_string): int {
+	public static function stringToMode(string $mode_string): int
+	{
 		$keys = implode('', array_keys(self::$charToMask));
 		if (!preg_match('/^[' . $keys . '][-r][-w][-xSs][-r][-w][-xSs][-r][-w][-xSs]$/', $mode_string)) {
 			throw new SyntaxException('{mode_string} does not match pattern');
@@ -748,7 +775,8 @@ class File {
 	 * @param string $new_extension Extension with or without a "." in it (it's removed). If null, then extension is removed completely (no dot, either.)
 	 * @return string
 	 */
-	public static function setExtension(string $file, string $new_extension): string {
+	public static function setExtension(string $file, string $new_extension): string
+	{
 		[$prefix, $file] = StringTools::reversePair($file, '/', '', $file);
 		if ($prefix) {
 			$prefix .= '/';
@@ -766,7 +794,8 @@ class File {
 	 * @param int $mode
 	 * @return string
 	 */
-	public static function modeToOctal(int $mode): string {
+	public static function modeToOctal(int $mode): string
+	{
 		return sprintf('0%o', 0o777 & $mode);
 	}
 
@@ -776,7 +805,8 @@ class File {
 	 * @param string $method Callable function to convert id to name
 	 * @return NULL|string
 	 */
-	private static function _nameFromID(mixed $id, string $method): ?string {
+	private static function _nameFromID(mixed $id, string $method): ?string
+	{
 		if (!function_exists($method)) {
 			return null;
 		}
@@ -792,7 +822,8 @@ class File {
 	 * @param int $uid
 	 * @return string|null
 	 */
-	private static function nameFromUID(int $uid): ?string {
+	private static function nameFromUID(int $uid): ?string
+	{
 		return self::_nameFromID($uid, 'posix_getpwuid');
 	}
 
@@ -801,7 +832,8 @@ class File {
 	 * @param int $gid
 	 * @return string|null
 	 */
-	private static function nameFromGID(int $gid): ?string {
+	private static function nameFromGID(int $gid): ?string
+	{
 		return self::_nameFromID($gid, 'posix_getgrgid');
 	}
 
@@ -813,7 +845,8 @@ class File {
 	 * @return array
 	 * @throws FileNotFound
 	 */
-	public static function stat(string $path, string $section = null): array {
+	public static function stat(string $path, string $section = null): array
+	{
 		clearstatcache(false, $path);
 		$ss = @stat($path);
 		if (!$ss) {
@@ -838,7 +871,8 @@ class File {
 	 * @return array
 	 * @throws FileNotFound
 	 */
-	public static function resourceStat(mixed $path, string $section = null): array {
+	public static function resourceStat(mixed $path, string $section = null): array
+	{
 		assert(is_resource($path));
 		$ss = @fstat($path);
 		if (!$ss) {
@@ -860,7 +894,8 @@ class File {
 	 * @param array $ss
 	 * @return array[]
 	 */
-	public static function expandStats(array $ss): array {
+	public static function expandStats(array $ss): array
+	{
 		$o777 = 511; /* 0o777 */
 
 		$is_resource = $ss['is_resource'] ?? false;
@@ -937,7 +972,8 @@ class File {
 	 * @param Application $application
 	 * @return int
 	 */
-	public static function trimMaximumFileSize(Application $application): int {
+	public static function trimMaximumFileSize(Application $application): int
+	{
 		$result = $application->configuration->path([self::class, 'trim'])->getInt('maximum_file_size');
 		if ($result) {
 			return $result;
@@ -954,7 +990,8 @@ class File {
 	 * @param Application $application
 	 * @return int
 	 */
-	public static function trimReadBufferSize(Application $application): int {
+	public static function trimReadBufferSize(Application $application): int
+	{
 		$result = $application->configuration->path([self::class, 'trim'])->getInt('read_buffer_size');
 		if ($result) {
 			return $result;
@@ -977,7 +1014,8 @@ class File {
 	 * @throws FileNotFound
 	 * @throws FilePermission
 	 */
-	public static function trim(Application $application, string $path, int $offset = 0, int $length = null): bool {
+	public static function trim(Application $application, string $path, int $offset = 0, int $length = null): bool
+	{
 		if (!is_file($path)) {
 			throw new FileNotFound($path);
 		}
@@ -1054,7 +1092,8 @@ class File {
 	 * @throws FilePermission
 	 * @throws FileNotFound
 	 */
-	public static function head(string $filename, int $length = 1024): string {
+	public static function head(string $filename, int $length = 1024): string
+	{
 		if (!is_file($filename)) {
 			throw new FileNotFound($filename);
 		}
@@ -1076,7 +1115,8 @@ class File {
 	 * @param string $suffix
 	 * @return boolean
 	 */
-	public static function rotate(string $path, int $size_limit = 10485760, int $keep_count = 7, string $suffix = ''): bool {
+	public static function rotate(string $path, int $size_limit = 10485760, int $keep_count = 7, string $suffix = ''): bool
+	{
 		if (!file_exists($path)) {
 			return false;
 		}
@@ -1103,7 +1143,8 @@ class File {
 	 *            Path to check
 	 * @return boolean
 	 */
-	public static function isAbsolute(string $path): bool {
+	public static function isAbsolute(string $path): bool
+	{
 		if ($path === '') {
 			return false;
 		}
@@ -1129,7 +1170,8 @@ class File {
 	 * @throws FileNotFound
 	 * @throws FilePermission
 	 */
-	public static function moveAtomic(string $source, string $target, string $new_target = null): void {
+	public static function moveAtomic(string $source, string $target, string $new_target = null): void
+	{
 		if (!is_file($target)) {
 			if (!rename($source, $target)) {
 				throw new FilePermission($target, 'Can not rename {source} to {target}', [
@@ -1186,7 +1228,8 @@ class File {
 	 * @throws FilePermission
 	 * @throws FileNotFound
 	 */
-	public static function copyOwnerAndGroup(string $source, string $target): string {
+	public static function copyOwnerAndGroup(string $source, string $target): string
+	{
 		return self::copyGroup($source, self::copyOwner($source, $target));
 	}
 
@@ -1199,7 +1242,8 @@ class File {
 	 * @throws FileNotFound
 	 * @throws FilePermission
 	 */
-	public static function copyOwner(string $source, string $target): string {
+	public static function copyOwner(string $source, string $target): string
+	{
 		$target_owner = File::stat($target, 'owner');
 		$source_owner = File::stat($source, 'owner');
 		if ($target_owner['uid'] !== $source_owner['uid']) {
@@ -1221,7 +1265,8 @@ class File {
 	 * @throws FileNotFound
 	 * @throws FilePermission
 	 */
-	public static function copyGroup(string $source, string $target): string {
+	public static function copyGroup(string $source, string $target): string
+	{
 		$target_owner = File::stat($target, 'owner');
 		$source_owner = File::stat($source, 'owner');
 		if ($target_owner['gid'] !== $source_owner['gid']) {
@@ -1242,7 +1287,8 @@ class File {
 	 * @throws FilePermission
 	 * @throws DirectoryNotFound
 	 */
-	public static function validateWritable(string $file): string {
+	public static function validateWritable(string $file): string
+	{
 		if (!is_dir($dir = dirname($file))) {
 			throw new DirectoryNotFound($dir);
 		}
@@ -1270,7 +1316,8 @@ class File {
 	 * @return string Full path of found file, or null if not found
 	 * @throws NotFoundException
 	 */
-	public static function findFirst(array $paths, array|string $files = null): string {
+	public static function findFirst(array $paths, array|string $files = null): string
+	{
 		if (is_string($files)) {
 			$files = [$files];
 		} elseif ($files === null) {
@@ -1300,7 +1347,8 @@ class File {
 	 * @return array list of files found, in order
 	 * @see self::find_directory
 	 */
-	public static function findAll(array $paths, array|string $file): array {
+	public static function findAll(array $paths, array|string $file): array
+	{
 		$result = [];
 		if (!is_array($file)) {
 			$file = [$file];
@@ -1321,7 +1369,8 @@ class File {
 	 * @param int $modifiedBefore
 	 * @return array
 	 */
-	public static function deleteModifiedBefore(string|array $files, int $modifiedBefore): array {
+	public static function deleteModifiedBefore(string|array $files, int $modifiedBefore): array
+	{
 		$result = [];
 		$now = time();
 		foreach (Types::toList($files) as $file) {

@@ -5,8 +5,10 @@ namespace zesk\ORM\Test\Class;
 
 use zesk\ORM\Class_Base;
 
-class Class_DBSchemaTest4 extends Class_Base {
-	public function initialize(): void {
+class Class_DBSchemaTest4 extends Class_Base
+{
+	public function initialize(): void
+	{
 		parent::initialize();
 		$this->table = DBSchemaTest4::$test_table;
 	}

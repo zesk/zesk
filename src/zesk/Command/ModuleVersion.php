@@ -16,7 +16,8 @@ use zesk\Exception\NotFoundException;
  *
  * @category Modules
  */
-class ModuleVersion extends SimpleCommand {
+class ModuleVersion extends SimpleCommand
+{
 	protected array $shortcuts = ['module-version'];
 
 	protected array $option_types = [
@@ -27,7 +28,8 @@ class ModuleVersion extends SimpleCommand {
 		'*' => 'List of modules to get version numbers for',
 	];
 
-	public function run(): int {
+	public function run(): int
+	{
 		$app = $this->application;
 		$modules = $this->argumentsRemaining();
 		if (count($modules) === 0) {

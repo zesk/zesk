@@ -37,7 +37,8 @@ use zesk\Timestamp;
  * @property string $status
  * @property Timestamp $updated
  */
-class Token extends ORMBase {
+class Token extends ORMBase
+{
 	/**
 	 *
 	 * @var Validate
@@ -89,7 +90,8 @@ class Token extends ORMBase {
 	/**
 	 * @return void
 	 */
-	protected function constructed(): void {
+	protected function constructed(): void
+	{
 		parent::constructed();
 		$this->validator = new Validate($this->application);
 	}
@@ -100,7 +102,8 @@ class Token extends ORMBase {
 	 *
 	 * @see ORMBase::store()
 	 */
-	public function store(): self {
+	public function store(): self
+	{
 		$this->md5 = md5($this->original);
 		if ($this->memberIsEmpty('user')) {
 			try {
@@ -130,7 +133,8 @@ class Token extends ORMBase {
 		return $result;
 	}
 
-	public static function create(Application $app, string $language, string $dialect, string $original, string $translation, string $status = '') {
+	public static function create(Application $app, string $language, string $dialect, string $original, string $translation, string $status = '')
+	{
 		$token = $app->ormFactory(__CLASS__, [
 			'language' => $language, 'dialect' => $dialect, 'original' => $original, 'translation' => $translation,
 		]);
@@ -148,7 +152,8 @@ class Token extends ORMBase {
 	 * @return array
 	 * @throws ORMNotFound
 	 */
-	public static function fetchAll(Application $app, string $language, string $dialect = ''): array {
+	public static function fetchAll(Application $app, string $language, string $dialect = ''): array
+	{
 		$where = [
 			'language' => $language, 'dialect' => $dialect === '' ? null : $dialect,
 		];
@@ -171,7 +176,8 @@ class Token extends ORMBase {
 		return $result + self::fetchAll($app, $language);
 	}
 
-	public function json(JSONWalker $options): array {
+	public function json(JSONWalker $options): array
+	{
 		$members = $this->members([
 			'id', 'language', 'dialect', 'original', 'translation', 'status',
 		]);
@@ -186,7 +192,8 @@ class Token extends ORMBase {
 	 * @return Database_Query_Select
 	 * @throws ORMNotFound
 	 */
-	public static function localeQuery(Application $application, string $locale): Database_Query_Select {
+	public static function localeQuery(Application $application, string $locale): Database_Query_Select
+	{
 		return $application->ormRegistry(__CLASS__)->querySelect()->ormWhat()->appendWhere([
 			'dialect' => Locale::parseDialect($locale), 'language' => Locale::parseLanguage($locale),
 		]);
@@ -195,7 +202,8 @@ class Token extends ORMBase {
 	/**
 	 * @return string[]
 	 */
-	public static function statusFilters_EN(): array {
+	public static function statusFilters_EN(): array
+	{
 		return [
 			self::STATUS_TODO => 'Need translation', self::STATUS_INFO => 'Need more information',
 			self::STATUS_DEV => 'Need developer review', self::STATUS_DRAFT => 'Draft',
@@ -214,7 +222,8 @@ class Token extends ORMBase {
 	 * @throws Database\Exception\TableNotFound
 	 * @throws KeyNotFound
 	 */
-	public static function htmlentities_all(Application $app): void {
+	public static function htmlentities_all(Application $app): void
+	{
 		$iterator = $app->ormRegistry(__CLASS__)->querySelect()->appendWhat([
 			'id' => 'id', 'translation' => 'translation',
 		])->iterator('id', 'translation');
@@ -234,7 +243,8 @@ class Token extends ORMBase {
 	 * @return array
 	 * @throws ConfigurationException
 	 */
-	public function validate(): array {
+	public function validate(): array
+	{
 		return $this->validator->checkTranslation($this->original, $this->translation);
 	}
 }

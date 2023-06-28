@@ -10,10 +10,6 @@ declare(strict_types=1);
 namespace zesk;
 
 use Closure;
-use Psr\Cache\CacheItemInterface;
-use Psr\Cache\CacheItemPoolInterface;
-use Psr\Cache\InvalidArgumentException;
-use zesk\Application\Hooks;
 use zesk\Exception\ClassNotFound;
 use zesk\Exception\DirectoryNotFound;
 use zesk\Exception\SemanticsException;
@@ -23,7 +19,8 @@ use zesk\Exception\SemanticsException;
  *
  * @author kent
  */
-class Autoloader {
+class Autoloader
+{
 	/**
 	 * Used in ->path("path/to", [ Autoloader::CLASS_PREFIX => "foo\\", Autoloader::LOWER => false ]);
 	 *
@@ -127,65 +124,25 @@ class Autoloader {
 	protected array $loaded;
 
 	/**
-	 * @var CacheItemPoolInterface
-	 */
-	protected CacheItemPoolInterface $pool;
-
-	/**
 	 * Create default autoloader for most of Zesk
 	 */
-	public function __construct(CacheItemPoolInterface $pool) {
+	public function __construct()
+	{
 		$this->loaded = [];
-		$this->pool = $pool;
 		$this->autoload_register();
-	}
-
-	/**
-	 * Inject our cache dependency
-	 *
-	 * @param CacheItemPoolInterface $pool
-	 * @return self
-	 */
-	public function setCache(CacheItemPoolInterface $pool): self {
-		$this->pool = $pool;
-		return $this;
-	}
-
-	/**
-	 * Add a callback when a class is loaded
-	 *
-	 * @param Closure $closure
-	 * @param string $id
-	 * @return $this
-	 */
-	public function addLoaded(Closure $closure, string $id = ''): self {
-		$hash = $id ?: Hooks::callableString($closure);
-		$this->loaded[$hash] = $closure;
-		return $this;
 	}
 
 	/**
 	 * Should be called once and only once.
 	 * Registers Autoloader for Zesk.
 	 */
-	private function autoload_register(): void {
+	private function autoload_register(): void
+	{
 		spl_autoload_register($this->php_autoloader(...));
 	}
 
-	/**
-	 * Retrieve the autoloader cache structure, optionally creating if needed.
-	 *
-	 * @return ?CacheItemInterface
-	 */
-	private function _autoloadCache(): ?CacheItemInterface {
-		try {
-			return $this->pool->getItem('autoload_cache');
-		} catch (InvalidArgumentException) {
-			return null;
-		}
-	}
-
-	public function shutdown(): void {
+	public function shutdown(): void
+	{
 		// Pass
 	}
 
@@ -198,7 +155,8 @@ class Autoloader {
 	 * @return boolean
 	 * @throws ClassNotFound|SemanticsException
 	 */
-	public function php_autoloader(string $class): bool {
+	public function php_autoloader(string $class): bool
+	{
 		if ($this->load($class)) {
 			foreach ($this->loaded as $closure) {
 				assert($closure instanceof Closure);
@@ -223,40 +181,20 @@ class Autoloader {
 	 * @see ZESK_NO_CONFLICT
 	 * @see $this->no_exception
 	 */
-	public function load(string $class, bool $no_exception = false): string {
-		$cacheItem = $this->_autoloadCache();
-		$include = null;
-		$cache_items = $cacheItem?->get();
-		if (!is_array($cache_items)) {
-			$cache_items = [];
-		}
-		if (array_key_exists($class, $cache_items)) {
-			$include = $cache_items[$class];
-			if (!is_file($include)) {
-				unset($cache_items[$class]);
-				$include = null;
+	public function load(string $class, bool $no_exception = false): string
+	{
+		$tried_path = null;
+		$include = $this->search($class, null, $tried_path);
+		if ($include === null) {
+			if ($this->no_exception || $no_exception) {
+				return '';
 			}
-		}
-		if (!$include) {
-			$tried_path = null;
-			$include = $this->search($class, null, $tried_path);
-			if ($include === null) {
-				if ($this->no_exception || $no_exception) {
-					return '';
-				}
 
-				throw new ClassNotFound($class, "Class {class} called from {calling_function} invoked from:\n{backtrace}\n{tried_path}", [
-					'class' => $class,
-					'calling_function' => Kernel::callingFunction(2),
-					'tried_path' => Text::indent(implode("\n", $tried_path)),
-					'backtrace' => Text::indent(Kernel::backtrace()),
-				]);
-			}
-			$cache_items[$class] = $include;
-			if ($cacheItem) {
-				$cacheItem->set($cache_items);
-				$this->pool->saveDeferred($cacheItem);
-			}
+			throw new ClassNotFound($class, "Class {class} called from {calling_function} invoked from:\n{backtrace}\n{tried_path}", [
+				'class' => $class, 'calling_function' => Kernel::callingFunction(2),
+				'tried_path' => Text::indent(implode("\n", $tried_path)),
+				'backtrace' => Text::indent(Kernel::backtrace()),
+			]);
 		}
 		if ($this->debug) {
 			ob_start();
@@ -284,7 +222,8 @@ class Autoloader {
 	 *            A list of extensions to search for in each target path. If supplied, is forced.
 	 * @return array[string]
 	 */
-	public function possibilities(string $file_prefix, array $extensions = null): array {
+	public function possibilities(string $file_prefix, array $extensions = null): array
+	{
 		$result = [];
 		foreach ($this->path() as $path => $options) {
 			$classPrefix = rtrim($options[self::OPTION_CLASS_PREFIX], '_');
@@ -304,13 +243,7 @@ class Autoloader {
 			}
 			$path_file_prefix = strtr($path_file_prefix, '\\', '_');
 			$file_parts = implode('/', explode('_', $options[self::OPTION_LOWER] ? strtolower($path_file_prefix) : $path_file_prefix));
-			if ($extensions) {
-				$iterate_extensions = $extensions;
-			} elseif (isset($options[self::OPTION_EXTENSIONS])) {
-				$iterate_extensions = $options[self::OPTION_EXTENSIONS];
-			} else {
-				$iterate_extensions = $this->extensions();
-			}
+			$iterate_extensions = $extensions ?? $options[self::OPTION_EXTENSIONS] ?? $this->extensions();
 			$prefix = Directory::path($path, $file_parts);
 			foreach ($iterate_extensions as $ext) {
 				$result[] = "$prefix.$ext";
@@ -328,7 +261,8 @@ class Autoloader {
 	 * @param array|null $tried_path
 	 * @return string|null
 	 */
-	public function search(string $class, array $extensions = null, array &$tried_path = null): ?string {
+	public function search(string $class, array $extensions = null, array &$tried_path = null): ?string
+	{
 		$possibilities = $this->possibilities($class, $extensions);
 		$tried_path = [];
 		foreach ($possibilities as $path) {
@@ -345,7 +279,8 @@ class Autoloader {
 	 *
 	 * @return string[]
 	 */
-	public function extensions(): array {
+	public function extensions(): array
+	{
 		return $this->autoload_extensions;
 	}
 
@@ -355,7 +290,8 @@ class Autoloader {
 	 * @param string $add
 	 * @return void
 	 */
-	public function addExtension(string $add): void {
+	public function addExtension(string $add): void
+	{
 		$add = trim($add, ". \t\r\n");
 		if (!in_array($add, $this->autoload_extensions)) {
 			$this->autoload_extensions[] = $add;
@@ -393,7 +329,8 @@ class Autoloader {
 	 * @return void
 	 * @throws DirectoryNotFound
 	 */
-	public function addPath(string $add, string|array $options = []): void {
+	public function addPath(string $add, string|array $options = []): void
+	{
 		if (!is_dir($add)) {
 			throw new DirectoryNotFound($add);
 		}
@@ -426,7 +363,8 @@ class Autoloader {
 	/**
 	 * @return array[]
 	 */
-	public function path(): array {
+	public function path(): array
+	{
 		if ($this->cached) {
 			return $this->cached;
 		}

@@ -19,7 +19,8 @@ use zesk\Timestamp;
  * @category Management
  * @author kent
  */
-class Cron extends SimpleCommand {
+class Cron extends SimpleCommand
+{
 	protected array $shortcuts = ['cron'];
 
 	protected string $help = 'Run zesk cron hooks';
@@ -33,7 +34,8 @@ class Cron extends SimpleCommand {
 		'reset' => 'Reset all cron state information, forcing all cron tasks to run next time cron is run.',
 	];
 
-	public function run(): int {
+	public function run(): int
+	{
 		try {
 			$cron = $this->application->modules->object('Cron');
 			assert($cron instanceof Module);

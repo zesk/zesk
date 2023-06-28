@@ -8,5 +8,6 @@ use Doctrine\Common\EventManager as BaseEventManager;
 /**
  *
  */
-class EventManager extends BaseEventManager {
+class EventManager extends BaseEventManager
+{
 }

@@ -2,8 +2,10 @@
 declare(strict_types=1);
 namespace zesk;
 
-class UnsignedLongTest extends UnitTest {
-	public function test_ulong(): void {
+class UnsignedLongTest extends UnitTest
+{
+	public function test_ulong(): void
+	{
 		$x = 0;
 		$testx = new UnsignedLong($x);
 
@@ -41,7 +43,8 @@ class UnsignedLongTest extends UnitTest {
 		$testx->rightShift($n);
 	}
 
-	public function test_to_ulong(): void {
+	public function test_to_ulong(): void
+	{
 		$x = 1234123;
 		$copy = false;
 		UnsignedLong::factory($x, $copy);

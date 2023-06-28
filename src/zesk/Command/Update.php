@@ -44,7 +44,8 @@ use zesk\URL;
  *
  * @category Management
  */
-class Update extends SimpleCommand {
+class Update extends SimpleCommand
+{
 	public const HOOK_UPDATE = __CLASS__ . '::update';
 
 	public const HOOK_UPDATED = __CLASS__ . '::updated';
@@ -114,7 +115,8 @@ class Update extends SimpleCommand {
 	 * @throws ClassNotFound
 	 * @throws ParameterException
 	 */
-	public function run(): int {
+	public function run(): int
+	{
 		$this->configure('update');
 
 		$this->inheritConfiguration();
@@ -165,7 +167,8 @@ class Update extends SimpleCommand {
 	/**
 	 * Retrieve a list of modules from the command line
 	 */
-	private function modules_from_command_line(): array {
+	private function modules_from_command_line(): array
+	{
 		$modules = [];
 		do {
 			$module = $this->getArgument('module');
@@ -184,7 +187,8 @@ class Update extends SimpleCommand {
 	/**
 	 * Retrieve a list of modules from available paths
 	 */
-	private function modules_from_module_paths(): array {
+	private function modules_from_module_paths(): array
+	{
 		$modules = [];
 		$paths = $this->application->modulePath();
 		if (count($paths) === 0) {
@@ -225,7 +229,8 @@ class Update extends SimpleCommand {
 	 *
 	 * @return array
 	 */
-	private function modules_to_update(): array {
+	private function modules_to_update(): array
+	{
 		if ($this->hasArgument()) {
 			$modules = $this->modules_from_command_line();
 		} elseif ($this->optionBool('all')) {
@@ -248,7 +253,8 @@ class Update extends SimpleCommand {
 	 *
 	 * @return integer
 	 */
-	private function beforeUpdate(): int {
+	private function beforeUpdate(): int
+	{
 		return $this->composerBeforeUpdate();
 	}
 
@@ -256,7 +262,8 @@ class Update extends SimpleCommand {
 	 *
 	 * @param int $result
 	 */
-	private function afterUpdate(int $result): void {
+	private function afterUpdate(int $result): void
+	{
 		if ($result !== 0) {
 			return;
 		}
@@ -267,7 +274,8 @@ class Update extends SimpleCommand {
 	 *
 	 * @return int
 	 */
-	private function composerBeforeUpdate(): int {
+	private function composerBeforeUpdate(): int
+	{
 		$this->composer_json = [];
 		$this->composer_packages = [];
 
@@ -291,7 +299,8 @@ class Update extends SimpleCommand {
 
 	/**
 	 */
-	private function composerAfterUpdate(): void {
+	private function composerAfterUpdate(): void
+	{
 		try {
 			$composer_command = $this->optionBool('composer_update') ? 'update' : 'install';
 			$composer = $this->composerCommand();
@@ -308,7 +317,8 @@ class Update extends SimpleCommand {
 	 * @param string $dependency
 	 * @return boolean
 	 */
-	private function composerHasInstalled(string $dependency): bool {
+	private function composerHasInstalled(string $dependency): bool
+	{
 		[$package] = StringTools::reversePair($dependency, ':', $dependency, '');
 		return array_key_exists($package, $this->composer_packages);
 	}
@@ -316,7 +326,8 @@ class Update extends SimpleCommand {
 	/**
 	 * @return string
 	 */
-	private function _databasePath(): string {
+	private function _databasePath(): string
+	{
 		return $this->application->path('.update.json');
 	}
 
@@ -326,7 +337,8 @@ class Update extends SimpleCommand {
 	 * @return $this
 	 * @throws Exception\FilePermission
 	 */
-	private function updateDatabase(array $set): self {
+	private function updateDatabase(array $set): self
+	{
 		$path = $this->application->path('.update.json');
 		File::put($path, JSON::encodePretty($set));
 		return $this;
@@ -337,7 +349,8 @@ class Update extends SimpleCommand {
 	 *
 	 * @return array
 	 */
-	private function loadDatabase(): array {
+	private function loadDatabase(): array
+	{
 		$path = $this->_databasePath();
 		if (file_exists($path)) {
 			try {
@@ -348,7 +361,8 @@ class Update extends SimpleCommand {
 		return [];
 	}
 
-	private function _runModuleHook(string $module, string $hook_name): void {
+	private function _runModuleHook(string $module, string $hook_name): void
+	{
 		$logger = $this->application->logger();
 
 		try {
@@ -368,7 +382,8 @@ class Update extends SimpleCommand {
 	 * @param Module $module
 	 * @return bool Did updates
 	 */
-	private function _updateModule(Module $module): bool {
+	private function _updateModule(Module $module): bool
+	{
 		$moduleName = $module->name();
 		$logger = $this->application->logger();
 		$force = $this->optionBool('force');
@@ -444,7 +459,8 @@ class Update extends SimpleCommand {
 	 * @return string
 	 * @throws ConfigurationException
 	 */
-	private function composerCommand(): string {
+	private function composerCommand(): string
+	{
 		$paths = $this->application->paths;
 		if ($this->hasOption('composer_command')) {
 			return strval($this->option('composer_command'));
@@ -475,7 +491,8 @@ class Update extends SimpleCommand {
 	 * @throws ConfigurationException
 	 * @throws Exception\SyntaxException
 	 */
-	private function composerUpdate(array $data) {
+	private function composerUpdate(array $data)
+	{
 		$name = $data['name'] ?? null;
 		$composer = $data['composer'] ?? null;
 		$application = $this->application;
@@ -547,7 +564,8 @@ class Update extends SimpleCommand {
 	 * @throws SystemException
 	 * @throws UnsupportedException
 	 */
-	private function _fetchURL(string $url): array {
+	private function _fetchURL(string $url): array
+	{
 		$client = new Client($this->application, $url);
 		$minutes = 5; // 2 minutes total for client to run
 		$client->setTimeout($minutes * 60000);
@@ -578,7 +596,8 @@ class Update extends SimpleCommand {
 	 * @param array $data
 	 * @return array
 	 */
-	private function urlsToFetch(array &$data): array {
+	private function urlsToFetch(array &$data): array
+	{
 		$name = $data['name'] ?? null;
 		$versions = Types::toArray($data['versions'] ?? null);
 		$urls = Types::toList($data['urls'] ?? null, Types::toText($data['url'] ?? ''), ' ');
@@ -635,7 +654,8 @@ class Update extends SimpleCommand {
 	 * @throws FileNotFound
 	 * @throws SemanticsException
 	 */
-	private function fetch(array $data): self|null {
+	private function fetch(array $data): self|null
+	{
 		$name = $data['name'] ?? null;
 		$hashes = $data['hashes'] ?? null;
 		$delete_after = $data['delete_after'] ?? null;
@@ -735,7 +755,8 @@ class Update extends SimpleCommand {
 		return null;
 	}
 
-	private function _deleteFiles(string $destination, array $files): void {
+	private function _deleteFiles(string $destination, array $files): void
+	{
 		$filesToDelete = [];
 		foreach ($files as $file) {
 			if (str_contains($file, '*')) {
@@ -788,7 +809,8 @@ class Update extends SimpleCommand {
 	 * @throws NotFoundException
 	 * @throws Semantics
 	 */
-	private function _whichCommand(string $cmd): string {
+	private function _whichCommand(string $cmd): string
+	{
 		try {
 			return $this->application->paths->which($cmd);
 		} catch (NotFoundException $e) {
@@ -805,7 +827,8 @@ class Update extends SimpleCommand {
 	 * @param string $filename
 	 * @return bool
 	 */
-	private function isUnpack(string $filename): bool {
+	private function isUnpack(string $filename): bool
+	{
 		if (StringTools::ends($filename, [
 			'.tar.gz', '.tgz', '.tar',
 		])) {
@@ -829,7 +852,8 @@ class Update extends SimpleCommand {
 	 * @throws FilePermission
 	 * @throws ParameterException
 	 */
-	private function unpack(array $data): bool {
+	private function unpack(array $data): bool
+	{
 		$filename = $data['filename'] ?? null;
 		$temp_file_name = $data['temp_file_name'] ?? null;
 		$destination = $data['destination'] ?? null;
@@ -879,7 +903,8 @@ class Update extends SimpleCommand {
 	 * @return void
 	 * @throws Exception
 	 */
-	private function updateShare(array $data): void {
+	private function updateShare(array $data): void
+	{
 		$source = $this->shareSource($data);
 		$dest = $this->shareDestination($data);
 		if (!$source || !$dest) {
@@ -919,7 +944,8 @@ class Update extends SimpleCommand {
 	 * @return boolean
 	 * @throws FilePermission
 	 */
-	private function stripComponents(string $temp_directory_name, string $final_destination, int|string $strip_components): bool {
+	private function stripComponents(string $temp_directory_name, string $final_destination, int|string $strip_components): bool
+	{
 		assert(is_dir($temp_directory_name));
 		assert(is_dir($final_destination));
 
@@ -985,7 +1011,8 @@ class Update extends SimpleCommand {
 	 * @param array $data
 	 * @return string|null
 	 */
-	private function shareDestination(array $data): ?string {
+	private function shareDestination(array $data): ?string
+	{
 		if (!$this->hasOption('sharePath')) {
 			return null;
 		}
@@ -997,7 +1024,8 @@ class Update extends SimpleCommand {
 	 * @param array $data
 	 * @return string|null
 	 */
-	private function shareSource(array $data): ?string {
+	private function shareSource(array $data): ?string
+	{
 		if (!$this->hasOption('sharePath')) {
 			return null;
 		}
@@ -1018,7 +1046,8 @@ class Update extends SimpleCommand {
 	 * @param string $destination
 	 * @return string
 	 */
-	private function computeDestination(array $data, string $destination): string {
+	private function computeDestination(array $data, string $destination): string
+	{
 		$application_root = $data['application_root'];
 		$path = $data['path'];
 		$name = $data['name'];
@@ -1042,7 +1071,8 @@ class Update extends SimpleCommand {
 	 * @param array $data
 	 * @return boolean
 	 */
-	private function unpack_tar(array $data): bool {
+	private function unpack_tar(array $data): bool
+	{
 		$filename = $data['filename'];
 		$destination = $data['destination'];
 		$strip_components = $data['strip_components'] ?? null;
@@ -1068,7 +1098,8 @@ class Update extends SimpleCommand {
 	 * @param array $data
 	 * @return boolean
 	 */
-	private function unpack_zip(array $data): bool {
+	private function unpack_zip(array $data): bool
+	{
 		$temp_file_name = $data['temp_file_name'] ?? '';
 		$destination = $data['destination'] ?? '';
 		$strip_components = $data['strip_components'] ?? '';
@@ -1097,7 +1128,8 @@ class Update extends SimpleCommand {
 	 * @throws DirectoryPermission
 	 * @throws FilePermission
 	 */
-	private function _unpack(array $args, string $destination, string $actual_destination, int|string $strip_components): bool {
+	private function _unpack(array $args, string $destination, string $actual_destination, int|string $strip_components): bool
+	{
 		$command = implode(' ', $args);
 		$return_var = null;
 		ob_start();
@@ -1123,7 +1155,8 @@ class Update extends SimpleCommand {
 	 * @param $destination
 	 * @return bool
 	 */
-	private function needUpdate($destination): bool {
+	private function needUpdate($destination): bool
+	{
 		if (!$this->repo) {
 			return true;
 		}
@@ -1134,7 +1167,8 @@ class Update extends SimpleCommand {
 	 * @param string $destination
 	 * @return void
 	 */
-	private function rollback(string $destination): void {
+	private function rollback(string $destination): void
+	{
 		if (!$this->repo) {
 			return;
 		}

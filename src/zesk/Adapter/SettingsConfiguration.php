@@ -11,7 +11,8 @@ use zesk\Interface\SettingsInterface;
 /**
  *
  */
-class SettingsConfiguration implements SettingsInterface {
+class SettingsConfiguration implements SettingsInterface
+{
 	/**
 	 * @var Configuration
 	 */
@@ -20,7 +21,8 @@ class SettingsConfiguration implements SettingsInterface {
 	/**
 	 *
 	 */
-	public function __construct(Configuration $configuration) {
+	public function __construct(Configuration $configuration)
+	{
 		$this->configuration = $configuration;
 	}
 
@@ -29,7 +31,8 @@ class SettingsConfiguration implements SettingsInterface {
 	 * @param int|string $name
 	 * @return boolean
 	 */
-	public function __isset(int|string $name): bool {
+	public function __isset(int|string $name): bool
+	{
 		return $this->configuration->pathExists($name);
 	}
 
@@ -38,7 +41,8 @@ class SettingsConfiguration implements SettingsInterface {
 	 * @param int|string $name
 	 * @return boolean
 	 */
-	public function has(int|string $name): bool {
+	public function has(int|string $name): bool
+	{
 		return $this->__isset($name);
 	}
 
@@ -47,7 +51,8 @@ class SettingsConfiguration implements SettingsInterface {
 	 * @param mixed $name A string or key value (integer, float)
 	 * @return mixed The value of the session variable, or null if nothing set
 	 */
-	public function __get(int|string $name): mixed {
+	public function __get(int|string $name): mixed
+	{
 		return $this->configuration->getPath($name);
 	}
 
@@ -57,7 +62,8 @@ class SettingsConfiguration implements SettingsInterface {
 	 * @param mixed $default A value to return if the session value is null
 	 * @return mixed The value of the session variable, or $default if nothing set
 	 */
-	public function get(int|string $name, mixed $default = null): mixed {
+	public function get(int|string $name, mixed $default = null): mixed
+	{
 		return $this->configuration->getPath($name, $default);
 	}
 
@@ -67,7 +73,8 @@ class SettingsConfiguration implements SettingsInterface {
 	 * @param mixed $name A string or key value (integer, float)
 	 * @param mixed $value Value to save. As a general rule, best to use scalar types
 	 */
-	public function __set(int|string $name, mixed $value): void {
+	public function __set(int|string $name, mixed $value): void
+	{
 		$this->configuration->setPath($name, $value);
 	}
 
@@ -78,7 +85,8 @@ class SettingsConfiguration implements SettingsInterface {
 	 * @param mixed $value Value to save. As a general rule, best to use scalar types
 	 * @return self
 	 */
-	public function set(int|string $name, mixed $value = null): self {
+	public function set(int|string $name, mixed $value = null): self
+	{
 		$this->configuration->setPath($name, $value);
 		return $this;
 	}
@@ -88,7 +96,8 @@ class SettingsConfiguration implements SettingsInterface {
 	 *
 	 * @return iterable
 	 */
-	public function variables(): iterable {
+	public function variables(): iterable
+	{
 		return $this->configuration->toArray();
 	}
 }

@@ -8,7 +8,8 @@ namespace zesk;
 /**
  * @author kent
  */
-class Hexadecimal {
+class Hexadecimal
+{
 	/**
 	 * Hex character codes
 	 *
@@ -22,7 +23,8 @@ class Hexadecimal {
 	 * @param string $hexadecimal
 	 * @return string
 	 */
-	public static function decode(string $hexadecimal) {
+	public static function decode(string $hexadecimal)
+	{
 		$r = '';
 		$x = preg_replace('/[^' . self::codes . ']/', '', strtoupper($hexadecimal));
 		$n = strlen($x);
@@ -39,7 +41,8 @@ class Hexadecimal {
 	 * @param string $plaintext
 	 * @return string Hexadecimal-encoded string
 	 */
-	public static function encode(string $plaintext): string {
+	public static function encode(string $plaintext): string
+	{
 		$h = self::codes;
 		$r = '';
 		$n = strlen($plaintext);

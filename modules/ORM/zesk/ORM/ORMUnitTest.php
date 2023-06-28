@@ -15,7 +15,8 @@ use zesk\ORM\Exception\ORMEmpty;
 use zesk\ORM\Exception\ORMNotFound;
 use zesk\Types;
 
-abstract class ORMUnitTest extends DatabaseUnitTest {
+abstract class ORMUnitTest extends DatabaseUnitTest
+{
 	/**
 	 * @param ORMBase $object
 	 * @return void
@@ -23,7 +24,8 @@ abstract class ORMUnitTest extends DatabaseUnitTest {
 	 * @throws SQLException
 	 * @throws TableNotFound
 	 */
-	final protected function prepareORMTable(ORMBase $object): void {
+	final protected function prepareORMTable(ORMBase $object): void
+	{
 		$this->dropAndCreateTable($object->table(), $object->schema());
 		$object->schemaChanged();
 	}
@@ -34,11 +36,13 @@ abstract class ORMUnitTest extends DatabaseUnitTest {
 	 * @return Application
 	 * @throws Semantics
 	 */
-	public static function app(): Application {
+	public static function app(): Application
+	{
 		return Kernel::singleton()->application();
 	}
 
-	public function requireORMTables(string|array $classes): void {
+	public function requireORMTables(string|array $classes): void
+	{
 		foreach (Types::toList($classes) as $class) {
 			$object = $this->application->ormRegistry($class);
 			$table = $object->table();
@@ -50,7 +54,8 @@ abstract class ORMUnitTest extends DatabaseUnitTest {
 		}
 	}
 
-	public function truncateClassTables(string $class, bool $related = false): void {
+	public function truncateClassTables(string $class, bool $related = false): void
+	{
 		$classes = [$class => $class];
 		if ($related) {
 			$class_orm = $this->application->ormFactory($class)->class_orm();
@@ -74,14 +79,16 @@ abstract class ORMUnitTest extends DatabaseUnitTest {
 	 * @param array $options
 	 */
 	public function assertORMClass(string $class, mixed $mixed = null, array $options = [], string $test_field =
-	'id'): void {
+	'id'): void
+	{
 		$this->assertORMObject($this->application->ormFactory($class, $mixed, $options), $test_field);
 	}
 
 	/**
 	 * @not_test
 	 */
-	final public function assertORMObject(ORMBase $object, string $test_field = 'id'): void {
+	final public function assertORMObject(ORMBase $object, string $test_field = 'id'): void
+	{
 		$table = $object->table();
 		$this->assertIsString($table);
 

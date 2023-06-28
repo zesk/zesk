@@ -38,7 +38,8 @@ use zesk\Types;
  * @author kent
  *
  */
-class Modules {
+class Modules
+{
 	/**
 	 *
 	 * @var boolean
@@ -74,7 +75,8 @@ class Modules {
 	 *
 	 * @param Application $application
 	 */
-	public function __construct(Application $application) {
+	public function __construct(Application $application)
+	{
 		$this->application = $application;
 		$this->modules = new CaseArray();
 		$this->moduleClassPrefix = $application->configuration->getPath([
@@ -85,7 +87,8 @@ class Modules {
 		], $this->debug);
 	}
 
-	public function shutdown(): void {
+	public function shutdown(): void
+	{
 		if ($this->debug) {
 			$this->application->debug(__METHOD__);
 		}
@@ -101,7 +104,8 @@ class Modules {
 	 *
 	 * @return array
 	 */
-	final public function moduleNames(): array {
+	final public function moduleNames(): array
+	{
 		return $this->modules->keys();
 	}
 
@@ -112,7 +116,8 @@ class Modules {
 	 * @return string
 	 * @throws NotFoundException
 	 */
-	final public function version(string $module): string {
+	final public function version(string $module): string
+	{
 		return $this->module($module)->version();
 	}
 
@@ -121,7 +126,8 @@ class Modules {
 	 *
 	 * @return array
 	 */
-	final public function available(): array {
+	final public function available(): array
+	{
 		return array_keys($this->availableConfiguration());
 	}
 
@@ -130,7 +136,8 @@ class Modules {
 	 *
 	 * @return array
 	 */
-	final public function availableConfiguration(): array {
+	final public function availableConfiguration(): array
+	{
 		$module_paths = $this->application->modulePath();
 		$files = [];
 		/* Walk all non-dot directories, looking for .module.json files */
@@ -163,7 +170,8 @@ class Modules {
 	 * @param string $name
 	 * @return bool
 	 */
-	final public function loaded(string $name): bool {
+	final public function loaded(string $name): bool
+	{
 		return $this->modules->offsetExists($name);
 	}
 
@@ -185,7 +193,8 @@ class Modules {
 	 * @throws ParseException
 	 * @throws UnsupportedException
 	 */
-	final public function load(string $name): Module {
+	final public function load(string $name): Module
+	{
 		$name = self::cleanName($name);
 		if ($this->modules->offsetExists($name)) {
 			return $this->modules[$name];
@@ -211,7 +220,8 @@ class Modules {
 	 * @throws ParseException
 	 * @throws UnsupportedException
 	 */
-	final public function loadMultiple(array $names): array {
+	final public function loadMultiple(array $names): array
+	{
 		$result = [];
 		foreach ($names as $name) {
 			$result[$name] = $this->load($name);
@@ -228,7 +238,8 @@ class Modules {
 	 * @throws ParseException
 	 * @throws UnsupportedException
 	 */
-	final public function reload(): self {
+	final public function reload(): self
+	{
 		foreach ($this->modules as $codename => $module) {
 			$this->modules[$codename] = $this->_reloadModule($module);
 		}
@@ -249,7 +260,8 @@ class Modules {
 	 * @return void Array of actually registered paths
 	 * @throws DirectoryNotFound
 	 */
-	private function registerPaths(string $modulePath, array $configuration): void {
+	private function registerPaths(string $modulePath, array $configuration): void
+	{
 		if (!is_dir($modulePath)) {
 			throw new DirectoryNotFound($modulePath);
 		}
@@ -265,7 +277,8 @@ class Modules {
 	 * @return void
 	 * @throws DirectoryNotFound
 	 */
-	private function _handleAutoloadPath(string $modulePath, array $moduleConfiguration): void {
+	private function _handleAutoloadPath(string $modulePath, array $moduleConfiguration): void
+	{
 		$app = $this->application;
 		$autoload = Types::toArray($moduleConfiguration['autoload'] ?? []);
 		$this->_handleModuleDefaults($modulePath, 'path', $autoload, 'classes', function ($path) use ($app, $autoload): void {
@@ -279,7 +292,8 @@ class Modules {
 	 * @return void
 	 * @throws DirectoryNotFound
 	 */
-	private function _handleThemePath(string $modulePath, array $moduleConfiguration): void {
+	private function _handleThemePath(string $modulePath, array $moduleConfiguration): void
+	{
 		$app = $this->application;
 		$themePathPrefix = $moduleConfiguration['themePathPrefix'] ?? '';
 		$this->_handleModuleDefaults($modulePath, 'themePath', $moduleConfiguration, 'theme', function ($path) use ($app, $themePathPrefix): void {
@@ -293,7 +307,8 @@ class Modules {
 	 * @return void
 	 * @throws DirectoryNotFound
 	 */
-	private function _handleLocalePath(string $modulePath, array $moduleConfiguration): void {
+	private function _handleLocalePath(string $modulePath, array $moduleConfiguration): void
+	{
 		$app = $this->application;
 		$this->_handleModuleDefaults($modulePath, 'localePath', $moduleConfiguration, 'etc/language', function ($path) use ($app): void {
 			$app->addLocalePath($path);
@@ -306,7 +321,8 @@ class Modules {
 	 * @return void
 	 * @throws DirectoryNotFound
 	 */
-	private function _handleZeskCommandPath(string $modulePath, array $moduleConfiguration): void {
+	private function _handleZeskCommandPath(string $modulePath, array $moduleConfiguration): void
+	{
 		$app = $this->application;
 		$this->_handleModuleDefaults($modulePath, 'zeskCommandPath', $moduleConfiguration, 'command', function ($path) use ($app): void {
 			$app->addZeskCommandPath($path);
@@ -322,7 +338,8 @@ class Modules {
 	 * @return void
 	 * @throws DirectoryNotFound
 	 */
-	private function _handleModuleDefaults(string $modulePath, string $configurationKey, array $configuration, string $default, callable $adder): void {
+	private function _handleModuleDefaults(string $modulePath, string $configurationKey, array $configuration, string $default, callable $adder): void
+	{
 		if ($configurationValue = $configuration[$configurationKey] ?? null) {
 			$path = Directory::path($modulePath, $configurationValue);
 			$adder($path);
@@ -343,7 +360,8 @@ class Modules {
 	 * @throws ParseException
 	 * @throws UnsupportedException
 	 */
-	private function _handleRequires(string|array $requires): void {
+	private function _handleRequires(string|array $requires): void
+	{
 		foreach (Types::toList($requires) as $required_module) {
 			$required_module = self::cleanName($required_module);
 			if (!$this->modules->offsetExists($required_module)) {
@@ -357,7 +375,8 @@ class Modules {
 	 * @return string
 	 * @throws DirectoryNotFound
 	 */
-	private function _findModulePath(string $name): string {
+	private function _findModulePath(string $name): string
+	{
 		$modulePath = $this->application->modulePath();
 
 		try {
@@ -378,7 +397,8 @@ class Modules {
 	 * @throws DirectoryNotFound
 	 * @throws UnsupportedException|ParseException
 	 */
-	private function _loadModule(string $name): Module {
+	private function _loadModule(string $name): Module
+	{
 		assert(!str_contains($name, '\\'));
 
 		$moduleFactoryState['path'] = $path = $this->_findModulePath($name);
@@ -412,7 +432,8 @@ class Modules {
 	 * @throws UnsupportedException
 	 * @throws ParseException
 	 */
-	public function _reloadModule(Module $module): Module {
+	public function _reloadModule(Module $module): Module
+	{
 		$this->_handleRequires(Types::toList($module->moduleConfiguration()['requires'] ?? []));
 		return $this->_moduleInitialize($module);
 	}
@@ -421,7 +442,8 @@ class Modules {
 	 * @param string $string
 	 * @return void
 	 */
-	public function addLoadHook(string $string): void {
+	public function addLoadHook(string $string): void
+	{
 		$this->loadHooks[$string] = true;
 	}
 
@@ -430,7 +452,8 @@ class Modules {
 	 *
 	 * @throws ParseException
 	 */
-	private static function _loadModuleJSON(string $file): array {
+	private static function _loadModuleJSON(string $file): array
+	{
 		$raw_module_conf = file_get_contents($file);
 		$extension = File::extension($file);
 		$config = [];
@@ -445,7 +468,8 @@ class Modules {
 		return [$raw_module_conf, $config];
 	}
 
-	private function defaultModuleClass(string $name): string {
+	private function defaultModuleClass(string $name): string
+	{
 		return $this->moduleClassPrefix . PHP::cleanClass(self::moduleBaseName($name));
 	}
 
@@ -458,7 +482,8 @@ class Modules {
 	 * @return Module
 	 * @throws ClassNotFound
 	 */
-	private function _createModuleObject(string $name, array $moduleFactoryState): Module {
+	private function _createModuleObject(string $name, array $moduleFactoryState): Module
+	{
 		$class = $moduleFactoryState['class'] ?? $moduleFactoryState['configuration']['moduleClass'] ?? '';
 		if (!$class) {
 			$class = $this->defaultModuleClass($name);
@@ -485,7 +510,8 @@ class Modules {
 	 * @return Module
 	 * @throws ClassNotFound
 	 */
-	private function _moduleFactory(string $class, array $moduleOptionsConfigurationPath, array $moduleFactoryState): Module {
+	private function _moduleFactory(string $class, array $moduleOptionsConfigurationPath, array $moduleFactoryState): Module
+	{
 		$moduleFactoryState['class'] = $class;
 		$moduleFactoryState['optionsPath'] = $moduleOptionsConfigurationPath;
 		$module = $this->application->factory($class, $this->application, $this->application->configuration->path($moduleOptionsConfigurationPath)->toArray(), $moduleFactoryState);
@@ -499,7 +525,8 @@ class Modules {
 	 * @throws ConfigurationException
 	 * @throws UnsupportedException
 	 */
-	private function _moduleInitialize(Module $object): Module {
+	private function _moduleInitialize(Module $object): Module
+	{
 		try {
 			$object->initialize();
 			if ($this->debug) {
@@ -524,7 +551,8 @@ class Modules {
 	 * @param string $name
 	 * @return bool
 	 */
-	final public function exists(string $name): bool {
+	final public function exists(string $name): bool
+	{
 		try {
 			$this->_findModulePath($name);
 			return true;
@@ -536,7 +564,8 @@ class Modules {
 	/**
 	 * @return array
 	 */
-	final public function all(): array {
+	final public function all(): array
+	{
 		return $this->modules->getArrayCopy();
 	}
 
@@ -547,7 +576,8 @@ class Modules {
 	 * @return array
 	 * @throws NotFoundException
 	 */
-	final public function configuration(string $module): array {
+	final public function configuration(string $module): array
+	{
 		return $this->module($module)->moduleConfiguration();
 	}
 
@@ -559,7 +589,8 @@ class Modules {
 	 * @return string
 	 * @throws NotFoundException
 	 */
-	final public function path(string $module, string $append = ''): string {
+	final public function path(string $module, string $append = ''): string
+	{
 		return $this->module($module)->path($append);
 	}
 
@@ -570,7 +601,8 @@ class Modules {
 	 * @return Module
 	 * @throws NotFoundException
 	 */
-	final public function object(string $module): Module {
+	final public function object(string $module): Module
+	{
 		$module = self::cleanName($module);
 		if ($this->modules->offsetExists($module)) {
 			return $this->modules[$module];
@@ -584,7 +616,8 @@ class Modules {
 	 * @return Module
 	 * @throws NotFoundException
 	 */
-	final public function get(string $module): Module {
+	final public function get(string $module): Module
+	{
 		return $this->object($module);
 	}
 
@@ -593,7 +626,8 @@ class Modules {
 	 * @return Module
 	 * @throws NotFoundException
 	 */
-	final public function module(string $module): Module {
+	final public function module(string $module): Module
+	{
 		return $this->object($module);
 	}
 
@@ -603,7 +637,8 @@ class Modules {
 	 * @param array|string $modules
 	 * @return array|string
 	 */
-	public static function cleanName(array|string $modules): array|string {
+	public static function cleanName(array|string $modules): array|string
+	{
 		if (is_string($modules)) {
 			return Module::cleanName($modules);
 		}
@@ -625,7 +660,8 @@ class Modules {
 	 * @param string $module
 	 * @return string
 	 */
-	private static function moduleBaseName(string $module): string {
+	private static function moduleBaseName(string $module): string
+	{
 		return basename(self::cleanName($module));
 	}
 }

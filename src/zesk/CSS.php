@@ -16,13 +16,15 @@ use zesk\Exception\SyntaxException;
  *
  * @author kent
  */
-class CSS {
+class CSS
+{
 	/**
 	 * Array of standard CSS colors and their respective hex codes
 	 *
 	 * @return string[]
 	 */
-	public static function colorTable(): array {
+	public static function colorTable(): array
+	{
 		return [
 			'aliceblue' => 'f0f8ff',
 			'antiquewhite' => 'faebd7',
@@ -181,7 +183,8 @@ class CSS {
 	 * @param string|array $add
 	 * @return string
 	 */
-	public static function addClass(string|array $classes, string|array $add = ''): string {
+	public static function addClass(string|array $classes, string|array $add = ''): string
+	{
 		if (is_array($classes)) {
 			$classes = implode(' ', $classes);
 		}
@@ -194,7 +197,8 @@ class CSS {
 	 * @param string $remove
 	 * @return string
 	 */
-	public static function removeClass(string|array $classes, string $remove = ''): string {
+	public static function removeClass(string|array $classes, string $remove = ''): string
+	{
 		if (is_array($classes)) {
 			$classes = implode(' ', $classes);
 		}
@@ -210,7 +214,8 @@ class CSS {
 	 * @param string $default
 	 * @return string
 	 */
-	public static function colorLookup(string $text, string $default = ''): string {
+	public static function colorLookup(string $text, string $default = ''): string
+	{
 		$colors = self::colorTable();
 		return $colors[strtolower($text)] ?? $default;
 	}
@@ -221,7 +226,8 @@ class CSS {
 	 * @param array $rgb Array of three values between 0 and 255
 	 * @return string
 	 */
-	public static function rgbToHex(array $rgb): string {
+	public static function rgbToHex(array $rgb): string
+	{
 		$color = '';
 		foreach ($rgb as $c) {
 			$c = Number::clamp(0, $c, 255);
@@ -240,7 +246,8 @@ class CSS {
 	 * @param array $rgb Array of three between 0 and 255
 	 * @return string
 	 */
-	public static function colorFormat(array $rgb): string {
+	public static function colorFormat(array $rgb): string
+	{
 		return '#' . self::rgbToHex($rgb);
 	}
 
@@ -251,7 +258,8 @@ class CSS {
 	 * @return string
 	 * @throws SyntaxException
 	 */
-	public static function colorNormalize(string $text): string {
+	public static function colorNormalize(string $text): string
+	{
 		$x = self::colorParse($text) + [0, 0, 0];
 		return self::rgbToHex($x);
 	}
@@ -262,7 +270,8 @@ class CSS {
 	 * @param string $text
 	 * @return boolean
 	 */
-	public static function isColor(string $text): bool {
+	public static function isColor(string $text): bool
+	{
 		try {
 			self::colorParse($text);
 			return true;
@@ -280,7 +289,8 @@ class CSS {
 	 * @throws SyntaxException
 	 * @todo Does not support rgba
 	 */
-	public static function colorParse(string $text): array {
+	public static function colorParse(string $text): array
+	{
 		$text = trim($text);
 		if (strlen($text) == 0) {
 			throw new SyntaxException('Blank color');

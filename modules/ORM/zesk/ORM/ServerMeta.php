@@ -25,12 +25,14 @@ use zesk\Exception\Semantics;
  * @property string $name
  * @property mixed $value
  */
-class ServerMeta extends ORMBase {
+class ServerMeta extends ORMBase
+{
 	/**
 	 *
 	 * @param Application $app
 	 */
-	public static function hooks(Application $app): void {
+	public static function hooks(Application $app): void
+	{
 		$app->hooks->add(Server::class . '::delete', [
 			__CLASS__, 'serverDelete',
 		]);
@@ -49,7 +51,8 @@ class ServerMeta extends ORMBase {
 	 * @throws Semantics
 	 * @throws ConfigurationException
 	 */
-	public static function cron_cluster_hour(Application $application): void {
+	public static function cron_cluster_hour(Application $application): void
+	{
 		/* TODO Proper foreign key constraints */
 		// $deleted_servers = $application->ormRegistry(__CLASS__)->database()->queryArray('SELECT DISTINCT D.server
 		// FROM ServerMeta D LEFT OUTER JOIN Server S on S.id=D.server WHERE S.id IS NULL', null, 'server');
@@ -71,7 +74,8 @@ class ServerMeta extends ORMBase {
 	 * @throws Database\Exception\TableNotFound
 	 * @throws Semantics
 	 */
-	public static function serverDelete(Server $server): void {
+	public static function serverDelete(Server $server): void
+	{
 		$server->application->ormRegistry(__CLASS__)->queryDelete()->addWhere('server', $server)->execute();
 	}
 }

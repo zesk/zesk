@@ -19,7 +19,8 @@ use zesk\Module as BaseModule;
 /**
  * @author kent
  */
-class Module extends BaseModule {
+class Module extends BaseModule
+{
 	protected array $modelClasses = [Session::class];
 
 	/**
@@ -33,7 +34,8 @@ class Module extends BaseModule {
 	 * @throws ConfigurationException
 	 * @throws UnsupportedException
 	 */
-	public function initialize(): void {
+	public function initialize(): void
+	{
 		parent::initialize();
 		$this->application->registerFactory('session', [
 			$this, 'sessionFactory',
@@ -48,7 +50,8 @@ class Module extends BaseModule {
 	/**
 	 * @return string
 	 */
-	private function sessionClass(): string {
+	private function sessionClass(): string
+	{
 		return $this->option(self::OPTION_SESSION_CLASS, Session::class);
 	}
 
@@ -60,7 +63,8 @@ class Module extends BaseModule {
 	 * @throws ConfigurationException
 	 * @throws ClassNotFound
 	 */
-	public function sessionFactory(string $class = ''): SessionInterface {
+	public function sessionFactory(string $class = ''): SessionInterface
+	{
 		if ($class === '') {
 			$class = $this->sessionClass();
 			if (!$class) {

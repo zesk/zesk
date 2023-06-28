@@ -8,7 +8,8 @@ use zesk\ORM\JSONWalker;
 use zesk\Response;
 use zesk\Types;
 
-class JSON extends Type {
+class JSON extends Type
+{
 	/**
 	 * Typically an array
 	 *
@@ -31,7 +32,8 @@ class JSON extends Type {
 	/**
 	 *
 	 */
-	public function initialize(): void {
+	public function initialize(): void
+	{
 		$this->json = null;
 		$this->json_serializer_arguments = [
 			JSONWalker::factory(),
@@ -44,7 +46,8 @@ class JSON extends Type {
 	 * @param mixed $set
 	 * @return Response
 	 */
-	public function setData(mixed $set): Response {
+	public function setData(mixed $set): Response
+	{
 		$this->parent->setContentType(Response::CONTENT_TYPE_JSON);
 		$this->json = $set;
 		return $this->parent;
@@ -55,7 +58,8 @@ class JSON extends Type {
 	 * @param array $data
 	 * @return Response
 	 */
-	public function appendData(array $data): Response {
+	public function appendData(array $data): Response
+	{
 		$this->parent->setContentType(Response::CONTENT_TYPE_JSON);
 		$this->json = $data + Types::toArray($this->json);
 		return $this->parent;
@@ -65,7 +69,8 @@ class JSON extends Type {
 	 *
 	 * @return mixed
 	 */
-	public function data(): mixed {
+	public function data(): mixed
+	{
 		return $this->json;
 	}
 
@@ -74,7 +79,8 @@ class JSON extends Type {
 	 * @return mixed
 	 * @throws SemanticsException
 	 */
-	public function toJSON(): mixed {
+	public function toJSON(): mixed
+	{
 		return zeskJSON::prepare($this->json, $this->json_serializer_methods, $this->json_serializer_arguments);
 	}
 
@@ -83,7 +89,8 @@ class JSON extends Type {
 	 * @return string
 	 * @throws SemanticsException
 	 */
-	public function render(array|string|null $content): string {
+	public function render(array|string|null $content): string
+	{
 		if (is_array($content)) {
 			$this->json = $content;
 		} elseif (is_string($content) && $content !== '') {
@@ -102,7 +109,8 @@ class JSON extends Type {
 	 * @return void
 	 * @throws SemanticsException
 	 */
-	public function output($content): void {
+	public function output($content): void
+	{
 		echo $this->render($content);
 	}
 }

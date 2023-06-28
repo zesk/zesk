@@ -5,7 +5,8 @@ namespace zesk\ORM\Test\Class;
 
 use zesk\ORM\Class_Base;
 
-class Class_TestAccount extends Class_Base {
+class Class_TestAccount extends Class_Base
+{
 	public string $id_column = 'ID';
 
 	public array $has_one = [

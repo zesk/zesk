@@ -8,5 +8,6 @@ declare(strict_types=1);
  */
 namespace zesk;
 
-class Net_SMTP_Client_Exception extends Net_Exception {
+class Net_SMTP_Client_Exception extends Net_Exception
+{
 }

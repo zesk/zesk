@@ -11,7 +11,8 @@ use zesk\ORM\ORMEmpty;
 use zesk\Request;
 use zesk\Response;
 
-class Controller extends BaseController {
+class Controller extends BaseController
+{
 	public const OPTION_REQUIRE_USER = 'requireUser';
 
 	public const OPTION_USER_PERMISSION = 'userPermission';
@@ -38,7 +39,8 @@ class Controller extends BaseController {
 	 * @throws Authentication
 	 * @throws NotFoundException
 	 */
-	public function arguments_GET_monitor(Request $request, Response $response, array $arguments): array {
+	public function arguments_GET_monitor(Request $request, Response $response, array $arguments): array
+	{
 		$id = $arguments[0];
 		if ($id instanceof Job) {
 			$job = $id;
@@ -74,7 +76,8 @@ class Controller extends BaseController {
 	 * @return Response
 	 * @throws NotFoundException
 	 */
-	public function action_GET_monitor(Job $job, Response $response): Response {
+	public function action_GET_monitor(Job $job, Response $response): Response
+	{
 		try {
 			$result = [
 				'id' => $job->id(), 'message' => $job->status,

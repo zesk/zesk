@@ -13,5 +13,6 @@ use zesk\ORM\Test\Class\Class_TestPerson;
  * @property ORMIterator Pets
  * @property ORMIterator Favorite_Pets
  */
-class TestPerson extends ORMBase {
+class TestPerson extends ORMBase
+{
 }

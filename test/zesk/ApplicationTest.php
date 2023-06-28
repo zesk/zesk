@@ -19,10 +19,12 @@ use zesk\Exception\ParseException;
 use zesk\Exception\SemanticsException;
 use zesk\Exception\UnsupportedException;
 
-class ACMETest {
+class ACMETest
+{
 	public string $name;
 
-	public function __construct(string $name) {
+	public function __construct(string $name)
+	{
 		$this->name = $name;
 	}
 }
@@ -33,15 +35,19 @@ class ACMETest {
  * @see TestApplication
  * @see TestRequest
  */
-class ApplicationTest extends TestApplicationUnitTest {
-	public function initialize(): void {
+class ApplicationTest extends TestApplicationUnitTest
+{
+	public function initialize(): void
+	{
 	}
 
-	protected function acmeWidgetRegistry(string $arg): ACMETest {
+	protected function acmeWidgetRegistry(string $arg): ACMETest
+	{
 		return new ACMETest($arg);
 	}
 
-	public function test_add_registry(): void {
+	public function test_add_registry(): void
+	{
 		$this->testApplication->registerRegistry('acmeWidget', $this->acmeWidgetRegistry(...));
 
 		$acme = $this->testApplication->acmeWidgetRegistry('dude');
@@ -49,26 +55,30 @@ class ApplicationTest extends TestApplicationUnitTest {
 		$this->assertEquals('dude', $acme->name);
 	}
 
-	public function test_missing_factory(): void {
+	public function test_missing_factory(): void
+	{
 		$this->expectException(UnsupportedException::class);
 
 		$this->testApplication->missingFactory();
 	}
 
-	public function test_missing_request(): void {
+	public function test_missing_request(): void
+	{
 		$this->expectException(SemanticsException::class);
 
 		$this->testApplication->request();
 	}
 
-	public function test_invalidPopRequest(): void {
+	public function test_invalidPopRequest(): void
+	{
 		$this->expectException(SemanticsException::class);
 		$request = $this->testApplication->requestFactory();
 		$this->assertInstanceOf(Request::class, $request);
 		$this->testApplication->popRequest($request);
 	}
 
-	public function test_validRequest(): void {
+	public function test_validRequest(): void
+	{
 		$request = $this->testApplication->requestFactory();
 		$this->assertInstanceOf(Request::class, $request);
 		$this->testApplication->pushRequest($request);
@@ -76,25 +86,29 @@ class ApplicationTest extends TestApplicationUnitTest {
 		$this->testApplication->popRequest($request);
 	}
 
-	public function test_application_badDocRoot(): void {
+	public function test_application_badDocRoot(): void
+	{
 		$notDir = $this->test_sandbox('not-a-directory');
 		$this->expectException(DirectoryNotFound::class);
 		$this->testApplication->setDocumentRoot($notDir);
 	}
 
-	public function test_application_badModulePath(): void {
+	public function test_application_badModulePath(): void
+	{
 		$notDir = $this->test_sandbox('not-a-directory');
 		$this->expectException(DirectoryNotFound::class);
 		$this->testApplication->addModulePath($notDir);
 	}
 
-	public function test_application_badLocalePath(): void {
+	public function test_application_badLocalePath(): void
+	{
 		$notDir = $this->test_sandbox('not-a-directory');
 		$this->expectException(DirectoryNotFound::class);
 		$this->testApplication->addLocalePath($notDir);
 	}
 
-	public function test_application_badZCP(): void {
+	public function test_application_badZCP(): void
+	{
 		$notDir = $this->test_sandbox('not-a-directory');
 		$start = $this->testApplication->zeskCommandPath();
 
@@ -107,7 +121,8 @@ class ApplicationTest extends TestApplicationUnitTest {
 		}
 	}
 
-	public function test_application_sameZCP(): void {
+	public function test_application_sameZCP(): void
+	{
 		$this->testApplication->addZeskCommandPath($this->test_sandbox());
 		$start = $this->testApplication->zeskCommandPath();
 		$this->testApplication->addZeskCommandPath($start);
@@ -120,12 +135,14 @@ class ApplicationTest extends TestApplicationUnitTest {
 	 * @return void
 	 * @throws SemanticsException
 	 */
-	public function test_noCommand(): void {
+	public function test_noCommand(): void
+	{
 		$this->expectException(SemanticsException::class);
 		$this->testApplication->command();
 	}
 
-	public function test_setLocale(): void {
+	public function test_setLocale(): void
+	{
 		$this->testApplication->configure();
 		$fr = $this->testApplication->localeFactory('FR');
 		$this->assertArrayNotHasKey(Application::HOOK_LOCALE, $this->testApplication->hooksCalled);
@@ -137,7 +154,8 @@ class ApplicationTest extends TestApplicationUnitTest {
 		$this->assertInArray('static', $this->testApplication->hooksCalled[Application::HOOK_LOCALE]);
 	}
 
-	public function test_setCommand(): void {
+	public function test_setCommand(): void
+	{
 		$newApplication = $this->testApplication;
 		$newApplication->configure();
 
@@ -170,7 +188,8 @@ class ApplicationTest extends TestApplicationUnitTest {
 	 * @throws ParseException
 	 * @throws UnsupportedException
 	 */
-	public function test_application_basics(): void {
+	public function test_application_basics(): void
+	{
 		$publicRoot = $this->testApplication->documentRoot('public');
 		Directory::depend($publicRoot);
 
@@ -273,7 +292,8 @@ class ApplicationTest extends TestApplicationUnitTest {
 		$this->assertEquals($newApplication->path('data/extra'), $newApplication->dataPath('extra'));
 	}
 
-	public function test_preventMaintenance(): void {
+	public function test_preventMaintenance(): void
+	{
 		$newApplication = $this->testApplication;
 		$newApplication->configure();
 
@@ -289,7 +309,8 @@ class ApplicationTest extends TestApplicationUnitTest {
 		$newApplication->setMaintenance(true);
 	}
 
-	public function test_preventMaintenanceThrow(): void {
+	public function test_preventMaintenanceThrow(): void
+	{
 		$newApplication = $this->testApplication;
 		$newApplication->configure();
 
@@ -305,7 +326,8 @@ class ApplicationTest extends TestApplicationUnitTest {
 		$newApplication->setMaintenance(true);
 	}
 
-	public function test_routerReverse(): void {
+	public function test_routerReverse(): void
+	{
 		$this->testApplication->configure();
 
 		$router = $this->testApplication->router();
@@ -323,7 +345,8 @@ class ApplicationTest extends TestApplicationUnitTest {
 		$this->assertEquals('cache', $route);
 	}
 
-	private function requestRoundTrip(Request $rootRequest, string $uri, string $expected): void {
+	private function requestRoundTrip(Request $rootRequest, string $uri, string $expected): void
+	{
 		$newApplication = $rootRequest->application;
 		$anotherRequest = Request::factory($newApplication, $rootRequest);
 		$anotherRequest->setPath($uri);
@@ -332,7 +355,8 @@ class ApplicationTest extends TestApplicationUnitTest {
 		$this->assertEquals($expected, $anotherResponse->content());
 	}
 
-	public function test_application_index(): void {
+	public function test_application_index(): void
+	{
 		$themePath = $this->test_sandbox();
 
 		file_put_contents(Directory::path($themePath, 'Exception.tpl'), 'Hello, whirled');
@@ -353,7 +377,8 @@ class ApplicationTest extends TestApplicationUnitTest {
 		$response->setCacheFor(1);
 	}
 
-	public function test_cacheClear(): void {
+	public function test_cacheClear(): void
+	{
 		$newApplication = $this->testApplication;
 		$newApplication->configure();
 
@@ -365,12 +390,14 @@ class ApplicationTest extends TestApplicationUnitTest {
 		$newApplication->cacheClear();
 	}
 
-	public function test_setTemporary_not(): void {
+	public function test_setTemporary_not(): void
+	{
 		$this->expectException(DirectoryNotFound::class);
 		$this->application->paths->setTemporary('./cache/foo');
 	}
 
-	public function test_setTemporary_yes(): void {
+	public function test_setTemporary_yes(): void
+	{
 		$oldTemp = $this->testApplication->paths->temporary();
 		$path = './cache/foo';
 		Directory::depend($this->testApplication->paths->expand($path));
@@ -380,11 +407,13 @@ class ApplicationTest extends TestApplicationUnitTest {
 		$this->testApplication->paths->setTemporary($oldTemp);
 	}
 
-	public function test_pid(): void {
+	public function test_pid(): void
+	{
 		$this->testApplication->process->id();
 	}
 
-	public function test_running(): void {
+	public function test_running(): void
+	{
 		$process = $this->testApplication->process;
 		$pid = $this->testApplication->process->id();
 		$this->assertIsInteger($pid);
@@ -392,7 +421,8 @@ class ApplicationTest extends TestApplicationUnitTest {
 		$this->assertFalse($process->alive(32766));
 	}
 
-	public function test_zeskCommandPath(): void {
+	public function test_zeskCommandPath(): void
+	{
 		$file = $this->test_sandbox('testlike.php');
 		$contents = file_get_contents($this->testApplication->zeskHome('test/test-data/testlike.php'));
 		file_put_contents($file, $contents);

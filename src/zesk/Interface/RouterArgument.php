@@ -11,6 +11,7 @@ namespace zesk\Interface;
 
 use zesk\Route;
 
-interface RouterArgument {
+interface RouterArgument
+{
 	public function hook_routerArgument(Route $route, string $arg): self;
 }

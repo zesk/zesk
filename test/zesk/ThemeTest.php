@@ -3,8 +3,10 @@ declare(strict_types=1);
 
 namespace zesk;
 
-class ThemeTest extends UnitTest {
-	public function test_themePath(): void {
+class ThemeTest extends UnitTest
+{
+	public function test_themePath(): void
+	{
 		$prefix = '';
 		$result = $this->application->addThemePath(__DIR__, $prefix);
 		$this->assertInstanceOf(Application::class, $result);
@@ -14,7 +16,8 @@ class ThemeTest extends UnitTest {
 
 	/**
 	 */
-	public function test_theme(): void {
+	public function test_theme(): void
+	{
 		$type = 'dude';
 		$this->application->themes->theme($type, [
 			'hello' => 1,

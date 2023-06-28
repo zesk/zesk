@@ -11,5 +11,6 @@ namespace zesk\Net\POP\Client;
 
 use zesk\Net\Exception;
 
-class POPException extends Exception {
+class POPException extends Exception
+{
 }

@@ -8,7 +8,8 @@ use zesk\Exception\ConfigurationException;
 use zesk\Image\Library\GD;
 use zesk\Image\Library\ImageMagick;
 
-abstract class Library {
+abstract class Library
+{
 	/**
 	 *
 	 * @var string
@@ -27,7 +28,8 @@ abstract class Library {
 	 */
 	public Application $application;
 
-	final public function __construct(Application $application) {
+	final public function __construct(Application $application)
+	{
 		$this->application = $application;
 		$this->construct();
 	}
@@ -46,7 +48,8 @@ abstract class Library {
 	 * @return self
 	 * @throws ConfigurationException
 	 */
-	public static function factory(Application $application): self {
+	public static function factory(Application $application): self
+	{
 		$libraries = [
 			GD::class, ImageMagick::class,
 		];
@@ -65,7 +68,8 @@ abstract class Library {
 	/**
 	 * Override in subclasses to hook into constructor
 	 */
-	public function construct(): void {
+	public function construct(): void
+	{
 	}
 
 	/**
@@ -106,7 +110,8 @@ abstract class Library {
 	 * @param int $height
 	 * @return array
 	 */
-	public static function constrainDimensions(int $image_width, int $image_height, int $width, int $height): array {
+	public static function constrainDimensions(int $image_width, int $image_height, int $width, int $height): array
+	{
 		if ($image_width < $width && $image_height < $height) {
 			return [
 				$image_width, $image_height,

@@ -28,7 +28,8 @@ require_once(__DIR__ . '/functions.php');
  * @author kent
  *
  */
-class Kernel {
+class Kernel
+{
 	/**
 	 *
 	 * @var array
@@ -52,14 +53,16 @@ class Kernel {
 
 	public static null|self $singleton = null;
 
-	private function __construct(Application $initial) {
+	private function __construct(Application $initial)
+	{
 		Compatibility::check();
 		$this->application = $initial;
 		$this->applications[$initial::class] = $initial;
 		register_shutdown_function($this->shutdown(...));
 	}
 
-	public function shutdown(): void {
+	public function shutdown(): void
+	{
 		foreach ($this->applications as $application) {
 			try {
 				$application->shutdown();
@@ -74,7 +77,8 @@ class Kernel {
 	 *
 	 * @return self
 	 */
-	public static function singleton(): self {
+	public static function singleton(): self
+	{
 		if (!self::$singleton) {
 			throw new RuntimeException('Need to create singleton with {class}::factory first', ['class' => __CLASS__, ]);
 		}
@@ -84,7 +88,8 @@ class Kernel {
 	/**
 	 * @return Application
 	 */
-	public function application(): Application {
+	public function application(): Application
+	{
 		return $this->application;
 	}
 
@@ -94,7 +99,8 @@ class Kernel {
 	 * @param string $class
 	 * @return Application|null
 	 */
-	public function applicationByClass(string $class): null|Application {
+	public function applicationByClass(string $class): null|Application
+	{
 		return $this->applications[$class] ?? null;
 	}
 
@@ -102,11 +108,13 @@ class Kernel {
 	 * @param Application $app
 	 * @return void
 	 */
-	public function add(Application $app): void {
+	public function add(Application $app): void
+	{
 		$this->applications[$app::class] = $app;
 	}
 
-	private static function _stackFrameNormalize(array $stackFrame): array {
+	private static function _stackFrameNormalize(array $stackFrame): array
+	{
 		return $stackFrame + [
 			'file' => '', 'class' => '', 'type' => '', 'function' => '', 'line' => '',
 		];
@@ -122,7 +130,8 @@ class Kernel {
 	 * @param int $depth Depth 0 means the immediately calling function
 	 * @return string[]
 	 */
-	public static function caller(int $depth = 1): array {
+	public static function caller(int $depth = 1): array
+	{
 		$bt = debug_backtrace();
 		$last = [];
 		/* Skip current frame by default - depth zero always means calling function */
@@ -166,7 +175,8 @@ class Kernel {
 	 * @see debug_backtrace()
 	 * @see Debug::calling_function
 	 */
-	public static function callingFunction(int $depth = 1, bool $include_line = true): string {
+	public static function callingFunction(int $depth = 1, bool $include_line = true): string
+	{
 		$top = self::caller($depth + 1);
 		return $top[$include_line ? 'fileMethodLine' : 'fileMethod'];
 	}
@@ -176,7 +186,8 @@ class Kernel {
 	 *
 	 * @param int $n The number of frames to output. Pass a negative number to pass all frames.
 	 */
-	public static function backtrace(int $n = -1): string {
+	public static function backtrace(int $n = -1): string
+	{
 		$bt = debug_backtrace();
 		array_shift($bt);
 		if ($n <= 0) {
@@ -220,7 +231,8 @@ class Kernel {
 	 * @return Application
 	 * @throws ClassNotFound
 	 */
-	public static function createApplication(array $options = []): Application {
+	public static function createApplication(array $options = []): Application
+	{
 		$options['application.php'] = self::caller()['file'];
 		$baseApplicationClass = Application::class;
 		$cacheItemPool = $options[Application::OPTION_CACHE_POOL] ?? new NULLCacheItemPool();
@@ -252,14 +264,16 @@ class Kernel {
 	 *
 	 * @return string
 	 */
-	public static function copyrightHolder(): string {
+	public static function copyrightHolder(): string
+	{
 		return 'Market Acumen, Inc.';
 	}
 
 	/**
 	 * @return Application
 	 */
-	public static function wakeupApplication(): Application {
+	public static function wakeupApplication(): Application
+	{
 		return Kernel::singleton()->application();
 	}
 }

@@ -39,7 +39,8 @@ use zesk\Timestamp;
  * Specific to the database, however.
  */
 #[Entity]
-class Lock extends Model {
+class Lock extends Model
+{
 	use AutoID;
 	use CodeName;
 
@@ -65,7 +66,8 @@ class Lock extends Model {
 	 * @param string $code
 	 * @return Lock
 	 */
-	public static function instance(Application $application, string $code): self {
+	public static function instance(Application $application, string $code): self
+	{
 		$em = $application->entityManager();
 		$lock = $em->getRepository(Lock::class)->findOneBy(['code' => $code]);
 		if (!$lock) {
@@ -85,7 +87,8 @@ class Lock extends Model {
 	 * @see self::deleteUnusedLocks()
 	 */
 	#[Cron(schedule: Temporal::UNIT_HOUR, scope: Cron::SCOPE_SERVER)]
-	public static function deleteUnusedLocks(Application $application): void {
+	public static function deleteUnusedLocks(Application $application): void
+	{
 		self::deleteUnused($application);
 	}
 
@@ -97,7 +100,8 @@ class Lock extends Model {
 	 * @see self::cullDeadThings()
 	 */
 	#[Cron(schedule: Temporal::UNIT_MINUTE, scope: Cron::SCOPE_SERVER)]
-	public static function cullDeadThings(Application $application): void {
+	public static function cullDeadThings(Application $application): void
+	{
 		self::deleteDeadProcesses($application);
 		self::deleteDangling($application);
 	}
@@ -105,7 +109,8 @@ class Lock extends Model {
 	/**
 	 * Delete Locks which have not been used in the past 24 hours
 	 */
-	public static function deleteUnused(Application $application): int {
+	public static function deleteUnused(Application $application): int
+	{
 		$em = $application->entityManager();
 		$ex = Criteria::expr();
 		$pastTimestamp = Timestamp::now()->addUnit(-1, Temporal::UNIT_DAY);
@@ -124,7 +129,8 @@ class Lock extends Model {
 	 * @param string $context
 	 * @return void
 	 */
-	private static function releaseLock(Lock $lock, string $context = ''): void {
+	private static function releaseLock(Lock $lock, string $context = ''): void
+	{
 		if ($context === '') {
 			$context = Kernel::callingFunction();
 		}
@@ -142,7 +148,8 @@ class Lock extends Model {
 	 * @throws SQLException
 	 * @throws ORMException
 	 */
-	public static function deleteDangling(Application $application): int {
+	public static function deleteDangling(Application $application): int
+	{
 		$em = $application->entityManager();
 		$query = $em->createQuery('SELECT DISTINCT server FROM ' . Lock::class);
 		$serverIDs = [];
@@ -167,7 +174,8 @@ class Lock extends Model {
 	/**
 	 * Delete Locks associated with this server which do not have a valid PID
 	 */
-	public static function deleteDeadProcesses(Application $application): void {
+	public static function deleteDeadProcesses(Application $application): void
+	{
 		$timeout_seconds = -abs($application->configuration->getPath([__CLASS__, 'timeout_seconds'], 100));
 
 		try {
@@ -209,7 +217,8 @@ class Lock extends Model {
 	 * @return Lock
 	 * @throws TimeoutExpired
 	 */
-	public function acquire(int $timeout = 0): Lock {
+	public function acquire(int $timeout = 0): Lock
+	{
 		if ($this->_isMine()) {
 			return $this;
 		}
@@ -235,7 +244,8 @@ class Lock extends Model {
 	 * @return $this
 	 * @throws TimeoutExpired
 	 */
-	public function expect(int $timeout = null): self {
+	public function expect(int $timeout = null): self
+	{
 		return $this->acquire($timeout);
 	}
 
@@ -243,7 +253,8 @@ class Lock extends Model {
 	 * Release all locks from my server/process
 	 */
 	#[HookMethod(handles: [Hooks::HOOK_EXIT, Hooks::HOOK_RESET])]
-	public static function releaseAll(Application $application): void {
+	public static function releaseAll(Application $application): void
+	{
 		if (!$application->modules->loaded('Doctrine')) {
 			return;
 		}
@@ -267,7 +278,8 @@ class Lock extends Model {
 	 *
 	 * @param Server $server
 	 */
-	public static function releaseServer(Server $server): void {
+	public static function releaseServer(Server $server): void
+	{
 		$application = $server->application;
 		$query = $application->entityManager()->createQuery('UPDATE ' . Lock::class . ' SET server=NULL, pid=NULL WHERE server=:server');
 		$server = Server::singleton($application);
@@ -287,7 +299,8 @@ class Lock extends Model {
 	 * @throws ORMException
 	 * @throws OptimisticLockException
 	 */
-	public function crack(): self {
+	public function crack(): self
+	{
 		$this->pid = $this->server = null;
 		$this->em->persist($this);
 		$this->em->flush();
@@ -297,7 +310,8 @@ class Lock extends Model {
 	/**
 	 * Locked by SOMEONE ELSE
 	 */
-	public function isLocked(): bool {
+	public function isLocked(): bool
+	{
 		if (empty($this->pid) && empty($this->server)) {
 			return false;
 		}
@@ -311,7 +325,8 @@ class Lock extends Model {
 	 * @throws ORMException
 	 * @throws OptimisticLockException
 	 */
-	public function release(): self {
+	public function release(): self
+	{
 		$this->server = null;
 		$this->pid = null;
 		$this->em->persist($this);
@@ -325,7 +340,8 @@ class Lock extends Model {
 	 *
 	 * @param string $code
 	 */
-	private static function _create_lock(Application $application, string $code): self {
+	private static function _create_lock(Application $application, string $code): self
+	{
 		$em = $application->entityManager();
 		$lock = $em->getRepository(Lock::class)->findBy(['code' => $code]);
 		if ($lock) {
@@ -355,7 +371,8 @@ class Lock extends Model {
 	 */
 	public const HOOK_IS_LOCKED = __CLASS__ . '::isLocked';
 
-	private function _isLocked(): bool {
+	private function _isLocked(): bool
+	{
 		// Each server is responsible for keeping locks clean.
 		// Allow a hook to enable inter-server connection, later
 		if (!$this->isMyServer()) {
@@ -383,7 +400,8 @@ class Lock extends Model {
 	 * @return Lock
 	 * @throws LockedException
 	 */
-	private function _acquireWhere(string $whereSQL): self {
+	private function _acquireWhere(string $whereSQL): self
+	{
 		$app = $this->application;
 		$em = $this->em;
 		$query = $em->createQuery('UPDATE ' . self::class . " SET pid=:pid, server=:server, locked=:now, used=:now WHERE id=:id AND $whereSQL");
@@ -411,7 +429,8 @@ class Lock extends Model {
 	/**
 	 * Acquire an inactive lock
 	 */
-	private function _acquireOnce(): self {
+	private function _acquireOnce(): self
+	{
 		return $this->_acquireWhere('pid IS NULL');
 	}
 
@@ -419,7 +438,8 @@ class Lock extends Model {
 	 * Acquire a dead lock, requires that the pid and server don't change between now and
 	 * acquisition
 	 */
-	private function _acquireDead(): self {
+	private function _acquireDead(): self
+	{
 		return $this->_acquireWhere('pid=:pid AND server=:server');
 	}
 
@@ -429,7 +449,8 @@ class Lock extends Model {
 	 * @param int $timeout
 	 * @throws TimeoutExpired
 	 */
-	private function _acquire(int $timeout): void {
+	private function _acquire(int $timeout): void
+	{
 		$timer = new Timer();
 		// Defaults to 0.5 seconds
 		$sleep = $this->optionFloat('sleep_seconds', 0.5);
@@ -472,7 +493,8 @@ class Lock extends Model {
 	 *
 	 * @return boolean
 	 */
-	private function isProcessAlive(): bool {
+	private function isProcessAlive(): bool
+	{
 		return $this->application->process->alive($this->pid);
 	}
 
@@ -481,7 +503,8 @@ class Lock extends Model {
 	 *
 	 * @return boolean
 	 */
-	private function isMyServer(): bool {
+	private function isMyServer(): bool
+	{
 		try {
 			return Server::singleton($this->application)->id === $this->server;
 		} catch (Throwable) {
@@ -494,7 +517,8 @@ class Lock extends Model {
 	 *
 	 * @return boolean
 	 */
-	private function isMyPID(): bool {
+	private function isMyPID(): bool
+	{
 		return $this->application->process->id() === $this->pid;
 	}
 
@@ -503,7 +527,8 @@ class Lock extends Model {
 	 *
 	 * @return boolean
 	 */
-	private function isFree(): bool {
+	private function isFree(): bool
+	{
 		return empty($this->pid) && empty($this->server);
 	}
 
@@ -512,7 +537,8 @@ class Lock extends Model {
 	 *
 	 * @return boolean
 	 */
-	private function _isMine(): bool {
+	private function _isMine(): bool
+	{
 		return $this->isMyServer() && $this->isMyPID();
 	}
 }

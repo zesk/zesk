@@ -34,7 +34,8 @@ use zesk\Interface\Promptable;
  *
  * @author kent
  */
-abstract class Command extends Hookable implements LoggerInterface, Promptable {
+abstract class Command extends Hookable implements LoggerInterface, Promptable
+{
 	use LoggerTrait;
 
 	public const OPTION_ANSI = 'ansi';
@@ -236,21 +237,24 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable {
 	 * @param Application $application
 	 * @param array $options
 	 */
-	public function __construct(Application $application, array $options = []) {
+	public function __construct(Application $application, array $options = [])
+	{
 		parent::__construct($application, $options);
 	}
 
 	/**
 	 * @return array
 	 */
-	final public function shortcuts(): array {
+	final public function shortcuts(): array
+	{
 		return $this->shortcuts;
 	}
 
 	/**
 	 * @return void
 	 */
-	protected function initialize(): void {
+	protected function initialize(): void
+	{
 		// Hello, world.
 	}
 
@@ -263,7 +267,8 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable {
 	 * @return $this
 	 * @throws ParameterException
 	 */
-	public function parseArguments(array $argv): self {
+	public function parseArguments(array $argv): self
+	{
 		$this->initialize();
 
 		$this->setOptions($this->parseOptionDefaults());
@@ -304,7 +309,8 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable {
 	 * Configure the application additionally upon run
 	 * @throws ConfigurationException
 	 */
-	protected function applicationConfigure(): void {
+	protected function applicationConfigure(): void
+	{
 		$application = $this->application;
 		$logger = $application->logger();
 		/* @var $command_object Command */
@@ -328,7 +334,8 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable {
 	 *
 	 * @return string[]|NULL[]
 	 */
-	private function configurationPaths(): array {
+	private function configurationPaths(): array
+	{
 		$paths[] = '/etc/zesk';
 		$paths = [];
 		if (is_dir(($path = $this->application->path('etc')))) {
@@ -347,7 +354,8 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable {
 	 * @param string $name
 	 * @return array
 	 */
-	private function _configurationFiles(string $name): array {
+	private function _configurationFiles(string $name): array
+	{
 		$file = File::nameClean($name);
 		$suffixes = [
 			"$file.conf", "$file.json",
@@ -393,7 +401,8 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable {
 	 * @throws SemanticsException
 	 * @throws UnsupportedException|NotFoundException|ParseException
 	 */
-	protected function configure(string $name, bool $create = false): string {
+	protected function configure(string $name, bool $create = false): string
+	{
 		$configure_options = $this->_configurationFiles($name);
 		$this->config = $filename = $configure_options['default'];
 		if ($this->optionBool('no-config')) {
@@ -436,7 +445,8 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable {
 	 * @return void
 	 * @throws SemanticsException|FilePermission
 	 */
-	protected function write_default_configuration(string $name, string $filename): void {
+	protected function write_default_configuration(string $name, string $filename): void
+	{
 		if (!is_writable(dirname($filename))) {
 			$this->error('Can not write {name} configuration file ({filename}) - directory is not writable', [
 				'name' => $name, 'filename' => $filename,
@@ -468,7 +478,8 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable {
 	 *
 	 * @see Options::__toString()
 	 */
-	public function __toString() {
+	public function __toString()
+	{
 		return PHP::dump(array_merge([
 			$this->program,
 		], $this->arguments));
@@ -480,7 +491,8 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable {
 	 * @return bool
 	 * @throws ParameterException
 	 */
-	protected function parse_argument(string $name, string $type): bool {
+	protected function parse_argument(string $name, string $type): bool
+	{
 		throw new ParameterException('Unknown parameter {name} of {type}', ['name' => $name, 'type' => $type]);
 	}
 
@@ -489,7 +501,8 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable {
 	 * @return Timestamp
 	 * @throws ParameterException
 	 */
-	protected function arg_to_DateTime(string $arg): Timestamp {
+	protected function arg_to_DateTime(string $arg): Timestamp
+	{
 		try {
 			return Timestamp::factory()->parse($arg);
 		} catch (ParseException) {
@@ -504,7 +517,8 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable {
 	 * @return Date
 	 * @throws ParameterException
 	 */
-	protected function arg_to_Date(string $arg): Date {
+	protected function arg_to_Date(string $arg): Date
+	{
 		try {
 			return Date::factory()->parse($arg);
 		} catch (ParseException) {
@@ -519,7 +533,8 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable {
 	 * @param string $type
 	 * @return string
 	 */
-	private function defaultHelp(string $type): string {
+	private function defaultHelp(string $type): string
+	{
 		return match ($type) {
 			'dir' => 'This option is followed by a path',
 			'dir+', 'dir[]' => 'This option is followed by a path, and may be specified multiple times',
@@ -553,7 +568,8 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable {
 	 * @param array $arguments
 	 * @return void
 	 */
-	public function usage(array|string $message = null, array $arguments = []): void {
+	public function usage(array|string $message = null, array $arguments = []): void
+	{
 		$max_length = 0;
 		$types = [];
 		$commands = [];
@@ -611,7 +627,8 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable {
 	 *
 	 * @return boolean
 	 */
-	public function hasErrors(): bool {
+	public function hasErrors(): bool
+	{
 		return count($this->errors) !== 0;
 	}
 
@@ -620,7 +637,8 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable {
 	 *
 	 * @return array
 	 */
-	public function errors(): array {
+	public function errors(): array
+	{
 		return $this->errors;
 	}
 
@@ -629,7 +647,8 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable {
 	 *
 	 * @return array
 	 */
-	private function parseOptionDefaults(): array {
+	private function parseOptionDefaults(): array
+	{
 		$options = [];
 		foreach ($this->option_types as $k => $t) {
 			$newKey = self::_optionKey($k);
@@ -657,7 +676,8 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable {
 	 * @param Stringable|string $message
 	 * @param array $context
 	 */
-	public function log($level, Stringable|string $message, array $context = []): void {
+	public function log($level, Stringable|string $message, array $context = []): void
+	{
 		if ($this->application->themes->themeCurrent() !== null) {
 			return;
 		}
@@ -672,7 +692,8 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable {
 	 * @param array $message
 	 * @param array $context
 	 */
-	public function logMany($level, array $message, array $context = []): void {
+	public function logMany($level, array $message, array $context = []): void
+	{
 		foreach ($message as $m) {
 			$this->logLine($m, $context);
 		}
@@ -684,7 +705,8 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable {
 	 * @param string $message
 	 * @param array $context
 	 */
-	private function logLine(Stringable|string $message, array $context = []): void {
+	private function logLine(Stringable|string $message, array $context = []): void
+	{
 		$newline = Types::toBool($context['newline'] ?? true);
 		$message = rtrim(strval(ArrayTools::map($message, $context)));
 		$suffix = '';
@@ -720,7 +742,8 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable {
 	/**
 	 * Is the terminal an ANSI terminal?
 	 */
-	private function isANSI(): bool {
+	private function isANSI(): bool
+	{
 		if ($this->optionBool(self::OPTION_NO_ANSI)) {
 			return false;
 		} elseif ($this->optionBool(self::OPTION_ANSI)) {
@@ -740,7 +763,8 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable {
 	 *
 	 * @return array[2] of [$new_prefix, $new_suffix]
 	 */
-	private function ansiAnnotate(string $prefix, string $suffix, string $severity = 'info'): array {
+	private function ansiAnnotate(string $prefix, string $suffix, string $severity = 'info'): array
+	{
 		if (!$this->isANSI() || !array_key_exists($severity, self::$ansi_styles)) {
 			return [
 				$prefix, $suffix,
@@ -758,7 +782,8 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable {
 	 *
 	 * @return resource
 	 */
-	private function errorStream(): mixed {
+	private function errorStream(): mixed
+	{
 		return $this->optionBool('stdout') ? STDOUT : STDERR;
 	}
 
@@ -769,7 +794,8 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable {
 	 * @param array $arguments
 	 * @return void
 	 */
-	protected function debugLog(string|array $message, array $arguments = []): void {
+	protected function debugLog(string|array $message, array $arguments = []): void
+	{
 		if ($this->optionBool(self::OPTION_DEBUG)) {
 			$this->debug($message, $arguments);
 		}
@@ -781,7 +807,8 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable {
 	 * @param string|array $message
 	 * @param array $arguments
 	 */
-	public function verboseLog(string|array $message, array $arguments = []): void {
+	public function verboseLog(string|array $message, array $arguments = []): void
+	{
 		if ($this->optionBool('verbose')) {
 			$this->info($message, $arguments);
 		}
@@ -792,7 +819,8 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable {
 	 *
 	 * @return array:
 	 */
-	public function arguments(): array {
+	public function arguments(): array
+	{
 		return $this->arguments;
 	}
 
@@ -802,7 +830,8 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable {
 	 * @param bool $endOfArgumentMarker When true, return up to and including end of arguments marker
 	 * @return array
 	 */
-	public function argumentsRemaining(bool $endOfArgumentMarker = true): array {
+	public function argumentsRemaining(bool $endOfArgumentMarker = true): array
+	{
 		$arguments = [];
 		while ($this->hasArgument($endOfArgumentMarker)) {
 			try {
@@ -820,7 +849,8 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable {
 	 * @param array $arguments
 	 * @return $this
 	 */
-	public function argumentsPush(array $arguments): self {
+	public function argumentsPush(array $arguments): self
+	{
 		$this->argv = array_merge($arguments, $this->argv);
 		return $this;
 	}
@@ -831,7 +861,8 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable {
 	 * @param bool $endOfArgumentMarker Honor the `--` argument marker
 	 * @return bool
 	 */
-	protected function hasArgument(bool $endOfArgumentMarker = true): bool {
+	protected function hasArgument(bool $endOfArgumentMarker = true): bool
+	{
 		if (count($this->argv) === 0) {
 			return false;
 		}
@@ -849,7 +880,8 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable {
 	 * @return string
 	 * @throws SemanticsException
 	 */
-	protected function getArgument(string $arg = '', bool $endOfArgumentMarker = true): string {
+	protected function getArgument(string $arg = '', bool $endOfArgumentMarker = true): string
+	{
 		if (count($this->argv) === 0) {
 			$this->error("No argument parameter for $arg");
 
@@ -870,7 +902,8 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable {
 	 * @throws SemanticsException
 	 * @throws ParameterException
 	 */
-	private function _parseOptions(): void {
+	private function _parseOptions(): void
+	{
 		$this->argv = $this->arguments;
 		$optional_arguments = isset($this->option_types['*']);
 		$eatExtras = isset($this->option_types['+']) || $optional_arguments;
@@ -1047,7 +1080,8 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable {
 	 * @param string $var
 	 * @return string
 	 */
-	public static function shellQuote(string $var): string {
+	public static function shellQuote(string $var): string
+	{
 		return '"' . str_replace('"', '\"', $var) . '"';
 	}
 
@@ -1056,7 +1090,8 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable {
 	 *
 	 * @return boolean
 	 */
-	private static function hasReadline(): bool {
+	private static function hasReadline(): bool
+	{
 		return function_exists('readline');
 	}
 
@@ -1065,7 +1100,8 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable {
 	 *
 	 * @return void
 	 */
-	private function _init_history(): void {
+	private function _init_history(): void
+	{
 		if ($this->history_file) {
 			// Have history file and is open for writing
 			return;
@@ -1097,7 +1133,8 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable {
 	 * @param string $command
 	 * @return array
 	 */
-	public function defaultCompletionFunction(string $command): array {
+	public function defaultCompletionFunction(string $command): array
+	{
 		return ArrayTools::filterKeyPrefixes($this->completions, $command);
 	}
 
@@ -1106,7 +1143,8 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable {
 	 *
 	 * @param null|callable $function
 	 */
-	protected function setCompletionFunction(callable $function = null): void {
+	protected function setCompletionFunction(callable $function = null): void
+	{
 		if ($this->hasReadline()) {
 			if ($function === null) {
 				$function = [$this, 'defaultCompletionFunction'];
@@ -1122,7 +1160,8 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable {
 	 * @return ?string
 	 * @throws StopIteration
 	 */
-	public function readline(string $prompt): ?string {
+	public function readline(string $prompt): ?string
+	{
 		if ($this->hasReadline()) {
 			$result = readline($prompt);
 			if ($result === false) {
@@ -1157,7 +1196,8 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable {
 	 * @return string
 	 * @throws StopIteration|SemanticsException
 	 */
-	public function prompt(string $message, string $default = null, array $completions = null): string {
+	public function prompt(string $message, string $default = null, array $completions = null): string
+	{
 		if ($this->option('non-interactive')) {
 			if ($default === null) {
 				$this->error('Non-interactive set but input is required for {message}', [
@@ -1201,7 +1241,8 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable {
 	 * @param boolean $default
 	 * @return boolean
 	 */
-	public function promptYesNo(string $message, ?bool $default = true): bool {
+	public function promptYesNo(string $message, ?bool $default = true): bool
+	{
 		if ($this->optionBool('yes')) {
 			return true;
 		}
@@ -1234,7 +1275,8 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable {
 	 * @return array
 	 * @throws CommandFailed
 	 */
-	public function exec(string $command): array {
+	public function exec(string $command): array
+	{
 		$args = func_get_args();
 		array_shift($args);
 		if (count($args) === 1 && is_array($args[0])) {
@@ -1251,7 +1293,8 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable {
 	 * @return array
 	 * @throws CommandFailed
 	 */
-	protected function zesk_cli(string $command, array $arguments = []): array {
+	protected function zesk_cli(string $command, array $arguments = []): array
+	{
 		$app = $this->application;
 		$bin = $app->zeskHome('bin/zesk');
 		return $app->process->executeArguments("$bin --search {appRoot} $command", [
@@ -1267,7 +1310,8 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable {
 	 * @return array
 	 * @throws CommandFailed
 	 */
-	protected function passThru(string $command): array {
+	protected function passThru(string $command): array
+	{
 		$args = func_get_args();
 		array_shift($args);
 		return $this->application->process->executeArguments($command, $args, true);
@@ -1286,7 +1330,8 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable {
 	 * @throws UnsupportedException
 	 * @throws ParseException
 	 */
-	final public function go(): int {
+	final public function go(): int
+	{
 		self::$commands[] = $this;
 		$this->application->modules->loadMultiple($this->load_modules);
 		// Moved from Command_Loader
@@ -1336,7 +1381,8 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable {
 	 *
 	 * @return Command
 	 */
-	public static function running(): self {
+	public static function running(): self
+	{
 		return ArrayTools::last(self::$commands);
 	}
 
@@ -1376,7 +1422,8 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable {
 	 * @param string $default_format
 	 * @return boolean
 	 */
-	public function renderFormat(string|array $content, string $format = '', string $default_format = self::FORMAT_TEXT): bool {
+	public function renderFormat(string|array $content, string $format = '', string $default_format = self::FORMAT_TEXT): bool
+	{
 		if ($format === '') {
 			$format = $this->optionString(self::OPTION_FORMAT, $default_format);
 		}
@@ -1420,7 +1467,8 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable {
 	 *
 	 * @return string
 	 */
-	private function docCommentHelp(): string {
+	private function docCommentHelp(): string
+	{
 		$reflection_class = new ReflectionClass(get_class($this));
 		$comment = $reflection_class->getDocComment();
 		if (!is_string($comment)) {
@@ -1438,7 +1486,8 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable {
 	 * @param string $file
 	 * @return boolean
 	 */
-	public function validateFileArgument(string $file): bool {
+	public function validateFileArgument(string $file): bool
+	{
 		return is_file($file) || is_link($file);
 	}
 

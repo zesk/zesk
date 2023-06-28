@@ -21,7 +21,8 @@ use zesk\Text;
  *
  * @category Tools
  */
-class Licenses extends SimpleCommand {
+class Licenses extends SimpleCommand
+{
 	protected array $shortcuts = ['licenses'];
 
 	protected array $option_types = [
@@ -41,7 +42,8 @@ class Licenses extends SimpleCommand {
 		'urlLicense' => 'License URL',
 	];
 
-	protected function run(): int {
+	protected function run(): int
+	{
 		$modules = $this->application->modules;
 		$moduleData = [];
 		if ($this->optionBool('all')) {

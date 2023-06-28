@@ -17,7 +17,8 @@ use zesk\Exception;
  * @author kent
  *
  */
-class DomainLookupFailed extends Exception {
+class DomainLookupFailed extends Exception
+{
 	/**
 	 *
 	 * @var string
@@ -34,7 +35,8 @@ class DomainLookupFailed extends Exception {
 	 */
 	public function __construct(string $host, string $message, array $arguments = [], int $code = 0, Throwable
 	$previous =
-	null) {
+	null)
+	{
 		$this->host = $host;
 		if (!str_contains($message, '{host}')) {
 			$message = "{host}: $message";

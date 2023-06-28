@@ -10,8 +10,10 @@ namespace zesk\Exception;
 
 use zesk\PHPUnit\ExceptionTestCase;
 
-class DirectoryCreateTest extends ExceptionTestCase {
-	public function test_basics(): void {
+class DirectoryCreateTest extends ExceptionTestCase
+{
+	public function test_basics(): void
+	{
 		$testx = new DirectoryCreate(__DIR__);
 		$this->assertThrowable($testx);
 	}

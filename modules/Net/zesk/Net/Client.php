@@ -18,7 +18,8 @@ use zesk\URL;
 use zesk\Hookable;
 use zesk\Application;
 
-abstract class Client extends Hookable {
+abstract class Client extends Hookable
+{
 	/**
 	 * Connection string
 	 * @var string
@@ -44,14 +45,16 @@ abstract class Client extends Hookable {
 	 * @param array $options Options which change the behavior of this SMTP_Client connection
 	 * @throws SyntaxException
 	 */
-	public function __construct(Application $application, string $url, array $options = []) {
+	public function __construct(Application $application, string $url, array $options = [])
+	{
 		parent::__construct($application, $options);
 		$this->url = $url;
 		$this->urlParts = URL::parse($url);
 		$this->inheritConfiguration();
 	}
 
-	public function __toString(): string {
+	public function __toString(): string
+	{
 		return $this->url;
 	}
 
@@ -59,7 +62,8 @@ abstract class Client extends Hookable {
 	 *
 	 * @return Application
 	 */
-	final public function application(): Application {
+	final public function application(): Application
+	{
 		return $this->application;
 	}
 
@@ -97,7 +101,8 @@ abstract class Client extends Hookable {
 	 *
 	 * @return string
 	 */
-	public function url(): string {
+	public function url(): string
+	{
 		return $this->url;
 	}
 
@@ -107,7 +112,8 @@ abstract class Client extends Hookable {
 	 * @return string
 	 * @throws KeyNotFound
 	 */
-	final public function urlComponent(string $component): string {
+	final public function urlComponent(string $component): string
+	{
 		if (array_key_exists($component, $this->urlParts)) {
 			return $this->urlParts[$component];
 		}
@@ -119,13 +125,15 @@ abstract class Client extends Hookable {
 	 * Log a message
 	 * @param string $message
 	 */
-	final protected function log(string $message, array $arguments = []): void {
+	final protected function log(string $message, array $arguments = []): void
+	{
 		if ($this->optionBool('debug')) {
 			$this->_log($message, $arguments);
 		}
 	}
 
-	final protected function _log(string $message, array $arguments = []): void {
+	final protected function _log(string $message, array $arguments = []): void
+	{
 		$this->application->log($arguments['severity'] ?? LogLevel::DEBUG, $message, $arguments);
 	}
 }

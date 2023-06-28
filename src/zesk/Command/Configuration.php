@@ -30,7 +30,8 @@ use zesk\Configuration\Loader;
  * @author kent
  *
  */
-class Configuration extends SimpleCommand {
+class Configuration extends SimpleCommand
+{
 	protected array $shortcuts = ['conf', 'config', 'configuration'];
 
 	protected array $option_types = [
@@ -55,7 +56,8 @@ class Configuration extends SimpleCommand {
 	 *
 	 * @return int
 	 */
-	public function run(): int {
+	public function run(): int
+	{
 		$app = $this->application;
 		$variables = $app->loader->variables();
 
@@ -86,7 +88,8 @@ class Configuration extends SimpleCommand {
 	/**
 	 * @return array
 	 */
-	private function show_flags(): array {
+	private function show_flags(): array
+	{
 		$flags = [
 			'loaded' => true,
 			'not_loaded' => true,
@@ -109,7 +112,8 @@ class Configuration extends SimpleCommand {
 	 *
 	 * @return
 	 */
-	public function collectMisnamedClassConfigurations(): array {
+	public function collectMisnamedClassConfigurations(): array
+	{
 		$config = $this->application->configuration;
 		$missing = $warning = [];
 		foreach ($config as $key => $next) {
@@ -135,7 +139,8 @@ class Configuration extends SimpleCommand {
 	 * @param array $list
 	 * @return array
 	 */
-	private function outputList(array $list): array {
+	private function outputList(array $list): array
+	{
 		return $list;
 	}
 }

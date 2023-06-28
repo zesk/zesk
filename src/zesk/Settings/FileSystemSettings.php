@@ -18,7 +18,8 @@ use zesk\Interface\SettingsInterface;
 use zesk\JSON;
 use zesk\PHP;
 
-class FileSystemSettings implements SettingsInterface {
+class FileSystemSettings implements SettingsInterface
+{
 	private Application $application;
 
 	private string $scope;
@@ -42,7 +43,8 @@ class FileSystemSettings implements SettingsInterface {
 	 * @throws DirectoryPermission
 	 * @throws FilePermission
 	 */
-	public function __construct(Application $application, string $scope = '') {
+	public function __construct(Application $application, string $scope = '')
+	{
 		$this->application = $application;
 		$this->scope = $scope ?: 'settings';
 		$this->dataFile = $application->dataPath('settings/' . $this->scope . '.json');
@@ -66,13 +68,15 @@ class FileSystemSettings implements SettingsInterface {
 	 * @return void
 	 */
 	#[HookMethod(handles: Hooks::HOOK_EXIT)]
-	protected function saveChanged(): void {
+	protected function saveChanged(): void
+	{
 		if ($this->changed) {
 			$this->save();
 		}
 	}
 
-	public function save(): void {
+	public function save(): void
+	{
 		try {
 			Directory::depend(dirname($this->dataFile));
 			File::atomicPut($this->dataFile, JSON::encode($this->data));
@@ -85,7 +89,8 @@ class FileSystemSettings implements SettingsInterface {
 	 * @param string $extra
 	 * @return void
 	 */
-	private function backupDataFile(string $extra): void {
+	private function backupDataFile(string $extra): void
+	{
 		try {
 			File::put($this->dataFile . ".$extra", File::contents($this->dataFile));
 		} catch (FilePermission|FileNotFound $e) {
@@ -95,23 +100,28 @@ class FileSystemSettings implements SettingsInterface {
 		}
 	}
 
-	public function __isset(int|string $name): bool {
+	public function __isset(int|string $name): bool
+	{
 		return isset($this->data[$name]);
 	}
 
-	public function has(int|string $name): bool {
+	public function has(int|string $name): bool
+	{
 		return isset($this->data[$name]);
 	}
 
-	public function __get(int|string $name): mixed {
+	public function __get(int|string $name): mixed
+	{
 		return $this->data[$name] ?? null;
 	}
 
-	public function get(int|string $name, mixed $default = null): mixed {
+	public function get(int|string $name, mixed $default = null): mixed
+	{
 		return $this->data[$name] ?? $default;
 	}
 
-	public function __set(int|string $name, mixed $value): void {
+	public function __set(int|string $name, mixed $value): void
+	{
 		if ($this->__get($name) === $value) {
 			return;
 		}
@@ -119,12 +129,14 @@ class FileSystemSettings implements SettingsInterface {
 		$this->changed = true;
 	}
 
-	public function set(int|string $name, mixed $value = null): self {
+	public function set(int|string $name, mixed $value = null): self
+	{
 		$this->data[$name] = $value;
 		return $this;
 	}
 
-	public function variables(): iterable {
+	public function variables(): iterable
+	{
 		return $this->data;
 	}
 }

@@ -18,7 +18,8 @@ use zesk\ORM\Class_Base;
  * @see Type
  * @see Value
  */
-class Class_Type extends Class_Base {
+class Class_Type extends Class_Base
+{
 	public string $code_name = 'PreferenceType';
 
 	public string $id_column = 'id';

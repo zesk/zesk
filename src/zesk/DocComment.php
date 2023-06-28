@@ -16,7 +16,8 @@ namespace zesk;
  * @author kent
  *
  */
-class DocComment extends Options {
+class DocComment extends Options
+{
 	/**
 	 * For patterns which are keyed by the first token in the DocComment
 	 *
@@ -110,7 +111,8 @@ class DocComment extends Options {
 	 * @param array|string $content
 	 * @param array $options
 	 */
-	public function __construct(array|string $content, array $options = []) {
+	public function __construct(array|string $content, array $options = [])
+	{
 		parent::__construct($options);
 		if (is_array($content)) {
 			$this->setVariables($content);
@@ -128,7 +130,8 @@ class DocComment extends Options {
 	 * @param array $options
 	 * @return DocComment[]
 	 */
-	public static function extract(string $content, array $options = []): array {
+	public static function extract(string $content, array $options = []): array
+	{
 		$matches = null;
 		if (!preg_match_all('#[\t ]*/\*\*[^*]*\*+([^/*][^*]*\*+)*/#', $content, $matches, PREG_PATTERN_ORDER | PREG_OFFSET_CAPTURE)) {
 			return [];
@@ -149,7 +152,8 @@ class DocComment extends Options {
 	 * @param array $options
 	 * @return self
 	 */
-	public static function instance(array|string $content, array $options = []): self {
+	public static function instance(array|string $content, array $options = []): self
+	{
 		return new self($content, $options);
 	}
 
@@ -159,7 +163,8 @@ class DocComment extends Options {
 	 * @param string $string A DocComment string to clean
 	 * @return string the cleaned DocComment
 	 */
-	public static function clean(string $string): string {
+	public static function clean(string $string): string
+	{
 		// Clean ends of our strings
 		$string = trim($string);
 		// Remove /* and */ from string ends
@@ -185,7 +190,8 @@ class DocComment extends Options {
 	 * @param array $set
 	 * @return $this
 	 */
-	public function setVariables(array $set): self {
+	public function setVariables(array $set): self
+	{
 		$this->variables = $set;
 		$this->format_mode = true;
 		return $this;
@@ -196,7 +202,8 @@ class DocComment extends Options {
 	 *
 	 * @return array
 	 */
-	public function variables(): array {
+	public function variables(): array
+	{
 		if ($this->format_mode) {
 			return $this->variables;
 		}
@@ -207,7 +214,8 @@ class DocComment extends Options {
 	 * @param string $set
 	 * @return $this
 	 */
-	public function setContent(string $set): self {
+	public function setContent(string $set): self
+	{
 		$this->content = $set;
 		return $this;
 	}
@@ -215,14 +223,16 @@ class DocComment extends Options {
 	/**
 	 * @return string
 	 */
-	public function content(): string {
+	public function content(): string
+	{
 		return $this->format_mode ? $this->format($this->variables) : $this->content;
 	}
 
 	/**
 	 * @return string
 	 */
-	public function __toString() {
+	public function __toString()
+	{
 		return $this->content();
 	}
 
@@ -230,7 +240,8 @@ class DocComment extends Options {
 	 *
 	 * @return array
 	 */
-	private function multiKeys(): array {
+	private function multiKeys(): array
+	{
 		$keys = $this->optionIterable(self::OPTION_MULTI_KEYS);
 		return array_unique($keys);
 	}
@@ -241,11 +252,13 @@ class DocComment extends Options {
 	 * @param string $lines
 	 * @return array
 	 */
-	private function parseMultiKey(string $lines): array {
+	private function parseMultiKey(string $lines): array
+	{
 		return ArrayTools::pairValues(ArrayTools::clean(explode("\n", $lines)), ' ');
 	}
 
-	private function formatMultiKey($values, $key): array {
+	private function formatMultiKey($values, $key): array
+	{
 		if (!is_array($values)) {
 			return [
 				"@$key $value",
@@ -262,7 +275,8 @@ class DocComment extends Options {
 	 * Format is @foo
 	 * @return array
 	 */
-	private function parameterKeys(): array {
+	private function parameterKeys(): array
+	{
 		$keys = $this->optionIterable(self::OPTION_PARAM_KEYS);
 		$keys[] = 'property';
 		$keys[] = 'param';
@@ -270,7 +284,8 @@ class DocComment extends Options {
 		return array_unique($keys);
 	}
 
-	private function listKeys(): array {
+	private function listKeys(): array
+	{
 		$keys = $this->optionIterable(self::OPTION_LIST_KEYS);
 		$keys[] = 'see';
 		return array_unique($keys);
@@ -280,7 +295,8 @@ class DocComment extends Options {
 	 * @param string $value
 	 * @return array
 	 */
-	private function parseParameterKey(string $value): array {
+	private function parseParameterKey(string $value): array
+	{
 		$lines = ArrayTools::clean(toList($value, [], "\n"), ['', null]);
 		$keys = StringTools::column($lines, 1, " \t");
 		$values = [];
@@ -296,7 +312,8 @@ class DocComment extends Options {
 	 * @param string $key
 	 * @return array
 	 */
-	private function formatParameterKey(array $value, string $key): array {
+	private function formatParameterKey(array $value, string $key): array
+	{
 		$result = [];
 		foreach ($value as $variable_name => $type_name_etc) {
 			$result[] = "@$key " . implode(' ', $type_name_etc);
@@ -310,11 +327,13 @@ class DocComment extends Options {
 	 * @param string $value
 	 * @return array
 	 */
-	private function parseListKey(string $value): array {
+	private function parseListKey(string $value): array
+	{
 		return ArrayTools::listTrimClean(explode("\n", $value));
 	}
 
-	private function formatListKey($value, $key): string {
+	private function formatListKey($value, $key): string
+	{
 		if (!is_array($value)) {
 			$value = ArrayTools::listTrimClean(explode("\n", $value));
 		}
@@ -326,7 +345,8 @@ class DocComment extends Options {
 	 *
 	 * @param string $string
 	 */
-	private function parse(string $string): array {
+	private function parse(string $string): array
+	{
 		$string = self::clean($string);
 		$lines = explode("\n", $string);
 		$result = [];
@@ -377,7 +397,8 @@ class DocComment extends Options {
 	 * @param string $key
 	 * @return string
 	 */
-	private function formatDefault(string|array $value, string $key): string {
+	private function formatDefault(string|array $value, string $key): string
+	{
 		$spaces = str_repeat(' ', strlen($key) + 2);
 		$join = "\n$spaces";
 		return "@$key " . (is_array($value) ? implode($join, $value) : implode($join, explode("\n", $value)));
@@ -388,7 +409,8 @@ class DocComment extends Options {
 	 * @param array $items
 	 * @return string
 	 */
-	private function format(array $items): string {
+	private function format(array $items): string
+	{
 		$multi_keys = ArrayTools::keysFromValues($this->multiKeys(), true);
 		$param_keys = ArrayTools::keysFromValues($this->parameterKeys(), true);
 		$list_keys = ArrayTools::keysFromValues($this->listKeys(), true);

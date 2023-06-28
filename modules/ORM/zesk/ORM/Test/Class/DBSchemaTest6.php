@@ -6,7 +6,8 @@ namespace zesk\ORM\Test\Class;
 use zesk\ORM\Class_Base;
 use zesk\ORM\Test\DBSchemaTest6;
 
-class Class_DBSchemaTest6 extends Class_Base {
+class Class_DBSchemaTest6 extends Class_Base
+{
 	public array $column_types = [
 		'ID' => self::TYPE_ID,
 		'Hash' => self::TYPE_STRING,
@@ -21,7 +22,8 @@ class Class_DBSchemaTest6 extends Class_Base {
 		'Frag' => self::TYPE_OBJECT,
 	];
 
-	public function initialize(): void {
+	public function initialize(): void
+	{
 		parent::initialize();
 		$this->table = DBSchemaTest6::$test_table;
 	}

@@ -7,8 +7,10 @@ namespace zesk;
 
 use zesk\Exception\NotFoundException;
 
-class Router_Test extends UnitTest {
-	public function test_Router_sleep(): void {
+class Router_Test extends UnitTest
+{
+	public function test_Router_sleep(): void
+	{
 		$router = new Router($this->application);
 		$router->addRoute('foo', ['content' => 'bar']);
 		$routes = $router->routes();
@@ -23,7 +25,8 @@ class Router_Test extends UnitTest {
 		$this->assertCount(1, $routes);
 	}
 
-	public function test_Router(): void {
+	public function test_Router(): void
+	{
 		$this->application->setDocumentRootPrefix('');
 
 		$testx = new Router($this->application);
@@ -57,7 +60,8 @@ class Router_Test extends UnitTest {
 		$this->assertStringContainsString($hash, $content);
 	}
 
-	public function test_Router_nf(): void {
+	public function test_Router_nf(): void
+	{
 		$testx = new Router($this->application);
 
 		$hash = md5(microtime());
@@ -78,14 +82,16 @@ class Router_Test extends UnitTest {
 		$this->assertNull($testx->matchRequest($request));
 	}
 
-	public function test_not_cached(): void {
+	public function test_not_cached(): void
+	{
 		$mtime = 'null';
 		$router = new Router($this->application);
 		$this->expectException(NotFoundException::class);
 		$router->cached($mtime);
 	}
 
-	public function test_yes_cached(): void {
+	public function test_yes_cached(): void
+	{
 		$mtime = 'yes';
 		$router = new Router($this->application);
 		$router->cache($mtime);

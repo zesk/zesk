@@ -18,7 +18,8 @@ use zesk\StringTools;
  * @author kent
  *
  */
-abstract class SQLDialect extends Hookable {
+abstract class SQLDialect extends Hookable
+{
 	/**
 	 *
 	 * @var Base
@@ -47,7 +48,8 @@ abstract class SQLDialect extends Hookable {
 	 *
 	 * @param Base $database
 	 */
-	public function __construct(Base $database) {
+	public function __construct(Base $database)
+	{
 		parent::__construct($database->application);
 		$this->database = $database;
 	}
@@ -60,7 +62,8 @@ abstract class SQLDialect extends Hookable {
 	 * @param Column $addColumn
 	 * @return string SQL statement to alter a table's definition
 	 */
-	public function alterTableColumnAdd(Table $table, Column $addColumn): string {
+	public function alterTableColumnAdd(Table $table, Column $addColumn): string
+	{
 		$column = $addColumn->name();
 		$sqlType = $addColumn->sqlType();
 		return "ALTER TABLE $table ADD COLUMN $column $sqlType";
@@ -103,7 +106,8 @@ abstract class SQLDialect extends Hookable {
 	 *            The column to remove
 	 * @return array SQL statements to alter a table's definition
 	 */
-	public function alterTableColumnDrop(Table $table, string $columnName): array {
+	public function alterTableColumnDrop(Table $table, string $columnName): array
+	{
 		return ["ALTER TABLE $table DROP COLUMN $columnName"];
 	}
 
@@ -166,7 +170,8 @@ abstract class SQLDialect extends Hookable {
 	 * @param string $value
 	 * @return number
 	 */
-	public function function_ip2long(string $value): string {
+	public function function_ip2long(string $value): string
+	{
 		return strval(ip2long($value));
 	}
 
@@ -217,7 +222,8 @@ abstract class SQLDialect extends Hookable {
 	 * @param bool $expression When true, $target is unquoted (careful!)
 	 * @return string
 	 */
-	public function functionMax(string $target, bool $expression = false): string {
+	public function functionMax(string $target, bool $expression = false): string
+	{
 		return 'MAX(' . ($expression ? $target : $this->quoteColumn($target)) . ')';
 	}
 
@@ -228,7 +234,8 @@ abstract class SQLDialect extends Hookable {
 	 * @param bool $expression When true, $target is unquoted (careful!)
 	 * @return string
 	 */
-	public function functionMin(string $target, bool $expression = false): string {
+	public function functionMin(string $target, bool $expression = false): string
+	{
 		return 'MIN(' . ($expression ? $target : $this->quoteColumn($target)) . ')';
 	}
 
@@ -295,7 +302,8 @@ abstract class SQLDialect extends Hookable {
 	 * @param string $name
 	 * @return string
 	 */
-	public function tableAs(string $table, string $name = ''): string {
+	public function tableAs(string $table, string $name = ''): string
+	{
 		if (empty($name)) {
 			return $this->quoteTable($table);
 		}
@@ -310,7 +318,8 @@ abstract class SQLDialect extends Hookable {
 	 * @param string $name
 	 * @return string
 	 */
-	public function databaseTableAs(string $database, string $table, string $name = ''): string {
+	public function databaseTableAs(string $database, string $table, string $name = ''): string
+	{
 		$result = $this->quoteTable($database) . '.' . $this->quoteTable($table);
 		if (empty($name)) {
 			return $result;
@@ -325,7 +334,8 @@ abstract class SQLDialect extends Hookable {
 	 * @param string $alias
 	 * @return string
 	 */
-	public function columnAlias(string $column, string $alias = ''): string {
+	public function columnAlias(string $column, string $alias = ''): string
+	{
 		$column = $column === '*' ? $column : $this->quoteColumn($column);
 		return empty($alias) ? $column : $this->quoteColumn($alias) . '.' . $column;
 	}
@@ -337,7 +347,8 @@ abstract class SQLDialect extends Hookable {
 	 * @param string $alias
 	 * @return string
 	 */
-	public function columnAs(string $column, string $alias = ''): string {
+	public function columnAs(string $column, string $alias = ''): string
+	{
 		$column = $this->quoteColumn($column);
 		return $column . (empty($alias) ? '' : ' AS ' . $this->quoteColumn($alias));
 	}
@@ -350,7 +361,8 @@ abstract class SQLDialect extends Hookable {
 	 * @param array $tables
 	 * @return string
 	 */
-	private function updateTables(array $tables): string {
+	private function updateTables(array $tables): string
+	{
 		$sql_phrases = [];
 		foreach ($tables as $alias => $table) {
 			$sql_phrases[] = $this->tableAs($table, $alias);
@@ -404,7 +416,8 @@ abstract class SQLDialect extends Hookable {
 	 * @param string $conjunction "AND" or "OR"
 	 * @return array
 	 */
-	private static function parseConjunction(string $key, string $conjunction): array {
+	private static function parseConjunction(string $key, string $conjunction): array
+	{
 		foreach (['AND', 'OR', ] as $token) {
 			if (StringTools::ends($key, "|$token", true)) {
 				return [substr($key, 0, -(strlen($token) + 1)), $token, ];
@@ -421,7 +434,8 @@ abstract class SQLDialect extends Hookable {
 	 *            where clause
 	 * @return string
 	 */
-	protected function _wherePrefix(string $sql): string {
+	protected function _wherePrefix(string $sql): string
+	{
 		return $this->_sqlPrefix($sql, 'WHERE');
 	}
 
@@ -433,7 +447,8 @@ abstract class SQLDialect extends Hookable {
 	 *            where clause
 	 * @return string
 	 */
-	protected function _havingPrefix(string $sql): string {
+	protected function _havingPrefix(string $sql): string
+	{
 		return $this->_sqlPrefix($sql, 'HAVING');
 	}
 
@@ -445,7 +460,8 @@ abstract class SQLDialect extends Hookable {
 	 * @param string $prefix
 	 * @return string
 	 */
-	private function _sqlPrefix(string $sql, string $prefix): string {
+	private function _sqlPrefix(string $sql, string $prefix): string
+	{
 		$sql = trim($sql);
 		if (empty($sql)) {
 			return '';
@@ -453,7 +469,8 @@ abstract class SQLDialect extends Hookable {
 		return " $prefix $sql";
 	}
 
-	private static function _validConjunction(string $conjunction): string {
+	private static function _validConjunction(string $conjunction): string
+	{
 		return strtoupper($conjunction) === self::CONJUNCTION_OR ? self::CONJUNCTION_OR : self::CONJUNCTION_AND;
 	}
 
@@ -471,7 +488,8 @@ abstract class SQLDialect extends Hookable {
 	 * @param string $suffix
 	 * @return string
 	 */
-	public function whereClause(array $arr, string $conj = self::CONJUNCTION_AND, string $prefix_in = '', string $suffix = ''): string {
+	public function whereClause(array $arr, string $conj = self::CONJUNCTION_AND, string $prefix_in = '', string $suffix = ''): string
+	{
 		if (count($arr) === 0) {
 			return '';
 		}
@@ -526,7 +544,8 @@ abstract class SQLDialect extends Hookable {
 	 * @param string $prefix
 	 * @return string
 	 */
-	public function where(array $where, string $conj = 'AND', string $prefix = ''): string {
+	public function where(array $where, string $conj = 'AND', string $prefix = ''): string
+	{
 		return $this->_wherePrefix($this->whereClause($where, $conj, $prefix));
 	}
 
@@ -538,7 +557,8 @@ abstract class SQLDialect extends Hookable {
 	 * @param string $prefix
 	 * @return string
 	 */
-	public function having(array $having, string $conj = 'AND', string $prefix = ''): string {
+	public function having(array $having, string $conj = 'AND', string $prefix = ''): string
+	{
 		return $this->_havingPrefix($this->whereClause($having, $conj, $prefix));
 	}
 
@@ -548,7 +568,8 @@ abstract class SQLDialect extends Hookable {
 	 * @param array $joins
 	 * @return string
 	 */
-	private function join(array $joins): string {
+	private function join(array $joins): string
+	{
 		if (count($joins) === 0) {
 			return "\n";
 		}
@@ -562,7 +583,8 @@ abstract class SQLDialect extends Hookable {
 	 * @param bool $distinct
 	 * @return string
 	 */
-	private function what(string|array $what, bool $distinct = false): string {
+	private function what(string|array $what, bool $distinct = false): string
+	{
 		if (is_array($what)) {
 			$result = [];
 			foreach ($what as $as => $select_column) {
@@ -591,7 +613,8 @@ abstract class SQLDialect extends Hookable {
 	 * @param array $options
 	 * @return string
 	 */
-	public function update(array $options = []): string {
+	public function update(array $options = []): string
+	{
 		$table = $options['table'] ?? '';
 		$values = toArray($options['values'] ?? []);
 		$where = toArray($options['where'] ?? []);
@@ -622,7 +645,8 @@ abstract class SQLDialect extends Hookable {
 	 * @return string
 	 * @throws Semantics
 	 */
-	public function select(array $options): string {
+	public function select(array $options): string
+	{
 		$offset = toInteger($options['offset'] ?? 0);
 		$limit = toInteger($options['limit'] ?? -1);
 		$what = $options['what'] ?? [];
@@ -677,7 +701,8 @@ abstract class SQLDialect extends Hookable {
 	 * @param array $options
 	 * @return string
 	 */
-	public function insert(string $table, array $values, array $options): string {
+	public function insert(string $table, array $values, array $options): string
+	{
 		$verb = $options['verb'] ?? 'INSERT';
 		$low_priority = toBool($options['low_priority'] ?? false);
 
@@ -699,7 +724,8 @@ abstract class SQLDialect extends Hookable {
 	 *
 	 * @todo unused
 	 */
-	public function insertSelect(string $table, array $values, string $select_sql, array $options): string {
+	public function insertSelect(string $table, array $values, string $select_sql, array $options): string
+	{
 		$verb = $options['verb'] ?? 'INSERT';
 		$low_priority = toBool($options['low_priority'] ?? false);
 		[$insert_name] = $this->_insertToNameValues($values);
@@ -715,7 +741,8 @@ abstract class SQLDialect extends Hookable {
 	 * @param array $options
 	 * @return string
 	 */
-	public function delete(string $table, array $where, array $options = []): string {
+	public function delete(string $table, array $where, array $options = []): string
+	{
 		return 'DELETE FROM ' . $this->quoteTable($table) . $this->where($where);
 	}
 
@@ -725,7 +752,8 @@ abstract class SQLDialect extends Hookable {
 	 * @param array $arr
 	 * @return array(array("name0","name1",..."),array("value0","value1",...))
 	 */
-	private function _insertToNameValues(array $arr): array {
+	private function _insertToNameValues(array $arr): array
+	{
 		$insert_names = [];
 		$insert_values = [];
 		foreach ($arr as $k => $v) {
@@ -746,7 +774,8 @@ abstract class SQLDialect extends Hookable {
 	 * @param string|array $s
 	 * @return string
 	 */
-	public function groupBy(array|string $s): string {
+	public function groupBy(array|string $s): string
+	{
 		if (is_array($s)) {
 			$s = implode(', ', $s);
 		}
@@ -767,7 +796,8 @@ abstract class SQLDialect extends Hookable {
 	 * @param string $prefix
 	 * @return string
 	 */
-	public function orderBy(string|array $s, string $prefix = ''): string {
+	public function orderBy(string|array $s, string $prefix = ''): string
+	{
 		if (empty($s)) {
 			return '';
 		}
@@ -805,7 +835,8 @@ abstract class SQLDialect extends Hookable {
 	 * @param int $limit
 	 * @return string
 	 */
-	private function limit(int $offset = 0, int $limit = -1): string {
+	private function limit(int $offset = 0, int $limit = -1): string
+	{
 		if ($offset == 0) {
 			if ($limit <= 0) {
 				return '';
@@ -827,7 +858,8 @@ abstract class SQLDialect extends Hookable {
 	 * @param boolean $is_compare
 	 * @return string
 	 */
-	protected function _pairToSQL(string $k, mixed $v, bool $is_compare = false): string {
+	protected function _pairToSQL(string $k, mixed $v, bool $is_compare = false): string
+	{
 		[$k, $cmp] = pair($k, '|', $k, '=');
 		if ($k[0] === '*') {
 			if ($v === null) {
@@ -857,7 +889,8 @@ abstract class SQLDialect extends Hookable {
 	 * @param mixed $v
 	 * @return string
 	 */
-	protected function mixedToSQL(mixed $v): string {
+	protected function mixedToSQL(mixed $v): string
+	{
 		if ($v === null) {
 			return 'NULL';
 		}
@@ -900,7 +933,8 @@ abstract class SQLDialect extends Hookable {
 	 * @param bool $insert
 	 * @return array
 	 */
-	public function toDatabase(Model $object, array $data, bool $insert = false): array {
+	public function toDatabase(Model $object, array $data, bool $insert = false): array
+	{
 		return $data;
 	}
 
@@ -909,7 +943,8 @@ abstract class SQLDialect extends Hookable {
 	 * @param array $data
 	 * @return array
 	 */
-	public function fromDatabase(Model $object, array $data): array {
+	public function fromDatabase(Model $object, array $data): array
+	{
 		return $data;
 	}
 
@@ -929,7 +964,8 @@ abstract class SQLDialect extends Hookable {
 	 * @return array
 	 * @throws Unsupported
 	 */
-	public function grant(array $options): array {
+	public function grant(array $options): array
+	{
 		throw new Unsupported(__METHOD__);
 	}
 }

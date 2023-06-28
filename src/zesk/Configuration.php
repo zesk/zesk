@@ -15,7 +15,8 @@ use Iterator;
  * @author kent
  *
  */
-class Configuration implements Iterator, Countable, ArrayAccess {
+class Configuration implements Iterator, Countable, ArrayAccess
+{
 	use GetTyped;
 
 	/**
@@ -63,7 +64,8 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 * @param array $array
 	 * @param array $path
 	 */
-	public function __construct(array $array = [], array $path = []) {
+	public function __construct(array $array = [], array $path = [])
+	{
 		$this->_path = $path;
 		foreach ($array as $key => $value) {
 			if (is_array($value)) {
@@ -75,7 +77,8 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 		$this->_count = count($this->_data);
 	}
 
-	public function normalizeKey(string $key): string {
+	public function normalizeKey(string $key): string
+	{
 		return Types::keyToString(Types::configurationKey($key));
 	}
 
@@ -85,14 +88,16 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 * @param array $path
 	 * @return self
 	 */
-	public static function factory(array $array = [], array $path = []): self {
+	public static function factory(array $array = [], array $path = []): self
+	{
 		return new self($array, $path);
 	}
 
 	/**
 	 * Copy a configuration
 	 */
-	public function __clone() {
+	public function __clone()
+	{
 		$array = [];
 		foreach ($this->_data as $key => $value) {
 			if ($value instanceof self) {
@@ -113,7 +118,8 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 * @param boolean $overwrite
 	 * @return self
 	 */
-	public function merge(Configuration $config, bool $overwrite = true): self {
+	public function merge(Configuration $config, bool $overwrite = true): self
+	{
 		foreach ($config as $key => $value) {
 			if (isset($this->_data[$key])) {
 				$this_value = $this->_data[$key];
@@ -135,7 +141,8 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 * @param string $key
 	 * @return boolean
 	 */
-	public function __isset(string $key): bool {
+	public function __isset(string $key): bool
+	{
 		return isset($this->_data[$key]);
 	}
 
@@ -143,7 +150,8 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 * @param string $key
 	 * @return void
 	 */
-	public function __unset(string $key): void {
+	public function __unset(string $key): void
+	{
 		if (isset($this->_data[$key])) {
 			unset($this->_data[$key]);
 			$this->_count = count($this->_data);
@@ -155,7 +163,8 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 * @param mixed|null $value
 	 * @return $this
 	 */
-	public function set(string|array $key, mixed $value = null): self {
+	public function set(string|array $key, mixed $value = null): self
+	{
 		if (is_array($key)) {
 			foreach ($key as $k => $v) {
 				$this->__set($k, $v);
@@ -173,7 +182,8 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 * @param mixed $value
 	 * @return void
 	 */
-	public function __set(mixed $key, mixed $value): void {
+	public function __set(mixed $key, mixed $value): void
+	{
 		if (is_array($value) && ArrayTools::isAssoc($value)) {
 			$value = new self($value, $this->_addPath($key));
 		}
@@ -188,7 +198,8 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 * @param mixed $default
 	 * @return mixed
 	 */
-	public function getFirstPath(array $paths, mixed $default = null): mixed {
+	public function getFirstPath(array $paths, mixed $default = null): mixed
+	{
 		foreach ($paths as $path) {
 			if (($result = $this->getPath($path)) !== null) {
 				return $result;
@@ -203,7 +214,8 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 * @param array $paths
 	 * @return Configuration[]
 	 */
-	public function setPaths(array $paths): array {
+	public function setPaths(array $paths): array
+	{
 		$result = [];
 		foreach ($paths as $path => $value) {
 			$result[$path] = $this->setPath(toList($path, [], self::key_separator), $value);
@@ -218,7 +230,8 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 * @param mixed $default
 	 * @return mixed
 	 */
-	public function getPath(string|array $path, mixed $default = null): mixed {
+	public function getPath(string|array $path, mixed $default = null): mixed
+	{
 		$path = is_array($path) ? $path : explode(self::key_separator, $path);
 		$current = $this;
 		$key = array_pop($path);
@@ -239,7 +252,8 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 * @param string $default
 	 * @return string
 	 */
-	public function getPathString(string|array $path, string $default = ''): string {
+	public function getPathString(string|array $path, string $default = ''): string
+	{
 		$path = $this->getPath($path, null);
 		return is_string($path) ? $path : $default;
 	}
@@ -249,7 +263,8 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 * @param string|array $path
 	 * @return bool
 	 */
-	public function pathExists(string|array $path): bool {
+	public function pathExists(string|array $path): bool
+	{
 		$path = is_array($path) ? $path : explode(self::key_separator, $path);
 		$current = $this;
 		$key = array_pop($path);
@@ -267,7 +282,8 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 * @param string $key
 	 * @return self
 	 */
-	public function __get(string $key) {
+	public function __get(string $key)
+	{
 		return $this->_data[$key] ?? null;
 	}
 
@@ -278,7 +294,8 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 * @param mixed $value
 	 * @return self returns self always
 	 */
-	public function setPath(string|array $path, mixed $value = null): self {
+	public function setPath(string|array $path, mixed $value = null): self
+	{
 		$path = is_array($path) ? $path : explode(self::key_separator, $path);
 		$key = array_pop($path);
 		if (count($path) > 0) {
@@ -294,7 +311,8 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 * @param array|string $keys
 	 * @return self
 	 */
-	public function path(string|array $keys): self {
+	public function path(string|array $keys): self
+	{
 		$keys = is_array($keys) ? $keys : explode(self::key_separator, $keys);
 		$current = $this;
 		while (count($keys) > 0) {
@@ -314,7 +332,8 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 * @param mixed $default
 	 * @return mixed
 	 */
-	public function walk(string|array $keys, mixed $default = null): mixed {
+	public function walk(string|array $keys, mixed $default = null): mixed
+	{
 		$keys = is_array($keys) ? $keys : explode(self::key_separator, $keys);
 		$current = $this;
 		while (count($keys) > 0) {
@@ -330,7 +349,8 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	/**
 	 * Retrieve value
 	 */
-	public function value(): array {
+	public function value(): array
+	{
 		return $this->_data;
 	}
 
@@ -340,7 +360,8 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 * @param int|null $depth How deep to traverse (null for infinite)
 	 * @return array
 	 */
-	public function toArray(int $depth = null): array {
+	public function toArray(int $depth = null): array
+	{
 		$result = [];
 		foreach ($this->_data as $key => $value) {
 			if ($value instanceof self) {
@@ -359,7 +380,8 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 *
 	 * @return array
 	 */
-	public function toList(): array {
+	public function toList(): array
+	{
 		$result = [];
 		foreach ($this->_data as $value) {
 			if ($value instanceof self) {
@@ -376,7 +398,8 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 * @return mixed
 	 *
 	 */
-	public function current(): mixed {
+	public function current(): mixed
+	{
 		$this->_skip_next = false;
 		return current($this->_data);
 	}
@@ -387,7 +410,8 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 * @see Iterator
 	 *
 	 */
-	public function key(): string|int|null {
+	public function key(): string|int|null
+	{
 		return key($this->_data);
 	}
 
@@ -395,7 +419,8 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 *
 	 * @see Iterator
 	 */
-	public function next(): void {
+	public function next(): void
+	{
 		if ($this->_skip_next) {
 			$this->_skip_next = false;
 			return;
@@ -408,7 +433,8 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 *
 	 * @see Iterator
 	 */
-	public function rewind(): void {
+	public function rewind(): void
+	{
 		$this->_skip_next = false;
 		reset($this->_data);
 		$this->_index = 0;
@@ -420,7 +446,8 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 * @see Iterator
 	 *
 	 */
-	public function valid(): bool {
+	public function valid(): bool
+	{
 		return $this->_index < $this->_count;
 	}
 
@@ -428,7 +455,8 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 *
 	 * @return integer
 	 */
-	public function count(): int {
+	public function count(): int
+	{
 		return $this->_count;
 	}
 
@@ -438,7 +466,8 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 * @return boolean
 	 * @see ArrayAccess
 	 */
-	public function offsetExists(mixed $offset): bool {
+	public function offsetExists(mixed $offset): bool
+	{
 		return $this->__isset($offset);
 	}
 
@@ -448,7 +477,8 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 * @return mixed
 	 * @see ArrayAccess
 	 */
-	public function offsetGet(mixed $offset): mixed {
+	public function offsetGet(mixed $offset): mixed
+	{
 		return $this->__get($offset);
 	}
 
@@ -458,7 +488,8 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 * @param mixed $value
 	 * @see ArrayAccess
 	 */
-	public function offsetSet(mixed $offset, mixed $value): void {
+	public function offsetSet(mixed $offset, mixed $value): void
+	{
 		$this->__set($offset, $value);
 	}
 
@@ -467,7 +498,8 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 * @param mixed $offset
 	 * @see ArrayAccess
 	 */
-	public function offsetUnset(mixed $offset): void {
+	public function offsetUnset(mixed $offset): void
+	{
 		$this->__unset($offset);
 	}
 
@@ -477,7 +509,8 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 * @param string $key
 	 * @return array
 	 */
-	private function _addPath(string $key): array {
+	private function _addPath(string $key): array
+	{
 		return array_merge($this->_path, [
 			$key,
 		]);
@@ -491,7 +524,8 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 * @return boolean Returns true if OLD value still found and (optionally) mapped to new
 	 * @throws Semantics|Deprecated
 	 */
-	final public function deprecated(string|array $old_path, string|array $new_path = null): bool {
+	final public function deprecated(string|array $old_path, string|array $new_path = null): bool
+	{
 		$old_value = $this->walk($old_path);
 		if ($old_value === null) {
 			return false;
