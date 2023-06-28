@@ -19,7 +19,6 @@ source "$top/bin/build/colors.sh"
 
 previousVersion=$("$top/bin/build/version-last.sh")
 currentVersion=$("$top/bin/build/version-current.sh")
-artifactReleaseNotes="$top/.release-notes.md"
 me=$(basename "${BASH_SOURCE[0]}")
 
 usage() {
@@ -74,7 +73,6 @@ if [ ! -f "$releaseNotes" ]; then
 	consoleError "Version $currentVersion no release notes \"$releaseNotes\" found, stopping." 1>&2
   exit 18
 fi
-cp "$releaseNotes" "$artifactReleaseNotes"
 
 maximumTagsPerVersion=1000
 if test $develop; then

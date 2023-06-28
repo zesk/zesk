@@ -90,8 +90,7 @@ class TypesTest extends UnitTest
 	public static function data_bad_dates(): array
 	{
 		return [
-			[''],
-			[-1],
+			[''], [-1],
 		];
 	}
 
@@ -258,16 +257,8 @@ class TypesTest extends UnitTest
 	public static function data_to_integer(): array
 	{
 		return [
-			['124512', 124512],
-			[124512, 124512],
-			['124512.7', 124512],
-			[124512.7, 124512],
-			[124512.999999, 124512],
-			['0.999999', 0],
-			['1.999999', 1],
-			[false, 0],
-			[true, 1],
-			[[], 0],
+			['124512', 124512], [124512, 124512], ['124512.7', 124512], [124512.7, 124512], [124512.999999, 124512],
+			['0.999999', 0], ['1.999999', 1], [false, 0], [true, 1], [[], 0],
 		];
 	}
 
@@ -364,30 +355,29 @@ class TypesTest extends UnitTest
 	 *
 	 * Updated to test for whether it's 10% faster
 	 *
-	 * @see \toBool
+	 * @see Types::toBool
 	 */
 	public function test_to_bool_timing(): void
 	{
-		$value = null;
-		$default = false;
-		toBool($value, $default);
+		$result = true;
 		$t = new Timer();
 		for ($i = 0; $i < 100000; $i++) {
-			self::to_bool_strpos('true');
-			self::to_bool_strpos('false');
+			$result = $result || self::to_bool_strpos('true') || self::to_bool_strpos('false');
 		}
 		$strpos_timing = $t->elapsed();
 		// echo 'to_bool_strpos: ' . $t->elapsed() . "\n";
+		$this->assertIsBool($result);
 
 		$t = new Timer();
+		$result = true;
 		for ($i = 0; $i < 100000; $i++) {
-			self::to_bool_in_array('true');
-			self::to_bool_in_array('false');
+			$result = $result || self::to_bool_in_array('true') || self::to_bool_in_array('false');
 		}
 		$in_array_timing = $t->elapsed();
 		// echo 'to_bool_in_array: ' . $t->elapsed() . "\n";
+		$this->assertIsBool($result);
 		$diff = 20;
-		$this->assertLessThan($strpos_timing * (1 + ($diff / 100)), $in_array_timing, "in_array toBool is more than $diff% slower than strpos implementation");
+		$this->assertLessThan($strpos_timing * (1 - ($diff / 100)), $in_array_timing, "in_array toBool is more than $diff% slower than strpos implementation (strpos: $strpos_timing in_array: $in_array_timing)");
 	}
 
 	public function test_toArray(): void
