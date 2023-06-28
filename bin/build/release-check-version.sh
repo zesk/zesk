@@ -11,6 +11,8 @@ err_arg=2
 
 top="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." || exit $err_env; pwd)"
 
+set -eo pipefail
+
 source "$top/bin/build/colors.sh"
 
 "$top/bin/build/git.sh"
