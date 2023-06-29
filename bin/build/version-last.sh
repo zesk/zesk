@@ -17,4 +17,5 @@ if [ ! -d "$top/.git" ]; then
 fi
 
 cd "$top" || exit $err_env
+# versionSort works on vMMM.NNN.PPP
 git tag | grep -e '^v[0-9.]*$' | versionSort | tail -1
