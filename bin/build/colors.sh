@@ -146,6 +146,15 @@ reportTiming() {
   delta=$(($(date +%s) - start))
   consoleBoldMagenta "$delta $(plural $delta second seconds)"
 }
+
+# vXXX.XXX.XXX
+#
+# for sort - -k 1.c,1 - the `c` is the 1-based character index, so 2 means skip the 1st character
+#
 versionSort() {
-  sort -t. -k 1.2,1n -k 2,2n -k 3,3n -k 4,4n
+  local r=
+  if [ "$1" = "-r" ]; then
+    r=r
+  fi
+  sort -t . -k 1.2,1n$r -k 2,2$r -k 3,3n$r
 }

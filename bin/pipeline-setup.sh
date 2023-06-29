@@ -79,6 +79,13 @@ done
 echo "Started on $(date)" > "$quietLog"
 
 #
+# Test our build assumptions
+#
+start=$(beginTiming)
+consoleInfo "Build bin smoke tests ... "
+"$top/bin/test-bin.sh"
+
+#
 # Connect to the database and set up test schema
 #
 start=$(beginTiming)
