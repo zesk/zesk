@@ -17,7 +17,8 @@ use zesk\Exception;
  * @author kent
  *
  */
-class UploadException extends Exception {
+class UploadException extends Exception
+{
 	/**
 	 * From http://us1.php.net/manual/en/features.file-upload.errors.php
 	 *
@@ -54,7 +55,8 @@ class UploadException extends Exception {
 		UPLOAD_ERR_EXTENSION => 'A PHP extension stopped the file upload. PHP does not provide a way to ascertain which extension caused the file upload to stop; examining the list of loaded extensions with phpinfo() may help. Introduced in PHP 5.2.0.',
 	];
 
-	public function __construct(int|string $error_code, Throwable $previous = null) {
+	public function __construct(int|string $error_code, Throwable $previous = null)
+	{
 		parent::__construct(self::$messages[$error_code] ?? 'Unknown error code {error_code}', [
 			'error_code' => $error_code,
 		], $error_code, $previous);

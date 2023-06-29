@@ -5,13 +5,15 @@ namespace zesk;
 
 use zesk\Exception\ClassNotFound;
 
-class Service extends Hookable {
+class Service extends Hookable
+{
 	/**
 	 *
 	 * @param Application $application
 	 * @param array $options
 	 */
-	public function __construct(Application $application, array $options = []) {
+	public function __construct(Application $application, array $options = [])
+	{
 		parent::__construct($application, $options);
 		$this->inheritConfiguration();
 	}
@@ -22,7 +24,8 @@ class Service extends Hookable {
 	 * @param string $type
 	 * @return bool
 	 */
-	public static function validType(Application $application, string $type): bool {
+	public static function validType(Application $application, string $type): bool
+	{
 		$types = self::validTypes($application);
 		return in_array($type, $types);
 	}
@@ -32,7 +35,8 @@ class Service extends Hookable {
 	 * @param Application $application
 	 * @return array
 	 */
-	public static function validTypes(Application $application): array {
+	public static function validTypes(Application $application): array
+	{
 		$types = $application->classes->register(self::class);
 		return ArrayTools::valuesRemovePrefix($types, [self::class . '_', self::class . '\\']);
 	}
@@ -44,7 +48,8 @@ class Service extends Hookable {
 	 * @param string $type Exact class suffix 'Translate'
 	 * @return array
 	 */
-	public static function serviceClasses(Application $application, string $type): array {
+	public static function serviceClasses(Application $application, string $type): array
+	{
 		if (self::validType($application, $type)) {
 			return $application->classes->register(self::class);
 		}
@@ -60,7 +65,8 @@ class Service extends Hookable {
 	 * @throws ClassNotFound
 	 * @throws Semantics
 	 */
-	public static function factory(Application $application, string $type, array $arguments = []): self {
+	public static function factory(Application $application, string $type, array $arguments = []): self
+	{
 		if (!self::validType($application, $type)) {
 			throw new Semantics('Invalid service type {type}', [
 				'type' => $type,

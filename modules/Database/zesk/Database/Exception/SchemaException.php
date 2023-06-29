@@ -10,5 +10,6 @@ declare(strict_types=1);
  */
 namespace zesk\Database\Exception;
 
-class SchemaException extends SQLException {
+class SchemaException extends SQLException
+{
 }

@@ -21,7 +21,8 @@ use zesk\Text;
  * @package zesk
  * @subpackage system
  */
-class Table extends Hookable {
+class Table extends Hookable
+{
 	/**
 	 *
 	 * @var Base
@@ -84,7 +85,8 @@ class Table extends Hookable {
 	 * @param string $type
 	 * @param array $options
 	 */
-	public function __construct(Base $db, string $table_name, string $type = '', array $options = []) {
+	public function __construct(Base $db, string $table_name, string $type = '', array $options = [])
+	{
 		parent::__construct($db->application, $options);
 		$this->database = $db;
 		$this->name = $table_name;
@@ -94,7 +96,8 @@ class Table extends Hookable {
 	/**
 	 *
 	 */
-	public function __clone() {
+	public function __clone()
+	{
 		foreach ($this->columns as $name => $column) {
 			/* $var $new_column Column */
 			$this->columns[$name] = $new_column = clone $column;
@@ -114,14 +117,16 @@ class Table extends Hookable {
 	 *
 	 * @return ?Index
 	 */
-	public function primary(): ?Index {
+	public function primary(): ?Index
+	{
 		return $this->primary;
 	}
 
 	/**
 	 * Destroy table
 	 */
-	public function __destruct() {
+	public function __destruct()
+	{
 		unset($this->indexes);
 		if (isset($this->columns)) {
 			foreach ($this->columns as $k => $col) {
@@ -136,7 +141,8 @@ class Table extends Hookable {
 	/**
 	 * @return string
 	 */
-	public function source(): string {
+	public function source(): string
+	{
 		return $this->source;
 	}
 
@@ -145,7 +151,8 @@ class Table extends Hookable {
 	 * @param bool $append
 	 * @return $this
 	 */
-	public function setSource(string $set = null, bool $append = false): self {
+	public function setSource(string $set = null, bool $append = false): self
+	{
 		$this->source = $append ? ($this->source ? $this->source . ";\n" : '') . $set : $set;
 		return $this;
 	}
@@ -155,7 +162,8 @@ class Table extends Hookable {
 	 *
 	 * @return Base
 	 */
-	public function database(): Base {
+	public function database(): Base
+	{
 		return $this->database;
 	}
 
@@ -165,7 +173,8 @@ class Table extends Hookable {
 	 * @param string $name
 	 * @return boolean
 	 */
-	public function hasColumn(string $name): bool {
+	public function hasColumn(string $name): bool
+	{
 		return array_key_exists($name, $this->columns);
 	}
 
@@ -174,7 +183,8 @@ class Table extends Hookable {
 	 *
 	 * @return string
 	 */
-	public function type(): string {
+	public function type(): string
+	{
 		if (empty($this->type)) {
 			return $this->database->defaultEngine();
 		}
@@ -186,7 +196,8 @@ class Table extends Hookable {
 	 * BTREE, etc.)
 	 * @return string
 	 */
-	public function defaultIndexStructure(): string {
+	public function defaultIndexStructure(): string
+	{
 		return $this->database->defaultIndexStructure($this->type);
 	}
 
@@ -195,7 +206,8 @@ class Table extends Hookable {
 	 *
 	 * @return string
 	 */
-	public function name(): string {
+	public function name(): string
+	{
 		return $this->name;
 	}
 
@@ -203,7 +215,8 @@ class Table extends Hookable {
 	 * @param string $set
 	 * @return $this
 	 */
-	public function setName(string $set): self {
+	public function setName(string $set): self
+	{
 		// TODO Some text validation here?
 		$this->name = $set;
 		return $this;
@@ -214,7 +227,8 @@ class Table extends Hookable {
 	 *
 	 * @return array
 	 */
-	public function columns(): array {
+	public function columns(): array
+	{
 		return $this->columns;
 	}
 
@@ -223,7 +237,8 @@ class Table extends Hookable {
 	 *
 	 * @return string[]
 	 */
-	public function columnNames(): array {
+	public function columnNames(): array
+	{
 		$result = [];
 		foreach ($this->columns as $col_object) {
 			/* @var $col_object Column */
@@ -239,7 +254,8 @@ class Table extends Hookable {
 	 * @return Column
 	 * @throws KeyNotFound
 	 */
-	public function column(string $name): Column {
+	public function column(string $name): Column
+	{
 		if (array_key_exists($name, $this->columns)) {
 			return $this->columns[$name];
 		}
@@ -253,7 +269,8 @@ class Table extends Hookable {
 	 * @param string $find_name
 	 * @return ?Column
 	 */
-	public function previousColumn(string $find_name): ?Column {
+	public function previousColumn(string $find_name): ?Column
+	{
 		foreach ($this->columns as $column) {
 			/* @var $column Column */
 			$previous_name = $column->previousName();
@@ -273,7 +290,8 @@ class Table extends Hookable {
 	 * @param string $name
 	 * @return bool
 	 */
-	public function hasIndex(string $name): bool {
+	public function hasIndex(string $name): bool
+	{
 		foreach ($this->indexes() as $index) {
 			if ($index->name() === $name) {
 				return true;
@@ -287,7 +305,8 @@ class Table extends Hookable {
 	 * @throws NotFoundException
 	 * @throws Semantics
 	 */
-	private function collectIndexes(): array {
+	private function collectIndexes(): array
+	{
 		$indexes = [];
 		foreach ($this->columns as $col) {
 			/* @var $col Column */
@@ -310,7 +329,8 @@ class Table extends Hookable {
 	 * @return Index
 	 * @throws NotFoundException
 	 */
-	public function index(string $name): Index {
+	public function index(string $name): Index
+	{
 		$indexes = $this->indexes();
 		if (!isset($indexes[$name])) {
 			throw new NotFoundException('Index {name}', ['name' => $name]);
@@ -321,7 +341,8 @@ class Table extends Hookable {
 	/**
 	 *
 	 */
-	public function indexes(): array {
+	public function indexes(): array
+	{
 		if (!$this->_indexes_collected) {
 			// TODO Prevent recursion - this occurs when these lines are switched - why? KMD 2022-01
 			// Probably assumption wrong somewhere
@@ -348,7 +369,8 @@ class Table extends Hookable {
 	 * @return $this
 	 * @throws KeyNotFound
 	 */
-	public function addIndex(Index $index): self {
+	public function addIndex(Index $index): self
+	{
 		$indexes = $this->indexes();
 		$name = $index->name();
 		if (isset($indexes[$name])) {
@@ -371,7 +393,8 @@ class Table extends Hookable {
 	 * @return Index
 	 * @throws NotFoundException|KeyNotFound
 	 */
-	public function removeIndex(string $name): Index {
+	public function removeIndex(string $name): Index
+	{
 		$index = $this->index($name);
 		if ($index->type() === Index::TYPE_PRIMARY) {
 			if ($this->primary) {
@@ -395,7 +418,8 @@ class Table extends Hookable {
 	 * @return void
 	 * @throws KeyNotFound
 	 */
-	private function setPrimaryIndex(Index $index): void {
+	private function setPrimaryIndex(Index $index): void
+	{
 		assert($this->primary === null);
 		$this->primary = $index;
 		foreach ($index->columns() as $col) {
@@ -407,7 +431,8 @@ class Table extends Hookable {
 	 * @return void
 	 * @throws KeyNotFound
 	 */
-	private function removePrimaryIndex(): void {
+	private function removePrimaryIndex(): void
+	{
 		foreach ($this->primary->columns() as $col) {
 			$this->column($col)->setPrimaryKey(false);
 		}
@@ -419,7 +444,8 @@ class Table extends Hookable {
 	 * @return $this
 	 * @throws Semantics
 	 */
-	public function columnAdd(Column $dbCol): self {
+	public function columnAdd(Column $dbCol): self
+	{
 		$column = $dbCol->name();
 		if (array_key_exists($column, $this->columns)) {
 			throw new Semantics('Table::column_add({column}) already exists in {table}', [
@@ -458,7 +484,8 @@ class Table extends Hookable {
 	 * @param Table $old_table
 	 * @return array
 	 */
-	public function sql_alter(Table $old_table): array {
+	public function sql_alter(Table $old_table): array
+	{
 		$result = [];
 		$oldTableType = $old_table->type();
 		$newTableType = $this->type();
@@ -478,7 +505,8 @@ class Table extends Hookable {
 	 * @param bool $debug
 	 * @return bool
 	 */
-	private function isTableAttributesSimilar(Table $that, bool $debug = false): bool {
+	private function isTableAttributesSimilar(Table $that, bool $debug = false): bool
+	{
 		$logger = $this->application->logger;
 		$defaults = $this->database->tableAttributes();
 		$this_attributes = $this->options($defaults);
@@ -503,7 +531,8 @@ class Table extends Hookable {
 	 * @param bool $debug
 	 * @return bool
 	 */
-	public function isSimilar(Table $that, bool $debug = false): bool {
+	public function isSimilar(Table $that, bool $debug = false): bool
+	{
 		$logger = $this->application->logger;
 		if (!$this->isTableAttributesSimilar($that, $debug)) {
 			return false;
@@ -584,7 +613,8 @@ class Table extends Hookable {
 	 *
 	 * @return array
 	 */
-	public function sqlCreate(): array {
+	public function sqlCreate(): array
+	{
 		$result = $this->database->sqlDialect()->createTable($this);
 		$result[] = '-- database type ' . $this->database->type();
 		$result[] = '-- sql ' . get_class($this->database->sqlDialect());
@@ -599,7 +629,8 @@ class Table extends Hookable {
 	 * @param string $action
 	 * @return bool
 	 */
-	private static function _validate_action(string $action): bool {
+	private static function _validate_action(string $action): bool
+	{
 		return in_array($action, [
 			'create',
 			'add column',
@@ -618,7 +649,8 @@ class Table extends Hookable {
 	 * @return self
 	 * @throws Semantics
 	 */
-	public function addActionSQL(string $action, array $sql): self {
+	public function addActionSQL(string $action, array $sql): self
+	{
 		if (!self::_validate_action($action)) {
 			throw new Semantics("Invalid action $action passed to Table::on for table $this->name");
 		}
@@ -635,7 +667,8 @@ class Table extends Hookable {
 	 * @param string $action
 	 * @return array
 	 */
-	public function actionSQL(string $action): array {
+	public function actionSQL(string $action): array
+	{
 		return self::_validate_action($action) ? toArray($this->on[$action] ?? []) : [];
 	}
 
@@ -645,7 +678,8 @@ class Table extends Hookable {
 	 * @param string $action
 	 * @return self
 	 */
-	public function clearActionSQL(string $action): self {
+	public function clearActionSQL(string $action): self
+	{
 		unset($this->on[$action]);
 		return $this;
 	}
@@ -655,14 +689,16 @@ class Table extends Hookable {
 	 * {@inheritDoc}
 	 * @see Options::__toString()
 	 */
-	public function __toString(): string {
+	public function __toString(): string
+	{
 		return $this->name();
 	}
 
 	/**
 	 * @return array
 	 */
-	public function variables(): array {
+	public function variables(): array
+	{
 		return [
 			'database_name' => $this->database->codeName(),
 			'columns' => $this->columnNames(),
@@ -675,7 +711,8 @@ class Table extends Hookable {
 	 *
 	 * @return string
 	 */
-	public function _debug_dump(): string {
+	public function _debug_dump(): string
+	{
 		$dump = get_object_vars($this);
 		$dump['database'] = $this->database->codeName();
 		$dump['primary'] = $this->primary?->name();

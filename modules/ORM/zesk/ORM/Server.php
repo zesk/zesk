@@ -52,7 +52,8 @@ use zesk\Timestamp;
  * @property Timestamp $alive
  * @property ORMIterator $metas
  */
-class Server extends ORMBase implements MetaInterface {
+class Server extends ORMBase implements MetaInterface
+{
 	public const MEMBER_METAS = 'metas';
 
 	public const DEFAULT_OPTION_FREE_DISK_VOLUME = '/';
@@ -148,7 +149,8 @@ class Server extends ORMBase implements MetaInterface {
 	 * Run once per minute per cluster.
 	 * Delete servers who are not alive after `option_timeout_seconds` old.
 	 */
-	public static function cron_cluster_minute(Application $application): void {
+	public static function cron_cluster_minute(Application $application): void
+	{
 		$server = $application->ormFactory(self::class);
 		/* @var $server Server */
 		try {
@@ -162,7 +164,8 @@ class Server extends ORMBase implements MetaInterface {
 	 *
 	 * @param Application $application
 	 */
-	public static function cron_minute(Application $application): void {
+	public static function cron_minute(Application $application): void
+	{
 		try {
 			$server = self::singleton($application);
 			$server->updateState();
@@ -175,7 +178,8 @@ class Server extends ORMBase implements MetaInterface {
 	 * Run intermittently once per cluster to clean away dead Server records
 	 * @throws TimeoutExpired
 	 */
-	public function buryDeadServers(): void {
+	public function buryDeadServers(): void
+	{
 		try {
 			$lock = Lock::instance($this->application, __METHOD__);
 		} catch (Throwable $e) {
@@ -217,7 +221,8 @@ class Server extends ORMBase implements MetaInterface {
 	 * Retrieve the default host name
 	 *
 	 */
-	private static function hostDefault(): string {
+	private static function hostDefault(): string
+	{
 		return System::uname();
 	}
 
@@ -240,7 +245,8 @@ class Server extends ORMBase implements MetaInterface {
 	 * @throws ORMEmpty
 	 * @throws ORMNotFound
 	 */
-	public static function singleton(Application $application): self {
+	public static function singleton(Application $application): self
+	{
 		$cache = $application->cacheItemPool();
 		$item = null;
 
@@ -280,7 +286,8 @@ class Server extends ORMBase implements MetaInterface {
 	 * @throws ORMEmpty
 	 * @throws ORMNotFound
 	 */
-	protected function _findSingleton(): self {
+	protected function _findSingleton(): self
+	{
 		$this->name = self::hostDefault();
 
 		try {
@@ -311,7 +318,8 @@ class Server extends ORMBase implements MetaInterface {
 	 * @throws ORMEmpty
 	 * @throws ORMNotFound
 	 */
-	private function registerDefaultServer(): self {
+	private function registerDefaultServer(): self
+	{
 		// Set up our names using hooks (may do nothing)
 		$this->callHook('initialize_names');
 		// Set all blank values to defaults
@@ -329,7 +337,8 @@ class Server extends ORMBase implements MetaInterface {
 	/**
 	 * Set up some reasonable defaults which define this server relative to other servers
 	 */
-	private function _initializeNameDefaults(): void {
+	private function _initializeNameDefaults(): void
+	{
 		$host = self::hostDefault();
 		if (empty($this->name)) {
 			$this->name = $host;
@@ -366,7 +375,8 @@ class Server extends ORMBase implements MetaInterface {
 	 * @return self
 	 * @throws ORMNotFound
 	 */
-	public function updateState(string $path = ''): self {
+	public function updateState(string $path = ''): self
+	{
 		if ($path === '') {
 			$path = $this->optionString(self::OPTION_FREE_DISK_VOLUME, self::DEFAULT_OPTION_FREE_DISK_VOLUME);
 		}
@@ -408,7 +418,8 @@ class Server extends ORMBase implements MetaInterface {
 	 * @param string $tz
 	 * @return boolean
 	 */
-	private function _db_tz_is_utc(string $tz): bool {
+	private function _db_tz_is_utc(string $tz): bool
+	{
 		return in_array(strtolower($tz), [
 			'utc', '+00:00',
 		]);
@@ -417,7 +428,8 @@ class Server extends ORMBase implements MetaInterface {
 	/**
 	 * Save the Database time zone state, temporarily.
 	 */
-	private function push_utc(): array {
+	private function push_utc(): array
+	{
 		$db = $this->database();
 
 		if ($db->can(Base::FEATURE_TIME_ZONE_RELATIVE_TIMESTAMP)) {
@@ -448,7 +460,8 @@ class Server extends ORMBase implements MetaInterface {
 	/**
 	 * Restore the Database time zone state after the push_utc
 	 */
-	private function pop_utc(array $pushed): void {
+	private function pop_utc(array $pushed): void
+	{
 		[$old_tz, $old_php_tz] = $pushed;
 		$db = $this->database();
 		if ($db->can(Base::FEATURE_TIME_ZONE_RELATIVE_TIMESTAMP)) {
@@ -468,7 +481,8 @@ class Server extends ORMBase implements MetaInterface {
 	 * @param mixed $value
 	 * @return self
 	 */
-	public function setMeta(string $name, mixed $value): self {
+	public function setMeta(string $name, mixed $value): self
+	{
 		$iterator = $this->memberIterator(self::MEMBER_METAS, [
 			'name' => $name,
 		]);
@@ -501,7 +515,8 @@ class Server extends ORMBase implements MetaInterface {
 	 * @throws KeyNotFound
 	 * @throws Semantics
 	 */
-	private function _getMeta(string $name): mixed {
+	private function _getMeta(string $name): mixed
+	{
 		$iterator = $this->memberIterator(self::MEMBER_METAS, [
 			'name' => $name,
 		]);
@@ -523,7 +538,8 @@ class Server extends ORMBase implements MetaInterface {
 	 * @throws Semantics
 	 * @throws TimeoutExpired
 	 */
-	public function meta(string $name): mixed {
+	public function meta(string $name): mixed
+	{
 		$lock_name = 'server_data_' . $this->memberInteger('id');
 		$this->database()->getLock($lock_name, 5);
 		$result = $this->_getMeta($name);
@@ -539,7 +555,8 @@ class Server extends ORMBase implements MetaInterface {
 	 * @throws Semantics
 	 * @see MetaInterface::delete_data
 	 */
-	public function deleteMeta(string|array $name): self {
+	public function deleteMeta(string|array $name): self
+	{
 		$this->application->ormRegistry(ServerMeta::class)->queryDelete()->appendWhere([
 			'server' => $this, 'name' => $name,
 		])->execute();
@@ -560,7 +577,8 @@ class Server extends ORMBase implements MetaInterface {
 	 * @throws NoResults
 	 * @throws TableNotFound
 	 */
-	public function deleteAllMeta(string $name): self {
+	public function deleteAllMeta(string $name): self
+	{
 		$this->application->ormRegistry(ServerMeta::class)->queryDelete()->appendWhere([
 			'name' => $name,
 		])->execute();
@@ -572,7 +590,8 @@ class Server extends ORMBase implements MetaInterface {
 	 *
 	 * @param array $where Use [ "name" => $value } as  basic one
 	 */
-	public function dataQuery(array $where): Select {
+	public function dataQuery(array $where): Select
+	{
 		$query = $this->application->ormRegistry(Server::class)->querySelect();
 		$query->ormWhat();
 		foreach ($where as $name => $value) {
@@ -595,7 +614,8 @@ class Server extends ORMBase implements MetaInterface {
 	 * @throws KeyNotFound
 	 * @throws Semantics
 	 */
-	public function aliveIPs(int $within_seconds = 300): array {
+	public function aliveIPs(int $within_seconds = 300): array
+	{
 		$ips = $this->querySelect()->appendWhat([
 			'ip4_internal' => 'ip4_internal', 'ip4_external' => 'ip4_extermal',
 		])->setDistinct()->appendWhere([

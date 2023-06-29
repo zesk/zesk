@@ -19,7 +19,8 @@ use zesk\Interface\Themeable;
 /**
  * Everything theme-related
  */
-class Themes implements Themeable {
+class Themes implements Themeable
+{
 	/**
 	 * @var bool
 	 */
@@ -53,7 +54,8 @@ class Themes implements Themeable {
 	 */
 	private array $theme_stack;
 
-	public function __construct() {
+	public function __construct()
+	{
 		$this->themePath = [];
 		$this->theme_stack = [];
 
@@ -66,7 +68,8 @@ class Themes implements Themeable {
 	/**
 	 * Clone application
 	 */
-	protected function __clone() {
+	protected function __clone()
+	{
 		$this->template_stack = clone $this->template_stack;
 		$this->template = $this->template_stack->bottom();
 	}
@@ -83,7 +86,8 @@ class Themes implements Themeable {
 	 * @return self
 	 * @throws DirectoryNotFound
 	 */
-	final public function addThemePath(array|string $paths, string $prefix = ''): self {
+	final public function addThemePath(array|string $paths, string $prefix = ''): self
+	{
 		if (is_array($paths)) {
 			foreach ($paths as $k => $v) {
 				if (is_numeric($k)) {
@@ -108,7 +112,8 @@ class Themes implements Themeable {
 	 * @param array $variables
 	 * @return void
 	 */
-	final public function setVariables(array $variables): void {
+	final public function setVariables(array $variables): void
+	{
 		$this->template->set($variables);
 	}
 
@@ -122,7 +127,8 @@ class Themes implements Themeable {
 	 * @return ?string
 	 * @throws Redirect
 	 */
-	private function _themeArguments(string $type, array $args, string $content = null, string $extension = '.tpl'): ?string {
+	private function _themeArguments(string $type, array $args, string $content = null, string $extension = '.tpl'): ?string
+	{
 		$this->theme_stack[] = $type;
 		$t = new Theme($this, $this->cleanTemplatePath($type) . $extension, $args);
 		if ($t->exists()) {
@@ -138,7 +144,8 @@ class Themes implements Themeable {
 	 * @param string $path
 	 * @return mixed
 	 */
-	private function cleanTemplatePath(string $path): string {
+	private function cleanTemplatePath(string $path): string
+	{
 		return preg_replace('%[^-_./a-zA-Z0-9]%', '_', strtr($path, [
 			'_' => '/', '\\' => '/',
 		]));
@@ -150,7 +157,8 @@ class Themes implements Themeable {
 	 * @return string
 	 * @throws NotFoundException
 	 */
-	final public function themeFind($theme, array $options = []): string {
+	final public function themeFind($theme, array $options = []): string
+	{
 		[$result] = $this->themeFindAll($theme, $options);
 		if (count($result) > 0) {
 			return $result[0];
@@ -166,7 +174,8 @@ class Themes implements Themeable {
 	 * @param array $options
 	 * @return array[]
 	 */
-	final public function themeFindAll($theme, array $options = []): array {
+	final public function themeFindAll($theme, array $options = []): array
+	{
 		$extension = Types::toBool($options['no_extension'] ?? false) ? '' : ($options['theme_extension'] ?? '.tpl');
 		$all = Types::toBool($options['all'] ?? true);
 		$theme = $this->cleanTemplatePath($theme) . $extension;
@@ -203,7 +212,8 @@ class Themes implements Themeable {
 	 *
 	 * @return array
 	 */
-	final public function themePath(): array {
+	final public function themePath(): array
+	{
 		return $this->themePath;
 	}
 
@@ -218,7 +228,8 @@ class Themes implements Themeable {
 	 * @return string|null
 	 * @throws Redirect
 	 */
-	final public function theme(string|array $types, array $arguments = [], array $options = []): ?string {
+	final public function theme(string|array $types, array $arguments = [], array $options = []): ?string
+	{
 		if (!is_array($arguments)) {
 			$arguments = [
 				'content' => $arguments,
@@ -282,7 +293,8 @@ class Themes implements Themeable {
 	 *
 	 * @return ?string
 	 */
-	final public function themeCurrent(): ?string {
+	final public function themeCurrent(): ?string
+	{
 		return ArrayTools::last($this->theme_stack);
 	}
 
@@ -290,7 +302,8 @@ class Themes implements Themeable {
 	 * @param Theme $t
 	 * @return Theme parent template
 	 */
-	public function pushTemplate(Theme $t): Theme {
+	public function pushTemplate(Theme $t): Theme
+	{
 		$top = $this->template_stack->top();
 		if ($this->debug) {
 			$this->logger?->debug('Push {path}', [
@@ -304,7 +317,8 @@ class Themes implements Themeable {
 	/**
 	 * @return Theme
 	 */
-	public function topTemplate(): Theme {
+	public function topTemplate(): Theme
+	{
 		return $this->template_stack->top();
 	}
 
@@ -312,7 +326,8 @@ class Themes implements Themeable {
 	 * @return Theme
 	 * @throws SemanticsException
 	 */
-	public function popTemplate(): Theme {
+	public function popTemplate(): Theme
+	{
 		$top = $this->template_stack->pop();
 		if ($this->debug) {
 			$this->logger?->debug('Pop {path}', [
@@ -327,7 +342,8 @@ class Themes implements Themeable {
 	 *
 	 * @return array
 	 */
-	final public function themeVariables(): array {
+	final public function themeVariables(): array
+	{
 		return $this->template_stack->top()->variables();
 	}
 
@@ -336,7 +352,8 @@ class Themes implements Themeable {
 	 * @param string $name
 	 * @return mixed
 	 */
-	final public function themeVariable(string $name): mixed {
+	final public function themeVariable(string $name): mixed
+	{
 		return $this->template_stack->top()->get($name);
 	}
 
@@ -347,7 +364,8 @@ class Themes implements Themeable {
 	 * @param mixed|null $value
 	 * @return $this
 	 */
-	final public function setThemeVariable(array|string|int|Theme $key, mixed $value = null): self {
+	final public function setThemeVariable(array|string|int|Theme $key, mixed $value = null): self
+	{
 		$this->template_stack->top()->set($key, $value);
 		return $this;
 	}
@@ -359,7 +377,8 @@ class Themes implements Themeable {
 	 *            List of themes
 	 * @return boolean If all exist, returns true, otherwise false
 	 */
-	final public function themeExists(array|string $types, array $args = []): bool {
+	final public function themeExists(array|string $types, array $args = []): bool
+	{
 		if (empty($types)) {
 			return false;
 		}
@@ -379,7 +398,8 @@ class Themes implements Themeable {
 	 * @param array $args
 	 * @return bool
 	 */
-	private function _themeExists(string $type, array $args): bool {
+	private function _themeExists(string $type, array $args): bool
+	{
 		$type = strtolower($type);
 		$object = $args['content'] ?? null;
 		if (is_object($object) && method_exists($object, 'hook_theme')) {

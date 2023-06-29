@@ -10,7 +10,8 @@ namespace zesk;
  * @see IPv4
  * @see IPv6
  */
-class IPv4 {
+class IPv4
+{
 	public static array $private_addresses = [
 		[
 			'0.0.0.0/8',
@@ -107,7 +108,8 @@ class IPv4 {
 	 *            Number of bits between 0 and 32
 	 * @return integer
 	 */
-	public static function subnet_mask(int $ip_bits): int {
+	public static function subnet_mask(int $ip_bits): int
+	{
 		$ip_bits = Number::clamp(0, $ip_bits, self::BITS);
 		return bindec(str_repeat('1', $ip_bits) . str_repeat('0', self::BITS - $ip_bits));
 	}
@@ -119,7 +121,8 @@ class IPv4 {
 	 *            Number of bits between 0 and 32
 	 * @return integer
 	 */
-	public static function subnet_mask_not(int $ip_bits): int {
+	public static function subnet_mask_not(int $ip_bits): int
+	{
 		$ip_bits = Number::clamp(0, $ip_bits, self::BITS);
 		return bindec(str_repeat('1', self::BITS - $ip_bits));
 	}
@@ -131,7 +134,8 @@ class IPv4 {
 	 * @param int $ip_bits
 	 * @return float
 	 */
-	public static function subnet_bits(float $ip_integer, int $ip_bits): float {
+	public static function subnet_bits(float $ip_integer, int $ip_bits): float
+	{
 		if ($ip_bits >= self::BITS) {
 			return $ip_integer;
 		}
@@ -144,7 +148,8 @@ class IPv4 {
 	 * @param string $string
 	 * @return boolean
 	 */
-	public static function is_mask(string $string): bool {
+	public static function is_mask(string $string): bool
+	{
 		[$ip, $bits] = StringTools::pair($string, '/', $string, strval(self::BITS));
 		if (Number::intBetween(8, intval($bits), self::BITS) && self::_valid($ip)) {
 			return true;
@@ -171,7 +176,8 @@ class IPv4 {
 	 * @param string $string
 	 * @return array
 	 */
-	public static function mask_to_integers(string $string): array {
+	public static function mask_to_integers(string $string): array
+	{
 		if (!self::is_mask($string)) {
 			return [
 				null,
@@ -215,7 +221,8 @@ class IPv4 {
 	 * @return string An IP and subnet notation string
 	 */
 	public static function mask_to_string(int|float $ip, int $ip_bits = self::BITS, bool $star_notation = true):
-	string {
+	string
+	{
 		$ip_bits = Types::toInteger($ip_bits, self::BITS);
 		$ip = floatval($ip);
 		if ($ip_bits === self::BITS) {
@@ -240,7 +247,8 @@ class IPv4 {
 	 * @return array of
 	 * @see self::mask_to_integers
 	 */
-	public static function network(string $network): array {
+	public static function network(string $network): array
+	{
 		[$low_ip, $n_bits] = self::mask_to_integers($network);
 		//	echo long2ip($low_ip) . ":" . $n_bits . "\n";
 		//	echo long2ip(self::subnet_mask_not($n_bits)) . "\n";
@@ -265,7 +273,8 @@ class IPv4 {
 	 * @param string $ip IP Address
 	 * @return bool
 	 */
-	public static function within_network(string $ip, string $network): bool {
+	public static function within_network(string $ip, string $network): bool
+	{
 		$ip = self::toInteger($ip);
 		[$low_ip, $high_ip] = self::network($network);
 		return ($ip >= $low_ip && $ip <= $high_ip);
@@ -277,7 +286,8 @@ class IPv4 {
 	 * @param mixed $mixed
 	 * @return int
 	 */
-	public static function toInteger(mixed $mixed): int {
+	public static function toInteger(mixed $mixed): int
+	{
 		if (is_int($mixed)) {
 			return $mixed;
 		}
@@ -306,7 +316,8 @@ class IPv4 {
 	 *            A long integer
 	 * @return string An ip address
 	 */
-	public static function fromInteger(mixed $ip_integer): string {
+	public static function fromInteger(mixed $ip_integer): string
+	{
 		$ip_integer = floatval($ip_integer);
 		$d = fmod($ip_integer, 256);
 		$ip_integer = intval($ip_integer / 256);
@@ -324,7 +335,8 @@ class IPv4 {
 	 * @param string $string
 	 * @return bool
 	 */
-	public static function valid(string $string): bool {
+	public static function valid(string $string): bool
+	{
 		return Types::isIP4($string);
 	}
 
@@ -334,7 +346,8 @@ class IPv4 {
 	 * @param string $string
 	 * @return boolean
 	 */
-	private static function _valid(string $string): bool {
+	private static function _valid(string $string): bool
+	{
 		return preg_match('#^' . Types::PREG_PATTERN_IP4_0 . '$#i', $string) !== 0;
 	}
 
@@ -345,7 +358,8 @@ class IPv4 {
 	 * @param mixed $ip
 	 * @return boolean
 	 */
-	public static function is_private(mixed $ip): bool {
+	public static function is_private(mixed $ip): bool
+	{
 		$ipi = self::toInteger($ip);
 		foreach (self::$private_addresses as $address) {
 			if ($ipi >= $address[1] && $ipi <= $address[2]) {

@@ -18,8 +18,10 @@ use zesk\Exception\SemanticsException;
  * @author kent
  *
  */
-class DateTest extends UnitTest {
-	public static function data_daysInMonth(): array {
+class DateTest extends UnitTest
+{
+	public static function data_daysInMonth(): array
+	{
 		return [
 			[1, 2022, 31], [2, 2022, 28], [3, 2022, 31], [4, 2022, 30], [5, 2022, 31], [6, 2022, 30], [7, 2022, 31],
 			[8, 2022, 31], [9, 2022, 30], [10, 2022, 31], [11, 2022, 30], [12, 2022, 31],
@@ -33,11 +35,13 @@ class DateTest extends UnitTest {
 	 * @return void
 	 * @dataProvider data_daysInMonth
 	 */
-	public function test_daysInMonth(int $month, int $year, int $expected): void {
+	public function test_daysInMonth(int $month, int $year, int $expected): void
+	{
 		$this->assertEquals($expected, Date::daysInMonth($month, $year), "Date::daysInMonth($month, $year)");
 	}
 
-	public static function data_yearDay(): array {
+	public static function data_yearDay(): array
+	{
 		return [
 			['1970-01-01', '1970-01-01', 0, 0], ['1970-01-02', '1970-01-01', 0, 1], ['1970-01-03', '1970-01-01', 0, 2],
 			['1970-01-04', '1970-01-01', 0, 3], ['1970-02-01', '1970-01-01', 0, 31],
@@ -55,7 +59,8 @@ class DateTest extends UnitTest {
 	 * @throws ParseException
 	 * @dataProvider data_yearDay
 	 */
-	public function test_yearDay(string|Date $expected, string|Date $start, int $isYearday, int $setYearday): void {
+	public function test_yearDay(string|Date $expected, string|Date $start, int $isYearday, int $setYearday): void
+	{
 		if (is_string($start)) {
 			$start = (new Date())->parse($start);
 		}
@@ -74,14 +79,16 @@ class DateTest extends UnitTest {
 	 * @return void
 	 * @throws SemanticsException
 	 */
-	public function test_emptyYearDay(): void {
+	public function test_emptyYearDay(): void
+	{
 		$date = new Date();
 		$this->assertNull($date->yearday());
 		$this->expectException(SemanticsException::class);
 		$date->setYearday(12);
 	}
 
-	public function test_emptyYearDay2(): void {
+	public function test_emptyYearDay2(): void
+	{
 		$date = new Date();
 		$date->setNow();
 		$this->assertNotNull($date->yearday());
@@ -91,13 +98,15 @@ class DateTest extends UnitTest {
 		$date->setYearday(12);
 	}
 
-	public function test_weekday_names(): void {
+	public function test_weekday_names(): void
+	{
 		$locale = $this->application->locale;
 		$names = Date::weekdayNames($locale, false);
 		$this->assertCount(7, $names);
 	}
 
-	public static function data_DateRangeFail(): array {
+	public static function data_DateRangeFail(): array
+	{
 		return [
 			[
 				-1, null, null,
@@ -124,37 +133,43 @@ class DateTest extends UnitTest {
 	 * @param $d
 	 * @return void
 	 */
-	public function test_range_fail($y, $m, $d): void {
+	public function test_range_fail($y, $m, $d): void
+	{
 		$this->expectException(OutOfBoundsException::class);
 		Date::instance($y, $m, $d);
 	}
 
-	public function optDate(): void {
+	public function optDate(): void
+	{
 		$d = new Date();
 		$value = '2022-01-03';
 		$d->parse($value);
 		$d->set($value);
 	}
 
-	public function test_foo(): void {
+	public function test_foo(): void
+	{
 		$year = null;
 		$month = null;
 		$day = null;
 		Date::instance($year, $month, $day);
 	}
 
-	public function test_month_names(): void {
+	public function test_month_names(): void
+	{
 		$locale = $this->application->locale;
 		$short = false;
 		$result = Date::monthNames($locale, $short);
 		$this->assertCount(12, $result);
 	}
 
-	public function test_now(): void {
+	public function test_now(): void
+	{
 		Date::now();
 	}
 
-	public function test_Date(): void {
+	public function test_Date(): void
+	{
 		$x = new Date();
 		$this->assertInstanceOf(Date::class, $x);
 

@@ -17,12 +17,14 @@ use zesk\PHPUnit\TestCase;
  * @author kent
  *
  */
-class IndexTest extends TestCase {
+class IndexTest extends TestCase
+{
 	protected array $load_modules = [
 		'MySQL',
 	];
 
-	public function mytesttable(): Table {
+	public function mytesttable(): Table
+	{
 		$database = $this->application->databaseRegistry();
 		return new Table($database, 'new_table');
 	}
@@ -30,7 +32,8 @@ class IndexTest extends TestCase {
 	/**
 	 *
 	 */
-	public function test_add_column_not_found(): void {
+	public function test_add_column_not_found(): void
+	{
 		$this->expectException(NotFoundException::class);
 		$table = $this->mytesttable();
 
@@ -39,7 +42,8 @@ class IndexTest extends TestCase {
 		$x->addColumn('Friday');
 	}
 
-	public function test_main(): void {
+	public function test_main(): void
+	{
 		$table = $this->mytesttable();
 		$name = 'index_with_a_name';
 		$type = 'INDEX';
@@ -77,7 +81,8 @@ class IndexTest extends TestCase {
 	/**
 	 *
 	 */
-	public function test_name_required(): void {
+	public function test_name_required(): void
+	{
 		$this->expectException(SemanticsException::class);
 		$table = $this->mytesttable();
 		$name = '';
@@ -97,11 +102,13 @@ class IndexTest extends TestCase {
 	 * @return void
 	 * @dataProvider data_determine_type
 	 */
-	public function test_determine_type(string $type, string $expected): void {
+	public function test_determine_type(string $type, string $expected): void
+	{
 		$this->assertEquals($expected, Index::determineType($type));
 	}
 
-	public static function data_determine_type(): array {
+	public static function data_determine_type(): array
+	{
 		return [
 			['unique', Index::TYPE_UNIQUE],
 			['unique key', Index::TYPE_UNIQUE],

@@ -11,8 +11,10 @@ namespace zesk;
  * @author kent
  *
  */
-class Lists_Test extends UnitTest {
-	public static function data_append_data_provider(): array {
+class Lists_Test extends UnitTest
+{
+	public static function data_append_data_provider(): array
+	{
 		$lists = [
 			[
 				'a',
@@ -103,7 +105,8 @@ class Lists_Test extends UnitTest {
 	/**
 	 * @dataProvider data_append_data_provider
 	 */
-	public function test_append($list, $add, $sep, $expected): void {
+	public function test_append($list, $add, $sep, $expected): void
+	{
 		$actual = Lists::append($list, $add, $sep);
 		$this->assertEquals(type($expected), type($actual));
 		$this->assertEquals($expected, $actual);
@@ -112,7 +115,8 @@ class Lists_Test extends UnitTest {
 	/**
 	 * @dataProvider data_append_data_provider
 	 */
-	public function test_appendUnique($list, $add, $sep, $expected): void {
+	public function test_appendUnique($list, $add, $sep, $expected): void
+	{
 		if (is_array($expected)) {
 			$expected = array_unique($expected);
 		} else {
@@ -123,7 +127,8 @@ class Lists_Test extends UnitTest {
 		$this->assertEquals($expected, $actual);
 	}
 
-	public function test_contains(): void {
+	public function test_contains(): void
+	{
 		$llist = null;
 		$item = null;
 		$sep = ';';
@@ -135,16 +140,19 @@ class Lists_Test extends UnitTest {
 		$this->assertTrue(Lists::contains('a;b;c;d;ee;ff', 'ff'));
 	}
 
-	public function test_pop(): void {
+	public function test_pop(): void
+	{
 		$sep = ';';
 		$this->assertEquals('a;b', Lists::pop('a;b;c', $sep));
 	}
 
-	public function test_prepend(): void {
+	public function test_prepend(): void
+	{
 		$this->assertEquals('a;b;c', Lists::prepend('b;c', 'a'));
 	}
 
-	public static function data_keysRemove(): array {
+	public static function data_keysRemove(): array
+	{
 		return [
 			['a;c;d;e', 'a;b;c;d;e', 'b', ';'],
 			['a;c;d;e', 'a;b;c;d;e', 'b', ';'],
@@ -155,11 +163,13 @@ class Lists_Test extends UnitTest {
 	 * @return void
 	 * @dataProvider data_keysRemove
 	 */
-	public function test_keysRemove($expected, $list, $item, $sep): void {
+	public function test_keysRemove($expected, $list, $item, $sep): void
+	{
 		$this->assertEquals($expected, Lists::keysRemove($list, $item, $sep));
 	}
 
-	public function test_unique(): void {
+	public function test_unique(): void
+	{
 		$llist = 'X;a;A;b;b;c;c;D;F;a;X';
 		$sep = ';';
 		$this->assertEquals('X;a;A;b;c;D;F', Lists::unique($llist, $sep));

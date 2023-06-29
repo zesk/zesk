@@ -19,7 +19,8 @@ use zesk\URL;
  * @author kent
  *
  */
-class Connect extends Exception {
+class Connect extends Exception
+{
 	/**
 	 *
 	 * @var string
@@ -41,7 +42,8 @@ class Connect extends Exception {
 	 * @param Throwable|null $t
 	 */
 	public function __construct(string $url, string $message = '', array $arguments = [], int $errno = 0, Throwable
-	$t = null) {
+	$t = null)
+	{
 		if (URL::valid($url)) {
 			$this->url = $url;
 
@@ -65,7 +67,8 @@ class Connect extends Exception {
 	/**
 	 * @return array
 	 */
-	public function variables(): array {
+	public function variables(): array
+	{
 		return [
 			'url' => $this->url,
 		] + $this->parts + parent::variables();

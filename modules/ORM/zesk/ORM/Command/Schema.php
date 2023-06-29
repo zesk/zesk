@@ -19,7 +19,8 @@ use zesk\URL;
  *
  * @category Database
  */
-class Schema extends SimpleCommand {
+class Schema extends SimpleCommand
+{
 	/**
 	 *
 	 * @var array
@@ -51,13 +52,15 @@ class Schema extends SimpleCommand {
 	 *
 	 * @return array
 	 */
-	public function results(): array {
+	public function results(): array
+	{
 		return $this->results;
 	}
 
 	/**
 	 */
-	protected function synchronize_before(): void {
+	protected function synchronize_before(): void
+	{
 		if (!$this->optionBool('no-hooks')) {
 			$this->_synchronize_suffix('update');
 		}
@@ -65,7 +68,8 @@ class Schema extends SimpleCommand {
 
 	/**
 	 */
-	protected function synchronize_after(): void {
+	protected function synchronize_after(): void
+	{
 		if ($this->optionBool('update')) {
 			if (!$this->optionBool('no-hooks')) {
 				$this->_synchronize_suffix('updated');
@@ -78,7 +82,8 @@ class Schema extends SimpleCommand {
 	 *
 	 * @param callable $callable
 	 */
-	public function hook_callback(callable $callable): void {
+	public function hook_callback(callable $callable): void
+	{
 		$this->debugLog('{class}: Calling {callable}', [
 			'class' => __CLASS__,
 			'callable' => $this->application->hooks->callable_string($callable),
@@ -96,7 +101,8 @@ class Schema extends SimpleCommand {
 	 *
 	 * @param string $suffix
 	 */
-	private function _synchronize_suffix(string $suffix): void {
+	private function _synchronize_suffix(string $suffix): void
+	{
 		$hook_callback = [
 			$this,
 			'hook_callback',
@@ -152,7 +158,8 @@ class Schema extends SimpleCommand {
 	 *
 	 * @see Command::run()
 	 */
-	protected function run(): int {
+	protected function run(): int
+	{
 		$application = $this->application;
 
 		if ($this->optionBool('debug')) {

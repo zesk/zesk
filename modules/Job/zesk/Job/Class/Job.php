@@ -12,7 +12,8 @@ use zesk\ORM\User;
  * @author kent
  *
  */
-class Class_Job extends Class_Base {
+class Class_Job extends Class_Base
+{
 	public string $id_column = 'id';
 
 	public array $find_keys = [
@@ -52,6 +53,7 @@ class Class_Job extends Class_Base {
 		'status' => '',
 	];
 
-	public function initialize(): void {
+	public function initialize(): void
+	{
 	}
 }

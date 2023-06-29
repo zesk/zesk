@@ -5,6 +5,7 @@ namespace zesk\ORM\Interface;
 
 use zesk\ORM\ORMBase;
 
-interface ORMDuplicateInterface {
+interface ORMDuplicateInterface
+{
 	public function duplicate(ORMBase $source): ORMBase;
 }

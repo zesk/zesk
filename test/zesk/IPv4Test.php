@@ -6,13 +6,16 @@ namespace zesk;
 /**
  *
  */
-class IPv4Test extends UnitTest {
-	public function test_from_integer(): void {
+class IPv4Test extends UnitTest
+{
+	public function test_from_integer(): void
+	{
 		$this->assertEquals('192.168.0.200', IPv4::fromInteger(3232235720));
 		$this->assertEquals('192.168.0.200', IPv4::fromInteger('3232235720'));
 	}
 
-	public function test_is_mask(): void {
+	public function test_is_mask(): void
+	{
 		$this->assertFalse(IPv4::is_mask('-1.0,0,0'));
 		$this->assertFalse(IPv4::is_mask('-1.0.0.0.0'));
 		$this->assertFalse(IPv4::is_mask('1.0.0.0.0'));
@@ -37,7 +40,8 @@ class IPv4Test extends UnitTest {
 		$this->assertTrue(IPv4::is_mask('192.128.0.0/9'));
 	}
 
-	public static function data_mask_to_integers(): array {
+	public static function data_mask_to_integers(): array
+	{
 		return [
 			[[null, null], '127.0.0.2.3'],
 			[[null, null], '256.0.0'],
@@ -66,11 +70,13 @@ class IPv4Test extends UnitTest {
 	 * @return void
 	 * @dataProvider data_mask_to_integers
 	 */
-	public function test_mask_to_integers(array $expected, string $string): void {
+	public function test_mask_to_integers(array $expected, string $string): void
+	{
 		$this->assertEquals($expected, IPv4::mask_to_integers($string));
 	}
 
-	public function test_mask_to_integers2(): void {
+	public function test_mask_to_integers2(): void
+	{
 		$ips = file($this->application->zeskHome('test/test-data/ip.txt'));
 
 		$ip = '192.168.0.248';
@@ -97,7 +103,8 @@ class IPv4Test extends UnitTest {
 		}
 	}
 
-	public function test_mask_to_string(): void {
+	public function test_mask_to_string(): void
+	{
 		$ip = 0.0;
 		$ip_bits = 32;
 		$this->assertEquals('0.0.0.0', IPv4::mask_to_string($ip, $ip_bits));
@@ -136,7 +143,8 @@ class IPv4Test extends UnitTest {
 		$this->assertEquals('76.12.128.128/29', IPv4::mask_to_string(IPv4::toInteger('76.12.128.129'), 29));
 	}
 
-	public static function data_network(): array {
+	public static function data_network(): array
+	{
 		return [
 			[
 				'1.0.0.0/16',
@@ -183,7 +191,8 @@ class IPv4Test extends UnitTest {
 	 * @return void
 	 * @dataProvider data_network
 	 */
-	public function test_network($ipmask, $ip_check_low, $ip_check_high): void {
+	public function test_network($ipmask, $ip_check_low, $ip_check_high): void
+	{
 		if (is_string($ip_check_low)) {
 			$ip_check_low = IPv4::toInteger($ip_check_low);
 		}
@@ -195,7 +204,8 @@ class IPv4Test extends UnitTest {
 		$this->assertEquals($ip_high, $ip_check_high, 'High Check: ' . IPv4::fromInteger($ip_high) . ' !== ' . IPv4::fromInteger($ip_check_high));
 	}
 
-	public static function data_to_integer(): array {
+	public static function data_to_integer(): array
+	{
 		return [
 			[floatval(1), 1],
 			[floatval(9999), 9999],
@@ -225,20 +235,23 @@ class IPv4Test extends UnitTest {
 	 * @return void
 	 * @dataProvider data_to_integer
 	 */
-	public function test_to_integer(float $expected, $mixed): void {
+	public function test_to_integer(float $expected, $mixed): void
+	{
 		$this->assertEquals($expected, IpV4::toInteger($mixed));
 		if (is_string($mixed) && !empty($mixed) && !empty($expected)) {
 			$this->assertEquals($mixed, IpV4::fromInteger($expected));
 		}
 	}
 
-	public function test_remote(): void {
+	public function test_remote(): void
+	{
 		$request = new Request($this->application);
 		$default = '0.0.0.0';
 		$this->assertEquals($default, $request->ip());
 	}
 
-	public function test_subnet_bits(): void {
+	public function test_subnet_bits(): void
+	{
 		$ips = file($this->application->zeskHome('test/test-data/ip.txt'));
 		foreach ($ips as $ip) {
 			if (empty($ip)) {
@@ -256,7 +269,8 @@ class IPv4Test extends UnitTest {
 		}
 	}
 
-	public function test_subnet_mask(): void {
+	public function test_subnet_mask(): void
+	{
 		for ($n = 1; $n <= 32; $n++) {
 			$b = sprintf('%032b', IPv4::subnet_mask($n));
 			$check = str_repeat('1', $n) . str_repeat('0', 32 - $n);
@@ -264,7 +278,8 @@ class IPv4Test extends UnitTest {
 		}
 	}
 
-	public static function data_subnet_mask_not(): array {
+	public static function data_subnet_mask_not(): array
+	{
 		return [
 			[0, 32],
 			[1, 31],
@@ -287,11 +302,13 @@ class IPv4Test extends UnitTest {
 	 * @return void
 	 * @dataProvider data_subnet_mask_not
 	 */
-	public function test_subnet_mask_not($expected, $ip_bits): void {
+	public function test_subnet_mask_not($expected, $ip_bits): void
+	{
 		$this->assertEquals($expected, IPv4::subnet_mask_not($ip_bits));
 	}
 
-	public static function data_valid(): array {
+	public static function data_valid(): array
+	{
 		return [
 			['192.168.0.1', true, ],
 			['192.168.0.0', false, ],
@@ -320,11 +337,13 @@ class IPv4Test extends UnitTest {
 	 * @return void
 	 * @dataProvider data_valid
 	 */
-	public function test_valid(string $ip, bool $valid): void {
+	public function test_valid(string $ip, bool $valid): void
+	{
 		$this->assertEquals($valid, IPv4::valid($ip), "$ip should be " . ($valid ? 'valid ip' : 'invalid ip'));
 	}
 
-	public static function data_within_network(): array {
+	public static function data_within_network(): array
+	{
 		return [
 			[
 				'76.12.128.128',
@@ -386,11 +405,13 @@ class IPv4Test extends UnitTest {
 	 * @return void
 	 * @dataProvider data_within_network
 	 */
-	public function test_within_network($ip, $network, $result): void {
+	public function test_within_network($ip, $network, $result): void
+	{
 		$this->assertEquals($result, IPv4::within_network($ip, $network), "IPv4::within_network($ip, $network) === " . StringTools::fromBool($result));
 	}
 
-	public static function data_is_private(): array {
+	public static function data_is_private(): array
+	{
 		$r0 = self::randomInteger(0, 255);
 		$r1 = self::randomInteger(0, 255);
 		$r2 = self::randomInteger(0, 255);
@@ -417,7 +438,8 @@ class IPv4Test extends UnitTest {
 	 * @return void
 	 * @dataProvider data_is_private
 	 */
-	public function test_is_private($expected, $ip): void {
+	public function test_is_private($expected, $ip): void
+	{
 		$this->assertEquals($expected, IPv4::is_private($ip));
 	}
 }

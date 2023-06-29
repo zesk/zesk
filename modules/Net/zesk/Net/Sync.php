@@ -22,7 +22,8 @@ use zesk\Timestamp;
  * @author kent
  *
  */
-class Sync extends Options {
+class Sync extends Options
+{
 	/**
 	 *
 	 * @var FileSystem
@@ -59,7 +60,8 @@ class Sync extends Options {
 	 * @throws DirectoryNotFound
 	 * @throws FilePermission
 	 */
-	public static function urlToFile(Application $application, string $url, string $path, array $options = []): ?bool {
+	public static function urlToFile(Application $application, string $url, string $path, array $options = []): ?bool
+	{
 		if (!isset($options['timeout'])) {
 			$options['timeout'] = 2 * 60 * 1000;
 		}
@@ -92,7 +94,8 @@ class Sync extends Options {
 	 * @param array $options
 	 * @return string[]|string[]
 	 */
-	private static function _fetch_url(Application $application, string $url, array $options = []): array {
+	private static function _fetch_url(Application $application, string $url, array $options = []): array
+	{
 		$milliseconds = toInteger($options['timeout'] ?? null);
 		$user_agent = $options['user_agent'] ?? null;
 
@@ -124,7 +127,8 @@ class Sync extends Options {
 	 * @param array $options
 	 * @return array Transfer statistics
 	 */
-	public static function urls(Application $application, $source_url, $destination_url, array $options = []) {
+	public static function urls(Application $application, $source_url, $destination_url, array $options = [])
+	{
 		$src_client = Net_Client::factory($application, $source_url, $options);
 		$dst_client = Net_Client::factory($application, $destination_url, $options);
 		$sync = new self($src_client, $dst_client, $options);
@@ -139,7 +143,8 @@ class Sync extends Options {
 	 * @param array $options
 	 *            Settings for the sync
 	 */
-	public function __construct(FileSystem $source, FileSystem $destination, array $options = []) {
+	public function __construct(FileSystem $source, FileSystem $destination, array $options = [])
+	{
 		parent::__construct($options);
 		$this->src = $source;
 		$this->dst = $destination;
@@ -153,7 +158,8 @@ class Sync extends Options {
 	 * @param mixed $pattern
 	 * @return mixed
 	 */
-	private function _set_filter($pattern, $default) {
+	private function _set_filter($pattern, $default)
+	{
 		if ($pattern === null) {
 			return $default;
 		}
@@ -167,13 +173,15 @@ class Sync extends Options {
 		return '/' . preg_quote($pattern) . '/';
 	}
 
-	public function file_filter($include = null, $exclude = null) {
+	public function file_filter($include = null, $exclude = null)
+	{
 		$this->option('file_include', $this->_set_filter($include, true));
 		$this->option('file_exclude', $this->_set_filter($exclude, false));
 		return $this;
 	}
 
-	public function directory_filter($include = null, $exclude = null) {
+	public function directory_filter($include = null, $exclude = null)
+	{
 		$this->option('dir_include', $this->_set_filter($include, true));
 		$this->option('dir_exclude', $this->_set_filter($exclude, false));
 		return $this;
@@ -187,7 +195,8 @@ class Sync extends Options {
 	 * @param mixed $exclude
 	 * @return boolean
 	 */
-	private function _allow($filename, $include, $exclude) {
+	private function _allow($filename, $include, $exclude)
+	{
 		if ($include === false) {
 			return false;
 		}
@@ -212,7 +221,8 @@ class Sync extends Options {
 	 * @param string $filename
 	 * @return boolean
 	 */
-	private function _file_allow($filename) {
+	private function _file_allow($filename)
+	{
 		return $this->_allow($filename, $this->file_include, $this->file_exclude);
 	}
 
@@ -222,7 +232,8 @@ class Sync extends Options {
 	 * @param string $filename
 	 * @return boolean
 	 */
-	private function _dir_allow($filename) {
+	private function _dir_allow($filename)
+	{
 		return $this->_allow($filename, $this->dir_include, $this->dir_exclude);
 	}
 
@@ -235,7 +246,8 @@ class Sync extends Options {
 	 *            If mod time should be checked.
 	 * @return boolean
 	 */
-	private function _should_sync(array $src_entry, array $dst_entry, $check_mtime) {
+	private function _should_sync(array $src_entry, array $dst_entry, $check_mtime)
+	{
 		if ($src_entry['size'] !== $dst_entry['size'] ?? -1) {
 			return true;
 		}
@@ -267,7 +279,8 @@ class Sync extends Options {
 	 * @throws DirectoryCreate
 	 * @throws Exception
 	 */
-	public function go() {
+	public function go()
+	{
 		$logger = $this->src->application()->logger;
 
 		$src = $this->src;
@@ -368,7 +381,8 @@ class Sync extends Options {
 	 *
 	 * @return multitype:
 	 */
-	public function stats() {
+	public function stats()
+	{
 		return $this->stats;
 	}
 }

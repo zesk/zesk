@@ -12,8 +12,10 @@ use zesk\Polyglot\Command\Translate;
 use zesk\Polyglot\Command\Update;
 use zesk\TestApplicationUnitTest;
 
-class CommandsTest extends TestApplicationUnitTest {
-	public function dataCommands(): array {
+class CommandsTest extends TestApplicationUnitTest
+{
+	public function dataCommands(): array
+	{
 		return [
 			[
 				Export::class, ['--source', '/tmp/not-found/'], 1, '/tmp/not-found/ was not found',
@@ -40,7 +42,8 @@ class CommandsTest extends TestApplicationUnitTest {
 	 * @dataProvider dataCommands
 	 */
 	public function test_commands(string $class, array $testArguments, int $expectedStatus, string
-										 $expectedOutputOrPattern): void {
+										 $expectedOutputOrPattern): void
+	{
 		$this->assertCommandClass($class, $testArguments, $expectedStatus, $expectedOutputOrPattern);
 	}
 }

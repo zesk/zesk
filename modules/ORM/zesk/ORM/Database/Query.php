@@ -27,7 +27,8 @@ use zesk\ORM\ORMBase;
  * @author kent
  *
  */
-class Query {
+class Query
+{
 	/**
 	 *
 	 * @var Application
@@ -81,7 +82,8 @@ class Query {
 	 * @param string $type
 	 * @param Base $db
 	 */
-	public function __construct(string $type, Base $db) {
+	public function __construct(string $type, Base $db)
+	{
 		$this->db = $db;
 		$this->application = $db->application;
 		$this->factory = $this->application;
@@ -97,7 +99,8 @@ class Query {
 	 * @param MemberModelFactory $factory
 	 * @return self
 	 */
-	public function setFactory(MemberModelFactory $factory): self {
+	public function setFactory(MemberModelFactory $factory): self
+	{
 		$this->factory = $factory;
 		return $this;
 	}
@@ -106,7 +109,8 @@ class Query {
 	 *
 	 * @return string[]
 	 */
-	public function __sleep(): array {
+	public function __sleep(): array
+	{
 		return ['type', 'dbname', 'class', ];
 	}
 
@@ -114,7 +118,8 @@ class Query {
 	 * @return void
 	 * @throws Semantics
 	 */
-	public function __wakeup(): void {
+	public function __wakeup(): void
+	{
 		// Reconnect upon wakeup
 		$this->application = Kernel::wakeupApplication();
 		$this->db = $this->application->databaseRegistry($this->dbname);
@@ -125,7 +130,8 @@ class Query {
 	 * @param Query $from
 	 * @return Query
 	 */
-	protected function _copy_from_query(Query $from): self {
+	protected function _copy_from_query(Query $from): self
+	{
 		$this->type = $from->type;
 		$this->db = $from->db;
 		$this->dbname = $from->dbname;
@@ -138,7 +144,8 @@ class Query {
 	 *
 	 * @return self
 	 */
-	public function duplicate(): self {
+	public function duplicate(): self
+	{
 		return clone $this;
 	}
 
@@ -146,7 +153,8 @@ class Query {
 	 *
 	 * @return Base
 	 */
-	public function database(): Base {
+	public function database(): Base
+	{
 		return $this->db;
 	}
 
@@ -154,7 +162,8 @@ class Query {
 	 *
 	 * @return string
 	 */
-	public function databaseName(): string {
+	public function databaseName(): string
+	{
 		return $this->db->codeName();
 	}
 
@@ -162,7 +171,8 @@ class Query {
 	 *
 	 * @return SQLDialect
 	 */
-	public function sql(): SQLDialect {
+	public function sql(): SQLDialect
+	{
 		return $this->db->sqlDialect();
 	}
 
@@ -170,7 +180,8 @@ class Query {
 	 *
 	 * @return SQLParser
 	 */
-	public function parser(): SQLParser {
+	public function parser(): SQLParser
+	{
 		return $this->db->sqlParser();
 	}
 
@@ -179,7 +190,8 @@ class Query {
 	 *
 	 * @return string
 	 */
-	public function ormClass(): string {
+	public function ormClass(): string
+	{
 		return $this->class;
 	}
 
@@ -189,7 +201,8 @@ class Query {
 	 * @param string $class
 	 * @return Query string
 	 */
-	public function setORMClass(string $class): self {
+	public function setORMClass(string $class): self
+	{
 		$this->class = $class;
 		return $this;
 	}
@@ -200,7 +213,8 @@ class Query {
 	 * @param ?array $options
 	 * @return self
 	 */
-	public function setORMClassOptions(array $options = null): self {
+	public function setORMClassOptions(array $options = null): self
+	{
 		$this->class_options = $options;
 		return $this;
 	}
@@ -210,7 +224,8 @@ class Query {
 	 *
 	 * @return array
 	 */
-	public function ormClassOptions(): array {
+	public function ormClassOptions(): array
+	{
 		return $this->class_options;
 	}
 
@@ -218,7 +233,8 @@ class Query {
 	 *
 	 * @return Class_Base
 	 */
-	public function class_orm(): Class_Base {
+	public function class_orm(): Class_Base
+	{
 		return $this->application->class_ormRegistry($this->class);
 	}
 
@@ -232,7 +248,8 @@ class Query {
 	 * @return Model
 	 * @throws NotFoundException|ClassNotFound
 	 */
-	public function memberModelFactory(string $member, string $class, mixed $mixed = null, array $options = []): Model {
+	public function memberModelFactory(string $member, string $class, mixed $mixed = null, array $options = []): Model
+	{
 		return $this->factory->memberModelFactory($member, $class, $mixed, $options);
 	}
 
@@ -246,7 +263,8 @@ class Query {
 	 * @return ORMBase
 	 * @throws NotFoundException|ClassNotFound
 	 */
-	public function memberORMFactory(string $member, string $class, mixed $mixed = null, array $options = []): ORMBase {
+	public function memberORMFactory(string $member, string $class, mixed $mixed = null, array $options = []): ORMBase
+	{
 		$result = $this->factory->memberModelFactory($member, $class, $mixed, $options);
 		assert($result instanceof ORMBase);
 		return $result;
@@ -258,7 +276,8 @@ class Query {
 	 * @param string $class
 	 * @return ORMBase
 	 */
-	protected function ormRegistry(string $class): ORMBase {
+	protected function ormRegistry(string $class): ORMBase
+	{
 		return $this->application->ormRegistry($class);
 	}
 }

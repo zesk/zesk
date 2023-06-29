@@ -21,7 +21,8 @@ use zesk\Exception\UnsupportedException;
  * @author kent
  *
  */
-class PHP {
+class PHP
+{
 	/**
 	 * @see PHP::requires
 	 * @var string
@@ -141,7 +142,8 @@ class PHP {
 	 *
 	 * @return self
 	 */
-	public static function singleton(): self {
+	public static function singleton(): self
+	{
 		if (!self::$singleton instanceof self) {
 			self::$singleton = new self();
 		}
@@ -153,7 +155,8 @@ class PHP {
 	 *
 	 * @return string
 	 */
-	public static function ini_path(): string {
+	public static function ini_path(): string
+	{
 		return get_cfg_var('cfg_file_path');
 	}
 
@@ -162,7 +165,8 @@ class PHP {
 	 *
 	 * @return php
 	 */
-	public function settingsOneLine(): self {
+	public function settingsOneLine(): self
+	{
 		$this->indent_char = '';
 		$this->array_value_separator = ' ';
 		$this->array_open_parenthesis_suffix = '';
@@ -174,7 +178,8 @@ class PHP {
 	 *
 	 * @return array
 	 */
-	public static function dump_settings_one(): array {
+	public static function dump_settings_one(): array
+	{
 		return self::singleton()->settingsOneLine()->settings();
 	}
 
@@ -184,7 +189,8 @@ class PHP {
 	 * @param mixed $x
 	 * @return string
 	 */
-	public static function dump(mixed $x): string {
+	public static function dump(mixed $x): string
+	{
 		return self::singleton()->render($x);
 	}
 
@@ -193,7 +199,8 @@ class PHP {
 	 *
 	 * @return array
 	 */
-	public function settings(): array {
+	public function settings(): array
+	{
 		$x = new ReflectionObject($this);
 		$result = [];
 		foreach ($x->getProperties() as $prop) {
@@ -211,7 +218,8 @@ class PHP {
 	 * @return self
 	 * @throws KeyNotFound
 	 */
-	public function setSettings(array $set): self {
+	public function setSettings(array $set): self
+	{
 		$x = new ReflectionObject($this);
 		foreach ($set as $property_name => $value) {
 			if ($x->hasProperty($property_name)) {
@@ -234,7 +242,8 @@ class PHP {
 	 * @param mixed $x
 	 * @return string
 	 */
-	public function render(mixed $x): string {
+	public function render(mixed $x): string
+	{
 		$args = func_get_args();
 		$no_first_line_indent = Types::toBool($args[2] ?? false);
 		if (is_array($x)) {
@@ -294,7 +303,8 @@ class PHP {
 	 * @param int $errno
 	 * @param string $errorString
 	 */
-	public static function _unserialize_handler(int $errno, string $errorString): void {
+	public static function _unserialize_handler(int $errno, string $errorString): void
+	{
 		self::$unserialize_exception = new SyntaxException($errorString, [], $errno);
 	}
 
@@ -307,7 +317,8 @@ class PHP {
 	 * @return mixed
 	 * @throws SyntaxException
 	 */
-	public static function unserialize(string $serialized): mixed {
+	public static function unserialize(string $serialized): mixed
+	{
 		self::$unserialize_exception = null;
 		set_error_handler([__CLASS__, '_unserialize_handler', ]);
 		$original = unserialize($serialized);
@@ -329,7 +340,8 @@ class PHP {
 	 * @return array
 	 * @throws
 	 */
-	public static function requires(string|array $features, bool $throw = false): array {
+	public static function requires(string|array $features, bool $throw = false): array
+	{
 		$features = Types::toList($features);
 		$results = [];
 		$errors = [];
@@ -381,7 +393,8 @@ class PHP {
 	 * @return mixed Return previous value
 	 * @throws UnimplementedException
 	 */
-	public static function setFeature(string $feature, int|float|string $value): mixed {
+	public static function setFeature(string $feature, int|float|string $value): mixed
+	{
 		$feature = strtolower($feature);
 		switch ($feature) {
 			case self::FEATURE_TIME_LIMIT:
@@ -405,7 +418,8 @@ class PHP {
 	 * @param string $func
 	 * @return bool
 	 */
-	public static function validFunction(string $func): bool {
+	public static function validFunction(string $func): bool
+	{
 		return self::cleanFunction($func) === $func;
 	}
 
@@ -415,7 +429,8 @@ class PHP {
 	 * @param string $class
 	 * @return boolean
 	 */
-	public static function validClass(string $class): bool {
+	public static function validClass(string $class): bool
+	{
 		return self::cleanClass($class) === $class;
 	}
 
@@ -428,7 +443,8 @@ class PHP {
 	 *            String to clean
 	 * @return string
 	 */
-	public static function cleanFunction(string $func): string {
+	public static function cleanFunction(string $func): string
+	{
 		return preg_replace('/[^a-zA-Z0-9_]/', '_', $func);
 	}
 
@@ -439,7 +455,8 @@ class PHP {
 	 * @param string $name
 	 * @return string
 	 */
-	public static function cleanClass(string $name): string {
+	public static function cleanClass(string $name): string
+	{
 		return preg_replace('/[^a-zA-Z0-9_\\\\]/', '_', $name);
 	}
 
@@ -459,7 +476,8 @@ class PHP {
 	 * @throws ParseException
 	 * @deprecated 2023-06
 	 */
-	public static function autoType(mixed $value, bool $throw = true): mixed {
+	public static function autoType(mixed $value, bool $throw = true): mixed
+	{
 		return Types::autoType($value, $throw);
 	}
 
@@ -473,7 +491,8 @@ class PHP {
 	 * @param string $class
 	 * @return string
 	 */
-	public static function parseClass(string $class): string {
+	public static function parseClass(string $class): string
+	{
 		$parts = self::parseNamespaceClass($class);
 		return $parts[1];
 	}
@@ -486,7 +505,8 @@ class PHP {
 	 * @param string $class
 	 * @return string
 	 */
-	public static function parseNamespace(string $class): string {
+	public static function parseNamespace(string $class): string
+	{
 		$parts = self::parseNamespaceClass($class);
 		return $parts[0];
 	}
@@ -499,7 +519,8 @@ class PHP {
 	 * @param string $class
 	 * @return string[]
 	 */
-	public static function parseNamespaceClass(string $class): array {
+	public static function parseNamespaceClass(string $class): array
+	{
 		return StringTools::reversePair($class, '\\', '', $class);
 	}
 
@@ -508,7 +529,8 @@ class PHP {
 	 * @param Throwable|string $message
 	 * @param array $arguments
 	 */
-	public static function log(Throwable|string $message, array $arguments = []): void {
+	public static function log(Throwable|string $message, array $arguments = []): void
+	{
 		if ($message instanceof Throwable) {
 			$arguments = Exception::exceptionVariables($message) + $arguments;
 			$message = "{class}: {message} at {file}:{line}\nBacktrace: {backtrace}";
@@ -525,7 +547,8 @@ class PHP {
 	 * @throws DirectoryNotFound
 	 * @throws ParameterException
 	 */
-	public static function includePath(string $path, array $listOptions = []): bool {
+	public static function includePath(string $path, array $listOptions = []): bool
+	{
 		$path = Directory::must(realpath($path));
 		if (self::$included[$path] ?? null) {
 			return false;

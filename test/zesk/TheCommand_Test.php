@@ -16,11 +16,13 @@ use zesk\Command\SimpleCommand;
  * @author kent
  *
  */
-class TheCommand_Test extends UnitTest {
+class TheCommand_Test extends UnitTest
+{
 	/**
 	 * @throws ParameterException
 	 */
-	public function test_main(): void {
+	public function test_main(): void
+	{
 		$d = $this->test_sandbox();
 		$f = $this->test_sandbox('test-file.txt');
 		file_put_contents($f, 'test');
@@ -63,11 +65,13 @@ class TheCommand_Test extends UnitTest {
 		$stringable = new class($random) implements Stringable {
 			private string $thing;
 
-			public function __construct(string $thing) {
+			public function __construct(string $thing)
+			{
 				$this->thing = $thing;
 			}
 
-			public function __toString(): string {
+			public function __toString(): string
+			{
 				return $this->thing;
 			}
 		};
@@ -81,15 +85,18 @@ class TheCommand_Test extends UnitTest {
  * @author kent
  *
  */
-class SimpleCommand_Test extends SimpleCommand {
-	public function initialize(): void {
+class SimpleCommand_Test extends SimpleCommand
+{
+	public function initialize(): void
+	{
 		parent::initialize();
 		$this->option_types += [
 			'file' => 'file', 'dir' => 'dir',
 		];
 	}
 
-	public function run(): int {
+	public function run(): int
+	{
 		$class = $this->optionString('testThrow');
 		if ($class) {
 			throw new $class();

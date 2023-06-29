@@ -8,8 +8,10 @@ use zesk\Exception\KeyNotFound;
 /**
  *
  */
-class pregTest extends UnitTest {
-	public function collectIterationKeys(preg $iterator): array {
+class pregTest extends UnitTest
+{
+	public function collectIterationKeys(preg $iterator): array
+	{
 		$text = $iterator->text();
 		$keys = [];
 		$i = 0;
@@ -22,7 +24,8 @@ class pregTest extends UnitTest {
 		return [$keys, $text];
 	}
 
-	public function test_preg(): void {
+	public function test_preg(): void
+	{
 		$original = '{dog} {fence} {lunch} {dialogue} {Ignored } {Dreadlock}';
 		$iterator = preg::matches("/\{([A-Za-z]+)\}/", $original);
 		[$keys, $text] = $this->collectIterationKeys($iterator);
@@ -50,7 +53,8 @@ class pregTest extends UnitTest {
 		$this->assertEquals('0 1 2 3 {Ignored } {Dreadlock}', $text);
 	}
 
-	public function test_emptyMatch(): void {
+	public function test_emptyMatch(): void
+	{
 		$original = '{dog} {fence} {lunch} {dialogue} {Ignored } {Dreadlock}';
 		$iterator = preg::matches("/\[([A-Za-z]+)\]/", $original);
 		[$keys, $text] = $this->collectIterationKeys($iterator);
@@ -58,7 +62,8 @@ class pregTest extends UnitTest {
 		$this->assertEquals($original, $text);
 	}
 
-	public static function data_badOffsets(): array {
+	public static function data_badOffsets(): array
+	{
 		return [
 			['bad'],
 			[-23],
@@ -72,7 +77,8 @@ class pregTest extends UnitTest {
 	 * @return void
 	 * @dataProvider data_badOffsets
 	 */
-	public function test_badOffsets($mixed): void {
+	public function test_badOffsets($mixed): void
+	{
 		$original = '{dog} {fence} {lunch} {dialogue} {Ignored } {Dreadlock}';
 		$iterator = preg::matches("/\{([A-Za-z]+)\}/", $original);
 		$this->expectException(KeyNotFound::class);

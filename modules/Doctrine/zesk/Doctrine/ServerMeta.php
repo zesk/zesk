@@ -27,7 +27,8 @@ use zesk\Doctrine\Trait\AutoID;
  */
 #[Entity]
 #[UniqueConstraint(name: 'serverName', fields: ['server', 'name'])]
-class ServerMeta extends Model {
+class ServerMeta extends Model
+{
 	#[ManyToOne(targetEntity: Server::class)]
 	#[JoinColumn(name: 'server')]
 	public Server $server;
@@ -38,7 +39,8 @@ class ServerMeta extends Model {
 	#[Column(type: 'json', nullable: false)]
 	public mixed $value;
 
-	public function __construct(Application $application, Server $server, string $name, mixed $value, array $options = []) {
+	public function __construct(Application $application, Server $server, string $name, mixed $value, array $options = [])
+	{
 		parent::__construct($application, ['server' => $server, 'name' => $name, 'value' => $value], $options);
 	}
 
@@ -48,7 +50,8 @@ class ServerMeta extends Model {
 	 * @param Server $server
 	 * @return void
 	 */
-	public static function serverDelete(Server $server): void {
+	public static function serverDelete(Server $server): void
+	{
 		$em = $server->application->entityManager();
 		$query = $em->createQueryBuilder()->delete(self::class)->where(['server' => $server])->getQuery();
 		$query->execute();
@@ -61,7 +64,8 @@ class ServerMeta extends Model {
 	 * @return static
 	 * @throws ORMException
 	 */
-	public static function register(Server $server, string $name, mixed $value): self {
+	public static function register(Server $server, string $name, mixed $value): self
+	{
 		$em = $server->em;
 		$meta = $em->getRepository(self::class)->findOneBy(['server' => $server, 'name' => $name]);
 		if (!$meta) {

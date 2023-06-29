@@ -14,5 +14,6 @@ use zesk\Exception;
 /**
  *
  */
-class Deprecated extends Exception {
+class Deprecated extends Exception
+{
 }

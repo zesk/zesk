@@ -19,7 +19,8 @@ use zesk\Module as BaseModule;
  * @author kent
  *
  */
-class Module extends BaseModule {
+class Module extends BaseModule
+{
 	/**
 	 * Register schemes with the database module
 	 * @return void
@@ -27,7 +28,8 @@ class Module extends BaseModule {
 	 * @throws ConfigurationException
 	 * @throws Unsupported
 	 */
-	public function initialize(): void {
+	public function initialize(): void
+	{
 		parent::initialize();
 
 		$this->application->registerClass(Database::class);

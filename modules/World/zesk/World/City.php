@@ -15,7 +15,8 @@ use zesk\Doctrine\Trait\AutoID;
 /**
  */
 #[Entity]
-class City {
+class City
+{
 	use AutoID;
 
 	#[Column(type: 'string', nullable: false)]

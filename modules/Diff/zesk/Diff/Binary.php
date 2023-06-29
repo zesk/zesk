@@ -15,7 +15,8 @@ use zesk\Exception\NotFoundException;
  * @author kent
  *
  */
-class Binary extends Base {
+class Binary extends Base
+{
 	/**
 	 *
 	 * @var string
@@ -35,7 +36,8 @@ class Binary extends Base {
 	 * @param int $distanceMaximum Max difference
 	 * @throws NotFoundException
 	 */
-	public function __construct(string $left, string $right, int $distanceMaximum = 0) {
+	public function __construct(string $left, string $right, int $distanceMaximum = 0)
+	{
 		parent::__construct(str_split($left), str_split($right), $distanceMaximum);
 		$this->left = $left;
 		$this->right = $right;
@@ -45,7 +47,8 @@ class Binary extends Base {
 	/**
 	 *
 	 */
-	private function processResults(): void {
+	private function processResults(): void
+	{
 		foreach ($this->diffs() as $edit) {
 			if ($edit->op === Edit::DIFF_INSERT) {
 				$edit->data = substr($this->right, $edit->off, $edit->len);
@@ -57,7 +60,8 @@ class Binary extends Base {
 	 *
 	 * @return string
 	 */
-	public function output(): string {
+	public function output(): string
+	{
 		$result = [];
 		$diffs = $this->diffs();
 		foreach ($diffs as $edit) {

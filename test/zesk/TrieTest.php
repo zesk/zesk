@@ -6,8 +6,10 @@ declare(strict_types=1);
 
 namespace zesk;
 
-class TrieTest extends UnitTest {
-	public static function data_trie(): array {
+class TrieTest extends UnitTest
+{
+	public static function data_trie(): array
+	{
 		$aa_json = [
 			'a' => [
 				'a' => [
@@ -98,11 +100,13 @@ class TrieTest extends UnitTest {
 
 	public array $saved = [];
 
-	public function save_words($word): void {
+	public function save_words($word): void
+	{
 		$this->saved[] = $word;
 	}
 
-	public function get_words(Trie $x): array {
+	public function get_words(Trie $x): array
+	{
 		$this->saved = [];
 		$x->walk([$this, 'save_words']);
 		sort($this->saved);
@@ -115,7 +119,8 @@ class TrieTest extends UnitTest {
 	 * @return void
 	 * @dataProvider data_trie
 	 */
-	public function test_trie(array $words, array $expected): void {
+	public function test_trie(array $words, array $expected): void
+	{
 		$x = new Trie(['lower' => true]);
 		sort($words);
 
@@ -143,8 +148,8 @@ class TrieTest extends UnitTest {
 		$this->assertEquals($words, $optimizedWords, "$wordsDesc: optimized words");
 
 		$json = $x->toJSON();
-//		echo "\nEXPECTED:\n" . PHP::dump($expected) . "\n\n";
-//		echo "\nACTUAL:\n" . PHP::dump($json) . "\n\n";
+		//		echo "\nEXPECTED:\n" . PHP::dump($expected) . "\n\n";
+		//		echo "\nACTUAL:\n" . PHP::dump($json) . "\n\n";
 		$this->assertEquals($expected, $json, "$wordsDesc: JSON");
 	}
 }

@@ -10,12 +10,14 @@ use zesk\PHPUnit\TestCase;
  * @author kent
  *
  */
-class DiffTest extends TestCase {
+class DiffTest extends TestCase
+{
 	protected array $load_modules = [
-		'diff',
+		'Diff',
 	];
 
-	public function test_diff_binary(): void {
+	public function test_diff_binary(): void
+	{
 		$a = 'a';
 		$b = 'a';
 		$testx = new Binary($a, $b);
@@ -24,7 +26,8 @@ class DiffTest extends TestCase {
 		$this->assertCount(1, $edits);
 	}
 
-	public function test_diff_binary2(): void {
+	public function test_diff_binary2(): void
+	{
 		$a = 'a';
 		$b = 'ab';
 		$testx = new Binary($a, $b);
@@ -33,7 +36,8 @@ class DiffTest extends TestCase {
 		$this->assertEquals(new Edit(Edit::DIFF_INSERT, 1, 1, 'b'), $diffs[0]);
 	}
 
-	public function test_diff_binary3(): void {
+	public function test_diff_binary3(): void
+	{
 		$a = 'a';
 		$b = 'ba';
 		$testx = new Binary($a, $b);
@@ -42,7 +46,8 @@ class DiffTest extends TestCase {
 		$this->assertEquals(new Edit(Edit::DIFF_INSERT, 0, 1, 'b'), $diffs[0]);
 	}
 
-	public function test_diff_binary4(): void {
+	public function test_diff_binary4(): void
+	{
 		$a = 'ab';
 		$b = 'a';
 		$testx = new Binary($a, $b);
@@ -51,7 +56,8 @@ class DiffTest extends TestCase {
 		$this->assertEquals(new Edit(Edit::DIFF_DELETE, 1, 1), $diffs[0]);
 	}
 
-	public function test_diff_binary5(): void {
+	public function test_diff_binary5(): void
+	{
 		$a = 'ab';
 		$b = 'b';
 		$testx = new Binary($a, $b);
@@ -60,7 +66,8 @@ class DiffTest extends TestCase {
 		$this->assertEquals(new Edit(Edit::DIFF_DELETE, 0, 1), $diffs[0]);
 	}
 
-	public function test_diff_binary6(): void {
+	public function test_diff_binary6(): void
+	{
 		$a = "Learning\nto\nuse\nthe\npotty";
 		$b = "Learning\n\nto\nuse\nthe\nnew\npotty";
 
@@ -71,7 +78,8 @@ class DiffTest extends TestCase {
 		$this->assertEquals($diffs[1], new Edit(Edit::DIFF_INSERT, 21, 4, "new\n"));
 	}
 
-	public function test_diff_binary7(): void {
+	public function test_diff_binary7(): void
+	{
 		$a = "Learning\nto\nuse\nthe\nnew\npotty";
 		$b = "Learning\nto\nuse\nthe\npotty";
 
@@ -81,7 +89,8 @@ class DiffTest extends TestCase {
 		$this->assertEquals(new Edit(Edit::DIFF_DELETE, 20, 4), $diffs[0]);
 	}
 
-	public function test_diff_binary8(): void {
+	public function test_diff_binary8(): void
+	{
 		$a = "Learning\nto\nuse\nthe\nold\npotty";
 
 		$b = "Learning\nto\nuse\nthe\nnew\npotty";
@@ -93,7 +102,8 @@ class DiffTest extends TestCase {
 		$this->assertEquals(new Edit(Edit::DIFF_INSERT, 20, 3, 'new'), $diffs[1]);
 	}
 
-	public function test_diff_lines(): void {
+	public function test_diff_lines(): void
+	{
 		$a = "Line1\nLine2\nLine4";
 		$b = "Line1\nLine2\nLine3\nLine4";
 		$testx = new Lines($a, $b);
@@ -113,7 +123,8 @@ class DiffTest extends TestCase {
 		], $testx->diffs());
 	}
 
-	public function test_diff_text(): void {
+	public function test_diff_text(): void
+	{
 		$a = 'abcdefghijklmnopqrstuvwxyz';
 		$b = 'abclXXXqrstwxz';
 		$d0 = $d = new Binary($a, $b);

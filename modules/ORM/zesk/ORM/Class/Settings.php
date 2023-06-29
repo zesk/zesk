@@ -7,7 +7,8 @@ namespace zesk\ORM;
  * @author kent
  *
  */
-class Class_Settings extends Class_Base {
+class Class_Settings extends Class_Base
+{
 	public string $id_column = 'name';
 
 	public array $column_types = [

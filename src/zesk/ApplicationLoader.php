@@ -14,7 +14,8 @@ use zesk\Exception\ConfigurationException;
 use zesk\Exception\NotFoundException;
 use zesk\Exception\UnsupportedException;
 
-class ApplicationLoader {
+class ApplicationLoader
+{
 	/**
 	 * @param array $options
 	 * @return Application
@@ -24,7 +25,8 @@ class ApplicationLoader {
 	 * @throws NotFoundException
 	 * @throws UnsupportedException
 	 */
-	public static function application(array $options = []): Application {
+	public static function application(array $options = []): Application
+	{
 		try {
 			$application = Kernel::createApplication($options);
 		} catch (Exception $e) {

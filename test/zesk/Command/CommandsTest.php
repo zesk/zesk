@@ -24,7 +24,8 @@ use zesk\TestApplicationUnitTest;
 /**
  * Commands_Test
  */
-class CommandsTest extends TestApplicationUnitTest {
+class CommandsTest extends TestApplicationUnitTest
+{
 	public const allFalseModules = 'CSV: false
 Cron: false
 Daemon: false
@@ -46,7 +47,8 @@ Server: false
 Session: false
 World: false';
 
-	private static function commandTestArguments(): array {
+	private static function commandTestArguments(): array
+	{
 		$versionInitLines = [
 			'INFO: wrote /zesk/cache/testApp/etc/version-schema.json',
 			'INFO: wrote /zesk/cache/testApp/etc/version.json', '',
@@ -138,7 +140,8 @@ World: false';
 	/**
 	 *
 	 */
-	public static function dataIncludeClasses(): array {
+	public static function dataIncludeClasses(): array
+	{
 		$result = [];
 		foreach (self::commandTestArguments() as $class => $commandTests) {
 			foreach ($commandTests as $commandTest) {
@@ -166,7 +169,8 @@ World: false';
 	 * @throws UnsupportedException
 	 * @dataProvider dataIncludeClasses
 	 */
-	public function test_command(string $class, array $testArguments, int $expectedStatus, string $expectedOutput): void {
+	public function test_command(string $class, array $testArguments, int $expectedStatus, string $expectedOutput): void
+	{
 		$this->testApplication->configure();
 		$testArguments = $this->applyClosures($testArguments);
 		$this->assertCommandClass($class, $testArguments, $expectedStatus, $expectedOutput);
@@ -176,7 +180,8 @@ World: false';
 	 * @return void
 	 * @depends test_command
 	 */
-	public function test_conf2jsonresult(): void {
+	public function test_conf2jsonresult(): void
+	{
 		$resultFile = $this->application->path('test/test-data/conf2json/conf2json.json');
 		$expectedFile = $this->application->path('test/test-data/conf2json/conf2json-expected.json');
 		$this->assertFileEquals($expectedFile, $resultFile);

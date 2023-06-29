@@ -6,12 +6,14 @@ namespace zesk;
 use zesk\Database\Base;
 use zesk\Database\DatabaseTestCase;
 
-class MySQL_Database_TestCase extends DatabaseTestCase {
+class MySQL_Database_TestCase extends DatabaseTestCase
+{
 	protected array $load_modules = [
 		'MySQL',
 	];
 
-	public function test_types_compatible(): void {
+	public function test_types_compatible(): void
+	{
 		$mysql = $this->application->databaseRegistry('mysql://root@localhost/mysql', [
 			'connect' => false,
 		]);
@@ -22,7 +24,8 @@ class MySQL_Database_TestCase extends DatabaseTestCase {
 	 *
 	 * @return \mysql\Database
 	 */
-	public function database(): Base {
+	public function database(): Base
+	{
 		$db = $this->application->databaseRegistry();
 
 		$this->assertTrue(in_array($db->type(), [
@@ -32,7 +35,8 @@ class MySQL_Database_TestCase extends DatabaseTestCase {
 		return $db;
 	}
 
-	public function test_mysql_1(): void {
+	public function test_mysql_1(): void
+	{
 		$db = $this->database();
 
 		$sql = <<<EOF
@@ -81,7 +85,8 @@ EOF;
 		echo "Test created because preg_match dies on web2 with above input... due to pcre backtracking stack overflow ... or something like that\n";
 	}
 
-	public function test_mysql_funcs_1(): void {
+	public function test_mysql_funcs_1(): void
+	{
 		$db = $this->database();
 
 		$test_table = $this->prepareTestTable('test_table');
@@ -330,7 +335,8 @@ EOF;
 		$this->assertIsString($db->tablePrefix());
 	}
 
-	public function test_estimate_rows(): void {
+	public function test_estimate_rows(): void
+	{
 		$db = $this->database();
 		$this->assertTrue($db->tableExists('test_table'));
 		$sql = 'SELECT * FROM test_table';

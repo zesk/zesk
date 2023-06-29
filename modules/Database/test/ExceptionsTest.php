@@ -17,13 +17,15 @@ use zesk\PHPUnit\TestCase;
  * @author kent
  *
  */
-class ExceptionsTest extends TestCase {
+class ExceptionsTest extends TestCase
+{
 	protected array $load_modules = ['Database', 'MySQL'];
 
 	/**
 	 * @return Base
 	 */
-	public function database(): Base {
+	public function database(): Base
+	{
 		return $this->application->databaseRegistry($this->option('database', ''));
 	}
 
@@ -33,7 +35,8 @@ class ExceptionsTest extends TestCase {
 	 * @param int|null $expected_code
 	 * @return void
 	 */
-	protected function _test_exception(Exception $x, string $expected_message = null, int $expected_code = null): void {
+	protected function _test_exception(Exception $x, string $expected_message = null, int $expected_code = null): void
+	{
 		$message = $x->getMessage();
 		if ($expected_message !== null) {
 			$this->assertEquals($message, $expected_message);
@@ -54,7 +57,8 @@ class ExceptionsTest extends TestCase {
 
 	/**
 	 */
-	public function test_main(): void {
+	public function test_main(): void
+	{
 		$database = $this->application->databaseRegistry();
 		$this->assertInstanceOf(Base::class, $database);
 		for ($i = 0; $i < 100; $i++) {
@@ -71,7 +75,8 @@ class ExceptionsTest extends TestCase {
 	 *
 	 * @param Exception $x
 	 */
-	protected function validate_exception(Exception $x): void {
+	protected function validate_exception(Exception $x): void
+	{
 		$message = $x->getMessage();
 		$this->assertIsString($message);
 		$code = $x->getCode();
@@ -87,17 +92,20 @@ class ExceptionsTest extends TestCase {
 		$this->assertIsString(strval($x));
 	}
 
-	public function test_duplicate(): void {
+	public function test_duplicate(): void
+	{
 		$e = new Duplicate($this->database(), 'INSERT INTO foo ( id, name ) VALUES ( 4, \'dude\' )', 'duplicate for primary key id');
 		$this->validate_exception($e);
 	}
 
-	public function test_schema(): void {
+	public function test_schema(): void
+	{
 		$e = new SchemaException($this->database());
 		$this->validate_exception($e);
 	}
 
-	public function test_base(): void {
+	public function test_base(): void
+	{
 		$e = new Exception($this->database(), 'Basic test exception');
 		$this->validate_exception($e);
 	}

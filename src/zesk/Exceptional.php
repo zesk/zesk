@@ -5,7 +5,8 @@ namespace zesk;
 
 use Throwable;
 
-trait Exceptional {
+trait Exceptional
+{
 	/**
 	 * Raw message without variables substituted.
 	 * Allows logging of messages before substitutions.
@@ -35,7 +36,8 @@ trait Exceptional {
 	 * @param \Exception|null $previous
 	 *            Previous exception which may have spawned this one
 	 */
-	public function __construct(string $message = '', array $arguments = [], int $code = 0, Throwable $previous = null) {
+	public function __construct(string $message = '', array $arguments = [], int $code = 0, Throwable $previous = null)
+	{
 		$this->arguments = $arguments;
 		$this->raw_message = $message;
 		$map_message = strval(ArrayTools::map($this->raw_message, $this->arguments));
@@ -45,14 +47,16 @@ trait Exceptional {
 	/**
 	 * @return string
 	 */
-	public function codeName(): string {
+	public function codeName(): string
+	{
 		return StringTools::removePrefix(PHP::parseClass(get_class($this)), ['Exception_', 'Exception']);
 	}
 
 	/**
 	 * @return string
 	 */
-	public function getRawMessage(): string {
+	public function getRawMessage(): string
+	{
 		return $this->raw_message;
 	}
 
@@ -61,7 +65,8 @@ trait Exceptional {
 	 *
 	 * @return array
 	 */
-	public function variables(): array {
+	public function variables(): array
+	{
 		return $this->arguments + [
 			'rawMessage' => $this->raw_message,
 			'arguments' => $this->arguments,
@@ -75,7 +80,8 @@ trait Exceptional {
 	 * @return array
 	 * @see Logger::log
 	 */
-	public function logVariables(): array {
+	public function logVariables(): array
+	{
 		return $this->variables();
 	}
 
@@ -85,7 +91,8 @@ trait Exceptional {
 	 * @return string
 	 * @see Logger::log
 	 */
-	public function logMessage(): string {
+	public function logMessage(): string
+	{
 		return $this->getMessage();
 	}
 }

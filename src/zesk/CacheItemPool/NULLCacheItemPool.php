@@ -14,7 +14,8 @@ use zesk\CacheItem\CacheItemNULL;
  * @author kent
  *
  */
-class NULLCacheItemPool implements CacheItemPoolInterface {
+class NULLCacheItemPool implements CacheItemPoolInterface
+{
 	/**
 	 * Returns a Cache Item representing the specified key.
 	 *
@@ -27,7 +28,8 @@ class NULLCacheItemPool implements CacheItemPoolInterface {
 	 * @return CacheItemInterface
 	 *   The corresponding Cache Item.
 	 */
-	public function getItem($key): CacheItemInterface {
+	public function getItem($key): CacheItemInterface
+	{
 		return new CacheItemNULL($key);
 	}
 
@@ -43,7 +45,8 @@ class NULLCacheItemPool implements CacheItemPoolInterface {
 	 *   key is not found. However, if no keys are specified then an empty
 	 *   traversable MUST be returned instead.
 	 */
-	public function getItems(array $keys = []): array {
+	public function getItems(array $keys = []): array
+	{
 		$result = [];
 		foreach ($keys as $index => $key) {
 			$result[$index] = $this->getItem($key);
@@ -64,7 +67,8 @@ class NULLCacheItemPool implements CacheItemPoolInterface {
 	 * @return bool
 	 *   True if item exists in the cache, false otherwise.
 	 */
-	public function hasItem($key): bool {
+	public function hasItem($key): bool
+	{
 		return false;
 	}
 
@@ -74,7 +78,8 @@ class NULLCacheItemPool implements CacheItemPoolInterface {
 	 * @return bool
 	 *   True if the pool was successfully cleared. False if there was an error.
 	 */
-	public function clear(): bool {
+	public function clear(): bool
+	{
 		return true;
 	}
 
@@ -87,7 +92,8 @@ class NULLCacheItemPool implements CacheItemPoolInterface {
 	 * @return bool
 	 *   True if the item was successfully removed. False if there was an error.
 	 */
-	public function deleteItem($key): bool {
+	public function deleteItem($key): bool
+	{
 		return true;
 	}
 
@@ -100,7 +106,8 @@ class NULLCacheItemPool implements CacheItemPoolInterface {
 	 * @return bool
 	 *   True if the items were successfully removed. False if there was an error.
 	 */
-	public function deleteItems(array $keys): bool {
+	public function deleteItems(array $keys): bool
+	{
 		return true;
 	}
 
@@ -113,7 +120,8 @@ class NULLCacheItemPool implements CacheItemPoolInterface {
 	 * @return bool
 	 *   True if the item was successfully persisted. False if there was an error.
 	 */
-	public function save(CacheItemInterface $item): bool {
+	public function save(CacheItemInterface $item): bool
+	{
 		return false;
 	}
 
@@ -126,7 +134,8 @@ class NULLCacheItemPool implements CacheItemPoolInterface {
 	 * @return bool
 	 *   False if the item could not be queued or if a commit was attempted and failed. True otherwise.
 	 */
-	public function saveDeferred(CacheItemInterface $item): bool {
+	public function saveDeferred(CacheItemInterface $item): bool
+	{
 		return false;
 	}
 
@@ -136,7 +145,8 @@ class NULLCacheItemPool implements CacheItemPoolInterface {
 	 * @return bool
 	 *   True if all not-yet-saved items were successfully saved or there were none. False otherwise.
 	 */
-	public function commit(): bool {
+	public function commit(): bool
+	{
 		return false;
 	}
 }

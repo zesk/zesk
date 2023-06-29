@@ -4,8 +4,10 @@ namespace zesk;
 
 use stdClass;
 
-class Configuration_Test extends UnitTest {
-	public static function data_value_types(): array {
+class Configuration_Test extends UnitTest
+{
+	public static function data_value_types(): array
+	{
 		return [
 			['Hello'],
 			[1],
@@ -22,7 +24,8 @@ class Configuration_Test extends UnitTest {
 	 * @dataProvider data_value_types
 	 * @param mixed $value
 	 */
-	public function test_value_types(mixed $value): void {
+	public function test_value_types(mixed $value): void
+	{
 		$configuration = new Configuration();
 		$configuration->setPath('TEST::ROOT', $value);
 		$this->assertEquals($configuration->getPath('TEST::ROOT'), $value);

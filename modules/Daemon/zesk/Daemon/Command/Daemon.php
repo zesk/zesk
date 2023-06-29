@@ -39,7 +39,8 @@ use zesk\Timestamp;
  * @author kent
  * @category Management
  */
-class Daemon extends SimpleCommand implements SystemProcess {
+class Daemon extends SimpleCommand implements SystemProcess
+{
 	protected array $shortcuts = ['daemon'];
 
 	/**
@@ -161,7 +162,8 @@ class Daemon extends SimpleCommand implements SystemProcess {
 	 * @param Application $set
 	 * @return SystemProcess
 	 */
-	public function setApplication(Application $set): SystemProcess {
+	public function setApplication(Application $set): SystemProcess
+	{
 		$this->application = $set;
 		return $this;
 	}
@@ -171,7 +173,8 @@ class Daemon extends SimpleCommand implements SystemProcess {
 	 *
 	 * @see \zesk\Doctrine\Command\Command::run()
 	 */
-	public function run(): int {
+	public function run(): int
+	{
 		$daemon = $this->application->modules->object('Daemon');
 		assert($daemon instanceof Module);
 		$this->module = $daemon;
@@ -214,11 +217,13 @@ class Daemon extends SimpleCommand implements SystemProcess {
 	/**
 	 * @return Application
 	 */
-	public function application(): Application {
+	public function application(): Application
+	{
 		return $this->application;
 	}
 
-	protected function install_signals(): void {
+	protected function install_signals(): void
+	{
 		if (function_exists('pcntl_signal')) {
 			$callback = $this->signal_handler(...);
 			pcntl_signal(SIGCHLD, $callback);
@@ -235,11 +240,13 @@ class Daemon extends SimpleCommand implements SystemProcess {
 	 * @throws FilePermission
 	 * @throws SyntaxException
 	 */
-	private function loadProcessDatabase(): array {
+	private function loadProcessDatabase(): array
+	{
 		return $this->module->loadProcessDatabase();
 	}
 
-	private function saveProcessDatabase(array $database): void {
+	private function saveProcessDatabase(array $database): void
+	{
 		$this->module->saveProcessDatabase($database);
 	}
 
@@ -248,7 +255,8 @@ class Daemon extends SimpleCommand implements SystemProcess {
 	 *
 	 * @return number
 	 */
-	final public function command_stop($signal = SIGTERM): int {
+	final public function command_stop($signal = SIGTERM): int
+	{
 		$database = $this->loadProcessDatabase();
 		if (count($database) === 0) {
 			$this->application->error('Not running.');
@@ -295,7 +303,8 @@ class Daemon extends SimpleCommand implements SystemProcess {
 	 *
 	 * @return Closure[]
 	 */
-	private function daemons(): array {
+	private function daemons(): array
+	{
 		$daemons = Hookable::findMethodsWithAttributes($this, DaemonMethod::class, true);
 		$daemons = $this->daemons_expand($daemons);
 		return $daemons;
@@ -311,7 +320,8 @@ class Daemon extends SimpleCommand implements SystemProcess {
 	 * @return array:DaemonMethod
 	 * @throws ConfigurationException
 	 */
-	private function daemons_expand(array $daemons): array {
+	private function daemons_expand(array $daemons): array
+	{
 		$total_process_count = 0;
 		$configuration = $this->application->configuration;
 		$new_daemons = [];
@@ -346,7 +356,8 @@ class Daemon extends SimpleCommand implements SystemProcess {
 	 *
 	 * @return number
 	 */
-	final public function commandList(): int {
+	final public function commandList(): int
+	{
 		$daemons = $this->daemons();
 		echo implode(PHP_EOL, $daemons) . PHP_EOL;
 		return 0;
@@ -359,7 +370,8 @@ class Daemon extends SimpleCommand implements SystemProcess {
 	 * @param string $newState
 	 * @return int
 	 */
-	final public function commandState(string $name, string $want, string $newState = ''): int {
+	final public function commandState(string $name, string $want, string $newState = ''): int
+	{
 		$database = $this->loadProcessDatabase();
 		if ($name === 'all') {
 			foreach ($database as $name => $settings) {
@@ -401,7 +413,8 @@ class Daemon extends SimpleCommand implements SystemProcess {
 	 * @param string $newState
 	 * @return number
 	 */
-	private function _commandState(array $database, string $name, array $settings, string $want, string $newState = ''): int {
+	private function _commandState(array $database, string $name, array $settings, string $want, string $newState = ''): int
+	{
 		$pid = $settings['pid'];
 		$status = $settings['status'];
 		if ($status === $want) {
@@ -441,7 +454,8 @@ class Daemon extends SimpleCommand implements SystemProcess {
 	 *
 	 * @return number
 	 */
-	final public function command_stat() {
+	final public function command_stat()
+	{
 		$database = $this->loadProcessDatabase();
 		$changed = false;
 		foreach ($database as $name => $settings) {
@@ -487,7 +501,8 @@ class Daemon extends SimpleCommand implements SystemProcess {
 		return 0;
 	}
 
-	public static function shutdown(): void {
+	public static function shutdown(): void
+	{
 		$instance = self::instance();
 		$instance->terminate();
 	}
@@ -496,7 +511,8 @@ class Daemon extends SimpleCommand implements SystemProcess {
 	 *
 	 * @return self
 	 */
-	protected static function instance(): self {
+	protected static function instance(): self
+	{
 		if (!self::$instance) {
 			throw new SemanticsException('No instance');
 		}
@@ -508,7 +524,8 @@ class Daemon extends SimpleCommand implements SystemProcess {
 	 * @param self $set
 	 * @return self
 	 */
-	protected static function setInstance(self $set): void {
+	protected static function setInstance(self $set): void
+	{
 		self::$instance = $set;
 	}
 
@@ -518,7 +535,8 @@ class Daemon extends SimpleCommand implements SystemProcess {
 	 * @param int $signo
 	 *            The signal number to handle
 	 */
-	public function signal_handler(int $signo): void {
+	public function signal_handler(int $signo): void
+	{
 		$this->application->debug('Signal {signame} {signo} received', [
 			'signo' => $signo, 'signame' => self::$signals[$signo] ?? 'Unknown',
 		]);
@@ -555,7 +573,8 @@ class Daemon extends SimpleCommand implements SystemProcess {
 	 * @param string $message
 	 * @throws FilePermission
 	 */
-	private function send(mixed $message = ''): void {
+	private function send(mixed $message = ''): void
+	{
 		if ($this->optionBool(self::OPTION_NO_FORK)) {
 			return;
 		}
@@ -577,7 +596,8 @@ class Daemon extends SimpleCommand implements SystemProcess {
 	 * @param int $timeout in seconds
 	 * @return mixed
 	 */
-	private function read(int $timeout): mixed {
+	private function read(int $timeout): mixed
+	{
 		if ($this->quitting) {
 			return null;
 		}
@@ -611,7 +631,8 @@ class Daemon extends SimpleCommand implements SystemProcess {
 	/**
 	 * @return int
 	 */
-	private function daemonize(): int {
+	private function daemonize(): int
+	{
 		if ($this->optionBool('nofork')) {
 			return 0;
 		}
@@ -647,7 +668,8 @@ class Daemon extends SimpleCommand implements SystemProcess {
 	 * @return number
 	 * @throws FilePermission
 	 */
-	final public function command_run(): int {
+	final public function command_run(): int
+	{
 		$database = $this->loadProcessDatabase();
 		assert(is_array($database));
 		$my_db_pid = ArrayTools::path($database, 'me.pid');
@@ -721,14 +743,16 @@ class Daemon extends SimpleCommand implements SystemProcess {
 	/**
 	 *
 	 */
-	private function load_watch(): void {
+	private function load_watch(): void
+	{
 		$files = $this->optionIterable('watch');
 		if (count($files) > 0) {
 			$this->watch_monitor = new FilesMonitor($files);
 		}
 	}
 
-	private function check_watch(): void {
+	private function check_watch(): void
+	{
 		if ($this->watch_monitor) {
 			if ($this->watch_monitor->changed()) {
 				$this->quitting = true;
@@ -736,7 +760,8 @@ class Daemon extends SimpleCommand implements SystemProcess {
 		}
 	}
 
-	private function run_child(string $name, DaemonMethod $method) {
+	private function run_child(string $name, DaemonMethod $method)
+	{
 		$pid = $this->application->process->id();
 		$this->application->debug('FORKING for process {name} me={pid}', [
 			'name' => $name, 'pid' => $pid,
@@ -788,7 +813,8 @@ class Daemon extends SimpleCommand implements SystemProcess {
 	 *
 	 * @param int $timeout
 	 */
-	private function read_fifo(int $timeout): void {
+	private function read_fifo(int $timeout): void
+	{
 		$debug = $this->optionBool(self::OPTION_DEBUG);
 		if ($debug) {
 			$this->application->debug('Server waiting for data in FIFO (timeout is {timeout} seconds)', [
@@ -841,7 +867,8 @@ class Daemon extends SimpleCommand implements SystemProcess {
 	/**
 	 * Run all of our children
 	 */
-	private function run_children(): void {
+	private function run_children(): void
+	{
 		$daemons = $this->daemons();
 		$database = $this->loadProcessDatabase();
 		foreach ($daemons as $name => $daemon) {
@@ -907,7 +934,8 @@ class Daemon extends SimpleCommand implements SystemProcess {
 	 *
 	 * @throws FilePermission
 	 */
-	private function _fifo_write(): void {
+	private function _fifo_write(): void
+	{
 		if (is_resource($this->fifo_w)) {
 			return;
 		}
@@ -926,7 +954,8 @@ class Daemon extends SimpleCommand implements SystemProcess {
 	 *
 	 * @throws FilePermission
 	 */
-	private function _fifo_read(): void {
+	private function _fifo_read(): void
+	{
 		$this->fifo_r = fopen($this->fifo_path, 'r+b');
 		if (!$this->fifo_r) {
 			$this->application->error('Can not open fifo {fifo} for reading', [
@@ -942,7 +971,8 @@ class Daemon extends SimpleCommand implements SystemProcess {
 	/**
 	 * Close read FIFO
 	 */
-	private function _fifo_read_close(): void {
+	private function _fifo_read_close(): void
+	{
 		if ($this->fifo_r) {
 			fclose($this->fifo_r);
 			$this->fifo_r = null;
@@ -952,7 +982,8 @@ class Daemon extends SimpleCommand implements SystemProcess {
 	/**
 	 * Close write FIFO
 	 */
-	private function _fifo_write_close(): void {
+	private function _fifo_write_close(): void
+	{
 		if ($this->fifo_w) {
 			fclose($this->fifo_w);
 			$this->fifo_w = null;
@@ -962,7 +993,8 @@ class Daemon extends SimpleCommand implements SystemProcess {
 	/**
 	 * Close all FIFOs
 	 */
-	private function _fifos_close(): void {
+	private function _fifos_close(): void
+	{
 		$this->_fifo_read_close();
 		$this->_fifo_write_close();
 	}
@@ -970,7 +1002,8 @@ class Daemon extends SimpleCommand implements SystemProcess {
 	/**
 	 * Run child process, then exit
 	 */
-	private function child(): void {
+	private function child(): void
+	{
 		$this->parent = false;
 		if ($this->optionBool('nofork')) {
 			$this->_fifos_close();
@@ -1012,7 +1045,8 @@ class Daemon extends SimpleCommand implements SystemProcess {
 	 *
 	 * @return boolean
 	 */
-	public function done(): bool {
+	public function done(): bool
+	{
 		pcntl_signal_dispatch();
 		if ($this->quitting) {
 			return true;
@@ -1041,7 +1075,8 @@ class Daemon extends SimpleCommand implements SystemProcess {
 	 *
 	 * @param string $interrupt
 	 */
-	public function kill(): void {
+	public function kill(): void
+	{
 		$this->quitting = true;
 		$myProcessID = $this->application->process->id();
 		if ($this->parent) {
@@ -1060,7 +1095,8 @@ class Daemon extends SimpleCommand implements SystemProcess {
 	 *
 	 * @param array $database
 	 */
-	private function shutdown_children(array $database): void {
+	private function shutdown_children(array $database): void
+	{
 		foreach ($database as $name => $settings) {
 			$pid = $status = null;
 			extract($settings, EXTR_IF_EXISTS);
@@ -1112,7 +1148,8 @@ class Daemon extends SimpleCommand implements SystemProcess {
 	 * Terminate this process.
 	 * Nice way to do it.
 	 */
-	public function terminate($message = null): void {
+	public function terminate($message = null): void
+	{
 		if ($this->quitting) {
 			return;
 		}
@@ -1145,7 +1182,8 @@ class Daemon extends SimpleCommand implements SystemProcess {
 	 * Take a nap.
 	 * I love naps.
 	 */
-	public function sleep($seconds = 1.0): void {
+	public function sleep($seconds = 1.0): void
+	{
 		pcntl_signal_dispatch();
 		if ($this->quitting) {
 			$this->terminate();
@@ -1174,7 +1212,8 @@ class Daemon extends SimpleCommand implements SystemProcess {
 	 * @param array $args
 	 * @param string $level
 	 */
-	public function warning(string $message, array $args = []): void {
+	public function warning(string $message, array $args = []): void
+	{
 		$this->application->warning($message, $args);
 	}
 }

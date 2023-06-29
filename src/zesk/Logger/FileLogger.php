@@ -23,7 +23,8 @@ use zesk\Text;
 use zesk\Timestamp;
 use zesk\Types;
 
-class FileLogger implements LoggerInterface {
+class FileLogger implements LoggerInterface
+{
 	use LoggerTrait;
 
 	/**
@@ -114,7 +115,8 @@ class FileLogger implements LoggerInterface {
 	 * @param string $filename
 	 * @param array $options
 	 */
-	public function __construct(mixed $filename = '', array $options = []) {
+	public function __construct(mixed $filename = '', array $options = [])
+	{
 		if (is_resource($filename)) {
 			$this->fp = $filename;
 			$this->opened = false;
@@ -141,7 +143,8 @@ class FileLogger implements LoggerInterface {
 		$this->child = null;
 	}
 
-	public function setChild(LoggerInterface $child): self {
+	public function setChild(LoggerInterface $child): self
+	{
 		if ($child instanceof NullLogger) {
 			$child = null;
 		}
@@ -154,7 +157,8 @@ class FileLogger implements LoggerInterface {
 	 * @return $this
 	 * @throws KeyNotFound
 	 */
-	public function setLevels(array $levels): self {
+	public function setLevels(array $levels): self
+	{
 		$loggingLevels = Logger::logMap();
 		foreach ($levels as $level => $display) {
 			if (array_key_exists($level, $loggingLevels)) {
@@ -169,14 +173,16 @@ class FileLogger implements LoggerInterface {
 	/**
 	 * @return array
 	 */
-	public function getLevels(): array {
+	public function getLevels(): array
+	{
 		return $this->levels;
 	}
 
 	/**
 	 * @return array
 	 */
-	public static function defaultLevels(): array {
+	public static function defaultLevels(): array
+	{
 		$enabled = true;
 		$result = [];
 		foreach (Logger::logLevels() as $level) {
@@ -194,7 +200,8 @@ class FileLogger implements LoggerInterface {
 	 * @param array $options
 	 * @return self
 	 */
-	public static function factory(mixed $filename = '', array $options = []): self {
+	public static function factory(mixed $filename = '', array $options = []): self
+	{
 		return new self($filename, $options);
 	}
 
@@ -203,7 +210,8 @@ class FileLogger implements LoggerInterface {
 	 * @param string $filename
 	 * @return self
 	 */
-	public function setFilename(string $filename): self {
+	public function setFilename(string $filename): self
+	{
 		$this->close();
 		if (StringTools::hasTokens($filename)) {
 			$this->filename = '';
@@ -223,7 +231,8 @@ class FileLogger implements LoggerInterface {
 	 * @return self
 	 * @throws ParameterException
 	 */
-	public function setFileDescriptor(mixed $fp, string $name = ''): self {
+	public function setFileDescriptor(mixed $fp, string $name = ''): self
+	{
 		if (!is_resource($fp)) {
 			throw new ParameterException('{method} takes a file resource, {type} passed in', [
 				'method' => __METHOD__, 'type' => Types::type($fp),
@@ -243,7 +252,8 @@ class FileLogger implements LoggerInterface {
 	 * @param array $context
 	 * @return bool
 	 */
-	private function generateFilename(array $context): bool {
+	private function generateFilename(array $context): bool
+	{
 		$locale = isset($context['locale']) && $context['locale'] instanceof Locale ? $context['locale'] : null;
 		$ts = Timestamp::factory(intval($context['_microtime']), $this->timeZone);
 		$new_filename = $ts->format($this->filename_pattern, [
@@ -259,7 +269,8 @@ class FileLogger implements LoggerInterface {
 		return true;
 	}
 
-	private function error_log($message, array $context = []): void {
+	private function error_log($message, array $context = []): void
+	{
 		error_log(ArrayTools::map($message, $context));
 	}
 
@@ -268,7 +279,8 @@ class FileLogger implements LoggerInterface {
 	 *
 	 * @return bool
 	 */
-	private function updateLink(): bool {
+	private function updateLink(): bool
+	{
 		$linkname = $this->linkName;
 		if (!File::isAbsolute($linkname)) {
 			$linkname = Directory::path(dirname($this->filename), $linkname);
@@ -320,7 +332,8 @@ class FileLogger implements LoggerInterface {
 	 * @param string $message
 	 * @return boolean
 	 */
-	private function should_include(string $message): bool {
+	private function should_include(string $message): bool
+	{
 		foreach ($this->includePatterns as $pattern) {
 			if (preg_match($pattern, $message)) {
 				return true;
@@ -335,7 +348,8 @@ class FileLogger implements LoggerInterface {
 	 * @param string $message
 	 * @return boolean
 	 */
-	private function should_exclude(string $message): bool {
+	private function should_exclude(string $message): bool
+	{
 		foreach ($this->excludePatterns as $pattern) {
 			if (preg_match($pattern, $message)) {
 				return true;
@@ -344,7 +358,8 @@ class FileLogger implements LoggerInterface {
 		return false;
 	}
 
-	public function log(mixed $level, Stringable|string $message, array $context = []): void {
+	public function log(mixed $level, Stringable|string $message, array $context = []): void
+	{
 		$this->child?->log($level, $message, $context);
 		$this->_fileLog($level, $message, $context);
 	}
@@ -352,7 +367,8 @@ class FileLogger implements LoggerInterface {
 	/**
 	 *
 	 */
-	private function _fileLog(mixed $level, Stringable|string $message, array $context = []): void {
+	private function _fileLog(mixed $level, Stringable|string $message, array $context = []): void
+	{
 		if (!($this->levels[strval($level)] ?? false)) {
 			return;
 		}
@@ -393,7 +409,8 @@ class FileLogger implements LoggerInterface {
 	/**
 	 * Close FP upon close
 	 */
-	public function close(): void {
+	public function close(): void
+	{
 		if ($this->fp) {
 			if ($this->opened) {
 				fclose($this->fp);
@@ -405,7 +422,8 @@ class FileLogger implements LoggerInterface {
 	/**
 	 * Close FP upon close
 	 */
-	public function __destruct() {
+	public function __destruct()
+	{
 		$this->close();
 	}
 
@@ -413,7 +431,8 @@ class FileLogger implements LoggerInterface {
 	 *
 	 * @return string[]
 	 */
-	public function variables(): array {
+	public function variables(): array
+	{
 		return [
 			'filename' => $this->filename, 'mode' => $this->mode, 'include_patterns' => $this->includePatterns,
 			'exclude_patterns' => $this->excludePatterns, 'time_zone' => $this->timeZone, 'prefix' => $this->prefix,

@@ -21,7 +21,8 @@ use zesk\StringTools;
  * @author kent
  *
  */
-class Translate extends SimpleCommand {
+class Translate extends SimpleCommand
+{
 	/**
 	 *
 	 * @var integer
@@ -67,7 +68,8 @@ class Translate extends SimpleCommand {
 	 *
 	 * @see Command::run()
 	 */
-	protected function run(): int {
+	protected function run(): int
+	{
 		$app = $this->application;
 		$source_language_file = $this->option('language-file', $app->configuration->getPath([
 			Module::class, 'sourceFile',
@@ -151,7 +153,8 @@ class Translate extends SimpleCommand {
 	 * @param string $phrase
 	 * @return array 2-item array with [$phrase, $context]
 	 */
-	private function preprocessPhrase(string $phrase): array {
+	private function preprocessPhrase(string $phrase): array
+	{
 		$tokens = StringTools::extractTokens($phrase);
 		$map = [];
 		foreach ($tokens as $index => $token) {
@@ -168,7 +171,8 @@ class Translate extends SimpleCommand {
 	 * @param array $map
 	 * @return string
 	 */
-	private function postprocessPhrase(string $phrase, array $map): string {
+	private function postprocessPhrase(string $phrase, array $map): string
+	{
 		return tr($phrase, $map);
 	}
 }

@@ -25,7 +25,8 @@ use zesk\Types;
  * @package zesk
  * @subpackage tools
  */
-class Writer extends Base {
+class Writer extends Base
+{
 	/**
 	 * Whether the headers have been written yet
 	 *
@@ -79,7 +80,8 @@ class Writer extends Base {
 	 *
 	 * @param array $options
 	 */
-	public function __construct(array $options = []) {
+	public function __construct(array $options = [])
+	{
 		parent::__construct($options);
 		$this->WroteHeaders = false;
 		$this->WriteMapGroup = [];
@@ -94,7 +96,8 @@ class Writer extends Base {
 	/**
 	 * Get the filename to write to
 	 */
-	public function file(): string {
+	public function file(): string
+	{
 		return $this->FileName;
 	}
 
@@ -104,7 +107,8 @@ class Writer extends Base {
 	 * @throws FileNotFound
 	 * @throws FilePermission
 	 */
-	public function setFile(string $f): self {
+	public function setFile(string $f): self
+	{
 		return parent::_setFile($f, 'w', true);
 	}
 
@@ -117,7 +121,8 @@ class Writer extends Base {
 	 *
 	 * @return array
 	 */
-	private function _writeNewRow(): array {
+	private function _writeNewRow(): array
+	{
 		return array_fill(0, count($this->Headers), '');
 	}
 
@@ -134,7 +139,8 @@ class Writer extends Base {
 	 * @throws KeyNotFound
 	 * @throws SemanticsException
 	 */
-	public function add_object_map(string $name, array $map, array $defaultMap = null): self {
+	public function add_object_map(string $name, array $map, array $defaultMap = null): self
+	{
 		if (!count($this->HeadersToIndex)) {
 			throw new SemanticsException("Need to set headers prior to setting a translation map ($name)");
 		}
@@ -164,7 +170,8 @@ class Writer extends Base {
 	 *
 	 * @return array
 	 */
-	public function object_names(): array {
+	public function object_names(): array
+	{
 		return array_keys($this->WriteMapGroup);
 	}
 
@@ -181,7 +188,8 @@ class Writer extends Base {
 	 *            The value to output when the value is null
 	 * @return self
 	 */
-	public function add_translation_map_boolean($column_names, $no = null, $yes = null, $null = null) {
+	public function add_translation_map_boolean($column_names, $no = null, $yes = null, $null = null)
+	{
 		$this->add_translation_map($column_names, ['' => $null === null ? '' : $null, '0' => $no === null ? 'no' : $no, '1' => $yes === null ? 'yes' : $no, ]);
 		return $this;
 	}
@@ -196,7 +204,8 @@ class Writer extends Base {
 	 * @throws KeyNotFound
 	 * @throws SemanticsException
 	 */
-	public function add_translation_map(array|string $column_names, array $map): self {
+	public function add_translation_map(array|string $column_names, array $map): self
+	{
 		if (!count($this->HeadersToIndex)) {
 			throw new SemanticsException("Need to set headers prior to setting a translation map ($column_names)");
 		}
@@ -222,7 +231,8 @@ class Writer extends Base {
 	 * @throws KeyNotFound
 	 * @see createORMMap
 	 */
-	public function setObject(string $name, array $fields): array {
+	public function setObject(string $name, array $fields): array
+	{
 		$lowName = strtolower($name);
 		if (!isset($this->WriteMapGroup[$lowName])) {
 			throw new KeyNotFound("CSV::set_object($name) doesn't exist");
@@ -261,7 +271,8 @@ class Writer extends Base {
 	 * @return void
 	 * @param array $row
 	 */
-	public function setRow(array $row): void {
+	public function setRow(array $row): void
+	{
 		if (count($row) === 0) {
 			$this->Row = $row;
 			return;
@@ -291,7 +302,8 @@ class Writer extends Base {
 	 * @param mixed $data
 	 * @return bool
 	 */
-	public function setColumn(string $col, mixed $data): bool {
+	public function setColumn(string $col, mixed $data): bool
+	{
 		if (empty($col)) {
 			return false;
 		}
@@ -309,7 +321,8 @@ class Writer extends Base {
 	 * @return void
 	 * @throws SemanticsException
 	 */
-	public function writeRow(): void {
+	public function writeRow(): void
+	{
 		$this->_check_file();
 		if (!count($this->Row)) {
 			throw new SemanticsException('CSV_Writer:writeRow: Must set row values first');
@@ -339,7 +352,8 @@ class Writer extends Base {
 	 * @param array $row
 	 * @return string
 	 */
-	protected function _formatRow(array $row): string {
+	protected function _formatRow(array $row): string
+	{
 		$d = $this->Delimiter;
 		$e = $this->Enclosure;
 		$rowOut = [];
@@ -358,7 +372,8 @@ class Writer extends Base {
 	 * @param callable $callable
 	 * @return self
 	 */
-	public function addWriteHook(callable $callable): self {
+	public function addWriteHook(callable $callable): self
+	{
 		$name = Hooks::callableString($callable);
 		$this->write_hooks[$name] = $callable;
 		return $this;

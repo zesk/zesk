@@ -15,13 +15,15 @@ use zesk\Repository\Module as RepositoryModule;
  * @see Repository
  * @author kent
  */
-abstract class ModuleBase extends Module {
+abstract class ModuleBase extends Module
+{
 	/**
 	 * Return master module in case this module is subclassed
 	 *
 	 * @return RepositoryModule
 	 */
-	public function repositoryModule(): RepositoryModule {
+	public function repositoryModule(): RepositoryModule
+	{
 		return $this->application->repositoryModule();
 	}
 
@@ -31,7 +33,8 @@ abstract class ModuleBase extends Module {
 	 * @param array $aliases
 	 * @return self
 	 */
-	public function registerRepository(string $class, array $aliases = []): self {
+	public function registerRepository(string $class, array $aliases = []): self
+	{
 		$this->repositoryModule()->registerRepository($class, $aliases);
 		return $this;
 	}
@@ -42,7 +45,8 @@ abstract class ModuleBase extends Module {
 	 * @return Base
 	 * @throws NotFoundException
 	 */
-	public function factory(string $directory): Base {
+	public function factory(string $directory): Base
+	{
 		return $this->repositoryModule()->factory($directory);
 	}
 }

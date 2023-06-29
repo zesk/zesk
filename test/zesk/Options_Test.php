@@ -14,8 +14,10 @@ use function microtime;
  * @author kent
  *
  */
-class Options_Test extends UnitTest {
-	public function test_options(): void {
+class Options_Test extends UnitTest
+{
+	public function test_options(): void
+	{
 		$init = ['item' => 1, 'thing' => 'sure', 'space underscore_dash-' => 'ok'];
 		$mapped = ['item' => 1, 'thing' => 'sure', 'space_underscore_dash_' => 'ok'];
 		$options = new Options($init);
@@ -66,7 +68,8 @@ class Options_Test extends UnitTest {
 		$this->assertEquals('abcd', $options->optionPath([], 'abcd'));
 	}
 
-	public static function data_hasAny(): array {
+	public static function data_hasAny(): array
+	{
 		$testOptions = new Options(['one' => 1, 'two' => 2, 'three space' => 3, 'four-dash' => 4, 'five-😀' => 5]);
 		return [
 			[true, ['one', 'two'], $testOptions], [true, 'one', $testOptions], [true, 'two', $testOptions],
@@ -84,18 +87,21 @@ class Options_Test extends UnitTest {
 	 * @return void
 	 * @dataProvider data_hasAny
 	 */
-	public function test_hasAny(bool $expected, $hasAny, Options $testOptions): void {
+	public function test_hasAny(bool $expected, $hasAny, Options $testOptions): void
+	{
 		$this->assertEquals($expected, $testOptions->hasAnyOption($hasAny));
 	}
 
-	public function test_options_path_simple(): void {
+	public function test_options_path_simple(): void
+	{
 		$opts = new Options();
 		$opts->setOptionPath(['a', 'b', 'c', 'd'], '1');
 		$opts->setOptionPath(['a', 'b', 'c', 'e'], 1);
 		$this->assertEquals(['a' => ['b' => ['c' => ['d' => '1', 'e' => 1, ], ], ], ], $opts->options());
 	}
 
-	public function test_options_path(): void {
+	public function test_options_path(): void
+	{
 		$opts = new Options();
 
 		$paths = ['a.a.a', 'a.a.b', 'a.b.c', 'a.b.d', 'a.b.e', 'a.b.f', 'a.c.a', 'b.c.a', 'd.c.a', ];

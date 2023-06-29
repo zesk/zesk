@@ -24,7 +24,8 @@ use zesk\PHP;
  * @author kent
  *
  */
-class FileCacheItemPool implements CacheItemPoolInterface {
+class FileCacheItemPool implements CacheItemPoolInterface
+{
 	/**
 	 *
 	 * @var string
@@ -42,7 +43,8 @@ class FileCacheItemPool implements CacheItemPoolInterface {
 	 * @param string $path
 	 * @throws DirectoryNotFound
 	 */
-	public function __construct(string $path) {
+	public function __construct(string $path)
+	{
 		if (!is_dir($path)) {
 			throw new DirectoryNotFound($path);
 		}
@@ -56,7 +58,8 @@ class FileCacheItemPool implements CacheItemPoolInterface {
 	 * @return self
 	 * @throws DirectoryNotFound
 	 */
-	public function setPath(string $path): self {
+	public function setPath(string $path): self
+	{
 		if (!is_dir($path)) {
 			throw new DirectoryNotFound($path);
 		}
@@ -69,7 +72,8 @@ class FileCacheItemPool implements CacheItemPoolInterface {
 	 *
 	 * @return string
 	 */
-	public function path(): string {
+	public function path(): string
+	{
 		return $this->path;
 	}
 
@@ -89,7 +93,8 @@ class FileCacheItemPool implements CacheItemPoolInterface {
 	 *   MUST be thrown.
 	 *
 	 */
-	public function getItem(string $key): CacheItemInterface {
+	public function getItem(string $key): CacheItemInterface
+	{
 		$cache_file = $this->cacheFile($key);
 		// Previously did "is_file", then "file_get_contents", but a race condition would create warnings in our logs when files were deleted
 		// So, since file_get_contents is probably doing an is_file check internally anyway, just skip it since handling is identical
@@ -122,7 +127,8 @@ class FileCacheItemPool implements CacheItemPoolInterface {
 	 *   MUST be thrown.
 	 *
 	 */
-	public function getItems(array $keys = []): iterable {
+	public function getItems(array $keys = []): iterable
+	{
 		$result = [];
 		foreach ($keys as $index => $key) {
 			$result[$index] = $this->getItem($key);
@@ -147,7 +153,8 @@ class FileCacheItemPool implements CacheItemPoolInterface {
 	 *   MUST be thrown.
 	 *
 	 */
-	public function hasItem(string $key): bool {
+	public function hasItem(string $key): bool
+	{
 		return is_file($this->cacheFile($key));
 	}
 
@@ -157,7 +164,8 @@ class FileCacheItemPool implements CacheItemPoolInterface {
 	 * @return bool
 	 *   True if the pool was successfully cleared. False if there was an error.
 	 */
-	public function clear(): bool {
+	public function clear(): bool
+	{
 		try {
 			Directory::deleteContents($this->path);
 		} catch (FilePermission|DirectoryPermission|DirectoryNotFound) {
@@ -179,7 +187,8 @@ class FileCacheItemPool implements CacheItemPoolInterface {
 	 *   MUST be thrown.
 	 *
 	 */
-	public function deleteItem(string $key): bool {
+	public function deleteItem(string $key): bool
+	{
 		try {
 			File::unlink($this->cacheFile($key));
 			return true;
@@ -201,7 +210,8 @@ class FileCacheItemPool implements CacheItemPoolInterface {
 	 *   MUST be thrown.
 	 *
 	 */
-	public function deleteItems(array $keys): bool {
+	public function deleteItems(array $keys): bool
+	{
 		$success = true;
 		foreach ($keys as $key) {
 			if (!$this->deleteItem($key)) {
@@ -220,7 +230,8 @@ class FileCacheItemPool implements CacheItemPoolInterface {
 	 * @return bool
 	 *   True if the item was successfully persisted. False if there was an error.
 	 */
-	public function save(CacheItemInterface $item): bool {
+	public function save(CacheItemInterface $item): bool
+	{
 		$key = $item->getKey();
 		$file = $this->cacheFile($key);
 
@@ -242,7 +253,8 @@ class FileCacheItemPool implements CacheItemPoolInterface {
 	 * @return bool
 	 *   False if the item could not be queued or if a commit was attempted and failed. True otherwise.
 	 */
-	public function saveDeferred(CacheItemInterface $item): bool {
+	public function saveDeferred(CacheItemInterface $item): bool
+	{
 		$this->deferred[$this->cacheName($item->getKey())] = $item;
 		return true;
 	}
@@ -253,7 +265,8 @@ class FileCacheItemPool implements CacheItemPoolInterface {
 	 * @return bool
 	 *   True if all not-yet-saved items were successfully saved or there were none. False otherwise.
 	 */
-	public function commit(): bool {
+	public function commit(): bool
+	{
 		foreach ($this->deferred as $item) {
 			$this->save($item);
 		}
@@ -267,7 +280,8 @@ class FileCacheItemPool implements CacheItemPoolInterface {
 	 * @param string $key
 	 * @return string
 	 */
-	private function cacheName(string $key): string {
+	private function cacheName(string $key): string
+	{
 		$clean = File::nameClean($key);
 		$hash = md5($key);
 		return substr($hash, 0, 1) . '/' . substr($hash, 1) . '^' . substr($clean, 0, 32);
@@ -279,7 +293,8 @@ class FileCacheItemPool implements CacheItemPoolInterface {
 	 * @param string $key
 	 * @return string
 	 */
-	private function cacheFile(string $key): string {
+	private function cacheFile(string $key): string
+	{
 		return Directory::path($this->path, $this->cacheName($key));
 	}
 }

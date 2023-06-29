@@ -12,5 +12,6 @@ use zesk\ORM\Exception;
  * @author kent
  *
  */
-class ORMDuplicate extends Exception {
+class ORMDuplicate extends Exception
+{
 }

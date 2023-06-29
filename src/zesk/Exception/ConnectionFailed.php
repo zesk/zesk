@@ -15,16 +15,19 @@ use zesk\Exception;
 /**
  *
  */
-class ConnectionFailed extends Exception {
+class ConnectionFailed extends Exception
+{
 	public string $host;
 
 	public function __construct(string $host, string $message = '', array $arguments = [], Throwable $previous =
-	null) {
+	null)
+	{
 		parent::__construct($message, $arguments, 0, $previous);
 		$this->host = $host;
 	}
 
-	public function __toString(): string {
+	public function __toString(): string
+	{
 		return $this->host . ': ' . parent::__toString();
 	}
 }

@@ -62,7 +62,8 @@ use zesk\Types;
  * @property array $data
  * @property string $status
  */
-class Job extends ORMBase implements SystemProcess, ProgressStack {
+class Job extends ORMBase implements SystemProcess, ProgressStack
+{
 	public const OPTION_RETRY_ATTEMPTS = 'retryAttempts';
 
 	/**
@@ -99,7 +100,8 @@ class Job extends ORMBase implements SystemProcess, ProgressStack {
 	 * @return $this
 	 * @see SystemProcess::setApplication()
 	 */
-	public function setApplication(Application $set): self {
+	public function setApplication(Application $set): self
+	{
 		$this->application = $set;
 		return $this;
 	}
@@ -146,7 +148,8 @@ class Job extends ORMBase implements SystemProcess, ProgressStack {
 	 * @throws StoreException
 	 * @see Modue_Job::daemon
 	 */
-	public static function instance(Application $application, string $name, string $code, string $hook, array $arguments = [], int $priority = self::PRIORITY_NORMAL): self {
+	public static function instance(Application $application, string $name, string $code, string $hook, array $arguments = [], int $priority = self::PRIORITY_NORMAL): self
+	{
 		$hookCall = StringTools::pair($hook, '::');
 		if (!is_callable($hookCall)) {
 			throw new SemanticsException('{hook} is not callable', [
@@ -180,7 +183,8 @@ class Job extends ORMBase implements SystemProcess, ProgressStack {
 	 * @throws SemanticsException
 	 * @throws Throwable
 	 */
-	public static function mockRun(Application $application, int $id, array $options = []): SystemProcess {
+	public static function mockRun(Application $application, int $id, array $options = []): SystemProcess
+	{
 		/* @var $job Job */
 		$job = $application->ormFactory(__CLASS__, $id)->fetch();
 		$process = new MockProcess($application, $options);
@@ -197,7 +201,8 @@ class Job extends ORMBase implements SystemProcess, ProgressStack {
 	 * @throws ORMEmpty
 	 * @throws ORMNotFound
 	 */
-	public function priority(): int {
+	public function priority(): int
+	{
 		return $this->memberInteger('priority');
 	}
 
@@ -207,7 +212,8 @@ class Job extends ORMBase implements SystemProcess, ProgressStack {
 	 * @param int $set
 	 * @return self
 	 */
-	public function setPriority(int $set): self {
+	public function setPriority(int $set): self
+	{
 		$this->setMember('priority', $set);
 		return $this;
 	}
@@ -217,7 +223,8 @@ class Job extends ORMBase implements SystemProcess, ProgressStack {
 	 *
 	 * @return self
 	 */
-	public function setPriorityUrgent(): self {
+	public function setPriorityUrgent(): self
+	{
 		return $this->setPriority(self::PRIORITY_URGENT);
 	}
 
@@ -226,7 +233,8 @@ class Job extends ORMBase implements SystemProcess, ProgressStack {
 	 *
 	 * @return $this
 	 */
-	public function setPriorityImportant(): self {
+	public function setPriorityImportant(): self
+	{
 		return $this->setPriority(self::PRIORITY_IMPORTANT);
 	}
 
@@ -240,7 +248,8 @@ class Job extends ORMBase implements SystemProcess, ProgressStack {
 	 * @throws TableNotFound
 	 * @throws KeyNotFound
 	 */
-	public function refreshInterval(): int {
+	public function refreshInterval(): int
+	{
 		$value = $this->sql()->functionDateDifference($this->sql()->nowUTC(), 'updated');
 		$n_seconds = $this->querySelect()->addWhat('*delta', $value)->integer('delta');
 		$mag = 1;
@@ -255,7 +264,8 @@ class Job extends ORMBase implements SystemProcess, ProgressStack {
 	 *
 	 * @return bool
 	 */
-	public function isRunning(): bool {
+	public function isRunning(): bool
+	{
 		return !$this->completed && $this->start;
 	}
 
@@ -264,7 +274,8 @@ class Job extends ORMBase implements SystemProcess, ProgressStack {
 	 *
 	 * @see SystemProcess::application()
 	 */
-	public function application(): Application {
+	public function application(): Application
+	{
 		return $this->application;
 	}
 
@@ -287,7 +298,8 @@ class Job extends ORMBase implements SystemProcess, ProgressStack {
 	 * @throws SemanticsException
 	 * @throws StoreException
 	 */
-	public function start(null|string|int|Timestamp $when = null): self {
+	public function start(null|string|int|Timestamp $when = null): self
+	{
 		if ($when === null) {
 			$when = Timestamp::now();
 		} elseif (!$when instanceof Timestamp) {
@@ -319,7 +331,8 @@ class Job extends ORMBase implements SystemProcess, ProgressStack {
 	 * @throws SemanticsException
 	 * @throws Throwable
 	 */
-	public static function executeJobs(SystemProcess $process): int {
+	public static function executeJobs(SystemProcess $process): int
+	{
 		$application = $process->application();
 		$logger = $application->logger();
 
@@ -419,7 +432,8 @@ class Job extends ORMBase implements SystemProcess, ProgressStack {
 	 * @throws KeyNotFound
 	 * @throws SemanticsException|SQLException
 	 */
-	private static function cleanDeadProcessIDs(Application $application, Server $server): void {
+	private static function cleanDeadProcessIDs(Application $application, Server $server): void
+	{
 		foreach ($application->ormRegistry(__CLASS__)->querySelect()->addWhat('pid', 'pid')->addWhat('id', 'id')->appendWhere([
 			'pid|!=' => null, 'server' => $server,
 		])->toArray('id', 'pid') as $id => $pid) {
@@ -444,7 +458,8 @@ class Job extends ORMBase implements SystemProcess, ProgressStack {
 	 * @throws SemanticsException
 	 * @throws Throwable
 	 */
-	public function execute(SystemProcess $process): void {
+	public function execute(SystemProcess $process): void
+	{
 		$this->process = $process;
 
 		$timer = new Timer();
@@ -478,11 +493,13 @@ class Job extends ORMBase implements SystemProcess, ProgressStack {
 		$this->queryUpdate()->setValues($values)->addWhere('id', $this->id())->execute();
 	}
 
-	public function progressPush($name): void {
+	public function progressPush($name): void
+	{
 		// TODO
 	}
 
-	public function progressPop(): void {
+	public function progressPop(): void
+	{
 		// TODO
 	}
 
@@ -499,7 +516,8 @@ class Job extends ORMBase implements SystemProcess, ProgressStack {
 	 * @throws KeyNotFound
 	 * @see ProgressStack::progress()
 	 */
-	public function progress(string $status = null, float $percent = null): void {
+	public function progress(string $status = null, float $percent = null): void
+	{
 		if ($this->process && $this->process->done()) {
 			throw new InterruptException();
 		}
@@ -535,7 +553,8 @@ class Job extends ORMBase implements SystemProcess, ProgressStack {
 	 * @throws SemanticsException
 	 * @throws StoreException
 	 */
-	public function setCompleted(int $exitCode): self {
+	public function setCompleted(int $exitCode): self
+	{
 		$this->completed = Timestamp::now();
 		$this->last_exit = $exitCode;
 		$this->callHook(self::HOOK_COMPLETED);
@@ -547,7 +566,8 @@ class Job extends ORMBase implements SystemProcess, ProgressStack {
 	 *
 	 * @return boolean
 	 */
-	public function completed(): bool {
+	public function completed(): bool
+	{
 		return !$this->memberIsEmpty('completed');
 	}
 
@@ -556,7 +576,8 @@ class Job extends ORMBase implements SystemProcess, ProgressStack {
 	 *
 	 * @return boolean
 	 */
-	public function succeeded(): bool {
+	public function succeeded(): bool
+	{
 		return $this->completed() && $this->last_exit === 0;
 	}
 
@@ -577,7 +598,8 @@ class Job extends ORMBase implements SystemProcess, ProgressStack {
 	 * @throws StoreException
 	 * @throws SQLException
 	 */
-	public function setSucceeded(): self {
+	public function setSucceeded(): self
+	{
 		return $this->setCompleted(0);
 	}
 
@@ -586,7 +608,8 @@ class Job extends ORMBase implements SystemProcess, ProgressStack {
 	 *
 	 * @return boolean
 	 */
-	public function failed(): bool {
+	public function failed(): bool
+	{
 		return $this->completed() && $this->last_exit !== 0;
 	}
 
@@ -595,7 +618,8 @@ class Job extends ORMBase implements SystemProcess, ProgressStack {
 	 * @param Application $application
 	 * @return int
 	 */
-	public static function retryAttempts(Application $application): int {
+	public static function retryAttempts(Application $application): int
+	{
 		return Types::toInteger($application->configuration->getPath([
 			self::class, self::OPTION_RETRY_ATTEMPTS,
 		], self::DEFAULT_RETRY_ATTEMPTS), self::DEFAULT_RETRY_ATTEMPTS);
@@ -606,7 +630,8 @@ class Job extends ORMBase implements SystemProcess, ProgressStack {
 	 *
 	 * @return boolean
 	 */
-	public function dead(): bool {
+	public function dead(): bool
+	{
 		return $this->died > $this->optionInt(self::OPTION_RETRY_ATTEMPTS, self::retryAttempts($this->application));
 	}
 
@@ -628,7 +653,8 @@ class Job extends ORMBase implements SystemProcess, ProgressStack {
 	 * @throws SemanticsException
 	 * @throws StoreException
 	 */
-	public function died(int $exitCode = 255): self {
+	public function died(int $exitCode = 255): self
+	{
 		$this->died = $this->died + 10;
 		return $this->setCompleted($exitCode);
 	}
@@ -644,7 +670,8 @@ class Job extends ORMBase implements SystemProcess, ProgressStack {
 	 * @throws ORMEmpty
 	 * @throws SemanticsException
 	 */
-	private function release(): void {
+	private function release(): void
+	{
 		$this->queryUpdate()->value([
 			'server' => null, 'pid' => null,
 		])->addWhere('id', $this->id())->execute();
@@ -655,7 +682,8 @@ class Job extends ORMBase implements SystemProcess, ProgressStack {
 	 * @return bool
 	 * @see SystemProcess::done()
 	 */
-	public function done(): bool {
+	public function done(): bool
+	{
 		return !$this->process || $this->process->done();
 	}
 
@@ -665,7 +693,8 @@ class Job extends ORMBase implements SystemProcess, ProgressStack {
 	 * @return void
 	 * @see SystemProcess::sleep()
 	 */
-	public function sleep(float $seconds = 1.0): void {
+	public function sleep(float $seconds = 1.0): void
+	{
 		$this->process?->sleep($seconds);
 	}
 
@@ -673,7 +702,8 @@ class Job extends ORMBase implements SystemProcess, ProgressStack {
 	 *
 	 * @see SystemProcess::terminate()
 	 */
-	public function terminate(): void {
+	public function terminate(): void
+	{
 		$this->process?->terminate();
 	}
 
@@ -681,7 +711,8 @@ class Job extends ORMBase implements SystemProcess, ProgressStack {
 	 * @return void
 	 * @see SystemProcess::kill()
 	 */
-	public function kill(): void {
+	public function kill(): void
+	{
 		$this->process?->kill();
 	}
 
@@ -693,7 +724,8 @@ class Job extends ORMBase implements SystemProcess, ProgressStack {
 	 * @return void
 	 * @see SystemProcess::log()
 	 */
-	public function log($message, array $args = [], $level = null): void {
+	public function log($message, array $args = [], $level = null): void
+	{
 		$this->process?->log($message, $args, $level);
 	}
 
@@ -704,7 +736,8 @@ class Job extends ORMBase implements SystemProcess, ProgressStack {
 	 * @throws KeyNotFound
 	 * @throws ORMNotFound
 	 */
-	public function content(): mixed {
+	public function content(): mixed
+	{
 		return $this->data('content');
 	}
 
@@ -716,7 +749,8 @@ class Job extends ORMBase implements SystemProcess, ProgressStack {
 	 * @throws KeyNotFound
 	 * @throws ORMNotFound
 	 */
-	public function setContent(mixed $set): self {
+	public function setContent(mixed $set): self
+	{
 		return $this->setData('content', $set);
 	}
 
@@ -729,7 +763,8 @@ class Job extends ORMBase implements SystemProcess, ProgressStack {
 	 * @throws KeyNotFound
 	 * @throws ORMNotFound
 	 */
-	public function setData(int|string $name, mixed $value): self {
+	public function setData(int|string $name, mixed $value): self
+	{
 		return $this->setMemberData('data', [$name => $value] + $this->memberData('data'));
 	}
 
@@ -741,7 +776,8 @@ class Job extends ORMBase implements SystemProcess, ProgressStack {
 	 * @throws KeyNotFound
 	 * @throws ORMNotFound
 	 */
-	public function data(int|string $name): mixed {
+	public function data(int|string $name): mixed
+	{
 		$data = $this->memberData('data');
 		return $data[$name] ?? null;
 	}
@@ -754,7 +790,8 @@ class Job extends ORMBase implements SystemProcess, ProgressStack {
 	 * @throws KeyNotFound
 	 * @throws ORMNotFound
 	 */
-	public function hasData(int|string $name): bool {
+	public function hasData(int|string $name): bool
+	{
 		return array_key_exists($name, $this->memberData('data'));
 	}
 }

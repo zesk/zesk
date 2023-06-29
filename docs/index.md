@@ -48,10 +48,6 @@ Zesk is an application development platform which solves many problems found in 
 
 - [About zesk.js](zesk.js.md)
 
-## Web resource sharing
-
-- [Sharing resources](share.md)
-
 ## Command-line Tools
 
 - [About zesk.sh](zesk.sh.md)

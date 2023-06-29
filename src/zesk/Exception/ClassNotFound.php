@@ -18,7 +18,8 @@ use zesk\Exception;
  * @author kent
  *
  */
-class ClassNotFound extends Exception {
+class ClassNotFound extends Exception
+{
 	/**
 	 * Class which wasn't found
 	 *
@@ -37,7 +38,8 @@ class ClassNotFound extends Exception {
 	 *            Previous exception which may have spawned this one
 	 */
 	public function __construct(?string $class, string $message = '', array $arguments = [], Throwable $previous =
-	null) {
+	null)
+	{
 		$this->class = $class === null ? 'null' : $class;
 		parent::__construct("{class} not found. $message", [
 			'class' => $this->class,
@@ -49,7 +51,8 @@ class ClassNotFound extends Exception {
 	 *
 	 * @return array
 	 */
-	public function variables(): array {
+	public function variables(): array
+	{
 		return parent::variables() + [
 			'class' => $this->class,
 		];

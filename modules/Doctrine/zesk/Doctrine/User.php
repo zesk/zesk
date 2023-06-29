@@ -34,7 +34,8 @@ use zesk\Types;
  * @author kent
  */
 #[Entity]
-class User extends Model implements Userlike {
+class User extends Model implements Userlike
+{
 	/**
 	 *
 	 */
@@ -118,13 +119,15 @@ class User extends Model implements Userlike {
 	 * @return int|string|array
 	 * @see SessionInterface::id()
 	 */
-	public function id(): int|string|array {
+	public function id(): int|string|array
+	{
 		return $this->id;
 	}
 
 	/**
 	 */
-	public function authenticationData(): array {
+	public function authenticationData(): array
+	{
 		return [
 			'email' => $this->email, 'nameFirst' => $this->nameFirst, 'nameLast' => $this->nameLast,
 			'lastLogin' => $this->lastLogin, 'validated' => $this->validated,
@@ -138,7 +141,8 @@ class User extends Model implements Userlike {
 	 * @return int
 	 * @throws AuthenticationException
 	 */
-	public function sessionUserId(Request $request): int {
+	public function sessionUserId(Request $request): int
+	{
 		return $this->application->session($request)->userId();
 	}
 
@@ -150,7 +154,8 @@ class User extends Model implements Userlike {
 	 * @return $this
 	 * @throws ParameterException
 	 */
-	public function setPassword(string $set, string $method): self {
+	public function setPassword(string $set, string $method): self
+	{
 		if (!in_array($method, self::$allowedMethods)) {
 			throw new ParameterException('Invalid method {method}', ['method' => $method]);
 		}
@@ -166,7 +171,8 @@ class User extends Model implements Userlike {
 	 * @param bool $binary
 	 * @return string
 	 */
-	private function _generateHash(string $string, bool $binary = false): string {
+	private function _generateHash(string $string, bool $binary = false): string
+	{
 		return hash($this->passwordMethod, $string, $binary);
 	}
 
@@ -178,7 +184,8 @@ class User extends Model implements Userlike {
 	 * @return self
 	 * @throws AuthenticationException
 	 */
-	public function authenticate(string $password): self {
+	public function authenticate(string $password): self
+	{
 		if (strcasecmp($this->_generateHash($password), $this->passwordData) === 0) {
 			return $this;
 		}
@@ -195,7 +202,8 @@ class User extends Model implements Userlike {
 	 * @return NULL|User
 	 * @throws AuthenticationException
 	 */
-	public function authenticated(Request $request, Response $response = null): ?User {
+	public function authenticated(Request $request, Response $response = null): ?User
+	{
 		if (empty($this->id)) {
 			return null;
 		}
@@ -227,13 +235,15 @@ class User extends Model implements Userlike {
 	 * @return void
 	 * @throws PermissionDenied
 	 */
-	public function must(array|string $actions, BaseModel $context = null, array $options = []): void {
+	public function must(array|string $actions, BaseModel $context = null, array $options = []): void
+	{
 		if (!$this->can($actions, $context, $options)) {
 			throw new PermissionDenied($this, $actions, $context, $options);
 		}
 	}
 
-	final public static function clean_permission($string): string {
+	final public static function clean_permission($string): string
+	{
 		return strtolower(strtr($string, [
 			' ' => '_', '.' => '_', '-' => '_', '__' => '::',
 		]));
@@ -278,7 +288,8 @@ class User extends Model implements Userlike {
 	 * @return bool
 	 * @see Userlike::can()
 	 */
-	public function can(string|array $actions, BaseModel $context = null, array $options = []): bool {
+	public function can(string|array $actions, BaseModel $context = null, array $options = []): bool
+	{
 		$result = false; // By default, don't allow anything
 		// Allow multiple actions
 		$is_or = is_string($actions) && strpos($actions, '|');
@@ -329,7 +340,8 @@ class User extends Model implements Userlike {
 	 * @param Model $object
 	 * @return boolean
 	 */
-	public function canEdit(Model $object): bool {
+	public function canEdit(Model $object): bool
+	{
 		return $this->can('edit', $object);
 	}
 
@@ -339,7 +351,8 @@ class User extends Model implements Userlike {
 	 * @param Model $object
 	 * @return boolean
 	 */
-	public function canView(Model $object): bool {
+	public function canView(Model $object): bool
+	{
 		return $this->can('view', $object);
 	}
 
@@ -348,7 +361,8 @@ class User extends Model implements Userlike {
 	 *
 	 * @return string
 	 */
-	public function displayName(): string {
+	public function displayName(): string
+	{
 		return $this->email;
 	}
 
@@ -358,7 +372,8 @@ class User extends Model implements Userlike {
 	 * @param Model $object
 	 * @return boolean
 	 */
-	public function canDelete(Model $object): bool {
+	public function canDelete(Model $object): bool
+	{
 		return $this->can('delete', $object);
 	}
 
@@ -374,7 +389,8 @@ class User extends Model implements Userlike {
 	 *            Default options to pass to "can" function
 	 * @return array
 	 */
-	public function filterActions(array $actions, Model $context = null, array $options = []): array {
+	public function filterActions(array $actions, Model $context = null, array $options = []): array
+	{
 		$actions_passed = [];
 		foreach ($actions as $href => $attributes) {
 			if (is_array($attributes) && array_key_exists('permission', $attributes)) {

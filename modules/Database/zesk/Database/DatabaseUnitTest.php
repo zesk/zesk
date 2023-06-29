@@ -23,11 +23,13 @@ use zesk\PHPUnit\TestCase;
  *
  * @author kent
  */
-class DatabaseUnitTest extends TestCase {
+class DatabaseUnitTest extends TestCase
+{
 	/**
 	 * @return Base
 	 */
-	public function getDatabase(): Base {
+	public function getDatabase(): Base
+	{
 		return $this->application->databaseRegistry();
 	}
 
@@ -42,7 +44,8 @@ class DatabaseUnitTest extends TestCase {
 	 * @throws SQLException
 	 * @throws TableNotFound
 	 */
-	final public function prepareTestTable(string $name, array|string|null $extra_cols = null, bool $uniq = true): string {
+	final public function prepareTestTable(string $name, array|string|null $extra_cols = null, bool $uniq = true): string
+	{
 		$cols = [];
 		$cols[] = 'id int(11) unsigned NOT NULL PRIMARY KEY AUTO_INCREMENT';
 		$cols[] = 'foo int(11) NOT NULL';
@@ -68,7 +71,8 @@ class DatabaseUnitTest extends TestCase {
 	 * @throws SQLException
 	 * @throws TableNotFound
 	 */
-	final public function dropAndCreateTable(string $name, string $create_sql): void {
+	final public function dropAndCreateTable(string $name, string $create_sql): void
+	{
 		$db = $this->application->databaseRegistry();
 		$db->query("DROP TABLE IF EXISTS `$name`");
 		$db->query($create_sql);
@@ -86,7 +90,8 @@ class DatabaseUnitTest extends TestCase {
 	 * @throws NoResults
 	 * @throws TableNotFound
 	 */
-	final protected function assertRowCount(int $expected, string|object $ormClass): void {
+	final protected function assertRowCount(int $expected, string|object $ormClass): void
+	{
 		$ormObject = $this->application->ormRegistry($ormClass);
 		$idName = $ormObject->idColumn();
 		$actual = $ormObject->querySelect()->addWhat('total', "COUNT($idName)")->integer();
@@ -102,7 +107,8 @@ class DatabaseUnitTest extends TestCase {
 	 * @throws SQLException
 	 * @throws TableNotFound
 	 */
-	final protected function assertTableMatch(string $table, array $match = []): void {
+	final protected function assertTableMatch(string $table, array $match = []): void
+	{
 		$database = $this->application->databaseRegistry();
 		$headers = null;
 		$header_row = null;
@@ -148,7 +154,8 @@ class DatabaseUnitTest extends TestCase {
 	 * @throws Semantics
 	 * @throws SyntaxException
 	 */
-	public function schemaSynchronize(array|string $classes, array $options = []): array {
+	public function schemaSynchronize(array|string $classes, array $options = []): array
+	{
 		$app = $this->application;
 		$results = [];
 		foreach (BaseTypes::toList($classes) as $class) {
@@ -159,11 +166,13 @@ class DatabaseUnitTest extends TestCase {
 		return $results;
 	}
 
-	final protected function sqlNormalizeTrim(string $sql): string {
+	final protected function sqlNormalizeTrim(string $sql): string
+	{
 		return preg_replace('/\s+/', ' ', trim($sql));
 	}
 
-	final protected function assertSQLEquals(string $expected, string $sql, string $message = ''): void {
+	final protected function assertSQLEquals(string $expected, string $sql, string $message = ''): void
+	{
 		$this->assertEquals($this->sqlNormalizeTrim($expected), $this->sqlNormalizeTrim($sql), $message);
 	}
 }

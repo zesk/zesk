@@ -20,14 +20,16 @@ use zesk\Exception\SemanticsException;
  * @author kent
  *
  */
-class JSON {
+class JSON
+{
 	/**
 	 * Is the name passed a valid member name which does not require quotes in JavaScript?
 	 *
 	 * @param string $name
 	 * @return boolean
 	 */
-	public static function valid_member_name(string $name): bool {
+	public static function valid_member_name(string $name): bool
+	{
 		return preg_match('/^[$A-Za-z_][$A-Za-z_0-9]*$/', $name) !== 0;
 	}
 
@@ -37,7 +39,8 @@ class JSON {
 	 * @param string $name
 	 * @return string
 	 */
-	public static function object_member_name_quote(string $name): string {
+	public static function object_member_name_quote(string $name): string
+	{
 		if (self::valid_member_name($name)) {
 			return $name;
 		}
@@ -50,7 +53,8 @@ class JSON {
 	 * @param string $name
 	 * @return string
 	 */
-	public static function quote(string $name): string {
+	public static function quote(string $name): string
+	{
 		return '"' . addcslashes($name, "\t\n\r\"\\") . '"';
 	}
 
@@ -60,7 +64,8 @@ class JSON {
 	 * @param mixed $mixed
 	 * @return string
 	 */
-	public static function encodePretty(mixed $mixed): string {
+	public static function encodePretty(mixed $mixed): string
+	{
 		return json_encode($mixed, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_IGNORE);
 	}
 
@@ -84,7 +89,8 @@ class JSON {
 	 * @return mixed
 	 * @throws SemanticsException
 	 */
-	public static function prepare(mixed $mixed, array $methods = null, array $arguments = []): mixed {
+	public static function prepare(mixed $mixed, array $methods = null, array $arguments = []): mixed
+	{
 		if ($mixed === null) {
 			return null;
 		}
@@ -126,7 +132,8 @@ class JSON {
 	 * @return string JSON string of encoded item
 	 * @throws SemanticsException
 	 */
-	public static function encode(mixed $mixed): string {
+	public static function encode(mixed $mixed): string
+	{
 		$result = json_encode($mixed, JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_IGNORE);
 		if ($result === false) {
 			throw new SemanticsException('JSON encode failed');
@@ -146,7 +153,8 @@ class JSON {
 	 *            Item to encode using JSON
 	 * @return string JSON string of encoded item
 	 */
-	public static function encodeSpecial(mixed $mixed): string {
+	public static function encodeSpecial(mixed $mixed): string
+	{
 		static $recursion = 0;
 		if (is_array($mixed) || is_object($mixed)) {
 			if ($recursion > 10) {
@@ -219,7 +227,8 @@ class JSON {
 	 *            Item to encode using JSON
 	 * @return string JSON string of encoded item
 	 */
-	public static function encodeJavaScript(mixed $mixed): string {
+	public static function encodeJavaScript(mixed $mixed): string
+	{
 		if (is_array($mixed) || is_object($mixed)) {
 			$result = [];
 			if (!is_object($mixed) && !ArrayTools::isAssoc($mixed)) {
@@ -263,7 +272,8 @@ class JSON {
 	 * @return mixed the decoded JSON string, or the default value if it fails
 	 * @throws ParseException
 	 */
-	public static function decode(string $string, bool $assoc = true): mixed {
+	public static function decode(string $string, bool $assoc = true): mixed
+	{
 		$string = trim($string);
 		if ($string === 'null') {
 			return null;
@@ -281,7 +291,8 @@ class JSON {
 	 * @param int $code
 	 * @return string
 	 */
-	private static function errorToString(int $code): string {
+	private static function errorToString(int $code): string
+	{
 		static $errors = [
 			JSON_ERROR_DEPTH => 'Maximum stack depth has been exceeded',
 			JSON_ERROR_STATE_MISMATCH => 'Malformed JSON',
@@ -299,7 +310,8 @@ class JSON {
 	/**
 	 * @return ParseException
 	 */
-	private static function lastError(): ParseException {
+	private static function lastError(): ParseException
+	{
 		$code = json_last_error();
 		return new ParseException(self::errorToString($code), [
 			'json_last_error' => $code,
@@ -320,7 +332,8 @@ class JSON {
 	 * @param boolean $assoc
 	 * @return mixed
 	 */
-	public static function zesk_decode(string $string, bool $assoc = false): mixed {
+	public static function zesk_decode(string $string, bool $assoc = false): mixed
+	{
 		$string = trim($string);
 
 		try {
@@ -349,7 +362,8 @@ class JSON {
 	 * @return array
 	 * @throws ParseException
 	 */
-	private static function _decode_white_value(string $string, int $offset, bool $assoc = false): array {
+	private static function _decode_white_value(string $string, int $offset, bool $assoc = false): array
+	{
 		if (!preg_match("/^\s+/", $string, $match)) {
 			return self::_decode_value($string, $offset);
 		}
@@ -373,7 +387,8 @@ class JSON {
 	 * @return array
 	 * @throws ParseException
 	 */
-	private static function _decode_value(string $string, int $offset, bool $assoc = false): array {
+	private static function _decode_value(string $string, int $offset, bool $assoc = false): array
+	{
 		static $begins = [
 			'null' => null,
 			'true' => true,
@@ -420,7 +435,8 @@ class JSON {
 	 * @return array
 	 * @throws ParseException
 	 */
-	private static function _decode_number(string $string, int $offset): array {
+	private static function _decode_number(string $string, int $offset): array
+	{
 		$match = null;
 		if (preg_match('/-?[0-9]+(\.[0-9]+([eE][-+]?[0-9]+)?)?/', $string, $match)) {
 			if (preg_match('/^-?[0-9]+$/', $match[0])) {
@@ -450,7 +466,8 @@ class JSON {
 	 * @return array
 	 * @throws ParseException
 	 */
-	private static function _decode_array(string $string, int $offset, bool $assoc): array {
+	private static function _decode_array(string $string, int $offset, bool $assoc): array
+	{
 		$len = strlen($string);
 		$result = [];
 		$i = 1;
@@ -510,7 +527,8 @@ class JSON {
 	 * @return array
 	 * @throws ParseException
 	 */
-	private static function _decode_object(string $string, int $offset, bool $assoc): array {
+	private static function _decode_object(string $string, int $offset, bool $assoc): array
+	{
 		$len = strlen($string);
 		$result = [];
 		$i = 1;
@@ -593,7 +611,8 @@ class JSON {
 	 * @return array
 	 * @throws ParseException
 	 */
-	private static function _decode_string(string $string, int $offset): array {
+	private static function _decode_string(string $string, int $offset): array
+	{
 		static $string_characters = [
 			'"' => '"',
 			'\\' => '\\',

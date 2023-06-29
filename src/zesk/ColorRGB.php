@@ -15,7 +15,8 @@ namespace zesk;
  * @author kent
  * @see CSS
  */
-class ColorRGB {
+class ColorRGB
+{
 	/**
 	 *
 	 * @var integer
@@ -39,7 +40,8 @@ class ColorRGB {
 	 * @param int $g
 	 * @param int $b
 	 */
-	public function __construct(int|string|array $r = 0, int $g = 0, int $b = 0) {
+	public function __construct(int|string|array $r = 0, int $g = 0, int $b = 0)
+	{
 		if (is_int($r)) {
 			$this->red = Number::clamp(0, $r, 255);
 			$this->green = Number::clamp(0, $g, 255);
@@ -63,7 +65,8 @@ class ColorRGB {
 	 * @param int $b
 	 * @return static
 	 */
-	public static function factory(int|string|array $r = 0, int $g = 0, int $b = 0): self {
+	public static function factory(int|string|array $r = 0, int $g = 0, int $b = 0): self
+	{
 		return new self($r, $g, $b);
 	}
 
@@ -72,7 +75,8 @@ class ColorRGB {
 	 *
 	 * @return string
 	 */
-	public function __toString() {
+	public function __toString()
+	{
 		return CSS::rgbToHex([
 			$this->red, $this->green, $this->blue,
 		]);

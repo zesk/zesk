@@ -15,8 +15,10 @@ use zesk\Command;
  * Display a list of all included files so far
  * @category Debugging
  */
-class Included extends Command {
-	public function run(): int {
+class Included extends Command
+{
+	public function run(): int
+	{
 		echo implode("\n", get_included_files()) . "\n";
 		return 0;
 	}

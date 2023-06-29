@@ -15,7 +15,8 @@ use zesk\Response;
  * @author kent
  *
  */
-class Command extends Route {
+class Command extends Route
+{
 	/**
 	 * The CLI command to run
 	 */
@@ -55,7 +56,8 @@ class Command extends Route {
 	 */
 	public const DEFAULT_OPTION_FAILED_THEME = 'route/command/failed';
 
-	protected function internalExecute(Request $request): Response {
+	protected function internalExecute(Request $request): Response
+	{
 		$app = $this->application;
 		$debug = $this->optionBool(self::OPTION_DEBUG);
 

@@ -29,7 +29,8 @@ use zesk\Types;
  * @author kent
  *
  */
-class Controller extends zeskController {
+class Controller extends zeskController
+{
 	public const HOOK_LOGIN = __CLASS__ . '::login';
 
 	public const HOOK_LOGIN_SUCCESS = __CLASS__ . '::loginSuccess';
@@ -76,19 +77,23 @@ class Controller extends zeskController {
 	 * @param string $action
 	 * @return array
 	 */
-	public function arguments(Request $request, Response $response, array $arguments, string $action): array {
+	public function arguments(Request $request, Response $response, array $arguments, string $action): array
+	{
 		return [$request, $response];
 	}
 
-	private function _baseResponseData(): array {
+	private function _baseResponseData(): array
+	{
 		return ['now' => Timestamp::now()->iso8601()];
 	}
 
-	public function action_OPTIONS_index(Request $request, Response $response): Response {
+	public function action_OPTIONS_index(Request $request, Response $response): Response
+	{
 		return $this->handleOPTIONS($response, 'index');
 	}
 
-	public function action_GET_index(Request $request, Response $response): Response {
+	public function action_GET_index(Request $request, Response $response): Response
+	{
 		$responseData = $this->_baseResponseData();
 		$session = $this->application->session($request, false);
 		if (!$session) {
@@ -110,7 +115,8 @@ class Controller extends zeskController {
 	 * @throws ReflectionException
 	 * @throws ParameterException
 	 */
-	public function action_POST_index(Request $request, Response $response): Response {
+	public function action_POST_index(Request $request, Response $response): Response
+	{
 		/**
 		 * Allow hooks to intercept and handle on their own.
 		 */
@@ -153,7 +159,8 @@ class Controller extends zeskController {
 	 * @return Response
 	 * @throws SemanticsException
 	 */
-	public function action_DELETE_index(Request $request, Response $response): Response {
+	public function action_DELETE_index(Request $request, Response $response): Response
+	{
 		$this->invokeHooks(self::HOOK_LOGOUT);
 		$session = $this->application->session($request, false);
 		if ($session) {
@@ -168,7 +175,8 @@ class Controller extends zeskController {
 		return $response->json()->setData(['logout' => true]);
 	}
 
-	private function generateHashedPassword(string $password): string {
+	private function generateHashedPassword(string $password): string
+	{
 		return match ($this->option(self::OPTION_PASSWORD_HASH_ALGORITHM, self::DEFAULT_PASSWORD_HASH_ALGORITHM)) {
 			self::PASSWORD_HASH_ALGORITHM_MD5 => md5($password),
 			default => sha1($password),
@@ -182,7 +190,8 @@ class Controller extends zeskController {
 	 * @throws AuthenticationException
 	 * @throws UnsupportedException
 	 */
-	private function handleLogin(string $userName, string $password): Userlike {
+	private function handleLogin(string $userName, string $password): Userlike
+	{
 		$repo = $this->application->entityManager()->getRepository($this->optionString('userClass'));
 		$user = $repo->findOneBy(['code' => $userName]);
 		if (!$user) {

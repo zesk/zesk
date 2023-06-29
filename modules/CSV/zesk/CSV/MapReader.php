@@ -27,7 +27,8 @@ use zesk\Types;
  * @package zesk
  * @subpackage tools
  */
-class MapReader extends Reader {
+class MapReader extends Reader
+{
 	/**
 	 * A read map group allows you to read a subset of a row and map the column names into new names. This is useful when
 	 * mapping a CSV row into one or more zesk\ORM subclasses.
@@ -65,7 +66,8 @@ class MapReader extends Reader {
 	 * @throws FilePermission
 	 * @throws FileParseException
 	 */
-	public function __construct(string $filename = '', array $options = []) {
+	public function __construct(string $filename = '', array $options = [])
+	{
 		parent::__construct($filename, $options);
 		$this->readMapGroup = [];
 		$this->readMapGroupDefaults = [];
@@ -82,7 +84,8 @@ class MapReader extends Reader {
 	 * @throws FileParseException
 	 * @throws FilePermission
 	 */
-	public static function factory(string $filename = '', array $options = []): self {
+	public static function factory(string $filename = '', array $options = []): self
+	{
 		return new self($filename, $options);
 	}
 
@@ -103,7 +106,8 @@ class MapReader extends Reader {
 	 * @throws KeyNotFound
 	 * @throws SemanticsException
 	 */
-	public function addReadMap(string $name, array $map, array $mapTypes = [], array $defaultMap = []): self {
+	public function addReadMap(string $name, array $map, array $mapTypes = [], array $defaultMap = []): self
+	{
 		if (!count($this->Headers)) {
 			throw new SemanticsException('Must have headers before setting map');
 		}
@@ -143,7 +147,8 @@ class MapReader extends Reader {
 	 * @throws KeyNotFound
 	 * @throws SemanticsException
 	 */
-	public function readMap(string $name): array {
+	public function readMap(string $name): array
+	{
 		if (!count($this->Headers)) {
 			throw new SemanticsException('Must have headers before setting map');
 		}
@@ -158,7 +163,8 @@ class MapReader extends Reader {
 	 * @return array
 	 * @throws KeyNotFound
 	 */
-	private static function _applyTypes(array $row, array $typeMap, array $defaultMap): array {
+	private static function _applyTypes(array $row, array $typeMap, array $defaultMap): array
+	{
 		foreach ($typeMap as $k => $type) {
 			$v = $row[$k] ?? null;
 			if ($v !== null) {
@@ -194,7 +200,8 @@ class MapReader extends Reader {
 	 * @return array
 	 * @throws KeyNotFound
 	 */
-	private function _getReadMap(string $name): array {
+	private function _getReadMap(string $name): array
+	{
 		$lowName = strtolower($name);
 		if (!isset($this->readMapGroup[$lowName])) {
 			throw new KeyNotFound("CSV::readMap($name) doesn't exist");
@@ -248,7 +255,8 @@ class MapReader extends Reader {
 	 * @return self
 	 * @throws KeyNotFound
 	 */
-	public function addTranslationMapBoolean(string|array $columns): self {
+	public function addTranslationMapBoolean(string|array $columns): self
+	{
 		return $this->_addTranslationMapType(Types::toList($columns), self::MAP_BOOLEAN);
 	}
 
@@ -260,7 +268,8 @@ class MapReader extends Reader {
 	 * @return self
 	 * @throws KeyNotFound
 	 */
-	private function _addTranslationMapType(array $columns, string $type): self {
+	private function _addTranslationMapType(array $columns, string $type): self
+	{
 		foreach ($columns as $column) {
 			if (!in_array($column, $this->Headers)) {
 				throw new KeyNotFound('Unknown header key {key} in CSV reader for file {file} (type {type})', [
@@ -277,7 +286,8 @@ class MapReader extends Reader {
 	 * @param array $row
 	 * @return array
 	 */
-	protected function postProcessRow(array $row): array {
+	protected function postProcessRow(array $row): array
+	{
 		foreach ($this->translationMap as $column => $type) {
 			if (!array_key_exists($column, $row)) {
 				continue;
@@ -294,11 +304,13 @@ class MapReader extends Reader {
 	/**
 	 * Convert data to boolean
 	 */
-	private function _convert_boolean(mixed $value): bool {
+	private function _convert_boolean(mixed $value): bool
+	{
 		return Types::toBool($value);
 	}
 
-	private function _convert_text(mixed $value): string {
+	private function _convert_text(mixed $value): string
+	{
 		return strval($value);
 	}
 }

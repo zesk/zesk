@@ -15,7 +15,8 @@ use Closure;
  * @see IncludeFilesMonitor
  * @see FilesMonitor
  */
-abstract class Base {
+abstract class Base
+{
 	/**
 	 * Array $filename => filemtime($filename)
 	 *
@@ -37,7 +38,8 @@ abstract class Base {
 	/**
 	 * Create a new File_Monitor
 	 */
-	public function __construct() {
+	public function __construct()
+	{
 		$this->initialize();
 	}
 
@@ -46,7 +48,8 @@ abstract class Base {
 	 *
 	 * @return $this
 	 */
-	protected function initialize(): self {
+	protected function initialize(): self
+	{
 		$this->fileModificationTimes = $this->currentModificationTimes();
 		$this->deletedFiles = [];
 		return $this;
@@ -56,7 +59,8 @@ abstract class Base {
 	 * @param callable|Closure $callable
 	 * @return self
 	 */
-	public function setOnDeleted(callable|Closure $callable): self {
+	public function setOnDeleted(callable|Closure $callable): self
+	{
 		$this->onDeleted = $callable instanceof Closure ? $callable : $callable(...);
 		return $this;
 	}
@@ -66,7 +70,8 @@ abstract class Base {
 	 *
 	 * @return array
 	 */
-	private function currentModificationTimes(): array {
+	private function currentModificationTimes(): array
+	{
 		$current = [];
 		foreach ($this->files() as $f) {
 			clearstatcache(false, $f);
@@ -82,7 +87,8 @@ abstract class Base {
 	 *
 	 * @return array
 	 */
-	public function _changedFiles(array $current, $stopOnFirst = false): array {
+	public function _changedFiles(array $current, $stopOnFirst = false): array
+	{
 		$result = [];
 		foreach ($this->fileModificationTimes as $filename => $saved_mod_time) {
 			if (!isset($current[$filename])) {
@@ -118,7 +124,8 @@ abstract class Base {
 	 *
 	 * @return string[]
 	 */
-	public function changedFiles(): array {
+	public function changedFiles(): array
+	{
 		return $this->_changedFiles($this->currentModificationTimes());
 	}
 
@@ -129,7 +136,8 @@ abstract class Base {
 	 *
 	 * @return boolean
 	 */
-	public function changed(): bool {
+	public function changed(): bool
+	{
 		$current = $this->currentModificationTimes();
 		$changed = $this->_changedFiles($current, true);
 		$this->fileModificationTimes += $current;
@@ -141,7 +149,8 @@ abstract class Base {
 	 *
 	 * @return array
 	 */
-	public function deleted(): array {
+	public function deleted(): array
+	{
 		return array_keys($this->deletedFiles);
 	}
 

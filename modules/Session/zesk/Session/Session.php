@@ -53,7 +53,8 @@ use function random_int;
  */
 #[Entity]
 #[UniqueConstraint(name: 'tokenType', columns: ['token', 'type'])]
-class Session extends Model implements SessionInterface {
+class Session extends Model implements SessionInterface
+{
 	/**
 	 *
 	 */
@@ -129,12 +130,14 @@ class Session extends Model implements SessionInterface {
 	/**
 	 * @return void
 	 */
-	public function initialize(): void {
+	public function initialize(): void
+	{
 		$this->changed = false;
 	}
 
 	#[PostLoad]
-	public function justLoaded(): void {
+	public function justLoaded(): void
+	{
 		$this->original = $this->data;
 		$this->setOptions($this->application->optionArray('session'));
 	}
@@ -143,7 +146,8 @@ class Session extends Model implements SessionInterface {
 	 * @return $this
 	 * @throws ORMException
 	 */
-	public function seen(): self {
+	public function seen(): self
+	{
 		$this->seen = Timestamp::now();
 		$this->em->persist($this);
 		return $this;
@@ -153,7 +157,8 @@ class Session extends Model implements SessionInterface {
 	 * @return void
 	 */
 	#[PrePersist]
-	public function beforePersist(): void {
+	public function beforePersist(): void
+	{
 		if (!$this->ip) {
 			$this->ip = '127.0.0.1';
 		}
@@ -169,7 +174,8 @@ class Session extends Model implements SessionInterface {
 	/**
 	 * @return int|string|array
 	 */
-	public function id(): int|string|array {
+	public function id(): int|string|array
+	{
 		return $this->id;
 	}
 
@@ -177,7 +183,8 @@ class Session extends Model implements SessionInterface {
 	 * @param int|string $key
 	 * @return bool
 	 */
-	public function has(int|string $key): bool {
+	public function has(int|string $key): bool
+	{
 		return array_key_exists($key, $this->data);
 	}
 
@@ -186,7 +193,8 @@ class Session extends Model implements SessionInterface {
 	 * @return mixed
 	 * @throws KeyNotFound
 	 */
-	public function get(int|string $key): mixed {
+	public function get(int|string $key): mixed
+	{
 		if (array_key_exists($key, $this->data)) {
 			return $this->data[$key];
 		}
@@ -200,7 +208,8 @@ class Session extends Model implements SessionInterface {
 	 * @return $this
 	 * @throws TypeError Requires values to be serializable
 	 */
-	public function set(int|string $key, mixed $value): self {
+	public function set(int|string $key, mixed $value): self
+	{
 		$this->data[$key] = Types::simplify($value);
 		return $this;
 	}
@@ -218,7 +227,8 @@ class Session extends Model implements SessionInterface {
 	 *
 	 * @return integer
 	 */
-	public function cookieExpire(): int {
+	public function cookieExpire(): int
+	{
 		return Types::toInteger($this->optionPath(['cookie', 'expire'], 604800));
 	}
 
@@ -227,7 +237,8 @@ class Session extends Model implements SessionInterface {
 	 *
 	 * @return string
 	 */
-	private static function _generateToken(): string {
+	private static function _generateToken(): string
+	{
 		try {
 			$rand = random_int(PHP_INT_MIN, PHP_INT_MAX);
 		} catch (Throwable) {
@@ -246,7 +257,8 @@ class Session extends Model implements SessionInterface {
 	 * @throws AuthenticationException
 	 * @see SessionInterface::authenticate()
 	 */
-	public function authenticate(Userlike $user, Request $request): void {
+	public function authenticate(Userlike $user, Request $request): void
+	{
 		try {
 			$cookieExpire = $this->cookieExpire();
 			$this->user = $user;
@@ -264,7 +276,8 @@ class Session extends Model implements SessionInterface {
 	 * @return bool
 	 * @see SessionInterface::isAuthenticated()
 	 */
-	public function isAuthenticated(): bool {
+	public function isAuthenticated(): bool
+	{
 		return $this->user !== null;
 	}
 
@@ -274,7 +287,8 @@ class Session extends Model implements SessionInterface {
 	 * @return void
 	 * @throws AuthenticationException
 	 */
-	public function relinquish(): void {
+	public function relinquish(): void
+	{
 		try {
 			$this->user()->invokeHooks(User::HOOK_LOGOUT);
 		} catch (AuthenticationException) {
@@ -293,14 +307,16 @@ class Session extends Model implements SessionInterface {
 	 *
 	 * @return bool
 	 */
-	public function expired(): bool {
+	public function expired(): bool
+	{
 		return $this->expires->before(Timestamp::now());
 	}
 
 	/**
 	 * Logout expired, run hook
 	 */
-	private function logoutExpire(): void {
+	private function logoutExpire(): void
+	{
 		try {
 			$user = $this->user();
 			$user->invokeHooks(User::HOOK_LOGOUT_EXPIRE);
@@ -316,7 +332,8 @@ class Session extends Model implements SessionInterface {
 	 * @see \zesk\Cron\Module
 	 */
 	#[CronClusterMinute]
-	public static function expireSessions(Application $application): void {
+	public static function expireSessions(Application $application): void
+	{
 		$ex = Criteria::expr();
 		$criteria = Criteria::create()->where($ex->lt('expires', Timestamp::now()));
 		$em = $application->entityManager();
@@ -338,7 +355,8 @@ class Session extends Model implements SessionInterface {
 	 *
 	 * @return Timestamp
 	 */
-	private function computeExpires(): Timestamp {
+	private function computeExpires(): Timestamp
+	{
 		$expire = $this->cookieExpire();
 		return Timestamp::now()->addUnit($expire);
 	}
@@ -347,14 +365,16 @@ class Session extends Model implements SessionInterface {
 	 *
 	 * @return string
 	 */
-	private function cookieName(): string {
+	private function cookieName(): string
+	{
 		return $this->optionPath(['cookie', 'name'], self::DEFAULT_COOKIE_NAME);
 	}
 
 	/**
 	 * @return $this
 	 */
-	public function foundSession(): self {
+	public function foundSession(): self
+	{
 		return $this;
 	}
 
@@ -365,7 +385,8 @@ class Session extends Model implements SessionInterface {
 	 * @throws NotFoundException
 	 * @see SessionInterface::initializeSession()
 	 */
-	public function fetchSession(string $token, string $type): self {
+	public function fetchSession(string $token, string $type): self
+	{
 		$session = $this->em->getRepository(self::class)->findOneBy(['token' => $token, 'type' => $type]);
 		if (!$session) {
 			throw new NotFoundException("No session with $token and $type");
@@ -378,7 +399,8 @@ class Session extends Model implements SessionInterface {
 	 * @param Request $request
 	 * @return $this
 	 */
-	public function initializeSession(Request $request): self {
+	public function initializeSession(Request $request): self
+	{
 		$methods = [
 			self::METHOD_COOKIE => $this->initializeCookieSession(...),
 			self::METHOD_AUTHORIZATION => $this->initializeAuthorizationSession(...),
@@ -393,7 +415,8 @@ class Session extends Model implements SessionInterface {
 		return $this;
 	}
 
-	public function newSession(Request $request, string $type): self {
+	public function newSession(Request $request, string $type): self
+	{
 		$this->ip = $request->ip();
 		$this->token = $this->_generateToken();
 		assert($this->checkCookie($this->token) === true);
@@ -402,7 +425,8 @@ class Session extends Model implements SessionInterface {
 		return $this;
 	}
 
-	public function checkCookie(string $cookie): bool {
+	public function checkCookie(string $cookie): bool
+	{
 		if (preg_match('/[^A-Za-z0-9]+/', $cookie)) {
 			return false;
 		}
@@ -417,7 +441,8 @@ class Session extends Model implements SessionInterface {
 	 * @throws ORMException
 	 * @throws SemanticsException
 	 */
-	protected function initializeCookieSession(Request $request): self {
+	protected function initializeCookieSession(Request $request): self
+	{
 		$type = self::TYPE_COOKIE;
 		$cookie_name = $this->cookieName();
 
@@ -449,7 +474,8 @@ class Session extends Model implements SessionInterface {
 	 * @param Request $request
 	 * @return $this
 	 */
-	protected function initializeAuthorizationSession(Request $request): self {
+	protected function initializeAuthorizationSession(Request $request): self
+	{
 		$type = self::TYPE_AUTHORIZATION_KEY;
 
 		try {
@@ -465,7 +491,8 @@ class Session extends Model implements SessionInterface {
 	 * @param Request $request
 	 * @return $this
 	 */
-	public function createAuthorizationSession(Request $request): self {
+	public function createAuthorizationSession(Request $request): self
+	{
 		$this->em->persist($this->newSession($request, self::TYPE_AUTHORIZATION_KEY));
 		return $this;
 	}
@@ -474,14 +501,16 @@ class Session extends Model implements SessionInterface {
 	 *
 	 * @return string
 	 */
-	public function hash(): string {
+	public function hash(): string
+	{
 		return $this->token;
 	}
 
 	/**
 	 * @return string
 	 */
-	public function token(): string {
+	public function token(): string
+	{
 		return $this->token;
 	}
 
@@ -495,7 +524,8 @@ class Session extends Model implements SessionInterface {
 	 * @return Session
 	 * @throws ORMException
 	 */
-	public static function oneTimeCreate(User $user, string $ip, int $expire_seconds = -1): self {
+	public static function oneTimeCreate(User $user, string $ip, int $expire_seconds = -1): self
+	{
 		$app = $user->application;
 		if ($expire_seconds < 0) {
 			$expire_seconds = Types::toInteger($app->configuration->getPath([
@@ -527,7 +557,8 @@ class Session extends Model implements SessionInterface {
 	 * @return self
 	 * @throws NotFoundException
 	 */
-	public static function oneTimeFind(Application $application, string $hash): self {
+	public static function oneTimeFind(Application $application, string $hash): self
+	{
 		$hash = trim($hash);
 		$criteria = [
 			'token' => $hash, 'type' => self::TYPE_ONE_TIME,
@@ -549,7 +580,8 @@ class Session extends Model implements SessionInterface {
 	 * @throws AuthenticationException
 	 * @throws SemanticsException
 	 */
-	public function oneTimeAuthenticate(Userlike $user, Request $request): self {
+	public function oneTimeAuthenticate(Userlike $user, Request $request): self
+	{
 		if ($this->type !== self::TYPE_ONE_TIME) {
 			throw new SemanticsException('Not a one-time session');
 		}
@@ -565,7 +597,8 @@ class Session extends Model implements SessionInterface {
 	 * @param int $nSeconds
 	 * @return integer
 	 */
-	public function sessionCount(int $nSeconds = 600): int {
+	public function sessionCount(int $nSeconds = 600): int
+	{
 		$ex = Criteria::expr();
 		$criteria = Criteria::create()->where($ex->gt('seen', Timestamp::now()->addUnit(-$nSeconds)))->andWhere($ex->neq('id', $this->id()));
 		return $this->em->getRepository(self::class)->count([$criteria]);
@@ -575,7 +608,8 @@ class Session extends Model implements SessionInterface {
 	 * @return int
 	 * @throws AuthenticationException
 	 */
-	public function userId(): int {
+	public function userId(): int
+	{
 		return $this->user()->id();
 	}
 
@@ -583,14 +617,16 @@ class Session extends Model implements SessionInterface {
 	 * @return User
 	 * @throws AuthenticationException
 	 */
-	public function user(): User {
+	public function user(): User
+	{
 		if (!$this->user) {
 			throw new AuthenticationException('Not authenticated session {token}', ['token' => $this->token]);
 		}
 		return $this->user;
 	}
 
-	public function changed($members = null): bool {
+	public function changed($members = null): bool
+	{
 		return $this->changed;
 	}
 
@@ -599,7 +635,8 @@ class Session extends Model implements SessionInterface {
 	 *
 	 * @see SessionInterface::variables()
 	 */
-	public function variables(): array {
+	public function variables(): array
+	{
 		return $this->members['data'];
 	}
 
@@ -607,7 +644,8 @@ class Session extends Model implements SessionInterface {
 	 *
 	 * @return array
 	 */
-	public function cookieOptions(): array {
+	public function cookieOptions(): array
+	{
 		return $this->optionArray('cookie');
 	}
 }

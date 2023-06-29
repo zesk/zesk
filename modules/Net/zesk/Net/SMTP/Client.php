@@ -19,7 +19,8 @@ use zesk\Types;
  * @author kent
  *
  */
-class Client extends SocketClient {
+class Client extends SocketClient
+{
 	/**
 	 * Default port to connect to
 	 *
@@ -42,7 +43,8 @@ class Client extends SocketClient {
 	 *            Body to send
 	 * @return boolean
 	 */
-	public function send(string $from, string|array $to, array|string $headers, string $body): bool {
+	public function send(string $from, string|array $to, array|string $headers, string $body): bool
+	{
 		if (is_string($headers)) {
 			$headers = explode($this->EOL, $headers);
 		}
@@ -105,7 +107,8 @@ class Client extends SocketClient {
 	 * @param string $body
 	 * @return string
 	 */
-	public function format_body(string $body): string {
+	public function format_body(string $body): string
+	{
 		$body = str_replace("\r\n", "\n", $body);
 		$body = str_replace("\r", "\n", $body);
 		$body = str_replace("\n", "\r\n", $body);
@@ -120,7 +123,8 @@ class Client extends SocketClient {
 	 * @see http://www.ietf.org/rfc/rfc2821.txt
 	 * @return boolean
 	 */
-	private function helo() {
+	private function helo()
+	{
 		return $this->command('HELO ' . $this->urlComponent('host'), '250');
 	}
 
@@ -130,7 +134,8 @@ class Client extends SocketClient {
 	 * @see http://www.ietf.org/rfc/rfc1869.txt
 	 * @return boolean
 	 */
-	private function ehlo() {
+	private function ehlo()
+	{
 		return $this->command('EHLO ' . $this->urlComponent('host'), '250');
 	}
 
@@ -139,7 +144,8 @@ class Client extends SocketClient {
 	 *
 	 * @return boolean
 	 */
-	private function auth() {
+	private function auth()
+	{
 		$result = $this->command('AUTH LOGIN', '334');
 		$this->log($result);
 		$result = $this->command(base64_encode($this->urlComponent('user')), '334');
@@ -159,7 +165,8 @@ class Client extends SocketClient {
 	 * @throws ConnectionFailed
 	 * @throws Exception_Protocol
 	 */
-	private function mail(string $from): string {
+	private function mail(string $from): string
+	{
 		return $this->command('MAIL FROM: <' . $from . '>', '250');
 	}
 
@@ -172,7 +179,8 @@ class Client extends SocketClient {
 	 * @throws ConnectionFailed
 	 * @throws Exception_Protocol
 	 */
-	private function rcpt(string $to): string {
+	private function rcpt(string $to): string
+	{
 		return $this->command("RCPT TO: <$to>", '25');
 	}
 
@@ -183,7 +191,8 @@ class Client extends SocketClient {
 	 * @throws ConnectionFailed
 	 * @throws Exception_Protocol
 	 */
-	private function data() {
+	private function data()
+	{
 		return $this->command('DATA', '354');
 	}
 
@@ -194,7 +203,8 @@ class Client extends SocketClient {
 	 * @throws ConnectionFailed
 	 * @throws Exception_Protocol
 	 */
-	private function rset() {
+	private function rset()
+	{
 		return $this->command('RSET', '250');
 	}
 
@@ -205,7 +215,8 @@ class Client extends SocketClient {
 	 * @throws ConnectionFailed
 	 * @throws Exception_Protocol
 	 */
-	private function quit() {
+	private function quit()
+	{
 		if ($this->isConnected()) {
 			$this->command('QUIT', '221');
 			$this->disconnect();

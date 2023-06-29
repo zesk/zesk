@@ -19,13 +19,15 @@ use zesk\JSON;
  * @author kent
  *
  */
-class ZZ extends Locale {
+class ZZ extends Locale
+{
 	/**
 	 *
 	 *
 	 * @see Locale::formatDate()
 	 */
-	public function formatDate(): string {
+	public function formatDate(): string
+	{
 		return '{YYYY}-{MM}-{DD}';
 	}
 
@@ -34,7 +36,8 @@ class ZZ extends Locale {
 	 *
 	 * @see Locale::formatDateTime()
 	 */
-	public function formatDateTime(): string {
+	public function formatDateTime(): string
+	{
 		return '{YYYY}-{MM}-{DD} {hh}:{mm}:{ss} {Z}';
 	}
 
@@ -43,7 +46,8 @@ class ZZ extends Locale {
 	 *
 	 * @see Locale::formatTime()
 	 */
-	public function formatTime(bool $include_seconds = false): string {
+	public function formatTime(bool $include_seconds = false): string
+	{
 		return $include_seconds ? '{h}:{mm}:{ss}' : '{h}:{mm}';
 	}
 
@@ -52,7 +56,8 @@ class ZZ extends Locale {
 	 *
 	 * @see Locale::possessive()
 	 */
-	public function possessive(string $owner, string $object): string {
+	public function possessive(string $owner, string $object): string
+	{
 		return '{possessive(' . JSON::quote($owner) . ', ' . JSON::quote($object) . '}';
 	}
 
@@ -62,7 +67,8 @@ class ZZ extends Locale {
 	 *
 	 * @see Locale::nounSemanticPlural()
 	 */
-	public function nounSemanticPlural(string $noun, float|int $number = 2): string {
+	public function nounSemanticPlural(string $noun, float|int $number = 2): string
+	{
 		if ($number > 0 && $number <= 1) {
 			return $noun;
 		}
@@ -80,7 +86,8 @@ class ZZ extends Locale {
 	 *
 	 * @see Locale::indefiniteArticle()
 	 */
-	public function indefiniteArticle(string $word, array $context = []): string {
+	public function indefiniteArticle(string $word, array $context = []): string
+	{
 		if (strlen($word) === 0) {
 			return '';
 		}
@@ -88,7 +95,8 @@ class ZZ extends Locale {
 		return "{indefinite_article($word)}";
 	}
 
-	public static function encode(string $word): string {
+	public static function encode(string $word): string
+	{
 		try {
 			return JSON::encode($word);
 		} catch (SemanticsException $e) {
@@ -101,7 +109,8 @@ class ZZ extends Locale {
 	 *
 	 * @see Locale::ordinal()
 	 */
-	public function ordinal(int $number): string {
+	public function ordinal(int $number): string
+	{
 		return "{ordinal($number)}";
 	}
 
@@ -111,7 +120,8 @@ class ZZ extends Locale {
 	 *
 	 * @see Locale::negateWord()
 	 */
-	public function negateWord(string $word, string $preferred_prefix = null): string {
+	public function negateWord(string $word, string $preferred_prefix = null): string
+	{
 		return '{negate_word(' . self::encode($word) . self::encode($preferred_prefix) . '}';
 	}
 }

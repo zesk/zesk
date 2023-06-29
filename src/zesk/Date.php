@@ -26,7 +26,8 @@ use function jdtogregorian;
  *
  * @author kent
  */
-class Date extends Temporal {
+class Date extends Temporal
+{
 	/**
 	 *
 	 * @var string
@@ -93,7 +94,8 @@ class Date extends Temporal {
 	 * @return Date
 	 * @throws OutOfBoundsException
 	 */
-	public static function instance(int $year = null, int $month = null, int $day = null): Date {
+	public static function instance(int $year = null, int $month = null, int $day = null): Date
+	{
 		$d = new Date();
 		$d->ymd($year, $month, $day);
 		return $d;
@@ -103,14 +105,16 @@ class Date extends Temporal {
 	 * @param mixed $value
 	 * @return Date
 	 */
-	public static function factory(null|int|Date|Timestamp|DateTime $value = null): self {
+	public static function factory(null|int|Date|Timestamp|DateTime $value = null): self
+	{
 		return new self($value);
 	}
 
 	/**
 	 * Date constructor.
 	 */
-	public function __construct(null|int|Date|Timestamp|DateTime $value = null) {
+	public function __construct(null|int|Date|Timestamp|DateTime $value = null)
+	{
 		$this->_weekday = null;
 		$this->_year_day = null;
 		$this->set($value);
@@ -120,7 +124,8 @@ class Date extends Temporal {
 	 * Copy that puppy
 	 * @return self
 	 */
-	public function duplicate(): self {
+	public function duplicate(): self
+	{
 		return clone $this;
 	}
 
@@ -129,7 +134,8 @@ class Date extends Temporal {
 	 *
 	 * @return Date
 	 */
-	public static function now(): self {
+	public static function now(): self
+	{
 		return (new Date())->setNow();
 	}
 
@@ -138,7 +144,8 @@ class Date extends Temporal {
 	 *
 	 * @return Date
 	 */
-	public static function utcNow(): self {
+	public static function utcNow(): self
+	{
 		return (new Date())->setUTCNow();
 	}
 
@@ -148,7 +155,8 @@ class Date extends Temporal {
 	 *
 	 * @return boolean
 	 */
-	public function isEmpty(): bool {
+	public function isEmpty(): bool
+	{
 		return ($this->year === null);
 	}
 
@@ -157,7 +165,8 @@ class Date extends Temporal {
 	 *
 	 * @return Date
 	 */
-	public function setEmpty(): self {
+	public function setEmpty(): self
+	{
 		$this->year = null;
 		$this->_weekday = null;
 		$this->_year_day = null;
@@ -168,7 +177,8 @@ class Date extends Temporal {
 	 * @param DateTime $value
 	 * @return $this
 	 */
-	public function setDateTime(DateTime $value): self {
+	public function setDateTime(DateTime $value): self
+	{
 		return $this->setUNIXTimestamp($value->getTimestamp());
 	}
 
@@ -177,7 +187,8 @@ class Date extends Temporal {
 	 * @param mixed $value
 	 * @return $this
 	 */
-	public function set(null|int|Date|Timestamp|DateTime $value): self {
+	public function set(null|int|Date|Timestamp|DateTime $value): self
+	{
 		if ($value === null) {
 			return $this->setEmpty();
 		}
@@ -194,7 +205,8 @@ class Date extends Temporal {
 	 * @param Date $date
 	 * @return $this
 	 */
-	public function setDate(Date $date): self {
+	public function setDate(Date $date): self
+	{
 		if ($date->isEmpty()) {
 			return $this->setEmpty();
 		}
@@ -204,7 +216,8 @@ class Date extends Temporal {
 	/**
 	 * @return string
 	 */
-	public function __toString() {
+	public function __toString()
+	{
 		if ($this->isEmpty()) {
 			return '';
 		}
@@ -229,7 +242,8 @@ class Date extends Temporal {
 	 * @throws ParseException
 	 * @throws ParseException
 	 */
-	public function parse(string $value): self {
+	public function parse(string $value): self
+	{
 		$ts = @strtotime($value, $this->unixTimestamp());
 		if ($ts < 0 || $ts === false) {
 			throw new ParseException('Date::fromString({value})', ['value' => $value]);
@@ -240,7 +254,8 @@ class Date extends Temporal {
 	/**
 	 * @return $this
 	 */
-	public function setNow(): self {
+	public function setNow(): self
+	{
 		try {
 			return $this->_setDateArray(getdate());
 		} catch (OutOfBoundsException $e) {
@@ -252,14 +267,16 @@ class Date extends Temporal {
 	/**
 	 * @return $this
 	 */
-	public function setUTCNow(): self {
+	public function setUTCNow(): self
+	{
 		return $this->setUNIXTimestamp(time());
 	}
 
 	/**
 	 * @return int
 	 */
-	public function unixTimestamp(): int {
+	public function unixTimestamp(): int
+	{
 		$ts = gmmktime(0, 0, 0, $this->month, $this->day, $this->year);
 		/* returns false, but have not been able to get it to do so with any ints used so f that */
 		return intval($ts);
@@ -270,7 +287,8 @@ class Date extends Temporal {
 	 * @return $this
 	 * @throws OutOfBoundsException
 	 */
-	public function setUNIXTimestamp(int $set): self {
+	public function setUNIXTimestamp(int $set): self
+	{
 		return $this->_setDateArray(getdate($set));
 	}
 
@@ -281,7 +299,8 @@ class Date extends Temporal {
 	 * @return $this
 	 * @throws OutOfBoundsException
 	 */
-	public function ymd(int $yy = null, int $mm = null, int $dd = null): self {
+	public function ymd(int $yy = null, int $mm = null, int $dd = null): self
+	{
 		if ($yy !== null) {
 			$this->setYear($yy);
 		}
@@ -299,7 +318,8 @@ class Date extends Temporal {
 	 * @return $this
 	 * @throws OutOfBoundsException
 	 */
-	private function _setDateArray(array $date): self {
+	private function _setDateArray(array $date): self
+	{
 		$this->ymd($date['year'], $date['mon'], $date['mday']);
 		return $this;
 	}
@@ -307,7 +327,8 @@ class Date extends Temporal {
 	/**
 	 * @return int
 	 */
-	public function month(): int {
+	public function month(): int
+	{
 		return $this->month;
 	}
 
@@ -316,7 +337,8 @@ class Date extends Temporal {
 	 * @return $this
 	 * @throws OutOfBoundsException
 	 */
-	public function setMonth(int $set): self {
+	public function setMonth(int $set): self
+	{
 		if ($set < 1 || $set > 12) {
 			throw new OutOfBoundsException(ArrayTools::map('Date::setMonth({set})', ['set' => $set]));
 		}
@@ -332,7 +354,8 @@ class Date extends Temporal {
 	 *
 	 * @return int
 	 */
-	public function quarter(): int {
+	public function quarter(): int
+	{
 		return intval(($this->month - 1) / 3) + 1;
 	}
 
@@ -343,7 +366,8 @@ class Date extends Temporal {
 	 * @return self
 	 * @throws OutOfBoundsException
 	 */
-	public function setQuarter(int $set): self {
+	public function setQuarter(int $set): self
+	{
 		if ($set < 1 || $set > 4) {
 			throw new OutOfBoundsException(ArrayTools::map('Date::quarter({set})', ['set' => $set]));
 		}
@@ -376,7 +400,8 @@ class Date extends Temporal {
 	/**
 	 * @return integer
 	 */
-	public function day(): int {
+	public function day(): int
+	{
 		return $this->day;
 	}
 
@@ -385,7 +410,8 @@ class Date extends Temporal {
 	 * @return $this
 	 * @throws OutOfBoundsException
 	 */
-	public function setDay(int $set): self {
+	public function setDay(int $set): self
+	{
 		if ($set < 1 || $set > 31) {
 			throw new OutOfBoundsException("Date::day($set)");
 		}
@@ -400,7 +426,8 @@ class Date extends Temporal {
 	 *
 	 * @return int
 	 */
-	public function year(): int {
+	public function year(): int
+	{
 		return $this->year;
 	}
 
@@ -409,7 +436,8 @@ class Date extends Temporal {
 	 * @return $this
 	 * @throws OutOfBoundsException
 	 */
-	public function setYear(int $set): self {
+	public function setYear(int $set): self
+	{
 		if ($set < 0) {
 			throw new OutOfBoundsException(ArrayTools::map('Date::setYear({value})', ['value' => $set]));
 		}
@@ -423,7 +451,8 @@ class Date extends Temporal {
 	/**
 	 * @return int|null
 	 */
-	public function weekday(): ?int {
+	public function weekday(): ?int
+	{
 		if (($this->_weekday === null) && (!$this->_refresh())) {
 			return null;
 		}
@@ -436,7 +465,8 @@ class Date extends Temporal {
 	 * @param int $set
 	 * @return $this
 	 */
-	public function setWeekday(int $set): self {
+	public function setWeekday(int $set): self
+	{
 		$set = abs($set) % 7;
 		$weekday = $this->weekday();
 		if ($weekday === $set) {
@@ -458,7 +488,8 @@ class Date extends Temporal {
 	 * @return int|null
 	 * @see Date_Test::test_yearDay()
 	 */
-	public function yearday(): ?int {
+	public function yearday(): ?int
+	{
 		if (($this->_year_day === null) && (!$this->_refresh())) {
 			return null;
 		}
@@ -475,7 +506,8 @@ class Date extends Temporal {
 	 * @throws SemanticsException
 	 * @see Date_Test::test_yearDay()
 	 */
-	public function setYearday(int $set): self {
+	public function setYearday(int $set): self
+	{
 		$yearday = $this->yearDay();
 		if ($yearday === null) {
 			throw new SemanticsException('Empty date, can not {method}', ['method' => __METHOD__]);
@@ -489,7 +521,8 @@ class Date extends Temporal {
 	 * @return integer
 	 * @see self::days_in_month
 	 */
-	public function lastDayOfMonth(): int {
+	public function lastDayOfMonth(): int
+	{
 		return self::daysInMonth($this->month, $this->year);
 	}
 
@@ -500,7 +533,8 @@ class Date extends Temporal {
 	 * @return int
 	 * @throws OutOfBoundsException
 	 */
-	public static function daysInMonth(int $month, int $year): int {
+	public static function daysInMonth(int $month, int $year): int
+	{
 		$daysInMonth = [
 			1 => 31, 2 => 28, 3 => 31, 4 => 30, 5 => 31, 6 => 30, 7 => 31, 8 => 31, 9 => 30, 10 => 31, 11 => 30,
 			12 => 31,
@@ -525,7 +559,8 @@ class Date extends Temporal {
 	 * @param Date $value
 	 * @return integer
 	 */
-	public function compare(Date $value): int {
+	public function compare(Date $value): int
+	{
 		$result = $this->year - $value->year();
 		if ($result === 0) {
 			$result = $this->month - $value->month();
@@ -544,7 +579,8 @@ class Date extends Temporal {
 	 *            Returns true if $date === $this
 	 * @return boolean
 	 */
-	public function before(Date $date, bool $equal = false): bool {
+	public function before(Date $date, bool $equal = false): bool
+	{
 		$result = $this->compare($date);
 		if ($equal) {
 			return $result <= 0;
@@ -561,7 +597,8 @@ class Date extends Temporal {
 	 *            Returns true if $date === $this
 	 * @return boolean
 	 */
-	public function after(Date $date, bool $equal = false): bool {
+	public function after(Date $date, bool $equal = false): bool
+	{
 		$result = $this->compare($date);
 		if ($equal) {
 			return $result >= 0;
@@ -576,7 +613,8 @@ class Date extends Temporal {
 	 * @param Date $value
 	 * @return int
 	 */
-	public function subtract(Date $value): int {
+	public function subtract(Date $value): int
+	{
 		return $this->unixTimestamp() - $value->unixTimestamp();
 	}
 
@@ -586,7 +624,8 @@ class Date extends Temporal {
 	 * @param Date $value
 	 * @return float
 	 */
-	public function subtractDays(Date $value): float {
+	public function subtractDays(Date $value): float
+	{
 		return round($this->subtract($value) / self::seconds_in_day);
 	}
 
@@ -595,7 +634,8 @@ class Date extends Temporal {
 	 * @param Date|null $max_date
 	 * @return bool
 	 */
-	public function clamp(Date $min_date = null, Date $max_date = null): bool {
+	public function clamp(Date $min_date = null, Date $max_date = null): bool
+	{
 		if ($min_date && $this->before($min_date)) {
 			$this->setDate($min_date);
 			return true;
@@ -614,7 +654,8 @@ class Date extends Temporal {
 	 * @param int $days
 	 * @return $this
 	 */
-	public function add(int $years = 0, int $months = 0, int $days = 0): self {
+	public function add(int $years = 0, int $months = 0, int $days = 0): self
+	{
 		$foo = mktime(0, 0, 0, $this->month + $months, $this->day + $days, $this->year + $years);
 
 		return $this->_setDateArray(getdate($foo));
@@ -628,7 +669,8 @@ class Date extends Temporal {
 	 * @return self
 	 * @throws ParameterException
 	 */
-	public function addUnit(int $n_units = 1, string $units = self::UNIT_DAY): self {
+	public function addUnit(int $n_units = 1, string $units = self::UNIT_DAY): self
+	{
 		return match ($units) {
 			self::UNIT_WEEKDAY, self::UNIT_DAY => $this->add(0, 0, $n_units),
 			self::UNIT_WEEK => $this->add(0, 0, $n_units * self::DAYS_PER_WEEK),
@@ -681,7 +723,8 @@ class Date extends Temporal {
 	 * @param array $cached
 	 * @return array
 	 */
-	private static function _cachedNames(Locale $locale, bool $short, array $source, array &$cached): array {
+	private static function _cachedNames(Locale $locale, bool $short, array $source, array &$cached): array
+	{
 		$id = $locale->id();
 		$short = intval($short);
 		if (isset($cached[$id][$short])) {
@@ -702,7 +745,8 @@ class Date extends Temporal {
 	 * @param boolean $short Short dates
 	 * @return array
 	 */
-	public static function monthNames(Locale $locale, bool $short = false): array {
+	public static function monthNames(Locale $locale, bool $short = false): array
+	{
 		return self::_cachedNames($locale, $short, self::$months, self::$translated_months);
 	}
 
@@ -712,7 +756,8 @@ class Date extends Temporal {
 	 * @param boolean $short
 	 * @return string[]
 	 */
-	public static function weekdayNames(Locale $locale, bool $short = false): array {
+	public static function weekdayNames(Locale $locale, bool $short = false): array
+	{
 		return self::_cachedNames($locale, $short, self::$weekday_names, self::$translated_weekdays);
 	}
 
@@ -721,14 +766,16 @@ class Date extends Temporal {
 	 *
 	 * @return string
 	 */
-	private function _ymd_format(): string {
+	private function _ymd_format(): string
+	{
 		return $this->year . '-' . StringTools::zeroPad($this->month) . '-' . StringTools::zeroPad($this->day);
 	}
 
 	/**
 	 * @return string
 	 */
-	public function sql(): string {
+	public function sql(): string
+	{
 		return $this->_ymd_format();
 	}
 
@@ -738,7 +785,8 @@ class Date extends Temporal {
 	 *
 	 * @see Temporal::formatting()
 	 */
-	public function formatting(array $options = []): array {
+	public function formatting(array $options = []): array
+	{
 		$locale = $options['locale'] ?? null;
 		// $old_locale = setlocale(LC_TIME,0);
 		// setlocale(LC_TIME, $locale);
@@ -779,7 +827,8 @@ class Date extends Temporal {
 	 * @param array $options
 	 * @return string
 	 */
-	public function format(string $format = '', array $options = []): string {
+	public function format(string $format = '', array $options = []): string
+	{
 		if ($format === '') {
 			$format = self::DEFAULT_FORMAT_STRING;
 		}
@@ -792,7 +841,8 @@ class Date extends Temporal {
 	 *
 	 * @return int
 	 */
-	public function integer(): int {
+	public function integer(): int
+	{
 		return $this->unixTimestamp();
 	}
 
@@ -800,7 +850,8 @@ class Date extends Temporal {
 	 * @param int $value
 	 * @return $this
 	 */
-	public function setInteger(int $value): self {
+	public function setInteger(int $value): self
+	{
 		return $this->setUNIXTimestamp($value);
 	}
 
@@ -808,7 +859,8 @@ class Date extends Temporal {
 	 * @param Date $d
 	 * @return bool
 	 */
-	public function equals(Date $d): bool {
+	public function equals(Date $d): bool
+	{
 		return $d->__toString() === $this->__toString();
 	}
 
@@ -819,7 +871,8 @@ class Date extends Temporal {
 	 * @return bool
 	 * @since 2022-01
 	 */
-	public function equalYears(Date $d): bool {
+	public function equalYears(Date $d): bool
+	{
 		return $d->year() === $this->year;
 	}
 
@@ -830,14 +883,16 @@ class Date extends Temporal {
 	 * @return bool
 	 * @since 2022-01
 	 */
-	public function equalMonths(Date $d): bool {
+	public function equalMonths(Date $d): bool
+	{
 		return $d->month() === $this->month;
 	}
 
 	/**
 	 * @return boolean
 	 */
-	public function isLastDayOfMonth(): bool {
+	public function isLastDayOfMonth(): bool
+	{
 		return ($this->day === $this->daysInMonth($this->month, $this->year));
 	}
 
@@ -847,7 +902,8 @@ class Date extends Temporal {
 	 * @return bool
 	 * @todo gmmktime? UTC
 	 */
-	private function _refresh(): bool {
+	private function _refresh(): bool
+	{
 		if ($this->isEmpty()) {
 			return false;
 		}
@@ -864,7 +920,8 @@ class Date extends Temporal {
 	 * @return boolean
 	 * @since 2022-01
 	 */
-	public function isLeapYear(int $year = null): bool {
+	public function isLeapYear(int $year = null): bool
+	{
 		if ($year === null) {
 			if ($this->isEmpty()) {
 				return false;
@@ -877,7 +934,8 @@ class Date extends Temporal {
 	/**
 	 * @return int
 	 */
-	private static function _gregorian_offset(): int {
+	private static function _gregorian_offset(): int
+	{
 		if (self::$gregorian_offset === null) {
 			self::$gregorian_offset = gregoriantojd(1, 1, 1) - 1;
 		}
@@ -889,7 +947,8 @@ class Date extends Temporal {
 	 *
 	 * @return int
 	 */
-	public function gregorian(): int {
+	public function gregorian(): int
+	{
 		return gregoriantojd($this->month, $this->day, $this->year) - self::_gregorian_offset();
 	}
 
@@ -900,7 +959,8 @@ class Date extends Temporal {
 	 * @return self
 	 * @since 2022-01
 	 */
-	public function setGregorian(int $set): self {
+	public function setGregorian(int $set): self
+	{
 		[$month, $day, $year] = explode('/', jdtogregorian($set + self::_gregorian_offset()), 3);
 
 		try {
@@ -919,7 +979,8 @@ class Date extends Temporal {
 	 * @see Date::last_day_of_month()
 	 * @see Date::days_in_month
 	 */
-	public function lastDay(): int {
+	public function lastDay(): int
+	{
 		return self::lastDayOfMonth();
 	}
 }

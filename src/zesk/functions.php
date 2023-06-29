@@ -37,7 +37,8 @@ const ZESK_GLOBAL_KEY_SEPARATOR = '::';
  * @return mixed
  * @deprecated 2023-01
  */
-function first(array $a, mixed $default = null): mixed {
+function first(array $a, mixed $default = null): mixed
+{
 	return ArrayTools::first($a, $default);
 }
 
@@ -50,7 +51,8 @@ function first(array $a, mixed $default = null): mixed {
  * @return mixed
  * @deprecated 2023-01
  */
-function last(array $a, mixed $default = null): mixed {
+function last(array $a, mixed $default = null): mixed
+{
 	return ArrayTools::last($a, $default);
 }
 
@@ -61,7 +63,8 @@ function last(array $a, mixed $default = null): mixed {
  * @return string
  * @deprecated 2023-01
  */
-function type(mixed $mixed): string {
+function type(mixed $mixed): string
+{
 	return Types::type($mixed);
 }
 
@@ -78,7 +81,8 @@ function type(mixed $mixed): string {
  * @deprecated 2023-01
  */
 if (!function_exists('dump')) {
-	function dump(): void {
+	function dump(): void
+	{
 		call_user_func_array('zesk\Debug::output', func_get_args());
 	}
 }
@@ -92,7 +96,8 @@ if (!function_exists('dump')) {
  * @see print_r, dump
  * @deprecated 2023-01
  */
-function _dump(mixed $x): string {
+function _dump(mixed $x): string
+{
 	return Debug::dump($x);
 }
 
@@ -115,7 +120,8 @@ function _dump(mixed $x): string {
  * @return ?bool Returns true or false, or null if parsing fails
  * @deprecated 2023-01
  */
-function toBool(mixed $value, ?bool $default = false): ?bool {
+function toBool(mixed $value, ?bool $default = false): ?bool
+{
 	return Types::toBool($value, $default);
 }
 
@@ -128,7 +134,8 @@ function toBool(mixed $value, ?bool $default = false): ?bool {
  * @return integer The integer value, or $def if it can not be converted to an integer
  * @deprecated 2023-01
  */
-function toInteger(mixed $s, int $default = 0): int {
+function toInteger(mixed $s, int $default = 0): int
+{
 	return Types::toInteger($s, $default);
 }
 
@@ -139,7 +146,8 @@ function toInteger(mixed $s, int $default = 0): int {
  * @return string|int
  * @deprecated 2023-01
  */
-function toKey(mixed $key): string|int {
+function toKey(mixed $key): string|int
+{
 	return Types::toKey($key);
 }
 
@@ -154,7 +162,8 @@ function toKey(mixed $key): string|int {
  * @return float The value, or $def if it can not be converted to a float
  * @deprecated 2023-01
  */
-function toFloat(mixed $s, float $def = null): float {
+function toFloat(mixed $s, float $def = null): float
+{
 	return Types::toFloat($s, $def);
 }
 
@@ -171,7 +180,8 @@ function toFloat(mixed $s, float $def = null): float {
  * @return array or $default
  * @deprecated 2023-01
  */
-function toList(mixed $mixed, array $default = [], string $delimiter = ';'): array {
+function toList(mixed $mixed, array $default = [], string $delimiter = ';'): array
+{
 	return Types::toList($mixed, $default, $delimiter);
 }
 
@@ -186,7 +196,8 @@ function toList(mixed $mixed, array $default = [], string $delimiter = ';'): arr
  * @return array
  * @deprecated 2023-01
  */
-function toArray(mixed $mixed, array $default = []): array {
+function toArray(mixed $mixed, array $default = []): array
+{
 	return Types::toArray($mixed, $default);
 }
 
@@ -197,7 +208,8 @@ function toArray(mixed $mixed, array $default = []): array {
  * @return string
  * @deprecated 2023-01
  */
-function toText(mixed $mixed): string {
+function toText(mixed $mixed): string
+{
 	return Types::toText($mixed);
 }
 /**
@@ -207,7 +219,8 @@ function toText(mixed $mixed): string {
  * @return iterable
  * @deprecated 2023-01
  */
-function toIterable(mixed $mixed): iterable {
+function toIterable(mixed $mixed): iterable
+{
 	return Types::toIterable($mixed);
 }
 
@@ -219,7 +232,8 @@ function toIterable(mixed $mixed): iterable {
  * @return int
  * @deprecated 2023-01
  */
-function toBytes(string|int $mixed, int $default = 0): int {
+function toBytes(string|int $mixed, int $default = 0): int
+{
 	return Types::toBytes($mixed, $default);
 }
 
@@ -231,7 +245,8 @@ function toBytes(string|int $mixed, int $default = 0): int {
  * @throws SemanticsException
  * @deprecated 2023-01
  */
-function flatten(mixed $mixed): string|int|float|bool {
+function flatten(mixed $mixed): string|int|float|bool
+{
 	return Types::flatten($mixed);
 }
 
@@ -246,7 +261,8 @@ function flatten(mixed $mixed): string|int|float|bool {
  * @return mixed Whatever passed in is returned (string/array)
  * @deprecated 2023-01
  */
-function tr(mixed $mixed, array $map): mixed {
+function tr(mixed $mixed, array $map): mixed
+{
 	return Types::replaceSubstrings($mixed, $map);
 }
 
@@ -269,7 +285,8 @@ function tr(mixed $mixed, array $map): mixed {
  * @return array|string
  * @deprecated 2023-01
  */
-function map(array|string $mixed, array $map, bool $insensitive = false, string $prefix_char = '{', string $suffix_char = '}'): array|string {
+function map(array|string $mixed, array $map, bool $insensitive = false, string $prefix_char = '{', string $suffix_char = '}'): array|string
+{
 	return ArrayTools::map($mixed, $map, $insensitive, $prefix_char, $suffix_char);
 }
 
@@ -291,7 +308,8 @@ function map(array|string $mixed, array $map, bool $insensitive = false, string 
  * @return array A size 2 array containing the left and right portions of the pair
  * @deprecated 2023-01 Use StringTools::pair
  */
-function pair(string $a, string $delim = '.', string $left = '', string $right = '', string $include_delimiter = ''): array {
+function pair(string $a, string $delim = '.', string $left = '', string $right = '', string $include_delimiter = ''): array
+{
 	return StringTools::pair($a, $delim, $left, $right, $include_delimiter);
 }
 
@@ -303,7 +321,8 @@ function pair(string $a, string $delim = '.', string $left = '', string $right =
  * @return string with a properly formatted path
  * @deprecated 2023-01 Directory::path or File::path
  */
-function path(array|string $path /* dir, dir, ... */): string {
+function path(array|string $path /* dir, dir, ... */): string
+{
 	$args = func_get_args();
 	return call_user_func_array(Directory::path(...), $args);
 }
@@ -320,7 +339,8 @@ function path(array|string $path /* dir, dir, ... */): string {
  * @return mixed
  * @deprecated 2023-01
  */
-function clamp(mixed $minValue, mixed $value, mixed $maxValue): mixed {
+function clamp(mixed $minValue, mixed $value, mixed $maxValue): mixed
+{
 	return Number::clamp($minValue, $value, $maxValue);
 }
 
@@ -332,7 +352,8 @@ function clamp(mixed $minValue, mixed $value, mixed $maxValue): mixed {
  * @return boolean
  * @deprecated 2023-01
  */
-function is_email(string $email): bool {
+function is_email(string $email): bool
+{
 	return Types::isEmail($email);
 }
 
@@ -341,7 +362,8 @@ function is_email(string $email): bool {
  *
  * @return boolean
  */
-function is_windows(): bool {
+function is_windows(): bool
+{
 	return PATH_SEPARATOR === '\\';
 }
 
@@ -365,6 +387,7 @@ function is_windows(): bool {
  * @deprecated 2017-08 Avoid usage - use $this->application when available or pass $application around
  *
  */
-function app(): Application {
+function app(): Application
+{
 	return Kernel::singleton()->application();
 }

@@ -12,7 +12,8 @@ use zesk\Exception\FilePermission;
 use zesk\Exception\ParameterException;
 use zesk\File as zeskFile;
 
-class File {
+class File
+{
 	/**
 	 *
 	 * @var string
@@ -48,7 +49,8 @@ class File {
 	 * @throws FilePermission
 	 * @throws ParameterException
 	 */
-	public function __construct(array $upload_array) {
+	public function __construct(array $upload_array)
+	{
 		if (!isset($upload_array['tmp_name'])) {
 			throw new ParameterException('{method} must have keys tmp_name (keys passed: {keys})', [
 				'method' => __METHOD__, 'keys' => array_keys($upload_array),
@@ -66,7 +68,8 @@ class File {
 	/**
 	 * @return array
 	 */
-	public function variables(): array {
+	public function variables(): array
+	{
 		return $this->upload_array;
 	}
 
@@ -78,7 +81,8 @@ class File {
 	 * @throws FilePermission
 	 * @throws ParameterException
 	 */
-	public static function instance(array $upload_array): self {
+	public static function instance(array $upload_array): self
+	{
 		return new self($upload_array);
 	}
 
@@ -112,7 +116,8 @@ class File {
 	 * @throws DirectoryPermission
 	 * @throws FileNotFound|FilePermission
 	 */
-	public function migrate(Application $application, string $dest_path, array $options = []): string {
+	public function migrate(Application $application, string $dest_path, array $options = []): string
+	{
 		if (empty($dest_path)) {
 			throw new ParameterException('$dest_path is required to be a valid path or filename ({dest_path})', [
 				'dest_path' => $dest_path,

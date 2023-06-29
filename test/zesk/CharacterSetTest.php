@@ -11,11 +11,13 @@ namespace zesk;
 use zesk\Exception\FileParseException;
 use zesk\Exception\ParseException;
 
-class CharacterSetTest extends UnitTest {
+class CharacterSetTest extends UnitTest
+{
 	/**
 	 * @return array
 	 */
-	public static function data_supported(): array {
+	public static function data_supported(): array
+	{
 		$result = CharacterSet::supported();
 		$tests = [];
 		foreach ($result as $charset) {
@@ -31,14 +33,16 @@ class CharacterSetTest extends UnitTest {
 	 * @throws FileParseException
 	 * @dataProvider data_supported
 	 */
-	public function test_isSupported(string $charset): void {
+	public function test_isSupported(string $charset): void
+	{
 		$this->assertTrue(CharacterSet::isSupported($charset));
 		$this->assertFalse(CharacterSet::isSupported($charset . '-No'));
 		$result = CharacterSet::toUTF8('Hello, world', $charset);
 		$this->assertIsString($result);
 	}
 
-	public function to_utf8(): void {
+	public function to_utf8(): void
+	{
 		$every_char = '';
 		for ($i = 32; $i <= 127; $i++) {
 			$every_char .= chr($i);

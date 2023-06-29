@@ -16,7 +16,8 @@ use zesk\Locale\Locale;
  * @author kent
  *
  */
-abstract class Temporal implements Formatting {
+abstract class Temporal implements Formatting
+{
 	/**
 	 *
 	 * @var string
@@ -203,7 +204,8 @@ abstract class Temporal implements Formatting {
 	 *
 	 * @return array
 	 */
-	public static function unitsTranslationTable(): array {
+	public static function unitsTranslationTable(): array
+	{
 		return self::$UNITS_TRANSLATION_TABLE;
 	}
 
@@ -214,7 +216,8 @@ abstract class Temporal implements Formatting {
 	 * @return int
 	 * @throws KeyNotFound
 	 */
-	public static function unitToSeconds(string $unit): int {
+	public static function unitToSeconds(string $unit): int
+	{
 		$result = self::unitsTranslationTable();
 		if (!array_key_exists($unit, $result)) {
 			throw new KeyNotFound($unit);
@@ -230,7 +233,8 @@ abstract class Temporal implements Formatting {
 	 * @return float
 	 * @throws KeyNotFound
 	 */
-	public static function convertUnits(int|float $seconds, string $unit = self::UNIT_SECOND): float {
+	public static function convertUnits(int|float $seconds, string $unit = self::UNIT_SECOND): float
+	{
 		return floatval($seconds / self::unitToSeconds($unit));
 	}
 
@@ -247,7 +251,8 @@ abstract class Temporal implements Formatting {
 	 *            example.
 	 * @return string The units closest to the number of seconds
 	 */
-	public static function secondsToUnit(int $seconds, string $stop_unit = self::UNIT_SECOND, float &$fraction = null): string {
+	public static function secondsToUnit(int $seconds, string $stop_unit = self::UNIT_SECOND, float &$fraction = null): string
+	{
 		$translation = self::$UNITS_TRANSLATION_TABLE;
 		$unit = '';
 		foreach ($translation as $unit => $unit_seconds) {

@@ -15,7 +15,8 @@ use zesk\PHPUnit\TestCase;
  * @author kent
  *
  */
-class MailTest extends TestCase {
+class MailTest extends TestCase
+{
 	/**
 	 *
 	 */
@@ -28,7 +29,8 @@ class MailTest extends TestCase {
 
 	/**
 	 */
-	public function test_outgoing_requirements(): void {
+	public function test_outgoing_requirements(): void
+	{
 		$this->url = $this->option('email_url');
 
 		if (empty($this->url)) {
@@ -49,7 +51,8 @@ class MailTest extends TestCase {
 		}
 	}
 
-	public function test_load(): void {
+	public function test_load(): void
+	{
 		$result = Mail::load(file_get_contents($this->application->zeskHome('test/test-data/mail_load.0.txt')));
 		$this->assertEquals([
 			'File-Format' => 'both', 'File-Format-Separator' => '--DOG--', 'Subject' => 'This is my dog',
@@ -58,7 +61,8 @@ class MailTest extends TestCase {
 		], $result);
 	}
 
-	public function test_parseAddress(): void {
+	public function test_parseAddress(): void
+	{
 		$email = 'John Doe <john@doe.com>';
 		$result = Mail::parseAddress($email);
 		$expected = [
@@ -68,14 +72,16 @@ class MailTest extends TestCase {
 		$this->assertEquals($expected, $result);
 	}
 
-	public function test_header_charsets(): void {
+	public function test_header_charsets(): void
+	{
 		$header = '=?ISO-8859-1?q?Hello?= =?ISO-8859-2?q?This?= =?ISO-8859-3?q?is?= =?ISO-8859-4?q?a?= =?ISO-8859-5?q?test?= =?ISO-8859-4?X?but_ignore_this_part?= ';
 		$result = Mail::headerCharsets($header);
 
 		$this->assertEquals(['ISO-8859-1', 'ISO-8859-2', 'ISO-8859-3', 'ISO-8859-4', 'ISO-8859-5', ], $result);
 	}
 
-	public function test_decode_header(): void {
+	public function test_decode_header(): void
+	{
 		$headers = [
 			['=?US-ASCII?Q?Keith_Moore?= <moore@cs.utk.edu>', 'Keith Moore <moore@cs.utk.edu>', ['US-ASCII', ], ], [
 				'=?ISO-8859-1?Q?Keld_J=F8rn_Simonsen?= <keld@dkuug.dk>',
@@ -129,7 +135,8 @@ class MailTest extends TestCase {
 		$charset = null;
 	}
 
-	public function test_is_encoded_header(): void {
+	public function test_is_encoded_header(): void
+	{
 		$headers = [
 			['=?US-ASCII?Q?Keith_Moore?= <moore@cs.utk.edu>', true, ],
 			['=?ISO-8859-1?Q?Keld_J=F8rn_Simonsen?= <keld@dkuug.dk>', true, ],
@@ -164,7 +171,8 @@ class MailTest extends TestCase {
 		}
 	}
 
-	public function test_load_file(): void {
+	public function test_load_file(): void
+	{
 		$filename = $this->test_sandbox('mail.txt');
 		$contents = <<<EOF
 File-Format: both
@@ -204,7 +212,8 @@ Thanks,
 <a href="http://www.example.com/unsubscribe?email={email}">Unsubscribe</a>', $result['body_html'], 'HTML Failed: ' . $result['body_html']);
 	}
 
-	public function test_loadTheme(): void {
+	public function test_loadTheme(): void
+	{
 		$application = $this->application;
 		$hash = $this->randomHex();
 		$file = $this->sandbox('The-Template.tpl');
@@ -217,7 +226,8 @@ Thanks,
 		], Mail::loadTheme($application, 'The-Template', $options));
 	}
 
-	public function test_mailArray(): void {
+	public function test_mailArray(): void
+	{
 		$to = 'noone@zesk.com';
 		$from = 'no-reply@zesk' . System::uname();
 		$subject = 'This is a subject';
@@ -231,7 +241,8 @@ Thanks,
 		$this->assertStringContainsString("Subject: $subject", $content);
 	}
 
-	public function test_mailer(): void {
+	public function test_mailer(): void
+	{
 		$headers = [
 			'From' => 'no-reply@zesk.com', 'To' => $to = 'noone@example.com',
 			'Subject' => $subject = basename(__FILE__),
@@ -245,7 +256,8 @@ Thanks,
 		$this->assertStringContainsString("$body", $content);
 	}
 
-	public static function data_is_email(): array {
+	public static function data_is_email(): array
+	{
 		return [
 			['test@test.com'], ['test@example.com'], ['test@[196.12.42.2]'], ['test@[IPv4::1]'],
 		];
@@ -256,11 +268,13 @@ Thanks,
 	 * @return void
 	 * @dataProvider data_is_email
 	 */
-	public function test_is_email($email): void {
+	public function test_is_email($email): void
+	{
 		$this->assertTrue(Types::isEmail($email), "$email is not an email");
 	}
 
-	public function test_map(): void {
+	public function test_map(): void
+	{
 		$filename = $this->sandbox('testfile.txt');
 		file_put_contents($filename, $saved_content = $this->randomHex(128));
 
@@ -279,13 +293,15 @@ Thanks,
 		$this->assertStringContainsString($saved_content, $content);
 	}
 
-	public function test_parse_headers(): void {
+	public function test_parse_headers(): void
+	{
 		$this->assertEquals([
 			'Header' => 'Value', 'Another' => 'Thing',
 		], Mail::parseHeaders("Header: Value\r\nAnother: Thing"));
 	}
 
-	public function test_multipart_send(): void {
+	public function test_multipart_send(): void
+	{
 		$filename = $this->sandbox('testfile.gif');
 		file_put_contents($filename, File::contents($this->application->zeskHome('share/image/zesk-logo.png')));
 
@@ -313,7 +329,8 @@ Thanks,
 	/**
 	 *
 	 */
-	public function test_send_sms(): void {
+	public function test_send_sms(): void
+	{
 		$to = 'John@dude.com';
 		$from = 'noone@example.com';
 		$subject = 'You are the man!';
@@ -346,7 +363,8 @@ All work and no play makes Kent a dull boy.
 	/**
 	 * @depends test_outgoing_requirements
 	 */
-	public function test_sendmail(): void {
+	public function test_sendmail(): void
+	{
 		$pop_url = $this->url;
 		if (!URL::valid($pop_url)) {
 			$this->markTestSkipped('No POP URL specified in ' . __CLASS__ . '::email_url');

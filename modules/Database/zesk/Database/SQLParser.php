@@ -20,7 +20,8 @@ use zesk\Text;
  * @author kent
  *
  */
-abstract class SQLParser extends Hookable {
+abstract class SQLParser extends Hookable
+{
 	public const COMMAND_CREATE_TABLE = 'create table';
 
 	public const pattern_database_hint = '/--\s*Database:\s*(\w+)/i';
@@ -35,7 +36,8 @@ abstract class SQLParser extends Hookable {
 	 *
 	 * @return SQLDialect
 	 */
-	final public function sql(): SQLDialect {
+	final public function sql(): SQLDialect
+	{
 		return $this->database->sqlDialect();
 	}
 
@@ -45,7 +47,8 @@ abstract class SQLParser extends Hookable {
 	 * @param Base $database
 	 * @param array $options
 	 */
-	public function __construct(Base $database, array $options = []) {
+	public function __construct(Base $database, array $options = [])
+	{
 		$this->database = $database;
 		parent::__construct($database->application, $options);
 	}
@@ -56,7 +59,8 @@ abstract class SQLParser extends Hookable {
 	 * @param string $sql
 	 * @return string
 	 */
-	public function removeComments(string $sql): string {
+	public function removeComments(string $sql): string
+	{
 		return Text::removeLineComments($sql, '--');
 	}
 
@@ -82,7 +86,8 @@ abstract class SQLParser extends Hookable {
 	 * @param string $sql
 	 * @return array
 	 */
-	public function parseSQL(string $sql): array {
+	public function parseSQL(string $sql): array
+	{
 		$sql = $this->sql()->removeComments($sql);
 		$sql = trim($sql);
 		$result = [];
@@ -114,7 +119,8 @@ abstract class SQLParser extends Hookable {
 	 * @param string $sqlScript
 	 * @return array
 	 */
-	public function splitSQLStatements(string $sqlScript): array {
+	public function splitSQLStatements(string $sqlScript): array
+	{
 		return StringTools::splitSQLStatements($sqlScript);
 	}
 
@@ -129,7 +135,8 @@ abstract class SQLParser extends Hookable {
 	 * @throws NotFoundException
 	 * @throws ParameterException
 	 */
-	public static function parseFactory(Base $db, string $sql, string $source): SQLParser {
+	public static function parseFactory(Base $db, string $sql, string $source): SQLParser
+	{
 		$app = $db->application;
 		if ($app->development() && empty($source)) {
 			throw new ParameterException('{method} missing source {args}', [
@@ -175,7 +182,8 @@ abstract class SQLParser extends Hookable {
 	 * @param string $order_by
 	 * @return array
 	 */
-	public function splitOrderBy(string $order_by): array {
+	public function splitOrderBy(string $order_by): array
+	{
 		$map = [];
 		/*
 		 * Remove quoted strings (simple)
@@ -204,7 +212,8 @@ abstract class SQLParser extends Hookable {
 	 * @param string|array $order_by
 	 * @return string|array
 	 */
-	public function reverseOrderBy(string|array $order_by): string|array {
+	public function reverseOrderBy(string|array $order_by): string|array
+	{
 		$was_string = false;
 		if (is_string($order_by)) {
 			$was_string = true;

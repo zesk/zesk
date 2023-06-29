@@ -5,7 +5,8 @@ namespace zesk;
 
 use zesk\Route\Controller as ControllerRoute;
 
-class CTest extends Controller {
+class CTest extends Controller
+{
 	protected array $argumentMethods = [];
 
 	protected array $actionMethods = [
@@ -20,32 +21,38 @@ class CTest extends Controller {
 
 	];
 
-	public function initialize(): void {
+	public function initialize(): void
+	{
 		parent::initialize();
 		$this->application->setOption(__CLASS__, []);
 		$this->application->optionAppend(__CLASS__, 'init');
 	}
 
-	public function action_index(string $a = '', string $b = ''): string {
+	public function action_index(string $a = '', string $b = ''): string
+	{
 		$this->application->optionAppend(__CLASS__, [$a, $b]);
 		return "$a|$b";
 	}
 
-	public function action_array(string $a, string $b, Request $request): array {
+	public function action_array(string $a, string $b, Request $request): array
+	{
 		$this->application->optionAppend(__CLASS__, [$a, $b]);
 		return ['first' => $a, 'second' => $b, 'request' => $request];
 	}
 
-	public static function getOption(Application $app): array {
+	public static function getOption(Application $app): array
+	{
 		return $app->optionArray(__CLASS__);
 	}
 }
 
-class ControllerTest extends UnitTest {
+class ControllerTest extends UnitTest
+{
 	/**
 	 *
 	 */
-	public function test_Controller(): void {
+	public function test_Controller(): void
+	{
 		$app = $this->application;
 
 		$app->addThemePath($this->test_sandbox());

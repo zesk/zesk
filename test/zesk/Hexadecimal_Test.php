@@ -10,8 +10,10 @@ namespace zesk;
  * @author kent
  *
  */
-class Hexadecimal_Test extends UnitTest {
-	public function test_decode(): void {
+class Hexadecimal_Test extends UnitTest
+{
+	public function test_decode(): void
+	{
 		$decoded = Hexadecimal::decode('DEADBEEF');
 		$x = null;
 		$this->assertEquals(str_split($decoded), [
@@ -22,7 +24,8 @@ class Hexadecimal_Test extends UnitTest {
 		]);
 	}
 
-	public function test_encode(): void {
+	public function test_encode(): void
+	{
 		$this->assertEquals(Hexadecimal::encode(chr(222) . chr(173) . chr(190) . chr(239)), 'DEADBEEF');
 	}
 }

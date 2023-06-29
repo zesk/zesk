@@ -9,7 +9,8 @@ declare(strict_types=1);
  */
 namespace zesk\Logger;
 
-interface Handler {
+interface Handler
+{
 	/**
 	 * @param string $message
 	 * @param array $context

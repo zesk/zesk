@@ -16,7 +16,8 @@ use zesk\PHP;
  *
  * @category Modules
  */
-class ClassNew extends CommandBase {
+class ClassNew extends CommandBase
+{
 	protected array $option_types = [
 		'app' => 'boolean',
 		'zesk' => 'boolean',
@@ -35,7 +36,8 @@ class ClassNew extends CommandBase {
 		'*' => 'Names of the classes to create (capitalization matters)',
 	];
 
-	public function run(): int {
+	public function run(): int
+	{
 		$names = $this->argumentsRemaining();
 		if (count($names) === 0) {
 			$this->usage('Must specify class names to create');
@@ -66,7 +68,8 @@ class ClassNew extends CommandBase {
 		return 0;
 	}
 
-	public function questionnaire(string $class): void {
+	public function questionnaire(string $class): void
+	{
 		throw new Unimplemented(__METHOD__);
 	}
 }

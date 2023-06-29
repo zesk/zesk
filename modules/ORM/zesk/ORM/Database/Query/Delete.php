@@ -22,7 +22,8 @@ use zesk\PHP;
  * @author kent
  *
  */
-class Delete extends Query {
+class Delete extends Query
+{
 	use Where;
 	use Affected;
 
@@ -44,7 +45,8 @@ class Delete extends Query {
 	 *
 	 * @param Base $db
 	 */
-	public function __construct(Base $db) {
+	public function __construct(Base $db)
+	{
 		parent::__construct('DELETE', $db);
 	}
 
@@ -53,7 +55,8 @@ class Delete extends Query {
 	 * @return $this
 	 * @throws Semantics
 	 */
-	public function setTruncate(bool $set): self {
+	public function setTruncate(bool $set): self
+	{
 		$this->truncate = $set;
 		$this->_validateTruncate();
 		return $this;
@@ -63,7 +66,8 @@ class Delete extends Query {
 	 * @return void
 	 * @throws Semantics
 	 */
-	private function _validateTruncate(): void {
+	private function _validateTruncate(): void
+	{
 		if ($this->truncate === true && count($this->where) > 0) {
 			throw new Semantics('Truncate not allowed with a where clause {where}', [
 				'where' => $this->where,
@@ -74,7 +78,8 @@ class Delete extends Query {
 	/**
 	 * @return bool
 	 */
-	public function truncate(): bool {
+	public function truncate(): bool
+	{
 		return $this->truncate;
 	}
 
@@ -82,7 +87,8 @@ class Delete extends Query {
 	 *
 	 * @return string
 	 */
-	public function __toString() {
+	public function __toString()
+	{
 		try {
 			return $this->toSQL();
 		} catch (Throwable $e) {
@@ -95,7 +101,8 @@ class Delete extends Query {
 	 *
 	 * @return string
 	 */
-	public function toSQL(): string {
+	public function toSQL(): string
+	{
 		$table = $this->application->ormRegistry($this->class)->table();
 		return $this->sql()->delete($table, $this->where, [
 			'truncate' => $this->truncate,
@@ -106,7 +113,8 @@ class Delete extends Query {
 	 *
 	 * @return mixed
 	 */
-	public function result(): mixed {
+	public function result(): mixed
+	{
 		return $this->result;
 	}
 
@@ -117,7 +125,8 @@ class Delete extends Query {
 	 * @throws NoResults
 	 * @throws TableNotFound
 	 */
-	public function execute(): self {
+	public function execute(): self
+	{
 		$this->_validateTruncate();
 		$db = $this->database();
 		$sql = $this->__toString();

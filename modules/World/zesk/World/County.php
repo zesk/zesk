@@ -25,7 +25,8 @@ use zesk\Doctrine\Trait\Name;
  * @property Province $province
  */
 #[Entity]
-class County extends Model {
+class County extends Model
+{
 	use AutoID;
 	use Name;
 
@@ -36,7 +37,8 @@ class County extends Model {
 	/**
 	 * @return array[]
 	 */
-	public static function permissions(): array {
+	public static function permissions(): array
+	{
 		return ArrayTools::map(parent::basePermissions(), [
 			'object' => 'County', 'objects' => 'Counties', 'class' => self::class,
 		]);

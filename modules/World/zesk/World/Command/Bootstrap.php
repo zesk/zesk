@@ -16,7 +16,8 @@ use zesk\World\Bootstrap\BootstrapProvince;
  * @author kent
  *
  */
-class Bootstrap extends SimpleCommand {
+class Bootstrap extends SimpleCommand
+{
 	protected array $shortcuts = ['world-bootstrap'];
 
 	protected array $option_types = [
@@ -35,7 +36,8 @@ class Bootstrap extends SimpleCommand {
 		'language' => BootstrapLanguage::class, 'province' => BootstrapProvince::class,
 	];
 
-	public function run(): int {
+	public function run(): int
+	{
 		$straps = [];
 		if ($this->optionBool('all')) {
 			$straps = array_keys(self::$straps);

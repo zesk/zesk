@@ -11,7 +11,8 @@ use zesk\Model;
 /**
  * Interface which represent a user of an application
  */
-interface Userlike {
+interface Userlike
+{
 	/**
 	 * Returns public authentication data when logged in.
 	 *

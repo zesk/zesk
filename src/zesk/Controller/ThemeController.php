@@ -18,7 +18,8 @@ use zesk\Response;
  *
  * @author kent
  */
-abstract class ThemeController extends Controller {
+abstract class ThemeController extends Controller
+{
 	/**
 	 * Default content type for Response generated upon instantiation.
 	 *
@@ -65,7 +66,8 @@ abstract class ThemeController extends Controller {
 	 * Create a new Controller_Template
 	 *
 	 */
-	protected function initialize(): void {
+	protected function initialize(): void
+	{
 		parent::initialize();
 		if ($this->theme === '') {
 			$this->theme = $this->optionString(self::OPTION_THEME, self::DEFAULT_THEME);
@@ -79,7 +81,8 @@ abstract class ThemeController extends Controller {
 	 * @param bool $set
 	 * @return self
 	 */
-	public function setAutoRender(bool $set): self {
+	public function setAutoRender(bool $set): self
+	{
 		$this->auto_render = $set;
 		return $this;
 	}
@@ -89,7 +92,8 @@ abstract class ThemeController extends Controller {
 	 *
 	 * @return bool
 	 */
-	public function autoRender(): bool {
+	public function autoRender(): bool
+	{
 		return $this->auto_render;
 	}
 
@@ -99,7 +103,8 @@ abstract class ThemeController extends Controller {
 	 * @param mixed|null $mixed
 	 * @return Response
 	 */
-	public function json(Response $response, mixed $mixed = null): Response {
+	public function json(Response $response, mixed $mixed = null): Response
+	{
 		$this->setAutoRender(false);
 		return $response->json()->setData($mixed);
 	}
@@ -110,7 +115,8 @@ abstract class ThemeController extends Controller {
 	 * @param string $message
 	 * @return Response
 	 */
-	public function error(Response $response, int $code, string $message = ''): Response {
+	public function error(Response $response, int $code, string $message = ''): Response
+	{
 		$this->setAutoRender(false);
 		return parent::error($response, $code, $message);
 	}
@@ -119,7 +125,8 @@ abstract class ThemeController extends Controller {
 	 *
 	 * @param Exception $e
 	 */
-	public function exception(\Exception $e): void {
+	public function exception(\Exception $e): void
+	{
 		if ($this->autoRender() && $this->theme) {
 			$this->application->error('Exception in controller {this-class} {class}: {message}', [
 				'this-class' => get_class($this),
@@ -130,7 +137,8 @@ abstract class ThemeController extends Controller {
 	/**
 	 * @see Controller::after()
 	 */
-	public function after(Request $request, Response $response): Response {
+	public function after(Request $request, Response $response): Response
+	{
 		if ($this->autoRender()) {
 			if (!$response->isHTML()) {
 				return $response;
@@ -153,7 +161,8 @@ abstract class ThemeController extends Controller {
 	/**
 	 *
 	 */
-	public function variables(): array {
+	public function variables(): array
+	{
 		return [
 			'theme' => $this->theme,
 		] + parent::variables() + $this->variables;

@@ -7,14 +7,17 @@ declare(strict_types=1);
  */
 namespace zesk;
 
-class DateInterval_Test extends UnitTest {
-	public static function data_sample_interval_row(): array {
+class DateInterval_Test extends UnitTest
+{
+	public static function data_sample_interval_row(): array
+	{
 		return [
 			['P1Y'], ['PT1S'], ['PT60S'], ['PT6000S'], ['PT3600S'], ['PT86400M'], ['P1D'], ['P2D'],
 		];
 	}
 
-	public static function data_extend(): array {
+	public static function data_extend(): array
+	{
 		$result = [];
 		foreach (self::data_sample_interval_row() as $sample_interval_row) {
 			$sample_interval = $sample_interval_row[0];
@@ -30,7 +33,8 @@ class DateInterval_Test extends UnitTest {
 	 * @throws \Exception
 	 * @dataProvider data_extend
 	 */
-	public function test_extend(DateInterval $expected, \DateInterval $input): void {
+	public function test_extend(DateInterval $expected, \DateInterval $input): void
+	{
 		$this->assertEquals(strval($expected), strval(DateInterval::extend($input)));
 	}
 
@@ -41,11 +45,13 @@ class DateInterval_Test extends UnitTest {
 	 * @dataProvider data_toSeconds
 	 * @throws \Exception
 	 */
-	public function test_toSeconds(string $input, float $expected): void {
+	public function test_toSeconds(string $input, float $expected): void
+	{
 		$this->assertEquals($expected, DateInterval::factory($input)->toSeconds(), "DateInterval::toSeconds($input)");
 	}
 
-	public static function data_toSeconds(): array {
+	public static function data_toSeconds(): array
+	{
 		return [
 			['P1Y', Temporal::SECONDS_PER_YEAR], ['PT1S', 1.0], ['PT60S', 60.0], ['PT6000S', 6000.0],
 			['PT3600S', 3600.0], ['PT86400M', 5184000.0],

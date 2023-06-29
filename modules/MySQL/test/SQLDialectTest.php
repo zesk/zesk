@@ -7,20 +7,24 @@ use zesk\PHPUnit\TestCase;
 use zesk\Database\SQLDialect;
 use zesk\Temporal;
 
-class SQLDialectTest extends TestCase {
+class SQLDialectTest extends TestCase
+{
 	protected array $load_modules = [
 		'MySQL',
 	];
 
-	public function initialize(): void {
+	public function initialize(): void
+	{
 		$this->application->configure();
 	}
 
-	public function sqlDialect(): SQLDialect {
+	public function sqlDialect(): SQLDialect
+	{
 		return $this->application->databaseRegistry()->sqlDialect();
 	}
 
-	public function test_function_date_add(): void {
+	public function test_function_date_add(): void
+	{
 		$column = 'last_login';
 		$hours = $this->randomInteger(1, 20);
 		$sql = $this->sqlDialect();
@@ -28,7 +32,8 @@ class SQLDialectTest extends TestCase {
 		$this->assertEquals("DATE_ADD(last_login, INTERVAL $hours HOUR)", $sql->functionDateAdd($column, $hours, Temporal::UNIT_HOUR));
 	}
 
-	public function test_delete(): void {
+	public function test_delete(): void
+	{
 		$options = [
 			'ignore' => true,
 		];
@@ -39,25 +44,29 @@ class SQLDialectTest extends TestCase {
 		$this->assertEquals('DELETE FROM `test` WHERE 0=1', $sql->delete('test', $where, $options));
 	}
 
-	public function test_drop_table(): void {
+	public function test_drop_table(): void
+	{
 		$table = 'test';
 		$sql = $this->sqlDialect();
 		$this->assertEquals(['DROP TABLE IF EXISTS `test`'], $sql->dropTable($table));
 	}
 
-	public function test_group_by(): void {
+	public function test_group_by(): void
+	{
 		$sql = $this->sqlDialect();
 		$this->assertEquals(' GROUP BY dude', $sql->groupBy('dude'));
 		$this->assertEquals(' GROUP BY dude, pal', $sql->groupBy(['dude', 'pal']));
 	}
 
-	public function test_hex(): void {
+	public function test_hex(): void
+	{
 		$sql = $this->sqlDialect();
 		$data = 'data';
 		$this->assertEquals('HEX(data)', $sql->functionHexadecimal($data));
 	}
 
-	public function test_insert(): void {
+	public function test_insert(): void
+	{
 		$g = $this->sqlDialect();
 		$t = 'table';
 		$arr = [
@@ -78,12 +87,14 @@ class SQLDialectTest extends TestCase {
 		$this->assertEquals('INSERT INTO `table` ( `Foo`, `Why` ) VALUES ( 1, \'Du\\\'de\' )', $sql);
 	}
 
-	public function test_now(): void {
+	public function test_now(): void
+	{
 		$sql = $this->sqlDialect();
 		$this->assertEquals('NOW()', $sql->now());
 	}
 
-	public static function data_orderBy(): array {
+	public static function data_orderBy(): array
+	{
 		return [
 			['', '', ''], [[], '', ''], ['a', '', ' ORDER BY a'], ['-a', '', ' ORDER BY a DESC'],
 			['-a;-b', '', ' ORDER BY a DESC, b DESC'], ['-a;b;c;-d', '', ' ORDER BY a DESC, b, c, d DESC'],
@@ -109,11 +120,13 @@ class SQLDialectTest extends TestCase {
 	 * @dataProvider data_orderBy
 	 * @return void
 	 */
-	public function test_orderBy(array|string $order_by, string $prefix, string $expected): void {
+	public function test_orderBy(array|string $order_by, string $prefix, string $expected): void
+	{
 		$this->assertEquals($expected, $this->sqlDialect()->orderBy($order_by, $prefix));
 	}
 
-	public static function data_quoteColumn(): array {
+	public static function data_quoteColumn(): array
+	{
 		return [
 			['`user_name`', 'user_name'],
 		];
@@ -122,11 +135,13 @@ class SQLDialectTest extends TestCase {
 	/**
 	 *
 	 */
-	public function test_quote_column(string $expected, string $column): void {
+	public function test_quote_column(string $expected, string $column): void
+	{
 		$this->assertEquals($expected, $this->sqlDialect()->quoteColumn($column));
 	}
 
-	public function test_quote_text(): void {
+	public function test_quote_text(): void
+	{
 		$sql = $this->sqlDialect();
 		$name = 'Dasterdly';
 		$this->assertEquals('\'Dasterdly\'', $sql->quoteText($name));
@@ -138,22 +153,26 @@ class SQLDialectTest extends TestCase {
 	 * @return void
 	 * @dataProvider data_quoteTable
 	 */
-	public function test_quoteTable(string $expected, string $table): void {
+	public function test_quoteTable(string $expected, string $table): void
+	{
 		$sql = $this->sqlDialect();
 		$this->assertEquals($expected, $sql->quoteTable($table));
 	}
 
-	public static function data_quoteTable(): array {
+	public static function data_quoteTable(): array
+	{
 		return [
 			['`foo`', 'foo', ], ['`Big Table Name space`', 'Big Table Name space', ],
 		];
 	}
 
-	public static function clean_white(string $sql): string {
+	public static function clean_white(string $sql): string
+	{
 		return trim(preg_replace('/\s+/', ' ', $sql));
 	}
 
-	public function test_replace(): void {
+	public function test_replace(): void
+	{
 		$sql = $this->sqlDialect();
 		$t = 'table';
 		$arr = [
@@ -165,7 +184,8 @@ class SQLDialectTest extends TestCase {
 		$this->assertEquals('REPLACE INTO `table` ( `A` ) VALUES ( \'B\' )', $result);
 	}
 
-	public static function data_select(): array {
+	public static function data_select(): array
+	{
 		return [
 			['SELECT * FROM `thing`', [
 				'what' => '*', 'tables' => ['thing'], 'where' => null, 'group_by' => false, 'order_by' => false,
@@ -190,12 +210,14 @@ class SQLDialectTest extends TestCase {
 	 * @throws \zesk\Exception\Semantics
 	 * @dataProvider data_select
 	 */
-	public function test_select(string $expected, array $selectArguments): void {
+	public function test_select(string $expected, array $selectArguments): void
+	{
 		$sql = $this->sqlDialect();
 		$this->assertEquals($expected, $sql->select($selectArguments));
 	}
 
-	public function test_table_as(): void {
+	public function test_table_as(): void
+	{
 		$sql = $this->sqlDialect();
 
 		$table = 'John';
@@ -203,13 +225,15 @@ class SQLDialectTest extends TestCase {
 		$this->assertEquals('`John` AS `Nancy`', $sql->tableAs($table, $as));
 	}
 
-	public function test_unhex(): void {
+	public function test_unhex(): void
+	{
 		$sql = $this->sqlDialect();
 		$data = 'ABACAB';
 		$this->assertEquals('UNHEX(ABACAB)', $sql->functionDecodeHexadecimal($data));
 	}
 
-	public function test_update(): void {
+	public function test_update(): void
+	{
 		$sql = $this->sqlDialect();
 		$t = 'table';
 		$arr = [
@@ -224,12 +248,14 @@ class SQLDialectTest extends TestCase {
 		$this->assertEquals($expected, $actual);
 	}
 
-	public function test_nowUTC(): void {
+	public function test_nowUTC(): void
+	{
 		$sql = $this->sqlDialect();
 		$this->assertEquals('UTC_TIMESTAMP()', $sql->nowUTC());
 	}
 
-	public function test_where(): void {
+	public function test_where(): void
+	{
 		$sql = $this->sqlDialect();
 		$where = [
 			'A' => 'B', 'C' => [
@@ -260,7 +286,8 @@ class SQLDialectTest extends TestCase {
 		$this->assertEquals($expected, $sql->whereClause($array, $conjunction, $prefix_in, $suffix));
 	}
 
-	public static function data_whereClause(): array {
+	public static function data_whereClause(): array
+	{
 		return [
 			[
 				'(`Q`.`Site` = 1 OR `Q`.`Site` = 2 OR `Q`.`Site` = 3) AND Q.UTC<=MIN(F.Stats_UTC)', [

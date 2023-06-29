@@ -17,7 +17,8 @@ use zesk\Exception\Redirect as RedirectException;
 use zesk\StringTools;
 use zesk\Types;
 
-class Theme extends Route {
+class Theme extends Route
+{
 	/**
 	 * Whether the theme path is set by variables
 	 *
@@ -31,7 +32,8 @@ class Theme extends Route {
 	 *
 	 * @see Route::initialize()
 	 */
-	protected function initialize(): void {
+	protected function initialize(): void
+	{
 		parent::initialize();
 		$this->dynamic_theme = self::isThemeDynamic($this->option('theme'));
 	}
@@ -42,7 +44,8 @@ class Theme extends Route {
 	 * @param array|string $theme
 	 * @return bool
 	 */
-	private static function isThemeDynamic(array|string $theme): bool {
+	private static function isThemeDynamic(array|string $theme): bool
+	{
 		foreach (Types::toList($theme) as $themeItem) {
 			if (StringTools::cleanTokens($themeItem) !== $themeItem) {
 				return true;
@@ -57,7 +60,8 @@ class Theme extends Route {
 	 * @return bool
 	 * @throws FileNotFound
 	 */
-	public function validate(): bool {
+	public function validate(): bool
+	{
 		$application = $this->application;
 		$themes = $application->themes;
 		$parameters = $application->variables() + [
@@ -83,7 +87,8 @@ class Theme extends Route {
 	 * @throws DirectoryPermission
 	 * @throws SemanticsException
 	 */
-	public function internalExecute(Request $request): Response {
+	public function internalExecute(Request $request): Response
+	{
 		$application = $this->application;
 		$themes = $application->themes;
 		$parameters = $application->variables() + [

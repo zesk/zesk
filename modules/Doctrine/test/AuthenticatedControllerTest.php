@@ -7,8 +7,10 @@ use zesk\Doctrine\DatabaseTestCase;
 use zesk\Doctrine\User;
 use zesk\HTTP;
 
-class AuthenticatedControllerTest extends DatabaseTestCase {
-	public function test_AuthenticatedController(): void {
+class AuthenticatedControllerTest extends DatabaseTestCase
+{
+	public function test_AuthenticatedController(): void
+	{
 		$this->application->modules->load('Session');
 
 		require_once __DIR__ . '/TestAuthenticatedController.php';

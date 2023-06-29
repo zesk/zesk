@@ -20,7 +20,8 @@ use zesk\Doctrine\Module as DoctrineModule;
  * @author kent
  *
  */
-class Module extends BaseModule {
+class Module extends BaseModule
+{
 	/**
 	 * List of currencies to include (Currency)
 	 */
@@ -37,7 +38,8 @@ class Module extends BaseModule {
 		Currency::class, City::class, County::class, Country::class, Language::class, Province::class,
 	];
 
-	public function initialize(): void {
+	public function initialize(): void
+	{
 		parent::initialize();
 		$this->application->doctrineModule()->addPath($this->path('zesk/World'));
 	}
@@ -49,7 +51,8 @@ class Module extends BaseModule {
 	 * @see self::schemaWasUpdated()
 	 */
 	#[HookMethod(handles: DoctrineModule::HOOK_SCHEMA_UPDATED)]
-	public function schemaWasUpdated(): void {
+	public function schemaWasUpdated(): void
+	{
 		$__ = [
 			'method' => __METHOD__,
 		];

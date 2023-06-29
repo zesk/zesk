@@ -10,5 +10,6 @@ namespace zesk;
  */
 namespace zesk\Database\Exception;
 
-class TableNotFound extends SQLException {
+class TableNotFound extends SQLException
+{
 }

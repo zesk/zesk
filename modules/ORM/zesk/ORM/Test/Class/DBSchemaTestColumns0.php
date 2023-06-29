@@ -5,7 +5,8 @@ namespace zesk\ORM\Test\Class;
 
 use zesk\ORM\Class_Base;
 
-class Class_DBSchemaTestColumns0 extends Class_Base {
+class Class_DBSchemaTestColumns0 extends Class_Base
+{
 	public array $column_types = [
 		'ID' => self::TYPE_ID,
 		'Hash' => self::TYPE_STRING,

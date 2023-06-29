@@ -9,8 +9,10 @@ use zesk\PHPUnit\TestCase;
  * @author kent
  *
  */
-class TestDBQueryObject extends ORMBase {
-	public function validate(TestCase $test): void {
+class TestDBQueryObject extends ORMBase
+{
+	public function validate(TestCase $test): void
+	{
 		$test->assertTrue(!$this->memberIsEmpty('id'));
 		$test->assertTrue(!$this->memberIsEmpty('foo'));
 	}

@@ -11,8 +11,10 @@ namespace zesk;
 use zesk\Exception\SemanticsException;
 use zesk\PHPUnit\ExceptionTestCase;
 
-class SemanticsTest extends ExceptionTestCase {
-	public function test_basics(): void {
+class SemanticsTest extends ExceptionTestCase
+{
+	public function test_basics(): void
+	{
 		$exception = new SemanticsException();
 		$this->assertThrowable($exception);
 	}

@@ -12,12 +12,14 @@ namespace zesk;
 /**
  * Generic test class
  */
-class VersionTest extends UnitTest {
+class VersionTest extends UnitTest
+{
 	/**
 	 * @return void
 	 * @see Version
 	 */
-	public function test_everything(): void {
+	public function test_everything(): void
+	{
 		$release = Version::release();
 		$this->assertStringStartsNotWith('-', $release);
 		$date = Version::date();

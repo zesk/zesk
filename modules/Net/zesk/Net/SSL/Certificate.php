@@ -13,7 +13,8 @@ namespace zesk;
  *
  * @author kent
  */
-class Net_SSL_Certificate {
+class Net_SSL_Certificate
+{
 	/**
 	 *
 	 * @var string
@@ -30,7 +31,8 @@ class Net_SSL_Certificate {
 	 *
 	 * @param array $try_paths
 	 */
-	public static function locate_cafile(Application $application, array $try_paths = null) {
+	public static function locate_cafile(Application $application, array $try_paths = null)
+	{
 		if ($try_paths === null) {
 			$try_paths = [
 				$application->path('etc/db'),
@@ -57,7 +59,8 @@ class Net_SSL_Certificate {
 	 *
 	 * @param Application $application
 	 */
-	public static function sync_cafile(Application $application, $local_path): void {
+	public static function sync_cafile(Application $application, $local_path): void
+	{
 		Net_Sync::url_to_file($application, self::CACERT_TRUSTED_URL, $local_path);
 	}
 }

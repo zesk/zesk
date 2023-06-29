@@ -3,8 +3,10 @@ declare(strict_types=1);
 
 namespace zesk;
 
-class UserAgentTest extends UnitTest {
-	public static function data_userAgents(): array {
+class UserAgentTest extends UnitTest
+{
+	public static function data_userAgents(): array
+	{
 		return [
 			// Samples @todo Move to test
 			//
@@ -56,7 +58,8 @@ class UserAgentTest extends UnitTest {
 	 * @return void
 	 * @dataProvider data_userAgents
 	 */
-	public function test_userAgents(array $attributes, array $classify, string $description, string $userAgent): void {
+	public function test_userAgents(array $attributes, array $classify, string $description, string $userAgent): void
+	{
 		$ua = new UserAgent($userAgent);
 		$attributes['userAgent'] = $userAgent;
 		$attributes['lowUserAgent'] = strtolower($userAgent);
@@ -68,7 +71,8 @@ class UserAgentTest extends UnitTest {
 	/**
 	 * @return array[]
 	 */
-	public static function data_userAgentsEN(): array {
+	public static function data_userAgentsEN(): array
+	{
 		return [
 			[
 				[
@@ -87,7 +91,8 @@ class UserAgentTest extends UnitTest {
 	 * @return void
 	 * @dataProvider data_userAgentsEN
 	 */
-	public function test_userAgentEN(array $expected, string $userAgent): void {
+	public function test_userAgentEN(array $expected, string $userAgent): void
+	{
 		$ua = new UserAgent($userAgent);
 		$this->assertEquals($expected, $ua->classifyEN());
 	}

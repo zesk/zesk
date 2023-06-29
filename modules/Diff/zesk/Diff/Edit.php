@@ -15,7 +15,8 @@ use zesk\PHP;
  * @author kent
  *
  */
-class Edit {
+class Edit
+{
 	/**
 	 *
 	 * @var string
@@ -69,7 +70,8 @@ class Edit {
 	 * @param int $len
 	 * @param mixed $data
 	 */
-	public function __construct(string $op, int $off, int $len, mixed $data = null) {
+	public function __construct(string $op, int $off, int $len, mixed $data = null)
+	{
 		$this->op = $op;
 		$this->off = $off;
 		$this->len = $len;
@@ -81,7 +83,8 @@ class Edit {
 	 *
 	 * @return string
 	 */
-	public function __toString() {
+	public function __toString()
+	{
 		return PHP::dump($this->op) . ', ' . $this->off . ', ' . $this->len . ', ' . PHP::dump($this->data);
 	}
 }

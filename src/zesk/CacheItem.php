@@ -15,7 +15,8 @@ use DateInterval as NativeDateInterval;
  * @author kent
  * @see CacheItemPool_Array
  */
-class CacheItem implements CacheItemInterface {
+class CacheItem implements CacheItemInterface
+{
 	/**
 	 *
 	 * @var string
@@ -46,7 +47,8 @@ class CacheItem implements CacheItemInterface {
 	 * @param mixed|null $value
 	 * @param bool $isHit
 	 */
-	public function __construct(string $key, mixed $value = null, bool $isHit = true) {
+	public function __construct(string $key, mixed $value = null, bool $isHit = true)
+	{
 		$this->key = $key;
 		$this->value = $value;
 		$this->is_hit = $isHit;
@@ -61,7 +63,8 @@ class CacheItem implements CacheItemInterface {
 	 * @return string
 	 *   The key string for this cache item.
 	 */
-	public function getKey(): string {
+	public function getKey(): string
+	{
 		return $this->key;
 	}
 
@@ -77,7 +80,8 @@ class CacheItem implements CacheItemInterface {
 	 * @return mixed
 	 *   The value corresponding to this cache item's key, or null if not found.
 	 */
-	public function get(): mixed {
+	public function get(): mixed
+	{
 		return $this->is_hit && !$this->expired() ? $this->value : null;
 	}
 
@@ -90,7 +94,8 @@ class CacheItem implements CacheItemInterface {
 	 * @return bool
 	 *   True if the request resulted in a cache hit. False otherwise.
 	 */
-	public function isHit(): bool {
+	public function isHit(): bool
+	{
 		return $this->is_hit && !$this->expired();
 	}
 
@@ -107,7 +112,8 @@ class CacheItem implements CacheItemInterface {
 	 * @return static
 	 * @see CacheItemInterface::set()
 	 */
-	public function set(mixed $value): static {
+	public function set(mixed $value): static
+	{
 		$this->is_hit = true;
 		$this->value = $value;
 		return $this;
@@ -125,7 +131,8 @@ class CacheItem implements CacheItemInterface {
 	 * @return static
 	 *   The called object.
 	 */
-	public function expiresAt(DateTimeInterface|null $expiration): static {
+	public function expiresAt(DateTimeInterface|null $expiration): static
+	{
 		$this->expiration = $expiration ? Timestamp::factory($expiration) : null;
 		return $this;
 	}
@@ -145,7 +152,8 @@ class CacheItem implements CacheItemInterface {
 	 * @throws KeyNotFound
 	 * @throws Semantics
 	 */
-	public function expiresAfter(int|NativeDateInterval|null $time): static {
+	public function expiresAfter(int|NativeDateInterval|null $time): static
+	{
 		$this->expiration = $time ? Timestamp::now()->addUnit($time) : null;
 		return $this;
 	}
@@ -153,14 +161,16 @@ class CacheItem implements CacheItemInterface {
 	/**
 	 * @return Timestamp|null
 	 */
-	public function expiration(): ?Timestamp {
+	public function expiration(): ?Timestamp
+	{
 		return $this->expiration;
 	}
 
 	/**
 	 * @return boolean
 	 */
-	public function expired(): bool {
+	public function expired(): bool
+	{
 		if (!$this->expiration instanceof Timestamp) {
 			return false;
 		}

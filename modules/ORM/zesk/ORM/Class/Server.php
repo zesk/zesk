@@ -12,7 +12,8 @@ namespace zesk\ORM;
  * @author kent
  * Class definition for Server
  */
-class Class_Server extends Class_Base {
+class Class_Server extends Class_Base
+{
 	public const LOCALHOST_IP = '127.0.0.1';
 
 	public string $id_column = 'id';

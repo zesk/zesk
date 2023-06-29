@@ -37,7 +37,8 @@ use function is_windows;
  * @author kent
  *
  */
-class Mail extends Hookable {
+class Mail extends Hookable
+{
 	/**
 	 * Set to enable debugging behavior
 	 */
@@ -129,7 +130,8 @@ class Mail extends Hookable {
 	 * @param string $body
 	 * @param array $options
 	 */
-	public function __construct(Application $application, array $headers, string $body, array $options = []) {
+	public function __construct(Application $application, array $headers, string $body, array $options = [])
+	{
 		parent::__construct($application, $options);
 		$this->inheritConfiguration();
 		$this->headers = $headers;
@@ -146,7 +148,8 @@ class Mail extends Hookable {
 	 * @param array $options
 	 * @return Mail
 	 */
-	public static function factory(Application $application, array $headers, string $body, array $options = []): self {
+	public static function factory(Application $application, array $headers, string $body, array $options = []): self
+	{
 		return new self($application, $headers, $body, $options);
 	}
 
@@ -156,7 +159,8 @@ class Mail extends Hookable {
 	 * @param string $name
 	 * @return array|string
 	 */
-	public function header(string $name): array|string {
+	public function header(string $name): array|string
+	{
 		return $this->headers[$name] ?? '';
 	}
 
@@ -165,7 +169,8 @@ class Mail extends Hookable {
 	 * @param array|string $set
 	 * @return $this
 	 */
-	public function setHeader(string $name, array|string $set): self {
+	public function setHeader(string $name, array|string $set): self
+	{
 		$this->headers[$name] = $set;
 		return $this;
 	}
@@ -175,7 +180,8 @@ class Mail extends Hookable {
 	 * @param Application $application
 	 */
 	#[HookMethod(handles: Hooks::HOOK_CONFIGURED)]
-	public static function configured(Application $application): void {
+	public static function configured(Application $application): void
+	{
 		$config = $application->configuration;
 
 		/*
@@ -194,7 +200,8 @@ class Mail extends Hookable {
 	 * @return self
 	 * @throws ConnectionFailed|SyntaxException
 	 */
-	public function send(): self {
+	public function send(): self
+	{
 		$this->_log($this->headers, $this->body);
 		if (!$this->invokeTypedFilters(self::HOOK_SEND, true, false, [$this])) {
 			$this->method = 'send-hook-false';
@@ -227,7 +234,8 @@ class Mail extends Hookable {
 	 *
 	 * @return self
 	 */
-	private function _send_echo(): self {
+	private function _send_echo(): self
+	{
 		print(self::toDebugHTML());
 		$this->sent = time();
 		$this->method = 'echo';
@@ -239,7 +247,8 @@ class Mail extends Hookable {
 	 *
 	 * @return string
 	 */
-	public function toDebugHTML(): string {
+	public function toDebugHTML(): string
+	{
 		$eol = self::mailEOL();
 		$lines = [];
 		$lines[] = '<pre class="mail-debug">';
@@ -256,7 +265,8 @@ class Mail extends Hookable {
 	 * @return Mail
 	 * @throws ConnectionFailed|SyntaxException
 	 */
-	private function _send_smtp(): self {
+	private function _send_smtp(): self
+	{
 		$url = $this->option('SMTP_URL');
 		$to = $this->headers['To'] ?? null;
 		$from = $this->headers['From'] ?? null;
@@ -276,7 +286,8 @@ class Mail extends Hookable {
 	 *
 	 * @return self
 	 */
-	private function _sendPHPMail(): self {
+	private function _sendPHPMail(): self
+	{
 		$to = $this->headers['To'] ?? null;
 		$from = $this->headers['From'] ?? null;
 		$headers = $this->headers;
@@ -312,7 +323,8 @@ class Mail extends Hookable {
 	/**
 	 * @return string
 	 */
-	private static function mailEOL(): string {
+	private static function mailEOL(): string
+	{
 		return is_windows() ? "\r\n" : "\n";
 	}
 
@@ -321,7 +333,8 @@ class Mail extends Hookable {
 	 *
 	 * @return bool
 	 */
-	public function debug(): bool {
+	public function debug(): bool
+	{
 		return $this->optionBool('debug');
 	}
 
@@ -331,7 +344,8 @@ class Mail extends Hookable {
 	 * @param bool $set
 	 * @return self
 	 */
-	public function setDebug(bool $set): self {
+	public function setDebug(bool $set): self
+	{
 		return $this->setOption('debug', $set);
 	}
 
@@ -339,7 +353,8 @@ class Mail extends Hookable {
 	 * @param string $line
 	 * @return string
 	 */
-	private static function trimMailLine(string $line): string {
+	private static function trimMailLine(string $line): string
+	{
 		return trim(str_replace(["\r", "\n", ], ['', '', ], $line));
 	}
 
@@ -350,7 +365,8 @@ class Mail extends Hookable {
 	 * @return array
 	 * @throws SyntaxException
 	 */
-	public static function parseAddress(string $email): array {
+	public static function parseAddress(string $email): array
+	{
 		$matches = [];
 		$result = [];
 		$atom = '[- A-Za-z0-9!#$%&\'*+\/=?^_`{|}~]';
@@ -392,7 +408,8 @@ class Mail extends Hookable {
 	 * @return Mail unsent email
 	 * @throws SyntaxException
 	 */
-	public static function sms(Application $application, string $to, string $from, string $subject, string $body, string $cc = '', string $bcc = '', array $headers = []): self {
+	public static function sms(Application $application, string $to, string $from, string $subject, string $body, string $cc = '', string $bcc = '', array $headers = []): self
+	{
 		$email_parts = self::parseAddress($from);
 		$from_part = $email_parts['name'] ?? $email_parts['email'] ?? '';
 		// FRM:name\n
@@ -430,7 +447,8 @@ class Mail extends Hookable {
 	 * @return self
 	 * @throws SyntaxException
 	 */
-	public static function sendmail(Application $application, string $to, string $from, string $subject, string $body, string $cc = '', string $bcc = '', array $headers = [], array $options = []): self {
+	public static function sendmail(Application $application, string $to, string $from, string $subject, string $body, string $cc = '', string $bcc = '', array $headers = [], array $options = []): self
+	{
 		$new_headers = [];
 		if (!empty($from)) {
 			$from = self::trimMailLine($from);
@@ -465,7 +483,8 @@ class Mail extends Hookable {
 		return self::mailer($application, $new_headers, $body, $options);
 	}
 
-	private function _log($headers, $body): void {
+	private function _log($headers, $body): void
+	{
 		if (!self::$log) {
 			return;
 		}
@@ -484,7 +503,8 @@ class Mail extends Hookable {
 	 * @param array $headers
 	 * @return string
 	 */
-	private static function renderHeaders(array $headers): string {
+	private static function renderHeaders(array $headers): string
+	{
 		$mail_eol = "\r\n";
 		$raw_headers = '';
 		foreach ($headers as $name => $value) {
@@ -500,7 +520,8 @@ class Mail extends Hookable {
 	 * @param array $options
 	 * @return Mail
 	 */
-	public static function mailer(Application $application, array $headers, string $body, array $options = []): self {
+	public static function mailer(Application $application, array $headers, string $body, array $options = []): self
+	{
 		return new Mail($application, $headers, $body, $options);
 	}
 
@@ -515,7 +536,8 @@ class Mail extends Hookable {
 	 * @return Mail
 	 * @throws SyntaxException
 	 */
-	public static function mailArray(Application $application, string $to, string $from, string $subject, array $array, string $prefix = '', string $suffix = ''): self {
+	public static function mailArray(Application $application, string $to, string $from, string $subject, array $array, string $prefix = '', string $suffix = ''): self
+	{
 		$content = Text::formatPairs($array);
 		return self::sendmail($application, $to, $from, $subject, $prefix . $content . $suffix);
 	}
@@ -533,7 +555,8 @@ class Mail extends Hookable {
 	 * @throws FileNotFound
 	 * @throws SyntaxException
 	 */
-	public static function map(Application $application, string $to, string $from, string $subject, string $filename, array $fields, string $cc = '', string $bcc = ''): self {
+	public static function map(Application $application, string $to, string $from, string $subject, string $filename, array $fields, string $cc = '', string $bcc = ''): self
+	{
 		if (!file_exists($filename)) {
 			throw new FileNotFound($filename);
 		}
@@ -579,7 +602,8 @@ class Mail extends Hookable {
 	 * @throws FileNotFound
 	 * @throws FilePermission|KeyNotFound
 	 */
-	public static function multipartFactory(Application $application, array $mail_options, array $attachments = []): self {
+	public static function multipartFactory(Application $application, array $mail_options, array $attachments = []): self
+	{
 		$eol = self::mailEOL();
 		$mime_boundary = md5(microtime());
 
@@ -695,7 +719,8 @@ class Mail extends Hookable {
 	 * @throws FileNotFound
 	 * @throws FilePermission
 	 */
-	public static function loadFile(string $filename): array {
+	public static function loadFile(string $filename): array
+	{
 		return self::load(File::contents($filename));
 	}
 
@@ -708,7 +733,8 @@ class Mail extends Hookable {
 	 * @return array
 	 * @throws Redirect
 	 */
-	public static function loadTheme(Application $application, string|array $theme, array $variables = []): array {
+	public static function loadTheme(Application $application, string|array $theme, array $variables = []): array
+	{
 		$variables = Types::toArray($variables);
 		$variables['application'] = $application;
 		return self::load(ArrayTools::map($application->themes->theme($theme, $variables), $variables));
@@ -720,7 +746,8 @@ class Mail extends Hookable {
 	 * @param string $contents
 	 * @return array
 	 */
-	public static function load(string $contents): array {
+	public static function load(string $contents): array
+	{
 		$result = [];
 		$lines = explode("\n", $contents);
 		while (($line = array_shift($lines)) !== false) {
@@ -764,7 +791,8 @@ class Mail extends Hookable {
 	 * @param string $header
 	 * @return bool
 	 */
-	public static function isEncodedHeader(string $header): bool {
+	public static function isEncodedHeader(string $header): bool
+	{
 		// e.g. =?utf-8?q?Re=3a=20ConversionRuler=20Support=3a=204D09EE9A=20=2d=20Re=3a=20ConversionRuler=20Support=3a=204D078032=20=2d=20Wordpress=20Plugin?=
 		// e.g. =?utf-8?q?Wordpress=20Plugin?=
 		return preg_match(self::RFC2047HEADER, $header) !== 0;
@@ -775,7 +803,8 @@ class Mail extends Hookable {
 	 * @param string $header
 	 * @return array
 	 */
-	public static function headerCharsets(string $header): array {
+	public static function headerCharsets(string $header): array
+	{
 		$matches = null;
 		if (!preg_match_all(self::RFC2047HEADER, $header, $matches, PREG_PATTERN_ORDER)) {
 			return [];
@@ -790,7 +819,8 @@ class Mail extends Hookable {
 	 * @return string
 	 * @throws SyntaxException - decoding failed
 	 */
-	public static function decodeHeader(string $header): string {
+	public static function decodeHeader(string $header): string
+	{
 		$matches = null;
 
 		/* Repair instances where two encodings are together and separated by a space (strip the spaces) */
@@ -836,7 +866,8 @@ class Mail extends Hookable {
 	 *            Optional options for parsing
 	 * @return array
 	 */
-	public static function parseHeaders(string $content, array $options = []): array {
+	public static function parseHeaders(string $content, array $options = []): array
+	{
 		$newline = $options['newline'] ?? "\r\n";
 		$whitespace = $options['whitespace'] ?? " \t";
 		$line_trim = $options['line_trim'] ?? false;
@@ -871,7 +902,8 @@ class Mail extends Hookable {
 	/**
 	 * Dump a Mail object
 	 */
-	public function dump(): string {
+	public function dump(): string
+	{
 		return Text::formatPairs($this->headers) . "\n\n" . $this->body;
 	}
 }

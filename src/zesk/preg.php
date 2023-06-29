@@ -28,7 +28,8 @@ use zesk\Exception\KeyNotFound;
  * @author kent
  *
  */
-class preg implements ArrayAccess, Iterator {
+class preg implements ArrayAccess, Iterator
+{
 	/**
 	 *
 	 * @var string
@@ -50,7 +51,8 @@ class preg implements ArrayAccess, Iterator {
 	/**
 	 *
 	 */
-	private function __construct(string $pattern, string $text, int $flag = PREG_SET_ORDER, int $offset = 0) {
+	private function __construct(string $pattern, string $text, int $flag = PREG_SET_ORDER, int $offset = 0)
+	{
 		$this->text = $text;
 		$flag |= PREG_OFFSET_CAPTURE;
 		if (!preg_match_all($pattern, $text, $this->matches, $flag, $offset)) {
@@ -71,14 +73,16 @@ class preg implements ArrayAccess, Iterator {
 	/**
 	 *
 	 */
-	public static function matches(string $pattern, string $text, int $flag = PREG_SET_ORDER, int $offset = 0): self {
+	public static function matches(string $pattern, string $text, int $flag = PREG_SET_ORDER, int $offset = 0): self
+	{
 		return new self($pattern, $text, $flag, $offset);
 	}
 
 	/**
 	 * @return string
 	 */
-	public function text(): string {
+	public function text(): string
+	{
 		return $this->text;
 	}
 
@@ -86,7 +90,8 @@ class preg implements ArrayAccess, Iterator {
 	 * @param string $replace
 	 * @return string
 	 */
-	public function replaceCurrent(string $replace): string {
+	public function replaceCurrent(string $replace): string
+	{
 		return $this->replaceOffset($this->key(), $replace);
 	}
 
@@ -95,7 +100,8 @@ class preg implements ArrayAccess, Iterator {
 	 * @param string $replace
 	 * @return string
 	 */
-	private function replaceOffset(int $key, string $replace): string {
+	private function replaceOffset(int $key, string $replace): string
+	{
 		$offset = $this->offsets[$key][0];
 		$match = $this->matches[$key][0];
 		$match_len = strlen($match);
@@ -109,7 +115,8 @@ class preg implements ArrayAccess, Iterator {
 	 * @param int $delta
 	 * @return void
 	 */
-	private function adjustOffsets(int $key, int $delta): void {
+	private function adjustOffsets(int $key, int $delta): void
+	{
 		// We've changed our text, adjust all later offsets - used above
 		while (++$key <= count($this->offsets) - 1) {
 			if (array_key_exists($key, $this->offsets)) {
@@ -123,14 +130,16 @@ class preg implements ArrayAccess, Iterator {
 	 * @param string|int $offset
 	 * @return mixed
 	 */
-	public function offsetGet(mixed $offset): mixed {
+	public function offsetGet(mixed $offset): mixed
+	{
 		return $this->matches[$offset] ?? null;
 	}
 
 	/**
 	 * @param string|int $offset
 	 */
-	public function offsetExists(mixed $offset): bool {
+	public function offsetExists(mixed $offset): bool
+	{
 		return array_key_exists($offset, $this->matches);
 	}
 
@@ -140,7 +149,8 @@ class preg implements ArrayAccess, Iterator {
 	 * @return void
 	 * @throws KeyNotFound
 	 */
-	public function offsetSet(mixed $offset, mixed $value): void {
+	public function offsetSet(mixed $offset, mixed $value): void
+	{
 		if (!isset($this->matches[$offset])) {
 			throw new KeyNotFound("$offset");
 		}
@@ -153,7 +163,8 @@ class preg implements ArrayAccess, Iterator {
 	 * @param string|int $offset
 	 * @throws KeyNotFound
 	 */
-	public function offsetUnset($offset): void {
+	public function offsetUnset($offset): void
+	{
 		if (!isset($this->matches[$offset])) {
 			throw new KeyNotFound("$offset");
 		}
@@ -161,23 +172,28 @@ class preg implements ArrayAccess, Iterator {
 		unset($this->offsets[$offset]);
 	}
 
-	public function current(): mixed {
+	public function current(): mixed
+	{
 		return current($this->matches);
 	}
 
-	public function next(): void {
+	public function next(): void
+	{
 		next($this->matches);
 	}
 
-	public function key(): int|string|null {
+	public function key(): int|string|null
+	{
 		return key($this->matches);
 	}
 
-	public function valid(): bool {
+	public function valid(): bool
+	{
 		return $this->key() !== null;
 	}
 
-	public function rewind(): void {
+	public function rewind(): void
+	{
 		reset($this->matches);
 	}
 
@@ -192,7 +208,8 @@ class preg implements ArrayAccess, Iterator {
 	 *            String or array to manipulate
 	 * @return array|string|null
 	 */
-	public static function replace(string $pattern, string $replacement, array|string $subject): array|string|null {
+	public static function replace(string $pattern, string $replacement, array|string $subject): array|string|null
+	{
 		if (is_array($subject)) {
 			foreach ($subject as $k => $v) {
 				$subject[$k] = self::replace($pattern, $replacement, $v);
@@ -213,7 +230,8 @@ class preg implements ArrayAccess, Iterator {
 	 *            String or array to manipulate
 	 * @return array|string
 	 */
-	public static function replaceCallback(string $pattern, callable $callback, array|string $subject): array|string {
+	public static function replaceCallback(string $pattern, callable $callback, array|string $subject): array|string
+	{
 		if (is_array($subject)) {
 			foreach ($subject as $k => $v) {
 				$subject[$k] = self::replaceCallback($pattern, $callback, $v);

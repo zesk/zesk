@@ -10,7 +10,8 @@ namespace zesk\ORM;
  * @author kent
  *
  */
-class Control_ORM_Checklist extends Control_Checklist {
+class Control_ORM_Checklist extends Control_Checklist
+{
 	protected array $objects = [];
 
 	/**
@@ -18,7 +19,8 @@ class Control_ORM_Checklist extends Control_Checklist {
 	 * {@inheritDoc}
 	 * @see Widget::is_visible()
 	 */
-	public function is_visible() {
+	public function is_visible()
+	{
 		return count($this->objects) !== 0;
 	}
 
@@ -26,7 +28,8 @@ class Control_ORM_Checklist extends Control_Checklist {
 	 *
 	 * @param array $where
 	 */
-	public function where(array $where = null) {
+	public function where(array $where = null)
+	{
 		return is_array($where) ? $this->setOption('where', $where) : $this->optionArray('where');
 	}
 
@@ -34,7 +37,8 @@ class Control_ORM_Checklist extends Control_Checklist {
 	 *
 	 * @return mixed[]|array[]
 	 */
-	protected function hook_options() {
+	protected function hook_options()
+	{
 		$object = $this->application->ormRegistry($this->class);
 		$name_col = $object->nameColumn();
 		$this->objects = [];
@@ -51,7 +55,8 @@ class Control_ORM_Checklist extends Control_Checklist {
 		return $control_options;
 	}
 
-	protected function object_format_option_label(ORMBase $object) {
+	protected function object_format_option_label(ORMBase $object)
+	{
 		return $object->member($object->nameColumn());
 	}
 
@@ -59,7 +64,8 @@ class Control_ORM_Checklist extends Control_Checklist {
 	 * (non-PHPdoc)
 	 * @see Control_Options::themeVariables()
 	 */
-	public function themeVariables(): array {
+	public function themeVariables(): array
+	{
 		return parent::themeVariables() + [
 			'control_objects' => $this->objects,
 		];

@@ -22,7 +22,8 @@ use zesk\Types;
  * @author kent
  *
  */
-class JSON extends Parser {
+class JSON extends Parser
+{
 	protected array $parseOptions = [
 		'overwrite' => true, 'lower' => false, 'interpolate' => true,
 	];
@@ -30,13 +31,15 @@ class JSON extends Parser {
 	/**
 	 *
 	 */
-	public function initialize(): void {
+	public function initialize(): void
+	{
 	}
 
 	/**
 	 * @return boolean
 	 */
-	public function validate(): bool {
+	public function validate(): bool
+	{
 		try {
 			return is_array(JSONTools::decode($this->content));
 		} catch (Throwable) {
@@ -47,7 +50,8 @@ class JSON extends Parser {
 	/**
 	 * @throws ParseException
 	 */
-	public function process(): void {
+	public function process(): void
+	{
 		$lower = $this->parseOptions['lower'] ?? false;
 		$interpolate = $this->parseOptions['interpolate'] ?? false;
 
@@ -81,7 +85,8 @@ class JSON extends Parser {
 	 *
 	 * @param string $file Name of additional include file
 	 */
-	private function handle_include(string $file, string $context = null): void {
+	private function handle_include(string $file, string $context = null): void
+	{
 		if (File::isAbsolute($file)) {
 			$this->loader->appendFiles([
 				$file,
@@ -103,7 +108,8 @@ class JSON extends Parser {
 	 * @param bool $interpolate
 	 * @return void
 	 */
-	private function mergeResults(array $results, array $path = [], bool $interpolate = false): void {
+	private function mergeResults(array $results, array $path = [], bool $interpolate = false): void
+	{
 		$dependency = $this->dependency;
 		$settings = $this->settings;
 		foreach ($results as $key => $value) {

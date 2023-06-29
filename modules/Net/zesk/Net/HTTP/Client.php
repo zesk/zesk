@@ -40,7 +40,8 @@ use zesk\Version;
  * @package zesk
  * @subpackage system
  */
-class Client extends Hookable {
+class Client extends Hookable
+{
 	public const OPTION_FOLLOW_LOCATION = 'setFollowLocation';
 
 	/*
@@ -237,7 +238,8 @@ class Client extends Hookable {
 	 * @param string $url
 	 * @param array $options
 	 */
-	public function __construct(Application $application, string $url = '', array $options = []) {
+	public function __construct(Application $application, string $url = '', array $options = [])
+	{
 		parent::__construct($application, $options);
 
 		$this->inheritConfiguration();
@@ -250,11 +252,13 @@ class Client extends Hookable {
 		}
 	}
 
-	public function application(): Application {
+	public function application(): Application
+	{
 		return $this->application;
 	}
 
-	private function loadFromOptions(): void {
+	private function loadFromOptions(): void
+	{
 		if ($this->hasOption('timeout')) {
 			$this->setTimeout($this->optionInt('timeout'));
 		}
@@ -270,7 +274,8 @@ class Client extends Hookable {
 	 *
 	 * @return string
 	 */
-	public function defaultUserAgent(): string {
+	public function defaultUserAgent(): string
+	{
 		return $this->option(self::OPTION_DEFAULT_USER_AGENT, __CLASS__ . ' ' . Version::release());
 	}
 
@@ -279,7 +284,8 @@ class Client extends Hookable {
 	 *
 	 * @return Client
 	 */
-	public function setMethodPost(): self {
+	public function setMethodPost(): self
+	{
 		return $this->setMethod(HTTP::METHOD_POST);
 	}
 
@@ -288,7 +294,8 @@ class Client extends Hookable {
 	 *
 	 * @return Client
 	 */
-	public function setMethodPUT(): self {
+	public function setMethodPUT(): self
+	{
 		return $this->setMethod(HTTP::METHOD_PUT);
 	}
 
@@ -297,7 +304,8 @@ class Client extends Hookable {
 	 *
 	 * @return Client
 	 */
-	public function setMethodHead(): self {
+	public function setMethodHead(): self
+	{
 		return $this->setMethod(HTTP::METHOD_HEAD);
 	}
 
@@ -306,11 +314,13 @@ class Client extends Hookable {
 	 *
 	 * @return mixed
 	 */
-	public function data(): string {
+	public function data(): string
+	{
 		return $this->data;
 	}
 
-	public function setData(string $set): self {
+	public function setData(string $set): self
+	{
 		$this->data = $set;
 		return $this;
 	}
@@ -319,11 +329,13 @@ class Client extends Hookable {
 	 * Get the URL associated with this HTTP client
 	 *
 	 */
-	public function url(): string {
+	public function url(): string
+	{
 		return $this->url;
 	}
 
-	public function setURL(string $set): self {
+	public function setURL(string $set): self
+	{
 		$this->urlParts = URL::parse($set);
 		$this->url = $set;
 		return $this;
@@ -337,7 +349,8 @@ class Client extends Hookable {
 	 * @throws FilePermission
 	 * @throws DirectoryNotFound
 	 */
-	public function setDestination(string $set): self {
+	public function setDestination(string $set): self
+	{
 		$this->destination = File::validateWritable($set);
 		return $this;
 	}
@@ -347,7 +360,8 @@ class Client extends Hookable {
 	 *
 	 * @return string
 	 */
-	public function destination(): string {
+	public function destination(): string
+	{
 		return $this->destination;
 	}
 
@@ -356,7 +370,8 @@ class Client extends Hookable {
 	 *
 	 * @return int
 	 */
-	public function response_code(): int {
+	public function response_code(): int
+	{
 		return $this->responseCode;
 	}
 
@@ -365,12 +380,14 @@ class Client extends Hookable {
 	 *
 	 * @return int
 	 */
-	public function response_code_type(): int {
+	public function response_code_type(): int
+	{
 		$code = strval($this->responseCode);
 		return intval(strval($code[0]));
 	}
 
-	public function response_message(): string {
+	public function response_message(): string
+	{
 		return $this->responseMessage;
 	}
 
@@ -378,7 +395,8 @@ class Client extends Hookable {
 	 *
 	 * @return $ResponseProtocol
 	 */
-	public function response_protocol() {
+	public function response_protocol()
+	{
 		return $this->responseProtocol;
 	}
 
@@ -387,7 +405,8 @@ class Client extends Hookable {
 	 *
 	 * @return array
 	 */
-	public function requestCookies(): array {
+	public function requestCookies(): array
+	{
 		return $this->requestCookie;
 	}
 
@@ -398,7 +417,8 @@ class Client extends Hookable {
 	 * @param bool $append
 	 * @return $this
 	 */
-	public function setRequestCookies(array $set, bool $append = false): self {
+	public function setRequestCookies(array $set, bool $append = false): self
+	{
 		$this->requestCookie = $append ? $set + $this->requestCookie : $set;
 		return $this;
 	}
@@ -408,7 +428,8 @@ class Client extends Hookable {
 	 *
 	 * @return string
 	 */
-	private function format_cookie(): string {
+	private function format_cookie(): string
+	{
 		// semicolon, comma, and white space
 		$encode = [];
 		foreach (str_split(";,= \r\n") as $char) {
@@ -432,7 +453,8 @@ class Client extends Hookable {
 	 * @param string $set
 	 * @return self
 	 */
-	public function setRequestHeader(string $name, string $set): self {
+	public function setRequestHeader(string $name, string $set): self
+	{
 		$lowName = strtolower($name);
 		$this->requestHeaders[$lowName] = $set;
 		return $this;
@@ -443,7 +465,8 @@ class Client extends Hookable {
 	 * @return string
 	 * @throws KeyNotFound
 	 */
-	public function requestHeader(string $name): string {
+	public function requestHeader(string $name): string
+	{
 		$lowName = strtolower($name);
 		if (array_key_exists($lowName, $this->requestHeaders)) {
 			return $this->requestHeaders[$lowName];
@@ -459,7 +482,8 @@ class Client extends Hookable {
 	 *
 	 * @param string $name
 	 */
-	private function skip_request_header(string $name): void {
+	private function skip_request_header(string $name): void
+	{
 		$name = strtolower($name);
 		$this->skipRequestHeaders[$name] = $name;
 	}
@@ -469,7 +493,8 @@ class Client extends Hookable {
 	 *
 	 * @return string
 	 */
-	public function contentType(): string {
+	public function contentType(): string
+	{
 		$header = $this->responseHeaders['content-type'] ?? null;
 		if (!$header) {
 			return '';
@@ -482,7 +507,8 @@ class Client extends Hookable {
 	 *
 	 * @return int
 	 */
-	public function timeout(): int {
+	public function timeout(): int
+	{
 		return $this->timeout;
 	}
 
@@ -492,7 +518,8 @@ class Client extends Hookable {
 	 * @param int $milliseconds
 	 * @return self
 	 */
-	public function setTimeout(int $milliseconds): self {
+	public function setTimeout(int $milliseconds): self
+	{
 		$this->timeout = $milliseconds;
 		return $this;
 	}
@@ -502,7 +529,8 @@ class Client extends Hookable {
 	 *
 	 * @return int
 	 */
-	public function connectTimeout(): int {
+	public function connectTimeout(): int
+	{
 		return $this->connectTimeout;
 	}
 
@@ -512,7 +540,8 @@ class Client extends Hookable {
 	 * @param int $milliseconds
 	 * @return self
 	 */
-	public function setConnectTimeout(int $milliseconds): self {
+	public function setConnectTimeout(int $milliseconds): self
+	{
 		$this->connectTimeout = $milliseconds;
 		return $this;
 	}
@@ -522,7 +551,8 @@ class Client extends Hookable {
 	 *
 	 * @return string
 	 */
-	public function method(): string {
+	public function method(): string
+	{
 		return $this->method;
 	}
 
@@ -530,19 +560,22 @@ class Client extends Hookable {
 	 * @param string $set
 	 * @return $this
 	 */
-	public function setMethod(string $set): self {
+	public function setMethod(string $set): self
+	{
 		$this->method = strtoupper($set);
 		return $this;
 	}
 
-	public function validMethod(): bool {
+	public function validMethod(): bool
+	{
 		return array_key_exists($this->method, HTTP::$methods);
 	}
 
 	/**
 	 * @return void
 	 */
-	private function _zero_content_length_warning(): void {
+	private function _zero_content_length_warning(): void
+	{
 		$this->application->warning('{method} with 0 size data', ['method' => $this->method]);
 	}
 
@@ -559,7 +592,8 @@ class Client extends Hookable {
 	/**
 	 * Initialize our curl options before executing the curl object
 	 */
-	private function _methodOpen(): array {
+	private function _methodOpen(): array
+	{
 		$httpHeaders = [];
 		$this->curl_opts = [
 			CURLOPT_ENCODING => 1, CURLOPT_RETURNTRANSFER => 1,
@@ -609,7 +643,8 @@ class Client extends Hookable {
 	/**
 	 * Close our curl options after curl has completed
 	 */
-	private function _method_close(): void {
+	private function _method_close(): void
+	{
 		if ($this->dataFile) {
 			fclose($this->dataFile);
 		}
@@ -622,7 +657,8 @@ class Client extends Hookable {
 	/**
 	 * Set curl options related to timeouts and network activity
 	 */
-	private function _curl_opts_timeouts(): void {
+	private function _curl_opts_timeouts(): void
+	{
 		if ($this->connectTimeout > 0) {
 			if (defined('CURLOPT_CONNECTTIMEOUT_MS')) {
 				$this->curl_opts[CURLOPT_CONNECTTIMEOUT_MS] = $this->connectTimeout;
@@ -643,7 +679,8 @@ class Client extends Hookable {
 	/**
 	 * Set curl options related to If-Modified-Since
 	 */
-	private function _curl_opts_if_modified(): void {
+	private function _curl_opts_if_modified(): void
+	{
 		try {
 			$value = $this->requestHeader('If-Modified-Since');
 			$this->curl_opts[CURLOPT_TIMECONDITION] = CURL_TIMECOND_IFMODSINCE;
@@ -656,7 +693,8 @@ class Client extends Hookable {
 	/**
 	 * Set curl options related to User-Agent
 	 */
-	private function _curl_opts_useragent(): void {
+	private function _curl_opts_useragent(): void
+	{
 		try {
 			$this->curl_opts[CURLOPT_USERAGENT] = $this->requestHeader(HTTP::REQUEST_USER_AGENT);
 			$this->skip_request_header(HTTP::REQUEST_USER_AGENT);
@@ -667,7 +705,8 @@ class Client extends Hookable {
 	/**
 	 * Set curl options related to the method
 	 */
-	private function _curl_opts_method(): void {
+	private function _curl_opts_method(): void
+	{
 		$returnHeaders = $this->wantHeaders();
 		$is_head = $this->method() === HTTP::METHOD_HEAD;
 		if ($is_head) {
@@ -681,7 +720,8 @@ class Client extends Hookable {
 		}
 	}
 
-	private function _curl_opts_follow(): void {
+	private function _curl_opts_follow(): void
+	{
 		if ($this->recurse) {
 			$this->curl_opts[CURLOPT_FOLLOWLOCATION] = true;
 		}
@@ -691,7 +731,8 @@ class Client extends Hookable {
 		}
 	}
 
-	private function _curl_opts_host(): void {
+	private function _curl_opts_host(): void
+	{
 		$parts = parse_url($this->url());
 		$host = $parts['host'] ?? null;
 		$scheme = $parts['scheme'] ?? null;
@@ -703,13 +744,15 @@ class Client extends Hookable {
 		$this->setRequestHeader('Host', $host);
 	}
 
-	private function _curl_opts_cookie(): void {
+	private function _curl_opts_cookie(): void
+	{
 		if (count($this->requestCookie)) {
 			$this->setRequestHeader('Cookie', $this->format_cookie());
 		}
 	}
 
-	private function _curl_opts_range(): void {
+	private function _curl_opts_range(): void
+	{
 		try {
 			$range = $this->requestHeader('Range');
 			$this->curl_opts[CURLOPT_RANGE] = substr($range, 6);
@@ -718,7 +761,8 @@ class Client extends Hookable {
 		}
 	}
 
-	private function _curl_opts_headers(): void {
+	private function _curl_opts_headers(): void
+	{
 		foreach ($this->requestHeaders as $k => $values) {
 			if (!array_key_exists(strtolower($k), $this->skipRequestHeaders)) {
 				if (is_string($values)) {
@@ -741,7 +785,8 @@ class Client extends Hookable {
 	 * @return string
 	 * @throws FilePermission
 	 */
-	private function _curlOptionsDestination(): string {
+	private function _curlOptionsDestination(): string
+	{
 		if (!$this->destination) {
 			return '';
 		}
@@ -757,10 +802,12 @@ class Client extends Hookable {
 		return $dest_headers_name;
 	}
 
-	private function _curl_opts_close_destination(): void {
+	private function _curl_opts_close_destination(): void
+	{
 	}
 
-	private function _parse_headers(string $dest_headers_name): void {
+	private function _parse_headers(string $dest_headers_name): void
+	{
 		if ($dest_headers_name) {
 			$all_headers = file_get_contents($dest_headers_name);
 			$headers_list = explode("\r\n\r\n", $all_headers);
@@ -786,7 +833,8 @@ class Client extends Hookable {
 	 * @throws UnsupportedException
 	 * @throws ClientException
 	 */
-	public function go(): string {
+	public function go(): string
+	{
 		if (!function_exists('curl_init')) {
 			throw new UnsupportedException('Net_HTTP_Client::go(): CURL not integrated!');
 		}
@@ -857,7 +905,8 @@ class Client extends Hookable {
 	 * @throws SemanticsException
 	 * @throws ConnectionFailed
 	 */
-	public static function simpleGet(string $url): string {
+	public static function simpleGet(string $url): string
+	{
 		if (!$url) {
 			throw new SemanticsException('Require non-blank URL');
 		}
@@ -899,17 +948,20 @@ class Client extends Hookable {
 		return $contents;
 	}
 
-	public function domain() {
+	public function domain()
+	{
 		$url = $this->option('URL');
 		return URL::host($url);
 	}
 
-	public static function url_content_length(Application $application, $url) {
+	public static function url_content_length(Application $application, $url)
+	{
 		$headers = self::url_headers($application, $url);
 		return toInteger($headers['Content-Length'] ?? null);
 	}
 
-	public static function url_headers(Application $application, $url): array {
+	public static function url_headers(Application $application, $url): array
+	{
 		$x = new self($application, $url);
 		$x->setMethodHead();
 		$x->go();
@@ -922,7 +974,8 @@ class Client extends Hookable {
 		return $x->responseHeaders();
 	}
 
-	private function _encodeData(): string {
+	private function _encodeData(): string
+	{
 		$data = $this->data;
 		if (is_string($data)) {
 			return $data;
@@ -937,7 +990,8 @@ class Client extends Hookable {
 	 *
 	 * @return array
 	 */
-	public function responseCookies(): array {
+	public function responseCookies(): array
+	{
 		return $this->responseCookies;
 	}
 
@@ -945,7 +999,8 @@ class Client extends Hookable {
 	 * @param Cookie $cookie
 	 * @return $this
 	 */
-	public function setResponseCookies(Cookie $cookie): self {
+	public function setResponseCookies(Cookie $cookie): self
+	{
 		$this->responseCookies[] = $cookie;
 		return $this;
 	}
@@ -954,7 +1009,8 @@ class Client extends Hookable {
 	 * Cookie Handling
 	 * @todo move this out of here, use a Cookie Jar or something
 	 */
-	private function cookieString(string $url): string {
+	private function cookieString(string $url): string
+	{
 		$parts = URL::parse($url);
 		$host = strtolower($parts['host'] ?? '');
 		$path = $parts['path'] ?? '/';
@@ -988,7 +1044,8 @@ class Client extends Hookable {
 	 * @param string $path
 	 * @return bool
 	 */
-	private function deleteCookie(string $cookieName, string $domain, string $path): bool {
+	private function deleteCookie(string $cookieName, string $domain, string $path): bool
+	{
 		if (!isset($this->responseCookies[$cookieName])) {
 			return false;
 		}
@@ -1019,7 +1076,8 @@ class Client extends Hookable {
 	 * @return Cookie
 	 * @throws NotFoundException
 	 */
-	private function findCookie(string $cookieName, string $domain, string $path): Cookie {
+	private function findCookie(string $cookieName, string $domain, string $path): Cookie
+	{
 		if (isset($this->responseCookies[$cookieName])) {
 			$cookies = $this->responseCookies[$cookieName];
 			if (is_array($cookies)) {
@@ -1043,7 +1101,8 @@ class Client extends Hookable {
 		]);
 	}
 
-	private function addCookie(string $cookieName, string $cookieValue, string $domain = '', string $path = '', int|Timestamp $expires = 0, bool $secure = false): void {
+	private function addCookie(string $cookieName, string $cookieValue, string $domain = '', string $path = '', int|Timestamp $expires = 0, bool $secure = false): void
+	{
 		if (!$domain) {
 			$domain = $this->domain();
 		}
@@ -1053,7 +1112,8 @@ class Client extends Hookable {
 		ArrayTools::append($this->responseCookies, $cookieName, new Cookie($cookieName, $cookieValue, $domain, $path, $expires, $secure));
 	}
 
-	private function parseCookies(): bool {
+	private function parseCookies(): bool
+	{
 		if (!isset($this->responseHeaders['set-cookie'])) {
 			return false;
 		}
@@ -1129,7 +1189,8 @@ class Client extends Hookable {
 	 *
 	 * @return bool
 	 */
-	public function recurse(): bool {
+	public function recurse(): bool
+	{
 		return $this->recurse;
 	}
 
@@ -1139,12 +1200,14 @@ class Client extends Hookable {
 	 * @param bool $set
 	 * @return self
 	 */
-	public function setRecurse(bool $set): self {
+	public function setRecurse(bool $set): self
+	{
 		$this->recurse = $set;
 		return $this;
 	}
 
-	public function content(): string {
+	public function content(): string
+	{
 		return $this->content;
 	}
 
@@ -1152,7 +1215,8 @@ class Client extends Hookable {
 	 * @param string $content
 	 * @return void
 	 */
-	private function parseHeaders(string $content = ''): void {
+	private function parseHeaders(string $content = ''): void
+	{
 		$headers = ($content === '') ? $this->content : $content;
 		$this->responseHeaders = [];
 		[$headers, $new_content] = pair($headers, "\r\n\r\n", $headers);
@@ -1178,7 +1242,8 @@ class Client extends Hookable {
 	/**
 	 * All response headers
 	 */
-	public function responseHeaders(): array {
+	public function responseHeaders(): array
+	{
 		return ArrayTools::keysMap($this->responseHeaders, HTTP::$response_headers);
 	}
 
@@ -1187,7 +1252,8 @@ class Client extends Hookable {
 	 *
 	 * @param string $name
 	 */
-	public function responseHeader(string $name): string {
+	public function responseHeader(string $name): string
+	{
 		return $this->responseHeaders[strtolower($name)] ?? '';
 	}
 
@@ -1195,7 +1261,8 @@ class Client extends Hookable {
 	 * @param bool $set
 	 * @return $this
 	 */
-	public function setFollowLocation(bool $set): self {
+	public function setFollowLocation(bool $set): self
+	{
 		$this->setOption(self::OPTION_FOLLOW_LOCATION, $set);
 		return $this;
 	}
@@ -1203,7 +1270,8 @@ class Client extends Hookable {
 	/**
 	 * @return bool
 	 */
-	public function followLocation(): bool {
+	public function followLocation(): bool
+	{
 		return $this->optionBool(self::OPTION_FOLLOW_LOCATION);
 	}
 
@@ -1212,7 +1280,8 @@ class Client extends Hookable {
 	 *
 	 * @return string
 	 */
-	public function userAgent(): string {
+	public function userAgent(): string
+	{
 		return $this->requestHeader(HTTP::REQUEST_USER_AGENT);
 	}
 
@@ -1222,7 +1291,8 @@ class Client extends Hookable {
 	 * @param string $set
 	 * @return self
 	 */
-	public function setUserAgent(string $set): self {
+	public function setUserAgent(string $set): self
+	{
 		$this->setRequestHeader(HTTP::REQUEST_USER_AGENT, $set);
 		return $this;
 	}
@@ -1232,7 +1302,8 @@ class Client extends Hookable {
 	 *
 	 * @return string
 	 */
-	public function filename(): string {
+	public function filename(): string
+	{
 		// Content-Disposition: attachment; filename=foo.tar.gz
 		$dispositions = ArrayTools::listTrimClean(explode(';', $this->responseHeader(HTTP::RESPONSE_CONTENT_DISPOSITION, '')));
 		while (($disposition = array_shift($dispositions)) !== null) {
@@ -1252,7 +1323,8 @@ class Client extends Hookable {
 	 * @param bool $set
 	 * @return self
 	 */
-	public function setWantHeaders(bool $set): self {
+	public function setWantHeaders(bool $set): self
+	{
 		$this->setOption(self::OPTION_RETURN_HEADERS, $set);
 		return $this;
 	}
@@ -1260,7 +1332,8 @@ class Client extends Hookable {
 	/**
 	 * @return bool
 	 */
-	public function wantHeaders(): bool {
+	public function wantHeaders(): bool
+	{
 		return $this->optionBool(self::OPTION_RETURN_HEADERS, true);
 	}
 
@@ -1270,7 +1343,8 @@ class Client extends Hookable {
 	 * @param Request $request
 	 * @return self
 	 */
-	public function proxyRequest(Request $request, string $url_prefix): self {
+	public function proxyRequest(Request $request, string $url_prefix): self
+	{
 		$this->setMethod($method = $request->method());
 		if (in_array($method, [
 			'PUT', 'PATCH', 'POST',
@@ -1288,7 +1362,8 @@ class Client extends Hookable {
 	 * @param Response $response
 	 * @return $this
 	 */
-	public function proxyResponse(Response $response): self {
+	public function proxyResponse(Response $response): self
+	{
 		$response->setStatus($this->response_code(), $this->response_message());
 		$response->setContentType($this->contentType());
 		$headers = [];
@@ -1307,7 +1382,8 @@ class Client extends Hookable {
 	/**
 	 * @return array
 	 */
-	public function requestVariables(): array {
+	public function requestVariables(): array
+	{
 		return [
 			'url' => $this->url(), 'requestMethod' => $this->method(), 'requestCookies' => $this->requestCookie,
 			'requestData' => $this->data(),
@@ -1317,7 +1393,8 @@ class Client extends Hookable {
 	/**
 	 * @return array
 	 */
-	public function responseVariables(): array {
+	public function responseVariables(): array
+	{
 		return [
 			'responseCode' => $this->responseCode, 'responseMessage' => $this->responseMessage,
 			'responseProtocol' => $this->responseProtocol, 'responseCodeType' => $this->response_code_type(),
@@ -1328,7 +1405,8 @@ class Client extends Hookable {
 	/**
 	 * @return array
 	 */
-	public function variables(): array {
+	public function variables(): array
+	{
 		return $this->requestVariables() + $this->responseVariables();
 	}
 }

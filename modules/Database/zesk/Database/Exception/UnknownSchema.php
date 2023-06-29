@@ -13,5 +13,6 @@ use zesk\Database\Exception;
 /**
  *
  */
-class UnknownSchema extends Exception {
+class UnknownSchema extends Exception
+{
 }

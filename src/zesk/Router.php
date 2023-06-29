@@ -82,7 +82,8 @@ use zesk\Router\Parser;
  * - or a class
  *
  */
-class Router extends Hookable {
+class Router extends Hookable
+{
 	/**
 	 *
 	 */
@@ -153,7 +154,8 @@ class Router extends Hookable {
 	 *
 	 *
 	 */
-	public function __serialize(): array {
+	public function __serialize(): array
+	{
 		return [
 			'applicationClass' => $this->applicationClass, 'reverseRoutes' => $this->reverseRoutes,
 			'routes' => $this->routes, 'prefix' => $this->prefix, 'defaultRoute' => $this->defaultRoute,
@@ -163,7 +165,8 @@ class Router extends Hookable {
 
 	/**
 	 */
-	public function __unserialize(array $data): void {
+	public function __unserialize(array $data): void
+	{
 		parent::__unserialize($data);
 		$this->applicationClass = $data['applicationClass'];
 		$this->reverseRoutes = $data['reverseRoutes'];
@@ -186,7 +189,8 @@ class Router extends Hookable {
 	 * @return self
 	 * @throws ClassNotFound
 	 */
-	public static function factory(Application $application, array $options = []): self {
+	public static function factory(Application $application, array $options = []): self
+	{
 		$result = $application->factory(__CLASS__, $application, $options);
 		assert($result instanceof self);
 		return $result;
@@ -197,7 +201,8 @@ class Router extends Hookable {
 	 * @param Application $application
 	 * @param array $options
 	 */
-	public function __construct(Application $application, array $options = []) {
+	public function __construct(Application $application, array $options = [])
+	{
 		parent::__construct($application, $options);
 		$this->applicationClass = $application::class;
 	}
@@ -206,7 +211,8 @@ class Router extends Hookable {
 	 * Cache this router
 	 * @throws NotFoundException
 	 */
-	public function cache(string $id): self {
+	public function cache(string $id): self
+	{
 		try {
 			$item = $this->application->cacheItemPool()->getItem(__CLASS__);
 		} catch (InvalidArgumentException $e) {
@@ -226,7 +232,8 @@ class Router extends Hookable {
 	 * @return Router
 	 * @throws NotFoundException
 	 */
-	public function cached(string $id = ''): Router {
+	public function cached(string $id = ''): Router
+	{
 		try {
 			$item = $this->application->cacheItemPool()->getItem(__CLASS__);
 		} catch (InvalidArgumentException $e) {
@@ -246,7 +253,8 @@ class Router extends Hookable {
 
 	/**
 	 */
-	private function _sort(): void {
+	private function _sort(): void
+	{
 		uasort($this->routes, Route::compareWeight(...));
 	}
 
@@ -258,7 +266,8 @@ class Router extends Hookable {
 	 * @return Route
 	 * @throws KeyNotFound
 	 */
-	public function route(string $id): Route {
+	public function route(string $id): Route
+	{
 		$key = strtolower($id);
 		if (array_key_exists($key, $this->byId)) {
 			return $this->byId[$key];
@@ -271,7 +280,8 @@ class Router extends Hookable {
 	 *
 	 * @return Route[]
 	 */
-	public function routes(): array {
+	public function routes(): array
+	{
 		if (!$this->sorted) {
 			$this->_sort();
 			$this->sorted = true;
@@ -284,7 +294,8 @@ class Router extends Hookable {
 	 * @param string $set
 	 * @return self
 	 */
-	public function setPrefix(string $set): self {
+	public function setPrefix(string $set): self
+	{
 		$this->prefix = $set;
 		return $this;
 	}
@@ -293,7 +304,8 @@ class Router extends Hookable {
 	 *
 	 * @return string
 	 */
-	public function prefix(): string {
+	public function prefix(): string
+	{
 		return $this->prefix;
 	}
 
@@ -304,7 +316,8 @@ class Router extends Hookable {
 	 * @param string $to - The ID of the route to match
 	 * @return $this
 	 */
-	public function addAlias(string $from, string $to): self {
+	public function addAlias(string $from, string $to): self
+	{
 		$this->aliases[$from] = $to;
 		return $this;
 	}
@@ -315,7 +328,8 @@ class Router extends Hookable {
 	 * @param array $arguments
 	 * @return void
 	 */
-	public function log($level, $message, array $arguments = []): void {
+	public function log($level, $message, array $arguments = []): void
+	{
 		if ($this->debug) {
 			$this->application->log($level, $message, $arguments);
 		}
@@ -329,7 +343,8 @@ class Router extends Hookable {
 	 * @return Route
 	 * @throws NotFoundException
 	 */
-	public function match(string $path, string $method = HTTP::METHOD_GET): Route {
+	public function match(string $path, string $method = HTTP::METHOD_GET): Route
+	{
 		if ($this->prefix) {
 			$path = StringTools::removePrefix($path, $this->prefix);
 		}
@@ -351,7 +366,8 @@ class Router extends Hookable {
 	 * @return Route
 	 * @throws NotFoundException
 	 */
-	public function matchRequest(Request $request): Route {
+	public function matchRequest(Request $request): Route
+	{
 		return $this->match($request->path(), $request->method());
 	}
 
@@ -364,7 +380,8 @@ class Router extends Hookable {
 	 * @throws ClassNotFound
 	 * @throws SemanticsException
 	 */
-	public function addRoute(string $path, array $options): Route {
+	public function addRoute(string $path, array $options): Route
+	{
 		if ($path === '.') {
 			$this->defaultRoute = $path;
 			$path = '';
@@ -382,7 +399,8 @@ class Router extends Hookable {
 	 * @return Route
 	 * @throws SemanticsException
 	 */
-	private function _addRouteID(Route $route): Route {
+	private function _addRouteID(Route $route): Route
+	{
 		$id = $route->id();
 		if (!$id) {
 			$id = $route->getPattern();
@@ -401,7 +419,8 @@ class Router extends Hookable {
 	 * @throws SyntaxException
 	 * @see Parser
 	 */
-	public function import(string $contents, array $add_options = []): void {
+	public function import(string $contents, array $add_options = []): void
+	{
 		$parser = new Parser($contents);
 		$parser->execute($this, $add_options);
 	}
@@ -410,7 +429,8 @@ class Router extends Hookable {
 	 * @param Route $route
 	 * @return Route
 	 */
-	private function _registerRoute(Route $route): Route {
+	private function _registerRoute(Route $route): Route
+	{
 		$classActions = $route->classActions();
 		if (!$classActions) {
 			return $route;
@@ -432,7 +452,8 @@ class Router extends Hookable {
 	 * @return Route
 	 * @throws NotFoundException
 	 */
-	private function _findRoute(array $routes, string $action, Model $object = null, array $options = []): string {
+	private function _findRoute(array $routes, string $action, Model $object = null, array $options = []): string
+	{
 		$options = Types::toArray($options);
 		foreach ($routes as $route) {
 			assert($route instanceof Route);
@@ -454,7 +475,8 @@ class Router extends Hookable {
 	 * @param Model $object
 	 * @return array
 	 */
-	private function derivedClasses(Model $object): array {
+	private function derivedClasses(Model $object): array
+	{
 		$by_class = [];
 		return $object->invokeTypedFilters(self::HOOK_ROUTER_DERIVED_CLASSES, [
 			$by_class,
@@ -482,7 +504,8 @@ class Router extends Hookable {
 	 * @return string
 	 * @throws NotFoundException
 	 */
-	public function getRoute(string $action, string|array|Model $object = null, string|array $options = []): string {
+	public function getRoute(string $action, string|array|Model $object = null, string|array $options = []): string
+	{
 		$original_action = $action;
 		$app = $this->application;
 		if (is_string($options)) {
@@ -557,7 +580,8 @@ class Router extends Hookable {
 	 * @return array
 	 * @throws ClassNotFound
 	 */
-	public function controllers(): array {
+	public function controllers(): array
+	{
 		$controllers = [];
 		foreach ($this->routes as $route) {
 			if (method_exists($route, 'controller')) {

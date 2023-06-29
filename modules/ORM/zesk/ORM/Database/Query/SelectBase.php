@@ -34,7 +34,8 @@ use zesk\Types;
  * @author kent
  *
  */
-abstract class SelectBase extends Query implements SelectableInterface {
+abstract class SelectBase extends Query implements SelectableInterface
+{
 	/**
 	 *
 	 * @var array
@@ -47,7 +48,8 @@ abstract class SelectBase extends Query implements SelectableInterface {
 	 *
 	 * @see \zesk\Database_Query::__sleep()
 	 */
-	public function __sleep(): array {
+	public function __sleep(): array
+	{
 		return array_merge(parent::__sleep(), ['objects_prefixes', ]);
 	}
 
@@ -55,7 +57,8 @@ abstract class SelectBase extends Query implements SelectableInterface {
 	 * @param SelectBase $from
 	 * @return $this
 	 */
-	protected function _copy_from_base(SelectBase $from): self {
+	protected function _copy_from_base(SelectBase $from): self
+	{
 		parent::_copy_from_query($from);
 		$this->objects_prefixes = $from->objects_prefixes;
 		return $this;
@@ -70,7 +73,8 @@ abstract class SelectBase extends Query implements SelectableInterface {
 	 *            Use this column as a value for the iterator, null means use entire object/row
 	 * @return ResultIterator
 	 */
-	public function iterator(string $key = '', string $value = ''): ResultIterator {
+	public function iterator(string $key = '', string $value = ''): ResultIterator
+	{
 		return new ResultIterator($this, $key, $value);
 	}
 
@@ -84,7 +88,8 @@ abstract class SelectBase extends Query implements SelectableInterface {
 	 * @throws NoResults
 	 * @throws TableNotFound
 	 */
-	public function one(string|int|null $field = null): mixed {
+	public function one(string|int|null $field = null): mixed
+	{
 		return $this->database()->queryOne($this->__toString(), $field);
 	}
 
@@ -99,7 +104,8 @@ abstract class SelectBase extends Query implements SelectableInterface {
 	 * @throws NoResults
 	 * @throws TableNotFound
 	 */
-	public function float(string|int $field = 0): float {
+	public function float(string|int $field = 0): float
+	{
 		return Types::toFloat($this->one($field));
 	}
 
@@ -113,7 +119,8 @@ abstract class SelectBase extends Query implements SelectableInterface {
 	 * @throws NoResults
 	 * @throws TableNotFound
 	 */
-	public function integer(string|int $field = 0): int {
+	public function integer(string|int $field = 0): int
+	{
 		return $this->database()->queryInteger($this->__toString(), $field);
 	}
 
@@ -127,7 +134,8 @@ abstract class SelectBase extends Query implements SelectableInterface {
 	 * @throws NoResults
 	 * @throws TableNotFound
 	 */
-	public function string(string|int $field = 0): string {
+	public function string(string|int $field = 0): string
+	{
 		return strval($this->one($field));
 	}
 
@@ -143,7 +151,8 @@ abstract class SelectBase extends Query implements SelectableInterface {
 	 * @throws TableNotFound
 	 * @throws ZeskNotFound
 	 */
-	public function timestamp(int|string $field = 0, DateTimeZone $timezone = null): Timestamp {
+	public function timestamp(int|string $field = 0, DateTimeZone $timezone = null): Timestamp
+	{
 		$value = $this->database()->queryOne($this->__toString(), $field);
 		if (empty($value)) {
 			throw new ZeskNotFound('Timestamp {field} not found', ['field' => $field]);
@@ -160,7 +169,8 @@ abstract class SelectBase extends Query implements SelectableInterface {
 	 * @throws SQLException
 	 * @throws TableNotFound
 	 */
-	public function toArray(int|string $key = null, int|string $value = null): array {
+	public function toArray(int|string $key = null, int|string $value = null): array
+	{
 		return $this->database()->queryArray($this->__toString(), $key, $value);
 	}
 
@@ -180,7 +190,8 @@ abstract class SelectBase extends Query implements SelectableInterface {
 	 * @param array $options Options passed to each ORM class upon creation
 	 * @return ORMIterator
 	 */
-	public function ormIterator(string $class = null, array $options = []): ORMIterator {
+	public function ormIterator(string $class = null, array $options = []): ORMIterator
+	{
 		if ($class !== null) {
 			$this->setORMClass($class);
 		}
@@ -195,7 +206,8 @@ abstract class SelectBase extends Query implements SelectableInterface {
 	 * @return ORMIterators
 	 * @todo test this
 	 */
-	public function ormIterators(array $options = []): ORMIterators {
+	public function ormIterators(array $options = []): ORMIterators
+	{
 		return new ORMIterators($this->class, $this, $this->objects_prefixes, $options);
 	}
 
@@ -212,7 +224,8 @@ abstract class SelectBase extends Query implements SelectableInterface {
 	 * @throws ZeskNotFound
 	 * @throws ClassNotFound
 	 */
-	public function model(string $class = null, array $options = []): Model {
+	public function model(string $class = null, array $options = []): Model
+	{
 		$result = $this->one();
 		if ($result === null) {
 			throw new ZeskNotFound($class);
@@ -231,7 +244,8 @@ abstract class SelectBase extends Query implements SelectableInterface {
 	 * @throws KeyNotFound
 	 * @throws ORMNotFound
 	 */
-	public function orm(string $class = null, array $options = []): ORMBase {
+	public function orm(string $class = null, array $options = []): ORMBase
+	{
 		try {
 			$result = $this->one();
 		} catch (SQLException $e) {

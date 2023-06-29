@@ -15,8 +15,10 @@ namespace zesk;
 
 use Throwable;
 
-class CommandLoaderFactory {
-	public static function main(): void {
+class CommandLoaderFactory
+{
+	public static function main(): void
+	{
 		$here = dirname(__DIR__) . '/';
 		if (str_contains(__DIR__, 'vendor/bin')) {
 			$here .= 'zesk/zesk/';

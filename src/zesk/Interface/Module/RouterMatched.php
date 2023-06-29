@@ -14,6 +14,7 @@ use zesk\Router;
  * @author kent
  *
  */
-interface RouterMatched {
+interface RouterMatched
+{
 	public function hook_router_matched(Request $request, Router $router, Route $route);
 }

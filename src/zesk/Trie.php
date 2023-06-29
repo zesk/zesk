@@ -19,7 +19,8 @@ use zesk\Trie\Node;
  * @author kent
  *
  */
-class Trie extends Options {
+class Trie extends Options
+{
 	/**
 	 *
 	 * @var Node
@@ -54,7 +55,8 @@ class Trie extends Options {
 	 *
 	 * @param array $options
 	 */
-	public function __construct(array $options = []) {
+	public function __construct(array $options = [])
+	{
 		parent::__construct($options);
 		$this->lower = $this->optionBool('lower');
 		$this->root = new Node();
@@ -64,7 +66,8 @@ class Trie extends Options {
 	 * Add a word
 	 * @param string $word
 	 */
-	public function add(string $word): void {
+	public function add(string $word): void
+	{
 		if ($this->lower) {
 			$word = strtolower($word);
 		}
@@ -77,7 +80,8 @@ class Trie extends Options {
 	 * Clean a trie
 	 * @return $this
 	 */
-	public function clean(): self {
+	public function clean(): self
+	{
 		if ($this->cleaned) {
 			return $this;
 		}
@@ -91,7 +95,8 @@ class Trie extends Options {
 	 * Optimize trie
 	 * @return int
 	 */
-	public function optimize(): int {
+	public function optimize(): int
+	{
 		$this->clean();
 		if ($this->optimized) {
 			return $this->numberOptimized;
@@ -109,14 +114,16 @@ class Trie extends Options {
 	 *
 	 * @return array
 	 */
-	public function toJSON(): array {
+	public function toJSON(): array
+	{
 		return $this->root->toJSON();
 	}
 
 	/**
 	 * @return array
 	 */
-	public function words(): array {
+	public function words(): array
+	{
 		$temp = new stdClass();
 		$temp->items = [];
 		$method = function ($word) use ($temp): void {
@@ -130,7 +137,8 @@ class Trie extends Options {
 	/**
 	 * Walk the entire trie and call "function" on each node
 	 */
-	public function walk(callable $function): void {
+	public function walk(callable $function): void
+	{
 		$this->root->walk($function, '');
 	}
 }

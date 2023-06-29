@@ -9,7 +9,8 @@ use zesk\ORM\Schema;
 use zesk\ORM\TestPerson;
 use zesk\ORM\TestPet;
 
-class Class_TestPersonPet extends Class_Base {
+class Class_TestPersonPet extends Class_Base
+{
 	public array $column_types = [
 		'Person' => Class_Base::TYPE_OBJECT,
 		'Pet' => Class_Base::TYPE_OBJECT,
@@ -20,7 +21,8 @@ class Class_TestPersonPet extends Class_Base {
 		'Pet' => TestPet::class,
 	];
 
-	public function schema(ORMBase $object): array|string|Schema {
+	public function schema(ORMBase $object): array|string|Schema
+	{
 		return [
 			'CREATE TABLE {table} ( Person integer unsigned NOT NULL, Pet integer unsigned NOT NULL, UNIQUE ppet (Person, Pet), UNIQUE pperson (Pet, Person) )',
 		];

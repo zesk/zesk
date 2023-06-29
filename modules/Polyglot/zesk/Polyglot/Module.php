@@ -28,7 +28,8 @@ use zesk\World\Language;
  * @author kent
  *
  */
-class Module extends BaseModule implements Routes {
+class Module extends BaseModule implements Routes
+{
 	/**
 	 *
 	 * @var array
@@ -45,7 +46,8 @@ class Module extends BaseModule implements Routes {
 	 *
 	 * @return array
 	 */
-	public function localeOptions(): array {
+	public function localeOptions(): array
+	{
 		$list = $this->invokeTypedFilters(self::HOOK_LOCALE_OPTIONS, $this->optionArray(self::OPTION_LOCALE_OPTIONS_DEFAULT));
 		$where = [];
 		foreach ($list as $locale) {
@@ -81,7 +83,8 @@ class Module extends BaseModule implements Routes {
 	 *
 	 * @see Interface_Module_Routes::hook_routes()
 	 */
-	public function hook_routes(Router $router): void {
+	public function hook_routes(Router $router): void
+	{
 		$base = [
 			'controller' => Controller::class,
 		];
@@ -110,7 +113,8 @@ class Module extends BaseModule implements Routes {
 	 * @throws FileParseException
 	 * @throws FileNotFound|ORMNotFound
 	 */
-	public function loadLocale(string $locale = ''): array {
+	public function loadLocale(string $locale = ''): array
+	{
 		$source_files = $this->optionIterable('source_files');
 		$table = [];
 		foreach ($source_files as $source_file) {

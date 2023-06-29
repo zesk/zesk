@@ -16,7 +16,8 @@ use zesk\Exception;
  * @author kent
  *
  */
-class CommandFailed extends Exception {
+class CommandFailed extends Exception
+{
 	/**
 	 *
 	 * @var string
@@ -36,7 +37,8 @@ class CommandFailed extends Exception {
 	 * @param array $output
 	 * @param Throwable|null $previous
 	 */
-	public function __construct(string $command, int $code, array $output, Throwable $previous = null) {
+	public function __construct(string $command, int $code, array $output, Throwable $previous = null)
+	{
 		parent::__construct("{command} exited with result {resultCode}\nOUTPUT:\n{output}\nEND OUTPUT", [
 			'resultCode' => $code,
 			'command' => $command,
@@ -46,11 +48,13 @@ class CommandFailed extends Exception {
 		$this->output = $output;
 	}
 
-	public function getOutput(): array {
+	public function getOutput(): array
+	{
 		return $this->output;
 	}
 
-	public function getCommand(): string {
+	public function getCommand(): string
+	{
 		return $this->command;
 	}
 }

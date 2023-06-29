@@ -39,7 +39,8 @@ use zesk\Timestamp;
  * @see ServerMeta
  */
 #[Entity]
-class Server extends Model implements MetaInterface {
+class Server extends Model implements MetaInterface
+{
 	public const MEMBER_METAS = 'metas';
 
 	public const DEFAULT_OPTION_FREE_DISK_VOLUME = '/';
@@ -161,7 +162,8 @@ class Server extends Model implements MetaInterface {
 	#[OneToMany(mappedBy: 'server', targetEntity: ServerMeta::class, cascade: ['all'], indexBy: 'name')]
 	public Collection $metas;
 
-	public function initialize(): void {
+	public function initialize(): void
+	{
 		parent::initialize();
 		$this->alive = Timestamp::nowUTC();
 		$this->metas = new ArrayCollection();
@@ -172,7 +174,8 @@ class Server extends Model implements MetaInterface {
 	 * Delete servers who are not alive after `option_timeout_seconds` old.
 	 */
 	#[Cron(schedule: '* * * * *', scope: Cron::SCOPE_APPLICATION)]
-	public static function cronClusterMinute(Application $application): void {
+	public static function cronClusterMinute(Application $application): void
+	{
 		$server = new self($application);
 		/* @var $server Server */
 		try {
@@ -187,7 +190,8 @@ class Server extends Model implements MetaInterface {
 	 * @param Application $application
 	 */
 	#[Cron(schedule: '* * * * *', scope: Cron::SCOPE_SERVER)]
-	public static function cronMinute(Application $application): void {
+	public static function cronMinute(Application $application): void
+	{
 		try {
 			$server = self::singleton($application);
 			$server->updateState();
@@ -200,7 +204,8 @@ class Server extends Model implements MetaInterface {
 	 * Run intermittently once per cluster to clean away dead Server records
 	 * @throws TimeoutExpired
 	 */
-	public function buryDeadServers(): void {
+	public function buryDeadServers(): void
+	{
 		try {
 			$lock = Lock::instance($this->application, __METHOD__);
 		} catch (Throwable $e) {
@@ -246,7 +251,8 @@ class Server extends Model implements MetaInterface {
 	 * Retrieve the default host name
 	 *
 	 */
-	private static function hostDefault(): string {
+	private static function hostDefault(): string
+	{
 		return System::uname();
 	}
 
@@ -260,7 +266,8 @@ class Server extends Model implements MetaInterface {
 	 * @param Application $application
 	 * @return Server
 	 */
-	public static function singleton(Application $application): self {
+	public static function singleton(Application $application): self
+	{
 		return (new self($application))->_findSingleton();
 	}
 
@@ -269,7 +276,8 @@ class Server extends Model implements MetaInterface {
 	 * @return $this
 	 * @throws ORMException
 	 */
-	protected function _findSingleton(): self {
+	protected function _findSingleton(): self
+	{
 		$server = $this->em->getRepository(self::class)->findOneBy([
 			'name' => self::hostDefault(),
 		]);
@@ -290,7 +298,8 @@ class Server extends Model implements MetaInterface {
 	 *
 	 * @return self
 	 */
-	private function registerDefaultServer(): self {
+	private function registerDefaultServer(): self
+	{
 		// Set up our names using hooks (may do nothing)
 		$this->invokeHooks(self::HOOK_INITIALIZE_NAME);
 		// Set all blank values to defaults
@@ -301,7 +310,8 @@ class Server extends Model implements MetaInterface {
 	/**
 	 * Set up some reasonable defaults which define this server relative to other servers
 	 */
-	private function _initializeNameDefaults(): void {
+	private function _initializeNameDefaults(): void
+	{
 		if (!$this->name) {
 			$this->name = self::hostDefault();
 		}
@@ -332,7 +342,8 @@ class Server extends Model implements MetaInterface {
 	 * @return self
 	 * @throws ORMException
 	 */
-	public function updateState(string $path = ''): self {
+	public function updateState(string $path = ''): self
+	{
 		if ($path === '') {
 			$path = $this->optionString(self::OPTION_FREE_DISK_VOLUME, self::DEFAULT_OPTION_FREE_DISK_VOLUME);
 		}
@@ -366,7 +377,8 @@ class Server extends Model implements MetaInterface {
 	 * @return self
 	 * @throws ORMException
 	 */
-	public function setMeta(string $name, mixed $value): self {
+	public function setMeta(string $name, mixed $value): self
+	{
 		ServerMeta::register($this, $name, $value);
 		return $this;
 	}
@@ -377,7 +389,8 @@ class Server extends Model implements MetaInterface {
 	 * @param string $name
 	 * @throws KeyNotFound
 	 */
-	private function _getMeta(string $name): mixed {
+	private function _getMeta(string $name): mixed
+	{
 		$meta = $this->em->getRepository(ServerMeta::class)->findOneBy(['server' => $this, 'name' => $name]);
 		if (!$meta) {
 			throw new KeyNotFound($name);
@@ -392,7 +405,8 @@ class Server extends Model implements MetaInterface {
 	 * @return mixed
 	 * @throws KeyNotFound
 	 */
-	public function meta(string $name): mixed {
+	public function meta(string $name): mixed
+	{
 		return $this->_getMeta($name);
 	}
 
@@ -404,7 +418,8 @@ class Server extends Model implements MetaInterface {
 	 * @throws ORMException
 	 * @see MetaInterface::delete_data
 	 */
-	public function deleteMeta(string|array $name): self {
+	public function deleteMeta(string|array $name): self
+	{
 		$meta = $this->em->getRepository(ServerMeta::class)->findOneBy(['server' => $this, 'name' => $name]);
 		if ($meta) {
 			$this->em->remove($meta);
@@ -417,7 +432,8 @@ class Server extends Model implements MetaInterface {
 	 * @return $this
 	 * @throws ORMException
 	 */
-	public function clearMeta(): self {
+	public function clearMeta(): self
+	{
 		$this->em->createQuery('DELETE FROM ' . ServerMeta::class . ' WHERE server=:id')->execute(['id' => $this->id]);
 		$this->em->getRepository(ServerMeta::class)->clear();
 		return $this;
@@ -433,7 +449,8 @@ class Server extends Model implements MetaInterface {
 	 * @param string $name
 	 * @return $this
 	 */
-	public function deleteAllMeta(string $name): self {
+	public function deleteAllMeta(string $name): self
+	{
 		$metas = $this->em->getRepository(ServerMeta::class)->findBy(['name' => $name]);
 		$this->em->remove($metas);
 		return $this;
@@ -443,7 +460,8 @@ class Server extends Model implements MetaInterface {
 	 * @param int $within_seconds
 	 * @return array
 	 */
-	public function aliveIPs(int $within_seconds = 300): array {
+	public function aliveIPs(int $within_seconds = 300): array
+	{
 		$builder = $this->em->createQueryBuilder();
 		$query = $builder->select([
 			'ip4_internal', 'ip4_external',

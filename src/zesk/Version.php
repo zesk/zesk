@@ -18,7 +18,8 @@ use zesk\Locale\Locale;
  *
  * @author kent
  */
-abstract class Version {
+abstract class Version
+{
 	/**
 	 * Location of the Zesk current release version
 	 *
@@ -54,7 +55,8 @@ abstract class Version {
 	 * @param mixed $default
 	 * @return string
 	 */
-	private static function _file(string $name, string $default): string {
+	private static function _file(string $name, string $default): string
+	{
 		$root = dirname(__DIR__, 2);
 
 		try {
@@ -69,7 +71,8 @@ abstract class Version {
 	 *
 	 * @return string
 	 */
-	public static function release(): string {
+	public static function release(): string
+	{
 		if (!self::$release) {
 			self::$release = self::_file(self::PATH_RELEASE, '-no-release-file-');
 		}
@@ -82,7 +85,8 @@ abstract class Version {
 	 * @return string
 	 * @since 0.13.0
 	 */
-	public static function date(): string {
+	public static function date(): string
+	{
 		if (!self::$date) {
 			self::$date = self::_file(self::PATH_RELEASE_DATE, '-no-release-date-');
 		}
@@ -92,7 +96,8 @@ abstract class Version {
 	/**
 	 * Zesk version
 	 */
-	public static function string(Locale $locale): string {
+	public static function string(Locale $locale): string
+	{
 		return $locale->__(__METHOD__ . ':={release} (on {date})', self::variables());
 	}
 
@@ -100,7 +105,8 @@ abstract class Version {
 	 *
 	 * @return array
 	 */
-	public static function variables(): array {
+	public static function variables(): array
+	{
 		return [
 			'release' => self::release(), 'date' => self::date(),
 		];

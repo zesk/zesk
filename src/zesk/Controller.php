@@ -28,7 +28,8 @@ use zesk\Interface\Themeable;
  * @see Router
  * @see Route\Controller
  */
-class Controller extends Hookable implements Themeable {
+class Controller extends Hookable implements Themeable
+{
 	/**
 	 * Default content type for Response generated upon instantiation.
 	 *
@@ -70,7 +71,8 @@ class Controller extends Hookable implements Themeable {
 	 * @param Route $route
 	 * @param array $options
 	 */
-	final public function __construct(Application $app, Route $route, array $options = []) {
+	final public function __construct(Application $app, Route $route, array $options = [])
+	{
 		parent::__construct($app, $options);
 
 		// TODO Candidate to remove this and pass from calling factory
@@ -97,19 +99,22 @@ class Controller extends Hookable implements Themeable {
 	 * @return string
 	 * @throws Redirect
 	 */
-	public function theme(array|string $types, array $arguments = [], array $options = []): string {
+	public function theme(array|string $types, array $arguments = [], array $options = []): string
+	{
 		return $this->application->themes->theme($types, $arguments, $options);
 	}
 
 	/**
 	 */
-	public function classActions(): array {
+	public function classActions(): array
+	{
 		return [];
 	}
 
 	/**
 	 */
-	protected function hook_classes(): array {
+	protected function hook_classes(): array
+	{
 		return $this->optionIterable('classes');
 	}
 
@@ -127,7 +132,8 @@ class Controller extends Hookable implements Themeable {
 	 * @return Response
 	 * @throws NotFoundException
 	 */
-	final public function execute(Request $request, Response $response, string $action = '', array $arguments = []): Response {
+	final public function execute(Request $request, Response $response, string $action = '', array $arguments = []): Response
+	{
 		$wrapperArguments = [$request, $response, $arguments, $action];
 		$app = $this->application;
 		$requestMap = [
@@ -196,7 +202,8 @@ class Controller extends Hookable implements Themeable {
 	 * </code>
 	 * May all possibly be NULL upon this function called.
 	 */
-	protected function initialize(): void {
+	protected function initialize(): void
+	{
 	}
 
 	/**
@@ -206,7 +213,8 @@ class Controller extends Hookable implements Themeable {
 	 * @param Response $response
 	 * @return void
 	 */
-	protected function before(Request $request, Response $response): void {
+	protected function before(Request $request, Response $response): void
+	{
 	}
 
 	/**
@@ -216,14 +224,16 @@ class Controller extends Hookable implements Themeable {
 	 * @param Response $response
 	 * @return Response
 	 */
-	protected function after(Request $request, Response $response): Response {
+	protected function after(Request $request, Response $response): Response
+	{
 		return $response;
 	}
 
 	/**
 	 * Returns an array of name/value pairs for a template
 	 */
-	public function variables(): array {
+	public function variables(): array
+	{
 		return [
 			'application' => $this->application, 'controller' => $this,
 		];
@@ -238,7 +248,8 @@ class Controller extends Hookable implements Themeable {
 	 * @param mixed $mixed
 	 * @return Response
 	 */
-	public function responseJSON(Response $response, mixed $mixed = null): Response {
+	public function responseJSON(Response $response, mixed $mixed = null): Response
+	{
 		$mixed = $this->invokeTypedFilters(self::FILTER_JSON, $mixed, [$this]);
 		$response->json()->setData($mixed);
 		return $response;
@@ -251,7 +262,8 @@ class Controller extends Hookable implements Themeable {
 	 * @param string $message
 	 * @return Response
 	 */
-	public function error_404(Response $response, string $message = ''): Response {
+	public function error_404(Response $response, string $message = ''): Response
+	{
 		$this->error($response, HTTP::STATUS_FILE_NOT_FOUND, rtrim("Page not found $message"));
 		return $response;
 	}
@@ -264,7 +276,8 @@ class Controller extends Hookable implements Themeable {
 	 * @param string $message Message
 	 * @return Response
 	 */
-	public function error(Response $response, int $code, string $message = ''): Response {
+	public function error(Response $response, int $code, string $message = ''): Response
+	{
 		$response->setStatus($code, $message);
 		$response->setContent($message);
 		return $response;
@@ -278,7 +291,8 @@ class Controller extends Hookable implements Themeable {
 	 * @param mixed|null $default
 	 * @return mixed
 	 */
-	final public function optionalMethod(array|string $names, array $arguments, mixed $default = null): mixed {
+	final public function optionalMethod(array|string $names, array $arguments, mixed $default = null): mixed
+	{
 		foreach (Types::toList($names) as $name) {
 			if ($this->hasMethod($name)) {
 				return $this->invokeMethod($name, $arguments);
@@ -292,7 +306,8 @@ class Controller extends Hookable implements Themeable {
 	 * @param string $name
 	 * @return boolean
 	 */
-	final public function hasMethod(string $name): bool {
+	final public function hasMethod(string $name): bool
+	{
 		return method_exists($this, $name);
 	}
 
@@ -302,7 +317,8 @@ class Controller extends Hookable implements Themeable {
 	 * @param array $arguments
 	 * @return mixed
 	 */
-	final public function invokeMethod(string $name, array $arguments): mixed {
+	final public function invokeMethod(string $name, array $arguments): mixed
+	{
 		return call_user_func_array([
 			$this, $name,
 		], $arguments);
@@ -315,7 +331,8 @@ class Controller extends Hookable implements Themeable {
 	 * @param array $options
 	 * @return array:
 	 */
-	public function getRouteMap(string $action = '', mixed $object = null, array $options = []): array {
+	public function getRouteMap(string $action = '', mixed $object = null, array $options = []): array
+	{
 		return [];
 	}
 
@@ -332,7 +349,8 @@ class Controller extends Hookable implements Themeable {
 	 * @return Model
 	 * @throws ClassNotFound
 	 */
-	public function modelFactory(string $class, mixed $mixed = null, array $options = []): Model {
+	public function modelFactory(string $class, mixed $mixed = null, array $options = []): Model
+	{
 		return $this->application->modelFactory($class, $mixed, $options);
 	}
 
@@ -343,7 +361,8 @@ class Controller extends Hookable implements Themeable {
 	 * @param string $action
 	 * @return Response
 	 */
-	final public function handleOPTIONS(Response $response, string $action): Response {
+	final public function handleOPTIONS(Response $response, string $action): Response
+	{
 		$map = ['action' => $action];
 		$options = [HTTP::METHOD_OPTIONS => true];
 		foreach (HTTP::$methods as $method) {
@@ -372,7 +391,8 @@ class Controller extends Hookable implements Themeable {
 	 * @param Application $application
 	 * @return array
 	 */
-	final public static function all(Application $application): array {
+	final public static function all(Application $application): array
+	{
 		$paths = $application->autoloader->path();
 
 		try {
@@ -439,7 +459,8 @@ class Controller extends Hookable implements Themeable {
 	 *
 	 * @return string
 	 */
-	public function _to_php(): string {
+	public function _to_php(): string
+	{
 		return '$application, ' . PHP::dump($this->options());
 	}
 
@@ -450,7 +471,8 @@ class Controller extends Hookable implements Themeable {
 	 * @return string
 	 * @throws NotFoundException
 	 */
-	private function determineMethod(array $methods, array $requestMap, bool $require): string {
+	private function determineMethod(array $methods, array $requestMap, bool $require): string
+	{
 		foreach ($methods as $argumentMethod) {
 			$argumentMethod = ArrayTools::map($argumentMethod, $requestMap);
 			if ($this->hasMethod($argumentMethod)) {

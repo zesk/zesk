@@ -10,7 +10,8 @@ use zesk\Application;
  * @author kent
  *
  */
-abstract class Type {
+abstract class Type
+{
 	/**
 	 * @var Application
 	 */
@@ -25,7 +26,8 @@ abstract class Type {
 	 *
 	 * @param Response $response
 	 */
-	final public function __construct(Response $response) {
+	final public function __construct(Response $response)
+	{
 		$this->parent = $response;
 		$this->application = $response->application;
 		$this->initialize();
@@ -34,13 +36,15 @@ abstract class Type {
 	/**
 	 * Output any special headers
 	 */
-	protected function headers(): void {
+	protected function headers(): void
+	{
 	}
 
 	/**
 	 * Override in subclasses to extend constructor. Make sure to call parent::initialize()!
 	 */
-	protected function initialize(): void {
+	protected function initialize(): void
+	{
 	}
 
 	/**
@@ -48,7 +52,8 @@ abstract class Type {
 	 * @param string $content
 	 * @return string
 	 */
-	public function render(string $content): string {
+	public function render(string $content): string
+	{
 		ob_start();
 		$this->output($content);
 		return ob_get_clean();

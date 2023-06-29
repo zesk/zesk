@@ -32,7 +32,8 @@ use function ucfirst;
  * @author kent
  * @see Controller_Locale
  */
-abstract class Locale extends Hookable {
+abstract class Locale extends Hookable
+{
 	/**
 	 * Automatically save language to translation file (development)
 	 *
@@ -84,7 +85,8 @@ abstract class Locale extends Hookable {
 	 * @param string $locale_string
 	 * @param array $options
 	 */
-	public function __construct(Application $application, $locale_string, array $options = []) {
+	public function __construct(Application $application, $locale_string, array $options = [])
+	{
 		parent::__construct($application, $options);
 		$this->locale_string = $locale_string;
 		[$this->language, $this->dialect] = self::parse($locale_string);
@@ -100,7 +102,8 @@ abstract class Locale extends Hookable {
 	 * @return string
 	 * @throws KeyNotFound
 	 */
-	private static function localeFactory(string $locale): string {
+	private static function localeFactory(string $locale): string
+	{
 		return match (self::parseLanguage($locale)) {
 			'en' => EN::class,
 			'de' => DE::class,
@@ -128,7 +131,8 @@ abstract class Locale extends Hookable {
 	 * @param array $options
 	 * @return self
 	 */
-	public static function factory(Application $application, string $locale_string = '', array $options = []): self {
+	public static function factory(Application $application, string $locale_string = '', array $options = []): self
+	{
 		if (!$locale_string) {
 			$locale_string = $application->configuration->path(__CLASS__)->getString(self::OPTION_DEFAULT_LOCALE, self::DEFAULT_LOCALE);
 		}
@@ -146,7 +150,8 @@ abstract class Locale extends Hookable {
 	 *
 	 * @return string
 	 */
-	public function id(): string {
+	public function id(): string
+	{
 		return $this->locale_string;
 	}
 
@@ -154,7 +159,8 @@ abstract class Locale extends Hookable {
 	 *
 	 * @return string
 	 */
-	public function dialect(): string {
+	public function dialect(): string
+	{
 		return $this->dialect;
 	}
 
@@ -162,7 +168,8 @@ abstract class Locale extends Hookable {
 	 *
 	 * @return string
 	 */
-	public function language(): string {
+	public function language(): string
+	{
 		return $this->language;
 	}
 
@@ -170,7 +177,8 @@ abstract class Locale extends Hookable {
 	 *
 	 * @return array
 	 */
-	public function translations(): array {
+	public function translations(): array
+	{
 		return $this->translation_table;
 	}
 
@@ -178,7 +186,8 @@ abstract class Locale extends Hookable {
 	 * @param array $set
 	 * @return $this
 	 */
-	public function setTranslations(array $set): self {
+	public function setTranslations(array $set): self
+	{
 		$this->translation_table = $set;
 		return $this;
 	}
@@ -190,7 +199,8 @@ abstract class Locale extends Hookable {
 	 * @param array $arguments
 	 * @return string
 	 */
-	public function __invoke(string $phrase, array $arguments = []): string {
+	public function __invoke(string $phrase, array $arguments = []): string
+	{
 		return $this->__($phrase, $arguments);
 	}
 
@@ -200,7 +210,8 @@ abstract class Locale extends Hookable {
 	 * @param string $phrase
 	 * @return boolean
 	 */
-	public function has(string $phrase): bool {
+	public function has(string $phrase): bool
+	{
 		return $this->find($phrase) !== null;
 	}
 
@@ -210,7 +221,8 @@ abstract class Locale extends Hookable {
 	 * @param string $phrase
 	 * @return string|null
 	 */
-	public function find(string $phrase): string|null {
+	public function find(string $phrase): string|null
+	{
 		$parts = explode(':=', $phrase, 2) + [
 			null, $phrase,
 		];
@@ -234,7 +246,8 @@ abstract class Locale extends Hookable {
 	 * @param array $arguments
 	 * @return string|array
 	 */
-	public function __(string|array $phrase, array $arguments = []): string|array {
+	public function __(string|array $phrase, array $arguments = []): string|array
+	{
 		if (is_array($phrase)) {
 			$result = [];
 			foreach ($phrase as $k => $v) {
@@ -263,7 +276,8 @@ abstract class Locale extends Hookable {
 	 *
 	 * @param string $phrase
 	 */
-	private function auto_add_phrase(string $phrase): void {
+	private function auto_add_phrase(string $phrase): void
+	{
 		$this->locale_phrases[$phrase] = time();
 		if (!$this->locale_phrase_context) {
 			try {
@@ -279,7 +293,8 @@ abstract class Locale extends Hookable {
 	 * @param string $word
 	 * @return string
 	 */
-	public function sentenceFirstWord(string $word): string {
+	public function sentenceFirstWord(string $word): string
+	{
 		return ucfirst($word);
 	}
 
@@ -333,7 +348,8 @@ abstract class Locale extends Hookable {
 	 * @param string $conj Conjunction to use. Defaults to translation of "or"
 	 * @return string
 	 */
-	public function conjunction(array $words, string $conj = ''): string {
+	public function conjunction(array $words, string $conj = ''): string
+	{
 		if ($conj === '') {
 			$conj = $this->__('or');
 		}
@@ -356,7 +372,8 @@ abstract class Locale extends Hookable {
 	 * @param float $number
 	 * @return string
 	 */
-	public function pluralNumber(string $noun, float $number): string {
+	public function pluralNumber(string $noun, float $number): string
+	{
 		return $number . ' ' . $this->plural($noun, $number);
 	}
 
@@ -366,7 +383,8 @@ abstract class Locale extends Hookable {
 	 * @param string $word
 	 * @return string
 	 */
-	public function lower(string $word): string {
+	public function lower(string $word): string
+	{
 		return strtolower($word);
 	}
 
@@ -386,7 +404,8 @@ abstract class Locale extends Hookable {
 	 * @param float $number Number of nouns
 	 * @return string
 	 */
-	final public function plural(string $noun, float $number = 2): string {
+	final public function plural(string $noun, float $number = 2): string
+	{
 		$k = 'Locale::plural::' . $noun;
 		if ($this->has($k)) {
 			return $this->__($k);
@@ -418,7 +437,8 @@ abstract class Locale extends Hookable {
 	 * @param int $number
 	 * @return mixed
 	 */
-	public function pluralWord(string $word, int $number): string {
+	public function pluralWord(string $word, int $number): string
+	{
 		if ($number === 0) {
 			$phrase = 'Locale::plural_word:=no {word}';
 		} elseif ($number === 1) {
@@ -438,7 +458,8 @@ abstract class Locale extends Hookable {
 	 *
 	 * @return array
 	 */
-	private static function timeUnits(): array {
+	private static function timeUnits(): array
+	{
 		$year = (365 * 24 * 3600 * 4 + 1) / 4;
 		$month = $year / 12;
 		return [
@@ -455,7 +476,8 @@ abstract class Locale extends Hookable {
 	 * @return int Unix Timestamp
 	 * @throws ParseException
 	 */
-	private static function _parse_time(string $ts): int {
+	private static function _parse_time(string $ts): int
+	{
 		$x = @strtotime($ts);
 		if ($x < 0 || $x === false) {
 			throw new ParseException('Invalid time {ts}', ['ts' => $ts]);
@@ -475,7 +497,8 @@ abstract class Locale extends Hookable {
 	 * @return string
 	 * @throws ParseException
 	 */
-	public function nowString(Timestamp|string|int $ts, string $min_unit = '', string $zero_string = ''): string {
+	public function nowString(Timestamp|string|int $ts, string $min_unit = '', string $zero_string = ''): string
+	{
 		if ($ts instanceof Timestamp) {
 			$ts = $ts->unixTimestamp();
 		} elseif (!is_int($ts) && Types::isDate($ts)) {
@@ -505,7 +528,8 @@ abstract class Locale extends Hookable {
 	 * @param int|null $number Returns the final unit number, optional.
 	 * @return string
 	 */
-	public function durationString(float $delta, string $min_unit = '', int &$number = null): string {
+	public function durationString(float $delta, string $min_unit = '', int &$number = null): string
+	{
 		if ($delta < 0) {
 			$delta = -$delta;
 		}
@@ -545,7 +569,8 @@ abstract class Locale extends Hookable {
 	 * @return string
 	 * @todo test
 	 */
-	public function formatCurrency(float $value, string $currencyCode): string {
+	public function formatCurrency(float $value, string $currencyCode): string
+	{
 		$save = setlocale(LC_MONETARY, 0);
 		$id = $this->id();
 		if ($save !== $id) {
@@ -564,7 +589,8 @@ abstract class Locale extends Hookable {
 	 * @param string $value
 	 * @return string
 	 */
-	public function formatPercent(string $value): string {
+	public function formatPercent(string $value): string
+	{
 		return $this->__('percent:={value}%', [
 			'value' => $value,
 		]);
@@ -575,7 +601,8 @@ abstract class Locale extends Hookable {
 	/**
 	 * Allow modules to do something with untranslated phrases, like save them.
 	 */
-	public function shutdown(): void {
+	public function shutdown(): void
+	{
 		if ($this->auto) {
 			$this->application->invokeHooks(self::HOOK_SHUTDOWN, [
 				$this, $this->locale_phrases, $this->locale_phrase_context,
@@ -586,7 +613,8 @@ abstract class Locale extends Hookable {
 	/**
 	 * @return int
 	 */
-	public function firstDayOfWeek(): int {
+	public function firstDayOfWeek(): int
+	{
 		$cal = IntlCalendar::createInstance(null, $this->id());
 		return $cal->getFirstDayOfWeek();
 	}
@@ -598,7 +626,8 @@ abstract class Locale extends Hookable {
 	 * @param int $decimals
 	 * @return string
 	 */
-	public function formatNumber(int|float $number, int $decimals = 0): string {
+	public function formatNumber(int|float $number, int $decimals = 0): string
+	{
 		return number_format($number, $decimals, $this->__('Number::decimal_point:=.'), $this->__('Number::thousands_separator:=,'));
 	}
 
@@ -608,7 +637,8 @@ abstract class Locale extends Hookable {
 	 * @param string $locale
 	 * @return string
 	 */
-	public static function parseLanguage(string $locale): string {
+	public static function parseLanguage(string $locale): string
+	{
 		if (empty($locale)) {
 			return '';
 		}
@@ -622,7 +652,8 @@ abstract class Locale extends Hookable {
 	 * @param string $locale
 	 * @return string
 	 */
-	public static function parseDialect(string $locale): string {
+	public static function parseDialect(string $locale): string
+	{
 		if (empty($locale)) {
 			return '';
 		}
@@ -636,7 +667,8 @@ abstract class Locale extends Hookable {
 	 * @param string $locale
 	 * @return string[]
 	 */
-	public static function parse(string $locale): array {
+	public static function parse(string $locale): array
+	{
 		if ($locale === '') {
 			return ['', ''];
 		}
@@ -660,7 +692,8 @@ abstract class Locale extends Hookable {
 	 * @param string $locale
 	 * @return string
 	 */
-	public static function normalize(string $locale): string {
+	public static function normalize(string $locale): string
+	{
 		[$lang, $region] = explode('_', $locale, 2) + [
 			$locale, null,
 		];

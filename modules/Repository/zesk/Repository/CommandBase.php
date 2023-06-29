@@ -25,7 +25,8 @@ use zesk\Process;
  * @see \zesk\Git\Repository
  * @see \zesk\Subversion\Repository
  */
-abstract class CommandBase extends Base {
+abstract class CommandBase extends Base
+{
 	/**
 	 * Inherited from Application
 	 *
@@ -67,7 +68,8 @@ abstract class CommandBase extends Base {
 	 * @throws ParameterException
 	 * @throws UnimplementedException
 	 */
-	public function setPath(string $path): self {
+	public function setPath(string $path): self
+	{
 		if (empty($path)) {
 			throw new ParameterException('{method} - no path passed', [
 				'method' => __METHOD__,
@@ -92,7 +94,8 @@ abstract class CommandBase extends Base {
 	 * @throws NotFoundException
 	 * @throws UnimplementedException
 	 */
-	protected function initialize(): void {
+	protected function initialize(): void
+	{
 		if (!$this->executable) {
 			throw new UnimplementedException('Need to set ->executable to a value');
 		}
@@ -109,7 +112,8 @@ abstract class CommandBase extends Base {
 	 * @return array
 	 * @throws CommandFailed
 	 */
-	protected function run_command(string $suffix, array $arguments = [], bool $passThrough = false): array {
+	protected function run_command(string $suffix, array $arguments = [], bool $passThrough = false): array
+	{
 		$had_path = !empty($this->path);
 		if ($had_path) {
 			$cwd = getcwd();
@@ -134,7 +138,8 @@ abstract class CommandBase extends Base {
 	/**
 	 * @return bool
 	 */
-	public function validate(): bool {
+	public function validate(): bool
+	{
 		if (!is_dir($this->path)) {
 			return false;
 		}
@@ -149,7 +154,8 @@ abstract class CommandBase extends Base {
 	 * @return string
 	 * @throws UnimplementedException
 	 */
-	protected function findRoot(string $directory): string {
+	protected function findRoot(string $directory): string
+	{
 		if (!$this->dot_directory) {
 			throw new UnimplementedException('{method} does not support dot_directory setting', [
 				'method' => __METHOD__,
@@ -175,7 +181,8 @@ abstract class CommandBase extends Base {
 	 * @param string[] $versions
 	 * @return string[]
 	 */
-	protected function rsort_versions(array $versions): array {
+	protected function rsort_versions(array $versions): array
+	{
 		$factor = 100;
 		$result = [];
 		foreach ($versions as $version) {
@@ -193,7 +200,8 @@ abstract class CommandBase extends Base {
 	 * @param string[] $versions
 	 * @return string
 	 */
-	protected function compute_latest_version(array $versions): string {
+	protected function compute_latest_version(array $versions): string
+	{
 		return ArrayTools::first($this->rsort_versions($versions));
 	}
 }

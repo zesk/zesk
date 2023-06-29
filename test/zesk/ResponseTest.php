@@ -24,7 +24,8 @@ use zesk\Exception\UnsupportedException;
  * @see TestApplication
  * @see TestRequest
  */
-class ResponseTest extends TestApplicationUnitTest {
+class ResponseTest extends TestApplicationUnitTest
+{
 	/**
 	 * @return void
 	 * @throws ClassNotFound
@@ -38,7 +39,8 @@ class ResponseTest extends TestApplicationUnitTest {
 	 * @throws UnsupportedException
 	 * @throws FileNotFound
 	 */
-	public function test_application_basics(): void {
+	public function test_application_basics(): void
+	{
 		$publicRoot = $this->testApplication->documentRoot('public');
 		Directory::depend($publicRoot);
 
@@ -180,7 +182,8 @@ class ResponseTest extends TestApplicationUnitTest {
 		$this->assertEquals($shortcutIcon, $response->html()->shortcutIcon());
 	}
 
-	private function requestRoundTrip(Request $rootRequest, string $uri, string $expected): Response {
+	private function requestRoundTrip(Request $rootRequest, string $uri, string $expected): Response
+	{
 		$newApplication = $rootRequest->application;
 		$anotherRequest = Request::factory($newApplication, $rootRequest);
 		$anotherRequest->setPath($uri);
@@ -190,7 +193,8 @@ class ResponseTest extends TestApplicationUnitTest {
 		return $anotherResponse;
 	}
 
-	public function test_application_index(): void {
+	public function test_application_index(): void
+	{
 		$themePath = $this->test_sandbox();
 
 		file_put_contents(path($themePath, 'Exception.tpl'), 'Hello, whirled');
@@ -210,7 +214,8 @@ class ResponseTest extends TestApplicationUnitTest {
 		$response->setCacheForever();
 	}
 
-	public function test_cacheClear(): void {
+	public function test_cacheClear(): void
+	{
 		$newApplication = $this->testApplication;
 		$newApplication->configure();
 
@@ -222,12 +227,14 @@ class ResponseTest extends TestApplicationUnitTest {
 		$newApplication->cacheClear();
 	}
 
-	public function test_setTemporary_not(): void {
+	public function test_setTemporary_not(): void
+	{
 		$this->expectException(DirectoryNotFound::class);
 		$this->application->paths->setTemporary('./cache/foo');
 	}
 
-	public function test_setTemporary_yes(): void {
+	public function test_setTemporary_yes(): void
+	{
 		$oldTemp = $this->testApplication->paths->temporary();
 		$path = './cache/foo';
 		Directory::depend($this->testApplication->paths->expand($path));
@@ -237,11 +244,13 @@ class ResponseTest extends TestApplicationUnitTest {
 		$this->testApplication->paths->setTemporary($oldTemp);
 	}
 
-	public function test_pid(): void {
+	public function test_pid(): void
+	{
 		$this->assertIsInteger($this->testApplication->process->id());
 	}
 
-	public function test_running(): void {
+	public function test_running(): void
+	{
 		$process = $this->testApplication->process;
 		$pid = $this->testApplication->process->id();
 		$this->assertIsInteger($pid);
@@ -249,7 +258,8 @@ class ResponseTest extends TestApplicationUnitTest {
 		$this->assertFalse($process->alive(32766));
 	}
 
-	public function test_zeskCommandPath(): void {
+	public function test_zeskCommandPath(): void
+	{
 		$file = $this->test_sandbox('testlike.php');
 		$contents = file_get_contents($this->testApplication->zeskHome('test/test-data/testlike.php'));
 		file_put_contents($file, $contents);

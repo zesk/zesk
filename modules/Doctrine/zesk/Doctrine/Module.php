@@ -37,7 +37,8 @@ use Doctrine\ORM\Configuration;
 use Doctrine\ORM\ORMSetup;
 use Doctrine\DBAL\Types\Type;
 
-class Module extends BaseModule {
+class Module extends BaseModule
+{
 	/**
 	 * @todo Call this somewhere
 	 */
@@ -72,7 +73,8 @@ class Module extends BaseModule {
 	 * @throws Exception
 	 * @throws UnsupportedException
 	 */
-	public function initialize(): void {
+	public function initialize(): void
+	{
 		parent::initialize();
 		if (!self::$added) {
 			foreach (self::$zeskTypes as $type => $class) {
@@ -85,7 +87,8 @@ class Module extends BaseModule {
 	}
 
 	#[FilterMethod(handles: Info::FILTER_INFO)]
-	public function info(array $info): array {
+	public function info(array $info): array
+	{
 		$info['doctrine'] = true;
 		return $info;
 	}
@@ -94,7 +97,8 @@ class Module extends BaseModule {
 	 * @param string $path
 	 * @return $this
 	 */
-	public function addPath(string $path): self {
+	public function addPath(string $path): self
+	{
 		$paths = $this->optionArray(self::OPTION_SOURCE_PATHS);
 		if (!in_array($path, $paths)) {
 			$paths[] = $path;
@@ -111,7 +115,8 @@ class Module extends BaseModule {
 	 * @throws DirectoryPermission
 	 * @throws Exception
 	 */
-	public function configureORM(): void {
+	public function configureORM(): void
+	{
 		$this->inheritConfiguration();
 		$paths = Types::toList($this->optionIterable(self::OPTION_SOURCE_PATHS, ['./src']));
 		$paths[] = $this->path('zesk/Doctrine');
@@ -128,7 +133,8 @@ class Module extends BaseModule {
 	 * @throws ConfigurationException
 	 * @throws Exception
 	 */
-	private function _setupConnections(): void {
+	private function _setupConnections(): void
+	{
 		foreach ($this->optionArray('connections') as $name => $dsn) {
 			if (is_string($dsn)) {
 				$parser = new DsnParser();
@@ -162,7 +168,8 @@ class Module extends BaseModule {
 		}
 	}
 
-	private function defaultEntityManager(): string {
+	private function defaultEntityManager(): string
+	{
 		return $this->optionString('default', 'default');
 	}
 
@@ -176,7 +183,8 @@ class Module extends BaseModule {
 	 * @throws Exception
 	 * @throws NotFoundException
 	 */
-	public function entityManager(string $name = ''): EntityManager {
+	public function entityManager(string $name = ''): EntityManager
+	{
 		if ($name === '') {
 			$name = $this->defaultEntityManager();
 		}
@@ -202,7 +210,8 @@ class Module extends BaseModule {
 	 * @throws Exception
 	 * @throws NotFoundException
 	 */
-	public function schemaSynchronizeSQL(array $entities, string $name = ''): array {
+	public function schemaSynchronizeSQL(array $entities, string $name = ''): array
+	{
 		$em = $this->entityManager($name);
 		$tool = new SchemaTool($em);
 		$classMetadata = [];
@@ -224,7 +233,8 @@ class Module extends BaseModule {
 	 * @throws Exception
 	 * @throws NotFoundException
 	 */
-	public function schemaSynchronize(array $entities, string $name = ''): array {
+	public function schemaSynchronize(array $entities, string $name = ''): array
+	{
 		$sqls = $this->schemaSynchronizeSQL($entities, $name);
 		$connection = $this->entityManager($name)->getConnection();
 		$results = [];
@@ -245,7 +255,8 @@ class Module extends BaseModule {
 	 * @throws Exception
 	 * @throws NotFoundException
 	 */
-	public function dependentEntities(string $entityName, string $name = ''): array {
+	public function dependentEntities(string $entityName, string $name = ''): array
+	{
 		$depend = [];
 		foreach ($this->entityManager($name)->getClassMetadata($entityName)->getAssociationMappings() as $key => $mapping) {
 			if (array_key_exists('targetEntity', $mapping)) {

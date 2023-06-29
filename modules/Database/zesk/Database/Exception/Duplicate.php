@@ -12,5 +12,6 @@ namespace zesk\Database\Exception;
  *
  *
  */
-class Duplicate extends SQLException {
+class Duplicate extends SQLException
+{
 }

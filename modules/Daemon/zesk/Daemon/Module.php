@@ -33,7 +33,8 @@ use zesk\Timestamp;
  * @author kent
  *
  */
-class Module extends \zesk\Module {
+class Module extends \zesk\Module
+{
 	/**
 	 *
 	 * @var string
@@ -51,7 +52,8 @@ class Module extends \zesk\Module {
 	 * @throws DirectoryPermission
 	 * @throws UnsupportedException
 	 */
-	public function initialize(): void {
+	public function initialize(): void
+	{
 		parent::initialize();
 		$runPath = $this->application->dataPath('run');
 		$this->runPath = Directory::path($runPath, 'daemon');
@@ -63,7 +65,8 @@ class Module extends \zesk\Module {
 	 * @todo This is not doing anything
 	 *
 	 */
-	protected function hook_system_panel(): array {
+	protected function hook_system_panel(): array
+	{
 		return [
 			'system/panel/daemon' => [
 				'title' => $this->application->locale->__('Daemons'), 'moduleClass' => __CLASS__,
@@ -74,7 +77,8 @@ class Module extends \zesk\Module {
 	}
 
 	#[Cron(schedule: Temporal::UNIT_MINUTE)]
-	protected function hook_cron(): void {
+	protected function hook_cron(): void
+	{
 		$application = $this->application;
 
 		try {
@@ -96,7 +100,8 @@ class Module extends \zesk\Module {
 	 *
 	 * @return string
 	 */
-	private function _databasePath(): string {
+	private function _databasePath(): string
+	{
 		return Directory::path($this->runPath, 'daemon.db');
 	}
 
@@ -104,7 +109,8 @@ class Module extends \zesk\Module {
 	 * @return void
 	 * @throws FilePermission
 	 */
-	public function unlink_database(): void {
+	public function unlink_database(): void
+	{
 		File::unlink($this->_databasePath());
 	}
 
@@ -114,7 +120,8 @@ class Module extends \zesk\Module {
 	 * @throws FilePermission
 	 * @throws SemanticsException
 	 */
-	public function saveProcessDatabase(array $database): void {
+	public function saveProcessDatabase(array $database): void
+	{
 		$path = $this->_databasePath();
 		if (!is_file($path)) {
 			if (count($database) === 0) {
@@ -146,7 +153,8 @@ class Module extends \zesk\Module {
 	 * @return array
 	 * @throws FilePermission|SyntaxException
 	 */
-	public function loadProcessDatabase(): array {
+	public function loadProcessDatabase(): array
+	{
 		$path = $this->_databasePath();
 		if (!is_file($path)) {
 			return [];

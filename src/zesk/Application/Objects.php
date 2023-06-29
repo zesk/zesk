@@ -24,7 +24,8 @@ use zesk\PHP;
  * @author kent
  * @property $session \SessionInterface
  */
-class Objects {
+class Objects
+{
 	/**
 	 *
 	 * @var array
@@ -46,13 +47,15 @@ class Objects {
 	/**
 	 *
 	 */
-	public function reset(): void {
+	public function reset(): void
+	{
 		$this->singletons = [];
 		$this->singletonsCaller = [];
 		$this->mapping = [];
 	}
 
-	public function shutdown(): void {
+	public function shutdown(): void
+	{
 		foreach ($this->singletons as $singleton) {
 			try {
 				if (method_exists($singleton, 'shutdown')) {
@@ -67,14 +70,16 @@ class Objects {
 	/**
 	 * @return array:Hookable
 	 */
-	public function hookables(): array {
+	public function hookables(): array
+	{
 		return array_filter($this->singletons, fn ($object) => $object instanceof Hookable);
 	}
 
 	/**
 	 * @return array
 	 */
-	public function mapping(): array {
+	public function mapping(): array
+	{
 		return $this->mapping;
 	}
 
@@ -90,7 +95,8 @@ class Objects {
 	 *            Use this class instead
 	 * @return self
 	 */
-	public function map(string $requested_class, string $target_class): self {
+	public function map(string $requested_class, string $target_class): self
+	{
 		$this->mapping[strtolower($requested_class)] = $target_class;
 		return $this;
 	}
@@ -101,7 +107,8 @@ class Objects {
 	 * @param iterable $iterable
 	 * @return $this
 	 */
-	public function setMap(iterable $iterable): self {
+	public function setMap(iterable $iterable): self
+	{
 		foreach ($iterable as $requested_class => $target_class) {
 			$this->mapping[strtolower($requested_class)] = $target_class;
 		}
@@ -114,7 +121,8 @@ class Objects {
 	 * @param string $requested_class
 	 * @return string
 	 */
-	public function resolve(string $requested_class): string {
+	public function resolve(string $requested_class): string
+	{
 		return $this->mapping[strtolower($requested_class)] ?? $requested_class;
 	}
 
@@ -125,7 +133,8 @@ class Objects {
 	 * @return object
 	 * @throws ClassNotFound
 	 */
-	public function singleton(string $class): object {
+	public function singleton(string $class): object
+	{
 		$arguments = func_get_args();
 		$class = array_shift($arguments);
 		return $this->singletonArgumentsStatic($class, $arguments);
@@ -139,7 +148,8 @@ class Objects {
 	 * @return $this
 	 * @throws SemanticsException
 	 */
-	public function setSingleton(object $object, string $class = null): self {
+	public function setSingleton(object $object, string $class = null): self
+	{
 		if ($class === null) {
 			$class = $object::class;
 		}
@@ -165,7 +175,8 @@ class Objects {
 	 * @param string $resolveClass
 	 * @return ?object
 	 */
-	private function _getSingleton(string $class, string &$resolveClass): ?object {
+	private function _getSingleton(string $class, string &$resolveClass): ?object
+	{
 		$resolveClass = $this->resolve($class);
 		return $this->singletons[$resolveClass] ?? null;
 	}
@@ -177,7 +188,8 @@ class Objects {
 	 * @return mixed
 	 * @throws SemanticsException
 	 */
-	private function _setSingleton(object $object, string $resolvedClass): object {
+	private function _setSingleton(object $object, string $resolvedClass): object
+	{
 		if (isset($this->singletons[$resolvedClass])) {
 			throw new SemanticsException('{method}(Object of {class_name}) Can not set singleton {class_name} twice, originally set in {first_caller}', [
 				'method' => __METHOD__, 'class_name' => $resolvedClass,
@@ -197,7 +209,8 @@ class Objects {
 	 * @return mixed
 	 * @throws ClassNotFound
 	 */
-	public function singletonArgumentsStatic(string $class, array $arguments = [], array $staticMethods = ['singleton']): mixed {
+	public function singletonArgumentsStatic(string $class, array $arguments = [], array $staticMethods = ['singleton']): mixed
+	{
 		$resolveClass = '';
 		$object = $this->_getSingleton($class, $resolveClass);
 		if ($object) {
@@ -233,7 +246,8 @@ class Objects {
 	 * @return mixed
 	 * @throws ClassNotFound
 	 */
-	public function singletonArguments(string $class, array $arguments = []): mixed {
+	public function singletonArguments(string $class, array $arguments = []): mixed
+	{
 		$resolveClass = '';
 		$object = $this->_getSingleton($class, $resolveClass);
 		if ($object) {
@@ -259,7 +273,8 @@ class Objects {
 	 * @return object
 	 * @throws ClassNotFound
 	 */
-	public function factory(string $class): object {
+	public function factory(string $class): object
+	{
 		$arguments = func_get_args();
 		array_shift($arguments);
 		return $this->factoryArguments($class, $arguments);
@@ -273,7 +288,8 @@ class Objects {
 	 * @return stdClass
 	 * @throws ClassNotFound
 	 */
-	public function factoryArguments(string $class, array $arguments): object {
+	public function factoryArguments(string $class, array $arguments): object
+	{
 		$resolveClass = $this->resolve($class);
 
 		try {

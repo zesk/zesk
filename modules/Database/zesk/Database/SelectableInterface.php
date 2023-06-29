@@ -5,5 +5,6 @@ namespace zesk\Database;
 /**
  * Attach to database query objects
  */
-interface SelectableInterface {
+interface SelectableInterface
+{
 }

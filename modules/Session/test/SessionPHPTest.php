@@ -17,12 +17,14 @@ use zesk\UnitTest;
  * @author kent
  *
  */
-class SessionPHPTest extends UnitTest {
+class SessionPHPTest extends UnitTest
+{
 	protected array $load_modules = [
 		'session',
 	];
 
-	public function assertSessionInterface(SessionInterface $session): void {
+	public function assertSessionInterface(SessionInterface $session): void
+	{
 		$id = $session->id();
 		$this->assertIsString($id, 'Session ID is string');
 		$this->assertFalse($session->isAuthenticated(), 'Session authenticated');
@@ -30,7 +32,8 @@ class SessionPHPTest extends UnitTest {
 
 	public const TEST_CLASS = SessionPHP::class;
 
-	public static function data_basic_session(): array {
+	public static function data_basic_session(): array
+	{
 		return [
 			[function () {
 				$app = self::app();
@@ -51,7 +54,8 @@ class SessionPHPTest extends UnitTest {
 	 * @param SessionInterface $session
 	 * @return void
 	 */
-	public function test_main($mixed): void {
+	public function test_main($mixed): void
+	{
 		$session = $this->applyClosures($mixed);
 		$this->assertInstanceOf(self::TEST_CLASS, $session);
 		$this->assertSessionInterface($session);
@@ -63,7 +67,8 @@ class SessionPHPTest extends UnitTest {
 	 * @expectedException use zesk\Exception\NotFoundException
 	 * @dataProvider data_basic_session
 	 */
-	public function test_user_id_throws(SessionInterface $session): void {
+	public function test_user_id_throws(SessionInterface $session): void
+	{
 		$this->assertNull($session->userId(), 'Session user ID did not throw');
 	}
 
@@ -73,7 +78,8 @@ class SessionPHPTest extends UnitTest {
 	 * @expectedException use zesk\Exception\NotFoundException
 	 * @dataProvider data_basic_session
 	 */
-	public function test_user_throws(SessionInterface $session): void {
+	public function test_user_throws(SessionInterface $session): void
+	{
 		$this->assertNull($session->user(), 'Session user did not throw');
 	}
 }

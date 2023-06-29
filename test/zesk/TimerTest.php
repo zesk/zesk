@@ -7,12 +7,15 @@ namespace zesk;
  * @author kent
  *
  */
-class TimerTest extends UnitTest {
-	public function test_now(): void {
+class TimerTest extends UnitTest
+{
+	public function test_now(): void
+	{
 		Timer::now();
 	}
 
-	public function test_basics(): void {
+	public function test_basics(): void
+	{
 		$initTime = false;
 		$offset = 0;
 		$x = new Timer($initTime, $offset);

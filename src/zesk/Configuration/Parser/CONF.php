@@ -27,7 +27,8 @@ use zesk\Types;
  * @author kent
  *
  */
-class CONF extends Parser {
+class CONF extends Parser
+{
 	public const OPTION_AUTO_TYPE = 'autoType';
 
 	public const OPTION_UNQUOTE = 'unquote';
@@ -71,12 +72,14 @@ class CONF extends Parser {
 
 	/**
 	 */
-	public function initialize(): void {
+	public function initialize(): void
+	{
 	}
 
 	/**
 	 */
-	public function validate(): bool {
+	public function validate(): bool
+	{
 		return true;
 	}
 
@@ -84,7 +87,8 @@ class CONF extends Parser {
 	 *
 	 * @see Parser::editor
 	 */
-	public function editor(string $content = '', array $options = []): Editor {
+	public function editor(string $content = '', array $options = []): Editor
+	{
 		return new CONFEditor($content, $options);
 	}
 
@@ -95,7 +99,8 @@ class CONF extends Parser {
 	 * @throws SemanticsException
 	 * @throws KeyNotFound
 	 */
-	public function process(): void {
+	public function process(): void
+	{
 		$autoType = Types::toBool($this->parseOptions[self::OPTION_AUTO_TYPE]);
 		$unquote = strval($this->parseOptions[self::OPTION_UNQUOTE]);
 		$multiline = Types::toBool($this->parseOptions[self::OPTION_MULTILINE]);
@@ -172,7 +177,8 @@ class CONF extends Parser {
 	 * @param string $file
 	 *            Name of additional include file
 	 */
-	private function handleInclude(string $file): void {
+	private function handleInclude(string $file): void
+	{
 		if (File::isAbsolute($file)) {
 			$this->loader->appendFiles([
 				$file,
@@ -189,7 +195,8 @@ class CONF extends Parser {
 	 * @param array $lines
 	 * @return array
 	 */
-	private static function joinLines(array $lines): array {
+	private static function joinLines(array $lines): array
+	{
 		$result = [
 			array_shift($lines),
 		];
@@ -213,7 +220,8 @@ class CONF extends Parser {
 	 * @param string $line
 	 * @return ?array
 	 */
-	public function parseLine(string $line): ?array {
+	public function parseLine(string $line): ?array
+	{
 		$separator = $this->parseOptions[self::OPTION_SEPARATOR];
 		$line = trim($line);
 		if (str_starts_with($line, '#')) {

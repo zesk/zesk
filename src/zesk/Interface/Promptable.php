@@ -13,7 +13,8 @@ use zesk\Exception\ExitedException;
 /**
  *
  */
-interface Promptable {
+interface Promptable
+{
 	/**
 	 * @param string $message
 	 * @param string $default

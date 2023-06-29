@@ -23,7 +23,8 @@ use zesk\Exception\FilePermission;
  * @author kent
  * @category Management
  */
-class FIFO {
+class FIFO
+{
 	/**
 	 * FP to fifo: Reader
 	 *
@@ -61,7 +62,8 @@ class FIFO {
 	 * @throws DirectoryNotFound
 	 * @throws FilePermission
 	 */
-	public function __construct(string $path, bool $create = false, int $mode = 384 /* 0o600 */) {
+	public function __construct(string $path, bool $create = false, int $mode = 384 /* 0o600 */)
+	{
 		$this->path = $path;
 		if (!$create) {
 			return;
@@ -85,7 +87,8 @@ class FIFO {
 	 *
 	 * @see Hookable::__destruct()
 	 */
-	public function __destruct() {
+	public function __destruct()
+	{
 		$this->close();
 		if ($this->created && file_exists($this->path)) {
 			unlink($this->path);
@@ -97,7 +100,8 @@ class FIFO {
 	 *
 	 * @return string
 	 */
-	public function path(): string {
+	public function path(): string
+	{
 		return $this->path;
 	}
 
@@ -109,7 +113,8 @@ class FIFO {
 	 * @throws FileNotFound
 	 * @throws FilePermission
 	 */
-	public function write(mixed $message = null): bool {
+	public function write(mixed $message = null): bool
+	{
 		$this->_beforeWrite();
 		$data = serialize($message);
 		$n = strlen($data);
@@ -126,7 +131,8 @@ class FIFO {
 	 * @throws FileNotFound
 	 * @throws SyntaxException
 	 */
-	public function read(float $timeout): mixed {
+	public function read(float $timeout): mixed
+	{
 		$readers = [
 			$this->r,
 		];
@@ -147,7 +153,8 @@ class FIFO {
 	 * @throws FileNotFound
 	 * @throws FilePermission
 	 */
-	private function _beforeWrite(): void {
+	private function _beforeWrite(): void
+	{
 		if (!file_exists($this->path)) {
 			throw new FileNotFound($this->path, __METHOD__);
 		}
@@ -159,7 +166,8 @@ class FIFO {
 	 *
 	 * @throws FilePermission
 	 */
-	private function _beforeRead(): void {
+	private function _beforeRead(): void
+	{
 		$this->r = fopen($this->path, 'r+b');
 		if (!$this->r) {
 			throw new FilePermission($this->path, 'fopen(\'{path}\', \'r\')');
@@ -169,7 +177,8 @@ class FIFO {
 	/**
 	 * Close read FIFO
 	 */
-	private function _closeRead(): void {
+	private function _closeRead(): void
+	{
 		if ($this->r) {
 			fclose($this->r);
 			$this->r = null;
@@ -179,7 +188,8 @@ class FIFO {
 	/**
 	 * Close write FIFO
 	 */
-	private function _closeWrite(): void {
+	private function _closeWrite(): void
+	{
 		if ($this->w) {
 			fclose($this->w);
 			$this->w = null;
@@ -189,7 +199,8 @@ class FIFO {
 	/**
 	 * Close all FIFOs
 	 */
-	public function close(): void {
+	public function close(): void
+	{
 		$this->_closeRead();
 		$this->_closeWrite();
 	}

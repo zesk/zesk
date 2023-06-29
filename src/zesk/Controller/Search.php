@@ -18,13 +18,15 @@ use zesk\Request;
  * @author kent
  *
  */
-class Search extends ThemeController {
+class Search extends ThemeController
+{
 	/**
 	 *
 	 * @return string
 	 * @throws ClassNotFound|Redirect
 	 */
-	protected function action_index(Request $request): string {
+	protected function action_index(Request $request): string
+	{
 		$query = $request->get($this->option('search_query_variable', 'q'));
 		$results = [];
 		$total = $shown = 0;

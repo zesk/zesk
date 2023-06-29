@@ -17,10 +17,12 @@ use zesk\Command;
  * @param array $args
  * @return array
  */
-class CWD extends Command {
+class CWD extends Command
+{
 	protected array $shortcuts = ['cwd'];
 
-	public function run(): int {
+	public function run(): int
+	{
 		echo getcwd() . "\n";
 		return 0;
 	}

@@ -16,6 +16,7 @@ use zesk\Database\Column;
  * @author kent
  *
  */
-abstract class DatabaseAdapter {
+abstract class DatabaseAdapter
+{
 	abstract public function columnSetType(Column $column);
 }

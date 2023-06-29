@@ -13,5 +13,6 @@ namespace zesk\Database\Exception;
  * @author kent
  *
  */
-class DatabaseNotFound extends Connect {
+class DatabaseNotFound extends Connect
+{
 }

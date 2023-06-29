@@ -20,14 +20,16 @@ use zesk\Exception\Unimplemented;
  * @author kent
  *
  */
-class MySQLAdapter extends DatabaseAdapter {
+class MySQLAdapter extends DatabaseAdapter
+{
 	/**
 	 * @param Column $column
 	 * @return void
 	 * @throws Semantics
 	 * @throws Unimplemented
 	 */
-	public function columnSetType(Column $column): void {
+	public function columnSetType(Column $column): void
+	{
 		$type_name = $column->optionString('type');
 		$is_bin = $column->optionBool('binary');
 		$size = $column->optionInt('size');

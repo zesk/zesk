@@ -46,7 +46,8 @@ use zesk\Timestamp;
  * @package zesk
  * @subpackage system
  */
-class Database extends DatabaseBase {
+class Database extends DatabaseBase
+{
 	/**
 	 * Default path to store MySQL credentials for CLI
 	 */
@@ -178,7 +179,8 @@ class Database extends DatabaseBase {
 	/**
 	 * @return void
 	 */
-	protected function initialize(): void {
+	protected function initialize(): void
+	{
 		$this->connection = new mysqli();
 		$this->isConnected = false;
 		$this->_sqlParser = new SQLParser($this);
@@ -196,7 +198,8 @@ class Database extends DatabaseBase {
 	 * @throws KeyNotFound
 	 * @throws Semantics
 	 */
-	private function _fetchSetting(string $attribute, bool $force = false): string {
+	private function _fetchSetting(string $attribute, bool $force = false): string
+	{
 		if (!$force && $this->hasOption($attribute)) {
 			return $this->option($attribute);
 		}
@@ -214,7 +217,8 @@ class Database extends DatabaseBase {
 	 * @throws KeyNotFound
 	 * @throws Semantics
 	 */
-	public function defaultEngine(): string {
+	public function defaultEngine(): string
+	{
 		return $this->_fetchSetting(self::ATTRIBUTE_ENGINE);
 	}
 
@@ -223,7 +227,8 @@ class Database extends DatabaseBase {
 	 * @throws KeyNotFound
 	 * @throws Semantics
 	 */
-	public function defaultCharacterSet(): string {
+	public function defaultCharacterSet(): string
+	{
 		return $this->_fetchSetting(self::ATTRIBUTE_CHARACTER_SET);
 	}
 
@@ -232,7 +237,8 @@ class Database extends DatabaseBase {
 	 * @throws KeyNotFound
 	 * @throws SQLException
 	 */
-	public function defaultCollation(): string {
+	public function defaultCollation(): string
+	{
 		return $this->_fetchSetting(self::ATTRIBUTE_COLLATION);
 	}
 
@@ -246,7 +252,8 @@ class Database extends DatabaseBase {
 	 * @throws KeyNotFound
 	 * @throws Semantics
 	 */
-	public function columnAttributes(Column $column): array {
+	public function columnAttributes(Column $column): array
+	{
 		$attributes = [];
 		if ($column->sqlType() === 'timestamp') {
 			if ($column->notNull()) {
@@ -276,7 +283,8 @@ class Database extends DatabaseBase {
 	 * @param Column $that
 	 * @return array
 	 */
-	public function columnDifferences(Column $self, Column $that): array {
+	public function columnDifferences(Column $self, Column $that): array
+	{
 		if ($self->isText()) {
 			return $self->attributes_differences($this, $that, [
 				self::ATTRIBUTE_CHARACTER_SET, self::ATTRIBUTE_COLLATION,
@@ -294,7 +302,8 @@ class Database extends DatabaseBase {
 	 * @throws KeyNotFound
 	 * @throws Semantics
 	 */
-	public function tableAttributes(): array {
+	public function tableAttributes(): array
+	{
 		return [
 			self::ATTRIBUTE_ENGINE => $this->option(self::ATTRIBUTE_ENGINE, $this->defaultEngine()),
 			self::attribute_default_charset => $this->option(self::attribute_default_charset, $this->defaultCharacterSet()),
@@ -313,7 +322,8 @@ class Database extends DatabaseBase {
 	 * @throws ParameterException
 	 * @see \zesk\SQLite3\Base::selectDatabase()
 	 */
-	public function selectDatabase(string $name): self {
+	public function selectDatabase(string $name): self
+	{
 		if ($name === '') {
 			$name = $this->databaseName();
 		}
@@ -336,7 +346,8 @@ class Database extends DatabaseBase {
 	 * @throws TableNotFound
 	 * @see \zesk\SQLite3\Base::tableColumns()
 	 */
-	public function tableColumns(string $tableName): array {
+	public function tableColumns(string $tableName): array
+	{
 		$columns = [];
 		$table_object = new Table($this, $tableName);
 		$result = $this->queryArray('DESC ' . $this->quoteTable($tableName), 'Field');
@@ -366,7 +377,8 @@ class Database extends DatabaseBase {
 	 * @throws FilePermission
 	 * @see \zesk\SQLite3\Database::dump()
 	 */
-	public function dump(string $filename, array $options = []): void {
+	public function dump(string $filename, array $options = []): void
+	{
 		$parts = $this->url_parts;
 
 		$parts['port'] = toInteger($parts['port'] ?? null, 3306);
@@ -404,7 +416,8 @@ class Database extends DatabaseBase {
 	 * @throws FileNotFound|CommandFailed
 	 * @see \zesk\SQLite3\Database::restore()
 	 */
-	public function restore(string $filename, array $options = []): void {
+	public function restore(string $filename, array $options = []): void
+	{
 		if (!file_exists($filename)) {
 			throw new FileNotFound($filename);
 		}
@@ -441,7 +454,8 @@ class Database extends DatabaseBase {
 	 * @throws Semantics
 	 * @see \zesk\SQLite3\Base::internalConnect()
 	 */
-	final public function internalConnect(): void {
+	final public function internalConnect(): void
+	{
 		$parts = $this->url_parts;
 
 		$server = $parts['host'] ?? null;
@@ -477,7 +491,8 @@ class Database extends DatabaseBase {
 	 * @throws KeyNotFound
 	 * @throws SQLException
 	 */
-	private function _versionSettings(): void {
+	private function _versionSettings(): void
+	{
 		$this->_fetchSetting(self::ATTRIBUTE_VERSION, true);
 
 		$version = $this->optionString('version');
@@ -499,7 +514,8 @@ class Database extends DatabaseBase {
 	 *            Tokens for error message
 	 * @throws Connect
 	 */
-	protected function _connection_error(array $words): void {
+	protected function _connection_error(array $words): void
+	{
 		if (!array_key_exists('error', $words)) {
 			$words['error'] = mysqli_error($this->connection);
 		}
@@ -525,7 +541,8 @@ class Database extends DatabaseBase {
 	 * @throws Duplicate
 	 * @throws TableNotFound
 	 */
-	protected function _mysql_throw_error(string $query, int $errno, string $message): void {
+	protected function _mysql_throw_error(string $query, int $errno, string $message): void
+	{
 		if ($errno == 1062) {
 			$match = false;
 			if (preg_match('/key ([0-9]+)/', $message, $match)) {
@@ -548,7 +565,8 @@ class Database extends DatabaseBase {
 	/*
 	 * Database capabilities
 	 */
-	public function can(string $permission): bool {
+	public function can(string $permission): bool
+	{
 		return match ($permission) {
 			self::FEATURE_LIST_TABLES, self::FEATURE_TIME_ZONE_RELATIVE_TIMESTAMP, self::FEATURE_CREATE_DATABASE => true,
 			default => false,
@@ -558,7 +576,8 @@ class Database extends DatabaseBase {
 	/**
 	 * @return string
 	 */
-	public function timeZone(): string {
+	public function timeZone(): string
+	{
 		try {
 			return $this->queryOne('SELECT @@time_zone as tz', 0);
 		} catch (KeyNotFound|Database\Exception\SQLException) {
@@ -577,7 +596,8 @@ class Database extends DatabaseBase {
 	 * @throws TableNotFound
 	 * @throws ParameterException
 	 */
-	public function setTimeZone(string|DateTimeZone $zone): self {
+	public function setTimeZone(string|DateTimeZone $zone): self
+	{
 		$this->query('SET time_zone=' . $this->quoteText(strval($zone)));
 		return $this;
 	}
@@ -596,7 +616,8 @@ class Database extends DatabaseBase {
 	 * @throws SyntaxException
 	 * @see \classes\Database\Base::createDatabase()
 	 */
-	public function createDatabase(string $url, array $hosts): bool {
+	public function createDatabase(string $url, array $hosts): bool
+	{
 		$parts = parse_url($url);
 
 		$server = $parts['host'] ?? null;
@@ -643,7 +664,8 @@ class Database extends DatabaseBase {
 	 * @throws ParameterException
 	 * @see \zesk\SQLite3\Database::listTables()
 	 */
-	public function listTables(): array {
+	public function listTables(): array
+	{
 		$result = $this->query('SHOW TABLES');
 		$tables = [];
 		$caseSensitive = $this->tablesCaseSensitive();
@@ -669,7 +691,8 @@ class Database extends DatabaseBase {
 	 * @throws TableNotFound
 	 * @throws ParameterException
 	 */
-	private function showCreateTable(string $tableName, string &$sql = null): string {
+	private function showCreateTable(string $tableName, string &$sql = null): string
+	{
 		$sql = 'SHOW CREATE TABLE ' . $this->quoteTable($tableName);
 
 		try {
@@ -695,7 +718,8 @@ class Database extends DatabaseBase {
 	 * @see \zesk\SQLite3\Base::tableInformation
 	 * @todo Move into type\Table
 	 */
-	final public function tableInformation(string $tableName): array {
+	final public function tableInformation(string $tableName): array
+	{
 		try {
 			$arr = $this->queryOne("SHOW TABLE STATUS LIKE '$tableName'");
 		} catch (Database\Exception\Duplicate|Database\Exception\NoResults|KeyNotFound $e) {
@@ -722,7 +746,8 @@ class Database extends DatabaseBase {
 	 * @throws NotFoundException
 	 * @throws ParameterException
 	 */
-	public function databaseTable(string $tableName): Table {
+	public function databaseTable(string $tableName): Table
+	{
 		$source = '';
 		$sql = $this->showCreateTable($tableName, $source);
 		if (!$sql) {
@@ -734,7 +759,8 @@ class Database extends DatabaseBase {
 	/*
 	 * Boolean Type
 	 */
-	public function sqlParseBoolean(mixed $value): string {
+	public function sqlParseBoolean(mixed $value): string
+	{
 		return $value ? '\'true\'' : '\'false\'';
 	}
 
@@ -742,7 +768,8 @@ class Database extends DatabaseBase {
 	 * @see \classes\Database\Base::defaultIndexStructure()
 	 * @see \zesk\SQLite3\Database::defaultIndexStructure()
 	 */
-	public function defaultIndexStructure(string $table_type): string {
+	public function defaultIndexStructure(string $table_type): string
+	{
 		switch (strtolower($table_type)) {
 			case 'memory':
 			case 'heap':
@@ -763,7 +790,8 @@ class Database extends DatabaseBase {
 	 * @throws SQLException
 	 * @throws TableNotFound
 	 */
-	public function estimate_rows(string $sql): int {
+	public function estimate_rows(string $sql): int
+	{
 		$rows = $this->queryArray("EXPLAIN $sql");
 		$n = 1;
 		foreach ($rows as $row) {
@@ -782,7 +810,8 @@ class Database extends DatabaseBase {
 	 * @throws SQLException
 	 * @throws TableNotFound
 	 */
-	public function tableExists(string $tableName): bool {
+	public function tableExists(string $tableName): bool
+	{
 		if (empty($tableName)) {
 			return false;
 		}
@@ -798,7 +827,8 @@ class Database extends DatabaseBase {
 	 * @throws DirectoryCreate
 	 * @throws DirectoryPermission
 	 */
-	private function credentialsFile(string $user, string $pass): string {
+	private function credentialsFile(string $user, string $pass): string
+	{
 		$directory = $this->option(self::OPTION_CREDENTIALS_PATH, $this->application->paths->userHome('mysql'));
 		Directory::depend($directory, $this->option(self::OPTION_CREDENTIALS_PATH_PERMISSIONS, self::DEFAULT_CREDENTIALS_PATH_PERMISSIONS));
 		$name = md5($user . ':' . $pass) . '.cnf';
@@ -817,7 +847,8 @@ class Database extends DatabaseBase {
 	 * @throws DirectoryCreate
 	 * @throws DirectoryPermission
 	 */
-	public function shellCommand(array $options = []): array {
+	public function shellCommand(array $options = []): array
+	{
 		foreach ($options as $option_key => $option_value) {
 			if (!array_key_exists($option_key, self::$shell_command_options)) {
 				$this->application->logger->warning('Unknown option passed to {method}: {option_key}={option_value}', [
@@ -876,7 +907,8 @@ class Database extends DatabaseBase {
 	 * @throws TimeoutExpired
 	 * @throws KeyNotFound
 	 */
-	public function getLock(string $name, int $wait_seconds = 0): void {
+	public function getLock(string $name, int $wait_seconds = 0): void
+	{
 		$name = $this->quoteText($name);
 		if ($this->queryInteger("SELECT GET_LOCK($name, $wait_seconds)", 0) === 0) {
 			throw new TimeoutExpired('After {seconds}', ['seconds' => $wait_seconds]);
@@ -891,7 +923,8 @@ class Database extends DatabaseBase {
 	 * @throws KeyNotFound
 	 * @throws Semantics
 	 */
-	public function releaseLock(string $name): void {
+	public function releaseLock(string $name): void
+	{
 		$name = $this->quoteText($name);
 		$result = $this->queryOne("SELECT RELEASE_LOCK($name)", 0);
 		if (intval($result) !== 1) {
@@ -905,7 +938,8 @@ class Database extends DatabaseBase {
 	 * @param string $word
 	 * @return bool
 	 */
-	public function isReservedWord(string $word): bool {
+	public function isReservedWord(string $word): bool
+	{
 		// Updated 2004-10-19 from MySQL Website YEARLY-TODO
 		static $reserved = [
 			'ADD', 'ALL', 'ALTER', 'ANALYZE', 'AND', 'AS', 'ASC', 'ASENSITIVE', 'BEFORE', 'BETWEEN', 'BIGINT', 'BINARY',
@@ -945,7 +979,8 @@ class Database extends DatabaseBase {
 	 * @throws TableNotFound
 	 * @throws KeyNotFound
 	 */
-	private function _variable(string $name): string {
+	private function _variable(string $name): string
+	{
 		return $this->queryOne('SHOW VARIABLES LIKE ' . $this->quoteText($name), 0);
 	}
 
@@ -957,7 +992,8 @@ class Database extends DatabaseBase {
 	 * @throws Permission
 	 * @throws ParameterException
 	 */
-	private function _setVariable(string $name, string $set): void {
+	private function _setVariable(string $name, string $set): void
+	{
 		try {
 			$this->query("SET GLOBAL $name=" . $this->quoteText($set));
 		} catch (SQLException $e) {
@@ -970,7 +1006,8 @@ class Database extends DatabaseBase {
 	/**
 	 * @return string
 	 */
-	public function version(): string {
+	public function version(): string
+	{
 		/* This is set up in version_settings() */
 		return $this->optionString('version');
 	}
@@ -985,7 +1022,8 @@ class Database extends DatabaseBase {
 	 * @throws NotFoundException
 	 * @see \zesk\SQLite3\Database::feature
 	 */
-	public function feature(string $feature): mixed {
+	public function feature(string $feature): mixed
+	{
 		switch ($feature) {
 			case self::FEATURE_MAX_BLOB_SIZE:
 				return toInteger($this->_variable('max_allowed_packet'));
@@ -1008,7 +1046,8 @@ class Database extends DatabaseBase {
 	 * @throws ParameterException
 	 * @throws Semantics
 	 */
-	public function setFeature(string $feature, mixed $set): self {
+	public function setFeature(string $feature, mixed $set): self
+	{
 		switch ($feature) {
 			case self::FEATURE_MAX_BLOB_SIZE:
 				$this->_setVariable('max_allowed_packet', strval($set));
@@ -1029,7 +1068,8 @@ class Database extends DatabaseBase {
 	 * @throws TableNotFound
 	 * @throws KeyNotFound
 	 */
-	public function bytesUsed(string $tableName = ''): int {
+	public function bytesUsed(string $tableName = ''): int
+	{
 		if ($tableName !== '') {
 			if (!$this->tableExists($tableName)) {
 				throw new Database\Exception\TableNotFound($this, $tableName);
@@ -1047,7 +1087,8 @@ class Database extends DatabaseBase {
 	/**
 	 * @return mysqli
 	 */
-	final public function connection(): mysqli {
+	final public function connection(): mysqli
+	{
 		return $this->connection;
 	}
 
@@ -1073,7 +1114,8 @@ class Database extends DatabaseBase {
 	 * @return resource
 	 * @throws Connect
 	 */
-	final protected function _mysql_connect(string $server, string $user, string $password, string $database, int $port): void {
+	final protected function _mysql_connect(string $server, string $user, string $password, string $database, int $port): void
+	{
 		$conn = $this->connection; //@new mysqli($server, $user, $password, $database, $port);
 		if ($this->optionBool('infile')) {
 			mysqli_options($conn, MYSQLI_OPT_LOCAL_INFILE, true);
@@ -1116,16 +1158,19 @@ class Database extends DatabaseBase {
 		$this->isConnected = true;
 	}
 
-	public function autoReconnect(): bool {
+	public function autoReconnect(): bool
+	{
 		return $this->auto_reconnect;
 	}
 
-	public function setAutoReconnect(bool $set): self {
+	public function setAutoReconnect(bool $set): self
+	{
 		$this->auto_reconnect = toBool($set);
 		return $this;
 	}
 
-	final public function internalDisconnect(): void {
+	final public function internalDisconnect(): void
+	{
 		if ($this->isConnected) {
 			mysqli_close($this->connection);
 			$this->connection = mysqli_init();
@@ -1136,7 +1181,8 @@ class Database extends DatabaseBase {
 	/**
 	 * @return bool
 	 */
-	public function connected(): bool {
+	public function connected(): bool
+	{
 		if (!$this->isConnected) {
 			return false;
 		}
@@ -1161,7 +1207,8 @@ class Database extends DatabaseBase {
 	 * @throws ParameterException
 	 * @see \zesk\SQLite3\Database::_query()
 	 */
-	final public function query(string $sql, array $options = []): DatabaseQueryResult {
+	final public function query(string $sql, array $options = []): DatabaseQueryResult
+	{
 		if (empty($sql)) {
 			throw new ParameterException('Empty query');
 		}
@@ -1216,7 +1263,8 @@ class Database extends DatabaseBase {
 	 * @throws Semantics
 	 * @see \zesk\SQLite3\Base::affectedRows()
 	 */
-	final public function affectedRows(DatabaseQueryResult $result): int {
+	final public function affectedRows(DatabaseQueryResult $result): int
+	{
 		if (!$this->isConnected) {
 			throw new Semantics('Not connected');
 		}
@@ -1227,7 +1275,8 @@ class Database extends DatabaseBase {
 		return $this->connection->affected_rows;
 	}
 
-	final public function free(DatabaseQueryResult $result): void {
+	final public function free(DatabaseQueryResult $result): void
+	{
 		$result->free();
 	}
 
@@ -1237,7 +1286,8 @@ class Database extends DatabaseBase {
 	 * @throws Semantics
 	 * @see \zesk\SQLite3\Base::insertID
 	 */
-	final public function insertID(DatabaseQueryResult $result): int {
+	final public function insertID(DatabaseQueryResult $result): int
+	{
 		$id = mysqli_insert_id($this->connection);
 		if ($id === 0) {
 			throw new Semantics('No insert ID');
@@ -1251,7 +1301,8 @@ class Database extends DatabaseBase {
 	 * @throws NoResults
 	 * @see \zesk\SQLite3\Base::fetchAssoc
 	 */
-	final public function fetchAssoc(DatabaseQueryResult $result): ?array {
+	final public function fetchAssoc(DatabaseQueryResult $result): ?array
+	{
 		$result = mysqli_fetch_assoc($result->resource());
 		if ($result === false) {
 			throw new Database\Exception\NoResults($this, 'fetchAssoc failed');
@@ -1264,7 +1315,8 @@ class Database extends DatabaseBase {
 	 * @return array|null
 	 * @throws NoResults
 	 */
-	final public function fetchArray(DatabaseQueryResult $result): ?array {
+	final public function fetchArray(DatabaseQueryResult $result): ?array
+	{
 		$result = mysqli_fetch_array($result->resource(), MYSQLI_NUM);
 		if ($result === false) {
 			throw new Database\Exception\NoResults($this, 'fetchArray failed');
@@ -1278,7 +1330,8 @@ class Database extends DatabaseBase {
 	 * @throws Connect
 	 * @see \zesk\SQLite3\Database::nativeQuoteText()
 	 */
-	final public function nativeQuoteText(string $text): string {
+	final public function nativeQuoteText(string $text): string
+	{
 		if (!$this->isConnected) {
 			$this->connect();
 		}
@@ -1296,7 +1349,8 @@ class Database extends DatabaseBase {
 	 * @throws ParameterException
 	 * @see \zesk\SQLite3\Database::transactionStart()
 	 */
-	public function transactionStart(): void {
+	public function transactionStart(): void
+	{
 		// TODO: Ensure database is in auto-commit mode
 		$this->query('START TRANSACTION');
 	}
@@ -1313,7 +1367,8 @@ class Database extends DatabaseBase {
 	 * @throws TableNotFound
 	 * @throws ParameterException
 	 */
-	public function transactionEnd(bool $success = true): void {
+	public function transactionEnd(bool $success = true): void
+	{
 		$sql = $success ? 'COMMIT' : 'ROLLBACK';
 		$this->query($sql);
 	}

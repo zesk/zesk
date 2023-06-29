@@ -18,13 +18,15 @@ use zesk\StringTools;
  * @author kent
  *
  */
-class Content extends Route {
+class Content extends Route
+{
 	/**
 	 * @param Request $request
 	 * @return Response
 	 * @throws NotFoundException
 	 */
-	protected function internalExecute(Request $request): Response {
+	protected function internalExecute(Request $request): Response
+	{
 		$file = $this->optionString('file');
 		if ($file) {
 			if (StringTools::cleanTokens($file) !== $file) {

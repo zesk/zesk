@@ -14,21 +14,25 @@ use zesk\Exception\Deprecated;
 use zesk\Exception\NotFoundException;
 use zesk\PHPUnit\TestCase;
 
-class SingletonSampler {
+class SingletonSampler
+{
 	public static string $serialNo = '';
 
 	public string $id;
 
-	public function __construct(string $id) {
+	public function __construct(string $id)
+	{
 		$this->id = $id;
 	}
 
-	public static function singleton(): self {
+	public static function singleton(): self
+	{
 		return new self(self::$serialNo);
 	}
 }
 
-class KernelTest extends TestCase {
+class KernelTest extends TestCase
+{
 	/**
 	 * @var bool
 	 */
@@ -44,17 +48,20 @@ class KernelTest extends TestCase {
 	 */
 	public bool $_hook_was_called = false;
 
-	public static function _test_hook_order_1st(KernelTest $test): void {
+	public static function _test_hook_order_1st(KernelTest $test): void
+	{
 		$test->assertEquals(0, $test->order);
 		$test->order++;
 	}
 
-	public static function _test_hook_order_2nd(KernelTest $test): void {
+	public static function _test_hook_order_2nd(KernelTest $test): void
+	{
 		$test->assertEquals(1, $test->order);
 		$test->order++;
 	}
 
-	public function test_singletons(): void {
+	public function test_singletons(): void
+	{
 		SingletonSampler::$serialNo = $theId = $this->randomHex();
 
 		$sampler = $this->application->singletonArgumentsStatic(SingletonSampler::class);
@@ -72,7 +79,8 @@ class KernelTest extends TestCase {
 		$this->assertEquals($sampler, $sampler3);
 	}
 
-	public function test_setk(): void {
+	public function test_setk(): void
+	{
 		$k = 'a';
 		$k1 = 'b';
 		$v = md5(microtime());
@@ -91,7 +99,8 @@ class KernelTest extends TestCase {
 		], $this->application->configuration->getPath($k));
 	}
 
-	public function test_class_hierarchy(): void {
+	public function test_class_hierarchy(): void
+	{
 		$app = $this->application;
 
 		$nsprefix = __NAMESPACE__ . '\\';
@@ -102,27 +111,32 @@ class KernelTest extends TestCase {
 		$this->assertEquals($app->classes->hierarchy(new A($this->application)), ArrayTools::prefixValues(Types::toList('A;Hookable;Options'), __NAMESPACE__ . '\\'));
 	}
 
-	public function add_hook_was_called($arg): void {
+	public function add_hook_was_called($arg): void
+	{
 		$this->assertEquals(2, $arg);
 		$this->assertInstanceOf(Application::class, $this->application);
 		$this->application->setOption('hook_was_called', true);
 	}
 
-	public function hook_was_called(): bool {
+	public function hook_was_called(): bool
+	{
 		return $this->application->optionBool('hook_was_called');
 	}
 
-	public function test_application_class(): void {
+	public function test_application_class(): void
+	{
 		$this->assertIsString($this->application->applicationClass());
 		$this->assertTrue(class_exists($this->application->applicationClass()));
 		$this->assertInstanceOf($this->application->applicationClass(), $this->application);
 	}
 
-	public function test_autoload_extension(): void {
+	public function test_autoload_extension(): void
+	{
 		$this->application->autoloader->addExtension('dude');
 	}
 
-	public function test_autoload_path(): void {
+	public function test_autoload_path(): void
+	{
 		$testDir = Directory::depend($this->test_sandbox('lower-prefix'));
 
 		$this->application->autoloader->addPath($testDir, [
@@ -140,7 +154,8 @@ class KernelTest extends TestCase {
 	 * @return void
 	 * @dataProvider data_autoloadSearch
 	 */
-	public function test_autoloadSearch(null|string $expected, string $class, array $extensions, array $modules): void {
+	public function test_autoloadSearch(null|string $expected, string $class, array $extensions, array $modules): void
+	{
 		if (count($modules)) {
 			$this->application->modules->loadMultiple($modules);
 		}
@@ -149,7 +164,8 @@ class KernelTest extends TestCase {
 		$this->assertEquals($expected, $autoloader->search($class, $extensions, $tried_path));
 	}
 
-	public static function data_autoloadSearch(): array {
+	public static function data_autoloadSearch(): array
+	{
 		return [
 			//			[ZESK_ROOT . 'zesk/Kernel.php', Kernel::class, ['php'], []],
 			//			[ZESK_ROOT . 'zesk/Controller/Theme.php', ThemeController::class, ['php', 'sql'], []],
@@ -160,7 +176,8 @@ class KernelTest extends TestCase {
 		];
 	}
 
-	public static function data_provider_clean_function(): array {
+	public static function data_provider_clean_function(): array
+	{
 		return [
 			[
 				'', '',
@@ -178,12 +195,14 @@ class KernelTest extends TestCase {
 	 * @param string $name
 	 * @param string $expected
 	 */
-	public function test_clean_function(string $name, string $expected): void {
+	public function test_clean_function(string $name, string $expected): void
+	{
 		$result = PHP::cleanFunction($name);
 		$this->assertEquals($result, $expected, 'PHP::cleanFunction');
 	}
 
-	public static function data_provider_clean_class(): array {
+	public static function data_provider_clean_class(): array
+	{
 		return [
 			[
 				'', '',
@@ -199,12 +218,14 @@ class KernelTest extends TestCase {
 	 * @param string $name
 	 * @param string $expected
 	 */
-	public function test_clean_class(string $name, string $expected): void {
+	public function test_clean_class(string $name, string $expected): void
+	{
 		$result = PHP::cleanClass($name);
 		$this->assertEquals($result, $expected, "PHP::clean_class($name) = $result !== $expected");
 	}
 
-	public function test_command_path(): void {
+	public function test_command_path(): void
+	{
 		$this->application->addCommandPath($this->test_sandbox());
 		$bin = Directory::path($this->test_sandbox('mstest'));
 		File::put($bin, "#!/bin/bash\necho file1; echo file2;");
@@ -213,7 +234,8 @@ class KernelTest extends TestCase {
 		$this->assertEquals($bin, $ls);
 	}
 
-	public function test_console(): void {
+	public function test_console(): void
+	{
 		$savedConsole = $this->application->console();
 		$this->assertEquals($this->application, $this->application->setConsole(true));
 		$this->assertEquals(true, $this->application->console());
@@ -226,7 +248,8 @@ class KernelTest extends TestCase {
 	/**
 	 *
 	 */
-	public function test_deprecated(): void {
+	public function test_deprecated(): void
+	{
 		$this->expectException(Deprecated::class);
 		$this->application->deprecated();
 	}
@@ -234,13 +257,15 @@ class KernelTest extends TestCase {
 	/**
 	 *
 	 */
-	public function test_disable_deprecated(): void {
+	public function test_disable_deprecated(): void
+	{
 		$old = $this->application->setDeprecated(Application::DEPRECATED_IGNORE);
 		$this->application->deprecated();
 		$this->application->setDeprecated($old);
 	}
 
-	public function test_development(): void {
+	public function test_development(): void
+	{
 		$app = $this->application;
 		$old_value = $app->development();
 		$app->setDevelopment(true);
@@ -250,7 +275,8 @@ class KernelTest extends TestCase {
 		$app->setDevelopment($old_value);
 	}
 
-	public function test_factory(): void {
+	public function test_factory(): void
+	{
 		$class = __NAMESPACE__ . '\\Model';
 		$init = [
 			'a' => 123,
@@ -263,15 +289,18 @@ class KernelTest extends TestCase {
 		$this->assertEquals(['application'], array_keys(get_object_vars($object)));
 	}
 
-	public function test_find_directory(): void {
+	public function test_find_directory(): void
+	{
 		$this->assertEquals(['/etc/apt'], Directory::findAll(['/', '/etc'], 'apt'));
 	}
 
-	public function test_find_file(): void {
+	public function test_find_file(): void
+	{
 		$this->assertEquals('/etc/group', File::findFirst(['/', '/etc'], 'group'));
 	}
 
-	public function test_get(): void {
+	public function test_get(): void
+	{
 		$configuration = new Configuration();
 		$configuration->a = 'b';
 		$result = $configuration->toArray();
@@ -281,7 +310,8 @@ class KernelTest extends TestCase {
 	/**
 	 *
 	 */
-	public static function data_has(): array {
+	public static function data_has(): array
+	{
 		return [
 			[true, Application::class], [true, [Application::class, 'deprecated']], [true, Kernel::class],
 			[true, [Application::class, Application::OPTION_HOME_PATH], ], [true, Options::class], [false, md5('HOME')],
@@ -293,11 +323,13 @@ class KernelTest extends TestCase {
 	 * @return void
 	 * @dataProvider data_has
 	 */
-	public function test_has($expected, $key): void {
+	public function test_has($expected, $key): void
+	{
 		$this->assertEquals($expected, $this->application->configuration->pathExists($key), implode('::', Types::toList($key)));
 	}
 
-	public function test_load_globals(): void {
+	public function test_load_globals(): void
+	{
 		$paths = [
 			$this->test_sandbox(),
 		];
@@ -318,34 +350,41 @@ class KernelTest extends TestCase {
 		}
 	}
 
-	public function test_maintenance(): void {
+	public function test_maintenance(): void
+	{
 		$this->application->maintenance();
 	}
 
-	public function test_module_path(): void {
+	public function test_module_path(): void
+	{
 		$this->application->addModulePath($this->test_sandbox());
 	}
 
-	public function test_set(): void {
+	public function test_set(): void
+	{
 		$this->assertEquals(null, $this->application->configuration->getPath('a::b::c'));
 		$this->application->configuration->setPath('a::b::c', 9876);
 		$this->assertEquals(9876, $this->application->configuration->getPath('a::b::c'));
 	}
 
-	public function test_site_root(): void {
+	public function test_site_root(): void
+	{
 		$this->application->documentRoot($this->test_sandbox());
 	}
 
-	public function test_version(): void {
+	public function test_version(): void
+	{
 		$version = Version::release();
 		$this->assertIsString($version);
 	}
 
-	public function test_documentRoot(): void {
+	public function test_documentRoot(): void
+	{
 		$this->application->documentRoot();
 	}
 
-	public static function data_document_root_prefix(): array {
+	public static function data_document_root_prefix(): array
+	{
 		return [
 			['/foobar', '/foobar'], ['foobar', 'foobar'], ['', ''], ['antidis', 'antidis/'], ['antidis', 'antidis////'],
 		];
@@ -356,23 +395,27 @@ class KernelTest extends TestCase {
 	 * @return void
 	 * @dataProvider data_document_root_prefix
 	 */
-	public function test_document_root_prefix($expected, $set): void {
+	public function test_document_root_prefix($expected, $set): void
+	{
 		$this->application->setDocumentRootPrefix($set);
 		$this->assertEquals($expected, $this->application->documentRootPrefix());
 	}
 
-	public function test_which(): void {
+	public function test_which(): void
+	{
 		$command = 'ls';
 		$this->assertFileExists($this->application->paths->which($command));
 	}
 
-	public function test_which_fail(): void {
+	public function test_which_fail(): void
+	{
 		$command = 'ls';
 		$this->expectException(NotFoundException::class);
 		$this->application->paths->which('notacommandtofind');
 	}
 
-	public function test_kernel_functions(): void {
+	public function test_kernel_functions(): void
+	{
 		$start = microtime(true);
 		$app = $this->application;
 		$this->assertStringContainsString('Market Acumen', $app->copyrightHolder());
@@ -414,12 +457,14 @@ class KernelTest extends TestCase {
 		$app->profileTimer(__METHOD__, microtime(true) - $start);
 	}
 
-	public function test_kernel_singleton(): void {
+	public function test_kernel_singleton(): void
+	{
 		$kernel = Kernel::singleton();
 		$this->assertInstanceOf(Kernel::class, $kernel);
 	}
 
-	public function test_calling(): void {
+	public function test_calling(): void
+	{
 		$this->assertEquals(__FILE__ . ' ' . __CLASS__ . '->test_calling:' . __LINE__, Kernel::callingFunction(0));
 		$this->assertEquals([
 			'file' => __FILE__, 'type' => '->', 'function' => __FUNCTION__, 'args' => [],
@@ -436,7 +481,8 @@ class KernelTest extends TestCase {
 		}
 	}
 
-	public function test_calling_neg(): void {
+	public function test_calling_neg(): void
+	{
 		$this->assertEquals($this->application->zeskHome('src/zesk/Kernel.php') . ' zesk\Kernel::callingFunction', Kernel::callingFunction(-1, false));
 	}
 }
@@ -446,7 +492,8 @@ class KernelTest extends TestCase {
  * @author kent
  *
  */
-class A extends Hookable {
+class A extends Hookable
+{
 }
 
 /**
@@ -454,7 +501,8 @@ class A extends Hookable {
  * @author kent
  *
  */
-class B extends A {
+class B extends A
+{
 }
 
 /**
@@ -462,5 +510,6 @@ class B extends A {
  * @author kent
  *
  */
-class C extends B {
+class C extends B
+{
 }

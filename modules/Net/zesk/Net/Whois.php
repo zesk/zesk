@@ -2,8 +2,10 @@
 declare(strict_types=1);
 namespace zesk;
 
-class Net_Whois {
-	private static function clean_domain($domain) {
+class Net_Whois
+{
+	private static function clean_domain($domain)
+	{
 		$domain = strtolower(trim($domain));
 		$domain = StringTools::removePrefix($domain, [
 			'http://',
@@ -16,7 +18,8 @@ class Net_Whois {
 		return $domain;
 	}
 
-	public static function query($domain) {
+	public static function query($domain)
+	{
 		// fix the domain name:
 		$domain = self::clean_domain($domain);
 		$extension = StringTools::reverseRight($domain, '.');

@@ -11,14 +11,16 @@ use zesk\Exception\ClassNotFound;
  *
  * @category Debugging
  */
-class PHPSchema extends Command {
+class PHPSchema extends Command
+{
 	protected array $option_types = [
 		'class' => 'string',
 	];
 
 	protected array $shortcuts = ['php-schema'];
 
-	public function run(): int {
+	public function run(): int
+	{
 		$app = $this->application;
 		$class = $this->option('class');
 		if (!$class) {

@@ -2,7 +2,8 @@
 
 namespace zesk\Interface;
 
-interface Simplifiable {
+interface Simplifiable
+{
 	/**
 	 * Converts into a value which can ultimately be represented in JSON
 	 *

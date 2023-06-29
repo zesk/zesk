@@ -11,5 +11,6 @@ namespace zesk\Database\Exception;
 /**
  *
  */
-class NoResults extends SQLException {
+class NoResults extends SQLException
+{
 }

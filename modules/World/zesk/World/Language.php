@@ -34,7 +34,8 @@ use zesk\StringTools;
 #[Entity]
 #[Table(name: 'Language')]
 #[UniqueConstraint(name: 'langDialect', columns: ['code', 'dialect'])]
-class Language extends Model {
+class Language extends Model
+{
 	use AutoID;
 
 	#[Column(type: 'string', length: 2, nullable: false)]
@@ -46,14 +47,16 @@ class Language extends Model {
 	#[Column(type: 'string', length: 128, nullable: false)]
 	public string $name;
 
-	public function locale_string(): string {
+	public function locale_string(): string
+	{
 		if (!$this->dialect) {
 			return strtolower($this->code);
 		}
 		return strtolower($this->code) . '_' . strtoupper($this->dialect);
 	}
 
-	public static function find(Application $application, string $code): self {
+	public static function find(Application $application, string $code): self
+	{
 		[$language, $dialect] = StringTools::pair($code, '_', $code, '');
 
 		try {

@@ -20,7 +20,8 @@ use zesk\JSON;
  * @author kent
  *
  */
-class BootstrapCurrency extends Hookable {
+class BootstrapCurrency extends Hookable
+{
 	/**
 	 *
 	 * @var array
@@ -39,7 +40,8 @@ class BootstrapCurrency extends Hookable {
 	 * @param array $options
 	 * @return self
 	 */
-	public static function factory(Application $application, array $options = []): self {
+	public static function factory(Application $application, array $options = []): self
+	{
 		return new self($application, $options);
 	}
 
@@ -51,7 +53,8 @@ class BootstrapCurrency extends Hookable {
 	 * @see Module::OPTION_INCLUDE_CURRENCY
 	 * @see Module::OPTION_INCLUDE_COUNTRY
 	 */
-	public function __construct(Application $application, array $options = []) {
+	public function __construct(Application $application, array $options = [])
+	{
 		parent::__construct($application, $options);
 		$this->inheritConfiguration(Module::class);
 		$include_currency = $this->option(Module::OPTION_INCLUDE_CURRENCY);
@@ -64,7 +67,8 @@ class BootstrapCurrency extends Hookable {
 		}
 	}
 
-	public function bootstrap(): void {
+	public function bootstrap(): void
+	{
 		$x = $this->application->ormFactory(Currency::class);
 
 		if ($this->optionBool('drop')) {
@@ -76,7 +80,8 @@ class BootstrapCurrency extends Hookable {
 		}
 	}
 
-	private function isIncluded(Currency $currency) {
+	private function isIncluded(Currency $currency)
+	{
 		if ($this->include_country) {
 			if ($currency->memberIsEmpty('bank_country')) {
 				return false;
@@ -95,7 +100,8 @@ class BootstrapCurrency extends Hookable {
 	 * @param string $name
 	 * @return null|Country
 	 */
-	private function determineCountry(string $code, string $name): null|Country {
+	private function determineCountry(string $code, string $name): null|Country
+	{
 		if (empty($name)) {
 			return null;
 		}
@@ -121,7 +127,8 @@ class BootstrapCurrency extends Hookable {
 		return $result;
 	}
 
-	private function processRow(array $row): void {
+	private function processRow(array $row): void
+	{
 		$countryName = $row[0];
 		$name = $row[1];
 		$codeName = $row[2];
@@ -171,7 +178,8 @@ class BootstrapCurrency extends Hookable {
 		}
 	}
 
-	private function _codes(): array {
+	private function _codes(): array
+	{
 		$codes = $this->_somewhat_dated_codes();
 		$valid_ones = $this->_valid_codes();
 		$missing_ones = array_change_key_case(ArrayTools::valuesFlipCopy($valid_ones));
@@ -198,13 +206,15 @@ class BootstrapCurrency extends Hookable {
 	/**
 	 * https://gist.githubusercontent.com/Fluidbyte/2973986/raw/b0d1722b04b0a737aade2ce6e055263625a0b435/Common-Currency.json
 	 */
-	public function _somewhat_recent_codes(): array {
+	public function _somewhat_recent_codes(): array
+	{
 		$file = $this->application->modules->path('world', 'bootstrap-data/currency.json');
 		File::depends($file);
 		return JSON::decode(file_get_contents($file));
 	}
 
-	public static function _process_somewhat_dated_codes(): array {
+	public static function _process_somewhat_dated_codes(): array
+	{
 		$codes = self::_somewhat_dated_codes();
 		$result = [];
 		foreach ($codes as $row) {
@@ -217,7 +227,8 @@ class BootstrapCurrency extends Hookable {
 		return $result;
 	}
 
-	public static function _somewhat_dated_codes(): array {
+	public static function _somewhat_dated_codes(): array
+	{
 		return [
 			[
 				'Afghanistan', 'Afghani', 'AFA', 4, 'Af', '100 puls',
@@ -766,7 +777,8 @@ class BootstrapCurrency extends Hookable {
 	/**
 	 * Taken from http://www.xe.com/currency/ HTML as of 2017-09-13
 	 */
-	private function _valid_codes(): array {
+	private function _valid_codes(): array
+	{
 		return [
 			'USD', 'EUR', 'GBP', 'INR', 'AUD', 'CAD', 'SGD', 'CHF', 'MYR', 'JPY', 'CNY', 'NZD', 'THB', 'HUF', 'AED',
 			'HKD', 'MXN', 'ZAR', 'PHP', 'SEK', 'IDR', 'SAR', 'BRL', 'TRY', 'KES', 'KRW', 'EGP', 'IQD', 'NOK', 'KWD',

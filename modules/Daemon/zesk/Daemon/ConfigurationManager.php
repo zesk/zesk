@@ -12,13 +12,16 @@ namespace zesk\Daemon;
 
 use zesk\Application;
 
-class ConfigurationManager extends Manager {
-	public function __construct(Application $application) {
+class ConfigurationManager extends Manager
+{
+	public function __construct(Application $application)
+	{
 		parent::__construct($application);
 		$this->inheritConfiguration();
 	}
 
-	public function minimumProcessCount(): int {
+	public function minimumProcessCount(): int
+	{
 		return $this->optionInt('minimumProcessCount', 1);
 	}
 }

@@ -15,7 +15,8 @@ use zesk\Command\FileIterator;
  * @author kent
  *
  */
-class Command_File_Rename extends FileIterator {
+class Command_File_Rename extends FileIterator
+{
 	protected array $shortcuts = ['file-rename', 'mv'];
 
 	/**
@@ -66,7 +67,8 @@ class Command_File_Rename extends FileIterator {
 
 	/**
 	 */
-	protected function start(): void {
+	protected function start(): void
+	{
 		if (!$this->hasOption('from')) {
 			$this->setOption('from', $this->prompt(' Search? '));
 		}
@@ -84,7 +86,8 @@ class Command_File_Rename extends FileIterator {
 	 *
 	 * @param SplFileInfo $file
 	 */
-	protected function process_file(SplFileInfo $file): bool {
+	protected function process_file(SplFileInfo $file): bool
+	{
 		$name = $file->getFilename();
 		$newname = str_replace($this->from, $this->to, $name);
 		$this->verboseLog("$name => $newname");
@@ -111,7 +114,8 @@ class Command_File_Rename extends FileIterator {
 
 	/**
 	 */
-	protected function finish(): int {
+	protected function finish(): int
+	{
 		$this->log('Completed "{from}" => "{to}": {failed} failed, {succeed} succeeded, {ignored} ignored.', [
 			'failed' => $this->failed,
 			'succeed' => $this->succeed,

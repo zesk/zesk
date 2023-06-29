@@ -10,8 +10,10 @@ namespace zesk\Exception;
 
 use zesk\PHPUnit\ExceptionTestCase;
 
-class FileParseExceptionTest extends ExceptionTestCase {
-	public function test_basics(): void {
+class FileParseExceptionTest extends ExceptionTestCase
+{
+	public function test_basics(): void
+	{
 		$testx = new FileParseException();
 		$this->assertThrowable($testx);
 	}

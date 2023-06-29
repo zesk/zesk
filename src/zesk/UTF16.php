@@ -14,7 +14,8 @@ namespace zesk;
  *
  * @author kent
  */
-class UTF16 {
+class UTF16
+{
 	/**
 	 * Convert a string from utf16 to utf8
 	 *
@@ -26,7 +27,8 @@ class UTF16 {
 	 * @param bool $be Return BOM encoding characters
 	 * @return string
 	 */
-	public static function toUTF8(string $content, bool &$be = null): string {
+	public static function toUTF8(string $content, bool &$be = null): string
+	{
 		$c0 = ord($content[0]);
 		$c1 = ord($content[1]);
 
@@ -74,7 +76,8 @@ class UTF16 {
 	 * @author  Rasmus Andersson {@link http://rasmusandersson.se/}
 	 * @package Groupies
 	 */
-	public static function decode(string $content, bool &$be = null): string {
+	public static function decode(string $content, bool &$be = null): string
+	{
 		if (strlen($content) < 2) {
 			return $content;
 		}
@@ -115,7 +118,8 @@ class UTF16 {
 	 * @param boolean $add_bom Add byte-order marker
 	 * @return string Encoded in UTF-16
 	 */
-	public static function encode(string $content, bool $be = true, bool $add_bom = true): string {
+	public static function encode(string $content, bool $be = true, bool $add_bom = true): string
+	{
 		$n = strlen($content);
 		$result = '';
 		if ($add_bom) {
@@ -142,7 +146,8 @@ class UTF16 {
 	 * @param bool|null $be
 	 * @return string
 	 */
-	public static function toISO8859(string $mixed, bool &$be = null): string {
+	public static function toISO8859(string $mixed, bool &$be = null): string
+	{
 		return UTF16::decode($mixed, $be);
 	}
 }

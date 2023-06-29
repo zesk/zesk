@@ -9,7 +9,8 @@ declare(strict_types=1);
 
 namespace zesk\Trie;
 
-class Node {
+class Node
+{
 	/**
 	 * The next array is keyed by single letters and strings. When the key is a single letter, it contains:
 	 *
@@ -34,7 +35,8 @@ class Node {
 	 *
 	 * @param ?string $word
 	 */
-	public function __construct(string $word = null) {
+	public function __construct(string $word = null)
+	{
 		$this->next = [];
 		if ($word !== null) {
 			$this->add($word);
@@ -47,7 +49,8 @@ class Node {
 	 * @param ?string $word
 	 * @return self
 	 */
-	public static function factory(?string $word = null): self {
+	public static function factory(?string $word = null): self
+	{
 		return new self($word);
 	}
 
@@ -56,7 +59,8 @@ class Node {
 	 *
 	 * @return bool
 	 */
-	public function isEnd(): bool {
+	public function isEnd(): bool
+	{
 		return array_key_exists('', $this->next);
 	}
 
@@ -66,7 +70,8 @@ class Node {
 	 * @param bool $set True when end of word.
 	 * @return self
 	 */
-	public function setEnd(bool $set): self {
+	public function setEnd(bool $set): self
+	{
 		if ($set) {
 			$this->next[''] = 1;
 		} else {
@@ -80,7 +85,8 @@ class Node {
 	 * @param string $word
 	 * @return Node Added node
 	 */
-	public function add(string $word): self {
+	public function add(string $word): self
+	{
 		if (strlen($word) === 0) {
 			$this->setEnd(true);
 			return $this;
@@ -114,7 +120,8 @@ class Node {
 	/**
 	 * Clean the trie after building to remove unnecessary keys
 	 */
-	public function clean(): void {
+	public function clean(): void
+	{
 		foreach ($this->next as $v) {
 			if ($v instanceof Node) {
 				$v->clean();
@@ -128,7 +135,8 @@ class Node {
 	 *
 	 * @return boolean
 	 */
-	private function optimizable(): bool {
+	private function optimizable(): bool
+	{
 		if (count($this->next) === 1) {
 			return true;
 		}
@@ -148,7 +156,8 @@ class Node {
 	 * @param string $phrase MUST be associated with a value in ->next which is a Node
 	 * @return number Number of nodes merged
 	 */
-	private function merge(string $phrase): int {
+	private function merge(string $phrase): int
+	{
 		assert(array_key_exists($phrase, $this->next));
 		$node = $this->next[$phrase];
 		unset($this->next[$phrase]);
@@ -170,7 +179,8 @@ class Node {
 	 *
 	 * @return number
 	 */
-	public function optimize(): int {
+	public function optimize(): int
+	{
 		$merged = 0;
 		if ($this->optimizable()) {
 			foreach ($this->next as $k => $v) {
@@ -197,7 +207,8 @@ class Node {
 	 *
 	 * @return array
 	 */
-	public function toJSON(): array {
+	public function toJSON(): array
+	{
 		$json = [];
 		foreach ($this->next as $k => $v) {
 			if ($v instanceof Node) {
@@ -209,7 +220,8 @@ class Node {
 		return $json;
 	}
 
-	public function find(string $word): bool {
+	public function find(string $word): bool
+	{
 		if (strlen($word) === 0) {
 			if (array_key_exists('', $this->next)) {
 				return $this->next[''] === 1;
@@ -237,7 +249,8 @@ class Node {
 	 * @param callable $function
 	 * @param string $word Current word state
 	 */
-	public function walk(callable $function, string $word): void {
+	public function walk(callable $function, string $word): void
+	{
 		foreach ($this->next as $k => $v) {
 			if (strlen($k) > 1 && array_key_exists($k[0], $this->next)) {
 				continue;

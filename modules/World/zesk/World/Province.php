@@ -17,7 +17,8 @@ use zesk\Doctrine\Trait\AutoID;
  *
  */
 #[Entity]
-class Province extends Model {
+class Province extends Model
+{
 	use AutoID;
 	use CodeName;
 

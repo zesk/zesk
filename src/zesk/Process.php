@@ -16,7 +16,8 @@ use zesk\Exception\FilePermission;
 /**
  * Current and other process status, process creation
  */
-class Process extends Hookable {
+class Process extends Hookable
+{
 	public const HOOK_FORK_CHILD = __CLASS__ . '::forkChild';
 
 	public const HOOK_FORK_PARENT = __CLASS__ . '::forkParent';
@@ -35,13 +36,15 @@ class Process extends Hookable {
 	/**
 	 *
 	 */
-	public function __serialize(): array {
+	public function __serialize(): array
+	{
 		return [
 			'debug' => $this->debug,
 		] + parent::__serialize();
 	}
 
-	public function __unserialize(array $data): void {
+	public function __unserialize(array $data): void
+	{
 		parent::__unserialize($data);
 		$this->debug = $data['debug'];
 	}
@@ -51,7 +54,8 @@ class Process extends Hookable {
 	 *
 	 * @return integer
 	 */
-	public function id(): int {
+	public function id(): int
+	{
 		return intval(getmypid());
 	}
 
@@ -60,7 +64,8 @@ class Process extends Hookable {
 	 *
 	 * @return string
 	 */
-	public function user(): string {
+	public function user(): string
+	{
 		$login = posix_getlogin();
 		if ($login !== false) {
 			return $login;
@@ -79,7 +84,8 @@ class Process extends Hookable {
 	 * @param Application $application
 	 */
 	#[HookMethod(handles: Hooks::HOOK_CONFIGURED)]
-	public function configured(Application $application): void {
+	public function configured(Application $application): void
+	{
 		$this->setOptions($application->configuration->path(__CLASS__)->toArray());
 	}
 
@@ -88,7 +94,8 @@ class Process extends Hookable {
 	 * @param int $pid
 	 * @return boolean
 	 */
-	public static function alive(int $pid): bool {
+	public static function alive(int $pid): bool
+	{
 		return posix_kill($pid, 0);
 	}
 
@@ -97,7 +104,8 @@ class Process extends Hookable {
 	 * @param int $pid
 	 * @return boolean
 	 */
-	public static function term(int $pid): bool {
+	public static function term(int $pid): bool
+	{
 		return posix_kill($pid, SIGTERM);
 	}
 
@@ -129,7 +137,8 @@ class Process extends Hookable {
 	 * @see self::executeArguments
 	 * @see exec
 	 */
-	public function execute(string $command): array {
+	public function execute(string $command): array
+	{
 		$args = func_get_args();
 		array_shift($args);
 		if ($command[0] === '|') {
@@ -169,7 +178,8 @@ class Process extends Hookable {
 	 * @throws CommandFailed
 	 * @see exec
 	 */
-	public function executeArguments(string $command, array $args = [], bool $passThru = false): array {
+	public function executeArguments(string $command, array $args = [], bool $passThru = false): array
+	{
 		$raw_command = $this->generateCommand($command, $args);
 		$output = [];
 		if ($passThru) {
@@ -183,7 +193,8 @@ class Process extends Hookable {
 		return $output;
 	}
 
-	private function generateCommand($command, array $args): string {
+	private function generateCommand($command, array $args): string
+	{
 		foreach ($args as $i => $arg) {
 			$args[$i] = escapeshellarg(strval($arg));
 		}
@@ -211,7 +222,8 @@ class Process extends Hookable {
 	 * @return int Process ID of background process
 	 * @throws CommandFailed
 	 */
-	public function executeBackground(string $command, array $args = [], string $stdout = '', string $stderr = ''): int {
+	public function executeBackground(string $command, array $args = [], string $stdout = '', string $stderr = ''): int
+	{
 		$raw_command = $this->generateCommand($command, $args);
 		$stdout = escapeshellarg($stdout ?: '/dev/null');
 		$stderr = escapeshellarg($stderr ?: '/dev/null');

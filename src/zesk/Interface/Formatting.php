@@ -8,7 +8,8 @@ declare(strict_types=1);
  */
 namespace zesk\Interface;
 
-interface Formatting {
+interface Formatting
+{
 	/**
 	 * Formats this item. If format is blank, use a default format.
 	 *

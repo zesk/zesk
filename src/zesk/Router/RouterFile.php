@@ -15,14 +15,16 @@ use zesk\Exception\NotFoundException;
 use zesk\Exception\SyntaxException;
 use zesk\Router;
 
-class RouterFile {
+class RouterFile
+{
 	/**
 	 * @param string $file
 	 * @return Router
 	 * @throws NotFoundException
 	 * @throws SyntaxException
 	 */
-	public static function load(Router $router, string $file): Router {
+	public static function load(Router $router, string $file): Router
+	{
 		$application = $router->application;
 		$logger = $application->logger();
 		if (!$file) {
