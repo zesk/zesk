@@ -8,7 +8,12 @@
 #
 err_env=1
 
-top="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." || exit $err_env; pwd)"
+relTop="../.."
+if ! cd "$(dirname "${BASH_SOURCE[0]}")/$relTop"; then
+  echo "$me: Can not cd to $relTop" 1>&2
+  exit $err_env
+fi
+top="$(pwd)"
 . "$top/bin/build/colors.sh"
 
 if [ ! -d "$top/.git" ]; then

@@ -43,7 +43,7 @@ fi
 "$top/bin/build/git.sh"
 "$top/bin/build/composer.sh"
 
-currentVersion=$("$top/bin/build/version-current.sh")
+currentVersion=$("$top/bin/version-current.sh")
 releaseDir=$top/docs/release
 
 currentChangeLog="$releaseDir/$currentVersion.md"

@@ -22,7 +22,12 @@ err_env=1
 err_arg=2
 
 me=$(basename "$0")
-top="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." || exit $err_env; pwd)"
+relTop="../.."
+if ! cd "$(dirname "${BASH_SOURCE[0]}")/$relTop"; then
+  echo "$me: Can not cd to $relTop" 1>&2
+  exit $err_env
+fi
+top="$(pwd)"
 quietLog="$top/.build/$me.log"
 set -eo pipefail
 . "$top/bin/build/colors.sh"

@@ -63,7 +63,7 @@ pause() {
   read -r
 }
 
-currentVersion=$("$top/bin/build/version-current.sh")
+currentVersion=$("$top/bin/version-current.sh")
 previousVersion=$("$top/bin/build/version-last.sh")
 
 #
