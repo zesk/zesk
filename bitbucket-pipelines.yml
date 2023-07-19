@@ -37,7 +37,7 @@ pipelines:
           script:
             - while true; do date && echo -n "Memory usage in megabytes:" && echo $(($(cat /sys/fs/cgroup/memory/memory.memsw.usage_in_bytes | awk '{print $1}')/1048576)) && echo "" && sleep 30; done >> memory-logs.txt &
             - export CONTAINER_DATABASE_HOST=$BITBUCKET_DOCKER_HOST_INTERNAL
-            - bin/pipeline-setup.sh --develop --testsuite core
+            - bin/pipeline/pipeline-setup.sh --develop --testsuite core
     production:
       - step:
           deployment: production
@@ -60,7 +60,7 @@ pipelines:
           script:
             - while true; do date && echo -n "Memory usage in megabytes:" && echo $(($(cat /sys/fs/cgroup/memory/memory.memsw.usage_in_bytes | awk '{print $1}')/1048576)) && echo "" && sleep 30; done >> memory-logs.txt &
             - export CONTAINER_DATABASE_HOST=$BITBUCKET_DOCKER_HOST_INTERNAL
-            - bin/pipeline-setup.sh --testsuite core
+            - bin/pipeline/pipeline-setup.sh --testsuite core
       - step:
           name: Deploy
           trigger: manual
@@ -68,11 +68,11 @@ pipelines:
           artifacts:
             - .env
           script:
-            - bin/pipeline-release.sh
+            - bin/pipeline/pipeline-release.sh
     deploy:
       - step:
           deployment: deploy
           name: Deploy Testing
           size: 2x
           script:
-            - bin/pipeline-release.sh
+            - bin/pipeline/pipeline-release.sh

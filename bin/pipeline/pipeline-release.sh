@@ -8,16 +8,22 @@
 #
 # Copyright &copy; 2023 Market Acumen, Inc.
 #
-err_env=1
+set -eo pipefail
 
 #
 # Assumptions
 #
-top="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." || exit $err_env; pwd)"
-me=$(basename "${BASH_SOURCE[0]}")
-releaseDate=$(date)
+err_env=1
 
-set -eo pipefail
+me=$(basename "$0")
+relTop="../.."
+if ! cd "$(dirname "${BASH_SOURCE[0]}")/$relTop"; then
+  echo "$me: Can not cd to $relTop" 1>&2
+  exit $err_env
+fi
+top="$(pwd)"
+
+releaseDate=$(date)
 
 source "$top/bin/build/colors.sh"
 

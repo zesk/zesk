@@ -6,6 +6,7 @@
 #
 # Copyright &copy; 2023 Market Acumen, Inc.
 #
+set -eo pipefail
 
 #  ▞▀▖      ▗▀▖▗             ▐  ▗
 #  ▌  ▞▀▖▛▀▖▐  ▄ ▞▀▌▌ ▌▙▀▖▝▀▖▜▀ ▄ ▞▀▖▛▀▖
@@ -51,8 +52,6 @@ DATABASE_ROOT_PASSWORD=${DATABASE_ROOT_PASSWORD:-hard-to-guess}
 CONTAINER_DATABASE_HOST=${CONTAINER_DATABASE_HOST:-host.docker.internal}
 GITHUB_REPOSITORY_OWNER=${GITHUB_REPOSITORY_OWNER:-zesk}
 GITHUB_REPOSITORY_NAME=${GITHUB_REPOSITORY_NAME:-zesk}
-
-set -eo pipefail
 
 . "$top/bin/build/colors.sh"
 
@@ -180,7 +179,7 @@ cleanArgs=()
 if test "$clean"; then
   cleanArgs=("--no-cache" "--pull")
 fi
-"$top/bin/build/zesk-latest.sh" "${cleanArgs[@]}"
+"$top/bin/pipeline/zesk-container-latest.sh" "${cleanArgs[@]}"
 
 #==========================================================================================
 #  ▀▛▘     ▐
