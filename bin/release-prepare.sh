@@ -34,6 +34,8 @@ usage() {
 }
 
 envs=(ZESK_REPOSITORY_VERSION_PREFIX)
+ZESK_REPOSITORY_VERSION_PREFIX=${ZESK_REPOSITORY_VERSION_PREFIX:-https://github.com/zesk/zesk/compare/}
+
 for e in "${envs[@]}"; do
   if [ -z "${!e}" ]; then
     usage $err_env "Need $e defined in environment"

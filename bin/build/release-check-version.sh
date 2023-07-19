@@ -68,9 +68,8 @@ if [ "$previousVersion" = "$currentVersion" ]; then
 	consoleError "Version $currentVersion up to date, nothing to do." 1>&2
 	exit 17
 fi
-consoleInfo "Previous version is: $previousVersion"
-consoleInfo " Release version is: $currentVersion"
-echo
+echo "$(consoleLabel -n "Previous version is: ") $(consoleValue -n "$previousVersion")"
+echo "$(consoleLabel -n " Release version is: ") $(consoleValue -n "$currentVersion")"
 
 releaseNotes=$top/docs/release/$currentVersion.md
 
