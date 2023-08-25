@@ -66,7 +66,7 @@ pause() {
 }
 
 currentVersion=$("$top/bin/version-current.sh")
-previousVersion=$("$top/bin/build/version-last.sh")
+previousVersion=$("$top/bin/build/version-last.sh" "$currentVersion")
 
 #
 # Sync with remote

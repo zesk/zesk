@@ -8,6 +8,8 @@
 #
 # Copyright &copy; 2023 Market Acumen, Inc.
 #
+set -eo pipefail
+# set -x
 err_env=1
 err_build=1000
 
@@ -19,7 +21,6 @@ if ! cd "$(dirname "${BASH_SOURCE[0]}")/$relTop"; then
 fi
 top="$(pwd)"
 quietLog="$top/.build/$me.log"
-set -eo pipefail
 . "$top/bin/build/colors.sh"
 
 . "$top/bin/build/apt-utils.sh"
@@ -35,8 +36,8 @@ composerArgs+=("--ignore-platform-reqs")
 
 start=$(beginTiming)
 consoleInfo -n "Composer ... "
-figlet "Install vendor" >> "$quietLog"
-#DEBUGGING - remove, why no -q option?
+bigText "Install vendor" >> "$quietLog"
+#DEBUGGING - remove, why no -q option? we like it quiet
 echo Running: docker pull $dockerImage >> "$quietLog"
 
 if ! docker pull $dockerImage >> "$quietLog" 2>&1; then

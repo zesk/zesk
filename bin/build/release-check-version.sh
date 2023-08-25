@@ -6,14 +6,14 @@
 #
 # Copyright &copy; 2023 Market Acumen, Inc.
 #
-err_env=1
-err_arg=2
+errEnv=1
+errArg=2
 
 me=$(basename "${BASH_SOURCE[0]}")
 relTop="../.."
 if ! cd "$(dirname "${BASH_SOURCE[0]}")/$relTop"; then
   echo "$me: Can not cd to $relTop" 1>&2
-  exit $err_env
+  exit $errEnv
 fi
 top="$(pwd)"
 
@@ -23,17 +23,14 @@ source "$top/bin/build/colors.sh"
 
 "$top/bin/build/git.sh"
 
-previousVersion=$("$top/bin/build/version-last.sh")
-currentVersion=$("$top/bin/version-current.sh")
-
 usage() {
   local rs
 
   rs=$1
   shift
   exec 1>&2
-  if [ -z "$*" ]; then
-      consoleRed "$@" && echo
+  if [ -n "$*" ]; then
+      consoleRed "$@"
       echo
   fi
   echo "$me: Check version and optionally tag development version"
@@ -44,21 +41,38 @@ usage() {
 }
 
 develop=
+production=
 while [ $# -gt 0 ]; do
   case $1 in
   --develop)
     develop=1
+    if test "$production"; then
+      usage $errArg "Only --develop or --production can be specified, not both"
+    fi
+    shift
+    ;;
+  --production)
+    if test "$develop"; then
+      usage $errArg "Only --develop or --production can be specified, not both"
+    fi
+    develop=
+    production=1
     shift
     ;;
   *)
-    usage $err_arg "Unknown argument: $1"
+    usage $errArg "Unknown argument: $1"
     break
     ;;
   esac
 done
 
-consoleInfo "Pulling tags from origin"
-git pull --tags origin
+consoleInfo -n "Pulling tags from origin"
+start=$(beginTiming)
+git pull --tags origin > /dev/null
+reportTiming "$start"
+
+currentVersion=$("$top/bin/version-current.sh")
+previousVersion=$("$top/bin/build/version-last.sh" "$currentVersion")
 
 if git show-ref --tags "$currentVersion" --quiet; then
 	consoleError "Version $currentVersion already exists, already tagged." 1>&2
@@ -79,7 +93,7 @@ if [ ! -f "$releaseNotes" ]; then
 fi
 
 maximumTagsPerVersion=1000
-if test $develop; then
+if test "$develop"; then
   label=development
   versionSuffix=d
 else

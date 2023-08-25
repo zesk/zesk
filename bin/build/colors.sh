@@ -32,6 +32,13 @@ __consoleEscape() {
     fi
   fi
 }
+colorTest() {
+  local i colors=(consoleRed consoleGreen consoleCyan consoleBlue consoleOrange consoleMagenta consoleBlack consoleWhite consoleBoldMagenta consoleUnderline consoleBold consoleRedBold)
+  for i in "${colors[@]}"; do
+    $i "$i: The quick brown fox jumped over the lazy dog."
+  done
+}
+
 #
 # Color-based
 #
@@ -51,7 +58,7 @@ consoleBlackBackground() {
   __consoleEscape '\033[48;5;0m' '\033[0m' "$@"
 }
 consoleYellow() {
-  __consoleEscape '\033[48;5;0;38;5;11m' '\033[0m' "$@"
+  __consoleEscape '\033[48;5;16;38;5;11m' '\033[0m' "$@"
 }
 consoleOrange() {
   # see https://i.stack.imgur.com/KTSQa.png
@@ -115,7 +122,7 @@ consoleInfo() {
 # code or variables in output
 #
 consoleCode() {
-  consoleWhite "$@"
+  consoleYellow "$@"
 }
 #
 # warning things are not normal
@@ -160,10 +167,10 @@ consoleValue() {
 usageEnvironment() {
   set +u
   for e in "$@"; do
-      if [ -z "${!e}" ]; then
-          usage $err_env "Required $e not set"
-          return "$err_env"
-      fi
+    if [ -z "${!e}" ]; then
+      usage $err_env "Required $e not set"
+      return "$err_env"
+    fi
   done
   set -u
 }
@@ -174,28 +181,54 @@ usageEnvironment() {
 #
 usageWhich() {
   for b in "$@"; do
-      if [ -z "$(which $b 2> /dev/null)" ]; then
-          usage $err_env "$b is not available in path, not found: $PATH"
-          return "$err_env"
-      fi
+    if [ -z "$(which "$b")" ]; then
+      usage "$err_env" "$b is not available in path, not found: $PATH"
+      return "$err_env"
+    fi
   done
+}
+
+aptUpdateOnce() {
+  local older name quietLog
+
+  name=.apt-update
+  # once an hour, technically
+  older=$(find "." -name $name -mmin +60)
+  if [ -n "$older" ]; then
+    rm -rf "$older"
+  fi
+  if [ ! -f "./$name" ]; then
+    if [ -z "$(which apt-get)" ]; then
+      consoleError "No apt-get available" 1>&2
+      return $err_env
+    fi
+    [ -d "./.build" ] || mkdir -p "./.build"
+    quietLog="./.build/update.log"
+    if ! apt-get update -y >"$quietLog" 2>&1; then
+      failed "$quietLog"
+    fi
+    date >"./$name"
+  fi
 }
 
 whichApt() {
   local quietLog
-  if aptUpdateOnce; then
-    if [ -z "$(which "$1")" ]; then
-      shift
-      [ -d "$top/.build" ] || mkdir -p "$top/.build"
-      quietLog="$top/.build/apt.log"
-      if ! apt-get install -y "$@" >> "$quietLog" 2>&1; then
+  if [ -z "$(which "$1")" ]; then
+    shift
+    if aptUpdateOnce; then
+      [ -d "./.build" ] || mkdir -p "./.build"
+      quietLog="./.build/apt.log"
+      if ! apt-get install -y "$@" >>"$quietLog" 2>&1; then
         consoleError "Unable to install" "$@"
         failed "$quietLog"
       fi
     fi
-  else
-    return $err_env
   fi
+}
+
+bigText() {
+  whichApt toilet toilet
+  toilet -f smmono12 "$@"
 }
 
 #
@@ -207,23 +240,24 @@ whichApt() {
 failed() {
   local quietLog=$1
   shift
-  echo; consoleRed
+  echo
+  consoleRed
   consoleRed "$(echoBar)"
-    echo "$(consoleBold "$quietLog")" "$(consoleBlack ": Last 50 lines ...")"
+  echo "$(consoleBold "$quietLog")" "$(consoleBlack ": Last 50 lines ...")"
   consoleRed "$(echoBar)"
   consoleYellow -n
   consoleBlackBackground -n
-    tail -50 "$quietLog"
+  tail -50 "$quietLog"
   consoleReset
-    echo
+  echo
   consoleRed "$(echoBar)"
-    figlet failed
+  bigText failed
   consoleRed "$(echoBar)"
-    echo "$(consoleBold "$quietLog")" "$(consoleBlack ": Last 3 lines ...")"
+  echo "$(consoleBold "$quietLog")" "$(consoleBlack ": Last 3 lines ...")"
   consoleRed "$(echoBar)"
   consoleMagenta
-    tail -3 "$quietLog"
-    echo
+  tail -3 "$quietLog"
+  echo
   consoleReset
   return "$err_env"
 }
@@ -240,7 +274,7 @@ beginTiming() {
 
 plural() {
   if [ "$1" -eq 1 ]; then
-    echo "$2";
+    echo "$2"
   else
     echo "$3"
   fi
@@ -289,4 +323,15 @@ alignRight() {
   local n=$(($1 + 0))
   shift
   printf "%${n}s" "$*"
+}
+
+dotEnvConfig() {
+  if [ ! -f "./.env" ]; then
+    usage $err_env "Missing ./.env"
+  fi
+
+  set -a
+  . "./.env"
+  [ -f "./.env.local" ] && . "./.env.local"
+  set +a
 }
