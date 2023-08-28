@@ -25,6 +25,8 @@ top="$(pwd)"
 
 releaseDate=$(date)
 
+"$top/pipeline/build-setup.sh""
+
 source "$top/bin/build/colors.sh"
 
 if [ -f "$top/.env" ]; then

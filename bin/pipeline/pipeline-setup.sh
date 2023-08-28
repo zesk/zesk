@@ -31,6 +31,8 @@ fi
 top="$(pwd)"
 envFile="$top/.env"
 
+"$top/pipeline/build-setup.sh"
+
 #
 # Variables and constants
 #
