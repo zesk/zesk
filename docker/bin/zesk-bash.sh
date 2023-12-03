@@ -1,11 +1,13 @@
 #!/usr/bin/env bash
 #
+# Copyright &copy; 2023 Market Acumen, Inc.
+#
+#
 # Generic Shell setup for ALL users, ALL environments
 #
-test "${BASHRC_DEBUG}" && echo "${BASH_SOURCE[0]}"
-
 err_env=1
 
+# shellcheck source=/dev/null
 [ -f /etc/env.sh ] && set -a && . /etc/env.sh && set +a
 
 # Bash settings for all containers
@@ -13,7 +15,7 @@ container_prompt() {
   local role
   role=$1
   if [ -z "$role" ]; then
-    role=$(cat /etc/docker-role 2> /dev/null || echo -n "no-role")
+    role=$(cat /etc/docker-role 2>/dev/null || echo -n "no-role")
   fi
   export PS1='⚡️'${role}' \[\e[31;1m\]('${BUILD_CODE:-no-code}') \[\e[34;1m\]\u@\[\e[31;1m\]\h \[\e[0m\]\w\[\e[0m\] > '
 }
@@ -84,26 +86,6 @@ php-find() {
 }
 
 export BLOCKSIZE=M
-
-if [ "$TERM" = "xterm" ]; then
-  stty erase '^?'
-  stty erase "^H"
-fi
-
-MISSING=
-if [ -z "$(which vim 2>/dev/null)" ]; then
-  MISSING="$MISSING vim"
-else
-  export EDITOR=/usr/bin/vim
-  export VISUAL=/usr/bin/vim
-fi
-export PAGER=more
-
-if [ -z "$(which aws 2>/dev/null)" ]; then
-  MISSING="$MISSING aws"
-else
-  complete -C '/usr/local/bin/aws_completer' aws
-fi
 
 export LS_OPTIONS='--color=auto'
 

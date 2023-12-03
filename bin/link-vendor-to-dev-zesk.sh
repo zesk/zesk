@@ -1,4 +1,7 @@
 #!/bin/bash
+#
+# Copyright &copy; 2023 Market Acumen, Inc.
+#
 ME=$(basename "$0")
 if [ -z "$ZESK" ]; then
 	echo "$ME: Need to define and export ZESK in your shell environment. Add:" 1>&2
@@ -19,7 +22,7 @@ fi
 vendor=./vendor/zesk/zesk
 if [ -L $vendor ]; then
 	echo "$ME: Already linked: $(readlink $vendor)"
-  cp ./vendor/zesk/zesk/bin/zesk ./vendor/zesk/zesk/bin/zesk-command.php ./vendor/bin/
+	cp ./vendor/zesk/zesk/bin/zesk ./vendor/zesk/zesk/bin/zesk-command.php ./vendor/bin/
 	exit 0
 elif [ -d $vendor ]; then
 	rm -rf $vendor

@@ -225,7 +225,7 @@ class CommandLoader
 			try {
 				$args = $this->runCommand($arg, $args);
 			} catch (NotFoundException $e) {
-				$this->error(ArrayTools::map("{command} not found: {commands}\n", $e->variables()));
+				$this->error(ArrayTools::map($e->getMessage(), $e->variables()));
 				return self::EXIT_CODE_ARGUMENTS;
 			}
 		}
@@ -332,7 +332,7 @@ class CommandLoader
 	 */
 	private function error(string $message): void
 	{
-		fprintf($this->stderr(), $message);
+		fprintf($this->stderr(), rtrim($message, "\n") . "\n");
 	}
 
 	/**
@@ -455,10 +455,11 @@ class CommandLoader
 	public function runCommand(string $shortcut, array $args): array
 	{
 		$commands = $this->collectCommandShortcuts();
+		$exceptionArgs = [
+			'command' => $shortcut, 'commands' => array_keys($commands),
+		];
 		if (!array_key_exists($shortcut, $commands)) {
-			throw new NotFoundException('Command {command} not found', [
-				'command' => $shortcut, 'commands' => array_keys($commands),
-			]);
+			throw new NotFoundException('Command {command} not found', $exceptionArgs);
 		}
 		$class = $commands[$shortcut];
 		$this->debug("Running $shortcut -> $class");
@@ -471,15 +472,17 @@ class CommandLoader
 				'debug' => $this->debug,
 			]);
 		} catch (ClassNotFound $e) {
-			throw new NotFoundException('Command {command} not found', ['command' => $shortcut], 404, $e);
+			throw new NotFoundException('Command {command} not found', $exceptionArgs, 404, $e);
 		}
 		$application->setCommand($command);
 
 		try {
 			$result = $command->parseArguments(array_merge([$shortcut], $args))->go();
 		} catch (ParameterException $e) {
-			$command->usage($e->getRawMessage(), $e->variables() + ['exitCode' => Command::EXIT_CODE_ARGUMENTS]);
 			$result = Command::EXIT_CODE_ARGUMENTS;
+			$command->usage($e->getRawMessage(), $exceptionArgs + $e->variables() + [
+				'exitCode' => $result,
+			]);
 		}
 
 		$args = $command->argumentsRemaining(false);

@@ -1,8 +1,10 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
 # Installing PHP
 #
-set -e
+# Copyright &copy; 2023 Market Acumen, Inc.
+#
+set -eou pipefail
 
 export DEBIAN_FRONTEND=noninteractive
 export PHP_INI_DIR=/usr/local/etc/php

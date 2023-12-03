@@ -1,8 +1,10 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
 # Installing PHP xdebug
 #
-set -e
+# Copyright &copy; 2023 Market Acumen, Inc.
+#
+set -eou pipefail
 
 ini_path=/usr/local/etc/php/php.ini
 if [ ! -f "$ini_path" ]; then

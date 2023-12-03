@@ -1,5 +1,11 @@
 #!/bin/bash
-top="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." || exit 1; pwd)"
+#
+# Copyright &copy; 2023 Market Acumen, Inc.
+#
+top="$(
+	cd "$(dirname "${BASH_SOURCE[0]}")/.." || exit 1
+	pwd
+)"
 
 PATH=$top/vendor/bin:$PATH
 

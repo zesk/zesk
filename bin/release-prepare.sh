@@ -55,10 +55,11 @@ while [ $# -gt 0 ]; do
   shift
 done
 
-"$top/bin/build/docker-compose.sh"
+installDockerCompose
+
 docker-compose -f "$yml" up -d > /dev/null
 
-"$top/bin/build/release-check-version.sh"
+# "$top/bin/build/git-tag-version.sh"
 
 pause() {
   echo -n "$@" " "
