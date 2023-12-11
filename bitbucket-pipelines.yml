@@ -16,9 +16,9 @@ definitions:
 image: atlassian/default-image:4
 pipelines:
   branches:
-    develop:
+    staging:
       - step:
-          deployment: develop
+          deployment: staging
           name: Build and test
           services:
             - mariadb
@@ -28,7 +28,6 @@ pipelines:
             - test-coverage/
             - test.log
             - .memory_get_usage
-            - memory-logs.txt
           caches:
             - docker
             - apt-lists
