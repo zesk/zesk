@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+#
+# Copyright &copy; 2023 Market Acumen, Inc.
+#
 
 ERR_ENV=1
 

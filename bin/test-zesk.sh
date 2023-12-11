@@ -3,14 +3,15 @@
 # Run Zesk test interactively while debugging and fixing things
 # Run usually inside a container
 #
+# Copyright &copy; 2023 Market Acumen, Inc.
+#
 err_env=1
 
-set -eo pipefail
-
-PATH=$top/vendor/bin:$PATH
+set -eou pipefail
 
 me=$(basename "$0")
-top="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd || exit $err_env)"
+top="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd || exit 1)"
+PATH=$top/vendor/bin:$PATH
 phpunit_bin=vendor/bin/phpunit
 coverage_path="$top/test-coverage"
 junit_path="$top/test-results"
@@ -21,7 +22,7 @@ usage() {
   code=$1
   shift
   if [ $# -gt 0 ]; then
-    echo $@
+    echo "$*"
     echo
   fi
   exec 1>&2
@@ -36,6 +37,7 @@ usage() {
 
 if [ ! -d "$top/vendor" ]; then
   if [ -f /usr/local/bin/zesk-bash.sh ]; then
+    #shellcheck source=/dev/null
     source /usr/local/bin/zesk-bash.sh
     if [ -z "$(which composer)" ]; then
       composer_install
@@ -44,7 +46,7 @@ if [ ! -d "$top/vendor" ]; then
     usage $err_env "No vendor directory or composer binary"
   fi
   cd "$top"
-	composer install
+  composer install
   if [ ! -d "$top/vendor" ]; then
     echo "Possible read-only file system" 1>&2
     echo "Possible permissions issue" 1>&2
@@ -60,15 +62,15 @@ coverage_cache=./.zesk-coverage
 cd "$top"
 while [ $# -ge 1 ]; do
   case $1 in
-    --coverage)
-      doCoverage=1
-      ;;
-    --stop)
-      doStop=1
-      ;;
-    *)
-      break
-      ;;
+  --coverage)
+    doCoverage=1
+    ;;
+  --stop)
+    doStop=1
+    ;;
+  *)
+    break
+    ;;
   esac
   shift
 done

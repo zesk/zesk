@@ -34,6 +34,8 @@ usage() {
 }
 
 envs=(ZESK_REPOSITORY_VERSION_PREFIX)
+ZESK_REPOSITORY_VERSION_PREFIX=${ZESK_REPOSITORY_VERSION_PREFIX:-https://github.com/zesk/zesk/compare/}
+
 for e in "${envs[@]}"; do
   if [ -z "${!e}" ]; then
     usage $err_env "Need $e defined in environment"
@@ -53,18 +55,19 @@ while [ $# -gt 0 ]; do
   shift
 done
 
-"$top/bin/build/docker-compose.sh"
+installDockerCompose
+
 docker-compose -f "$yml" up -d > /dev/null
 
-"$top/bin/build/release-check-version.sh"
+# "$top/bin/build/git-tag-version.sh"
 
 pause() {
   echo -n "$@" " "
   read -r
 }
 
-currentVersion=$("$top/bin/build/version-current.sh")
-previousVersion=$("$top/bin/build/version-last.sh")
+currentVersion=$("$top/bin/version-current.sh")
+previousVersion=$("$top/bin/build/version-last.sh" "$currentVersion")
 
 #
 # Sync with remote
