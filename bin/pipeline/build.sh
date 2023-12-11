@@ -110,6 +110,8 @@ zeskPipelineSetup() {
   #==========================================================================================
   # Generate the .env artifact
   statusMessage consoleInfo "Generating environment artifact ... "
+  export DEPLOY_USER_HOSTS=none
+  export BUILD_TARGET=none
   bin/build/pipeline/make-env.sh "${buildEnvironment[@]}"
 
   #==========================================================================================
