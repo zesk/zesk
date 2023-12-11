@@ -43,7 +43,7 @@ zeskPipelineSetup() {
   local startSetup quietLog clean versionArgs
   local requireEnvironment=(DEPLOYMENT GITHUB_REPOSITORY_OWNER GITHUB_REPOSITORY_NAME)
   # Will be exported to the environment file
-  local buildEnvironment=(GITHUB_ACCESS_TOKEN "${requireEnvironment[@]}")
+  local buildEnvironment=("${requireEnvironment[@]}")
 
   startSetup=$(beginTiming)
 
@@ -112,6 +112,10 @@ zeskPipelineSetup() {
   statusMessage consoleInfo "Generating environment artifact ... "
   export DEPLOY_USER_HOSTS=none
   export BUILD_TARGET=none
+  if [ "$DEPLOYMENT" = "production" ]; then
+      # Only when we have to deploy
+      buildEnvironment=(GITHUB_ACCESS_TOKEN "${buildEnvironment[@]}")
+  fi
   bin/build/pipeline/make-env.sh "${buildEnvironment[@]}"
 
   #==========================================================================================
