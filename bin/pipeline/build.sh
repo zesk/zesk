@@ -95,7 +95,7 @@ zeskPipelineSetup() {
     esac
   done
 
-  consoleInfo "Started on $(date)" | tee "$quietLog"
+  consoleInfo "Started on $(date)"
 
   #==========================================================================================
   #
