@@ -1020,6 +1020,7 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 		if (count($pk = $this->class->primary_keys) === 0) {
 			return [];
 		}
+
 		/**
 		 * Multiple ID columns
 		 */
@@ -2752,6 +2753,7 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 		}
 		$this->storeMembers();
 		$this->callHook('store');
+
 		/*
 		 * Insert/Update
 		 */

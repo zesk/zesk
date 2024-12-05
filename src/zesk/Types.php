@@ -6,7 +6,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage core
  * @author kent
- * @copyright Copyright &copy; 2023, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2024, Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -208,7 +208,7 @@ class Types
 	 * @param ?float $def The default value. Not converted to float.
 	 * @return float The value, or $def if it can not be converted to a float
 	 */
-	public static function toFloat(mixed $s, float $def = null): float
+	public static function toFloat(mixed $s, ?float $def = null): float
 	{
 		return floatval(is_numeric($s) ? $s : $def);
 	}

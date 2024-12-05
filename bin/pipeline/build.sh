@@ -4,34 +4,12 @@
 #
 # Set up Zesk build
 #
-# Copyright &copy; 2023 Market Acumen, Inc.
+# Copyright &copy; 2024 Market Acumen, Inc.
 #
+
 set -eou pipefail
-
-#  ▞▀▖      ▗▀▖▗             ▐  ▗
-#  ▌  ▞▀▖▛▀▖▐  ▄ ▞▀▌▌ ▌▙▀▖▝▀▖▜▀ ▄ ▞▀▖▛▀▖
-#  ▌ ▖▌ ▌▌ ▌▜▀ ▐ ▚▄▌▌ ▌▌  ▞▀▌▐ ▖▐ ▌ ▌▌ ▌
-#  ▝▀ ▝▀ ▘ ▘▐  ▀▘▗▄▘▝▀▘▘  ▝▀▘ ▀ ▀▘▝▀ ▘ ▘
-# Must be defined and non-empty to run this script
-
-#
-# Exit codes
-#
-errorBuild=1000
-me=$(basename "$0")
-
-# Project root
-cd "$(dirname "${BASH_SOURCE[0]}")/../.."
-
-[ -d ./bin/build ] || ./bin/pipeline/install-bin-build.sh
-
 # shellcheck source=/dev/null
-. ./bin/build/tools.sh
-
-usage() {
-  usageDocument "./bin/pipeline/$me" "zeskPipelineSetup" "$@"
-  return $?
-}
+source "${BASH_SOURCE[0]%/*}/../bin/tools.sh" || exit 99
 
 # fn: {base}
 # Usage: {fn}
@@ -40,36 +18,25 @@ usage() {
 # Argument: --develop - Optional. Development build.
 #
 zeskPipelineSetup() {
+  local usage="_${FUNCNAME[0]}"
   local startSetup quietLog clean versionArgs
-  local requireEnvironment=(DEPLOYMENT GITHUB_REPOSITORY_OWNER GITHUB_REPOSITORY_NAME)
+  local requireEnvironment=(
+    DEPLOYMENT
+    GITHUB_REPOSITORY_OWNER GITHUB_REPOSITORY_NAME
+    DATABASE_PORT DATABASE_HOST DATABASE_ROOT_PASSWORD CONTAINER_DATABASE_HOST
+  )
   # Will be exported to the environment file
   local buildEnvironment=("${requireEnvironment[@]}")
 
-  startSetup=$(beginTiming)
+  startSetup=$(__usageEnvironment "$usage" beginTiming) || return $?
 
-  quietLog=$(buildQuietLog "$me")
+  quietLog=$(__usageEnvironment "$usage" buildQuietLog "${FUNCNAME[0]}") || return $?
 
-  export DATABASE_PORT
-  export DATABASE_HOST
-  export DATABASE_ROOT_PASSWORD
-  export CONTAINER_DATABASE_HOST
-  export GITHUB_REPOSITORY_OWNER
-  export GITHUB_REPOSITORY_NAME
+  export "${requireEnvironment[@]}"
 
-  #
-  # Additional test configuration
-  #
-  DATABASE_PORT=${DATABASE_PORT:-3306}
-  DATABASE_HOST=${DATABASE_HOST:-127.0.0.1}
-  DATABASE_ROOT_PASSWORD=${DATABASE_ROOT_PASSWORD:-hard-to-guess}
-  CONTAINER_DATABASE_HOST=${CONTAINER_DATABASE_HOST:-host.docker.internal}
-  GITHUB_REPOSITORY_OWNER=${GITHUB_REPOSITORY_OWNER:-zesk}
-  GITHUB_REPOSITORY_NAME=${GITHUB_REPOSITORY_NAME:-zesk}
+  usageRequireEnvironment "$usage" "${requireEnvironment[@]}" || return $?
 
-  #
-  # Preflight our environment to make sure we have the basics defined in the calling script
-  #
-  usageEnvironment "${requireEnvironment[@]}"
+  usageRequireBinary "$usage" docker || return $?
 
   #
   # --clean - Do a clean build
@@ -81,12 +48,12 @@ zeskPipelineSetup() {
     case $1 in
       --clean)
         clean=1
-        consoleBlue "Clean install ..."
+        statusMessage decorate info "Clean install ..."
         shift
         ;;
       --develop)
         versionArgs+=("--develop")
-        consoleBlue "Development ..."
+        statusMessage decorate info "Development ..."
         shift
         ;;
       *)
@@ -95,74 +62,72 @@ zeskPipelineSetup() {
     esac
   done
 
-  consoleInfo "Started on $(date)"
+  statusMessage decorate info "Started on $(date)"
 
   #==========================================================================================
   #
   # Install
   #
-  aptInstall
-  mariadbInstall
+  local home
+  __usageEnvironment "$usage" packageInstall || return $?
+  __usageEnvironment "$usage" mariadbInstall || return $?
+  home=$(__usageEnvironment "$usage" buildHome) || return $?
 
-  usageWhich docker mariadb
+  find "$home" -type f -name '*.sh' ! -path '*/vendor/*' ! -path '*/DEPRECATED/*' | __usageEnvironment "$usage" bashLintFiles || return $?
 
-  testShellScripts ! -path '*/vendor/*' ! -path '*/DEPRECATED/*'
-  #==========================================================================================
-  # Generate the .env artifact
-  statusMessage consoleInfo "Generating environment artifact ... "
-  export DEPLOY_USER_HOSTS=none
-  export BUILD_TARGET=none
-  if [ "$DEPLOYMENT" = "production" ]; then
-    # Only when we have to deploy
-    buildEnvironment=(GITHUB_ACCESS_TOKEN "${buildEnvironment[@]}")
-  fi
-  bin/build/pipeline/make-env.sh "${buildEnvironment[@]}"
+  statusMessage decorate info "Generating environment artifact ... " || :
+
+  __usageEnvironment "$usage" environmentFileApplicationMake "${buildEnvironment[@]}" -- GITHUB_ACCESS_TOKEN | __usageEnvironment "$usage" muzzle tee "$home/.env" || return $?
+  environmentFileShow || :
 
   #==========================================================================================
   #
   # Test our build assumptions
   #
-  start=$(beginTiming)
-  consoleInfo "Build bin smoke tests ... "
-  ./bin/test-bin.sh
+  start=$(__usageEnvironment "$usage" beginTiming) || return $?
+  statusMessage decorate info "Build bin smoke tests ... "
+  __usageEnvironment "$usage" ./bin/test-bin.sh || return $?
+  statusMessage reportTiming "$start" "Smoke tests completed in"
 
   #
   # Connect to the database and set up test schema
   #
-  start=$(beginTiming)
+  start=$(__usageEnvironment "$usage" beginTiming) || return $?
   databaseArguments=("-u" "root" "-p$DATABASE_ROOT_PASSWORD" "-h" "$DATABASE_HOST" "--port" "$DATABASE_PORT")
-  consoleInfo -n "Setting up database ... "
+  statusMessage decorate info "Setting up database ... "
   {
     figlet "Database"
     echoBar
-    echo "COMMAND:"
-    echo mariadb "${databaseArguments[@]}"
+    printf "%s" "COMMAND: mariadb"
+    echo "${databaseArguments[@]}"
     echo "TODO TRY COMMAND:"
     echo docker run -t zesk:latest mariadb "${databaseArguments[@]}"
   } >>"$quietLog"
-  reportTiming "$start" OK
+  statusMessage reportTiming "$start" "Database setup completed in"
 
   #==========================================================================================
   #
   # Load the test schema into our database
   #
-  consoleInfo -n "Loading schema ... "
-  start=$(beginTiming)
-  if ! mariadb "${databaseArguments[@]}" <./docker/mariadb/schema.sql >>"$quietLog"; then
-    failed "$quietLog"
-    exit $errorBuild
-  fi
-  reportTiming "$start" OK
+  statusMessage decorate info "Loading schema ... "
+  start=$(__usageEnvironment "$usage" beginTiming) || return $?
+  __usageEnvironment "$usage" mariadb "${databaseArguments[@]}" <./docker/mariadb/schema.sql >>"$quietLog" || buildFailed "$quietLog" || return $?
+  statusMessage reportTiming "$start" "Schema load completed in"
 
   #==========================================================================================
   #
   # Install vendor directory
   #
   if test $clean; then
-    consoleInfo "Deleting ./vendor"
-    [ ! -d "./vendor" ] || rm -rf "./vendor"
+    if [ -d "./vendor" ]; then
+      statusMessage decorate warning "Deleting ./vendor ..."
+      __usageEnvironment "$usage" rm -rf "./vendor" || return $?
+    fi
   fi
-  ./bin/build/pipeline/composer.sh
+  start=$(__usageEnvironment "$usage" beginTiming) || return $?
+  statusMessage decorate info "Composer ... "
+  __usageEnvironment "$usage" phpComposer "$home" || return $?
+  statusMessage reportTiming "$start" "composer completed in"
 
   #==========================================================================================
   #
@@ -172,26 +137,30 @@ zeskPipelineSetup() {
   if test "$clean"; then
     cleanArgs=("--no-cache" "--pull")
   fi
-  ./bin/pipeline/zesk-container-latest.sh "${cleanArgs[@]}"
+  __usageEnvironment "$usage" zeskContainerLatest "$CONTAINER_DATABASE_HOST" "${cleanArgs[@]}" || return $?
 
   #==========================================================================================
   #  ▀▛▘     ▐
   #   ▌▞▀▖▞▀▘▜▀
   #   ▌▛▀ ▝▀▖▐ ▖
   #   ▘▝▀▘▀▀  ▀
-  start=$(beginTiming)
-  figlet Testing
+  start=$(__usageEnvironment "$usage" beginTiming) || return $?
+  clearLine
+  statusMessage decorate info Testing ...
   for d in "test-results" ".zesk-coverage" "test-coverage" ".phpunit-cache"; do
     [ -d "$d" ] || mkdir -p "$d"
   done
-  docker run -v "$(pwd)/:/zesk" zesk:latest /zesk/bin/test-zesk.sh "$@"
-  reportTiming "$start" Passed
+  __usageEnvironment "$usage" docker run -v "$(pwd)/:/zesk" zesk:latest /zesk/bin/test-zesk.sh "$@" || return $?
+  statusMessage reportTiming "$start" "zesk-test.sh completed in"
 
-  consoleInfo
-  ./bin/build/pipeline/git-tag-version.sh "${versionArgs[@]}"
-  consoleReset
-
-  reportTiming "$startSetup" "Setup complete."
+  statusMessage decorate info "Tagging ..."
+  __usageEnvironment "$usage" gitTagVersion "${versionArgs[@]}" || return $?
+  statusMessage reportTiming "$startSetup" "Setup complete."
+  printf -- "\n"
+}
+_zeskPipelineSetup() {
+  # IDENTICAL usageDocument 1
+  usageDocument "${BASH_SOURCE[0]}" "${FUNCNAME[0]#_}" "$@"
 }
 
 zeskPipelineSetup "$@"

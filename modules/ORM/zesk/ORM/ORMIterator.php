@@ -171,6 +171,7 @@ class ORMIterator extends ResultIterator
 	{
 		if ($this->_valid) {
 			$members = $this->_row;
+
 			// We do create, then fetch to support polymorphism - if ORM supports factory polymorphism, then shorten this to single factory call
 			try {
 				$this->object = $this->query->memberModelFactory($this->parentMember, $this->class, $members, ['initialize' => true, ] + $this->classOptions);

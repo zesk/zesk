@@ -3,100 +3,75 @@
 # Run Zesk test interactively while debugging and fixing things
 # Run usually inside a container
 #
-# Copyright &copy; 2023 Market Acumen, Inc.
+# Copyright &copy; 2024 Market Acumen, Inc.
 #
-err_env=1
 
 set -eou pipefail
 
-me=$(basename "$0")
-top="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd || exit 1)"
-PATH=$top/vendor/bin:$PATH
-phpunit_bin=vendor/bin/phpunit
-coverage_path="$top/test-coverage"
-junit_path="$top/test-results"
+# shellcheck source=/dev/null
+source "${BASH_SOURCE[0]%/*}/build/tools.sh" || exit 99
 
-usage() {
-  local code
+# Run tests for zesk"
+#
+# Argument: --coverage - Flag. Optional. Run coverage tests and output results to `./test-coverage`
+# Argument: --coverage - Flag. Optional. Stop on any error.
+# Additional arguments passed directly through to PHPUnit
+#
+zeskTest() {
+  local usage="_${FUNCNAME[0]}"
+  local top testBinary testResultPath
 
-  code=$1
-  shift
-  if [ $# -gt 0 ]; then
-    echo "$*"
-    echo
+  top=$(__usageEnvironment "$usage" "buildHome") || return $?
+
+  export PATH
+  pathAppend "$top/vendor/bin"
+
+  testBinary=vendor/bin/phpunit
+  testResultPath="$top/test-results"
+
+  __usageEnvironment "$usage" composerInstall || return $?
+
+  local need_paths=() args=() doCoverage=false doStop=false coverage_cache="./.zesk-coverage"
+
+  cd "$top"
+  while [ $# -ge 1 ]; do
+    case $1 in
+      --coverage)
+        doCoverage=1
+        ;;
+      --stop)
+        doStop=1
+        ;;
+      *)
+        break
+        ;;
+    esac
+    shift
+  done
+
+  args+=("--disallow-test-output")
+  args+=("--display-warnings" "--colors=auto")
+  if test $doCoverage; then
+    need_paths+=("$coverage_cache")
+    args+=("--coverage-cache" "$coverage_cache")
+    export XDEBUG_MODE=coverage
+    statusMessage decorate info "Enabling XDEBUG_MODE=coverage"
+  else
+    args+=("--no-coverage")
   fi
-  exec 1>&2
-  echo "$me: Run tests for zesk"
-  echo
-  echo "--coverage    Run coverage tests and output results into $coverage_path"
-  echo "--stop        Stop on any error"
-  echo
-  echo "Additional arguments passed directly through to PHPUnit"
-  exit "$code"
+  if test $doStop; then
+    args+=("--stop-on-defect" "--stop-on-failure")
+    export XDEBUG_MODE=coverage
+    statusMessage decorate info "Enabling XDEBUG_MODE=coverage"
+  fi
+  [ -x "$testBinary" ] || __failEnvironment "$usage" "$testBinary does not exist or is not executable" || return $?
+  need_paths+=("$testResultPath")
+  __usageEnvironment "$usage" requireDirectory "${need_paths[@]}" || return $?
+  args+=("--log-junit" "$testResultPath/junit.xml")
+  __execute "$testBinary" "${args[@]}" "$@"
+}
+_zeskTest() {
+  usageDocument "${BASH_SOURCE[0]}" "${FUNCNAME[0]#_}" "$@"
 }
 
-if [ ! -d "$top/vendor" ]; then
-  if [ -f /usr/local/bin/zesk-bash.sh ]; then
-    #shellcheck source=/dev/null
-    source /usr/local/bin/zesk-bash.sh
-    if [ -z "$(which composer)" ]; then
-      composer_install
-    fi
-  elif [ -z "$(which composer)" ]; then
-    usage $err_env "No vendor directory or composer binary"
-  fi
-  cd "$top"
-  composer install
-  if [ ! -d "$top/vendor" ]; then
-    echo "Possible read-only file system" 1>&2
-    echo "Possible permissions issue" 1>&2
-    usage "Composer did not create $top/vendor directory"
-  fi
-fi
-
-need_paths=()
-args=("--disallow-test-output")
-doCoverage=
-doStop=
-coverage_cache=./.zesk-coverage
-cd "$top"
-while [ $# -ge 1 ]; do
-  case $1 in
-  --coverage)
-    doCoverage=1
-    ;;
-  --stop)
-    doStop=1
-    ;;
-  *)
-    break
-    ;;
-  esac
-  shift
-done
-
-args+=("--display-warnings" "--colors=auto")
-if test $doCoverage; then
-  need_paths+=("$coverage_cache")
-  args+=("--coverage-cache" "$coverage_cache")
-  export XDEBUG_MODE=coverage
-  echo "Enabling XDEBUG_MODE=coverage"
-else
-  args+=("--no-coverage")
-fi
-if test $doStop; then
-  args+=("--stop-on-defect" "--stop-on-failure")
-  export XDEBUG_MODE=coverage
-  echo "Enabling XDEBUG_MODE=coverage"
-fi
-if [ ! -x "$phpunit_bin" ]; then
-  echo "$phpunit_bin does not exist or is not executable" 1>&2
-  exit $err_env
-fi
-need_paths+=("$junit_path")
-for d in "${need_paths[@]}"; do
-  [ -d "$d" ] || mkdir -p "$d"
-done
-args+=("--log-junit" "$junit_path/junit.xml")
-echo "$phpunit_bin" "${args[@]}" "$@"
-exec "$phpunit_bin" "${args[@]}" "$@"
+zeskTest "$@"

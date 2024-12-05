@@ -4,7 +4,7 @@
 #
 # Sanity check on scripts - any functions in build should be tested here
 #
-# Copyright &copy; 2023 Market Acumen, Inc.
+# Copyright &copy; 2024 Market Acumen, Inc.
 #
 
 #
@@ -15,7 +15,6 @@ err_build=1000
 #
 # Variables and constants
 #
-# Debug bash - set -x
 export TERM=xterm
 export DEBIAN_FRONTEND=noninteractive
 
@@ -33,23 +32,23 @@ cleanup() {
 }
 trap cleanup EXIT
 
-consoleInfo -n "Testing versionSort ... "
+decorate info -n "Testing versionSort ... "
 prefix=
 for prefix in 0 1; do
   testFile="./bin/test/$prefix-versionSort.test.txt"
   versionSort <"$testFile" >"$results"
   if ! diff -q "$results" "./bin/test/$prefix-versionSort.txt"; then
     diff "$results" "./bin/test/$prefix-versionSort.txt"
-    consoleError "versionSort failed: $testFile"
+    decorate error "versionSort failed: $testFile"
     exit $err_build
   fi
   versionSort -r <"$testFile" >"$results"
   if ! diff -q "$results" "./bin/test/$prefix-versionSort-r.txt"; then
     diff "$results" "./bin/test/$prefix-versionSort.txt"
-    consoleError "versionSort reverse failed: $testFile"
+    decorate error "versionSort reverse failed: $testFile"
     exit $err_build
   fi
 done
-consoleSuccess OK
+decorate success OK
 
-consoleSuccess "Build tests passed ..."
+decorate success "Build tests passed ..."

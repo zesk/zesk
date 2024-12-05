@@ -148,7 +148,7 @@ class Objects
 	 * @return $this
 	 * @throws SemanticsException
 	 */
-	public function setSingleton(object $object, string $class = null): self
+	public function setSingleton(object $object, ?string $class = null): self
 	{
 		if ($class === null) {
 			$class = $object::class;

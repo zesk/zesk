@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+
 /**
  * Things that should probably just be in PHP, or were added after we added these. Review
  * annually to see if we can deprecate functionality.
@@ -9,7 +10,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage system
  * @author kent
- * @copyright Copyright &copy; 2023, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2024, Market Acumen, Inc.
  */
 
 use zesk\Kernel;
@@ -162,7 +163,7 @@ function toKey(mixed $key): string|int
  * @return float The value, or $def if it can not be converted to a float
  * @deprecated 2023-01
  */
-function toFloat(mixed $s, float $def = null): float
+function toFloat(mixed $s, ?float $def = null): float
 {
 	return Types::toFloat($s, $def);
 }
@@ -212,6 +213,7 @@ function toText(mixed $mixed): string
 {
 	return Types::toText($mixed);
 }
+
 /**
  * Gently coerce things to iterable
  *

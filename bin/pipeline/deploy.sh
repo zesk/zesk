@@ -6,80 +6,127 @@
 #
 # Push a new tag to GitHub when then triggers a new release to Packagist automatically
 #
-# Copyright &copy; 2023 Market Acumen, Inc.
+# Copyright &copy; 2024 Market Acumen, Inc.
 #
+
 set -eou pipefail
-
-errorEnvironment=1
-
-me=$(basename "$0")
-cd "$(dirname "${BASH_SOURCE[0]}")/../.."
-
-releaseDate=$(date)
-
-[ -d ./bin/build ] || ./bin/pipeline/install-bin-build.sh
-
 # shellcheck source=/dev/null
-. ./bin/build/tools.sh
+source "${BASH_SOURCE[0]%/*}/../bin/tools.sh" || exit 99
 
-if [ -f "./.env" ]; then
-  set -a
-  # shellcheck source=/dev/null
-  source "./.env"
-  set +a
-  consoleSuccess "Loaded .env ..."
-fi
-releaseStart=$(beginTiming)
+__zeskChangeLog() {
+  local usage="$1" currentVersion="$2"
+  local currentVersion currentChangeLog changeLog remoteChangeLogName remoteChangeLog
 
-if [ -z "$GITHUB_ACCESS_TOKEN" ]; then
-  exec 1>&2
-  consoleRed "GITHUB_ACCESS_TOKEN is required"
-  echo
-  exit $errorEnvironment
-fi
-if [ ! -d "./.git" ]; then
-  echo "No .git directory at ., stopping" 1>&2
-  exit $errorEnvironment
-fi
+  export GITHUB_REPOSITORY_OWNER GITHUB_REPOSITORY_NAME
+  usageRequireEnvironment "$usage" GITHUB_REPOSITORY_OWNER GITHUB_REPOSITORY_NAME || return $?
 
-gitInstall
-phpComposer
+  currentChangeLog="$(__usageEnvironment "$usage" releaseNotes)" || return $?
 
-currentVersion=$("./bin/version-current.sh")
-releaseDir=./docs/release
+  [ -f "$currentChangeLog" ] || __failEnvironment "$usage" "$currentChangeLog is missing" || return $?
 
-currentChangeLog="$releaseDir/$currentVersion.md"
-if [ ! -f "$currentChangeLog" ]; then
-  echo "No $currentChangeLog" 1>&2
-  exit "$errorEnvironment"
-fi
+  #========================================================================
+  #
+  #  Generate our release notes for the online release
+  #  Update the code in CHANGELOG.md which is effectively a concatenation of files
+  #
+  start=$(__usageEnvironment "$usage" beginTiming) || return $?
+  remoteChangeLogName=".release-notes.md"
+  remoteChangeLog="./$remoteChangeLogName"
+  {
+    figlet "zesk $currentVersion" | awk '{ print "    " $0 }'
+    echo
+    echo "> Released on $releaseDate"
+    echo
+    cat "$currentChangeLog"
+  } >"$remoteChangeLog"
 
-GITHUB_REPOSITORY_OWNER=${GITHUB_REPOSITORY_OWNER:-zesk}
-GITHUB_REPOSITORY_NAME=${GITHUB_REPOSITORY_NAME:-zesk}
+  changeLog=./CHANGELOG.md
+  changeLogGenerate "https://github.com/$GITHUB_REPOSITORY_OWNER/$GITHUB_REPOSITORY_NAME/compare/" >"$changeLog"
 
-#========================================================================
-#
-#  Generate our release notes for the online release
-#  Update the code in CHANGELOG.md which is effectively a concatenation of files
-#
-consoleInfo -n "Generating release notes and CHANGELOG ..."
-start=$(beginTiming)
-remoteChangeLogName=".release-notes.md"
-remoteChangeLog="./$remoteChangeLogName"
-{
-  figlet "zesk $currentVersion" | awk '{ print "    " $0 }'
-  echo
-  echo "> Released on $releaseDate"
-  echo
-  cat "$currentChangeLog"
-} >"$remoteChangeLog"
+  printf "%s\n" "$remoteChangeLog"
+}
+
+zeskDeploy() {
+  local usage="_${FUNCNAME[0]}"
+  local home releaseDate releaseStart start
+  local ee=(GITHUB_ACCESS_TOKEN GITHUB_REPOSITORY_OWNER GITHUB_REPOSITORY_NAME)
+  export "${ee[@]}"
+
+  home=$(__usageEnvironment "$usage" buildHome) || return $?
+  releaseDate=$(__usageEnvironment "$usage" date) || return $?
+  releaseStart=$(__usageEnvironment "$usage" beginTiming) || return $?
+
+  __usageEnvironment "$usage" buildEnvironmentLoad "${ee[@]}" || return $?
+  __usageEnvironment "$usage" environmentFileLoad --optional "$home/.local.env" --required "$home/.env" || return $?
+
+  [ -d "$home/.git" ] || __failEnvironment "$usage" "Missing .git directory" || return $?
+
+  __usageEnvironment "$usage" gitInstall || return $?
+  __usageEnvironment "$usage" phpComposer "$home" || return $?
+
+  local remoteChangeLog currentVersion
+
+  currentVersion=$(__usageEnvironment "$usage" runHook version-current) || return $?
+
+  printf "%s" "$(decorate info "Generating release notes and CHANGELOG ...")"
+  start=$(__usageEnvironment "$usage" beginTiming) || return $?
+  remoteChangeLog=$(__zeskChangeLog "$usage" "$currentVersion") || return $?
+  printf "%s\n\n" "$(reportTiming "$start" OK)"
+
+  #========================================================================
+  #                _
+  #   _______  ___| | __
+  #  |_  / _ \/ __| |/ /
+  #   / /  __/\__ \   <
+  #  /___\___||___/_|\_\
+  #
+  figlet "zesk $currentVersion"
+
+  #========================================================================
+  #
+  # Send release API call to GitHub to make tagged version a release with
+  # release notes.
+  #
+
+  decorate info -n "Mark release in GitHub ... "
+  usageRequireEnvironment "$usage" GITHUB_ACCESS_TOKEN GITHUB_REPOSITORY_OWNER GITHUB_REPOSITORY_NAME || return $?
+  start=$(__usageEnvironment "$usage" beginTiming) || return $?
+  githubRelease --token "$GITHUB_ACCESS_TOKEN" --owner "$GITHUB_REPOSITORY_OWNER" --name "$GITHUB_REPOSITORY_NAME" "$remoteChangeLog" "$currentVersion" || return $?
+  printf "%s\n\n" "$(reportTiming "$start" OK)"
+
+  #========================================================================
+  #
+  # I think things change in GitHub when we do a release (maybe?) so sync back to origin here
+  #
+  decorate info "Pull github and push origin ... " && echo
+  decorate decoration "$(echoBar)"
+  decorate info "git pull --all" && echo
+  start=$(__usageEnvironment "$usage" beginTiming) || return $?
+  # TODO Remove this if they are AOK
+  __echo git pull --all || decorate red "Failed: $?"
+  printf -- "\n"
+  decorate info "git push origin" && echo
+  __echo git push origin || decorate red "Failed: $?"
+  decorate decoration "$(echoBar)"
+  printf "%s\n\n" "$(reportTiming "$start" OK)"
+  #
+  #========================================================================
+  #
+  figlet "zesk $currentVersion OK"
+  reportTiming "$releaseStart" "Release complete."
+
+}
+_zeskDeploy() {
+  # IDENTICAL usageDocument 1
+  usageDocument "${BASH_SOURCE[0]}" "${FUNCNAME[0]#_}" "$@"
+}
 
 changeLogGenerate() {
-  local f rawVersion prevVersion linksSuffix
+  local prefix="$1" f rawVersion prevVersion linksSuffix
 
   linksSuffix=$(mktemp)
   cd "./docs/release"
-  echo "<!-- GENERATED BY $me -->"
+  echo "<!-- GENERATED BY ${BASH_SOURCE[0]} -->"
   echo "<!-- DO NOT EDIT THIS FILE - it will be overwritten upon release -->"
   echo "<!-- Edit ./docs/release/vX.X.X.md instead -->"
   echo
@@ -91,58 +138,11 @@ changeLogGenerate() {
     rawVersion="$f"
     rawVersion=${rawVersion%%.md}
     if [ -n "$prevVersion" ]; then
-      echo "[$rawVersion]: https://github.com/$GITHUB_REPOSITORY_OWNER/$GITHUB_REPOSITORY_NAME/compare/$prevVersion...$rawVersion" >>"$linksSuffix"
+      echo "[$rawVersion]: $prefix$prevVersion...$rawVersion" >>"$linksSuffix"
     fi
     prevVersion="$rawVersion"
   done
   cat footer.md
   cat "$linksSuffix"
   rm "$linksSuffix"
-  cd "."
 }
-
-changeLog=./CHANGELOG.md
-changeLogGenerate >"$changeLog"
-
-reportTiming "$start" OK
-echo
-
-#========================================================================
-#                _
-#   _______  ___| | __
-#  |_  / _ \/ __| |/ /
-#   / /  __/\__ \   <
-#  /___\___||___/_|\_\
-#
-figlet "zesk $currentVersion"
-
-#========================================================================
-#
-# Send release API call to GitHub to make tagged version a release with
-# release notes.
-#
-consoleInfo -n "Mark release in GitHub ... "
-start=$(beginTiming)
-"./bin/build/pipeline/github-release.sh" "$remoteChangeLog" "$currentVersion"
-reportTiming "$start" OK
-
-#========================================================================
-#
-# I think things change in GitHub when we do a release (maybe?) so sync back to origin here
-#
-consoleInfo "Pull github and push origin ... " && echo
-consoleDecoration "$(echoBar)"
-consoleInfo "git pull --all" && echo
-start=$(beginTiming)
-# TODO Remove this if they are AOK
-git pull --all || consoleRed "Failed: $?"
-echo
-consoleInfo "git push origin" && echo
-git push origin || consoleRed "Failed: $?"
-consoleDecoration "$(echoBar)"
-reportTiming "$start"
-#
-#========================================================================
-#
-figlet "zesk $currentVersion OK"
-reportTiming "$releaseStart" "Release complete."

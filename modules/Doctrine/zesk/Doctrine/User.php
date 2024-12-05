@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage objects
  * @author kent
- * @copyright Copyright &copy; 2023, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2024, Market Acumen, Inc.
  * Created on Fri Apr 02 21:00:12 EDT 2010 21:00:12
  */
 

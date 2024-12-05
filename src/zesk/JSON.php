@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage system
  * @author kent
- * @copyright Copyright &copy; 2023, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2024, Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -74,10 +74,7 @@ class JSON
 	 * @var array
 	 */
 	private static array $default_methods = [
-		'json',
-		'toJSON',
-		'toJSON',
-		'__toJSON',
+		'json', 'toJSON', 'toJSON', '__toJSON',
 	];
 
 	/**
@@ -89,7 +86,7 @@ class JSON
 	 * @return mixed
 	 * @throws SemanticsException
 	 */
-	public static function prepare(mixed $mixed, array $methods = null, array $arguments = []): mixed
+	public static function prepare(mixed $mixed, ?array $methods = null, array $arguments = []): mixed
 	{
 		if ($mixed === null) {
 			return null;
@@ -107,8 +104,7 @@ class JSON
 			foreach ($methods as $method) {
 				if (method_exists($mixed, $method)) {
 					return call_user_func_array([
-						$mixed,
-						$method,
+						$mixed, $method,
 					], $arguments);
 				}
 			}
@@ -294,11 +290,9 @@ class JSON
 	private static function errorToString(int $code): string
 	{
 		static $errors = [
-			JSON_ERROR_DEPTH => 'Maximum stack depth has been exceeded',
-			JSON_ERROR_STATE_MISMATCH => 'Malformed JSON',
+			JSON_ERROR_DEPTH => 'Maximum stack depth has been exceeded', JSON_ERROR_STATE_MISMATCH => 'Malformed JSON',
 			JSON_ERROR_CTRL_CHAR => 'Control character error, malformed JSON',
-			JSON_ERROR_SYNTAX => 'Syntax error, malformed JSON',
-			JSON_ERROR_UTF8 => 'Malformed UTF-8 characters',
+			JSON_ERROR_SYNTAX => 'Syntax error, malformed JSON', JSON_ERROR_UTF8 => 'Malformed UTF-8 characters',
 			JSON_ERROR_RECURSION => 'One or more recursive references in the value to be encoded',
 			JSON_ERROR_INF_OR_NAN => 'One or more NAN or INF in value',
 			JSON_ERROR_UNSUPPORTED_TYPE => 'A value of a type that cannot be encoded was given',
@@ -370,8 +364,7 @@ class JSON
 		$white = strlen($match[0]);
 		[$length, $result] = self::_decode_value(substr($string, $white), $offset + $white, $assoc);
 		return [
-			$length + $white,
-			$result,
+			$length + $white, $result,
 		];
 	}
 
@@ -390,9 +383,7 @@ class JSON
 	private static function _decode_value(string $string, int $offset, bool $assoc = false): array
 	{
 		static $begins = [
-			'null' => null,
-			'true' => true,
-			'false' => false,
+			'null' => null, 'true' => true, 'false' => false,
 		];
 		if ($string === '') {
 			throw new ParseException('Invalid empty JSON string at offset {offset}', [
@@ -402,8 +393,7 @@ class JSON
 		foreach ($begins as $match => $value) {
 			if (str_starts_with($string, $match)) {
 				return [
-					strlen($match),
-					$value,
+					strlen($match), $value,
 				];
 			}
 		}
@@ -421,8 +411,7 @@ class JSON
 		}
 
 		throw new ParseException('Invalid JSON token "{char}" at position {offset}', [
-			'char' => $c,
-			'offset' => $offset,
+			'char' => $c, 'offset' => $offset,
 		]);
 	}
 
@@ -441,19 +430,16 @@ class JSON
 		if (preg_match('/-?[0-9]+(\.[0-9]+([eE][-+]?[0-9]+)?)?/', $string, $match)) {
 			if (preg_match('/^-?[0-9]+$/', $match[0])) {
 				return [
-					strlen($match[0]),
-					intval($match[0]),
+					strlen($match[0]), intval($match[0]),
 				];
 			}
 			return [
-				strlen($match[0]),
-				floatval($match[0]),
+				strlen($match[0]), floatval($match[0]),
 			];
 		}
 
 		throw new ParseException('Invalid JSON numeric token "{string}..." at position {offset}', [
-			'string' => substr($string, 16),
-			'offset' => $offset,
+			'string' => substr($string, 16), 'offset' => $offset,
 		]);
 	}
 
@@ -480,8 +466,7 @@ class JSON
 			}
 			if ($c === ']') {
 				return [
-					$i + 1,
-					$result,
+					$i + 1, $result,
 				];
 			}
 			[$item_len, $item] = self::_decode_value(substr($string, $i), $offset + $i, $assoc);
@@ -496,8 +481,7 @@ class JSON
 				}
 				if ($c === ']') {
 					return [
-						$i + 1,
-						$result,
+						$i + 1, $result,
 					];
 				}
 				if ($c === ',') {
@@ -541,8 +525,7 @@ class JSON
 			}
 			if ($c === '}') {
 				return [
-					$i + 1,
-					$assoc ? $result : (object) $result,
+					$i + 1, $assoc ? $result : (object) $result,
 				];
 			}
 			if ($c !== '"') {
@@ -580,8 +563,7 @@ class JSON
 				}
 				if ($c === '}') {
 					return [
-						$i + 1,
-						$result,
+						$i + 1, $result,
 					];
 				}
 				if ($c === ',') {
@@ -591,8 +573,7 @@ class JSON
 				}
 
 				throw new ParseException('Invalid JSON object at offset {offset} expecting comma or end bracket, found "{char}"', [
-					'char' => $c,
-					'offset' => $offset + $i,
+					'char' => $c, 'offset' => $offset + $i,
 				]);
 			}
 		}
@@ -614,14 +595,7 @@ class JSON
 	private static function _decode_string(string $string, int $offset): array
 	{
 		static $string_characters = [
-			'"' => '"',
-			'\\' => '\\',
-			'/' => '/',
-			'b' => "\x08",
-			'f' => "\f",
-			'n' => "\n",
-			'r' => "\r",
-			't' => "\t",
+			'"' => '"', '\\' => '\\', '/' => '/', 'b' => "\x08", 'f' => "\f", 'n' => "\n", 'r' => "\r", 't' => "\t",
 		];
 
 		$len = strlen($string);
@@ -631,8 +605,7 @@ class JSON
 			$c = $string[$i];
 			if ($c === '"') {
 				return [
-					$i + 1,
-					$result,
+					$i + 1, $result,
 				];
 			}
 			$i++;
@@ -661,8 +634,7 @@ class JSON
 				$i += 4;
 			} else {
 				throw new ParseException('Invalid escape sequence {char} at offset {offset}', [
-					'char' => $c,
-					'offset' => $offset + $i,
+					'char' => $c, 'offset' => $offset + $i,
 				]);
 			}
 		}

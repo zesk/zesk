@@ -38,3 +38,4 @@
 /.github.conf
 /.env*
 /bin/build/
+/.pipeline-key*

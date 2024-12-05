@@ -26,9 +26,6 @@ RUN rm /tmp/xdebug.ini
 RUN /root/sbin/docker-php-xdebug.sh
 
 COPY --from=composer /usr/bin/composer /usr/bin/composer
-#COPY docker/bin/composer-installer.php /usr/local/bin/
-#RUN /root/sbin/install-composer.sh
-#RUN rm /usr/local/bin/composer-installer.php
 
 COPY docker/bin/*.sh /usr/local/bin/
 COPY docker/bin/*.php /usr/local/bin/

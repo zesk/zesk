@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Copyright &copy; 2023 Market Acumen, Inc.
+# Copyright &copy; 2024 Market Acumen, Inc.
 #
 errorEnvironment=1
 
@@ -46,22 +46,22 @@ zeskLatest() {
         if ! git -C "$zeskHome" pull origin main; then
             usage "$errorEnvironment" "Unable to pull into zesk repository found"
         fi
-        consoleSuccess "$vendorZesk is up to date"
+        decorate success "$vendorZesk is up to date"
         return 0
     fi
     [ ! -d "$old" ] || rm -rf "$old"
 
     if ! git clone "$repo" "$new"; then
-        consoleError "Unable to clone from $repo" 1>&2
+        decorate error "Unable to clone from $repo" 1>&2
         return $errorEnvironment
     fi
     if [ ! -d "$new" ]; then
-        consoleError "Directory not created: $new" 1>&2
+        decorate error "Directory not created: $new" 1>&2
         return $errorEnvironment
     fi
     mv $zeskHome $old
     mv $new $zeskHome
-    consoleSuccess 'Zesk now linked to the latest'
+    decorate success 'Zesk now linked to the latest'
     return 0
 }
 

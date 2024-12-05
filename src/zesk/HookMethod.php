@@ -53,7 +53,7 @@ class HookMethod implements HookableAttribute
 	 * @param bool $filter True when this hook is used as a filter and should have a compatible method signatures of
 	 * other filters of this hook name.
 	 */
-	public function __construct(string|array $handles, array $argumentTypes = [], object $object = null, bool $filter = false)
+	public function __construct(string|array $handles, array $argumentTypes = [], ?object $object = null, bool $filter = false)
 	{
 		$this->handles = ArrayTools::valuesFlipCopy(Types::toList($handles));
 		$this->argumentTypes = $argumentTypes;

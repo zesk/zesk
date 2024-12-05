@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage system
  * @author kent
- * @copyright Copyright &copy; 2023, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2024, Market Acumen, Inc.
  * Created on Thu Apr 15 16:02:28 EDT 2010 16:02:28
  */
 
@@ -528,7 +528,7 @@ abstract class Locale extends Hookable
 	 * @param int|null $number Returns the final unit number, optional.
 	 * @return string
 	 */
-	public function durationString(float $delta, string $min_unit = '', int &$number = null): string
+	public function durationString(float $delta, string $min_unit = '', ?int &$number = null): string
 	{
 		if ($delta < 0) {
 			$delta = -$delta;

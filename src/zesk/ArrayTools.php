@@ -6,7 +6,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage system
  * @author kent
- * @copyright Copyright &copy; 2023, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2024, Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -765,7 +765,7 @@ class ArrayTools
 	 * @param mixed $default_value
 	 * @return array
 	 */
-	public static function extract(array $arrays, string|int $key_key = null, string|int $value_key = null, mixed $default_value = null): array
+	public static function extract(array $arrays, string|int|null $key_key = null, string|int|null $value_key = null, mixed $default_value = null): array
 	{
 		$result = [];
 		if ($key_key === null) {
@@ -1168,7 +1168,7 @@ class ArrayTools
 	 *            Whether the array keys are case-sensitive or not
 	 * @return array The filtered array
 	 */
-	public static function filterKeys(array $array_to_filter, array $include = null, array $exclude = [], bool $lower = false): array
+	public static function filterKeys(array $array_to_filter, ?array $include = null, array $exclude = [], bool $lower = false): array
 	{
 		$ak = array_keys($array_to_filter);
 		$exclude = array_flip($exclude);
@@ -1599,7 +1599,7 @@ class ArrayTools
 	 *            Delimiter passed to preg_quote
 	 * @return string|array
 	 */
-	public static function preg_quote(array|string $string, string $delimiter = null): string|array
+	public static function preg_quote(array|string $string, ?string $delimiter = null): string|array
 	{
 		if (is_string($string)) {
 			return preg_quote($string, $delimiter);

@@ -4,7 +4,7 @@
 #
 # Prepare the repository for the next release
 #
-# Copyright &copy; 2023 Market Acumen, Inc.
+# Copyright &copy; 2024 Market Acumen, Inc.
 #
 err_env=1
 ERR_ARG=2
