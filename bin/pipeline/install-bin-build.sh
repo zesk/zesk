@@ -6,30 +6,40 @@
 #
 # Copy this into your project to install the build system during development and in pipelines
 #
-# Copyright &copy; 2024 Market Acumen, Inc.
+# Copyright &copy; 2025 Market Acumen, Inc.
 #
 
 # URL of latest release
 __installBinBuildLatest() {
-  printf "%s\n" "https://api.github.com/repos/zesk/build/releases/latest"
+  printf -- "%s\n" "https://api.github.com/repos/zesk/build/releases/latest"
 }
 
+# Installs Zesk Build from GitHub
+# Argument: --local localPackageDirectory - Optional. Directory. Directory of an existing bin/infrastructure installation to mock behavior for testing
+# Argument: --user headerText - Optional. String. Add `username:password` to remote request.
+# Argument: --header headerText - Optional. String. Add one or more headers to the remote request.
+# Argument: --debug - Optional. Flag. Debugging is on.
+# Argument: --force - Optional. Flag. Force installation even if file is up to date.
+# Argument: --diff - Optional. Flag. Show differences between old and new file.
+# Argument: --replace - Optional. Flag. Replace an old version of this script with this one and delete this one. Internal only, do not use.
+# Exit Code: 1 - Environment error
+# Exit Code: 2 - Argument error
 __installBinBuildURL() {
   local usage="$1" latestVersion
 
   latestVersion=$(__usageEnvironment "$usage" mktemp) || return $?
   if ! curl -s "$(__installBinBuildLatest)" >"$latestVersion"; then
-    message="$(printf "%s\n%s\n" "Unable to fetch latest JSON:" "$(cat "$latestVersion")")"
+    message="$(printf -- "%s\n%s\n" "Unable to fetch latest JSON:" "$(cat "$latestVersion")")"
     rm -f "$latestVersion" || :
     __failEnvironment "$usage" "$message" || return $?
   fi
   if ! url=$(jq -r .tarball_url <"$latestVersion"); then
-    message="$(printf "%s\n%s\n" "Unable to fetch .tarball_url JSON:" "$(cat "$latestVersion")")"
+    message="$(printf -- "%s\n%s\n" "Unable to fetch .tarball_url JSON:" "$(cat "$latestVersion")")"
     rm -f "$latestVersion" || :
     __failEnvironment "$usage" "$message" || return $?
   fi
   [ "${url#https://}" != "$url" ] || __failArgument "$usage" "URL must begin with https://" || return $?
-  printf "%s\n" "$url"
+  printf -- "%s\n" "$url"
 }
 
 # Check the install directory after installation and output the version
@@ -530,31 +540,41 @@ isUnsignedInteger() {
 
 # <-- END of IDENTICAL _return
 
-# IDENTICAL _tinySugar 43
-# Usage: {fn} usage message
+# IDENTICAL _tinySugar 56
+
+# Run `usage` with an argument error
+# Usage: {fn} usage ...
 __failArgument() {
   local usage="${1-}"
   shift && "$usage" 2 "$@" || return $?
 }
 
-# Usage: {fn} usage message
+# Run `usage` with an environment error
+# Usage: {fn} usage ...
 __failEnvironment() {
   local usage="${1-}"
   shift && "$usage" 1 "$@" || return $?
 }
 
-# Usage: {fn} usage command
+# Run `command`, upon failure run `usage` with an argument error
+# Usage: {fn} usage command ...
+# Argument: usage - Required. String. Failure command
+# Argument: command - Required. Command to run.
 __usageArgument() {
   local usage="${1-}"
   shift && "$@" || __failArgument "$usage" "$@" || return $?
 }
 
-# Usage: {fn} usage command
+# Run `command`, upon failure run `usage` with an environment error
+# Usage: {fn} usage command ...
+# Argument: usage - Required. String. Failure command
+# Argument: command - Required. Command to run.
 __usageEnvironment() {
   local usage="${1-}"
   shift && "$@" || __failEnvironment "$usage" "$@" || return $?
 }
 
+# Return `argument` error code always. Outputs `message ...` to `stderr`.
 # Usage: {fn} message ..`.
 # Argument: message ... - String. Optional. Message to output.
 # Exit Code: 2
@@ -562,14 +582,17 @@ _argument() {
   _return 2 "$@" || return $?
 }
 
-# Usage: {fn} message ..`.
+# Return `environment` error code always. Outputs `message ...` to `stderr`.
+# Usage: {fn} message ...
 # Argument: message ... - String. Optional. Message to output.
 # Exit Code: 1
 _environment() {
   _return 1 "$@" || return $?
 }
 
-# Usage: {fn} exitCode itemToDelete ...
+# Usage: {fn} exitCode item ...
+# Argument: exitCode - Required. Integer. Exit code to return.
+# Argument: item - Optional. One or more files or folders to delete, failures are logged to stderr.
 _clean() {
   local r="${1-}" && shift && rm -rf "$@"
   return "$r"
