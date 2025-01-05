@@ -100,6 +100,7 @@ class Translate extends SimpleCommand
 		$source_language = strtolower($source_language);
 
 		$default_class = ArrayTools::first($classes);
+
 		/* @var $service_object Service_Translate */
 		try {
 			$service_object = $this->service_object = Service_Translate::translateFactory($app, $target_language, $source_language);

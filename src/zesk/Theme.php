@@ -166,7 +166,7 @@ class Theme implements Themeable
 	 * @param ?mixed $variables
 	 *            Name/Value pairs to be set in the template execution
 	 */
-	public function __construct(Themes $app, string $path = '', array|self $variables = null)
+	public function __construct(Themes $app, string $path = '', array|self|null $variables = null)
 	{
 		$this->themes = $app;
 

@@ -1,4 +1,4 @@
-> Copyright &copy; 2023 Market Acumen, Inc. All rights reserved.
+> Copyright &copy; 2024 Market Acumen, Inc. All rights reserved.
 
 <!-- LINK-HERE -->
 

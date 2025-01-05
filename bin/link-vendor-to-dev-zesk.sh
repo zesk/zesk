@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright &copy; 2023 Market Acumen, Inc.
+# Copyright &copy; 2024 Market Acumen, Inc.
 #
 ME=$(basename "$0")
 if [ -z "$ZESK" ]; then

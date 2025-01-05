@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage core
  * @author kent
- * @copyright Copyright &copy; 2023, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2024, Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -1911,7 +1911,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @param Request|null $inherit
 	 * @return Request
 	 */
-	public function requestFactory(Request $inherit = null): Request
+	public function requestFactory(?Request $inherit = null): Request
 	{
 		$request = new Request($this);
 
@@ -2588,7 +2588,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @throws KeyNotFound
 	 * @throws SemanticsException
 	 */
-	public function user(Request $request = null, bool $require = true): Userlike|null
+	public function user(?Request $request = null, bool $require = true): Userlike|null
 	{
 		return $require ? $this->requireUser($request) : $this->optionalUser($request);
 	}
@@ -2602,7 +2602,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @throws KeyNotFound
 	 * @throws SemanticsException
 	 */
-	public function requireUser(Request $request = null): Userlike
+	public function requireUser(?Request $request = null): Userlike
 	{
 		try {
 			if (!$request) {
@@ -2666,7 +2666,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @param Request|null $request
 	 * @return Userlike|null
 	 */
-	public function optionalUser(Request $request = null): ?Userlike
+	public function optionalUser(?Request $request = null): ?Userlike
 	{
 		try {
 			$request = $request ?: $this->request();

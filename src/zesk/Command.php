@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage system
  * @author kent
- * @copyright Copyright &copy; 2023, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2024, Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -568,7 +568,7 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 	 * @param array $arguments
 	 * @return void
 	 */
-	public function usage(array|string $message = null, array $arguments = []): void
+	public function usage(array|string|null $message = null, array $arguments = []): void
 	{
 		$max_length = 0;
 		$types = [];
@@ -1143,7 +1143,7 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 	 *
 	 * @param null|callable $function
 	 */
-	protected function setCompletionFunction(callable $function = null): void
+	protected function setCompletionFunction(?callable $function = null): void
 	{
 		if ($this->hasReadline()) {
 			if ($function === null) {
@@ -1196,7 +1196,7 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 	 * @return string
 	 * @throws StopIteration|SemanticsException
 	 */
-	public function prompt(string $message, string $default = null, array $completions = null): string
+	public function prompt(string $message, ?string $default = null, ?array $completions = null): string
 	{
 		if ($this->option('non-interactive')) {
 			if ($default === null) {

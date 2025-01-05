@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage system
  * @author kent
- * @copyright Copyright &copy; 2023, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2024, Market Acumen, Inc.
  * Created on Thu Feb 04 12:06:13 EST 2010 12:06:13
  */
 namespace zesk\CSV;

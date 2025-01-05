@@ -240,7 +240,7 @@ class StringTools
 	 *            $default
 	 * @return string
 	 */
-	public static function left(string $haystack, string $needle, string $default = null): string
+	public static function left(string $haystack, string $needle, ?string $default = null): string
 	{
 		if (($pos = strpos($haystack, $needle)) === false) {
 			return $default === null ? $haystack : $default;
@@ -260,7 +260,7 @@ class StringTools
 	 *            $default
 	 * @return string
 	 */
-	public static function reverseLeft(string $haystack, string $needle, string $default = null): string
+	public static function reverseLeft(string $haystack, string $needle, ?string $default = null): string
 	{
 		if (($pos = strrpos($haystack, $needle)) === false) {
 			return $default === null ? $haystack : $default;
@@ -280,7 +280,7 @@ class StringTools
 	 *            $default
 	 * @return string
 	 */
-	public static function right(string $haystack, string $needle, string $default = null): string
+	public static function right(string $haystack, string $needle, ?string $default = null): string
 	{
 		if (($pos = strpos($haystack, $needle)) === false) {
 			return $default === null ? $haystack : $default;
@@ -300,7 +300,7 @@ class StringTools
 	 *            $default
 	 * @return string
 	 */
-	public static function reverseRight(string $haystack, string $needle, string $default = null): string
+	public static function reverseRight(string $haystack, string $needle, ?string $default = null): string
 	{
 		if (($pos = strrpos($haystack, $needle)) === false) {
 			return $default === null ? $haystack : $default;
@@ -364,7 +364,7 @@ class StringTools
 	 * @param ?integer $max_fields Maximum fields to create, if null, then all fields
 	 * @return string|array|null
 	 */
-	public static function field(string $string, int $index = null, string $delim = " \t", int $max_fields = null): string|array|null
+	public static function field(string $string, ?int $index = null, string $delim = " \t", ?int $max_fields = null): string|array|null
 	{
 		$d = $delim[0];
 		$v = preg_replace('/[' . preg_quote($delim, '/') . ']+/', $d, $string);
@@ -382,7 +382,7 @@ class StringTools
 	 * @param ?int $max_fields Maximum fields to extract on each line
 	 * @return array
 	 */
-	public static function column(array $lines, int $index = null, string $delim = " \t", int $max_fields = null): array
+	public static function column(array $lines, ?int $index = null, string $delim = " \t", ?int $max_fields = null): array
 	{
 		$array = [];
 		foreach ($lines as $k => $v) {
@@ -693,7 +693,7 @@ class StringTools
 	 *
 	 * @return ?bool
 	 */
-	public static function filter(string $string, array $rules, bool $default = null): ?bool
+	public static function filter(string $string, array $rules, ?bool $default = null): ?bool
 	{
 		foreach ($rules as $pattern => $result) {
 			$result = Types::toBool($result);

@@ -360,7 +360,7 @@ class Configuration implements Iterator, Countable, ArrayAccess
 	 * @param int|null $depth How deep to traverse (null for infinite)
 	 * @return array
 	 */
-	public function toArray(int $depth = null): array
+	public function toArray(?int $depth = null): array
 	{
 		$result = [];
 		foreach ($this->_data as $key => $value) {
@@ -524,7 +524,7 @@ class Configuration implements Iterator, Countable, ArrayAccess
 	 * @return boolean Returns true if OLD value still found and (optionally) mapped to new
 	 * @throws Semantics|Deprecated
 	 */
-	final public function deprecated(string|array $old_path, string|array $new_path = null): bool
+	final public function deprecated(string|array $old_path, string|array|null $new_path = null): bool
 	{
 		$old_value = $this->walk($old_path);
 		if ($old_value === null) {

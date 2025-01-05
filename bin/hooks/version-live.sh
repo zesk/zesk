@@ -2,8 +2,6 @@
 #
 # Zesk Live Version
 #
-# Copyright &copy; 2023 Market Acumen, Inc.
+# Copyright &copy; 2024 Market Acumen, Inc.
 #
-set -e
-cd "$(dirname "${BASH_SOURCE[0]}")/../.."
-./bin/build/pipeline/github-version-live.sh zesk/zesk
+"$(dirname "${BASH_SOURCE[0]}")/../build/tools.sh" githubLatestRelease zesk/zesk

@@ -152,6 +152,7 @@ class Server extends ORMBase implements MetaInterface
 	public static function cron_cluster_minute(Application $application): void
 	{
 		$server = $application->ormFactory(self::class);
+
 		/* @var $server Server */
 		try {
 			$server->buryDeadServers();

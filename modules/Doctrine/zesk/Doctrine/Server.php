@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage file
  * @author kent
- * @copyright Copyright &copy; 2023, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2024, Market Acumen, Inc.
  */
 
 namespace zesk\Doctrine;
@@ -177,6 +177,7 @@ class Server extends Model implements MetaInterface
 	public static function cronClusterMinute(Application $application): void
 	{
 		$server = new self($application);
+
 		/* @var $server Server */
 		try {
 			$server->buryDeadServers();

@@ -116,7 +116,7 @@
 	X.is_numeric = is_numeric;
 	X.is_bool = is_bool;
 	X.is_string = is_string;
-	X.is_integer = is_integer;
+	X.isisPositiveInteger = is_integer;
 	X.is_function = is_function;
 	X.is_float = is_float;
 	X.is_url = is_url;
@@ -132,7 +132,7 @@
 	Zesk.is_numeric = is_numeric;
 	Zesk.is_bool = is_bool;
 	Zesk.is_string = is_string;
-	Zesk.is_integer = is_integer;
+	Zesk.isisPositiveInteger = is_integer;
 	Zesk.is_function = is_function;
 	Zesk.is_float = is_float;
 	Zesk.is_url = is_url;
@@ -918,7 +918,7 @@
 		ends: String.prototype.ends_with
 	});
 
-	X.to_integer = function(x) {
+	X.toisPositiveInteger = function(x) {
 		var d = arguments.length > 1 ? arguments[1] : null;
 		x = parseInt(x, 10);
 		if (typeof x === 'number') {

@@ -113,7 +113,7 @@ class Directory extends Hookable
 	 * @throws DirectoryNotFound
 	 * @see File::stat
 	 */
-	public static function stat(string $path, string $section = null): array
+	public static function stat(string $path, ?string $section = null): array
 	{
 		clearstatcache(false, $path);
 		$ss = @stat($path);
@@ -136,7 +136,7 @@ class Directory extends Hookable
 	 * @throws DirectoryPermission
 	 * @throws DirectoryCreate
 	 */
-	public static function depend(string $path, int $mode = null): string
+	public static function depend(string $path, ?int $mode = null): string
 	{
 		if ($mode === null) {
 			$mode = self::defaultMode();
@@ -252,7 +252,7 @@ class Directory extends Hookable
 	 * @throws DirectoryNotFound
 	 * @throws ParameterException
 	 */
-	public static function duplicate(string $source, string $destination, bool $recursive = true, callable $file_copy_function = null): string
+	public static function duplicate(string $source, string $destination, bool $recursive = true, ?callable $file_copy_function = null): string
 	{
 		if (empty($source)) {
 			throw new ParameterException('self::duplicate: Source is empty');
@@ -649,7 +649,7 @@ class Directory extends Hookable
 	 * @throws DirectoryPermission
 	 * @todo Move this to DirectoryIterator inherited class
 	 */
-	public static function ls(string $path, string $filter = null, bool $cat_path = false): array
+	public static function ls(string $path, ?string $filter = null, bool $cat_path = false): array
 	{
 		$r = [];
 		if (!is_dir($path)) {
@@ -800,7 +800,7 @@ class Directory extends Hookable
 	 * @throws NotFoundException
 	 * @see File::find
 	 */
-	public static function findFirst(array $paths, array|string $directory = null): string
+	public static function findFirst(array $paths, array|string|null $directory = null): string
 	{
 		if (is_array($directory)) {
 			foreach ($paths as $path) {

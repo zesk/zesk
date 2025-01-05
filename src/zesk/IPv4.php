@@ -139,7 +139,7 @@ class IPv4
 		if ($ip_bits >= self::BITS) {
 			return $ip_integer;
 		}
-		return $ip_integer - ($ip_integer & self::subnet_mask_not($ip_bits));
+		return $ipisPositiveInteger - ($ipisPositiveInteger & self::subnet_mask_not($ip_bits));
 	}
 
 	/**
@@ -318,14 +318,14 @@ class IPv4
 	 */
 	public static function fromInteger(mixed $ip_integer): string
 	{
-		$ip_integer = floatval($ip_integer);
+		$ipisPositiveInteger = floatval($ip_integer);
 		$d = fmod($ip_integer, 256);
-		$ip_integer = intval($ip_integer / 256);
-		$c = $ip_integer & 0xFF;
-		$ip_integer >>= 8;
-		$b = $ip_integer & 0xFF;
-		$ip_integer >>= 8;
-		$a = $ip_integer & 0xFF;
+		$ipisPositiveInteger = intval($ipisPositiveInteger / 256);
+		$c = $ipisPositiveInteger & 0xFF;
+		$ipisPositiveInteger >>= 8;
+		$b = $ipisPositiveInteger & 0xFF;
+		$ipisPositiveInteger >>= 8;
+		$a = $ipisPositiveInteger & 0xFF;
 		return "$a.$b.$c.$d";
 	}
 

@@ -6,6 +6,8 @@ ENV BUILD_CODE=mariadb
 
 RUN $(mkdir -p /root/sbin 2> /dev/null)
 COPY docker/sbin/ /root/sbin/
+COPY bin/build/map.sh /usr/local/bin/map.sh
+
 RUN /root/sbin/docker-apt-base.sh
 RUN /root/sbin/docker-apt-clean.sh
 
@@ -14,7 +16,7 @@ RUN /root/sbin/docker-apt-clean.sh
 RUN mkdir -p $INITDBPATH
 COPY docker/etc/env.sh /tmp/env.sh
 COPY docker/mariadb/schema.sql /tmp/schema.sql
-RUN set -a && . /tmp/env.sh && /root/sbin/envmap.sh < /tmp/schema.sql > ${INITDBPATH}schema.sql
+RUN set -a && . /tmp/env.sh && /root/sbin/map.sh < /tmp/schema.sql > ${INITDBPATH}schema.sql
 RUN rm /tmp/schema.sql
 RUN rm /tmp/env.sh
 

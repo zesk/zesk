@@ -6,7 +6,7 @@ declare(strict_types=1);
  * @author kent
  * @package zesk
  * @subpackage model
- * @copyright Copyright &copy; 2023, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2024, Market Acumen, Inc.
  * @see Database,DateTime,Time
  */
 

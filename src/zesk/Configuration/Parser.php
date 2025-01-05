@@ -52,7 +52,7 @@ abstract class Parser extends Options
 	 * @return self
 	 * @throws ClassNotFound
 	 */
-	public static function factory(string $type, mixed $content, SettingsInterface $settings = null, array $options = []): self
+	public static function factory(string $type, mixed $content, ?SettingsInterface $settings = null, array $options = []): self
 	{
 		$class = match (PHP::cleanFunction(strtoupper($type))) {
 			'CONF' => CONF::class,
@@ -69,7 +69,7 @@ abstract class Parser extends Options
 	 * @param SettingsInterface|null $settings
 	 * @param array $options
 	 */
-	final public function __construct(mixed $content = '', SettingsInterface $settings = null, array $options = [])
+	final public function __construct(mixed $content = '', ?SettingsInterface $settings = null, array $options = [])
 	{
 		parent::__construct($options);
 		if (!$settings) {

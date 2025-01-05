@@ -1,6 +1,6 @@
 <?php
 $me = basename(__FILE__);
-$top = getcwd();
+$top = __DIR__;
 
 $top = $_SERVER['PHP_CS_FIXER_TOP'] ?? $top;
 $finder = PhpCsFixer\Finder::create()->name("*.inc")->name("*.tpl")->name("*.phpt")->exclude('vendor')->in($top);
@@ -31,6 +31,7 @@ $config->setRiskyAllowed(true)->setIndent("\t")->setRules([
 	'object_operator_without_whitespace' => true, 'whitespace_after_comma_in_array' => true,
 ])->setFinder($finder);
 
+$config->setParallelConfig(PhpCsFixer\Runner\Parallel\ParallelConfigFactory::detect());
 $config->setRules(array_merge($config->getRules(), [
 	'@PHP81Migration' => true, '@PHP80Migration:risky' => true, 'heredoc_indentation' => false,
 ]));

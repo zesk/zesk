@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage core
  * @author kent
- * @copyright Copyright &copy; 2023, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2024, Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -127,7 +127,7 @@ class Themes implements Themeable
 	 * @return ?string
 	 * @throws Redirect
 	 */
-	private function _themeArguments(string $type, array $args, string $content = null, string $extension = '.tpl'): ?string
+	private function _themeArguments(string $type, array $args, ?string $content = null, string $extension = '.tpl'): ?string
 	{
 		$this->theme_stack[] = $type;
 		$t = new Theme($this, $this->cleanTemplatePath($type) . $extension, $args);
@@ -405,6 +405,7 @@ class Themes implements Themeable
 		if (is_object($object) && method_exists($object, 'hook_theme')) {
 			return true;
 		}
+
 		// TODO is this called?
 		try {
 			if ($this->themeFind($type)) {

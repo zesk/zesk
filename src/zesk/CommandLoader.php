@@ -464,6 +464,7 @@ class CommandLoader
 		$class = $commands[$shortcut];
 		$this->debug("Running $shortcut -> $class");
 		$application = $this->application;
+
 		/* @var $command Command */
 		try {
 			$command = $application->objects->factory($class, $application, array_merge([

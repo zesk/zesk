@@ -15,7 +15,6 @@
 /CHANGELOG.md.backup
 /.phpunit-testcase-last
 /.php-cs-fixer.cache
-/.idea/
 /.history/
 /.phpunit.result.cache
 /.zesk-coverage/
@@ -38,3 +37,7 @@
 /.github.conf
 /.env*
 /bin/build/
+/.pipeline-key*
+/.idea/*.xml
+/.idea/*.iml
+/.idea/*/

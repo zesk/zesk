@@ -1053,7 +1053,7 @@ class HTML extends Type
 	 * @throws DirectoryCreate
 	 * @throws DirectoryPermission|SemanticsException
 	 */
-	private function scriptTags(bool $cache_scripts = null): array
+	private function scriptTags(?bool $cache_scripts = null): array
 	{
 		// Sort them by weight if they're not sorted
 		if (!$this->scriptsAreSorted) {

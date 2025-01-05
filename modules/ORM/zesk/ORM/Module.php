@@ -588,6 +588,7 @@ class Module extends BaseModule
 	{
 		$application = $this->application;
 		$server = $application->ormFactory(Server::class);
+
 		/* @var $server Server */
 		try {
 			$server->buryDeadServers();

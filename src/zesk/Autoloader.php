@@ -222,7 +222,7 @@ class Autoloader
 	 *            A list of extensions to search for in each target path. If supplied, is forced.
 	 * @return array[string]
 	 */
-	public function possibilities(string $file_prefix, array $extensions = null): array
+	public function possibilities(string $file_prefix, ?array $extensions = null): array
 	{
 		$result = [];
 		foreach ($this->path() as $path => $options) {
@@ -261,7 +261,7 @@ class Autoloader
 	 * @param array|null $tried_path
 	 * @return string|null
 	 */
-	public function search(string $class, array $extensions = null, array &$tried_path = null): ?string
+	public function search(string $class, ?array $extensions = null, ?array &$tried_path = null): ?string
 	{
 		$possibilities = $this->possibilities($class, $extensions);
 		$tried_path = [];

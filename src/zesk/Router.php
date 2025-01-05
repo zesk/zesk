@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage system
  * @author kent
- * @copyright Copyright &copy; 2023, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2024, Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -452,7 +452,7 @@ class Router extends Hookable
 	 * @return Route
 	 * @throws NotFoundException
 	 */
-	private function _findRoute(array $routes, string $action, Model $object = null, array $options = []): string
+	private function _findRoute(array $routes, string $action, ?Model $object = null, array $options = []): string
 	{
 		$options = Types::toArray($options);
 		foreach ($routes as $route) {
@@ -504,7 +504,7 @@ class Router extends Hookable
 	 * @return string
 	 * @throws NotFoundException
 	 */
-	public function getRoute(string $action, string|array|Model $object = null, string|array $options = []): string
+	public function getRoute(string $action, string|array|Model|null $object = null, string|array $options = []): string
 	{
 		$original_action = $action;
 		$app = $this->application;

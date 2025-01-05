@@ -5,7 +5,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage World
  * @author kent
- * @copyright Copyright &copy; 2023, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2024, Market Acumen, Inc.
  */
 
 namespace zesk\World\Bootstrap;

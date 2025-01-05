@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage test
  * @author kent
- * @copyright Copyright &copy; 2023, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2024, Market Acumen, Inc.
  */
 
 namespace zesk\Database;
@@ -112,8 +112,7 @@ class ColumnTest extends TestCase
 			return new Column($table, 'col1', ['sql_type' => 'varchar(32)', 'not null' => false]);
 		};
 		return [
-			[[], $col1, $col1],
-			[['required'], $col1, $col2],
+			[[], $col1, $col1], [['required'], $col1, $col2],
 		];
 	}
 }

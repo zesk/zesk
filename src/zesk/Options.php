@@ -2,7 +2,7 @@
 declare(strict_types=1);
 /**
  * @author kent
- * @copyright Copyright &copy; 2023, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2024, Market Acumen, Inc.
  * @package zesk
  * @subpackage system
  */
@@ -87,7 +87,7 @@ class Options
 	 * @param array|null $selected
 	 * @return array
 	 */
-	public function options(array $selected = null): array
+	public function options(?array $selected = null): array
 	{
 		if ($selected === null) {
 			return $this->options;

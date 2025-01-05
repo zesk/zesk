@@ -6,7 +6,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage system
  * @author kent
- * @copyright Copyright &copy; 2023, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2024, Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -223,7 +223,7 @@ class File
 	 * @param ?string $cwd
 	 * @return string null
 	 */
-	public static function absolutePath(string $filename, string $cwd = null): string
+	public static function absolutePath(string $filename, ?string $cwd = null): string
 	{
 		if ($filename[0] === '/') {
 			return $filename;
@@ -466,7 +466,7 @@ class File
 	 * @throws DirectoryCreate
 	 * @throws DirectoryPermission
 	 */
-	public static function temporary(string $path, string $ext = 'tmp', int $mode = null): string
+	public static function temporary(string $path, string $ext = 'tmp', ?int $mode = null): string
 	{
 		return self::path(Directory::depend($path, $mode), md5(microtime()) . '.' . ltrim($ext, '.'));
 	}
@@ -646,14 +646,9 @@ class File
 	 * @var array
 	 */
 	private static array $maskToChars = [
-		self::MASK_FILE => self::CHAR_FILE,
-		self::MASK_SOCKET => self::CHAR_SOCKET,
-		self::MASK_LINK => self::CHAR_LINK,
-		self::MASK_BLOCK => self::CHAR_BLOCK,
-		self::MASK_DIR => self::CHAR_DIR,
-		self::MASK_CHAR => self::CHAR_CHAR,
-		self::MASK_FIFO => self::CHAR_FIFO,
-		0 => self::CHAR_UNKNOWN,
+		self::MASK_FILE => self::CHAR_FILE, self::MASK_SOCKET => self::CHAR_SOCKET, self::MASK_LINK => self::CHAR_LINK,
+		self::MASK_BLOCK => self::CHAR_BLOCK, self::MASK_DIR => self::CHAR_DIR, self::MASK_CHAR => self::CHAR_CHAR,
+		self::MASK_FIFO => self::CHAR_FIFO, 0 => self::CHAR_UNKNOWN,
 	];
 
 	/**
@@ -661,12 +656,8 @@ class File
 	 * @var array
 	 */
 	private static array $charToMask = [
-		self::CHAR_FILE => self::MASK_FILE,
-		self::CHAR_SOCKET => self::MASK_SOCKET,
-		self::CHAR_LINK => self::MASK_LINK,
-		self::CHAR_BLOCK => self::MASK_BLOCK,
-		self::CHAR_DIR => self::MASK_DIR,
-		self::CHAR_CHAR => self::MASK_CHAR,
+		self::CHAR_FILE => self::MASK_FILE, self::CHAR_SOCKET => self::MASK_SOCKET, self::CHAR_LINK => self::MASK_LINK,
+		self::CHAR_BLOCK => self::MASK_BLOCK, self::CHAR_DIR => self::MASK_DIR, self::CHAR_CHAR => self::MASK_CHAR,
 		self::CHAR_FIFO => self::MASK_FIFO,
 	];
 
@@ -845,7 +836,7 @@ class File
 	 * @return array
 	 * @throws FileNotFound
 	 */
-	public static function stat(string $path, string $section = null): array
+	public static function stat(string $path, ?string $section = null): array
 	{
 		clearstatcache(false, $path);
 		$ss = @stat($path);
@@ -871,7 +862,7 @@ class File
 	 * @return array
 	 * @throws FileNotFound
 	 */
-	public static function resourceStat(mixed $path, string $section = null): array
+	public static function resourceStat(mixed $path, ?string $section = null): array
 	{
 		assert(is_resource($path));
 		$ss = @fstat($path);
@@ -914,46 +905,31 @@ class File
 				'fileperms' => is_string($path) ? @fileperms($path) : null,  /* Permissions */
 				'mode' => $p,
 				/* Raw permissions value returned by fstat */
-			],
-			self::STATS_OWNER => [
-				'uid' => $ss['uid'],
-				'gid' => $ss['gid'],
-				'owner' => self::nameFromUID($ss['uid']),
+			], self::STATS_OWNER => [
+				'uid' => $ss['uid'], 'gid' => $ss['gid'], 'owner' => self::nameFromUID($ss['uid']),
 				'group' => self::nameFromGID($ss['gid']),
-			],
-			self::STATS_NAME => [
-				'filename' => $is_resource ? null : $path,
-				'realpath' => $is_resource ? null : realpath($path),
-				'dirname' => $is_resource ? null : dirname($path),
-				'basename' => $is_resource ? null : basename($path),
-			],
-			self::STATS_TYPE => [
-				self::STATS_TYPE => $type,
-				'string' => self::$charToString[$type] ?? '',
-				'is_file' => is_file($path),
-				'is_dir' => is_dir($path),
-				'is_link' => is_link($path),
-				'is_readable' => is_readable($path),
+			], self::STATS_NAME => [
+				'filename' => $is_resource ? null : $path, 'realpath' => $is_resource ? null : realpath($path),
+				'dirname' => $is_resource ? null : dirname($path), 'basename' => $is_resource ? null : basename($path),
+			], self::STATS_TYPE => [
+				self::STATS_TYPE => $type, 'string' => self::$charToString[$type] ?? '', 'is_file' => is_file($path),
+				'is_dir' => is_dir($path), 'is_link' => is_link($path), 'is_readable' => is_readable($path),
 				'is_writable' => is_writable($path),
-			],
-			self::STATS_DEVICE => [
+			], self::STATS_DEVICE => [
 				self::STATS_DEVICE => $ss['dev'], // Device
 				'deviceNumber' => $ss['rdev'], // Device number, if device.
 				'inode' => $ss['ino'], // File serial number
 				'linkCount' => $ss['nlink'], // link count
 				'linkTo' => ($type == 'link') ? @readlink($path) : '',
-			],
-			self::STATS_SIZE => [
+			], self::STATS_SIZE => [
 				self::STATS_SIZE => $ss['size'], // Size of file, in bytes.
 				'blocks' => $ss['blocks'], // Number 512-byte blocks allocated
 				'blockSize' => $ss['blksize'],
-			],
-			self::STATS_TIME => [
+			], self::STATS_TIME => [
 				'mtime' => $ss['mtime'], // Time of last modification
 				'atime' => $ss['atime'], // Time of last access.
 				'ctime' => $ss['ctime'], // Time of last status change
-				'accessed' => @date('Y M D H:i:s', $ss['atime']),
-				'modified' => @date('Y M D H:i:s', $ss['mtime']),
+				'accessed' => @date('Y M D H:i:s', $ss['atime']), 'modified' => @date('Y M D H:i:s', $ss['mtime']),
 				'created' => @date('Y M D H:i:s', $ss['ctime']),
 			],
 		];
@@ -1014,7 +990,7 @@ class File
 	 * @throws FileNotFound
 	 * @throws FilePermission
 	 */
-	public static function trim(Application $application, string $path, int $offset = 0, int $length = null): bool
+	public static function trim(Application $application, string $path, int $offset = 0, ?int $length = null): bool
 	{
 		if (!is_file($path)) {
 			throw new FileNotFound($path);
@@ -1170,7 +1146,7 @@ class File
 	 * @throws FileNotFound
 	 * @throws FilePermission
 	 */
-	public static function moveAtomic(string $source, string $target, string $new_target = null): void
+	public static function moveAtomic(string $source, string $target, ?string $new_target = null): void
 	{
 		if (!is_file($target)) {
 			if (!rename($source, $target)) {
@@ -1316,7 +1292,7 @@ class File
 	 * @return string Full path of found file, or null if not found
 	 * @throws NotFoundException
 	 */
-	public static function findFirst(array $paths, array|string $files = null): string
+	public static function findFirst(array $paths, array|string|null $files = null): string
 	{
 		if (is_string($files)) {
 			$files = [$files];
