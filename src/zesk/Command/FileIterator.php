@@ -18,7 +18,8 @@ use zesk\File;
  * @author kent
  *
  */
-abstract class FileIterator extends SimpleCommand {
+abstract class FileIterator extends SimpleCommand
+{
 	/**
 	 * Override in subclasses to include/exclude certain extensions
 	 *
@@ -83,7 +84,7 @@ abstract class FileIterator extends SimpleCommand {
 			foreach ($extras as $extra) {
 				if (is_file($extra)) {
 					$this->process_file(new SplFileInfo($extra));
-				} else if (is_dir($extra)) {
+				} elseif (is_dir($extra)) {
 					$this->recurseDirectory($extra);
 				} else {
 					$this->log("### Unknown file or directory $extra");

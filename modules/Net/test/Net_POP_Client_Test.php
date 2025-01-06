@@ -18,7 +18,8 @@ use zesk\PHPUnit\TestCase;
  * @author kent
  *
  */
-class Net_POP_Client_Test extends TestCase {
+class Net_POP_Client_Test extends TestCase
+{
 	/**
 	 *
 	 * @var string

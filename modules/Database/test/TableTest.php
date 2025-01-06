@@ -19,7 +19,8 @@ use zesk\PHPUnit\TestCase;
  * @author kent
  *
  */
-class TableTest extends TestCase {
+class TableTest extends TestCase
+{
 	protected array $load_modules = [
 		'MySQL',
 	];

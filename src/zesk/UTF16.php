@@ -15,7 +15,8 @@ namespace zesk;
  *
  * @author kent
  */
-class UTF16 {
+class UTF16
+{
 	/**
 	 * Convert a string from utf16 to utf8
 	 *
@@ -36,7 +37,7 @@ class UTF16 {
 		if ($c0 == 0xFE && $c1 == 0xFF) {
 			$be = true;
 			$found_be = true;
-		} else if ($c0 == 0xFF && $c1 == 0xFE) {
+		} elseif ($c0 == 0xFF && $c1 == 0xFE) {
 			$be = false;
 			$found_be = true;
 		}
@@ -49,7 +50,7 @@ class UTF16 {
 			$c = ($be) ? ord($content[$i]) << 8 | ord($content[$i + 1]) : ord($content[$i + 1]) << 8 | ord($content[$i]);
 			if ($c >= 0x0001 && $c <= 0x007F) {
 				$dec .= chr($c);
-			} else if ($c > 0x07FF) {
+			} elseif ($c > 0x07FF) {
 				$dec .= chr(0xE0 | (($c >> 12) & 0x0F));
 				$dec .= chr(0x80 | (($c >> 6) & 0x3F));
 				$dec .= chr(0x80 | (($c >> 0) & 0x3F));
@@ -87,7 +88,7 @@ class UTF16 {
 		if ($c0 == 0xFE && $c1 == 0xFF) {
 			$be = true;
 			$start = 2;
-		} else if ($c0 == 0xFF && $c1 == 0xFE) {
+		} elseif ($c0 == 0xFF && $c1 == 0xFE) {
 			$start = 2;
 			$be = false;
 		}

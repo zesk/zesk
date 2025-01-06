@@ -24,7 +24,8 @@ namespace zesk;
  *
  * @author kent
  */
-class Lists {
+class Lists
+{
 	/**
 	 * Make a list unique
 	 *
@@ -97,7 +98,7 @@ class Lists {
 		$items = array_unique(ArrayTools::clean(toList($item, [''], $sep), null));
 		if (is_array($list)) {
 			return array_unique(array_merge($list, $items));
-		} else if ($list === '') {
+		} elseif ($list === '') {
 			return implode($sep, $items);
 		} else {
 			return implode($sep, array_unique(array_merge(explode($sep, $list), $items)));

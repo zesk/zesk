@@ -12,7 +12,8 @@ namespace zesk;
 /**
  * @see Base26_Test
  */
-class Base26 {
+class Base26
+{
 	/**
 	 * Convert an integer into a base-26 alphabetic string with a minimum length of $nChars.
 	 *

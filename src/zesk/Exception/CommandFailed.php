@@ -16,7 +16,8 @@ use zesk\Exception;
  * @author kent
  *
  */
-class CommandFailed extends Exception {
+class CommandFailed extends Exception
+{
 	/**
 	 *
 	 * @var string

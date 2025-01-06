@@ -53,9 +53,9 @@ zeskPipelineSetup() {
         statusMessage decorate info "Clean install ..."
         shift
         ;;
-      --develop)
-        versionArgs+=("--develop")
-        statusMessage decorate info "Development ..."
+      --staging)
+        versionArgs+=("--staging")
+        statusMessage decorate info "Staging ..."
         shift
         ;;
       *)

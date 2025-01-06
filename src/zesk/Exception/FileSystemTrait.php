@@ -16,7 +16,8 @@ use Throwable;
  * @author kent
  *
  */
-trait FileSystemTrait {
+trait FileSystemTrait
+{
 	/**
 	 *
 	 * @var string
@@ -38,8 +39,8 @@ trait FileSystemTrait {
 			$message = "{path}: $message";
 		}
 		parent::__construct($message, [
-				'path' => $path,
-			] + $arguments, $code, $previous);
+			'path' => $path,
+		] + $arguments, $code, $previous);
 	}
 
 	/**

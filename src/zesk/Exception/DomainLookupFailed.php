@@ -17,7 +17,8 @@ use zesk\Exception;
  * @author kent
  *
  */
-class DomainLookupFailed extends Exception {
+class DomainLookupFailed extends Exception
+{
 	/**
 	 *
 	 * @var string

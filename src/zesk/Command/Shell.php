@@ -39,7 +39,8 @@ use function str_starts_with;
  *
  * @category Management
  */
-class Shell extends SimpleCommand {
+class Shell extends SimpleCommand
+{
 	protected array $shortcuts = ['shell', 'eval', 'evaluate'];
 
 	protected array $option_types = [
@@ -204,8 +205,8 @@ class Shell extends SimpleCommand {
 		}
 		$prefix = 'return';
 		if (StringTools::begins($string, [
-				'echo ', 'print ',
-			]) || str_contains($string, ';')) {
+			'echo ', 'print ',
+		]) || str_contains($string, ';')) {
 			$prefix = '';
 		}
 		return $prefix . ' ' . $string;

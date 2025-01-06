@@ -21,7 +21,8 @@ use zesk\Text;
  *
  * @category Tools
  */
-class Licenses extends SimpleCommand {
+class Licenses extends SimpleCommand
+{
 	protected array $shortcuts = ['licenses'];
 
 	protected array $option_types = [
@@ -47,8 +48,8 @@ class Licenses extends SimpleCommand {
 					$moduleData[$module] = JSON::decode(File::contents($configPath));
 				} catch (ParseException $e) {
 					$this->error('Unable to parse {module} {configPath} {message}', [
-							'module' => $module, 'configPath' => $configPath,
-						] + $e->variables());
+						'module' => $module, 'configPath' => $configPath,
+					] + $e->variables());
 				}
 			}
 		} else {

@@ -16,7 +16,8 @@ use zesk\Exception\SemanticsException;
 /**
  * Abstraction of HTML markup language, with tools for generating and parsing HTML
  */
-class HTML {
+class HTML
+{
 	private const RE_TAG_NAME_START_CHAR = ":A-Za-z_\xC0-\xD6\xD8-\xF6";
 
 	/**
@@ -56,7 +57,7 @@ class HTML {
 			'accept', 'alt', 'checked', 'disabled', 'ismap', 'maxlength', 'name', 'onblur', 'onchange', 'onclick',
 			'ondblclick', 'onfocus', 'onkeydown', 'onkeypress', 'onkeyup', 'onmousedown', 'onmousemove', 'onmouseout',
 			'onmouseover', 'onmouseup', 'onselect', 'placeholder', 'readonly', 'size', 'src', 'type', 'usemap', 'value',
-		], 'select' => 'input', 'li' => ['value',], 'link' => [
+		], 'select' => 'input', 'li' => ['value', ], 'link' => [
 			'charset', 'crossorigin', 'href', 'hreflang', 'media', 'rel', 'sizes', 'type',
 		],
 	];
@@ -228,7 +229,7 @@ class HTML {
 			$char = substr($term, 0, 1);
 			if ($char === '#') {
 				$result['id'] = substr($term, 1);
-			} else if ($char === '.') {
+			} elseif ($char === '.') {
 				$result['class'] = CSS::addClass($result['class'] ?? '', substr($term, 1));
 			} else {
 				$result['class'] = CSS::addClass($result['class'] ?? '', $term);
@@ -531,7 +532,7 @@ class HTML {
 		/* match a start/end tag in the source */
 		$RE_HTML_TAG_DOUBLE = '/' . $RE_TAG_START_CHAR_DEF . '([^' . self::$RE_TAG_START_CHAR . self::$RE_TAG_END_CHAR . ']*)' . self::$RE_TAG_END_CHAR . '/si';
 
-		return [$RE_HTML_TAG_SINGLE, $RE_HTML_TAG_DOUBLE, $RE_HTML_TAG_START,];
+		return [$RE_HTML_TAG_SINGLE, $RE_HTML_TAG_DOUBLE, $RE_HTML_TAG_START, ];
 	}
 
 	/**
@@ -704,8 +705,8 @@ class HTML {
 	 */
 	public static function ediv(string|array $attributes = []): string
 	{
-		$args = array_merge(['div',], func_get_args());
-		return call_user_func_array([__CLASS__, 'etag',], $args);
+		$args = array_merge(['div', ], func_get_args());
+		return call_user_func_array([__CLASS__, 'etag', ], $args);
 	}
 
 	/**
@@ -716,8 +717,8 @@ class HTML {
 	 */
 	public static function espan(string|array $attributes = []): string
 	{
-		$args = array_merge(['span',], func_get_args());
-		return call_user_func_array([__CLASS__, 'etag',], $args);
+		$args = array_merge(['span', ], func_get_args());
+		return call_user_func_array([__CLASS__, 'etag', ], $args);
 	}
 
 	/**
@@ -1093,7 +1094,7 @@ class HTML {
 			$k = strtolower($k);
 			if (is_array($allowed_tags) && !in_array($k, $allowed_tags)) {
 				$string = self::removeTags($k, $string, false);
-			} else if (in_array($k, $remove_tags)) {
+			} elseif (in_array($k, $remove_tags)) {
 				$string = self::removeTags($k, $string, false);
 			}
 		}
@@ -1148,13 +1149,13 @@ class HTML {
 	{
 		if ($mixed === null) {
 			return '';
-		} else if (is_string($mixed)) {
+		} elseif (is_string($mixed)) {
 			return $mixed;
-		} else if ($mixed instanceof HTMLTag) {
+		} elseif ($mixed instanceof HTMLTag) {
 			return $mixed->innerHTML();
-		} else if (is_object($mixed) && method_exists($mixed, '__toString')) {
+		} elseif (is_object($mixed) && method_exists($mixed, '__toString')) {
 			return $mixed->__toString();
-		} else if (is_array($mixed)) {
+		} elseif (is_array($mixed)) {
 			foreach ($mixed as $k => $v) {
 				$mixed[$k] = self::mixedToString($v);
 			}
@@ -1460,7 +1461,7 @@ class HTML {
 			}
 			$options_html[] = self::tag('option', $option_attrs, $label);
 		}
-		return self::tag('select', ['name' => $name,] + $attributes + ['id' => $name,], implode('', $options_html));
+		return self::tag('select', ['name' => $name, ] + $attributes + ['id' => $name, ], implode('', $options_html));
 	}
 
 	public static function input_submit(string $name, string $value, array|string $attributes = []): string
@@ -1545,9 +1546,9 @@ class HTML {
 	{
 		$domain_prefix = rtrim($domain_prefix, '/');
 		$map = [];
-		foreach (['href', 'src',] as $attr) {
-			foreach (['"', '\'',] as $quote) {
-				foreach (['/' => '', '.' => '/',] as $prefix => $append) {
+		foreach (['href', 'src', ] as $attr) {
+			foreach (['"', '\'', ] as $quote) {
+				foreach (['/' => '', '.' => '/', ] as $prefix => $append) {
 					$map[$attr . '=' . $quote . $prefix] = $attr . '=' . $quote . $domain_prefix . $append . $prefix;
 				}
 			}
@@ -1563,7 +1564,7 @@ class HTML {
 	 */
 	public static function entities_replace(string $html): string
 	{
-		$html = strtr($html, ['&ldquo;' => '"', '&rdquo;' => '"', '&lsquo;' => '\'', '&rsquo;' => '\'',]);
+		$html = strtr($html, ['&ldquo;' => '"', '&rdquo;' => '"', '&lsquo;' => '\'', '&rsquo;' => '\'', ]);
 		return html_entity_decode($html);
 	}
 
@@ -1617,7 +1618,7 @@ class HTML {
 			}
 			$global_match_index++;
 			$replace_value = $args[$index] ?? '[]';
-			[$left, $right] = explode('[]', $replace_value, 2) + [null, '',];
+			[$left, $right] = explode('[]', $replace_value, 2) + [null, '', ];
 			if ($left === null) {
 				$replace_value = '(*' . count($skip_s) . '*)';
 				$skip_s[] = $replace_value;

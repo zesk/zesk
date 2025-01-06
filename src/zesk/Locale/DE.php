@@ -11,7 +11,8 @@ namespace zesk\Locale;
 
 use zesk\StringTools;
 
-class DE extends Locale {
+class DE extends Locale
+{
 	public function formatDate(): string
 	{
 		// TODO

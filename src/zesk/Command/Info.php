@@ -22,7 +22,8 @@ use zesk\Version;
  * @param array $arguments
  * @category Debugging
  */
-class Info extends SimpleCommand {
+class Info extends SimpleCommand
+{
 	/**
 	 * @var array
 	 */

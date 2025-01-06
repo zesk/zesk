@@ -11,7 +11,8 @@ namespace zesk\Net\POP\Client;
 
 use Iterator;
 
-class POPIterator implements Iterator {
+class POPIterator implements Iterator
+{
 	/**
 	 * @var Client
 	 */

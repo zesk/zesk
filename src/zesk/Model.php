@@ -19,7 +19,8 @@ use zesk\Exception\Redirect;
  * @author kent
  *
  */
-class Model extends Hookable {
+class Model extends Hookable
+{
 	public const OPTION_DEFAULT_THEME = 'default_theme';
 
 	/**
@@ -70,7 +71,7 @@ class Model extends Hookable {
 			$theme_names = [
 				$this->option(self::OPTION_DEFAULT_THEME, self::DEFAULT_OPTION_DEFAULT_THEME),
 			];
-		} else if (is_string($theme_names)) {
+		} elseif (is_string($theme_names)) {
 			if ($theme_names[0] === '/' || $theme_names[0] === '.') {
 				return [
 					$theme_names,

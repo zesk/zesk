@@ -19,7 +19,8 @@ use zesk\Types;
  * @author kent
  *
  */
-class Client extends SocketClient {
+class Client extends SocketClient
+{
 	/**
 	 * Default port to connect to
 	 *

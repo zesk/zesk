@@ -12,7 +12,8 @@ namespace zesk\Daemon;
 
 use zesk\Application;
 
-class ConfigurationManager extends Manager {
+class ConfigurationManager extends Manager
+{
 	public function __construct(Application $application)
 	{
 		parent::__construct($application);

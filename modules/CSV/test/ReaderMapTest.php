@@ -13,7 +13,8 @@ use zesk\CSV\MapReader;
 use zesk\Exception\KeyNotFound;
 use zesk\PHPUnit\TestCase;
 
-class ReaderMapTest extends TestCase {
+class ReaderMapTest extends TestCase
+{
 	protected array $load_modules = [
 		'CSV',
 	];

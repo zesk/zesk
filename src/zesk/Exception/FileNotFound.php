@@ -16,7 +16,8 @@ use Throwable;
  * @author kent
  *
  */
-class FileNotFound extends FileSystemException {
+class FileNotFound extends FileSystemException
+{
 	/**
 	 * @param string $path
 	 * @param string $message
@@ -27,7 +28,7 @@ class FileNotFound extends FileSystemException {
 	public function __construct(string $path = '', $message = '', array $arguments = [], int $code = 0, Throwable $previous = null)
 	{
 		parent::__construct($path, $message === '' ? '{path} not found' : $message, [
-				'path' => $path,
-			] + $arguments, $code, $previous);
+			'path' => $path,
+		] + $arguments, $code, $previous);
 	}
 }

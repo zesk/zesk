@@ -16,7 +16,8 @@ use zesk\PHPUnit\TestCase;
  * @author kent
  *
  */
-class ENTest extends TestCase {
+class ENTest extends TestCase
+{
 	public function test_everything(): void
 	{
 		$testx = $this->application->localeFactory('en');

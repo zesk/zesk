@@ -22,7 +22,8 @@ use zesk\File;
  * @api
  *
  */
-abstract class FileConverter extends SimpleCommand {
+abstract class FileConverter extends SimpleCommand
+{
 	/**
 	 * Scan for files matching this extension pattern (no delimiters), use vertical bar only
 	 *
@@ -171,8 +172,8 @@ abstract class FileConverter extends SimpleCommand {
 					$this->convert_file($file, $new_file);
 				} catch (Throwable $t) {
 					$this->application->error('unable to convert from {file} to {new_file}: {throwableClass} {throwableMessage}', [
-							'file' => $file, 'newFile' => $new_file,
-						] + Exception::exceptionVariables($t));
+						'file' => $file, 'newFile' => $new_file,
+					] + Exception::exceptionVariables($t));
 				}
 			}
 		} else {

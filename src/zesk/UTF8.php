@@ -18,7 +18,8 @@ use zesk\Exception\KeyNotFound;
  *
  * @author kent
  */
-class UTF8 {
+class UTF8
+{
 	/**
 	 * @param string $mixed Data to convert
 	 * @param string $characterSet Charset string to use (see ... for examples)

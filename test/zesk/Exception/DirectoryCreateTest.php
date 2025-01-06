@@ -11,7 +11,8 @@ namespace zesk\Exception;
 
 use zesk\PHPUnit\ExceptionTestCase;
 
-class DirectoryCreateTest extends ExceptionTestCase {
+class DirectoryCreateTest extends ExceptionTestCase
+{
 	public function test_basics(): void
 	{
 		$testx = new DirectoryCreate(__DIR__);

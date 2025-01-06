@@ -35,7 +35,8 @@ use zesk\Exception\ParseException;
  * @author kent
  * @category Management
  */
-class Command_Configure extends SimpleCommand {
+class Command_Configure extends SimpleCommand
+{
 	protected array $shortcuts = ['configure'];
 
 	/**
@@ -351,8 +352,8 @@ class Command_Configure extends SimpleCommand {
 		$this->completions = $possible_host_configurations = $this->possible_host_configurations;
 		do {
 			$message = $locale->__('Host configurations: {configs}', [
-					'configs' => implode(' ', $possible_host_configurations),
-				]) . "\n\n";
+				'configs' => implode(' ', $possible_host_configurations),
+			]) . "\n\n";
 			$message .= $locale->__('Enter a list of configurations separated by space') . "\n";
 			$host_configurations = $this->prompt("$message\n> ");
 			$host_configurations = explode(' ', preg_replace("/\s+/", ' ', trim($host_configurations)));

@@ -11,7 +11,8 @@ namespace zesk\Exception;
 
 use zesk\PHPUnit\ExceptionTestCase;
 
-class FileCreateTest extends ExceptionTestCase {
+class FileCreateTest extends ExceptionTestCase
+{
 	public function test_basics(): void
 	{
 		$testx = new FileCreate();

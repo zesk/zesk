@@ -15,7 +15,8 @@ use DirectoryIterator;
 use zesk\Exception\FileParseException;
 use zesk\Exception\KeyNotFound;
 
-class CharacterSet {
+class CharacterSet
+{
 	/**
 	 *
 	 */
@@ -51,11 +52,11 @@ class CharacterSet {
 			$u = $table[$c];
 			if ($u < 0x80) {
 				$result .= chr($u);
-			} else if ($u < 0x800) {
+			} elseif ($u < 0x800) {
 				$result .= chr(($u >> 6) + 0xC0) . chr(($u & 0x3F) + 0x80);
-			} else if ($u < 0x10000) {
+			} elseif ($u < 0x10000) {
 				$result .= chr(($u >> 12) + 0xE0) . chr((($u >> 6) & 0x3F) + 0x80) . chr(($u & 0x3F) + 0x80);
-			} else if ($u < 0x200000) {
+			} elseif ($u < 0x200000) {
 				$result .= chr(($u >> 18) + 0xF0) . chr((($u >> 12) & 0x3F) + 0x80) . chr((($u >> 6) & 0x3F) + 0x80) . chr(($u & 0x3F) + 0x80);
 			}
 		}

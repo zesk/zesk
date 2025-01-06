@@ -19,7 +19,8 @@ use zesk\JSON;
  * @author kent
  *
  */
-class ZZ extends Locale {
+class ZZ extends Locale
+{
 	/**
 	 *
 	 *

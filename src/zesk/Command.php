@@ -34,7 +34,8 @@ use zesk\Interface\Promptable;
  *
  * @author kent
  */
-abstract class Command extends Hookable implements LoggerInterface, Promptable {
+abstract class Command extends Hookable implements LoggerInterface, Promptable
+{
 	use LoggerTrait;
 
 	public const OPTION_ANSI = 'ansi';
@@ -458,7 +459,7 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable {
 		$extension = File::extension($filename);
 		if ($extension === 'conf') {
 			File::put($filename, "# Created $name on " . date('Y-m-d H:i:s') . " at $filename\n");
-		} else if ($extension === 'json') {
+		} elseif ($extension === 'json') {
 			File::put($filename, JSON::encode([
 				get_class($this) => [
 					'configuration_file' => [
@@ -745,7 +746,7 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable {
 	{
 		if ($this->optionBool(self::OPTION_NO_ANSI)) {
 			return false;
-		} else if ($this->optionBool(self::OPTION_ANSI)) {
+		} elseif ($this->optionBool(self::OPTION_ANSI)) {
 			return true;
 		} else {
 			// On Windows, enable ANSI for ANSICON and ConEmu only
@@ -1064,7 +1065,7 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable {
 					$this->error('{class} - No arguments supplied', ['class' => get_class($this)]);
 				}
 			}
-		} else if (count($this->argv) !== 0 && !$optional_arguments) {
+		} elseif (count($this->argv) !== 0 && !$optional_arguments) {
 			if ($this->optionBool('error_unhandled_arguments')) {
 				$this->error('Unhandled arguments starting at ' . $this->argv[0]);
 			}
@@ -1297,8 +1298,8 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable {
 		$app = $this->application;
 		$bin = $app->zeskHome('bin/zesk');
 		return $app->process->executeArguments("$bin --search {appRoot} $command", [
-				'appRoot' => $app->path(),
-			] + $arguments);
+			'appRoot' => $app->path(),
+		] + $arguments);
 	}
 
 	/**
@@ -1351,9 +1352,9 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable {
 			$result = $this->invokeTypedFilters(self::FILTER_RUN_AFTER, $result, [$this]);
 			if (is_bool($result)) {
 				$result = $result ? self::EXIT_CODE_SUCCESS : -1;
-			} else if ($result === null) {
+			} elseif ($result === null) {
 				$result = self::EXIT_CODE_SUCCESS;
-			} else if (!is_int($result)) {
+			} elseif (!is_int($result)) {
 				$result = -1;
 			}
 			assert(count(self::$commands) > 0);
@@ -1364,8 +1365,8 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable {
 			return self::EXIT_CODE_ENVIRONMENT;
 		} catch (Throwable $e) {
 			$this->error("Exception thrown by command {class} : {exceptionClass} {message}\n{backtrace}", Exception::exceptionVariables($e) + [
-					'class' => get_class($this),
-				]);
+				'class' => get_class($this),
+			]);
 			$this->application->invokeHooks(Application::HOOK_EXCEPTION, [$this->application, $e]);
 			if ($this->optionBool('debug', $this->application->development())) {
 				$this->error($e->getTraceAsString());

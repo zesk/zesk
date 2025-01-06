@@ -13,8 +13,8 @@ include __DIR__ . '/xdebug.php';
 include __DIR__ . '/autoload.php';
 
 return ApplicationLoader::application([
-		Application::OPTION_PATH => __DIR__, Application::OPTION_VERSION => Version::release(),
-		Application::OPTION_CONFIGURATION_FILES => [
-			'/etc/zesk.json', './etc/zesk.json', './etc/host/' . System::uname() . '.json', '~/zesk.json',
-		],
-	] + (is_array($GLOBALS['ZESK'] ?? null) ? $GLOBALS['ZESK'] : []));
+	Application::OPTION_PATH => __DIR__, Application::OPTION_VERSION => Version::release(),
+	Application::OPTION_CONFIGURATION_FILES => [
+		'/etc/zesk.json', './etc/zesk.json', './etc/host/' . System::uname() . '.json', '~/zesk.json',
+	],
+] + (is_array($GLOBALS['ZESK'] ?? null) ? $GLOBALS['ZESK'] : []));

@@ -14,7 +14,8 @@ use zesk\FileMonitor\IncludeFilesMonitor;
 /**
  *
  */
-class ProcessTools {
+class ProcessTools
+{
 	/**
 	 * Test to see if any files have changed in this process.
 	 *

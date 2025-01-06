@@ -35,7 +35,8 @@ use zesk\Version as ZeskVersion;
  * @author kent
  * @category Management
  */
-class Version extends SimpleCommand {
+class Version extends SimpleCommand
+{
 	/**
 	 * When the version is updated
 	 */
@@ -187,7 +188,7 @@ class Version extends SimpleCommand {
 				if ($old_value !== $version_structure[$token]) {
 					$changed = $reset = true;
 				}
-			} else if ($reset) {
+			} elseif ($reset) {
 				$version_structure[$token] = 0;
 			} else {
 				$version_structure[$token] = intval($version_structure[$token] ?? 0);
@@ -365,7 +366,7 @@ class Version extends SimpleCommand {
 	{
 		$map = $__generator['map'] ?? null;
 		if (is_array($map) || is_string($map)) {
-			return fn(array $version_structure): string|array => ArrayTools::map($map, $version_structure);
+			return fn (array $version_structure): string|array => ArrayTools::map($map, $version_structure);
 		}
 
 		throw new SemanticsException('{schema_path} `generator` must have key `map`', [

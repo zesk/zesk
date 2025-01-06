@@ -28,7 +28,8 @@ require_once(__DIR__ . '/functions.php');
  * @author kent
  *
  */
-class Kernel {
+class Kernel
+{
 	/**
 	 *
 	 * @var array
@@ -79,7 +80,7 @@ class Kernel {
 	public static function singleton(): self
 	{
 		if (!self::$singleton) {
-			throw new RuntimeException('Need to create singleton with {class}::factory first', ['class' => __CLASS__,]);
+			throw new RuntimeException('Need to create singleton with {class}::factory first', ['class' => __CLASS__, ]);
 		}
 		return self::$singleton;
 	}
@@ -115,8 +116,8 @@ class Kernel {
 	private static function _stackFrameNormalize(array $stackFrame): array
 	{
 		return $stackFrame + [
-				'file' => '', 'class' => '', 'type' => '', 'function' => '', 'line' => '',
-			];
+			'file' => '', 'class' => '', 'type' => '', 'function' => '', 'line' => '',
+		];
 	}
 
 	/**
@@ -202,7 +203,7 @@ class Kernel {
 				foreach ($args as $index => $arg) {
 					if (is_object($arg)) {
 						$arg_dump[$index] = $arg::class;
-					} else if (is_scalar($arg)) {
+					} elseif (is_scalar($arg)) {
 						$arg_dump[$index] = PHP::dump($arg);
 					} else {
 						$arg_dump[$index] = Types::type($arg);
@@ -237,7 +238,7 @@ class Kernel {
 		$configuration = Configuration::factory(self::$configurationDefaults)->merge(Configuration::factory()->setPath($baseApplicationClass, $options));
 		$applicationClass = $configuration->getFirstPath([
 			[$baseApplicationClass, Application::OPTION_APPLICATION_CLASS],
-			[__CLASS__, Application::OPTION_APPLICATION_CLASS], [__CLASS__, 'application_class',],
+			[__CLASS__, Application::OPTION_APPLICATION_CLASS], [__CLASS__, 'application_class', ],
 		], Application::class);
 
 		try {

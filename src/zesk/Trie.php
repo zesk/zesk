@@ -20,7 +20,8 @@ use zesk\Trie\Node;
  * @author kent
  *
  */
-class Trie extends Options {
+class Trie extends Options
+{
 	/**
 	 *
 	 * @var Node

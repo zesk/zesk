@@ -57,7 +57,8 @@ use zesk\Kernel;
  * @author kent
  *
  */
-class Base {
+class Base
+{
 	/**
 	 * Track state of matching
 	 *

@@ -14,7 +14,8 @@ use Doctrine\ORM\Tools\Console\EntityManagerProvider\SingleManagerProvider;
 
 use zesk\Command as BaseCommand;
 
-class Doctrine extends BaseCommand {
+class Doctrine extends BaseCommand
+{
 	protected array $shortcuts = ['doctrine'];
 
 	protected array $option_types = ['*' => 'string'];

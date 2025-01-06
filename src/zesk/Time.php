@@ -22,7 +22,8 @@ use zesk\Exception\ParameterException;
 use zesk\Exception\ParseException;
 use zesk\Locale\Locale;
 
-class Time extends Temporal {
+class Time extends Temporal
+{
 	/**
 	 *
 	 * @var string
@@ -172,11 +173,11 @@ class Time extends Temporal {
 	{
 		if (is_int($value)) {
 			return $this->setUNIXTimestamp($value);
-		} else if ($value instanceof Time) {
+		} elseif ($value instanceof Time) {
 			$this->setSeconds($value->seconds());
 			$this->setMillisecond($value->millisecond());
 			return $this;
-		} else if ($value instanceof Timestamp) {
+		} elseif ($value instanceof Timestamp) {
 			$this->setUNIXTimestamp($value->unixTimestamp())->setMillisecond($value->millisecond());
 			return $this;
 		}
@@ -306,12 +307,12 @@ class Time extends Temporal {
 	public function parse(string $value): self
 	{
 		foreach ([
-					 '/([0-9]{1,2}):([0-9]{2}):([0-9]{2})/' => [
-						 null, 'setHour', 'setMinute', 'setSecond',
-					 ], '/([0-9]{1,2}):([0-9]{2})/' => [
+			'/([0-9]{1,2}):([0-9]{2}):([0-9]{2})/' => [
+				null, 'setHour', 'setMinute', 'setSecond',
+			], '/([0-9]{1,2}):([0-9]{2})/' => [
 				null, 'setHour', 'setMinute',
 			],
-				 ] as $pattern => $assign) {
+		] as $pattern => $assign) {
 			if (preg_match($pattern, $value, $matches)) {
 				$this->setHMS();
 				foreach ($assign as $index => $method) {
@@ -493,7 +494,7 @@ class Time extends Temporal {
 			} else {
 				return 0;
 			}
-		} else if ($value->isEmpty()) {
+		} elseif ($value->isEmpty()) {
 			return 1;
 		}
 		return $this->seconds - $value->seconds;
@@ -632,7 +633,7 @@ class Time extends Temporal {
 		$delta = $a->seconds - $b->seconds;
 		if ($delta < 0) {
 			return -1;
-		} else if ($delta === 0) {
+		} elseif ($delta === 0) {
 			return 0;
 		} else {
 			return 1;

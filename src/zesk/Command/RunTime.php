@@ -19,7 +19,8 @@ use zesk\Command;
  * @category Optimization
  * @author kent
  */
-class RunTime extends Command {
+class RunTime extends Command
+{
 	protected array $shortcuts = ['runtime'];
 
 	public function run(): int

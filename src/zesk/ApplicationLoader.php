@@ -14,7 +14,8 @@ use zesk\Exception\ConfigurationException;
 use zesk\Exception\NotFoundException;
 use zesk\Exception\UnsupportedException;
 
-class ApplicationLoader {
+class ApplicationLoader
+{
 	/**
 	 * @param array $options
 	 * @return Application

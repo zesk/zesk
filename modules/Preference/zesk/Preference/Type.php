@@ -22,7 +22,8 @@ use zesk\ORM\ORMBase;
  * @author kent
  *
  */
-class Type extends ORMBase {
+class Type extends ORMBase
+{
 	public const MEMBER_CODE = 'code';
 
 	/**

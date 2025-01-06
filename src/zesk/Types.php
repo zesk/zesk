@@ -18,7 +18,8 @@ use zesk\Exception\ParseException;
 use zesk\Exception\SemanticsException;
 use zesk\Interface\Simplifiable;
 
-class Types {
+class Types
+{
 	/**
 	 *
 	 */
@@ -228,11 +229,11 @@ class Types {
 	{
 		if ($mixed === '' || $mixed === null) {
 			return $default;
-		} else if (is_scalar($mixed)) {
+		} elseif (is_scalar($mixed)) {
 			return explode($delimiter, strval($mixed));
-		} else if (is_array($mixed)) {
+		} elseif (is_array($mixed)) {
 			return $mixed;
-		} else if (is_object($mixed) && method_exists($mixed, 'to_list')) {
+		} elseif (is_object($mixed) && method_exists($mixed, 'to_list')) {
 			return Types::toList($mixed->toList());
 		} else {
 			return $default;
@@ -459,9 +460,9 @@ class Types {
 				$mixed[$k] = self::_replaceSubstrings($v, $map);
 			}
 			return $mixed;
-		} else if (is_string($mixed)) {
+		} elseif (is_string($mixed)) {
 			return strtr($mixed, $map);
-		} else if (is_object($mixed)) {
+		} elseif (is_object($mixed)) {
 			return method_exists($mixed, 'replaceSubstrings') ? $mixed->replaceSubstrings($map) : $mixed;
 		} else {
 			return $mixed;

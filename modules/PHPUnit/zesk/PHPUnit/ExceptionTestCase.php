@@ -14,7 +14,8 @@ namespace zesk\PHPUnit;
 use Throwable;
 use zesk\Exception;
 
-class ExceptionTestCase extends TestCase {
+class ExceptionTestCase extends TestCase
+{
 	/**
 	 * @param Throwable $e
 	 */

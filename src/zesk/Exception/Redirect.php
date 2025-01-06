@@ -18,7 +18,8 @@ use zesk\Types;
  * @author kent
  * @see RedirectTemporary
  */
-class Redirect extends Exception {
+class Redirect extends Exception
+{
 	/**
 	 *
 	 * @var string

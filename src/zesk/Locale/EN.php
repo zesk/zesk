@@ -11,7 +11,8 @@ namespace zesk\Locale;
 
 use zesk\StringTools;
 
-class EN extends Locale {
+class EN extends Locale
+{
 	/**
 	 * @desc {@inheritDoc}
 	 * @see Locale::formatDate()

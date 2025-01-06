@@ -18,7 +18,8 @@ use zesk\URL;
 use zesk\Hookable;
 use zesk\Application;
 
-abstract class Client extends Hookable {
+abstract class Client extends Hookable
+{
 	/**
 	 * Connection string
 	 * @var string

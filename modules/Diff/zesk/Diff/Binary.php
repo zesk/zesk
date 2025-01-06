@@ -16,7 +16,8 @@ use zesk\Exception\NotFoundException;
  * @author kent
  *
  */
-class Binary extends Base {
+class Binary extends Base
+{
 	/**
 	 *
 	 * @var string

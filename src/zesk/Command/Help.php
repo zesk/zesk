@@ -22,7 +22,8 @@ use zesk\Types;
  *
  * @category Documentation
  */
-class Help extends SimpleCommand {
+class Help extends SimpleCommand
+{
 	protected array $shortcuts = ['help'];
 
 	protected array $option_types = [

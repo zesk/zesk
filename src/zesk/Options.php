@@ -28,7 +28,8 @@ namespace zesk;
  * @package zesk
  * @subpackage system
  */
-class Options {
+class Options
+{
 	/**
 	 * Boolean or string value
 	 *

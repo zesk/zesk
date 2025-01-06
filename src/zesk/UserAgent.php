@@ -18,7 +18,8 @@ namespace zesk;
  * @author kent
  *
  */
-class UserAgent {
+class UserAgent
+{
 	/**
 	 * User agent raw string
 	 *

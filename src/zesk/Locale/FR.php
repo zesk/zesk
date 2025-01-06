@@ -11,7 +11,8 @@ namespace zesk\Locale;
 
 use zesk\StringTools;
 
-class FR extends Locale {
+class FR extends Locale
+{
 	public function formatDate(): string
 	{
 		return 'le {DDD} {MMMM} {YYYY}';

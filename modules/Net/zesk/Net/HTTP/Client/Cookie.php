@@ -16,7 +16,8 @@ use zesk\Timestamp;
  * @author kent
  *
  */
-class Cookie {
+class Cookie
+{
 	/**
 	 *
 	 * @var string

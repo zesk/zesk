@@ -16,7 +16,8 @@ use zesk\Exception\NotFoundException;
  *
  * @category Modules
  */
-class ModuleVersion extends SimpleCommand {
+class ModuleVersion extends SimpleCommand
+{
 	protected array $shortcuts = ['module-version'];
 
 	protected array $option_types = [

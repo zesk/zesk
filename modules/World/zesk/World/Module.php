@@ -20,7 +20,8 @@ use zesk\Doctrine\Module as DoctrineModule;
  * @author kent
  *
  */
-class Module extends BaseModule {
+class Module extends BaseModule
+{
 	/**
 	 * List of currencies to include (Currency)
 	 */

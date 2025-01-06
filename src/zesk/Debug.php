@@ -14,7 +14,8 @@ namespace zesk;
  *
  * @author kent
  */
-class Debug {
+class Debug
+{
 	/**
 	 *
 	 * @var string
@@ -97,15 +98,15 @@ class Debug {
 		static $indent = 0;
 		if ($x === null) {
 			return '(null)';
-		} else if (is_bool($x)) {
+		} elseif (is_bool($x)) {
 			return '(boolean) ' . ($x ? 'true' : 'false');
-		} else if (is_string($x)) {
+		} elseif (is_string($x)) {
 			return '(string(' . strlen($x) . ')) "' . addcslashes($x, "\0\r\n\t") . '"';
-		} else if (is_scalar($x)) {
+		} elseif (is_scalar($x)) {
 			return '(' . gettype($x) . ") $x";
-		} else if (is_resource($x)) {
+		} elseif (is_resource($x)) {
 			return "(resource) $x";
-		} else if (is_array($x)) {
+		} elseif (is_array($x)) {
 			$result = [];
 			if ($indent < self::$indent_limit) {
 				$indent++;
@@ -127,7 +128,7 @@ class Debug {
 			} else {
 				return '(recursion limit ' . self::$indent_limit . ')';
 			}
-		} else if (is_object($x)) {
+		} elseif (is_object($x)) {
 			foreach (['_debugDump', '_debug_dump'] as $method) {
 				if (method_exists($x, $method)) {
 					return $x->$method();

@@ -28,7 +28,8 @@ use zesk\Exception\KeyNotFound;
  * @author kent
  *
  */
-class preg implements ArrayAccess, Iterator {
+class preg implements ArrayAccess, Iterator
+{
 	/**
 	 *
 	 * @var string
