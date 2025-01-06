@@ -16,7 +16,8 @@ use zesk\PHP;
  * Output all globals
  * @category Debugging
  */
-class Globals extends SimpleCommand {
+class Globals extends SimpleCommand
+{
 	protected array $shortcuts = ['globals', 'g'];
 
 	/**

@@ -14,7 +14,8 @@ namespace zesk\Diff;
  * @author kent
  *
  */
-class MiddleSnake {
+class MiddleSnake
+{
 	public int $x;
 
 	public int $y;

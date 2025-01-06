@@ -11,5 +11,6 @@ namespace zesk\Net;
 
 use zesk\Exception as BaseException;
 
-class Exception extends BaseException {
+class Exception extends BaseException
+{
 }

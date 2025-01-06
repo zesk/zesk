@@ -16,7 +16,8 @@ use zesk\Options;
 /**
  * Iterator for CSV files. Options allows attaching extra unstructured data.
  */
-class Iterator extends Options implements BaseIterator {
+class Iterator extends Options implements BaseIterator
+{
 	/**
 	 * CSV
 	 *
@@ -98,7 +99,7 @@ class Iterator extends Options implements BaseIterator {
 		}
 		if (!is_array($this->row)) {
 			$this->is_valid = false;
-		} else if ($this->use_map) {
+		} elseif ($this->use_map) {
 			$this->row = $this->csv->read_map($this->use_map);
 		}
 	}

@@ -16,7 +16,8 @@ use zesk\Exception;
  *
  * @category Modules
  */
-class Module extends SimpleCommand {
+class Module extends SimpleCommand
+{
 	protected array $shortcuts = ['module', 'm'];
 
 	protected array $option_types = [

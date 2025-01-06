@@ -12,5 +12,6 @@ namespace zesk\Exception;
 /**
  *
  */
-class DirectoryPermission extends FileSystemException {
+class DirectoryPermission extends FileSystemException
+{
 }

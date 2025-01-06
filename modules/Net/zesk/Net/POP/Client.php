@@ -15,7 +15,8 @@ use zesk\Exception\ConnectionFailed;
 use zesk\Exception_Protocol;
 use zesk\Net\SocketClient;
 
-class Client extends SocketClient {
+class Client extends SocketClient
+{
 	/**
 	 *
 	 */

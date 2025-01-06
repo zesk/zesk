@@ -16,7 +16,8 @@ use zesk\Exception\SyntaxException;
  *
  * @author kent
  */
-class CSS {
+class CSS
+{
 	/**
 	 * Array of standard CSS colors and their respective hex codes
 	 *

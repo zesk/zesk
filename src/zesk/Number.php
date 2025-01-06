@@ -18,7 +18,8 @@ use zesk\Locale\Locale;
  * @author kent
  *
  */
-class Number {
+class Number
+{
 	/**
 	 * Kilobytes, Megabytes, Gigabytes, Terabytes
 	 *
@@ -70,15 +71,15 @@ class Number {
 			return $locale('Number::format_bytes:={0} TB', [
 				round(($n / self::$magnitudes['T']), $precision),
 			]);
-		} else if ($n >= 1073741824) {
+		} elseif ($n >= 1073741824) {
 			return $locale('Number::format_bytes:={0} GB', [
 				round(($n / self::$magnitudes['G']), $precision),
 			]);
-		} else if ($n >= 1048576) {
+		} elseif ($n >= 1048576) {
 			return $locale('Number::format_bytes:={0} MB', [
 				round(($n / self::$magnitudes['M']), $precision),
 			]);
-		} else if ($n >= 1024) {
+		} elseif ($n >= 1024) {
 			return $locale('Number::format_bytes:={0} KB', [
 				round($n / self::$magnitudes['K'], $precision),
 			]);

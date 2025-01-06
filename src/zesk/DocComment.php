@@ -16,7 +16,8 @@ namespace zesk;
  * @author kent
  *
  */
-class DocComment extends Options {
+class DocComment extends Options
+{
 	/**
 	 * For patterns which are keyed by the first token in the DocComment
 	 *
@@ -424,16 +425,16 @@ class DocComment extends Options {
 		foreach ($items as $key => $value) {
 			if (isset($multi_keys[$key])) {
 				$unparsed = $this->formatMultiKey($value, $key);
-			} else if (isset($param_keys[$key])) {
+			} elseif (isset($param_keys[$key])) {
 				$unparsed = $this->formatParameterKey($value, $key);
-			} else if (isset($list_keys[$key])) {
+			} elseif (isset($list_keys[$key])) {
 				$unparsed = $this->formatListKey($value, $key);
 			} else {
 				$unparsed = $this->formatDefault($value, $key);
 			}
 			if (is_string($unparsed)) {
 				$result[] = $unparsed;
-			} else if (is_array($unparsed)) {
+			} elseif (is_array($unparsed)) {
 				$result[] = implode("\n", $unparsed);
 			}
 		}

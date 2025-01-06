@@ -16,7 +16,8 @@ use zesk\Exception\NotFoundException;
  * @author kent
  *
  */
-class Lines extends Base {
+class Lines extends Base
+{
 	/**
 	 *
 	 * @var array

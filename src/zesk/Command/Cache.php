@@ -20,7 +20,8 @@ use zesk\Exception\FilePermission;
  * @author kent
  *
  */
-class Cache extends SimpleCommand {
+class Cache extends SimpleCommand
+{
 	protected array $shortcuts = ['cache'];
 
 	protected array $option_types = [

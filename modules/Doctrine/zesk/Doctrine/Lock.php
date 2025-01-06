@@ -39,7 +39,8 @@ use zesk\Timestamp;
  * Specific to the database, however.
  */
 #[Entity]
-class Lock extends Model {
+class Lock extends Model
+{
 	use AutoID;
 	use CodeName;
 
@@ -71,7 +72,7 @@ class Lock extends Model {
 		$lock = $em->getRepository(Lock::class)->findOneBy(['code' => $code]);
 		if (!$lock) {
 			$lock = self::_create_lock($application, $code);
-		} else if (!$lock->_isMine()) {
+		} elseif (!$lock->_isMine()) {
 			try {
 				$em->refresh($lock);
 			} catch (ORMException|TransactionRequiredException $e) {

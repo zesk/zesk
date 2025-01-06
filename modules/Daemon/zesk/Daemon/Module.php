@@ -33,7 +33,8 @@ use zesk\Timestamp;
  * @author kent
  *
  */
-class Module extends \zesk\Module {
+class Module extends \zesk\Module
+{
 	/**
 	 *
 	 * @var string

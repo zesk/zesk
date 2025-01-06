@@ -24,7 +24,8 @@ use zesk\Exception\FilePermission;
  * @author kent
  *
  */
-class CONF2JSON extends FileIterator {
+class CONF2JSON extends FileIterator
+{
 	protected array $shortcuts = ['conf2json'];
 
 	protected array $extensions = [
@@ -64,7 +65,7 @@ class CONF2JSON extends FileIterator {
 		if ($this->optionBool('dry-run')) {
 			if ($n === 0) {
 				$message = 'No entries found in {source_name} for {target_name}';
-			} else if ($this->optionBool('noclobber') && $target_exists) {
+			} elseif ($this->optionBool('noclobber') && $target_exists) {
 				$message = 'Will not overwrite {target_name}';
 			} else {
 				$message = 'Would write {target_name} with {n} {entries}';

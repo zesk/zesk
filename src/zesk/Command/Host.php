@@ -18,7 +18,8 @@ use zesk\Command;
  * @category Debugging
  * @alias uname
  */
-class Host extends Command {
+class Host extends Command
+{
 	/**
 	 * @var array
 	 */

@@ -15,7 +15,8 @@ declare(strict_types=1);
 
 namespace zesk;
 
-class Compatibility {
+class Compatibility
+{
 	public const PHP_VERSION_MINIMUM = 80000;
 
 	/**

@@ -25,7 +25,8 @@ use zesk\Types;
  * @author kent
  *
  */
-class LoaderTest extends TestCase {
+class LoaderTest extends TestCase
+{
 	public function test_implements(): void
 	{
 		$config = new Configuration();
@@ -82,11 +83,11 @@ class LoaderTest extends TestCase {
 
 		$files = [];
 		foreach ([
-					 $one, Directory::path($path, 'nope'), $two, Directory::path($path, 'double_nope'), $three,
-				 ] as $dir) {
+			$one, Directory::path($path, 'nope'), $two, Directory::path($path, 'double_nope'), $three,
+		] as $dir) {
 			foreach ([
-						 'a.conf', 'b.json',
-					 ] as $f) {
+				'a.conf', 'b.json',
+			] as $f) {
 				$files[] = Directory::path($dir, $f);
 			}
 		}

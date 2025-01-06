@@ -18,7 +18,8 @@ use zesk\PHPUnit\TestCase;
  * @author kent
  *
  */
-class IndexTest extends TestCase {
+class IndexTest extends TestCase
+{
 	protected array $load_modules = [
 		'MySQL',
 	];

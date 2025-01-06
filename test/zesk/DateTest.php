@@ -18,7 +18,8 @@ use zesk\Exception\SemanticsException;
  * @author kent
  *
  */
-class DateTest extends UnitTest {
+class DateTest extends UnitTest
+{
 	public static function data_daysInMonth(): array
 	{
 		return [
@@ -184,19 +185,19 @@ class DateTest extends UnitTest {
 		$this->assertEquals(20, $x->day());
 
 		foreach ([
-					 '{YYYY}-{MM}-{DD}' => '2008-08-20', '{YY}-{MM}-{DD}' => '08-08-20', '{YY}-{M}-{D}' => '08-8-20',
-					 '{MMM} {DDD}, {YYYY}' => 'Aug 20th, 2008', '{MMMM} {DDD}, {YYYY}' => 'August 20th, 2008',
-					 '{YYY} {DDDD}' => '{YYY} {DDDD}',
-				 ] as $format_string => $expected) {
+			'{YYYY}-{MM}-{DD}' => '2008-08-20', '{YY}-{MM}-{DD}' => '08-08-20', '{YY}-{M}-{D}' => '08-8-20',
+			'{MMM} {DDD}, {YYYY}' => 'Aug 20th, 2008', '{MMMM} {DDD}, {YYYY}' => 'August 20th, 2008',
+			'{YYY} {DDDD}' => '{YYY} {DDDD}',
+		] as $format_string => $expected) {
 			$this->assertEquals($expected, $x->format($format_string, ['locale' => $this->application->locale]));
 		}
 
 		$x->parse('1999-12-01');
 		foreach ([
-					 '{YYYY}-{MM}-{DD}' => '1999-12-01', '{YY}-{MM}-{DD}' => '99-12-01', '{YY}-{M}-{D}' => '99-12-1',
-					 '{MMM} {DDD}, {YYYY}' => 'Dec 1st, 1999', '{MMMM} {DDD}, {YYYY}' => 'December 1st, 1999',
-					 '{YYY} {DDDD}' => '{YYY} {DDDD}',
-				 ] as $format_string => $expected) {
+			'{YYYY}-{MM}-{DD}' => '1999-12-01', '{YY}-{MM}-{DD}' => '99-12-01', '{YY}-{M}-{D}' => '99-12-1',
+			'{MMM} {DDD}, {YYYY}' => 'Dec 1st, 1999', '{MMMM} {DDD}, {YYYY}' => 'December 1st, 1999',
+			'{YYY} {DDDD}' => '{YYY} {DDDD}',
+		] as $format_string => $expected) {
 			$this->assertEquals($expected, $x->format($format_string, ['locale' => $this->application->locale]));
 		}
 	}

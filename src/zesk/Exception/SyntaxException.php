@@ -16,5 +16,6 @@ use zesk\Exception;
  * @author kent
  *
  */
-class SyntaxException extends Exception {
+class SyntaxException extends Exception
+{
 }

@@ -9,7 +9,8 @@ declare(strict_types=1);
 
 namespace zesk\Trie;
 
-class Node {
+class Node
+{
 	/**
 	 * The next array is keyed by single letters and strings. When the key is a single letter, it contains:
 	 *
@@ -256,9 +257,9 @@ class Node {
 			}
 			if ($v === 1) {
 				call_user_func($function, "$word$k");
-			} else if ($v instanceof Node) {
+			} elseif ($v instanceof Node) {
 				$v->walk($function, "$word$k");
-			} else if (is_string($v)) {
+			} elseif (is_string($v)) {
 				call_user_func($function, "$word$k$v");
 			}
 		}

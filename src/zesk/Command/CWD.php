@@ -18,7 +18,8 @@ use zesk\Command;
  * @return array
  * @category Debugging
  */
-class CWD extends Command {
+class CWD extends Command
+{
 	protected array $shortcuts = ['cwd'];
 
 	public function run(): int

@@ -18,7 +18,8 @@ use Throwable;
 /**
  *
  */
-abstract class Exception extends BaseException {
+abstract class Exception extends BaseException
+{
 	use Exceptional;
 
 	/**

@@ -30,7 +30,8 @@ use zesk\Types;
  * @author kent
  * @see Class_Settings
  */
-class Settings extends Hookable implements MetaInterface, SettingsInterface {
+class Settings extends Hookable implements MetaInterface, SettingsInterface
+{
 	/**
 	 * Enable debugging on the Settings save step
 	 *

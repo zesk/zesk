@@ -15,7 +15,8 @@ use zesk\Exception\NotFoundException;
 use zesk\Exception\SyntaxException;
 use zesk\Router;
 
-class RouterFile {
+class RouterFile
+{
 	/**
 	 * @param string $file
 	 * @return Router

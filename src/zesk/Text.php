@@ -14,7 +14,8 @@ namespace zesk;
  * The text class deals with manipulation of text, specifically for output to a console or
  * fixed-width font output, or email.
  */
-class Text {
+class Text
+{
 	/**
 	 * Indent plain text
 	 *
@@ -283,7 +284,7 @@ class Text {
 	 */
 	public static function formatPairs(array $map, string $prefix = '', string $space = ' ', string $suffix = ': ', string $br = PHP_EOL): string
 	{
-		$n = array_reduce(array_keys($map), fn($n, $k) => max(strlen(strval($k)), $n), 0);
+		$n = array_reduce(array_keys($map), fn ($n, $k) => max(strlen(strval($k)), $n), 0);
 		$r = [];
 		foreach ($map as $k => $value) {
 			$k = strval($k);
@@ -608,7 +609,7 @@ class Text {
 						$name .= "-$uIndex";
 						$uIndex = $uIndex + 1;
 					}
-					$headers[$name] = [$start, $length,];
+					$headers[$name] = [$start, $length, ];
 				}
 				$was_space = $space;
 			}

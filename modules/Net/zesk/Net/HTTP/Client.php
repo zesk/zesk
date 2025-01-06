@@ -40,7 +40,8 @@ use zesk\Version;
  * @package zesk
  * @subpackage system
  */
-class Client extends Hookable {
+class Client extends Hookable
+{
 	public const OPTION_FOLLOW_LOCATION = 'setFollowLocation';
 
 	/*
@@ -819,7 +820,7 @@ class Client extends Hookable {
 			}
 			unlink($dest_headers_name);
 			File::trim($this->application(), $this->destination, strlen($all_headers));
-		} else if ($this->wantHeaders()) {
+		} elseif ($this->wantHeaders()) {
 			$this->parseHeaders();
 		}
 	}

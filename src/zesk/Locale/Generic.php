@@ -15,7 +15,8 @@ namespace zesk\Locale;
  * @author kent
  *
  */
-class Generic extends Locale {
+class Generic extends Locale
+{
 	/**
 	 *
 	 * @see Locale::formatDate()

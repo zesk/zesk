@@ -19,7 +19,8 @@ use zesk\Exception\FilePermission;
 /**
  * @author kent
  */
-class System {
+class System
+{
 	public const BINARY_UPTIME = '/usr/bin/uptime';
 
 	/**
@@ -196,14 +197,14 @@ class System {
 				if (preg_match('/^\S/', $line)) {
 					[$interface, $flags] = StringTools::pair($line, ' ');
 					$interface = rtrim($interface, ':');
-					$result[$interface] = ['flags' => ltrim($flags),];
+					$result[$interface] = ['flags' => ltrim($flags), ];
 				} else {
 					$line = trim($line);
 					$pairs = preg_split('/\s+/', $line);
 					$type = rtrim(array_shift($pairs), ':');
 					if ($pairs) {
 						$id = StringTools::removePrefix(array_shift($pairs), 'addr:');
-						$result[$interface][$type][$id] = ['value' => $id, $type => $id,];
+						$result[$interface][$type][$id] = ['value' => $id, $type => $id, ];
 						while (count($pairs) > 1) {
 							$name = rtrim(array_shift($pairs), ':');
 							$value = array_shift($pairs);
@@ -268,7 +269,7 @@ class System {
 		} catch (FileNotFound|FilePermission) {
 			$uptime_string = self::uptimeBinary();
 		}
-		return [floatval($uptime_string[0]), floatval($uptime_string[1]), floatval($uptime_string[2]),];
+		return [floatval($uptime_string[0]), floatval($uptime_string[1]), floatval($uptime_string[2]), ];
 	}
 
 	/**
@@ -370,8 +371,8 @@ class System {
 			foreach (Types::toList($files) as $file) {
 				if (file_exists($file)) {
 					return $result + [
-							'brand' => $distro, 'distro' => trim(file_get_contents($file)), 'source' => $file,
-						];
+						'brand' => $distro, 'distro' => trim(file_get_contents($file)), 'source' => $file,
+					];
 				}
 			}
 		}

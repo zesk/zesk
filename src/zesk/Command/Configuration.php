@@ -31,7 +31,8 @@ use zesk\Configuration\Loader;
  * @author kent
  *
  */
-class Configuration extends SimpleCommand {
+class Configuration extends SimpleCommand
+{
 	protected array $shortcuts = ['conf', 'config', 'configuration'];
 
 	protected array $option_types = [
@@ -65,12 +66,12 @@ class Configuration extends SimpleCommand {
 
 		$result = [];
 		foreach ([
-					 'show_loaded' => ['Loaded', Loader::PROCESSED], 'show_not_loaded' => ['Missing', Loader::MISSING],
-					 'show_skipped' => ['Skipped', Loader::SKIPPED],
-					 'show_externals' => ['External variables', Loader::EXTERNALS],
-					 'show_missing_classes' => ['Missing classes', '-missing-classes-'],
-					 'show_top_level_scalar' => ['Top-level variables which are scalar', '-warning-top-'],
-				 ] as $flag => [$key, $variablesKey]) {
+			'show_loaded' => ['Loaded', Loader::PROCESSED], 'show_not_loaded' => ['Missing', Loader::MISSING],
+			'show_skipped' => ['Skipped', Loader::SKIPPED],
+			'show_externals' => ['External variables', Loader::EXTERNALS],
+			'show_missing_classes' => ['Missing classes', '-missing-classes-'],
+			'show_top_level_scalar' => ['Top-level variables which are scalar', '-warning-top-'],
+		] as $flag => [$key, $variablesKey]) {
 			$list = $variables[$variablesKey];
 			if ($flags[$flag] && count($list)) {
 				$result[$key] = $this->outputList($list);

@@ -14,7 +14,8 @@ use zesk\Exception\ConnectionFailed;
 use zesk\Exception_Protocol;
 use zesk\TimeoutExpired;
 
-class SocketClient extends Client {
+class SocketClient extends Client
+{
 	/**
 	 * Option to enable debugging of read calls.
 	 *

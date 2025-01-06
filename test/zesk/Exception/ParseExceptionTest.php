@@ -11,7 +11,8 @@ namespace zesk\Exception;
 
 use zesk\PHPUnit\ExceptionTestCase;
 
-class ParseExceptionTest extends ExceptionTestCase {
+class ParseExceptionTest extends ExceptionTestCase
+{
 	public function test_basics(): void
 	{
 		$testx = new ParseException();

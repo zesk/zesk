@@ -16,5 +16,6 @@ use zesk\Exception;
  * @author kent
  *
  */
-class ParameterException extends Exception {
+class ParameterException extends Exception
+{
 }

@@ -40,7 +40,8 @@ use zesk\Types;
 use zesk\URL;
 use function random_int;
 
-class TestCase extends BaseTestCase {
+class TestCase extends BaseTestCase
+{
 	/**
 	 * @var bool
 	 */

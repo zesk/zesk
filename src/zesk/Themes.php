@@ -19,7 +19,8 @@ use zesk\Interface\Themeable;
 /**
  * Everything theme-related
  */
-class Themes implements Themeable {
+class Themes implements Themeable
+{
 	/**
 	 * @var bool
 	 */
@@ -180,7 +181,7 @@ class Themes implements Themeable {
 		$theme = $this->cleanTemplatePath($theme) . $extension;
 		$themePath = $this->themePath();
 		$prefixes = array_keys($themePath);
-		usort($prefixes, fn($a, $b) => strlen($b) - strlen($a));
+		usort($prefixes, fn ($a, $b) => strlen($b) - strlen($a));
 		$result = [];
 		$tried_path = [];
 		foreach ($prefixes as $prefix) {
@@ -233,7 +234,7 @@ class Themes implements Themeable {
 			$arguments = [
 				'content' => $arguments,
 			];
-		} else if (ArrayTools::isList($arguments) && count($arguments) > 0) {
+		} elseif (ArrayTools::isList($arguments) && count($arguments) > 0) {
 			$arguments['content'] = ArrayTools::first($arguments);
 		}
 

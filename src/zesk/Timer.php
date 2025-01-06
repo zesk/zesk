@@ -16,7 +16,8 @@ namespace zesk;
  * @author kent
  *
  */
-class Timer {
+class Timer
+{
 	/**
 	 * Seconds offset of the time this timer was started
 	 *
@@ -72,7 +73,7 @@ class Timer {
 	private static function microtime_to_seconds($value)
 	{
 		[$integer_seconds, $fractional_seconds] = explode(' ', $value, 2);
-		return ((float)$integer_seconds + (float)$fractional_seconds);
+		return ((float) $integer_seconds + (float) $fractional_seconds);
 	}
 
 	/**

@@ -15,7 +15,8 @@ namespace zesk;
  * @author kent
  * @see CSS
  */
-class ColorRGB {
+class ColorRGB
+{
 	/**
 	 *
 	 * @var integer
@@ -45,9 +46,9 @@ class ColorRGB {
 			$this->red = Number::clamp(0, $r, 255);
 			$this->green = Number::clamp(0, $g, 255);
 			$this->blue = Number::clamp(0, $b, 255);
-		} else if (is_string($r) || is_numeric($r)) {
+		} elseif (is_string($r) || is_numeric($r)) {
 			[$this->red, $this->green, $this->blue] = CSS::colorParse($r);
-		} else if (is_array($r)) {
+		} elseif (is_array($r)) {
 			if (array_key_exists('r', $r)) {
 				$this->red = $r['r'];
 				$this->green = $r['g'];

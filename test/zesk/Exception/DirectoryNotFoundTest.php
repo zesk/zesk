@@ -11,7 +11,8 @@ namespace zesk\Exception;
 
 use zesk\PHPUnit\ExceptionTestCase;
 
-class DirectoryNotFoundTest extends ExceptionTestCase {
+class DirectoryNotFoundTest extends ExceptionTestCase
+{
 	public function test_basics(): void
 	{
 		$testx = new DirectoryNotFound();

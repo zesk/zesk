@@ -16,7 +16,8 @@ use zesk\Exception\SemanticsException;
  *
  * @author kent
  */
-class JavaScript {
+class JavaScript
+{
 	/**
 	 * Current obfuscation capture state
 	 *

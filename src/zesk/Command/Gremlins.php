@@ -16,7 +16,8 @@ use SplFileInfo;
  * @category Debugging
  * @author kent
  */
-class Gremlins extends FileIterator {
+class Gremlins extends FileIterator
+{
 	protected array $shortcuts = ['gremlins'];
 
 	protected array $extensions = [

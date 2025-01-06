@@ -39,7 +39,8 @@ use zesk\Timestamp;
  * @see ServerMeta
  */
 #[Entity]
-class Server extends Model implements MetaInterface {
+class Server extends Model implements MetaInterface
+{
 	public const MEMBER_METAS = 'metas';
 
 	public const DEFAULT_OPTION_FREE_DISK_VOLUME = '/';

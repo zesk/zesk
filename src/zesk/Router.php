@@ -82,7 +82,8 @@ use zesk\Router\Parser;
  * - or a class
  *
  */
-class Router extends Hookable {
+class Router extends Hookable
+{
 	/**
 	 *
 	 */
@@ -156,10 +157,10 @@ class Router extends Hookable {
 	public function __serialize(): array
 	{
 		return [
-				'applicationClass' => $this->applicationClass, 'reverseRoutes' => $this->reverseRoutes,
-				'routes' => $this->routes, 'prefix' => $this->prefix, 'defaultRoute' => $this->defaultRoute,
-				'aliases' => $this->aliases,
-			] + parent::__serialize();
+			'applicationClass' => $this->applicationClass, 'reverseRoutes' => $this->reverseRoutes,
+			'routes' => $this->routes, 'prefix' => $this->prefix, 'defaultRoute' => $this->defaultRoute,
+			'aliases' => $this->aliases,
+		] + parent::__serialize();
 	}
 
 	/**
@@ -520,11 +521,11 @@ class Router extends Hookable {
 			$try_classes = $app->classes->hierarchy($object, Model::class);
 			$options += $object->invokeTypedFilters(self::FILTER_ROUTE_OPTIONS, $options, [$this, $action]);
 			$options['derivedClasses'] += $this->derivedClasses($object);
-		} else if (is_string($object)) {
+		} elseif (is_string($object)) {
 			$try_classes = [
 				$object,
 			];
-		} else if (is_array($object)) {
+		} elseif (is_array($object)) {
 			$try_classes = $object;
 		}
 		$lowAction = strtolower($action);
@@ -536,8 +537,8 @@ class Router extends Hookable {
 		$try_classes[] = '*';
 		foreach ($try_classes as $try_class) {
 			foreach ([
-						 $action, '*',
-					 ] as $try_action) {
+				$action, '*',
+			] as $try_action) {
 				if ($try_class !== '*') {
 					$try_class = strtolower($app->objects->resolve($try_class));
 				}

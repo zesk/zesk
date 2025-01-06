@@ -11,7 +11,8 @@ declare(strict_types=1);
 
 namespace zesk;
 
-class ProcessTools_Test extends UnitTest {
+class ProcessTools_Test extends UnitTest
+{
 	/**
 	 * @todo this
 	 */

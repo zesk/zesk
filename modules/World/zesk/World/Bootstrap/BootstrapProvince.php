@@ -22,7 +22,8 @@ use zesk\Types;
  * @package zesk
  * @subpackage system
  */
-class BootstrapProvince extends Hookable {
+class BootstrapProvince extends Hookable
+{
 	/**
 	 * List of country codes to include
 	 */

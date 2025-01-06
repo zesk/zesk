@@ -23,7 +23,8 @@ use zesk\Response;
  * @author kent
  *
  */
-class AuthenticatedController extends Controller {
+class AuthenticatedController extends Controller
+{
 	/**
 	 * Current logged in user
 	 *
@@ -84,7 +85,7 @@ class AuthenticatedController extends Controller {
 	public function variables(): array
 	{
 		return [
-				'user' => $this->user, 'session' => $this->session,
-			] + parent::variables();
+			'user' => $this->user, 'session' => $this->session,
+		] + parent::variables();
 	}
 }

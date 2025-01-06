@@ -25,7 +25,8 @@ use zesk\Net\Sync;
  * @author kent
  *
  */
-class BootstrapCountry extends Hookable {
+class BootstrapCountry extends Hookable
+{
 	/**
 	 * Source http://download.geonames.org/export/dump/countryInfo.txt
 	 *

@@ -16,7 +16,8 @@ use zesk\PHP;
  * @author kent
  *
  */
-class Edit {
+class Edit
+{
 	/**
 	 *
 	 * @var string

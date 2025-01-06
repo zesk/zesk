@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace zesk\Doctrine;
 
-class Controller extends \zesk\Controller {
+class Controller extends \zesk\Controller
+{
 	protected string $repository = '';
 }

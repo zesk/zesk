@@ -26,7 +26,8 @@ use function jdtogregorian;
  *
  * @author kent
  */
-class Date extends Temporal {
+class Date extends Temporal
+{
 	/**
 	 *
 	 * @var string

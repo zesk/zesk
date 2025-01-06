@@ -12,7 +12,8 @@ namespace zesk\World\Bootstrap;
 use zesk\Application;
 use zesk\Hookable;
 
-class BootstrapLanguage extends Hookable {
+class BootstrapLanguage extends Hookable
+{
 	/**
 	 *
 	 * @var array

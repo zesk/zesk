@@ -15,7 +15,8 @@ use zesk\Exception;
 /**
  *
  */
-class ConnectionFailed extends Exception {
+class ConnectionFailed extends Exception
+{
 	public string $host;
 
 	public function __construct(string $host, string $message = '', array $arguments = [], Throwable $previous = null)

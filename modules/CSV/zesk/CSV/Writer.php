@@ -25,7 +25,8 @@ use zesk\Types;
  * @package zesk
  * @subpackage tools
  */
-class Writer extends Base {
+class Writer extends Base
+{
 	/**
 	 * Whether the headers have been written yet
 	 *

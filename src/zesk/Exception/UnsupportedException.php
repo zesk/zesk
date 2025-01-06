@@ -14,5 +14,6 @@ use zesk\Exception;
 /**
  *
  */
-class UnsupportedException extends Exception {
+class UnsupportedException extends Exception
+{
 }

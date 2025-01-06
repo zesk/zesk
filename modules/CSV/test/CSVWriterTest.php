@@ -15,7 +15,8 @@ use zesk\Exception\SemanticsException;
 use zesk\UnitTest;
 use zesk\CSV\Writer;
 
-class CSVWriterTest extends UnitTest {
+class CSVWriterTest extends UnitTest
+{
 	protected array $load_modules = [
 		'csv',
 	];
@@ -99,8 +100,8 @@ class CSVWriterTest extends UnitTest {
 		$x->setRow($row);
 
 		foreach ([
-					 'Title' => 'whatever', 'CodeName' => __METHOD__, 'Something' => $this->randomHex(12),
-				 ] as $col => $data) {
+			'Title' => 'whatever', 'CodeName' => __METHOD__, 'Something' => $this->randomHex(12),
+		] as $col => $data) {
 			$x->setColumn($col, $data);
 		}
 

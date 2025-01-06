@@ -16,7 +16,8 @@ use zesk\Command;
  *
  * @category Debugging
  */
-class Arguments extends Command {
+class Arguments extends Command
+{
 	protected array $shortcuts = ['arguments'];
 
 	public array $option_types = [

@@ -12,7 +12,8 @@ namespace zesk;
 use zesk\Exception\FileParseException;
 use zesk\Exception\ParseException;
 
-class CharacterSetTest extends UnitTest {
+class CharacterSetTest extends UnitTest
+{
 	/**
 	 * @return array
 	 */

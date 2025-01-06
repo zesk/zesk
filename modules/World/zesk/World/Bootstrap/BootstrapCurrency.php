@@ -20,7 +20,8 @@ use zesk\JSON;
  * @author kent
  *
  */
-class BootstrapCurrency extends Hookable {
+class BootstrapCurrency extends Hookable
+{
 	/**
 	 *
 	 * @var array

@@ -9,7 +9,8 @@ declare(strict_types=1);
 
 namespace zesk\Interface;
 
-interface MetaInterface {
+interface MetaInterface
+{
 	/**
 	 * Getter for named meta data
 	 *

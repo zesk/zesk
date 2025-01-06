@@ -11,7 +11,8 @@ namespace zesk\Database;
 
 use zesk\PHPUnit\TestCase;
 
-class ColumnTest extends TestCase {
+class ColumnTest extends TestCase
+{
 	protected array $load_modules = [
 		'MySQL',
 	];

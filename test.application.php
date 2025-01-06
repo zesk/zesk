@@ -19,7 +19,8 @@ require_once __DIR__ . '/vendor/autoload.php';
 /**
  * Test Application
  */
-class TestApplicationFactory {
+class TestApplicationFactory
+{
 	public static function application(): Application
 	{
 		try {

@@ -20,7 +20,8 @@ namespace zesk;
  * However, in a pinch, it should behave correctly and wrap around without the annoying overflow
  * and double issues of PHP.
  */
-class UnsignedLong {
+class UnsignedLong
+{
 	public int $short0;
 
 	public int $short1;

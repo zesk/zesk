@@ -16,7 +16,8 @@ use zesk\Exception\DirectoryCreate;
  * @author kent
  *
  */
-class Net_FTP_Client extends Net_Client implements Net_FileSystem {
+class Net_FTP_Client extends Net_Client implements Net_FileSystem
+{
 	/**
 	 * Resource connection to ftp_connect
 	 * @var resource
