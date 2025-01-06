@@ -7,6 +7,15 @@
 # Copyright &copy; 2025 Market Acumen, Inc.
 #
 
+# IDENTICAL __zeskTools 7
+__zeskTools() {
+  # shellcheck source=/dev/null
+  if ! source "${BASH_SOURCE[0]%/*}/tools.sh"; then
+    printf -- "tools.sh failed\n" 1>&2
+    return 99
+  fi
+}
+
 # fn: {base}
 # Usage: {fn}
 # Build and test Zesk, and tag release
@@ -16,10 +25,7 @@
 zeskPipelineSetup() {
   local usage="_${FUNCNAME[0]}"
 
-  set -eou pipefail
-
-  # shellcheck source=/dev/null
-  source "${BASH_SOURCE[0]%/*}/tools.sh" || return 99
+  __zeskTools || return $?
 
   local startSetup quietLog clean versionArgs
   local requireEnvironment=(
