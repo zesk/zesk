@@ -5,7 +5,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage user
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Preference;
@@ -34,8 +34,7 @@ use zesk\PHP;
  *
  * @author kent
  */
-class Value extends ORMBase
-{
+class Value extends ORMBase {
 	public const MEMBER_ID = 'id';
 
 	public const MEMBER_USER = 'user';
@@ -248,8 +247,8 @@ class Value extends ORMBase
 
 			try {
 				return $app->ormRegistry(__CLASS__)->queryInsert()->setValues($where + [
-					self::MEMBER_VALUE => $serializedValue,
-				])->id();
+						self::MEMBER_VALUE => $serializedValue,
+					])->id();
 			} catch (Exception $e) {
 				throw new ORMDuplicate(__CLASS__, '{exceptionClass} {message}', $e->variables(), $e);
 			}

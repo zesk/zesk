@@ -6,7 +6,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage default
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -19,8 +19,7 @@ use zesk\Exception\FilePermission;
 /**
  * @author kent
  */
-class System
-{
+class System {
 	public const BINARY_UPTIME = '/usr/bin/uptime';
 
 	/**
@@ -197,14 +196,14 @@ class System
 				if (preg_match('/^\S/', $line)) {
 					[$interface, $flags] = StringTools::pair($line, ' ');
 					$interface = rtrim($interface, ':');
-					$result[$interface] = ['flags' => ltrim($flags), ];
+					$result[$interface] = ['flags' => ltrim($flags),];
 				} else {
 					$line = trim($line);
 					$pairs = preg_split('/\s+/', $line);
 					$type = rtrim(array_shift($pairs), ':');
 					if ($pairs) {
 						$id = StringTools::removePrefix(array_shift($pairs), 'addr:');
-						$result[$interface][$type][$id] = ['value' => $id, $type => $id, ];
+						$result[$interface][$type][$id] = ['value' => $id, $type => $id,];
 						while (count($pairs) > 1) {
 							$name = rtrim(array_shift($pairs), ':');
 							$value = array_shift($pairs);
@@ -269,7 +268,7 @@ class System
 		} catch (FileNotFound|FilePermission) {
 			$uptime_string = self::uptimeBinary();
 		}
-		return [floatval($uptime_string[0]), floatval($uptime_string[1]), floatval($uptime_string[2]), ];
+		return [floatval($uptime_string[0]), floatval($uptime_string[1]), floatval($uptime_string[2]),];
 	}
 
 	/**
@@ -327,26 +326,15 @@ class System
 	 * @see self::distro()
 	 */
 	private static array $distroTips = [
-		'Novell SUSE' => '/etc/SUSE-release',
-		'Red Hat' => [
-			'/etc/redhat-release',
-			'/etc/redhat_version',
-		],
-		'Fedora' => '/etc/fedora-release',
-		'Slackware' => [
-			'/etc/slackware-release',
-			'/etc/slackware-version',
-		],
-		'Debian' => [
+		'Novell SUSE' => '/etc/SUSE-release', 'Red Hat' => [
+			'/etc/redhat-release', '/etc/redhat_version',
+		], 'Fedora' => '/etc/fedora-release', 'Slackware' => [
+			'/etc/slackware-release', '/etc/slackware-version',
+		], 'Debian' => [
 			'/etc/debian_release', '/etc/debian_version',
-		],
-		'Mandrake' => '/etc/mandrake-release',
-		'Yellow dog' => '/etc/yellowdog-release',
-		'Sun JDS' => '/etc/sun-release',
-		'Solaris/Sparc' => '/etc/release',
-		'Gentoo' => '/etc/gentoo-release',
-		'UnitedLinux' => '/etc/UnitedLinux-release',
-		'ubuntu' => '/etc/lsb-release',
+		], 'Mandrake' => '/etc/mandrake-release', 'Yellow dog' => '/etc/yellowdog-release',
+		'Sun JDS' => '/etc/sun-release', 'Solaris/Sparc' => '/etc/release', 'Gentoo' => '/etc/gentoo-release',
+		'UnitedLinux' => '/etc/UnitedLinux-release', 'ubuntu' => '/etc/lsb-release',
 	];
 
 	/**
@@ -356,8 +344,7 @@ class System
 	 * @see self::distro()
 	 */
 	private static array $systemNames = [
-		'Darwin' => 'Mac OS X',
-		'Linux' => 'Linux',
+		'Darwin' => 'Mac OS X', 'Linux' => 'Linux',
 	];
 
 	/**
@@ -377,24 +364,19 @@ class System
 	public static function distro(): array
 	{
 		$result = [
-			'system' => $system = php_uname('s'),
-			'release' => php_uname('r'),
-			'arch' => php_uname('m'),
+			'system' => $system = php_uname('s'), 'release' => php_uname('r'), 'arch' => php_uname('m'),
 		];
 		foreach (self::$distroTips as $distro => $files) {
 			foreach (Types::toList($files) as $file) {
 				if (file_exists($file)) {
 					return $result + [
-						'brand' => $distro,
-						'distro' => trim(file_get_contents($file)),
-						'source' => $file,
-					];
+							'brand' => $distro, 'distro' => trim(file_get_contents($file)), 'source' => $file,
+						];
 				}
 			}
 		}
 		return [
-			'brand' => self::$systemNames[$system] ?? $system,
-			'distro' => $system,
+			'brand' => self::$systemNames[$system] ?? $system, 'distro' => $system,
 		];
 	}
 

@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage Command
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Command;
@@ -16,8 +16,7 @@ use zesk\Exception;
  *
  * @category Modules
  */
-class Module extends SimpleCommand
-{
+class Module extends SimpleCommand {
 	protected array $shortcuts = ['module', 'm'];
 
 	protected array $option_types = [

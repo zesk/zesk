@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage system
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  * Created on Thu Apr 15 17:19:28 EDT 2010 17:19:28
  */
 
@@ -19,8 +19,7 @@ use zesk\JSON;
  * @author kent
  *
  */
-class ZZ extends Locale
-{
+class ZZ extends Locale {
 	/**
 	 *
 	 *

@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage Command
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Command;
@@ -39,8 +39,7 @@ use function str_starts_with;
  *
  * @category Management
  */
-class Shell extends SimpleCommand
-{
+class Shell extends SimpleCommand {
 	protected array $shortcuts = ['shell', 'eval', 'evaluate'];
 
 	protected array $option_types = [
@@ -205,8 +204,8 @@ class Shell extends SimpleCommand
 		}
 		$prefix = 'return';
 		if (StringTools::begins($string, [
-			'echo ', 'print ',
-		]) || str_contains($string, ';')) {
+				'echo ', 'print ',
+			]) || str_contains($string, ';')) {
 			$prefix = '';
 		}
 		return $prefix . ' ' . $string;

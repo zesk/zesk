@@ -5,8 +5,9 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage system
  * @author $Author: kent $
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
+
 namespace zesk;
 
 use stdClass;
@@ -19,8 +20,7 @@ use zesk\Trie\Node;
  * @author kent
  *
  */
-class Trie extends Options
-{
+class Trie extends Options {
 	/**
 	 *
 	 * @var Node

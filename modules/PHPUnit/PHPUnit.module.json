@@ -10,6 +10,8 @@
 	},
 	"urlProject": "https://phpunit.de/",
 	"urlLicense": "https://raw.githubusercontent.com/sebastianbergmann/phpunit/main/LICENSE",
-	"licenses": ["BSD3"],
-	"copyright": "Copyright &copy; 2024, Market Acumen, Inc."
+	"licenses": [
+		"BSD3"
+	],
+	"copyright": "Copyright &copy; 2025, Market Acumen, Inc."
 }

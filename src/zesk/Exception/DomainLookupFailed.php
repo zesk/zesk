@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage Exception
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Exception;
@@ -17,8 +17,7 @@ use zesk\Exception;
  * @author kent
  *
  */
-class DomainLookupFailed extends Exception
-{
+class DomainLookupFailed extends Exception {
 	/**
 	 *
 	 * @var string
@@ -33,9 +32,7 @@ class DomainLookupFailed extends Exception
 	 * @param int $code
 	 * @param Throwable|null $previous
 	 */
-	public function __construct(string $host, string $message, array $arguments = [], int $code = 0, Throwable
-	$previous =
-	null)
+	public function __construct(string $host, string $message, array $arguments = [], int $code = 0, Throwable $previous = null)
 	{
 		$this->host = $host;
 		if (!str_contains($message, '{host}')) {

@@ -4,15 +4,14 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage Locale
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Locale;
 
 use zesk\StringTools;
 
-class EN extends Locale
-{
+class EN extends Locale {
 	/**
 	 * @desc {@inheritDoc}
 	 * @see Locale::formatDate()
@@ -67,15 +66,8 @@ class EN extends Locale
 	private function plural_en_exception(string $s): string|null
 	{
 		$exceptions = [
-			'company' => 'companies',
-			'day' => 'days',
-			'staff' => 'staff',
-			'sheep' => 'sheep',
-			'octopus' => 'octopi',
-			'news' => 'news',
-			'person' => 'people',
-			'woman' => 'women',
-			'man' => 'men',
+			'company' => 'companies', 'day' => 'days', 'staff' => 'staff', 'sheep' => 'sheep', 'octopus' => 'octopi',
+			'news' => 'news', 'person' => 'people', 'woman' => 'women', 'man' => 'men',
 		];
 		$ss = $exceptions[strtolower($s)] ?? null;
 		if ($ss) {
@@ -154,9 +146,7 @@ class EN extends Locale
 	 * @var string[]
 	 */
 	public static array $enOrdinalSuffixes = [
-		1 => 'st',
-		2 => 'nd',
-		3 => 'rd',
+		1 => 'st', 2 => 'nd', 3 => 'rd',
 	];
 
 	/**
@@ -172,12 +162,7 @@ class EN extends Locale
 		}
 		$word = trim($word);
 		$negative_prefixes = [
-			'not-',
-			'non-',
-			'un-',
-			'not',
-			'non',
-			'un',
+			'not-', 'non-', 'un-', 'not', 'non', 'un',
 		];
 		foreach ($negative_prefixes as $prefix) {
 			if (str_starts_with(strtolower($word), $prefix)) {

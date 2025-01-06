@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage server
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Doctrine;
@@ -39,8 +39,7 @@ use zesk\Timestamp;
  * Specific to the database, however.
  */
 #[Entity]
-class Lock extends Model
-{
+class Lock extends Model {
 	use AutoID;
 	use CodeName;
 
@@ -72,7 +71,7 @@ class Lock extends Model
 		$lock = $em->getRepository(Lock::class)->findOneBy(['code' => $code]);
 		if (!$lock) {
 			$lock = self::_create_lock($application, $code);
-		} elseif (!$lock->_isMine()) {
+		} else if (!$lock->_isMine()) {
 			try {
 				$em->refresh($lock);
 			} catch (ORMException|TransactionRequiredException $e) {

@@ -4,8 +4,9 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage core
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
+
 namespace zesk\Command;
 
 use zesk\Adapter\SettingsArray;
@@ -34,8 +35,7 @@ use zesk\Exception\ParseException;
  * @author kent
  * @category Management
  */
-class Command_Configure extends SimpleCommand
-{
+class Command_Configure extends SimpleCommand {
 	protected array $shortcuts = ['configure'];
 
 	/**
@@ -49,9 +49,7 @@ class Command_Configure extends SimpleCommand
 	 * @var array
 	 */
 	protected array $option_types = [
-		'non-interactive' => 'boolean',
-		'environment-file' => 'string',
-		'host-setting-name' => 'string',
+		'non-interactive' => 'boolean', 'environment-file' => 'string', 'host-setting-name' => 'string',
 	];
 
 	protected array $option_chars = [
@@ -66,10 +64,7 @@ class Command_Configure extends SimpleCommand
 	 * @var array
 	 */
 	protected static $file_flags = [
-		'owner' => true,
-		'mode' => true,
-		'map' => true,
-		'trim' => true,
+		'owner' => true, 'mode' => true, 'map' => true, 'trim' => true,
 	];
 
 	/**
@@ -187,7 +182,7 @@ class Command_Configure extends SimpleCommand
 	 * @throws Redirect
 	 * @throws Semantics
 	 */
-	private function determineEnvironmentFiles():array
+	private function determineEnvironmentFiles(): array
 	{
 		$files = $this->optionIterable(self::OPTION_ENVIRONMENT_FILES);
 		if (count($files) === 0) {
@@ -329,18 +324,14 @@ class Command_Configure extends SimpleCommand
 			self::file_put_contents_inherit($alias_file, "$uname=[]");
 			$this->verboseLog('Created empty {alias_file}', $__);
 		}
-		while (!is_array($host_configs = (($aliases = $this->load_conf($alias_file))[strtolower($uname)] ?? null)) || count(array_diff(
-			$host_configs,
-			$this->possible_host_configurations
-		)) !== 0) {
+		while (!is_array($host_configs = (($aliases = $this->load_conf($alias_file))[strtolower($uname)] ?? null)) || count(array_diff($host_configs, $this->possible_host_configurations)) !== 0) {
 			$configs = $this->determine_host_configurations();
 			if ($this->promptYesNo($locale->__("Save changes to {alias_file} for $uname:{uname}? ", $__ + $this->engine->variable_map()))) {
 				$this->save_conf($alias_file, [
 					$uname => $configs,
 				]);
 				$this->log('Changed {aliasFile} ({aliases})', [
-					'aliasFile' => $alias_file,
-					'aliases' => $aliases,
+					'aliasFile' => $alias_file, 'aliases' => $aliases,
 				]);
 			}
 		}
@@ -360,16 +351,15 @@ class Command_Configure extends SimpleCommand
 		$this->completions = $possible_host_configurations = $this->possible_host_configurations;
 		do {
 			$message = $locale->__('Host configurations: {configs}', [
-				'configs' => implode(' ', $possible_host_configurations),
-			]) . "\n\n";
+					'configs' => implode(' ', $possible_host_configurations),
+				]) . "\n\n";
 			$message .= $locale->__('Enter a list of configurations separated by space') . "\n";
 			$host_configurations = $this->prompt("$message\n> ");
 			$host_configurations = explode(' ', preg_replace("/\s+/", ' ', trim($host_configurations)));
 			$diff = array_diff($host_configurations, $possible_host_configurations);
 		} while (count($diff) !== 0);
 		$this->log('Will add host configuration for host {host}: {host_configurations}', [
-			'host' => $this->host,
-			'host_configurations' => implode(' ', $host_configurations),
+			'host' => $this->host, 'host_configurations' => implode(' ', $host_configurations),
 		]);
 		return $host_configurations;
 	}
@@ -385,7 +375,9 @@ class Command_Configure extends SimpleCommand
 			];
 			$locale = $this->application->locale;
 			if ($this->promptYesNo($locale->__('Save changes to {config}? ', $__))) {
-				$this->save_conf($this->config, ArrayTools::prefixKeys($this->options(['environment_file', 'host_setting_name']), __CLASS__ . '::'));
+				$this->save_conf($this->config, ArrayTools::prefixKeys($this->options([
+					'environment_file', 'host_setting_name',
+				]), __CLASS__ . '::'));
 				$this->log('Wrote {config}', $__);
 			}
 		}
@@ -420,8 +412,7 @@ class Command_Configure extends SimpleCommand
 		foreach ($files as $file) {
 			$this->engine->variable_map([
 				'current_host_path' => rtrim(StringTools::removeSuffix($file, $suffix), '/'),
-				'self_path' => dirname($file),
-				'self' => $file,
+				'self_path' => dirname($file), 'self' => $file,
 			]);
 			$this->verboseLog('Processing file {file}', compact('file'));
 			$contents = File::contents($file);
@@ -434,9 +425,7 @@ class Command_Configure extends SimpleCommand
 			}
 		}
 		$this->engine->variable_map([
-			'current_host_path' => null,
-			'self_path' => null,
-			'self' => null,
+			'current_host_path' => null, 'self_path' => null, 'self' => null,
 		]);
 		return true;
 	}

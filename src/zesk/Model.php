@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage core
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 
@@ -19,8 +19,7 @@ use zesk\Exception\Redirect;
  * @author kent
  *
  */
-class Model extends Hookable
-{
+class Model extends Hookable {
 	public const OPTION_DEFAULT_THEME = 'default_theme';
 
 	/**
@@ -71,7 +70,7 @@ class Model extends Hookable
 			$theme_names = [
 				$this->option(self::OPTION_DEFAULT_THEME, self::DEFAULT_OPTION_DEFAULT_THEME),
 			];
-		} elseif (is_string($theme_names)) {
+		} else if (is_string($theme_names)) {
 			if ($theme_names[0] === '/' || $theme_names[0] === '.') {
 				return [
 					$theme_names,

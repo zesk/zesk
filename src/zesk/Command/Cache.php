@@ -4,8 +4,9 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage core
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
+
 namespace zesk\Command;
 
 use zesk\Exception\ClassNotFound;
@@ -19,8 +20,7 @@ use zesk\Exception\FilePermission;
  * @author kent
  *
  */
-class Cache extends SimpleCommand
-{
+class Cache extends SimpleCommand {
 	protected array $shortcuts = ['cache'];
 
 	protected array $option_types = [

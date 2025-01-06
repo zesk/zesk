@@ -6,7 +6,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage PHPUnit
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\PHPUnit;
@@ -14,8 +14,7 @@ namespace zesk\PHPUnit;
 use Throwable;
 use zesk\Exception;
 
-class ExceptionTestCase extends TestCase
-{
+class ExceptionTestCase extends TestCase {
 	/**
 	 * @param Throwable $e
 	 */

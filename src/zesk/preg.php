@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage system
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -28,8 +28,7 @@ use zesk\Exception\KeyNotFound;
  * @author kent
  *
  */
-class preg implements ArrayAccess, Iterator
-{
+class preg implements ArrayAccess, Iterator {
 	/**
 	 *
 	 * @var string

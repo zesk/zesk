@@ -609,4 +609,4 @@ _clean() {
 # - "bin/app/vendorApp/install-bin-build.sh" -> "../../.."
 #
 # -- DO NOT EDIT ANYTHING ABOVE THIS LINE IT WILL BE OVERWRITTEN --
-__installPackageConfiguration ../.. "$@"
+__installPackageConfiguration .. "$@"

@@ -4,8 +4,9 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage core
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
+
 namespace zesk\Command;
 
 use Throwable;
@@ -30,17 +31,12 @@ use zesk\Configuration\Loader;
  * @author kent
  *
  */
-class Configuration extends SimpleCommand
-{
+class Configuration extends SimpleCommand {
 	protected array $shortcuts = ['conf', 'config', 'configuration'];
 
 	protected array $option_types = [
-		'loaded' => 'boolean',
-		'not-loaded' => 'boolean',
-		'skipped' => 'boolean',
-		'externals' => 'boolean',
-		'missing-classes' => 'boolean',
-		'top-level-scalar' => 'boolean',
+		'loaded' => 'boolean', 'not-loaded' => 'boolean', 'skipped' => 'boolean', 'externals' => 'boolean',
+		'missing-classes' => 'boolean', 'top-level-scalar' => 'boolean',
 	];
 
 	protected array $option_help = [
@@ -69,13 +65,12 @@ class Configuration extends SimpleCommand
 
 		$result = [];
 		foreach ([
-			'show_loaded' => ['Loaded', Loader::PROCESSED],
-			'show_not_loaded' => ['Missing', Loader::MISSING],
-			'show_skipped' => ['Skipped', Loader::SKIPPED],
-			'show_externals' => ['External variables', Loader::EXTERNALS],
-			'show_missing_classes' => ['Missing classes', '-missing-classes-'],
-			'show_top_level_scalar' => ['Top-level variables which are scalar', '-warning-top-'],
-		] as $flag => [$key, $variablesKey]) {
+					 'show_loaded' => ['Loaded', Loader::PROCESSED], 'show_not_loaded' => ['Missing', Loader::MISSING],
+					 'show_skipped' => ['Skipped', Loader::SKIPPED],
+					 'show_externals' => ['External variables', Loader::EXTERNALS],
+					 'show_missing_classes' => ['Missing classes', '-missing-classes-'],
+					 'show_top_level_scalar' => ['Top-level variables which are scalar', '-warning-top-'],
+				 ] as $flag => [$key, $variablesKey]) {
 			$list = $variables[$variablesKey];
 			if ($flags[$flag] && count($list)) {
 				$result[$key] = $this->outputList($list);
@@ -91,11 +86,7 @@ class Configuration extends SimpleCommand
 	private function show_flags(): array
 	{
 		$flags = [
-			'loaded' => true,
-			'not_loaded' => true,
-			'skipped' => true,
-			'externals' => false,
-			'missing_classes' => false,
+			'loaded' => true, 'not_loaded' => true, 'skipped' => true, 'externals' => false, 'missing_classes' => false,
 			'top_level_scalar' => false,
 		];
 		foreach ($flags as $flag => $default) {
@@ -130,8 +121,7 @@ class Configuration extends SimpleCommand
 			}
 		}
 		return [
-			$missing,
-			$warning,
+			$missing, $warning,
 		];
 	}
 

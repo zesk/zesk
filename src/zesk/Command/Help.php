@@ -4,8 +4,9 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage Command
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
+
 namespace zesk\Command;
 
 use ReflectionClass;
@@ -21,8 +22,7 @@ use zesk\Types;
  *
  * @category Documentation
  */
-class Help extends SimpleCommand
-{
+class Help extends SimpleCommand {
 	protected array $shortcuts = ['help'];
 
 	protected array $option_types = [

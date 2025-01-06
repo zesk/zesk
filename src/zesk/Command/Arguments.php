@@ -4,8 +4,9 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage Command
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
+
 namespace zesk\Command;
 
 use zesk\Command;
@@ -15,8 +16,7 @@ use zesk\Command;
  *
  * @category Debugging
  */
-class Arguments extends Command
-{
+class Arguments extends Command {
 	protected array $shortcuts = ['arguments'];
 
 	public array $option_types = [

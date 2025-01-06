@@ -4,8 +4,9 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage test
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
+
 namespace zesk;
 
 use zesk\PHPUnit\TestCase;
@@ -15,8 +16,7 @@ use zesk\PHPUnit\TestCase;
  * @author kent
  *
  */
-class Net_SMTP_Client_Test extends TestCase
-{
+class Net_SMTP_Client_Test extends TestCase {
 	public function test_main(): void
 	{
 		$url = $this->option('url');

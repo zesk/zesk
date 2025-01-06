@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage system
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  * Created on Thu Apr 15 16:02:28 EDT 2010 16:02:28
  */
 
@@ -32,8 +32,7 @@ use function ucfirst;
  * @author kent
  * @see Controller_Locale
  */
-abstract class Locale extends Hookable
-{
+abstract class Locale extends Hookable {
 	/**
 	 * Automatically save language to translation file (development)
 	 *
@@ -224,8 +223,8 @@ abstract class Locale extends Hookable
 	public function find(string $phrase): string|null
 	{
 		$parts = explode(':=', $phrase, 2) + [
-			null, $phrase,
-		];
+				null, $phrase,
+			];
 		$text = $parts[1];
 		$try_phrases = [
 			$phrase, strtolower($phrase), $text, strtolower($text),
@@ -441,7 +440,7 @@ abstract class Locale extends Hookable
 	{
 		if ($number === 0) {
 			$phrase = 'Locale::plural_word:=no {word}';
-		} elseif ($number === 1) {
+		} else if ($number === 1) {
 			$phrase = 'Locale::plural_word:=one {word}';
 		} else {
 			$phrase = 'Locale::plural_word:={number} {word}';
@@ -501,7 +500,7 @@ abstract class Locale extends Hookable
 	{
 		if ($ts instanceof Timestamp) {
 			$ts = $ts->unixTimestamp();
-		} elseif (!is_int($ts) && Types::isDate($ts)) {
+		} else if (!is_int($ts) && Types::isDate($ts)) {
 			$ts = self::_parse_time($ts);
 		}
 		$now = time();
@@ -510,7 +509,7 @@ abstract class Locale extends Hookable
 		$duration = $this->durationString($delta, $min_unit, $number);
 		if ($number === 0 && $zero_string !== '') {
 			$phrase = $zero_string;
-		} elseif ($delta < 0) {
+		} else if ($delta < 0) {
 			$phrase = 'Locale::now_string:=in {duration}';
 		} else {
 			$phrase = 'Locale::now_string:={duration} ago';

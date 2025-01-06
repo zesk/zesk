@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage Login
  * @author Kent Davidson
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Login;
@@ -29,8 +29,7 @@ use zesk\Types;
  * @author kent
  *
  */
-class Controller extends zeskController
-{
+class Controller extends zeskController {
 	public const HOOK_LOGIN = __CLASS__ . '::login';
 
 	public const HOOK_LOGIN_SUCCESS = __CLASS__ . '::loginSuccess';
@@ -98,13 +97,13 @@ class Controller extends zeskController
 		$session = $this->application->session($request, false);
 		if (!$session) {
 			return $response->json()->setData($responseData + [
-				'authenticated' => false, 'userId' => null, 'session' => $session->variables(),
-			]);
+					'authenticated' => false, 'userId' => null, 'session' => $session->variables(),
+				]);
 		}
 		$authenticated = $session->isAuthenticated();
 		return $response->json()->setData($responseData + [
-			'authenticated' => $session->isAuthenticated(),
-		] + ($authenticated ? $session->user()->authenticationData() : []));
+				'authenticated' => $session->isAuthenticated(),
+			] + ($authenticated ? $session->user()->authenticationData() : []));
 	}
 
 	/**
@@ -129,8 +128,8 @@ class Controller extends zeskController
 			$response->setStatus(HTTP::STATUS_UNAUTHORIZED, 'Unauthorized');
 			// Done calling hooks
 			return $response->json()->setData([
-				'authenticated' => false, 'message' => $e->getMessage(),
-			] + $this->_baseResponseData());
+					'authenticated' => false, 'message' => $e->getMessage(),
+				] + $this->_baseResponseData());
 		}
 		$user = $request->get($this->option('requestIdColumn', 'user'));
 		$password = $request->get($this->option('requestPasswordColumn', 'password'));
@@ -141,15 +140,15 @@ class Controller extends zeskController
 
 			$data = Types::toArray($user->invokeFilters(self::HOOK_LOGIN_SUCCESS, [], [$this]));
 			return $response->json()->appendData([
-				'authenticated' => true, 'user' => $user->id(),
-			] + $data + $this->_baseResponseData());
+					'authenticated' => true, 'user' => $user->id(),
+				] + $data + $this->_baseResponseData());
 		} catch (AuthenticationException $e) {
 			$response->setStatus(HTTP::STATUS_UNAUTHORIZED, 'Unauthorized');
 			$data = Types::toArray($user->invokeFilters(self::HOOK_LOGIN_FAILED, [], [$this]));
 
 			return $response->json()->setData([
-				'authenticated' => false, 'message' => 'user-or-password-mismatch',
-			] + $data + $this->_baseResponseData());
+					'authenticated' => false, 'message' => 'user-or-password-mismatch',
+				] + $data + $this->_baseResponseData());
 		}
 	}
 

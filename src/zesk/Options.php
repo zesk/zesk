@@ -2,7 +2,7 @@
 declare(strict_types=1);
 /**
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  * @package zesk
  * @subpackage system
  */
@@ -28,8 +28,7 @@ namespace zesk;
  * @package zesk
  * @subpackage system
  */
-class Options
-{
+class Options {
 	/**
 	 * Boolean or string value
 	 *

@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage Daemon
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Daemon;
@@ -33,8 +33,7 @@ use zesk\Timestamp;
  * @author kent
  *
  */
-class Module extends \zesk\Module
-{
+class Module extends \zesk\Module {
 	/**
 	 *
 	 * @var string

@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage tools
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\CSV;
@@ -25,8 +25,7 @@ use zesk\StringTools;
  * @package zesk
  * @subpackage system
  */
-abstract class Base extends Options
-{
+abstract class Base extends Options {
 	/**
 	 * @var resource
 	 */

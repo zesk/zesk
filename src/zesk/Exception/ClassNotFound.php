@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage Exception
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 
@@ -18,8 +18,7 @@ use zesk\Exception;
  * @author kent
  *
  */
-class ClassNotFound extends Exception
-{
+class ClassNotFound extends Exception {
 	/**
 	 * Class which wasn't found
 	 *
@@ -37,13 +36,12 @@ class ClassNotFound extends Exception
 	 * @param null|Throwable $previous
 	 *            Previous exception which may have spawned this one
 	 */
-	public function __construct(?string $class, string $message = '', array $arguments = [], Throwable $previous =
-	null)
+	public function __construct(?string $class, string $message = '', array $arguments = [], Throwable $previous = null)
 	{
 		$this->class = $class === null ? 'null' : $class;
 		parent::__construct("{class} not found. $message", [
-			'class' => $this->class,
-		] + $arguments, 0, $previous);
+				'class' => $this->class,
+			] + $arguments, 0, $previous);
 	}
 
 	/**
@@ -54,7 +52,7 @@ class ClassNotFound extends Exception
 	public function variables(): array
 	{
 		return parent::variables() + [
-			'class' => $this->class,
-		];
+				'class' => $this->class,
+			];
 	}
 }

@@ -4,8 +4,9 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage core
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
+
 namespace zesk\Command;
 
 use zesk\Command;
@@ -13,12 +14,11 @@ use zesk\Command;
 /**
  * Output the current working directory
  *
- * @category Debugging
  * @param array $args
  * @return array
+ * @category Debugging
  */
-class CWD extends Command
-{
+class CWD extends Command {
 	protected array $shortcuts = ['cwd'];
 
 	public function run(): int

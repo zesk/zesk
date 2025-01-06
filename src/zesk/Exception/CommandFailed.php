@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage Exception
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Exception;
@@ -16,8 +16,7 @@ use zesk\Exception;
  * @author kent
  *
  */
-class CommandFailed extends Exception
-{
+class CommandFailed extends Exception {
 	/**
 	 *
 	 * @var string
@@ -40,9 +39,7 @@ class CommandFailed extends Exception
 	public function __construct(string $command, int $code, array $output, Throwable $previous = null)
 	{
 		parent::__construct("{command} exited with result {resultCode}\nOUTPUT:\n{output}\nEND OUTPUT", [
-			'resultCode' => $code,
-			'command' => $command,
-			'output' => $output,
+			'resultCode' => $code, 'command' => $command, 'output' => $output,
 		], $code, $previous);
 		$this->command = $command;
 		$this->output = $output;

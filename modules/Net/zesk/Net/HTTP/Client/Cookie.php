@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage system
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Net\HTTP\Client;
@@ -16,8 +16,7 @@ use zesk\Timestamp;
  * @author kent
  *
  */
-class Cookie
-{
+class Cookie {
 	/**
 	 *
 	 * @var string

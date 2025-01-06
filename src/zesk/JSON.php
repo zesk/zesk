@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage system
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -20,8 +20,7 @@ use zesk\Exception\SemanticsException;
  * @author kent
  *
  */
-class JSON
-{
+class JSON {
 	/**
 	 * Is the name passed a valid member name which does not require quotes in JavaScript?
 	 *
@@ -164,12 +163,12 @@ class JSON
 					$recursion--;
 				}
 				return '[' . implode(',', $result) . ']';
-			} elseif (is_object($mixed)) {
+			} else if (is_object($mixed)) {
 				if (method_exists($mixed, 'toJSON')) {
 					$mixed = $mixed->toJSON();
-				} elseif (method_exists($mixed, '__toString')) {
+				} else if (method_exists($mixed, '__toString')) {
 					$mixed = strval($mixed);
-				} elseif ($mixed instanceof stdClass) {
+				} else if ($mixed instanceof stdClass) {
 					$mixed = get_object_vars($mixed);
 					if (count($mixed) === 0) {
 						return '{}';
@@ -194,17 +193,17 @@ class JSON
 				}
 				return '{' . implode(',', $result) . '}';
 			}
-		} elseif (is_bool($mixed)) {
+		} else if (is_bool($mixed)) {
 			return $mixed ? 'true' : 'false';
-		} elseif (is_int($mixed) || is_float($mixed)) {
+		} else if (is_int($mixed) || is_float($mixed)) {
 			return strval($mixed);
-		} elseif (is_string($mixed)) {
+		} else if (is_string($mixed)) {
 			return self::quote($mixed);
-		} elseif (is_resource($mixed)) {
+		} else if (is_resource($mixed)) {
 			return '"' . $mixed . '"';
-		} elseif ($mixed === null) {
+		} else if ($mixed === null) {
 			return 'null';
-		} elseif ($mixed instanceof __PHP_Incomplete_Class) {
+		} else if ($mixed instanceof __PHP_Incomplete_Class) {
 			return 'null';
 		} else {
 			die("Unknown type: $mixed " . gettype($mixed));
@@ -232,7 +231,7 @@ class JSON
 					$result[] = self::encodeJavaScript($v);
 				}
 				return '[' . implode(',', $result) . ']';
-			} elseif (is_object($mixed) && method_exists($mixed, 'toJSON')) {
+			} else if (is_object($mixed) && method_exists($mixed, 'toJSON')) {
 				$mixed = $mixed->toJSON();
 				return self::encodeJavaScript($mixed);
 			} else {
@@ -246,13 +245,13 @@ class JSON
 				}
 				return '{' . implode(',', $result) . '}';
 			}
-		} elseif (is_bool($mixed)) {
+		} else if (is_bool($mixed)) {
 			return $mixed ? 'true' : 'false';
-		} elseif (is_int($mixed) || is_float($mixed)) {
+		} else if (is_int($mixed) || is_float($mixed)) {
 			return strval($mixed);
-		} elseif (is_string($mixed)) {
+		} else if (is_string($mixed)) {
 			return self::quote($mixed);
-		} elseif (is_resource($mixed)) {
+		} else if (is_resource($mixed)) {
 			return '"' . $mixed . '"';
 		} else {
 			return 'null';
@@ -525,7 +524,7 @@ class JSON
 			}
 			if ($c === '}') {
 				return [
-					$i + 1, $assoc ? $result : (object) $result,
+					$i + 1, $assoc ? $result : (object)$result,
 				];
 			}
 			if ($c !== '"') {
@@ -623,7 +622,7 @@ class JSON
 			$c = $string[$i];
 			if (array_key_exists($c, $string_characters)) {
 				$result .= $string_characters[$c];
-			} elseif ($c === 'u') {
+			} else if ($c === 'u') {
 				++$i;
 				if ($i + 4 >= $len) {
 					throw new ParseException('Invalid unterminated hex code at string {offset}', [

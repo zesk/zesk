@@ -4,9 +4,10 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage system
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  * Created on Thu Feb 04 12:06:13 EST 2010 12:06:13
  */
+
 namespace zesk\CSV;
 
 use Iterator as BaseIterator;
@@ -15,8 +16,7 @@ use zesk\Options;
 /**
  * Iterator for CSV files. Options allows attaching extra unstructured data.
  */
-class Iterator extends Options implements BaseIterator
-{
+class Iterator extends Options implements BaseIterator {
 	/**
 	 * CSV
 	 *
@@ -98,7 +98,7 @@ class Iterator extends Options implements BaseIterator
 		}
 		if (!is_array($this->row)) {
 			$this->is_valid = false;
-		} elseif ($this->use_map) {
+		} else if ($this->use_map) {
 			$this->row = $this->csv->read_map($this->use_map);
 		}
 	}

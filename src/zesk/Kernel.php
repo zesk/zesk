@@ -5,7 +5,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage kernel
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -28,8 +28,7 @@ require_once(__DIR__ . '/functions.php');
  * @author kent
  *
  */
-class Kernel
-{
+class Kernel {
 	/**
 	 *
 	 * @var array
@@ -80,7 +79,7 @@ class Kernel
 	public static function singleton(): self
 	{
 		if (!self::$singleton) {
-			throw new RuntimeException('Need to create singleton with {class}::factory first', ['class' => __CLASS__, ]);
+			throw new RuntimeException('Need to create singleton with {class}::factory first', ['class' => __CLASS__,]);
 		}
 		return self::$singleton;
 	}
@@ -116,8 +115,8 @@ class Kernel
 	private static function _stackFrameNormalize(array $stackFrame): array
 	{
 		return $stackFrame + [
-			'file' => '', 'class' => '', 'type' => '', 'function' => '', 'line' => '',
-		];
+				'file' => '', 'class' => '', 'type' => '', 'function' => '', 'line' => '',
+			];
 	}
 
 	/**
@@ -143,11 +142,8 @@ class Kernel
 		}
 		$last = self::_stackFrameNormalize($last);
 		$top = self::_stackFrameNormalize(array_shift($bt) ?? [
-			'file' => "-no calling function $depth deep-",
-			'line' => -1,
-			'class' => '',
-			'function' => '-no calling function $depth deep-',
-			'type' => '',
+			'file' => "-no calling function $depth deep-", 'line' => -1, 'class' => '',
+			'function' => '-no calling function $depth deep-', 'type' => '',
 		]);
 
 		$top['callingLine'] = $top['line'];
@@ -206,7 +202,7 @@ class Kernel
 				foreach ($args as $index => $arg) {
 					if (is_object($arg)) {
 						$arg_dump[$index] = $arg::class;
-					} elseif (is_scalar($arg)) {
+					} else if (is_scalar($arg)) {
 						$arg_dump[$index] = PHP::dump($arg);
 					} else {
 						$arg_dump[$index] = Types::type($arg);
@@ -241,7 +237,7 @@ class Kernel
 		$configuration = Configuration::factory(self::$configurationDefaults)->merge(Configuration::factory()->setPath($baseApplicationClass, $options));
 		$applicationClass = $configuration->getFirstPath([
 			[$baseApplicationClass, Application::OPTION_APPLICATION_CLASS],
-			[__CLASS__, Application::OPTION_APPLICATION_CLASS], [__CLASS__, 'application_class', ],
+			[__CLASS__, Application::OPTION_APPLICATION_CLASS], [__CLASS__, 'application_class',],
 		], Application::class);
 
 		try {

@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage GitHub
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\GitHub;
@@ -22,8 +22,7 @@ use zesk\File;
  * @author kent
  *
  */
-class Command extends SimpleCommand
-{
+class Command extends SimpleCommand {
 	protected array $shortcuts = ['github'];
 
 	/**
@@ -114,8 +113,8 @@ class Command extends SimpleCommand
 			return self::EXIT_CODE_GITHUB_MODULE;
 		} catch (Throwable $e) {
 			$this->error('Running {this_class} but unknown exception {class} {message}', [
-				'this_class' => get_class($this),
-			] + Exception::exceptionVariables($e));
+					'this_class' => get_class($this),
+				] + Exception::exceptionVariables($e));
 			return self::EXIT_CODE_GITHUB_MODULE;
 		}
 	}

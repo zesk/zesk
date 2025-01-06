@@ -4,15 +4,15 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage test
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
+
 namespace zesk;
 
 use zesk\Exception\SemanticsException;
 use zesk\PHPUnit\ExceptionTestCase;
 
-class SemanticsTest extends ExceptionTestCase
-{
+class SemanticsTest extends ExceptionTestCase {
 	public function test_basics(): void
 	{
 		$exception = new SemanticsException();

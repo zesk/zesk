@@ -3,6 +3,7 @@
 <!-- Edit ./docs/release/vX.X.X.md instead -->
 
 # Change Log
+
 <!-- @no-cannon -->
 
 All notable changes to Zesk will be documented in this file.
@@ -340,8 +341,8 @@ Version added to support modern MySQL docker containers enforcement of `Timestam
 - **WebApp Module**: Adding `zesk\WebApp\Module::control_file` hook, adding scan debugger progress
 - **WebApp Module**: Adding health support to controller
 - **WebApp Module**: Adding support for dry run later, fixing no write issue
-- **WebApp Module**: Authentication is now required for most of `zesk\WebApp\Controller` actions (using a shared key `zesk\WebApp\Module::key`), added support for `hostnames` key in `webapp.json` to force host names in rendered configuration files. Added `zesk webapp-api` call to invoke things via command line. Any `zesk\Server` associated
-  with `zesk\WebApp\Module` will add a `zesk\Server_Data` record with the name `zesk\WebApp\Module` and a value of 1. Added `zesk\WebApp\Module->server_actions($action)` to message each server serially and return the results.
+- **WebApp Module**: Authentication is now required for most of `zesk\WebApp\Controller` actions (using a shared key `zesk\WebApp\Module::key`), added support for `hostnames` key in `webapp.json` to force host names in rendered configuration files. Added `zesk webapp-api` call to invoke things via command line. Any `zesk\Server` associated with
+  `zesk\WebApp\Module` will add a `zesk\Server_Data` record with the name `zesk\WebApp\Module` and a value of 1. Added `zesk\WebApp\Module->server_actions($action)` to message each server serially and return the results.
 - **WebApp Module**: Fixed generator so empty files are deleted. Passing all extraneous data (`zesk\WebApp\Generator_Apache`-specific) through to templates, allowing for overrides. Set default `indexes`
   to `['index.php','index.html']`. Adding support for serving `/public/` instead of `/build/` for development systems, and only rendering vhost files for web apps assigned at least one host name.
 - **WebApp Module**: Require `git` and `subversion` module
@@ -2353,7 +2354,7 @@ What's coming:
 ## [v0.31.0][]
 
 TBD
-> Copyright &copy; 2024 Market Acumen, Inc. All rights reserved.
+> Copyright &copy; 2025 Market Acumen, Inc. All rights reserved.
 
 <!-- LINK-HERE -->
 
@@ -2506,7 +2507,11 @@ TBD
 [v0.30.0]: https://github.com/zesk/zesk/compare/v0.29.0...v0.30.0
 
 [v0.30.1]: https://github.com/zesk/zesk/compare/v0.30.0...v0.30.1
+
 [v0.31.0]: https://github.com/zesk/zesk/compare/v0.30.2...v0.31.0
+
 [v0.31.1]: https://github.com/zesk/zesk/compare/v0.31.0...v0.31.1
+
 [v0.31.2]: https://github.com/zesk/zesk/compare/v0.31.1...v0.31.2
+
 [v0.32.0]: https://github.com/zesk/zesk/compare/v0.31.2...v0.32.0

@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage system
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -30,8 +30,7 @@ use zesk\Locale\Locale;
  *
  * @author kent
  */
-class Timestamp extends Temporal
-{
+class Timestamp extends Temporal {
 	/**
 	 * Default __toString format
 	 *
@@ -1016,7 +1015,7 @@ class Timestamp extends Temporal
 			$timestamp = clone $timestamp;
 			$timestamp->setTimeZone($this->tz->getName());
 		}
-		$options = ['skipHook' => true, ];
+		$options = ['skipHook' => true,];
 		return $this->format(self::DEFAULT_FORMAT_STRING, $options) === $timestamp->format(self::DEFAULT_FORMAT_STRING, $options);
 	}
 
@@ -1462,7 +1461,7 @@ class Timestamp extends Temporal
 		$delta = $a->unixTimestamp() - $b->unixTimestamp();
 		if ($delta < 0) {
 			return -1;
-		} elseif ($delta === 0) {
+		} else if ($delta === 0) {
 			return 0;
 		}
 		return 1;

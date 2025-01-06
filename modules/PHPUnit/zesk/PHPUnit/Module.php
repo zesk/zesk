@@ -6,13 +6,12 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage PHPUnit
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\PHPUnit;
 
 use zesk\Module as BaseModule;
 
-class Module extends BaseModule
-{
+class Module extends BaseModule {
 }

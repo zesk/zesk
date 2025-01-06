@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage test
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -19,8 +19,7 @@ require_once __DIR__ . '/vendor/autoload.php';
 /**
  * Test Application
  */
-class TestApplicationFactory
-{
+class TestApplicationFactory {
 	public static function application(): Application
 	{
 		try {

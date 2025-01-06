@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage system
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Net;
@@ -14,8 +14,7 @@ use zesk\Exception\ConnectionFailed;
 use zesk\Exception_Protocol;
 use zesk\TimeoutExpired;
 
-class SocketClient extends Client
-{
+class SocketClient extends Client {
 	/**
 	 * Option to enable debugging of read calls.
 	 *

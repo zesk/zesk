@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage Command
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Command;
@@ -28,8 +28,7 @@ use const STDOUT;
  * @author kent
  *
  */
-abstract class SimpleCommand extends Command
-{
+abstract class SimpleCommand extends Command {
 	/**
 	 *
 	 * @var boolean
@@ -118,7 +117,7 @@ abstract class SimpleCommand extends Command
 		if ($this->optionBool('quiet')) {
 			$this->quiet = true;
 			$logger = new NullLogger();
-		} elseif (($filename = $this->option('log')) !== null) {
+		} else if (($filename = $this->option('log')) !== null) {
 			if ($filename === '-') {
 				$logger = new InterfaceAdapter($this);
 			} else {

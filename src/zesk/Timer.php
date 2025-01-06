@@ -6,8 +6,9 @@ declare(strict_types=1);
  * @author kent
  * @package zesk
  * @subpackage kernel
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
+
 namespace zesk;
 
 /**
@@ -15,8 +16,7 @@ namespace zesk;
  * @author kent
  *
  */
-class Timer
-{
+class Timer {
 	/**
 	 * Seconds offset of the time this timer was started
 	 *
@@ -66,13 +66,13 @@ class Timer
 	 * "9876 0.1234" => (double) 9876.1234
 	 *
 	 * @param string $value Result of
-	 * @see microtime
 	 * @return double
+	 * @see microtime
 	 */
 	private static function microtime_to_seconds($value)
 	{
 		[$integer_seconds, $fractional_seconds] = explode(' ', $value, 2);
-		return ((float) $integer_seconds + (float) $fractional_seconds);
+		return ((float)$integer_seconds + (float)$fractional_seconds);
 	}
 
 	/**
@@ -131,9 +131,9 @@ class Timer
 	/**
 	 * Generate the elapsed time (or total if stopped) in HTML
 	 *
-	 * @todo Use theme
 	 * @param string $comment Comment to be included in output
 	 * @return string HTML of output
+	 * @todo Use theme
 	 */
 	public function output($comment = '')
 	{

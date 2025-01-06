@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage Exception
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Exception;
@@ -19,19 +19,12 @@ use zesk\Interface\Userlike;
  * @author kent
  *
  */
-class PermissionDenied extends Exception
-{
-	public function __construct(Userlike $user, $action, Model $object = null, array $options = [], Throwable
-	$previous =
-	null)
+class PermissionDenied extends Exception {
+	public function __construct(Userlike $user, $action, Model $object = null, array $options = [], Throwable $previous = null)
 	{
 		parent::__construct('User {user.name} has no permission action={action} class={class} type={type}', [
-			'action' => $action,
-			'object' => $object,
-			'class' => is_object($object) ? $object::class : '-',
-			'type' => !is_object($object) ? gettype($object) : '',
-			'options' => $options,
-			'user' => $user,
+			'action' => $action, 'object' => $object, 'class' => is_object($object) ? $object::class : '-',
+			'type' => !is_object($object) ? gettype($object) : '', 'options' => $options, 'user' => $user,
 			'user.name' => strval($user),
 		], 0, $previous);
 	}

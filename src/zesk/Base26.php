@@ -4,15 +4,15 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage system
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
+
 namespace zesk;
 
 /**
  * @see Base26_Test
  */
-class Base26
-{
+class Base26 {
 	/**
 	 * Convert an integer into a base-26 alphabetic string with a minimum length of $nChars.
 	 *

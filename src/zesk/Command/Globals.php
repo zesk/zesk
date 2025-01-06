@@ -4,8 +4,9 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage Command
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
+
 namespace zesk\Command;
 
 use zesk\ArrayTools;
@@ -15,8 +16,7 @@ use zesk\PHP;
  * Output all globals
  * @category Debugging
  */
-class Globals extends SimpleCommand
-{
+class Globals extends SimpleCommand {
 	protected array $shortcuts = ['globals', 'g'];
 
 	/**
@@ -24,8 +24,7 @@ class Globals extends SimpleCommand
 	 * @var array
 	 */
 	protected array $option_types = [
-		'format' => 'string',
-		'*' => 'string',
+		'format' => 'string', '*' => 'string',
 	];
 
 	/**
@@ -33,8 +32,7 @@ class Globals extends SimpleCommand
 	 * @var array
 	 */
 	protected array $option_help = [
-		'format' => 'Output format: html, php, json, text, serialize',
-		'*' => 'globals to output',
+		'format' => 'Output format: html, php, json, text, serialize', '*' => 'globals to output',
 	];
 
 	/**

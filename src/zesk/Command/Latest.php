@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage Command
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Command;
@@ -14,8 +14,7 @@ use zesk\Repository\Base as Repository;
 /**
  * @author kent
  */
-class Latest extends SimpleCommand
-{
+class Latest extends SimpleCommand {
 	protected array $shortcuts = ['latest'];
 
 	protected array $load_modules = [
@@ -50,8 +49,7 @@ class Latest extends SimpleCommand
 				$this->exec('git -C {0} pull origin master', $zesk_home);
 			} else {
 				$this->error('Found repo above {home} at {path}, ignoring', [
-					'home' => $zesk_home,
-					'path' => $repo->path(),
+					'home' => $zesk_home, 'path' => $repo->path(),
 				]);
 			}
 			return 0;

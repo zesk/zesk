@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage Command
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 
@@ -21,24 +21,19 @@ use zesk\Text;
  *
  * @category Tools
  */
-class Licenses extends SimpleCommand
-{
+class Licenses extends SimpleCommand {
 	protected array $shortcuts = ['licenses'];
 
 	protected array $option_types = [
-		'all' => 'boolean',
-		'json' => 'boolean',
+		'all' => 'boolean', 'json' => 'boolean',
 	];
 
 	protected array $option_help = [
-		'all' => 'Do all modules instead of just those loaded',
-		'json' => 'Output JSON structure',
+		'all' => 'Do all modules instead of just those loaded', 'json' => 'Output JSON structure',
 	];
 
 	private array $codeToLabel = [
-		'description' => 'Description',
-		'licenses' => 'Licenses',
-		'urlProject' => 'Project URL',
+		'description' => 'Description', 'licenses' => 'Licenses', 'urlProject' => 'Project URL',
 		'urlLicense' => 'License URL',
 	];
 
@@ -52,8 +47,8 @@ class Licenses extends SimpleCommand
 					$moduleData[$module] = JSON::decode(File::contents($configPath));
 				} catch (ParseException $e) {
 					$this->error('Unable to parse {module} {configPath} {message}', [
-						'module' => $module, 'configPath' => $configPath,
-					] + $e->variables());
+							'module' => $module, 'configPath' => $configPath,
+						] + $e->variables());
 				}
 			}
 		} else {

@@ -4,10 +4,11 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage system
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  * @requires PHP 5
  * Created on Mon Apr 06 22:59:37 EDT 2009 22:59:37
  */
+
 namespace zesk;
 
 /**
@@ -19,8 +20,7 @@ namespace zesk;
  * However, in a pinch, it should behave correctly and wrap around without the annoying overflow
  * and double issues of PHP.
  */
-class UnsignedLong
-{
+class UnsignedLong {
 	public int $short0;
 
 	public int $short1;

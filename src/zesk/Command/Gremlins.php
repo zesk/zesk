@@ -4,8 +4,9 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage Command
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
+
 namespace zesk\Command;
 
 use SplFileInfo;
@@ -15,8 +16,7 @@ use SplFileInfo;
  * @category Debugging
  * @author kent
  */
-class Gremlins extends FileIterator
-{
+class Gremlins extends FileIterator {
 	protected array $shortcuts = ['gremlins'];
 
 	protected array $extensions = [
@@ -49,8 +49,7 @@ class Gremlins extends FileIterator
 	protected function finish(): int
 	{
 		$this->log('Completed: {parsed} parsed, {whites} with whitespace', [
-			'parsed' => $this->parsed,
-			'whites' => $this->found,
+			'parsed' => $this->parsed, 'whites' => $this->found,
 		]);
 		return $this->found;
 	}

@@ -2,7 +2,7 @@
 declare(strict_types=1);
 /**
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  * @package zesk
  * @subpackage system
  */
@@ -40,8 +40,7 @@ use zesk\Version;
  * @package zesk
  * @subpackage system
  */
-class Client extends Hookable
-{
+class Client extends Hookable {
 	public const OPTION_FOLLOW_LOCATION = 'setFollowLocation';
 
 	/*
@@ -820,7 +819,7 @@ class Client extends Hookable
 			}
 			unlink($dest_headers_name);
 			File::trim($this->application(), $this->destination, strlen($all_headers));
-		} elseif ($this->wantHeaders()) {
+		} else if ($this->wantHeaders()) {
 			$this->parseHeaders();
 		}
 	}

@@ -4,9 +4,10 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage system
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  * Created on Tue Jul 15 13:03:41 EDT 2008
  */
+
 namespace zesk;
 
 use zesk\Locale\Locale;
@@ -17,18 +18,14 @@ use zesk\Locale\Locale;
  * @author kent
  *
  */
-class Number
-{
+class Number {
 	/**
 	 * Kilobytes, Megabytes, Gigabytes, Terabytes
 	 *
 	 * @var array
 	 */
 	private static array $magnitudes = [
-		'K' => 1024,
-		'M' => 1048576,
-		'G' => 1073741824,
-		'T' => 1099511627776,
+		'K' => 1024, 'M' => 1048576, 'G' => 1073741824, 'T' => 1099511627776,
 	];
 
 	/**
@@ -48,11 +45,11 @@ class Number
 	}
 
 	/**
-	 * @deprecated 2022-10
 	 * @param Locale $locale
 	 * @param int $n
 	 * @param int $precision
 	 * @return string
+	 * @deprecated 2022-10
 	 */
 	public static function format_bytes(Locale $locale, int $n, int $precision = 1): string
 	{
@@ -73,22 +70,21 @@ class Number
 			return $locale('Number::format_bytes:={0} TB', [
 				round(($n / self::$magnitudes['T']), $precision),
 			]);
-		} elseif ($n >= 1073741824) {
+		} else if ($n >= 1073741824) {
 			return $locale('Number::format_bytes:={0} GB', [
 				round(($n / self::$magnitudes['G']), $precision),
 			]);
-		} elseif ($n >= 1048576) {
+		} else if ($n >= 1048576) {
 			return $locale('Number::format_bytes:={0} MB', [
 				round(($n / self::$magnitudes['M']), $precision),
 			]);
-		} elseif ($n >= 1024) {
+		} else if ($n >= 1024) {
 			return $locale('Number::format_bytes:={0} KB', [
 				round($n / self::$magnitudes['K'], $precision),
 			]);
 		} else {
 			return $locale->__('Number::format_bytes:={0} {1}', [
-				$n,
-				$locale->plural($locale->__('byte'), $n),
+				$n, $locale->plural($locale->__('byte'), $n),
 			]);
 		}
 	}

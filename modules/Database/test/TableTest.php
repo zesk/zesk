@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage test
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Database;
@@ -19,8 +19,7 @@ use zesk\PHPUnit\TestCase;
  * @author kent
  *
  */
-class TableTest extends TestCase
-{
+class TableTest extends TestCase {
 	protected array $load_modules = [
 		'MySQL',
 	];
@@ -50,8 +49,7 @@ class TableTest extends TestCase
 			$this->assertInstanceOf(KeyNotFound::class, $e);
 		}
 		$table->columnAdd(new Column($table, $name, [
-			Column::OPTION_SQL_TYPE => 'datetime',
-			Column::OPTION_NOT_NULL => false,
+			Column::OPTION_SQL_TYPE => 'datetime', Column::OPTION_NOT_NULL => false,
 		]));
 		$table->column($name);
 		$table->previousColumn('thing');

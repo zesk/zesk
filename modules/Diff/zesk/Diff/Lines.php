@@ -4,8 +4,9 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage system
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
+
 namespace zesk\Diff;
 
 use zesk\Exception\NotFoundException;
@@ -15,8 +16,7 @@ use zesk\Exception\NotFoundException;
  * @author kent
  *
  */
-class Lines extends Base
-{
+class Lines extends Base {
 	/**
 	 *
 	 * @var array

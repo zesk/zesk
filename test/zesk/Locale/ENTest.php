@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage test
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Locale;
@@ -16,8 +16,7 @@ use zesk\PHPUnit\TestCase;
  * @author kent
  *
  */
-class ENTest extends TestCase
-{
+class ENTest extends TestCase {
 	public function test_everything(): void
 	{
 		$testx = $this->application->localeFactory('en');
@@ -40,9 +39,7 @@ class ENTest extends TestCase
 		$this->assertEquals('An', $testx->indefiniteArticle('HOUR AWAY', ['capitalize' => true]));
 
 		$x = [
-			'lions',
-			'tigers',
-			'bears',
+			'lions', 'tigers', 'bears',
 		];
 		$conj = 'and';
 		$this->assertEquals('lions, tigers, and bears', $testx->conjunction($x, $conj));
@@ -57,52 +54,29 @@ class ENTest extends TestCase
 	{
 		return [
 			[
-				1,
-				'1st',
-			],
-			[
-				1,
-				'1st',
-			],
-			[
-				0,
-				'0th',
-			],
-			[
-				0,
-				'0th',
-			],
-			[
-				11,
-				'11th',
-			],
-			[
-				101,
-				'101st',
-			],
-			[
-				2,
-				'2nd',
-			],
-			[
-				12,
-				'12th',
-			],
-			[
-				21,
-				'21st',
-			],
-			[
-				22,
-				'22nd',
-			],
-			[
-				99,
-				'99th',
-			],
-			[
-				100000001,
-				'100000001st',
+				1, '1st',
+			], [
+				1, '1st',
+			], [
+				0, '0th',
+			], [
+				0, '0th',
+			], [
+				11, '11th',
+			], [
+				101, '101st',
+			], [
+				2, '2nd',
+			], [
+				12, '12th',
+			], [
+				21, '21st',
+			], [
+				22, '22nd',
+			], [
+				99, '99th',
+			], [
+				100000001, '100000001st',
 			],
 		];
 	}

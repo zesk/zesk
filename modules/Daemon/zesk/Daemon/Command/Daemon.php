@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage Daemon
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Daemon\Command;
@@ -39,8 +39,7 @@ use zesk\Timestamp;
  * @author kent
  * @category Management
  */
-class Daemon extends SimpleCommand implements SystemProcess
-{
+class Daemon extends SimpleCommand implements SystemProcess {
 	protected array $shortcuts = ['daemon'];
 
 	/**
@@ -444,7 +443,7 @@ class Daemon extends SimpleCommand implements SystemProcess
 				}
 			} while (!posix_kill($pid, 0));
 			$this->send();
-		} elseif ($want === 'up') {
+		} else if ($want === 'up') {
 			$this->send();
 		}
 		return 0;
@@ -486,7 +485,7 @@ class Daemon extends SimpleCommand implements SystemProcess
 				if ($status === 'up' && !$is_running) {
 					$status_text = 'down';
 					$want = ', want up';
-				} elseif ($status === 'down') {
+				} else if ($status === 'down') {
 					if ($is_running) {
 						$status_text = 'up';
 						$want = ', want down';
@@ -614,7 +613,7 @@ class Daemon extends SimpleCommand implements SystemProcess
 
 		declare(ticks=1) {
 			// KMD: Safely ignore E_WARNING about interrupted system call here TODO 2023 PHP 8.1
-			set_error_handler(fn () => true, E_WARNING);
+			set_error_handler(fn() => true, E_WARNING);
 			$result = @stream_select($readers, $writers, $except, $sec, $usec);
 			restore_error_handler();
 			if ($result) {
@@ -778,7 +777,7 @@ class Daemon extends SimpleCommand implements SystemProcess
 				'name' => $name,
 			]);
 			return null;
-		} elseif ($child === 0) {
+		} else if ($child === 0) {
 			$this->invokeHooks(Process::HOOK_FORK_CHILD, [$this->application]);
 			$this->application->notice('Running {name} as process id {pid}', [
 				'name' => $name, 'pid' => $this->application->process->id(),
@@ -837,12 +836,12 @@ class Daemon extends SimpleCommand implements SystemProcess
 					$this->application->error('Child sent name which isn\'t in our database? {name}', [
 						'name' => $name,
 					]);
-				} elseif ($database[$name]['pid'] !== $pid) {
+				} else if ($database[$name]['pid'] !== $pid) {
 					$this->application->error('Child sent PID which doesn\'t match our database (Child sent {childpid}, we have {pid}?', $database[$name] + [
-						'childpid' => $pid,
-					]);
+							'childpid' => $pid,
+						]);
 				}
-			} elseif ($pid === null || $pid === 'down') {
+			} else if ($pid === null || $pid === 'down') {
 				// Child dying or died, be sure to waitpid for it to allow safe exit
 				$childpid = ArrayTools::path($database, [
 					$name, 'pid',
@@ -905,9 +904,9 @@ class Daemon extends SimpleCommand implements SystemProcess
 							'name' => $name, 'pid' => $pid,
 						]);
 					}
-				} elseif ($status === 'down') {
+				} else if ($status === 'down') {
 					continue;
-				} elseif ($status === 'up') {
+				} else if ($status === 'up') {
 					$settings = $this->run_child($name);
 					if (is_array($settings)) {
 						$database[$name] = $settings;
@@ -1127,7 +1126,7 @@ class Daemon extends SimpleCommand implements SystemProcess
 						'name' => $name, 'pid' => $pid, 'status' => $status,
 					]);
 					unset($database[$name]);
-				} elseif ($result === 0) {
+				} else if ($result === 0) {
 					$this->application->debug('pcntl_waitpid({pid}, {status}, WNOHANG) returned 0, no child available. {name}.', [
 						'name' => $name, 'pid' => $pid, 'status' => $status,
 					]);

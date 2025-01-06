@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage tools
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\CSV;
@@ -29,8 +29,7 @@ use zesk\UTF8;
  * @package zesk
  * @subpackage tools
  */
-class Reader extends Base
-{
+class Reader extends Base {
 	/**
 	 * Buffer to load UTF-16 lines
 	 *
@@ -193,7 +192,9 @@ class Reader extends Base
 					$data = UTF16::toISO8859($data, $this->EncodingBigEndian);
 					$this->FileBuffer .= $data;
 				}
-				[$line, $this->FileBuffer] = StringTools::pair($this->FileBuffer, $this->LineDelimiter, $this->FileBuffer);
+				[
+					$line, $this->FileBuffer,
+				] = StringTools::pair($this->FileBuffer, $this->LineDelimiter, $this->FileBuffer);
 				$result = str_getcsv($line, $this->Delimiter, $this->Enclosure, $this->Escape);
 				return $result;
 			default:
@@ -272,7 +273,7 @@ class Reader extends Base
 		foreach ($hh as $k => $v) {
 			if (is_scalar($v)) {
 				$r[$v] = $row[$k] ?? null;
-			} elseif (is_array($v)) {
+			} else if (is_array($v)) {
 				foreach ($v as $vv) {
 					$r[$vv] = $row[$k] ?? null;
 				}
@@ -337,11 +338,11 @@ class Reader extends Base
 			$this->Encoding = 'UTF-8';
 			$this->EncodingSuffix = '.UTF8';
 			$file_sample = UTF8::toISO8859($file_sample);
-		} elseif (StringTools::isUTF16($file_sample, $this->EncodingBigEndian)) {
+		} else if (StringTools::isUTF16($file_sample, $this->EncodingBigEndian)) {
 			$this->Encoding = 'UTF-16';
 			$this->EncodingSuffix = '.UTF16';
 			$file_sample = UTF16::toISO8859($file_sample, $this->EncodingBigEndian);
-		} elseif (StringTools::isASCII($file_sample)) {
+		} else if (StringTools::isASCII($file_sample)) {
 			$this->Encoding = 'ISO-8859-1';
 			$this->EncodingSuffix = '.ISO8859';
 		} else {

@@ -2,10 +2,11 @@
 declare(strict_types=1);
 /**
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  * @package zesk
  * @subpackage model
  */
+
 namespace zesk\Net\File;
 
 use zesk\Net\Client as NetClient;
@@ -17,8 +18,7 @@ use zesk\Net\FileSystem;
  * @author kent
  *
  */
-class Client extends NetClient implements FileSystem
-{
+class Client extends NetClient implements FileSystem {
 	/**
 	 * Are we "connected"? Simply for semantic integrity between clients.
 	 * @var boolean
@@ -153,8 +153,8 @@ class Client extends NetClient implements FileSystem
 			$stats = File::stat($path);
 		} catch (FileNotFound $e) {
 			return $entry + [
-				'type' => null,
-			];
+					'type' => null,
+				];
 		}
 		$entry['mode'] = $stats['perms']['string'];
 		$entry['type'] = $stats['filetype']['type'];

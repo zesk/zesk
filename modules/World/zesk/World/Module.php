@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage world
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.*
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.*
  */
 declare(strict_types=1);
 
@@ -20,8 +20,7 @@ use zesk\Doctrine\Module as DoctrineModule;
  * @author kent
  *
  */
-class Module extends BaseModule
-{
+class Module extends BaseModule {
 	/**
 	 * List of currencies to include (Currency)
 	 */

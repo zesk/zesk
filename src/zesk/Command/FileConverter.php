@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage core
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Command;
@@ -22,8 +22,7 @@ use zesk\File;
  * @api
  *
  */
-abstract class FileConverter extends SimpleCommand
-{
+abstract class FileConverter extends SimpleCommand {
 	/**
 	 * Scan for files matching this extension pattern (no delimiters), use vertical bar only
 	 *
@@ -172,8 +171,8 @@ abstract class FileConverter extends SimpleCommand
 					$this->convert_file($file, $new_file);
 				} catch (Throwable $t) {
 					$this->application->error('unable to convert from {file} to {new_file}: {throwableClass} {throwableMessage}', [
-						'file' => $file, 'newFile' => $new_file,
-					] + Exception::exceptionVariables($t));
+							'file' => $file, 'newFile' => $new_file,
+						] + Exception::exceptionVariables($t));
 				}
 			}
 		} else {

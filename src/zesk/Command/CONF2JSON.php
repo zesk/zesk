@@ -4,8 +4,9 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage core
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
+
 namespace zesk\Command;
 
 use SplFileInfo;
@@ -23,8 +24,7 @@ use zesk\Exception\FilePermission;
  * @author kent
  *
  */
-class CONF2JSON extends FileIterator
-{
+class CONF2JSON extends FileIterator {
 	protected array $shortcuts = ['conf2json'];
 
 	protected array $extensions = [
@@ -34,12 +34,10 @@ class CONF2JSON extends FileIterator
 	public function initialize(): void
 	{
 		$this->option_types += [
-			'dry-run' => 'boolean',
-			'noclobber' => 'boolean',
+			'dry-run' => 'boolean', 'noclobber' => 'boolean',
 		];
 		$this->option_help += [
-			'dry-run' => 'Don\'t modify the file system',
-			'noclobber' => 'Do not overwrite existing files',
+			'dry-run' => 'Don\'t modify the file system', 'noclobber' => 'Do not overwrite existing files',
 		];
 		parent::initialize();
 	}
@@ -66,15 +64,13 @@ class CONF2JSON extends FileIterator
 		if ($this->optionBool('dry-run')) {
 			if ($n === 0) {
 				$message = 'No entries found in {source_name} for {target_name}';
-			} elseif ($this->optionBool('noclobber') && $target_exists) {
+			} else if ($this->optionBool('noclobber') && $target_exists) {
 				$message = 'Will not overwrite {target_name}';
 			} else {
 				$message = 'Would write {target_name} with {n} {entries}';
 			}
 			$this->info($message, [
-				'source_name' => $source_name,
-				'target_name' => $target_name,
-				'n' => $n,
+				'source_name' => $source_name, 'target_name' => $target_name, 'n' => $n,
 				'entries' => $this->application->locale->plural('entry', $n),
 			]);
 			return true;

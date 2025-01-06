@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage core
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -19,8 +19,7 @@ use zesk\Interface\Themeable;
 /**
  * Everything theme-related
  */
-class Themes implements Themeable
-{
+class Themes implements Themeable {
 	/**
 	 * @var bool
 	 */
@@ -181,7 +180,7 @@ class Themes implements Themeable
 		$theme = $this->cleanTemplatePath($theme) . $extension;
 		$themePath = $this->themePath();
 		$prefixes = array_keys($themePath);
-		usort($prefixes, fn ($a, $b) => strlen($b) - strlen($a));
+		usort($prefixes, fn($a, $b) => strlen($b) - strlen($a));
 		$result = [];
 		$tried_path = [];
 		foreach ($prefixes as $prefix) {
@@ -234,7 +233,7 @@ class Themes implements Themeable
 			$arguments = [
 				'content' => $arguments,
 			];
-		} elseif (ArrayTools::isList($arguments) && count($arguments) > 0) {
+		} else if (ArrayTools::isList($arguments) && count($arguments) > 0) {
 			$arguments['content'] = ArrayTools::first($arguments);
 		}
 

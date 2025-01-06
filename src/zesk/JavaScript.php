@@ -4,8 +4,9 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage system
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
+
 namespace zesk;
 
 use zesk\Exception\SemanticsException;
@@ -15,8 +16,7 @@ use zesk\Exception\SemanticsException;
  *
  * @author kent
  */
-class JavaScript
-{
+class JavaScript {
 	/**
 	 * Current obfuscation capture state
 	 *
@@ -70,21 +70,8 @@ class JavaScript
 		}
 		self::$obfuscated = false;
 		$formatting = [
-			"\t" => ' ',
-			"\n" => '',
-			'  ' => ' ',
-			', ' => ',',
-			' {' => '{',
-			'{ ' => '{',
-			' =' => '=',
-			'= ' => '=',
-			'; ' => ';',
-			'+ ' => '+',
-			' +' => '+',
-			'} ' => '}',
-			'if (' => 'if(',
-			') {' => '){',
-			' if(' => 'if(',
+			"\t" => ' ', "\n" => '', '  ' => ' ', ', ' => ',', ' {' => '{', '{ ' => '{', ' =' => '=', '= ' => '=',
+			'; ' => ';', '+ ' => '+', ' +' => '+', '} ' => '}', 'if (' => 'if(', ') {' => '){', ' if(' => 'if(',
 			'elseif' => 'else if',
 		];
 		$js = ob_get_clean();

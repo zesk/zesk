@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage ORM
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Doctrine;
@@ -27,8 +27,7 @@ use zesk\Doctrine\Trait\AutoID;
  */
 #[Entity]
 #[UniqueConstraint(name: 'serverName', fields: ['server', 'name'])]
-class ServerMeta extends Model
-{
+class ServerMeta extends Model {
 	#[ManyToOne(targetEntity: Server::class)]
 	#[JoinColumn(name: 'server')]
 	public Server $server;

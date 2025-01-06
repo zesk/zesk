@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage system
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Doctrine;
@@ -23,8 +23,7 @@ use zesk\Response;
  * @author kent
  *
  */
-class AuthenticatedController extends Controller
-{
+class AuthenticatedController extends Controller {
 	/**
 	 * Current logged in user
 	 *
@@ -85,7 +84,7 @@ class AuthenticatedController extends Controller
 	public function variables(): array
 	{
 		return [
-			'user' => $this->user, 'session' => $this->session,
-		] + parent::variables();
+				'user' => $this->user, 'session' => $this->session,
+			] + parent::variables();
 	}
 }

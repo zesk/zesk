@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage Exception
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Exception;
@@ -17,8 +17,7 @@ use zesk\Exception;
  * @author kent
  *
  */
-class UploadException extends Exception
-{
+class UploadException extends Exception {
 	/**
 	 * From http://us1.php.net/manual/en/features.file-upload.errors.php
 	 *

@@ -7,7 +7,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage test
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -18,8 +18,7 @@ use zesk\PHPUnit\TestCase;
  * @author kent
  *
  */
-class Net_POP_Client_Test extends TestCase
-{
+class Net_POP_Client_Test extends TestCase {
 	/**
 	 *
 	 * @var string
