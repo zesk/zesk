@@ -3,18 +3,7 @@
 # Copyright &copy; 2025 Market Acumen, Inc.
 #
 
-# IDENTICAL __build EOF
-# Load build tools (installing if needed) and run command
-# Usage: {fn} [ relativeHome installerPath [ command ... ] ]
-# Argument: relativeHome - Required. Directory. Path to application home.
-# Argument: installerPath - Optional. Directory. Path to `install-bin-build.sh` binary.
-# Argument: command ... - Optional. Callable. A command to run and optional arguments.
-__build() {
-  local relative="${1:-".."}" installerPath="${2:-"bin"}" && shift && shift
-  __install "$installerPath/install-bin-build.sh" "bin/build/tools.sh" "$relative" "$@" || return $?
-}
-
-# IDENTICAL __install EOF
+# IDENTICAL __install 24
 # Load build tools (installing if needed) and run command
 # Usage: {fn} [ relativeHome installer source [ command ... ] ]
 # Argument: installer - Required. File. Installation binary.
@@ -38,6 +27,17 @@ __install() {
   source "$tools" || _return $e source "$tools" || return $?
   [ ${#arguments[@]} -gt 0 ] || return 0
   __execute "${arguments[@]}" || return $?
+}
+
+# IDENTICAL __build 9
+# Load build tools (installing if needed) and run command
+# Usage: {fn} [ relativeHome installerPath [ command ... ] ]
+# Argument: installerPath - Optional. Directory. Path to `install-bin-build.sh` binary.
+# Argument: relativeHome - Required. Directory. Path to application home.
+# Argument: command ... - Optional. Callable. A command to run and optional arguments.
+__build() {
+  local relative="${1:-".."}" installerPath="${2:-"bin"}" && shift && shift
+  __install "$installerPath/install-bin-build.sh" "bin/build/tools.sh" "$relative" "$@" || return $?
 }
 
 # IDENTICAL _return 24
