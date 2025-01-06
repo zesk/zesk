@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 #
 #   _____         _
 #  |__  /___  ___| | __
@@ -9,115 +9,130 @@
 # Binary shell - finds PHP and a Zesk application and runs it.
 # Supports all Zesk installations.
 # Searches upwards from current directory to find a *.application.php file
-# Supports parsing of `--cd` and `--search` to find Zesk (simple - use these first on your CLI)
+# Supports parsing of `--cd` and `--search` to find Zesk
 #
 # Use sh to avoid having to install bash on virgin systems
 #
 # `zesk help` for more help
 #
-err_env=1
-err_arg=1
-ERR_NO_VENDOR=1002
-ERR_NO_ZESK_BIN=1003
 
-#DEBUG
-#set -x
+# IDENTICAL _return 24
+# Usage: {fn} [ exitCode [ message ... ] ]
+# Argument: exitCode - Optional. Integer. Exit code to return. Default is 1.
+# Argument: message ... - Optional. String. Message to output to stderr.
+# Exit Code: exitCode
+_return() {
+  local r="${1-:1}" && shift
+  isUnsignedInteger "$r" || _return 2 "${FUNCNAME[1]-none}:${BASH_LINENO[1]-} -> ${FUNCNAME[0]} non-integer $r" "$@" || return $?
+  printf "[%d] ❌ %s\n" "$r" "${*-§}" 1>&2 || : && return "$r"
+}
 
-export PATH=$PATH:/usr/bin:/bin:/usr/local/bin
+# Test if an argument is an unsigned integer
+# Source: https://stackoverflow.com/questions/806906/how-do-i-test-if-a-variable-is-a-number-in-bash
+# Credits: F. Hauri - Give Up GitHub (isnum_Case)
+# Original: is_uint
+# Usage: {fn} argument ...
+# Exit Code: 0 - if it is an unsigned integer
+# Exit Code: 1 - if it is not an unsigned integer
+#
+isUnsignedInteger() {
+  [ $# -eq 1 ] || _return 2 "Single argument only: $*" || return $?
+  case "${1#+}" in '' | *[!0-9]*) return 1 ;; esac
+}
 
-extractCD() {
-  while [ $# -gt 1 ]; do
-    case $1 in
-      # looking for these
-      "--cd" | "--search" )
-        shift
-        echo "$1"
+# <-- END of IDENTICAL _return
+
+__zesk() {
+  local tools="${BASH_SOURCE[0]%/*}/build/tools.sh"
+  local usage="_${FUNCNAME[0]}"
+
+  # shellcheck source=/dev/null
+  source "$tools" || _return 1 "Loading $tools" || return $?
+
+  local aa=() paths=() path debugFlag=false
+  # IDENTICAL argument-case-header 5
+  local saved=("$@") nArguments=$#
+  while [ $# -gt 0 ]; do
+    local argument argumentIndex=$((nArguments - $# + 1))
+    argument="$(usageArgumentString "$usage" "argument #$argumentIndex (Arguments: $(_command "${usage#_}" "${saved[@]}"))" "$1")" || return $?
+    case "$argument" in
+      # IDENTICAL --help 4
+      --help)
+        "$usage" 0
+        return $?
         ;;
-      # --arg var
-      "--unset" | "--set" | "--config" | "--define" )
+        # looking for these
+      "--cd" | "--search")
         shift
+        path="$(usageArgumentDirectory "$usage" "$argument" "${1-}")" || return $?
+        aa+=("$argument" "$path")
+        paths+=("$path")
         ;;
-      # --name=value
+      --debug)
+        debugFlag=true
+        aa+=("$argument")
+        ;;
+        # --arg var
+      "--config")
+        shift
+        aa+=("$argument" "$(usageArgumentFile "$usage" "$argument" "${1-}")") || return $?
+        ;;
+      "--unset" | "--set" | "--define")
+        shift
+        aa+=("$argument" "$(usageArgumentString "$usage" "$argument" "${1-}")") || return $?
+        ;;
+        # --name=value
       "--[a-z]+=*")
-        return 0
+        aa+=("$argument")
         ;;
       *)
-        return 0
+        aa+=("$argument")
+        ;;
     esac
-    shift
-  done
-}
+    # IDENTICAL argument-esac-shift 1
+    shift || __failArgument "$usage" "missing argument #$argumentIndex: $argument (Arguments: $(_command "${usage#_}" "${saved[@]}"))" || return $?
 
-findAppRoot() {
-  targetVariable="$1"
-  shift
-  start="$1"
-  if ! cd "$start" 2> /dev/null; then
-    echo "Unable to change directory to \"$start\"" 1>&2
-    return 1
-  fi
-  current=
-  next="$start"
-  while [ "$next" != "$current" ]; do
-    current="$next"
-    if ls ./*.application.php 1> /dev/null 2>&1; then
-      eval "$targetVariable=$current"
-      return 0
+  done
+
+  whichExists php || __failArgument "$usage" "php is not installed in PATH $(decorate code "$PATH")" || return $?
+
+  local home tried=() previous
+
+  path="$(__usageEnvironment "$usage" pwd)" || return $?
+  home="$(__usageArgument "$usage" buildHome)" || return $?
+  paths+=("$path" "$home")
+
+  set -- "${aa[@]+"${aa[@]}"}"
+  for path in "${paths[@]}"; do
+    path=$(__usageEnvironment "$usage" realPath "$path") || return $?
+    if inArray "$path" "${tried[@]}"; then
+      continue
     fi
-    cd ..
-    next=$(pwd)
-  done
-  return 0
-}
-
-findFirstAppRoot() {
-  targetVariable2="$1"
-  shift
-  tryDir=
-  while read -r tryDir; do
-    appRoot=
-    if findAppRoot appRoot $tryDir; then
-      if [ -n "$appRoot" ]; then
-        eval "$targetVariable2=$appRoot"
-        return 0
+    previous=""
+    while [ "$path" != "$previous" ]; do
+      ! $debugFlag || statusMessage decorate info "Searching $(decorate file "$path")" || return $?
+      if muzzle find "$path" -maxdepth 1 -type f -name '*.application.php'; then
+        for binary in "$path/bin/zesk-command.php" "$path/vendor/bin/zesk-command.php"; do
+          if [ -x "$binary" ]; then
+            ! $debugFlag || statusMessage --last decorate success "Running $(decorate file "$binary")" "$@" || return $?
+            exec php "$binary" "$@"
+          fi
+          ! $debugFlag || statusMessage decorate info "No binary $(decorate file "$binary")" || return $?
+        done
+        if [ ! -d "$path/vendor/bin" ]; then
+          __failEnvironment "$usage" "No vendor directory exists at $(decorate file "$path"), run: composer require zesk/zesk && composer install" || return $?
+        fi
+        __failEnvironment "$usage" "No vendor zesk installed at $(decorate file "$path")" || return $?
       fi
-    else
-      return 1
-    fi
+      tried+=("$path")
+      previous="$path"
+      path="$(__usageEnvironment "$usage" dirname "$previous")" || return $?
+    done
   done
-  return 0
+}
+___zesk() {
+  # IDENTICAL usageDocument 1
+  usageDocument "${BASH_SOURCE[0]}" "${FUNCNAME[0]#_}" "$@"
 }
 
-here=$(dirname "$0")
-php=$(which php)
-if [ -z "$php" ]; then
-	echo "PHP is not found in PATH: $PATH" 1>&2
-	exit $err_env
-fi
-
-# DEBUG
-# echo "extractCD: $(extractCD "$@")EOL"
-
-appRoot=
-if ! extractCD "$@" | findFirstAppRoot appRoot; then
-  exit $err_arg
-fi
-
-cd "$start" || exit $err_env
-if [ -z "$appRoot" ]; then
-	cd "$here" || exit $err_env
-	cd .. || exit $err_env
-	appRoot=$(pwd)
-	cd "$start" || exit $err_env
-fi
-for binary in "$appRoot/bin/zesk-command.php" "$appRoot/vendor/bin/zesk-command.php"; do
-	if [ -x "$binary" ]; then
-		exec "$php" "$binary" "$@"
-	fi
-done
-if [ ! -d "$appRoot/vendor/bin/" ]; then
-	echo "No vendor directory exists, run: composer require zesk/zesk && composer install" 1>&2
-	exit $ERR_NO_VENDOR
-fi
-echo "No zesk command file, run: composer require zesk/zesk && composer install" 1>&2
-exit $ERR_NO_ZESK_BIN
+__zesk "$@"

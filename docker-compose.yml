@@ -1,8 +1,6 @@
-version: "3"
-
 services:
   php:
-    env_file: docker/etc/env.sh
+    env_file: docker/etc/application.conf
     environment:
       BUILD_CODE: php
       DATABASE_HOST: mariadb
@@ -24,7 +22,7 @@ services:
     ports:
       - "13306:3306"
     healthcheck:
-      test: ["CMD-SHELL", "/db-health.sh"]
+      test: [ "CMD-SHELL", "/db-health.sh" ]
       interval: 2s
       timeout: 2s
       retries: 10

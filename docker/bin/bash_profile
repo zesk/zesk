@@ -1,6 +1,7 @@
 #!/bin/bash
+
 . /usr/local/bin/zesk-bash.sh && container_prompt
-err_env=1
+
 if [ -d "/zesk" ]; then
     PATH=$PATH:/zesk/bin:/zesk/vendor/bin
 fi

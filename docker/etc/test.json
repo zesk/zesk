@@ -1,0 +1,16 @@
+{
+	"zesk\\Database\\Module": {
+		"default": "default",
+		"names": {
+			"default": "mysqli://testuser:test-password@$DATABASE_HOST/testdb",
+			"test_mysql": "${zesk\\Database\\Module::names::default}"
+		}
+	},
+	"zesk\\Doctrine\\Module": {
+		"default": "default"
+		"connections": {
+			"default": "mysqli://testuser:test-password@$DATABASE_HOST/testdb",
+			"test_mysql": "${zesk\\Doctrine\\Module::connections::default}"
+		}
+	}
+}

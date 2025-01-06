@@ -4,153 +4,168 @@
 #
 # Prepare the repository for the next release
 #
-# Copyright &copy; 2024 Market Acumen, Inc.
+# Copyright &copy; 2025 Market Acumen, Inc.
 #
-err_env=1
-ERR_ARG=2
 
-#
-# Assumptions
-#
-me=$(basename "$0")
-top="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." || exit $err_env; pwd)"
-yml="$top/docker-compose.yml"
+set -eou pipefail
 
-set -eo pipefail
+# shellcheck source=/dev/null
+source "${BASH_SOURCE[0]%/*}/build/tools.sh" || exit 99
 
-usage() {
-  local exitCode
-  exitCode=$((${1:-0} + 0))
-  shift
-  exec 1>&2
-  if [ -n "$*" ]; then
-    echo "ERROR: $*"
-    echo
+# Prepare repository for next release"
+# Argument: --force - Force generation of release markdown
+zeskPrepareRelease() {
+  local usage="_${FUNCNAME[0]}"
+
+  local forceWrite=false
+
+  # IDENTICAL argument-case-header 5
+  local saved=("$@") nArguments=$#
+  while [ $# -gt 0 ]; do
+    local argument argumentIndex=$((nArguments - $# + 1))
+    argument="$(usageArgumentString "$usage" "argument #$argumentIndex (Arguments: $(_command "${usage#_}" "${saved[@]}"))" "$1")" || return $?
+    case "$argument" in
+      # IDENTICAL --help 4
+      --help)
+        "$usage" 0
+        return $?
+        ;;
+      --force)
+        forceWrite=true
+        ;;
+      *)
+        # IDENTICAL argumentUnknown 1
+        __failArgument "$usage" "unknown argument #$argumentIndex: $argument (Arguments: $(_command "${saved[@]}"))" || return $?
+        ;;
+    esac
+    # IDENTICAL argument-esac-shift 1
+    shift || __failArgument "$usage" "missing argument #$argumentIndex: $argument (Arguments: $(_command "${usage#_}" "${saved[@]}"))" || return $?
+  done
+
+  local yml home
+
+  home=$(__usageEnvironment "$usage" buildHome) || return $?
+  yml="$home/docker-compose.yml"
+
+  [ -f "$yml" ] || __failEnvironment "$usage" "Requires $(decorate file "$yml")" || return $?
+
+  local envs=(VERSION_URL)
+
+  export "${envs[@]}"
+  # WAS ZESK_REPOSITORY_VERSION_PREFIX
+  __usageEnvironment "$usage" buildEnvironmentLoad "${envs[@]}" || return $?
+
+  if [ -z "${VERSION_URL-}" ]; then
+    local owner
+    owner=$(__usageEnvironment "$usage" buildEnvironmentGet GITHUB_REPOSITORY_OWNER) || return $?
+    [ -n "$owner" ] || __failEnvironment "$usage" "GITHUB_REPOSITORY_OWNER is blank" || return $?
+    local name
+    name=$(__usageEnvironment "$usage" buildEnvironmentGet GITHUB_REPOSITORY_NAME) || return $?
+    [ -n "$name" ] || __failEnvironment "$usage" "GITHUB_REPOSITORY_NAME is blank" || return $?
+
+    VERSION_URL="https://github.com/$owner/$name/compare/{previous}...{current}"
   fi
-  echo "$me: Prepare repository for next release"
-  echo
-  echo "--force    Force generation of release markdown"
-  exit "$exitCode"
-}
 
-envs=(ZESK_REPOSITORY_VERSION_PREFIX)
-ZESK_REPOSITORY_VERSION_PREFIX=${ZESK_REPOSITORY_VERSION_PREFIX:-https://github.com/zesk/zesk/compare/}
+  __usageEnvironment "$usage" dockerComposeInstall || return $?
 
-for e in "${envs[@]}"; do
-  if [ -z "${!e}" ]; then
-    usage $err_env "Need $e defined in environment"
+  __usageEnvironment "$usage" docker-compose -f "$yml" up -d >/dev/null
+
+  currentVersion=$(__usageEnvironment "$usage" hookVersionCurrent) || return $?
+  previousVersion=$(__usageEnvironment "$usage" gitVersionLast "$currentVersion")
+
+  #
+  # Sync with remote
+  #
+  statusMessage decorate info "Synchronizing with git remote ..."
+  __usageEnvironment "$usage" muzzle git pull --tags || return $?
+  __usageEnvironment "$usage" muzzle git push --tags || return $?
+
+  statusMessage decorate info "Cleaning ..."
+  __usageEnvironment "$usage" docker-compose -f "$yml" exec php bash -c 'cd /zesk && ./bin/cs-zesk.sh' || return $?
+
+  local nLines
+  #
+  # Make sure repository state seems sane
+  #
+  nLines=$(($(git status --short | wc -l | awk '{ print $1 }') + 0))
+  if [ $nLines -gt 0 ]; then
+    __usageEnvironment "$usage" git status --short || return $?
+    pause "Current git status, ok?"
+  else
+    statusMessage decorate info "Git status is clean."
   fi
-done
 
-forceWrite=
-while [ $# -gt 0 ]; do
-  case $1 in
-    --force)
-      forceWrite=1
-      ;;
-    *)
-      usage $ERR_ARG "Unknown argument $1"
-      ;;
-  esac
-  shift
-done
+  local releaseDir
 
-installDockerCompose
+  releaseDir="$home/docs/release"
 
-docker-compose -f "$yml" up -d > /dev/null
+  __usageEnvironment "$usage" requireDirectory "$releaseDir" || return $?
 
-# "$top/bin/build/git-tag-version.sh"
+  currentChangeLog="$releaseDir/$currentVersion.md"
+  permanentChangeLog="$home/CHANGELOG.md"
 
-pause() {
-  echo -n "$@" " "
-  read -r
-}
+  if [ ! -f "$currentChangeLog" ] || "$forceWrite"; then
+    #
+    # Edit release notes
+    #
+    {
+      echo
+      echo "## [$currentVersion][]"
+      echo
+      git log --pretty=format:'- %s' "^$previousVersion^{}" HEAD | sort -u
+      echo
+      echo '<!-- Generated automatically by release-prepare.sh, edit me please -->'
+    } >"$currentChangeLog"
+    muzzle __usageEnvironment "$usage" git add "$currentChangeLog" || return $?
+    statusMessage decorate info "Added $(decorate file "$currentChangeLog") to repository - please edit"
+  fi
 
-currentVersion=$("$top/bin/version-current.sh")
-previousVersion=$("$top/bin/build/version-last.sh" "$currentVersion")
+  local moreLines editedLog
 
-#
-# Sync with remote
-#
-echo "Synchronizing with remote ..."
-git pull --tags > /dev/null 2>&1
-git push --tags > /dev/null 2>&1
+  moreLines=100000
+  editedLog="$home/CHANGELOG.md.$$.edited"
 
-echo "Cleaning ..."
-if ! docker-compose -f "$yml" exec php bash -c 'cd /zesk && ./bin/cs-zesk.sh' > /dev/null 2>&1; then
-	echo "Clean failed" 1>& 2
-	exit $err_env
-fi
-
-#
-# Make sure repository state seems sane
-#
-nLines=$(($(git status --short | wc -l | awk '{ print $1 }') + 0))
-if [ $nLines -gt 0 ]; then
-	git status --short
-	pause "Current git status, ok?"
-else
-  echo "Git status is clean."
-fi
-
-releaseDir=$top/docs/release
-
-if [ ! -d "$releaseDir" ]; then
-  mkdir -p "$releaseDir"
-fi
-currentChangeLog=$releaseDir/$currentVersion.md
-permanentChangeLog=$top/CHANGELOG.md
-if [ ! -f "$currentChangeLog" ] || test "$forceWrite"; then
+  # CHANGELOG.md
   #
-  # Edit release notes
-  #
+  # File structure with tokens in order:
+  # RELEASE-HERE
+  # currentVersion <- replaced up to next token
+  # previousVersion
+  # LINK-HERE
+  # ...currentVersion  <- line replaced
+  # rest of file
+
   {
+    grep -B $moreLines RELEASE-HERE "$permanentChangeLog"
+    grep -v "$previousVersion" "$currentChangeLog"
     echo
-    echo "## [$currentVersion][]"
-    echo
-    git log --pretty=format:'- %s' "^$previousVersion^{}" HEAD | sort -u
-    echo
-    echo '<!-- Generated automatically by release-prepare.sh, edit me please -->'
-   } > "$currentChangeLog"
-   git add "$currentChangeLog" > /dev/null
-   echo "Added $currentChangeLog to repository - please edit"
-fi
+    grep -B $moreLines LINK-HERE "$permanentChangeLog" | grep -A $moreLines "$previousVersion"
+    echo "[$currentVersion]: $ZESK_REPOSITORY_VERSION_PREFIX$previousVersion...$currentVersion"
+    grep -A $moreLines LINK-HERE "$permanentChangeLog" | grep -v "$currentVersion" | grep -v LINK-HERE
+  } >"$editedLog"
 
-moreLines=100000
-editedLog=$top/CHANGELOG.md.$$.edited
+  __usageEnvironment "$usage" mv "$editedLog" "$permanentChangeLog" || return $?
+  releaseDateFile="$home/etc/db/release-date"
+  __usageEnvironment "$usage" date >"$releaseDateFile" || return $?
 
-# CHANGELOG.md
-#
-# File structure with tokens in order:
-# RELEASE-HERE
-# currentVersion <- replaced up to next token
-# previousVersion
-# LINK-HERE
-# ...currentVersion  <- line replaced
-# rest of file
+  __usageEnvironment "$usage" git commit -m "Release $currentVersion" "$currentChangeLog" "$permanentChangeLog" "$releaseDateFile" || return $?
 
-{
-  grep -B $moreLines RELEASE-HERE "$permanentChangeLog"
-  grep -v "$previousVersion" "$currentChangeLog"
-  echo
-  grep -B $moreLines LINK-HERE "$permanentChangeLog" | grep -A $moreLines "$previousVersion"
-  echo "[$currentVersion]: $ZESK_REPOSITORY_VERSION_PREFIX$previousVersion...$currentVersion"
-  grep -A $moreLines LINK-HERE "$permanentChangeLog" | grep -v "$currentVersion" | grep -v LINK-HERE
-} > "$editedLog"
+  #
+  # Push to remote
+  #
+  __usageEnvironment "$usage" git push --tags || return $?
+  __usageEnvironment "$usage" git push --all || return $?
+  #
+  # Good
+  #
+  echo "##################################"
+  echo "zesk $currentVersion prepared"
+  echo "##################################"
 
-mv "$editedLog" "$permanentChangeLog"
-releaseDateFile=$top/etc/db/release-date
-date > "$releaseDateFile"
-git commit -m "Release $currentVersion" "$currentChangeLog" "$permanentChangeLog" "$releaseDateFile"
+}
+_zeskPrepareRelease() {
+  # IDENTICAL usageDocument 1
+  usageDocument "${BASH_SOURCE[0]}" "${FUNCNAME[0]#_}" "$@"
+}
 
-#
-# Push to remote
-#
-git push --tags
-git push --all
-#
-# Good
-#
-echo "##################################"
-echo "zesk $currentVersion prepared"
-echo "##################################"
+zeskPrepareRelease "$@"

@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
-# Copyright &copy; 2024 Market Acumen, Inc.
+# Copyright &copy; 2025 Market Acumen, Inc.
 export GITHUB_REPOSITORY_OWNER
-GITHUB_REPOSITORY_OWNER=${GITHUB_REPOSITORY_OWNER-zesk}
+GITHUB_REPOSITORY_OWNER=${GITHUB_REPOSITORY_OWNER:-zesk}
