@@ -4,15 +4,14 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage test
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Database;
 
 use zesk\PHPUnit\TestCase;
 
-class ColumnTest extends TestCase
-{
+class ColumnTest extends TestCase {
 	protected array $load_modules = [
 		'MySQL',
 	];

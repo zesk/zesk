@@ -5,15 +5,15 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage user
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
+
 namespace zesk\Preference;
 
 use zesk\ORM\Class_Base;
 use zesk\ORM\User;
 
-class Class_Value extends Class_Base
-{
+class Class_Value extends Class_Base {
 	public string $code_name = 'Preference';
 
 	public string $id_column = 'id';
@@ -24,9 +24,7 @@ class Class_Value extends Class_Base
 	 * @var array
 	 */
 	public array $column_types = [
-		'id' => self::TYPE_ID,
-		'user' => self::TYPE_OBJECT,
-		'type' => self::TYPE_OBJECT,
+		'id' => self::TYPE_ID, 'user' => self::TYPE_OBJECT, 'type' => self::TYPE_OBJECT,
 		'value' => self::TYPE_SERIALIZE,
 	];
 
@@ -36,8 +34,7 @@ class Class_Value extends Class_Base
 	 * @var array
 	 */
 	public array $find_keys = [
-		'user',
-		'type',
+		'user', 'type',
 	];
 
 	/**
@@ -46,7 +43,6 @@ class Class_Value extends Class_Base
 	 * @var array
 	 */
 	public array $has_one = [
-		'user' => User::class,
-		'type' => Type::class,
+		'user' => User::class, 'type' => Type::class,
 	];
 }

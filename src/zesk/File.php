@@ -6,7 +6,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage system
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -29,8 +29,7 @@ use zesk\Exception\UnimplementedException;
  *
  * @author kent
  */
-class File
-{
+class File {
 	/**
 	 * Dimension returned by expandStats related to file permissions
 	 */
@@ -303,8 +302,8 @@ class File
 			return false;
 		}
 		if (StringTools::contains($x, [
-			'..', '/./',
-		]) !== false) {
+				'..', '/./',
+			]) !== false) {
 			return false;
 		}
 		return true;
@@ -355,8 +354,8 @@ class File
 		$sep = DIRECTORY_SEPARATOR;
 		$pathInfo['dirnamePrefix'] = $dirName !== '.' || str_starts_with($filename, ".$sep") ? $dirName . $sep : '';
 		return ArrayTools::map($pattern, $pathInfo + [
-			'/' => $sep,
-		]);
+				'/' => $sep,
+			]);
 	}
 
 	/**
@@ -1174,7 +1173,7 @@ class File
 		$exception = null;
 		if (!rename($target, $target_temp)) {
 			$exception = new FilePermission($target_temp, 'Can not rename target {target} to temp {target_temp}', compact('target', 'target_temp'));
-		} elseif (!@rename($source, $target)) {
+		} else if (!@rename($source, $target)) {
 			if (!@rename($target_temp, $target)) {
 				$exception = new FilePermission($target, 'RECOVERY: Can not rename target temp {target_temp} BACK to target {target}', compact('target', 'target_temp'));
 			} else {
@@ -1296,7 +1295,7 @@ class File
 	{
 		if (is_string($files)) {
 			$files = [$files];
-		} elseif ($files === null) {
+		} else if ($files === null) {
 			$files = [null];
 		}
 		$all_files = [];

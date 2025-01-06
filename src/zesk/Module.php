@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage system
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -22,8 +22,7 @@ use zesk\Exception\UnsupportedException;
  * @see Modules
  * @author kent
  */
-class Module extends Hookable implements HookSource
-{
+class Module extends Hookable implements HookSource {
 	/**
 	 * Module code name
 	 *
@@ -69,10 +68,10 @@ class Module extends Hookable implements HookSource
 	public function __serialize(): array
 	{
 		return [
-			'name' => $this->name, 'path' => $this->path, 'configuration' => $this->configuration,
-			'configurationFile' => $this->configurationFile, 'configurationData' => $this->configuration,
-			'modelClasses' => $this->modelClasses, 'classAliases' => $this->classAliases,
-		] + parent::__serialize();
+				'name' => $this->name, 'path' => $this->path, 'configuration' => $this->configuration,
+				'configurationFile' => $this->configurationFile, 'configurationData' => $this->configuration,
+				'modelClasses' => $this->modelClasses, 'classAliases' => $this->classAliases,
+			] + parent::__serialize();
 	}
 
 	public function __unserialize(array $data): void

@@ -4,8 +4,9 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage system
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
+
 namespace zesk\Diff;
 
 use zesk\PHP;
@@ -15,8 +16,7 @@ use zesk\PHP;
  * @author kent
  *
  */
-class Edit
-{
+class Edit {
 	/**
 	 *
 	 * @var string

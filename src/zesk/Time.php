@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage system
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 /**
@@ -22,8 +22,7 @@ use zesk\Exception\ParameterException;
 use zesk\Exception\ParseException;
 use zesk\Locale\Locale;
 
-class Time extends Temporal
-{
+class Time extends Temporal {
 	/**
 	 *
 	 * @var string
@@ -173,11 +172,11 @@ class Time extends Temporal
 	{
 		if (is_int($value)) {
 			return $this->setUNIXTimestamp($value);
-		} elseif ($value instanceof Time) {
+		} else if ($value instanceof Time) {
 			$this->setSeconds($value->seconds());
 			$this->setMillisecond($value->millisecond());
 			return $this;
-		} elseif ($value instanceof Timestamp) {
+		} else if ($value instanceof Timestamp) {
 			$this->setUNIXTimestamp($value->unixTimestamp())->setMillisecond($value->millisecond());
 			return $this;
 		}
@@ -307,18 +306,12 @@ class Time extends Temporal
 	public function parse(string $value): self
 	{
 		foreach ([
-			'/([0-9]{1,2}):([0-9]{2}):([0-9]{2})/' => [
-				null,
-				'setHour',
-				'setMinute',
-				'setSecond',
+					 '/([0-9]{1,2}):([0-9]{2}):([0-9]{2})/' => [
+						 null, 'setHour', 'setMinute', 'setSecond',
+					 ], '/([0-9]{1,2}):([0-9]{2})/' => [
+				null, 'setHour', 'setMinute',
 			],
-			'/([0-9]{1,2}):([0-9]{2})/' => [
-				null,
-				'setHour',
-				'setMinute',
-			],
-		] as $pattern => $assign) {
+				 ] as $pattern => $assign) {
 			if (preg_match($pattern, $value, $matches)) {
 				$this->setHMS();
 				foreach ($assign as $index => $method) {
@@ -500,7 +493,7 @@ class Time extends Temporal
 			} else {
 				return 0;
 			}
-		} elseif ($value->isEmpty()) {
+		} else if ($value->isEmpty()) {
 			return 1;
 		}
 		return $this->seconds - $value->seconds;
@@ -639,7 +632,7 @@ class Time extends Temporal
 		$delta = $a->seconds - $b->seconds;
 		if ($delta < 0) {
 			return -1;
-		} elseif ($delta === 0) {
+		} else if ($delta === 0) {
 			return 0;
 		} else {
 			return 1;

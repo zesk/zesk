@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage tools
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\CSV;
@@ -25,8 +25,7 @@ use zesk\Types;
  * @package zesk
  * @subpackage tools
  */
-class Writer extends Base
-{
+class Writer extends Base {
 	/**
 	 * Whether the headers have been written yet
 	 *
@@ -152,7 +151,10 @@ class Writer extends Base
 			}
 			$column = strtolower($column);
 			if (!isset($this->HeadersToIndex[strtolower($column)])) {
-				throw new KeyNotFound('{method}({name},...): {column} not found in headers {headers}', ['method' => __METHOD__, 'name' => $name, 'headers' => JSON::encode($this->HeadersToIndex), 'column' => $column, ]);
+				throw new KeyNotFound('{method}({name},...): {column} not found in headers {headers}', [
+					'method' => __METHOD__, 'name' => $name, 'headers' => JSON::encode($this->HeadersToIndex),
+					'column' => $column,
+				]);
 			} else {
 				$indexes = $this->HeadersToIndex[$column];
 				$mapGroup[strtolower($member)] = $indexes;
@@ -190,7 +192,9 @@ class Writer extends Base
 	 */
 	public function add_translation_map_boolean($column_names, $no = null, $yes = null, $null = null)
 	{
-		$this->add_translation_map($column_names, ['' => $null === null ? '' : $null, '0' => $no === null ? 'no' : $no, '1' => $yes === null ? 'yes' : $no, ]);
+		$this->add_translation_map($column_names, [
+			'' => $null === null ? '' : $null, '0' => $no === null ? 'no' : $no, '1' => $yes === null ? 'yes' : $no,
+		]);
 		return $this;
 	}
 
@@ -268,8 +272,8 @@ class Writer extends Base
 	}
 
 	/**
-	 * @return void
 	 * @param array $row
+	 * @return void
 	 */
 	public function setRow(array $row): void
 	{

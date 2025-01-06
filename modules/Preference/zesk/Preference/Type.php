@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage user
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Preference;
@@ -22,8 +22,7 @@ use zesk\ORM\ORMBase;
  * @author kent
  *
  */
-class Type extends ORMBase
-{
+class Type extends ORMBase {
 	public const MEMBER_CODE = 'code';
 
 	/**

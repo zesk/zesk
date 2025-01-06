@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage Exception
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Exception;
@@ -13,8 +13,7 @@ use zesk\Configuration;
 use zesk\Exception;
 use Throwable;
 
-class ConfigurationException extends Exception
-{
+class ConfigurationException extends Exception {
 	/**
 	 *
 	 * @var string
@@ -28,12 +27,11 @@ class ConfigurationException extends Exception
 	 * @param array $arguments
 	 * @param Throwable|null $previous
 	 */
-	public function __construct(array|string $name, string $message, array $arguments = [], Throwable $previous =
-	null)
+	public function __construct(array|string $name, string $message, array $arguments = [], Throwable $previous = null)
 	{
 		$this->name = is_array($name) ? implode(Configuration::key_separator, $name) : $name;
 		parent::__construct("Configuration error: {name}: $message", [
-			'name' => $name,
-		] + $arguments, 0, $previous);
+				'name' => $name,
+			] + $arguments, 0, $previous);
 	}
 }

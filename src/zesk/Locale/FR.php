@@ -4,15 +4,14 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage Locale
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Locale;
 
 use zesk\StringTools;
 
-class FR extends Locale
-{
+class FR extends Locale {
 	public function formatDate(): string
 	{
 		return 'le {DDD} {MMMM} {YYYY}';

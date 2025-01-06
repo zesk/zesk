@@ -4,15 +4,15 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage test
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
+
 namespace zesk;
 
 /**
  *
  */
-class Net_FTP_Client_Test extends UnitTest
-{
+class Net_FTP_Client_Test extends UnitTest {
 	public function test_basics(): void
 	{
 		$url = 'ftp://user:pass@localhost';

@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage system
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -14,8 +14,7 @@ namespace zesk;
  *
  * @author kent
  */
-class Debug
-{
+class Debug {
 	/**
 	 *
 	 * @var string
@@ -66,8 +65,7 @@ class Debug
 	{
 		$args = func_get_args();
 		$result = call_user_func_array([
-			'zesk\\Debug',
-			'dump',
+			'zesk\\Debug', 'dump',
 		], $args);
 		echo $result . "\n";
 	}
@@ -99,15 +97,15 @@ class Debug
 		static $indent = 0;
 		if ($x === null) {
 			return '(null)';
-		} elseif (is_bool($x)) {
+		} else if (is_bool($x)) {
 			return '(boolean) ' . ($x ? 'true' : 'false');
-		} elseif (is_string($x)) {
+		} else if (is_string($x)) {
 			return '(string(' . strlen($x) . ')) "' . addcslashes($x, "\0\r\n\t") . '"';
-		} elseif (is_scalar($x)) {
+		} else if (is_scalar($x)) {
 			return '(' . gettype($x) . ") $x";
-		} elseif (is_resource($x)) {
+		} else if (is_resource($x)) {
 			return "(resource) $x";
-		} elseif (is_array($x)) {
+		} else if (is_array($x)) {
 			$result = [];
 			if ($indent < self::$indent_limit) {
 				$indent++;
@@ -129,7 +127,7 @@ class Debug
 			} else {
 				return '(recursion limit ' . self::$indent_limit . ')';
 			}
-		} elseif (is_object($x)) {
+		} else if (is_object($x)) {
 			foreach (['_debugDump', '_debug_dump'] as $method) {
 				if (method_exists($x, $method)) {
 					return $x->$method();

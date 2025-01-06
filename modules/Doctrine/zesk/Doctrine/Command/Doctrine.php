@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage Doctrine
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Doctrine\Command;
@@ -14,8 +14,7 @@ use Doctrine\ORM\Tools\Console\EntityManagerProvider\SingleManagerProvider;
 
 use zesk\Command as BaseCommand;
 
-class Doctrine extends BaseCommand
-{
+class Doctrine extends BaseCommand {
 	protected array $shortcuts = ['doctrine'];
 
 	protected array $option_types = ['*' => 'string'];

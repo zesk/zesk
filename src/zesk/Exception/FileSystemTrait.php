@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage Exception
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Exception;
@@ -16,8 +16,7 @@ use Throwable;
  * @author kent
  *
  */
-trait FileSystemTrait
-{
+trait FileSystemTrait {
 	/**
 	 *
 	 * @var string
@@ -32,20 +31,15 @@ trait FileSystemTrait
 	 * @param int $code
 	 * @param Throwable|null $previous
 	 */
-	public function __construct(
-		string $path = '',
-		string $message = '',
-		array $arguments = [],
-		int $code = 0,
-		Throwable $previous = null
-	) {
+	public function __construct(string $path = '', string $message = '', array $arguments = [], int $code = 0, Throwable $previous = null)
+	{
 		$this->path = $path;
 		if (!str_contains($message, '{path}')) {
 			$message = "{path}: $message";
 		}
 		parent::__construct($message, [
-			'path' => $path,
-		] + $arguments, $code, $previous);
+				'path' => $path,
+			] + $arguments, $code, $previous);
 	}
 
 	/**

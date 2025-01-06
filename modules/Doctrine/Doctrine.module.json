@@ -6,9 +6,11 @@
 		"path": "zesk/Doctrine/"
 	},
 	"composer": {
-		"require": ["doctrine/orm"]
+		"require": [
+			"doctrine/orm"
+		]
 	},
 	"moduleClass": "zesk\\Doctrine\\Module",
 	"zeskCommandPath": "zesk/Doctrine/Command",
-	"copyright": "Copyright &copy; 2024, Market Acumen, Inc."
+	"copyright": "Copyright &copy; 2025, Market Acumen, Inc."
 }

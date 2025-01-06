@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage system
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  * Created on Thu Apr 15 17:19:28 EDT 2010 17:19:28
  */
 
@@ -15,8 +15,7 @@ namespace zesk\Locale;
  * @author kent
  *
  */
-class Generic extends Locale
-{
+class Generic extends Locale {
 	/**
 	 *
 	 * @see Locale::formatDate()
@@ -54,8 +53,7 @@ class Generic extends Locale
 	public function possessive(string $owner, string $object): string
 	{
 		return $this->__('Locale::possessive:={owner}&lsquo;s {noun}', [
-			'owner' => $owner,
-			'noun' => $object,
+			'owner' => $owner, 'noun' => $object,
 		]);
 	}
 
@@ -68,7 +66,7 @@ class Generic extends Locale
 	public function nounSemanticPlural(string $noun, float $number = 2): string
 	{
 		if ($number > 0 && $number <= 1) {
-			return  $noun;
+			return $noun;
 		}
 		return $noun;
 	}

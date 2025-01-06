@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage Command
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 
@@ -21,8 +21,7 @@ use zesk\Types;
  * @author kent
  *
  */
-class Maintenance extends SimpleCommand
-{
+class Maintenance extends SimpleCommand {
 	protected array $shortcuts = ['maintenance'];
 
 	protected array $option_types = [

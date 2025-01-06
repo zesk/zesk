@@ -4,13 +4,12 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage Interface
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Interface;
 
-interface MetaInterface
-{
+interface MetaInterface {
 	/**
 	 * Getter for named meta data
 	 *

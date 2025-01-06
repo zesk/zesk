@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage tools
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -14,8 +14,7 @@ use zesk\FileMonitor\IncludeFilesMonitor;
 /**
  *
  */
-class ProcessTools
-{
+class ProcessTools {
 	/**
 	 * Test to see if any files have changed in this process.
 	 *

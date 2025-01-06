@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage system
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Net\HTTP\Client;
@@ -17,8 +17,7 @@ use zesk\Exception as BaseException;
  * @author kent
  *
  */
-class Exception extends BaseException
-{
+class Exception extends BaseException {
 	/**
 	 * Error code given by curl_errno
 	 *
@@ -43,8 +42,8 @@ class Exception extends BaseException
 	public function __construct(string $message, array $arguments = [], int $errno = 0, string $error_code = '', Throwable $previous = null)
 	{
 		parent::__construct($message, $arguments + [
-			'errno' => $errno, 'error_code' => $error_code,
-		], $errno, $previous);
+				'errno' => $errno, 'error_code' => $error_code,
+			], $errno, $previous);
 		$this->errno = $errno;
 		$this->error_code = $error_code;
 	}

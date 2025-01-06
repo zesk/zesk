@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage GitHub
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\GitHub;
@@ -29,8 +29,7 @@ use zesk\Net\HTTP\Client;
 /**
  *
  */
-class Module extends BaseModule
-{
+class Module extends BaseModule {
 	/**
 	 * @see https://developer.github.com/v3/repos/releases/#create-a-release
 	 * @var string
@@ -68,12 +67,12 @@ class Module extends BaseModule
 			try {
 				$result = $this->generateTag("v$version", $commitish);
 				$logger->info('Generated {version} for {owner}/{repository}: {result}', [
-					'version' => $version, 'result' => $result,
-				] + $this->options());
+						'version' => $version, 'result' => $result,
+					] + $this->options());
 			} catch (Throwable $t) {
 				$logger->error('Unable to generate a tag for {version}: {throwableClass} {message}', [
-					'version' => $version,
-				] + Exception::exceptionVariables($t));
+						'version' => $version,
+					] + Exception::exceptionVariables($t));
 			}
 		}
 	}
@@ -108,8 +107,7 @@ class Module extends BaseModule
 			$description = "Release of version $name";
 		}
 		$json_struct = [
-			'tag_name' => $name,
-			'name' => $name, 'body' => $description, 'draft' => false, 'prerelease' => false,
+			'tag_name' => $name, 'name' => $name, 'body' => $description, 'draft' => false, 'prerelease' => false,
 			'generate_release_notes' => false,
 		];
 		if ($commitish) {
@@ -117,8 +115,8 @@ class Module extends BaseModule
 		}
 		$missing = self::MISSING_TOKEN;
 		$options = $this->options() + [
-			'owner' => $missing, 'repository' => $missing, 'accessToken' => $missing,
-		];
+				'owner' => $missing, 'repository' => $missing, 'accessToken' => $missing,
+			];
 		$url = ArrayTools::map(self::API_ENDPOINT_RELEASE, $options);
 		$client = new Client($this->application, $url);
 		$client->setRequestHeader('Authorization', ArrayTools::map('token {accessToken}', $options));

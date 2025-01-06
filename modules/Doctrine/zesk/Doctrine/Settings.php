@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage system
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Doctrine;
@@ -30,8 +30,7 @@ use zesk\Types;
  * @author kent
  * @see Class_Settings
  */
-class Settings extends Hookable implements MetaInterface, SettingsInterface
-{
+class Settings extends Hookable implements MetaInterface, SettingsInterface {
 	/**
 	 * Enable debugging on the Settings save step
 	 *

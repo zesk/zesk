@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage system
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -15,8 +15,7 @@ namespace zesk;
  * @author kent
  * @see CSS
  */
-class ColorRGB
-{
+class ColorRGB {
 	/**
 	 *
 	 * @var integer
@@ -46,9 +45,9 @@ class ColorRGB
 			$this->red = Number::clamp(0, $r, 255);
 			$this->green = Number::clamp(0, $g, 255);
 			$this->blue = Number::clamp(0, $b, 255);
-		} elseif (is_string($r) || is_numeric($r)) {
+		} else if (is_string($r) || is_numeric($r)) {
 			[$this->red, $this->green, $this->blue] = CSS::colorParse($r);
-		} elseif (is_array($r)) {
+		} else if (is_array($r)) {
 			if (array_key_exists('r', $r)) {
 				$this->red = $r['r'];
 				$this->green = $r['g'];

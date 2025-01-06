@@ -6,15 +6,14 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage Doctrine
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Doctrine;
 
 use Doctrine\Persistence\ObjectRepository;
 
-class ModelTestCase extends DatabaseTestCase
-{
+class ModelTestCase extends DatabaseTestCase {
 	protected array $entities = [];
 
 	public function initialize(): void

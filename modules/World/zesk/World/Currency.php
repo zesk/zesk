@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage model
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\World;
@@ -50,8 +50,7 @@ use zesk\ORM\Exception\ORMEmpty;
  */
 #[Entity]
 #[UniqueConstraint(fields: ['code'])]
-class Currency extends Model
-{
+class Currency extends Model {
 	use AutoID;
 
 	#[ManyToOne]
@@ -91,11 +90,11 @@ class Currency extends Model
 		$decimals = $this->option('decimal_point', $locale->__('Currency::decimalPoint:=.'));
 		$thousands = $this->option('thousands_separator', $locale->__('Currency::thousandsSeparator:=.'));
 		return ArrayTools::map($this->format, [
-			'valueRaw' => $value, 'valueDecimal' => $intValue = intval($value),
-			'valueFraction' => substr(strval(abs($value - $intValue)), 2), 'minus' => $value < 0 ? '-' : '',
-			'plus' => $value > 0 ? '+' : '', 'decimal' => $decimals, 'thousands' => $thousands,
-			'amount' => number_format($value, $this->precision, $decimals, $thousands),
-		] + $this->variables());
+				'valueRaw' => $value, 'valueDecimal' => $intValue = intval($value),
+				'valueFraction' => substr(strval(abs($value - $intValue)), 2), 'minus' => $value < 0 ? '-' : '',
+				'plus' => $value > 0 ? '+' : '', 'decimal' => $decimals, 'thousands' => $thousands,
+				'amount' => number_format($value, $this->precision, $decimals, $thousands),
+			] + $this->variables());
 	}
 
 	/**

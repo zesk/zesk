@@ -4,12 +4,8 @@
 #
 # Set up Zesk build
 #
-# Copyright &copy; 2024 Market Acumen, Inc.
+# Copyright &copy; 2025 Market Acumen, Inc.
 #
-
-set -eou pipefail
-# shellcheck source=/dev/null
-source "${BASH_SOURCE[0]%/*}/../bin/tools.sh" || exit 99
 
 # fn: {base}
 # Usage: {fn}
@@ -19,6 +15,12 @@ source "${BASH_SOURCE[0]%/*}/../bin/tools.sh" || exit 99
 #
 zeskPipelineSetup() {
   local usage="_${FUNCNAME[0]}"
+
+  set -eou pipefail
+
+  # shellcheck source=/dev/null
+  source "${BASH_SOURCE[0]%/*}/tools.sh" || return 99
+
   local startSetup quietLog clean versionArgs
   local requireEnvironment=(
     DEPLOYMENT

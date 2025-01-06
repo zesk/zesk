@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage Exception
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Exception;
@@ -12,7 +12,6 @@ namespace zesk\Exception;
 /**
  *
  */
-class FileParseException extends ParseException
-{
+class FileParseException extends ParseException {
 	use FileSystemTrait;
 }

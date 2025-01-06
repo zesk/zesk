@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage system
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  * Created on Tue Jul 15 12:37:21 EDT 2008
  */
 
@@ -34,8 +34,7 @@ use zesk\StringTools;
 #[Entity]
 #[Table(name: 'Language')]
 #[UniqueConstraint(name: 'langDialect', columns: ['code', 'dialect'])]
-class Language extends Model
-{
+class Language extends Model {
 	use AutoID;
 
 	#[Column(type: 'string', length: 2, nullable: false)]

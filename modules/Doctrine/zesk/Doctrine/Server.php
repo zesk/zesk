@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage file
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Doctrine;
@@ -39,8 +39,7 @@ use zesk\Timestamp;
  * @see ServerMeta
  */
 #[Entity]
-class Server extends Model implements MetaInterface
-{
+class Server extends Model implements MetaInterface {
 	public const MEMBER_METAS = 'metas';
 
 	public const DEFAULT_OPTION_FREE_DISK_VOLUME = '/';

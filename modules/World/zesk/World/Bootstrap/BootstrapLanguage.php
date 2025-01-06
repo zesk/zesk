@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage default
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\World\Bootstrap;
@@ -12,8 +12,7 @@ namespace zesk\World\Bootstrap;
 use zesk\Application;
 use zesk\Hookable;
 
-class BootstrapLanguage extends Hookable
-{
+class BootstrapLanguage extends Hookable {
 	/**
 	 *
 	 * @var array

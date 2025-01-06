@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage system
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  *            Created on Fri Sep 05 19:32:05 EDT 2008 19:32:05
  */
 
@@ -17,8 +17,7 @@ namespace zesk;
  * @package zesk
  * @subpackage tools
  */
-class HTMLTag extends Options
-{
+class HTMLTag extends Options {
 	/**
 	 * Tag name
 	 * @var string
@@ -54,13 +53,8 @@ class HTMLTag extends Options
 	 * @param string $outer_html
 	 * @param int $offset
 	 */
-	public function __construct(
-		string $name,
-		array $attributes = [],
-		string $inner_html = '',
-		string $outer_html = '',
-		int	$offset = -1
-	) {
+	public function __construct(string $name, array $attributes = [], string $inner_html = '', string $outer_html = '', int $offset = -1)
+	{
 		parent::__construct($attributes);
 
 		$this->name = $name;
@@ -151,12 +145,9 @@ class HTMLTag extends Options
 	public function _to_php()
 	{
 		return 'new ' . __CLASS__ . '(' . implode(', ', [
-			PHP::dump($this->name),
-			PHP::dump($this->options()),
-			PHP::dump($this->innerHTML),
-			PHP::dump($this->outerHTML),
-			$this->offset,
-		]) . ')';
+				PHP::dump($this->name), PHP::dump($this->options()), PHP::dump($this->innerHTML),
+				PHP::dump($this->outerHTML), $this->offset,
+			]) . ')';
 	}
 
 	/**

@@ -6,16 +6,16 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage system
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
+
 namespace zesk;
 
 use DirectoryIterator;
 use zesk\Exception\FileParseException;
 use zesk\Exception\KeyNotFound;
 
-class CharacterSet
-{
+class CharacterSet {
 	/**
 	 *
 	 */
@@ -51,11 +51,11 @@ class CharacterSet
 			$u = $table[$c];
 			if ($u < 0x80) {
 				$result .= chr($u);
-			} elseif ($u < 0x800) {
+			} else if ($u < 0x800) {
 				$result .= chr(($u >> 6) + 0xC0) . chr(($u & 0x3F) + 0x80);
-			} elseif ($u < 0x10000) {
+			} else if ($u < 0x10000) {
 				$result .= chr(($u >> 12) + 0xE0) . chr((($u >> 6) & 0x3F) + 0x80) . chr(($u & 0x3F) + 0x80);
-			} elseif ($u < 0x200000) {
+			} else if ($u < 0x200000) {
 				$result .= chr(($u >> 18) + 0xF0) . chr((($u >> 12) & 0x3F) + 0x80) . chr((($u >> 6) & 0x3F) + 0x80) . chr(($u & 0x3F) + 0x80);
 			}
 		}
@@ -67,7 +67,7 @@ class CharacterSet
 	 *
 	 * @param string $charset
 	 * @return array
-	 *@throws FileParseException if file has bad data in it
+	 * @throws FileParseException if file has bad data in it
 	 * @throws KeyNotFound if unknown charset
 	 */
 	private static function loadTable(string $charset): array

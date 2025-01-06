@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage Session
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Session;
@@ -53,8 +53,7 @@ use function random_int;
  */
 #[Entity]
 #[UniqueConstraint(name: 'tokenType', columns: ['token', 'type'])]
-class Session extends Model implements SessionInterface
-{
+class Session extends Model implements SessionInterface {
 	/**
 	 *
 	 */
@@ -458,9 +457,7 @@ class Session extends Model implements SessionInterface
 		$cookie_options = $this->cookieOptions();
 		$cookie_value = $this->token;
 		$this->application->hooks->registerHook(Response::HOOK_BEFORE_HEADERS, function (Response $response) use (
-			$cookie_name,
-			$cookie_value,
-			$cookie_options
+			$cookie_name, $cookie_value, $cookie_options
 		): void {
 			$response->setCookie($cookie_name, $cookie_value, $cookie_options);
 		});

@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage test
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace test;
@@ -13,8 +13,7 @@ use zesk\CSV\MapReader;
 use zesk\Exception\KeyNotFound;
 use zesk\PHPUnit\TestCase;
 
-class ReaderMapTest extends TestCase
-{
+class ReaderMapTest extends TestCase {
 	protected array $load_modules = [
 		'CSV',
 	];
@@ -70,10 +69,7 @@ class ReaderMapTest extends TestCase
 
 		$headers = [
 			[
-				'A',
-				'B',
-				'C',
-				'D',
+				'A', 'B', 'C', 'D',
 			],
 		];
 		$is_map = false;

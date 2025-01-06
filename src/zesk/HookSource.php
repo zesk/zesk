@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage core
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
 declare(strict_types=1);
 
@@ -12,8 +12,7 @@ namespace zesk;
 /**
  * For an object which provides hook source paths to load PHP files.
  */
-interface HookSource
-{
+interface HookSource {
 	/**
 	 * @return array
 	 */

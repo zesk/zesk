@@ -2,10 +2,11 @@
 declare(strict_types=1);
 /**
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  * @package zesk
  * @subpackage model
  */
+
 namespace zesk;
 
 use zesk\Exception\DirectoryCreate;
@@ -15,8 +16,7 @@ use zesk\Exception\DirectoryCreate;
  * @author kent
  *
  */
-class Net_FTP_Client extends Net_Client implements Net_FileSystem
-{
+class Net_FTP_Client extends Net_Client implements Net_FileSystem {
 	/**
 	 * Resource connection to ftp_connect
 	 * @var resource
@@ -200,8 +200,7 @@ class Net_FTP_Client extends Net_Client implements Net_FileSystem
 			$this->stat_cache[$dir] = $listing = $this->ls($dir);
 		}
 		return $listing[$file] ?? [
-			'type' => null,
-			'name' => $file,
+			'type' => null, 'name' => $file,
 		];
 	}
 

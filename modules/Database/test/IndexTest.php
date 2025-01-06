@@ -4,8 +4,9 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage test
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
+
 namespace zesk\Database;
 
 use zesk\Exception\NotFoundException;
@@ -17,8 +18,7 @@ use zesk\PHPUnit\TestCase;
  * @author kent
  *
  */
-class IndexTest extends TestCase
-{
+class IndexTest extends TestCase {
 	protected array $load_modules = [
 		'MySQL',
 	];
@@ -110,15 +110,9 @@ class IndexTest extends TestCase
 	public static function data_determine_type(): array
 	{
 		return [
-			['unique', Index::TYPE_UNIQUE],
-			['unique key', Index::TYPE_UNIQUE],
-			['primary key', Index::TYPE_PRIMARY],
-			['primary', Index::TYPE_PRIMARY],
-			['key', Index::TYPE_INDEX],
-			['index', Index::TYPE_INDEX],
-			['', Index::TYPE_INDEX],
-			['Dude', Index::TYPE_INDEX],
-			['MFNATCFF', Index::TYPE_INDEX],
+			['unique', Index::TYPE_UNIQUE], ['unique key', Index::TYPE_UNIQUE], ['primary key', Index::TYPE_PRIMARY],
+			['primary', Index::TYPE_PRIMARY], ['key', Index::TYPE_INDEX], ['index', Index::TYPE_INDEX],
+			['', Index::TYPE_INDEX], ['Dude', Index::TYPE_INDEX], ['MFNATCFF', Index::TYPE_INDEX],
 		];
 	}
 }

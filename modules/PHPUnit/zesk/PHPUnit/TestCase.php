@@ -6,7 +6,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage PHPUnit
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\PHPUnit;
@@ -40,8 +40,7 @@ use zesk\Types;
 use zesk\URL;
 use function random_int;
 
-class TestCase extends BaseTestCase
-{
+class TestCase extends BaseTestCase {
 	/**
 	 * @var bool
 	 */

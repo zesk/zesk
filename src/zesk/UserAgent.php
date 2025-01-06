@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage core
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -18,8 +18,7 @@ namespace zesk;
  * @author kent
  *
  */
-class UserAgent
-{
+class UserAgent {
 	/**
 	 * User agent raw string
 	 *
@@ -47,9 +46,7 @@ class UserAgent
 	 * @var array
 	 */
 	private static array $langClassificationNames = [
-		'platform' => 'Platform',
-		'browser' => 'Web Browser',
-		'mobile' => 'Mobile/Desktop',
+		'platform' => 'Platform', 'browser' => 'Web Browser', 'mobile' => 'Mobile/Desktop',
 		'user_agent' => 'User Agent',
 	];
 
@@ -61,24 +58,12 @@ class UserAgent
 	 */
 	private static array $classifications = [
 		'platform' => [
-			'mac' => 'mac',
-			'windows' => 'windows',
-			'linux' => 'linux',
-			'iphone' => 'iphone',
-			'ipad' => 'ipad',
-			'android' => 'android',
-			'' => 'unknown',
-		],
-		'browser' => [
-			'safari' => 'safari',
-			'chrome' => 'chrome',
-			'ie' => 'ie',
-			'firefox' => 'firefox',
-			'' => 'unknown',
-		],
-		'mobile' => [
-			'mobile' => 'mobile',
-			'' => 'desktop',
+			'mac' => 'mac', 'windows' => 'windows', 'linux' => 'linux', 'iphone' => 'iphone', 'ipad' => 'ipad',
+			'android' => 'android', '' => 'unknown',
+		], 'browser' => [
+			'safari' => 'safari', 'chrome' => 'chrome', 'ie' => 'ie', 'firefox' => 'firefox', '' => 'unknown',
+		], 'mobile' => [
+			'mobile' => 'mobile', '' => 'desktop',
 		],
 	];
 
@@ -87,21 +72,10 @@ class UserAgent
 	 * @var array
 	 */
 	private static array $langClassifications = [
-		'mac' => 'Mac OS X',
-		'windows' => 'Windows',
-		'linux' => 'Linux',
-		'iphone' => 'iPhone',
-		'ipad' => 'iPad',
-		'android' => 'Android',
-		'unknown' => 'Unknown',
-		'safari' => 'Safari',
-		'chrome' => 'Chrome',
-		'ie' => 'Internet Explorer',
-		'firefox' => 'Firefox',
-		'mobile' => 'Mobile device',
-		'desktop' => 'Desktop',
-		'platform' => 'Platform',
-		'browser' => 'Web Browser',
+		'mac' => 'Mac OS X', 'windows' => 'Windows', 'linux' => 'Linux', 'iphone' => 'iPhone', 'ipad' => 'iPad',
+		'android' => 'Android', 'unknown' => 'Unknown', 'safari' => 'Safari', 'chrome' => 'Chrome',
+		'ie' => 'Internet Explorer', 'firefox' => 'Firefox', 'mobile' => 'Mobile device', 'desktop' => 'Desktop',
+		'platform' => 'Platform', 'browser' => 'Web Browser',
 	];
 
 	/**

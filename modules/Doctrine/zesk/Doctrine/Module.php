@@ -6,7 +6,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage Doctrine
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Doctrine;
@@ -37,8 +37,7 @@ use Doctrine\ORM\Configuration;
 use Doctrine\ORM\ORMSetup;
 use Doctrine\DBAL\Types\Type;
 
-class Module extends BaseModule
-{
+class Module extends BaseModule {
 	/**
 	 * @todo Call this somewhere
 	 */
@@ -146,7 +145,7 @@ class Module extends BaseModule
 						self::class, 'connections', $name,
 					], 'Invalid URL {dsn}', ['dsn' => $dsn], $e);
 				}
-			} elseif (is_array($dsn)) {
+			} else if (is_array($dsn)) {
 				$parts = $dsn;
 			} else {
 				throw new ConfigurationException([

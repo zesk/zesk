@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage Command
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Command;
@@ -44,8 +44,7 @@ use zesk\URL;
  *
  * @category Management
  */
-class Update extends SimpleCommand
-{
+class Update extends SimpleCommand {
 	public const HOOK_UPDATE = __CLASS__ . '::update';
 
 	public const HOOK_UPDATED = __CLASS__ . '::updated';
@@ -233,7 +232,7 @@ class Update extends SimpleCommand
 	{
 		if ($this->hasArgument()) {
 			$modules = $this->modules_from_command_line();
-		} elseif ($this->optionBool('all')) {
+		} else if ($this->optionBool('all')) {
 			$modules = $this->modules_from_module_paths();
 		} else {
 			$modules = $this->application->modules->moduleNames();
@@ -434,7 +433,7 @@ class Update extends SimpleCommand
 				$this->verboseLog("$moduleName uptodate\n");
 				$edits = [];
 				$edits['checked'] = $date;
-			} elseif ($edits instanceof Exception) {
+			} else if ($edits instanceof Exception) {
 				$message = $edits->getMessage();
 				$edits = [];
 				$edits['failed_message'] = $message;
@@ -514,13 +513,13 @@ class Update extends SimpleCommand
 		$do_updates = $this->optionBool('composer-update');
 
 		foreach ([
-			'' => $composer_require, '--dev ' => $composer_require_dev,
-		] as $arg => $requires) {
+					 '' => $composer_require, '--dev ' => $composer_require_dev,
+				 ] as $arg => $requires) {
 			foreach ($requires as $require) {
 				if (!is_string($require)) {
 					$logger->error('Module {name} {conf_path} composer.require is not a string? {type}', [
-						'type' => Types::type($require),
-					] + $data);
+							'type' => Types::type($require),
+						] + $data);
 
 					continue;
 				}
@@ -626,12 +625,12 @@ class Update extends SimpleCommand
 					$load_urls[$url] = [
 						'destination' => $value, 'strip_components' => $strip_components,
 					];
-				} elseif (is_array($value)) {
+				} else if (is_array($value)) {
 					$load_urls[$url] = array_change_key_case($value) + [
-						'destination' => $destination, 'strip_components' => $strip_components,
-					];
+							'destination' => $destination, 'strip_components' => $strip_components,
+						];
 				}
-			} elseif (!URL::valid($value)) {
+			} else if (!URL::valid($value)) {
 				$this->error('{value} in  module {name} is not a valid URL', [
 					'value' => $value, 'name' => $name,
 				]);
@@ -702,7 +701,7 @@ class Update extends SimpleCommand
 			if ($this->optionBool('force')) {
 				$do_update = true;
 				$this->verboseLog('Updating forced');
-			} elseif (!$this->isUnpack($filename) && !file_exists($dest_file)) {
+			} else if (!$this->isUnpack($filename) && !file_exists($dest_file)) {
 				$do_update = true;
 				$this->verboseLog('Destination file {dest_file} doesn\'t exist? (filename is {filename})', [
 					'dest_file' => $dest_file, 'filename' => $filename,
@@ -714,7 +713,7 @@ class Update extends SimpleCommand
 					$this->verboseLog('Hashes don\'t match for {dest_file}: {hash} !== {new_hash}', [
 						'dest_file' => $dest_file, 'hash' => $hash, 'new_hash' => $new_hash,
 					]);
-				} elseif (!is_dir($destination) || Directory::isEmpty($destination)) {
+				} else if (!is_dir($destination) || Directory::isEmpty($destination)) {
 					$do_update = true;
 					$this->verboseLog('Destination directory {destination} does not exist', [
 						'destination' => $destination,
@@ -792,7 +791,7 @@ class Update extends SimpleCommand
 					'delete' => $delete,
 				]);
 				Directory::delete($delete);
-			} elseif (is_file($delete)) {
+			} else if (is_file($delete)) {
 				$this->info('Deleting file {delete}', [
 					'delete' => $delete,
 				]);
@@ -867,7 +866,7 @@ class Update extends SimpleCommand
 				'filename' => $filename,
 			]);
 			$result = self::unpack_tar($data);
-		} elseif (StringTools::ends($filename, [
+		} else if (StringTools::ends($filename, [
 			'.zip',
 		])) {
 			$this->debugLog('Unpacking ZIP file {filename}', [

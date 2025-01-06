@@ -1,4 +1,3 @@
-
 {
 	"name": "Net",
 	"moduleClass": "zesk\\Net\\Module",
@@ -9,5 +8,5 @@
 	"requires": [
 		"Mail"
 	],
-	"copyright": "Copyright &copy; 2024, Market Acumen, Inc."
+	"copyright": "Copyright &copy; 2025, Market Acumen, Inc."
 }

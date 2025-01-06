@@ -6,7 +6,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage objects
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -28,8 +28,7 @@ use zesk\Interface\Themeable;
  * @see Router
  * @see Route\Controller
  */
-class Controller extends Hookable implements Themeable
-{
+class Controller extends Hookable implements Themeable {
 	/**
 	 * Default content type for Response generated upon instantiation.
 	 *
@@ -145,8 +144,8 @@ class Controller extends Hookable implements Themeable
 		$actionMethod = $this->determineMethod($this->actionMethods, $requestMap, true);
 		$afterMethod = $this->determineMethod($this->afterMethods, $requestMap, false);
 		$__ = $requestMap + [
-			'class' => $this::class, 'actionMethod' => $actionMethod,
-		];
+				'class' => $this::class, 'actionMethod' => $actionMethod,
+			];
 		$app->debug('Controller {class} running action {method} {action} -> {actionMethod}', $__);
 
 		$this->before($request, $response);
@@ -171,17 +170,17 @@ class Controller extends Hookable implements Themeable
 		$message = '{actionMethod} output {bytes} bytes: "{contents}"';
 		if ($result instanceof Response) {
 			$response = $result;
-		} elseif (is_string($result)) {
+		} else if (is_string($result)) {
 			if ($contentsLength) {
 				$app->warning("Incorrect controller semantics: output + return string, output ignored.\n$message", $__);
 			}
 			$response->setContent($result);
-		} elseif (is_array($result)) {
+		} else if (is_array($result)) {
 			if ($contentsLength) {
 				$app->warning("Incorrect controller semantics: output + return array, output ignored\n$message", $__);
 			}
 			$response->setResponseData($result);
-		} elseif ($contentsLength) {
+		} else if ($contentsLength) {
 			if (!$this->optionBool('captureOutput')) {
 				$app->warning("{class}::captureOutput is not enabled: $message", $__);
 			} else {

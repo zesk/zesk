@@ -4,8 +4,9 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage Command
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
+
 namespace zesk\Command;
 
 use DirectoryIterator;
@@ -17,21 +18,14 @@ use zesk\File;
  * @author kent
  *
  */
-abstract class FileIterator extends SimpleCommand
-{
+abstract class FileIterator extends SimpleCommand {
 	/**
 	 * Override in subclasses to include/exclude certain extensions
 	 *
 	 * @var array
 	 */
 	protected array $extensions = [
-		'php',
-		'phpt',
-		'inc',
-		'tpl',
-		'php4',
-		'php5',
-		'php7',
+		'php', 'phpt', 'inc', 'tpl', 'php4', 'php5', 'php7',
 	];
 
 	/**
@@ -60,10 +54,7 @@ abstract class FileIterator extends SimpleCommand
 	public function initialize(): void
 	{
 		$this->option_types += [
-			'no-recurse' => 'boolean',
-			'directory' => 'dir',
-			'include-hidden' => 'boolean',
-			'show-skipped' => 'boolean',
+			'no-recurse' => 'boolean', 'directory' => 'dir', 'include-hidden' => 'boolean', 'show-skipped' => 'boolean',
 			'*' => 'string',
 		];
 		parent::initialize();
@@ -92,7 +83,7 @@ abstract class FileIterator extends SimpleCommand
 			foreach ($extras as $extra) {
 				if (is_file($extra)) {
 					$this->process_file(new SplFileInfo($extra));
-				} elseif (is_dir($extra)) {
+				} else if (is_dir($extra)) {
 					$this->recurseDirectory($extra);
 				} else {
 					$this->log("### Unknown file or directory $extra");

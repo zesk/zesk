@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage system
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Net;
@@ -18,8 +18,7 @@ use zesk\URL;
 use zesk\Hookable;
 use zesk\Application;
 
-abstract class Client extends Hookable
-{
+abstract class Client extends Hookable {
 	/**
 	 * Connection string
 	 * @var string

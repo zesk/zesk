@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage system
  * @author kent
- * @copyright Copyright &copy; 2024, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -24,8 +24,7 @@ namespace zesk;
  *
  * @author kent
  */
-class Lists
-{
+class Lists {
 	/**
 	 * Make a list unique
 	 *
@@ -98,7 +97,7 @@ class Lists
 		$items = array_unique(ArrayTools::clean(toList($item, [''], $sep), null));
 		if (is_array($list)) {
 			return array_unique(array_merge($list, $items));
-		} elseif ($list === '') {
+		} else if ($list === '') {
 			return implode($sep, $items);
 		} else {
 			return implode($sep, array_unique(array_merge(explode($sep, $list), $items)));
