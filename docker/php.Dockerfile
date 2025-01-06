@@ -6,21 +6,26 @@ ARG DATABASE_HOST=mariadb
 
 RUN $(mkdir -p /root/sbin 2> /dev/null)
 COPY docker/sbin/ /root/sbin/
-COPY bin/build/map.sh /usr/local/bin/map.sh
+COPY bin/build/install-bin-build.sh /usr/local/bin/build/install-bin-build.sh
+RUN /usr/local/bin/build/install-bin-build.sh
 RUN /root/sbin/docker-apt-base.sh
 RUN /root/sbin/docker-php.sh
 RUN /root/sbin/docker-apt-clean.sh
 
-COPY docker/etc/env.sh /etc/env.sh
-RUN echo "DATABASE_HOST=$DATABASE_HOST" >> /etc/env.sh
-COPY docker/etc/test.conf /etc/test.conf
+COPY docker/etc/env.sh /tmp/application.conf
+RUN echo "DATABASE_HOST=$DATABASE_HOST" >> /tmp/application.conf
+RUN /usr/local/bin/build/tools.sh anyEnvToBashEnv /tmp/application.conf | tee /etc/application.conf
+RUN rm /tmp/application.conf
+
+COPY docker/etc/test.json /etc/test.json
+RUN rm /tmp/application.conf
 
 COPY docker/php/php.ini /tmp/php.ini
-RUN set -a && . /etc/env.sh && map.sh < /tmp/php.ini > /usr/local/etc/php/php.ini
+RUN set -a && . /etc/env.sh && /usr/local/bin/build/map.sh < /tmp/php.ini > /usr/local/etc/php/php.ini
 RUN rm /tmp/php.ini
 
 COPY docker/php/xdebug.ini /tmp/xdebug.ini
-RUN set -a && . /etc/env.sh && map.sh < /tmp/xdebug.ini > /usr/local/etc/php/conf.d/xdebug.ini
+RUN set -a && . /etc/env.sh && /usr/local/bin/build/map.sh < /tmp/xdebug.ini > /usr/local/etc/php/conf.d/xdebug.ini
 RUN rm /tmp/xdebug.ini
 
 RUN /root/sbin/docker-php-xdebug.sh

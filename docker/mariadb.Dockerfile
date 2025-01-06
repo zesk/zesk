@@ -16,7 +16,7 @@ RUN /root/sbin/docker-apt-clean.sh
 RUN mkdir -p $INITDBPATH
 COPY docker/etc/env.sh /tmp/env.sh
 COPY docker/mariadb/schema.sql /tmp/schema.sql
-RUN set -a && . /tmp/env.sh && /root/sbin/map.sh < /tmp/schema.sql > ${INITDBPATH}schema.sql
+RUN set -a && . /tmp/env.sh && /usr/local/bin/map.sh < /tmp/schema.sql > ${INITDBPATH}schema.sql
 RUN rm /tmp/schema.sql
 RUN rm /tmp/env.sh
 
