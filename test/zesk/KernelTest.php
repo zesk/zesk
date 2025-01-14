@@ -13,7 +13,8 @@ use zesk\Exception\Deprecated;
 use zesk\Exception\NotFoundException;
 use zesk\PHPUnit\TestCase;
 
-class SingletonSampler {
+class SingletonSampler
+{
 	public static string $serialNo = '';
 
 	public string $id;
@@ -29,7 +30,8 @@ class SingletonSampler {
 	}
 }
 
-class KernelTest extends TestCase {
+class KernelTest extends TestCase
+{
 	/**
 	 * @var bool
 	 */
@@ -169,7 +171,7 @@ class KernelTest extends TestCase {
 			[
 				ZESK_ROOT . 'modules/Doctrine/zesk/Doctrine/User.php', 'zesk\\Doctrine\\User', ['php', 'sql'],
 				['Doctrine'],
-			], [null, 'zesk\\Doctrine\\User', ['other', 'none',], ['Doctrine']],
+			], [null, 'zesk\\Doctrine\\User', ['other', 'none', ], ['Doctrine']],
 		];
 	}
 
@@ -311,7 +313,7 @@ class KernelTest extends TestCase {
 	{
 		return [
 			[true, Application::class], [true, [Application::class, 'deprecated']], [true, Kernel::class],
-			[true, [Application::class, Application::OPTION_HOME_PATH],], [true, Options::class], [false, md5('HOME')],
+			[true, [Application::class, Application::OPTION_HOME_PATH], ], [true, Options::class], [false, md5('HOME')],
 			[true, 'HOME'], [false, 'HoMe'], [false, '0192830128301283123'],
 		];
 	}
@@ -434,8 +436,8 @@ class KernelTest extends TestCase {
 			$app->setConfiguration()->configure();
 		}
 		foreach ([
-					 Application::DEPRECATED_BACKTRACE, Application::DEPRECATED_IGNORE, Application::DEPRECATED_LOG,
-				 ] as $deprecatedSetting) {
+			Application::DEPRECATED_BACKTRACE, Application::DEPRECATED_IGNORE, Application::DEPRECATED_LOG,
+		] as $deprecatedSetting) {
 			$configuration->setPath([$app::class, 'deprecated'], $deprecatedSetting);
 			$app->setConfiguration()->configure();
 		}
@@ -489,7 +491,8 @@ class KernelTest extends TestCase {
  * @author kent
  *
  */
-class A extends Hookable {
+class A extends Hookable
+{
 }
 
 /**
@@ -497,7 +500,8 @@ class A extends Hookable {
  * @author kent
  *
  */
-class B extends A {
+class B extends A
+{
 }
 
 /**
@@ -505,5 +509,6 @@ class B extends A {
  * @author kent
  *
  */
-class C extends B {
+class C extends B
+{
 }

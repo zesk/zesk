@@ -10,7 +10,8 @@ namespace zesk;
  * @see IPv4
  * @see IPv6
  */
-class IPv4 {
+class IPv4
+{
 	public static array $private_addresses = [
 		[
 			'0.0.0.0/8', 0, 16777215,

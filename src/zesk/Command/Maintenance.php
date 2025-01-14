@@ -20,7 +20,8 @@ use zesk\Types;
  * @author kent
  *
  */
-class Maintenance extends SimpleCommand {
+class Maintenance extends SimpleCommand
+{
 	protected array $shortcuts = ['maintenance'];
 
 	protected array $option_types = [

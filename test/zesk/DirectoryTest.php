@@ -16,7 +16,8 @@ use function is_windows;
  * @author kent
  *
  */
-class testdir {
+class testdir
+{
 	public static array $dirs = [];
 
 	public static array $files = [];
@@ -46,15 +47,16 @@ class testdir {
  * @author kent
  *
  */
-class DirectoryTest extends TestCase {
+class DirectoryTest extends TestCase
+{
 	public static function data_path(): array
 	{
 		return [
 			['nothing', ['nothing']], ['a/b', ['a', 'b']], ['foo/.bar', ['foo', '.bar']],
 			['foo/.bar/..dotted', ['foo', [[['.bar']]], '..dotted']], ['a/b', ['a/', 'b']], ['a/b', ['a', '/b']],
 			['a/b', ['a/', '/b']], ['/a/b', ['/a/', '/b']], ['/a/b/', ['/a/', '/b/']],
-			['/a/b/', ['/a/', '/./', ['/./', '////', '/././',], '/b/']], [
-				'/what/monitor-services/control/ruler-reader', ['/what/monitor-services', ['control', 'ruler-reader',]],
+			['/a/b/', ['/a/', '/./', ['/./', '////', '/././', ], '/b/']], [
+				'/what/monitor-services/control/ruler-reader', ['/what/monitor-services', ['control', 'ruler-reader', ]],
 			],
 		];
 	}
@@ -74,8 +76,8 @@ class DirectoryTest extends TestCase {
 	public static function data_isAbsolute(): array
 	{
 		return [
-			[true, '/',], [true, '/a',], [true, '/a/b/c',], [false, './'], [false, './place/to/go',],
-			[false, '../place/to/go',], [is_windows(), '\\windows\\',],
+			[true, '/', ], [true, '/a', ], [true, '/a/b/c', ], [false, './'], [false, './place/to/go', ],
+			[false, '../place/to/go', ], [is_windows(), '\\windows\\', ],
 		];
 	}
 

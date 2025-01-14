@@ -16,7 +16,8 @@ use zesk\UnitTest;
  * @author kent
  *
  */
-class SessionPHPTest extends UnitTest {
+class SessionPHPTest extends UnitTest
+{
 	protected array $load_modules = [
 		'session',
 	];

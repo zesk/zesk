@@ -14,6 +14,6 @@ namespace zesk\Configuration\Parser;
  * @author kent
  *
  */
-class ENV extends CONF {
-
+class ENV extends CONF
+{
 }

@@ -56,7 +56,8 @@ use zesk\Exception\NotFoundException;
  * @author kent
  *
  */
-class Base {
+class Base
+{
 	/**
 	 * Track state of matching
 	 *

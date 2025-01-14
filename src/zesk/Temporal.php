@@ -15,7 +15,8 @@ use zesk\Interface\Formatting;
  * @author kent
  *
  */
-abstract class Temporal implements Formatting {
+abstract class Temporal implements Formatting
+{
 	/**
 	 *
 	 * @var string

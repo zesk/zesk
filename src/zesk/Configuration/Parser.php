@@ -14,7 +14,8 @@ use zesk\Exception\ClassNotFound;
 use zesk\Interface\SettingsInterface;
 use zesk\PHP;
 
-abstract class Parser extends Options {
+abstract class Parser extends Options
+{
 	/**
 	 * @var string
 	 */

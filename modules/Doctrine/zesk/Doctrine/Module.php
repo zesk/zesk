@@ -36,7 +36,8 @@ use Doctrine\ORM\Configuration;
 use Doctrine\ORM\ORMSetup;
 use Doctrine\DBAL\Types\Type;
 
-class Module extends BaseModule {
+class Module extends BaseModule
+{
 	/**
 	 * @todo Call this somewhere
 	 */
@@ -144,7 +145,7 @@ class Module extends BaseModule {
 						self::class, 'connections', $name,
 					], 'Invalid URL {dsn}', ['dsn' => $dsn], $e);
 				}
-			} else if (is_array($dsn)) {
+			} elseif (is_array($dsn)) {
 				$parts = $dsn;
 			} else {
 				throw new ConfigurationException([

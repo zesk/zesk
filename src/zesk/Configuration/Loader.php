@@ -11,7 +11,8 @@ use zesk\File;
 use zesk\Interface\SettingsInterface;
 use zesk\Types;
 
-class Loader {
+class Loader
+{
 	/**
 	 *
 	 * @var string
@@ -176,7 +177,7 @@ class Loader {
 		if ($handler === '') {
 			$handler = $this->determineHandler($file, $content);
 			if (!$handler) {
-				throw new FileParseException($file, "No handler for {file}", ['file' => $file]);
+				throw new FileParseException($file, 'No handler for {file}', ['file' => $file]);
 			}
 		}
 		return $this->loadContent($content, $handler ?: File::extension($file), $file);

@@ -5,14 +5,15 @@ namespace zesk;
 
 use zesk\Exception\CommandFailed;
 
-class CLI_Test extends UnitTest {
+class CLI_Test extends UnitTest
+{
 	public static function data_CLI(): array
 	{
 		return [
 			[
 				['Unable to change directory to "/root/"'], [
-				'--cd', '/root/', 'cwd',
-			], true,
+					'--cd', '/root/', 'cwd',
+				], true,
 			], [['--cd missing directory argument'], ['--cd'], true],
 			[['/etc', '/zesk'], '--cd /etc/ /zesk/zesk.application.php cwd -- --cd /zesk/ cwd', false],
 			[['["1","2","3","4"]', '["2","3","4","5","6"]'], 'arguments 1 2 3 4 -- arguments 2 3 4 5 6 --', false],
