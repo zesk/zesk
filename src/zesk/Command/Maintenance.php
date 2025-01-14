@@ -11,7 +11,6 @@ declare(strict_types=1);
 namespace zesk\Command;
 
 use zesk\Application;
-use zesk\HookMethod;
 use zesk\Types;
 
 /**
@@ -21,8 +20,7 @@ use zesk\Types;
  * @author kent
  *
  */
-class Maintenance extends SimpleCommand
-{
+class Maintenance extends SimpleCommand {
 	protected array $shortcuts = ['maintenance'];
 
 	protected array $option_types = [

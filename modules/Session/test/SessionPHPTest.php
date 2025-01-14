@@ -6,7 +6,6 @@ declare(strict_types=1);
 
 namespace zesk\Session;
 
-use zesk;
 use zesk\Interface\SessionInterface;
 use zesk\Request;
 use zesk\UnitTest;
@@ -17,8 +16,7 @@ use zesk\UnitTest;
  * @author kent
  *
  */
-class SessionPHPTest extends UnitTest
-{
+class SessionPHPTest extends UnitTest {
 	protected array $load_modules = [
 		'session',
 	];
@@ -35,17 +33,19 @@ class SessionPHPTest extends UnitTest
 	public static function data_basic_session(): array
 	{
 		return [
-			[function () {
-				$app = self::app();
-				$app->setOption('session_class', self::TEST_CLASS);
+			[
+				function () {
+					$app = self::app();
+					$app->setOption('session_class', self::TEST_CLASS);
 
-				$request = new Request($app);
-				$request->initializeFromSettings([
-					'url' => 'http://localhost/path',
-				]);
+					$request = new Request($app);
+					$request->initializeFromSettings([
+						'url' => 'http://localhost/path',
+					]);
 
-				return $app->session($request);
-			}],
+					return $app->session($request);
+				},
+			],
 		];
 	}
 

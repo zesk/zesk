@@ -17,7 +17,6 @@ use zesk\Configuration;
 use zesk\Exception\ClassNotFound;
 use zesk\Exception\Deprecated;
 use zesk\Exception\NotFoundException;
-use zesk\Exception\SyntaxException;
 use zesk\Hookable;
 use zesk\HookMethod;
 use zesk\Interface\MetaInterface;
@@ -30,8 +29,7 @@ use zesk\Types;
  * @author kent
  * @see Class_Settings
  */
-class Settings extends Hookable implements MetaInterface, SettingsInterface
-{
+class Settings extends Hookable implements MetaInterface, SettingsInterface {
 	/**
 	 * Enable debugging on the Settings save step
 	 *

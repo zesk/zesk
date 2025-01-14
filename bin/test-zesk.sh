@@ -9,7 +9,7 @@
 set -eou pipefail
 
 # shellcheck source=/dev/null
-source "${BASH_SOURCE[0]%/*}/build/tools.sh" || exit 99
+source "${BASH_SOURCE[0]%/*}/tools.sh" || exit 99
 
 # Run tests for zesk"
 # Usage: {fn} [ --coverage ] [ --stop ] testBinaryArguments ...
@@ -25,11 +25,10 @@ zeskTest() {
 
   export PATH
 
-  pathAppend "$top/vendor/bin"
+  pathConfigure --last "$top/vendor/bin"
 
   local doCoverage=false doStop=false coverage_cache="./.zesk-coverage"
 
-  __usageEnvironment "$usage" composerInstall || return $?
   __usageEnvironment "$usage" pushd "$top" || return $?
 
   # IDENTICAL argument-case-header 5

@@ -7,10 +7,8 @@ namespace test;
 use zesk\Doctrine\ModelTestCase;
 use zesk\Doctrine\Server;
 use zesk\Doctrine\ServerMeta;
-use zesk\Timestamp;
 
-class ServerMetaTest extends ModelTestCase
-{
+class ServerMetaTest extends ModelTestCase {
 	public string $testName0 = 'thing';
 
 	public string $testValue0 = 'value';

@@ -6,7 +6,6 @@ declare(strict_types=1);
 
 namespace zesk\Interface;
 
-use zesk\Application;
 use zesk\Exception\AuthenticationException;
 use zesk\Exception\SemanticsException;
 use zesk\Request;
@@ -16,8 +15,7 @@ use zesk\Request;
  * @author kent
  *
  */
-interface SessionInterface extends SettingsInterface
-{
+interface SessionInterface extends SettingsInterface {
 	/**
 	 * Configure session connected to the Request
 	 * @param Request $request
@@ -37,7 +35,7 @@ interface SessionInterface extends SettingsInterface
 	 * @param Userlike $user
 	 * @param Request $request
 	 * @return void
-	 *@throws AuthenticationException
+	 * @throws AuthenticationException
 	 */
 	public function authenticate(Userlike $user, Request $request): void;
 

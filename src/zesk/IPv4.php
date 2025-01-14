@@ -10,88 +10,40 @@ namespace zesk;
  * @see IPv4
  * @see IPv6
  */
-class IPv4
-{
+class IPv4 {
 	public static array $private_addresses = [
 		[
-			'0.0.0.0/8',
-			0,
-			16777215,
-		],
-		[
-			'10.0.0.0/8',
-			167772160,
-			184549375,
-		],
-		[
-			'100.64.0.0/10',
-			1681915904,
-			1686110207,
-		],
-		[
-			'127.0.0.0/8',
-			2130706432,
-			2147483647,
-		],
-		[
-			'169.254.0.0/16',
-			2851995648,
-			2852061183,
-		],
-		[
-			'172.16.0.0/12',
-			2886729728,
-			2887778303,
-		],
-		[
-			'192.0.0.0/29',
-			3221225472,
-			3221225479,
-		],
-		[
-			'192.0.2.0/24',
-			3221225984,
-			3221226239,
-		],
-		[
-			'192.88.99.0/24',
-			3227017984,
-			3227018239,
-		],
-		[
-			'192.168.0.0/16',
-			3232235520,
-			3232301055,
-		],
-		[
-			'198.18.0.0/15',
-			3323068416,
-			3323199487,
-		],
-		[
-			'198.51.100.0/24',
-			3325256704,
-			3325256959,
-		],
-		[
-			'203.0.113.0/24',
-			3405803776,
-			3405804031,
-		],
-		[
-			'224.0.0.0/4',
-			3758096384,
-			4026531839,
-		],
-		[
-			'240.0.0.0/4',
-			4026531840,
-			4294967295,
-		],
-		[
-			'255.255.255.255/32',
-			4294967295,
-			4294967295,
+			'0.0.0.0/8', 0, 16777215,
+		], [
+			'10.0.0.0/8', 167772160, 184549375,
+		], [
+			'100.64.0.0/10', 1681915904, 1686110207,
+		], [
+			'127.0.0.0/8', 2130706432, 2147483647,
+		], [
+			'169.254.0.0/16', 2851995648, 2852061183,
+		], [
+			'172.16.0.0/12', 2886729728, 2887778303,
+		], [
+			'192.0.0.0/29', 3221225472, 3221225479,
+		], [
+			'192.0.2.0/24', 3221225984, 3221226239,
+		], [
+			'192.88.99.0/24', 3227017984, 3227018239,
+		], [
+			'192.168.0.0/16', 3232235520, 3232301055,
+		], [
+			'198.18.0.0/15', 3323068416, 3323199487,
+		], [
+			'198.51.100.0/24', 3325256704, 3325256959,
+		], [
+			'203.0.113.0/24', 3405803776, 3405804031,
+		], [
+			'224.0.0.0/4', 3758096384, 4026531839,
+		], [
+			'240.0.0.0/4', 4026531840, 4294967295,
+		], [
+			'255.255.255.255/32', 4294967295, 4294967295,
 		],
 	];
 
@@ -139,7 +91,7 @@ class IPv4
 		if ($ip_bits >= self::BITS) {
 			return $ip_integer;
 		}
-		return $ipisPositiveInteger - ($ipisPositiveInteger & self::subnet_mask_not($ip_bits));
+		return $ip_integer - ($ip_integer & self::subnet_mask_not($ip_bits));
 	}
 
 	/**
@@ -180,8 +132,7 @@ class IPv4
 	{
 		if (!self::is_mask($string)) {
 			return [
-				null,
-				null,
+				null, null,
 			];
 		}
 		[$ip, $bits] = StringTools::pair($string, '/', $string, strval(self::BITS));
@@ -203,8 +154,7 @@ class IPv4
 			$bits = $n * 8;
 		}
 		return [
-			self::subnet_bits(self::toInteger($ip), $bits),
-			intval($bits),
+			self::subnet_bits(self::toInteger($ip), $bits), intval($bits),
 		];
 	}
 
@@ -220,8 +170,7 @@ class IPv4
 	 *            "192.168.*"
 	 * @return string An IP and subnet notation string
 	 */
-	public static function mask_to_string(int|float $ip, int $ip_bits = self::BITS, bool $star_notation = true):
-	string
+	public static function mask_to_string(int|float $ip, int $ip_bits = self::BITS, bool $star_notation = true): string
 	{
 		$ip_bits = Types::toInteger($ip_bits, self::BITS);
 		$ip = floatval($ip);
@@ -254,8 +203,7 @@ class IPv4
 		//	echo long2ip(self::subnet_mask_not($n_bits)) . "\n";
 		$high_ip = $low_ip + self::subnet_mask_not($n_bits);
 		return [
-			$low_ip,
-			$high_ip,
+			$low_ip, $high_ip,
 		];
 	}
 
@@ -318,14 +266,14 @@ class IPv4
 	 */
 	public static function fromInteger(mixed $ip_integer): string
 	{
-		$ipisPositiveInteger = floatval($ip_integer);
+		$ip_integer = floatval($ip_integer);
 		$d = fmod($ip_integer, 256);
-		$ipisPositiveInteger = intval($ipisPositiveInteger / 256);
-		$c = $ipisPositiveInteger & 0xFF;
-		$ipisPositiveInteger >>= 8;
-		$b = $ipisPositiveInteger & 0xFF;
-		$ipisPositiveInteger >>= 8;
-		$a = $ipisPositiveInteger & 0xFF;
+		$ip_integer = intval($ip_integer / 256);
+		$c = $ip_integer & 0xFF;
+		$ip_integer >>= 8;
+		$b = $ip_integer & 0xFF;
+		$ip_integer >>= 8;
+		$a = $ip_integer & 0xFF;
 		return "$a.$b.$c.$d";
 	}
 

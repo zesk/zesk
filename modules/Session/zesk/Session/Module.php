@@ -9,7 +9,6 @@ declare(strict_types=1);
 
 namespace zesk\Session;
 
-use zesk\Application;
 use zesk\Exception\ClassNotFound;
 use zesk\Exception\ConfigurationException;
 use zesk\Exception\UnsupportedException;
@@ -19,8 +18,7 @@ use zesk\Module as BaseModule;
 /**
  * @author kent
  */
-class Module extends BaseModule
-{
+class Module extends BaseModule {
 	protected array $modelClasses = [Session::class];
 
 	/**

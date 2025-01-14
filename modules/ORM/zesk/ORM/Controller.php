@@ -16,7 +16,7 @@ use zesk\Exception\NotFoundException;
 use zesk\Exception\ParameterException;
 use zesk\Exception\PermissionDenied;
 use zesk\Exception\Redirect;
-use zesk\Exception\Semantics;
+use zesk\Exception\SemanticsException;
 use zesk\HTML;
 use zesk\HTTP;
 use zesk\Model;
@@ -300,7 +300,7 @@ abstract class Controller extends Controller_Authenticated
 				$new_object = $object->duplicate();
 				$message = "$class:=Duplicated {class_name-context-object-singular} \"{displayName}\".";
 				$result = true;
-			} catch (Deprecated|KeyNotFound|Semantics $e) {
+			} catch (Deprecated|KeyNotFound|SemanticsException $e) {
 				$message = "$class:=Unable to duplicate {class_name-context-object-singular} \"{displayName}\".";
 				$result = false;
 			}

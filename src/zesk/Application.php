@@ -51,7 +51,6 @@ use zesk\Job\Module as JobModule;
 use zesk\Locale\Locale;
 use zesk\Locale\Reader;
 use zesk\Mail\Module as MailModule;
-use zesk\Router\Parser;
 use zesk\Session\Module as SessionModule;
 use zesk\Settings\FileSystemSettings;
 use function str_ends_with;
@@ -78,8 +77,7 @@ use function str_ends_with;
  * @method SessionInterface sessionFactory()
  * @method SessionModule sessionModule()
  */
-class Application extends Hookable implements ModelFactory, HookSource, LoggerInterface
-{
+class Application extends Hookable implements ModelFactory, HookSource, LoggerInterface {
 	use LoggerTrait;
 
 	public const HOOK_MAIN = __CLASS__ . '::main';
@@ -641,10 +639,10 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	{
 		$old = $this->deprecated;
 		$this->deprecated = [
-			self::DEPRECATED_BACKTRACE => self::DEPRECATED_BACKTRACE,
-			self::DEPRECATED_EXCEPTION => self::DEPRECATED_EXCEPTION,
-			self::DEPRECATED_LOG => self::DEPRECATED_LOG,
-		][$set] ?? self::DEPRECATED_IGNORE;
+								self::DEPRECATED_BACKTRACE => self::DEPRECATED_BACKTRACE,
+								self::DEPRECATED_EXCEPTION => self::DEPRECATED_EXCEPTION,
+								self::DEPRECATED_LOG => self::DEPRECATED_LOG,
+							][$set] ?? self::DEPRECATED_IGNORE;
 		return $old;
 	}
 
@@ -666,14 +664,14 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 		switch ($this->deprecated) {
 			case self::DEPRECATED_EXCEPTION:
 				throw new Deprecated("{reason} Deprecated: {calling_function}\n{backtrace}", [
-					'reason' => $reason, 'calling_function' => Kernel::callingFunction(),
-					'backtrace' => Kernel::backtrace(4 + $depth),
-				] + $arguments);
+						'reason' => $reason, 'calling_function' => Kernel::callingFunction(),
+						'backtrace' => Kernel::backtrace(4 + $depth),
+					] + $arguments);
 			case self::DEPRECATED_LOG:
 				$this->logger->error("{reason} Deprecated: {calling_function}\n{backtrace}", [
-					'reason' => $reason ?: 'DEPRECATED', 'calling_function' => Kernel::callingFunction(),
-					'backtrace' => Kernel::backtrace(4 + $depth),
-				] + $arguments);
+						'reason' => $reason ?: 'DEPRECATED', 'calling_function' => Kernel::callingFunction(),
+						'backtrace' => Kernel::backtrace(4 + $depth),
+					] + $arguments);
 				break;
 			case self::DEPRECATED_BACKTRACE:
 				echo Kernel::backtrace();
@@ -687,7 +685,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 */
 	public function obsolete(): void
 	{
-		$this->logger->alert('Obsolete function called {function}', ['function' => Kernel::callingFunction(2), ]);
+		$this->logger->alert('Obsolete function called {function}', ['function' => Kernel::callingFunction(2),]);
 		if ($this->application->development()) {
 			echo Kernel::backtrace();
 			exit(1);
@@ -1827,8 +1825,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 			}
 		} catch (Throwable $t) {
 			throw new SemanticsException('{applicationClass}::setMaintenance({value}) hook threw {exceptionClass} {message}', [
-				'applicationClass' => get_class($this), 'value' => $set ? 'true' : 'false',
-			] + Exception::phpExceptionVariables($t), 0, $t);
+					'applicationClass' => get_class($this), 'value' => $set ? 'true' : 'false',
+				] + Exception::phpExceptionVariables($t), 0, $t);
 		}
 
 		if ($set) {
@@ -1918,7 +1916,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 		try {
 			if ($inherit) {
 				$request->initializeFromRequest($inherit);
-			} elseif ($this->console()) {
+			} else if ($this->console()) {
 				$request->initializeFromSettings('http://console/');
 			} else {
 				$request->initializeFromGlobals();
@@ -2056,9 +2054,9 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 
 		try {
 			$response->content = $this->themes->theme($this->classes->hierarchy($exception), [
-				'application' => $this, 'request' => $request, 'response' => $response, 'exception' => $exception,
-				'content' => $exception,
-			] + Exception::exceptionVariables($exception), [
+					'application' => $this, 'request' => $request, 'response' => $response, 'exception' => $exception,
+					'content' => $exception,
+				] + Exception::exceptionVariables($exception), [
 				'first' => true,
 			]);
 			if (!$exception instanceof Redirect) {
@@ -2154,8 +2152,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 			'{page-render-time}' => sprintf('%.3f', microtime(true) - $this->initializationMicrotime),
 		];
 		if (!$response || $response->isContentType([
-			'text/', 'javascript',
-		])) {
+				'text/', 'javascript',
+			])) {
 			if ($response->content !== null) {
 				$response->content = strtr($response->content, $final_map);
 			}

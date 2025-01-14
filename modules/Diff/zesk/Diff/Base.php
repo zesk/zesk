@@ -10,7 +10,6 @@ declare(strict_types=1);
 namespace zesk\Diff;
 
 use zesk\Exception\NotFoundException;
-use zesk\Kernel;
 
 /*
  * diff - compute shortest edit script (SES) given two sequences
@@ -57,8 +56,7 @@ use zesk\Kernel;
  * @author kent
  *
  */
-class Base
-{
+class Base {
 	/**
 	 * Track state of matching
 	 *

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 if [ -z "$ZESK_ROOT" ]; then
-	ZESK_ROOT=$(dirname "$(dirname "${BASH_SOURCE[0]}")")
-	export ZESK_ROOT
+  ZESK_ROOT=$(dirname "$(dirname "${BASH_SOURCE[0]}")")
+  export ZESK_ROOT
 fi
 
 #
@@ -9,17 +9,6 @@ fi
 #
 export PATH="$PATH:$ZESK_ROOT/bin"
 export ZESK_DOCKER_COMPOSE="${ZESK_ROOT}/docker-compose.yml"
-
-#
-# Output an option to do pseudo-tty allocation if stdin is a terminal
-# e.g. docker exec $(docker_tty) instance psql
-#
-docker_tty() {
-  if [ -t 0 ]; then
-    echo -t
-  fi
-  echo
-}
 
 _Zesk() {
   local user

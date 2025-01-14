@@ -17,9 +17,7 @@ use Throwable;
 use zesk\Application;
 use zesk\Doctrine\Model;
 use zesk\Doctrine\Trait\AutoID;
-use zesk\Exception\KeyNotFound;
 use zesk\Exception\NotFoundException;
-use zesk\Exception\SemanticsException;
 use zesk\StringTools;
 
 /**
@@ -34,8 +32,7 @@ use zesk\StringTools;
 #[Entity]
 #[Table(name: 'Language')]
 #[UniqueConstraint(name: 'langDialect', columns: ['code', 'dialect'])]
-class Language extends Model
-{
+class Language extends Model {
 	use AutoID;
 
 	#[Column(type: 'string', length: 2, nullable: false)]

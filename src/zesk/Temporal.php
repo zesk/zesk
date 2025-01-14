@@ -9,15 +9,13 @@ namespace zesk;
 
 use zesk\Exception\KeyNotFound;
 use zesk\Interface\Formatting;
-use zesk\Locale\Locale;
 
 /**
  *
  * @author kent
  *
  */
-abstract class Temporal implements Formatting
-{
+abstract class Temporal implements Formatting {
 	/**
 	 *
 	 * @var string
@@ -165,8 +163,7 @@ abstract class Temporal implements Formatting
 	 * @var array
 	 */
 	public static array $UNITS_TRANSLATION_TABLE = [
-		self::UNIT_YEAR => self::SECONDS_PER_YEAR,
-		self::UNIT_QUARTER => self::SECONDS_PER_QUARTER,
+		self::UNIT_YEAR => self::SECONDS_PER_YEAR, self::UNIT_QUARTER => self::SECONDS_PER_QUARTER,
 		self::UNIT_MONTH => self::SECONDS_PER_MONTH, // 365*86400/12 (average 30.42 days)
 		self::UNIT_WEEK => self::SECONDS_PER_WEEK, // 60*60*24*7
 		self::UNIT_DAY => self::SECONDS_PER_DAY, // 60*60*24

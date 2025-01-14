@@ -21,7 +21,6 @@ use zesk\Exception\NotFoundException;
 use zesk\Exception\ParameterException;
 use zesk\Exception\ParseException;
 use zesk\Exception\SemanticsException;
-use zesk\Exception\SyntaxException;
 use zesk\Exception\UnsupportedException;
 use zesk\File;
 use zesk\Hookable;
@@ -40,8 +39,7 @@ use zesk\Version;
  * @package zesk
  * @subpackage system
  */
-class Client extends Hookable
-{
+class Client extends Hookable {
 	public const OPTION_FOLLOW_LOCATION = 'setFollowLocation';
 
 	/*
@@ -820,7 +818,7 @@ class Client extends Hookable
 			}
 			unlink($dest_headers_name);
 			File::trim($this->application(), $this->destination, strlen($all_headers));
-		} elseif ($this->wantHeaders()) {
+		} else if ($this->wantHeaders()) {
 			$this->parseHeaders();
 		}
 	}

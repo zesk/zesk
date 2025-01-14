@@ -12,7 +12,6 @@ declare(strict_types=1);
 namespace zesk\Doctrine;
 
 use Doctrine\ORM\Tools\SchemaTool;
-use zesk\Application;
 use zesk\Command\Info;
 use zesk\FilterMethod;
 use zesk\Types;
@@ -37,8 +36,7 @@ use Doctrine\ORM\Configuration;
 use Doctrine\ORM\ORMSetup;
 use Doctrine\DBAL\Types\Type;
 
-class Module extends BaseModule
-{
+class Module extends BaseModule {
 	/**
 	 * @todo Call this somewhere
 	 */
@@ -146,7 +144,7 @@ class Module extends BaseModule
 						self::class, 'connections', $name,
 					], 'Invalid URL {dsn}', ['dsn' => $dsn], $e);
 				}
-			} elseif (is_array($dsn)) {
+			} else if (is_array($dsn)) {
 				$parts = $dsn;
 			} else {
 				throw new ConfigurationException([

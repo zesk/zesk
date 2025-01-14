@@ -621,6 +621,25 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	}
 
 	/**
+	 * Retrieve a member as a timestamp value
+	 *
+	 * @param string $member
+	 * @return Timestamp
+	 * @throws ParseException
+	 * @throws KeyNotFound
+	 * @throws ORMNotFound
+	 */
+	public function memberTimestamp(string $member): Timestamp
+	{
+		$this->refresh();
+		$value = $this->member($member);
+		if ($value instanceof Timestamp) {
+			return $value;
+		}
+		return Timestamp::factory()->parse($value);
+	}
+
+	/**
 	 * Retrieve list of member names used to find a duplicate object in the database
 	 *
 	 * @return array:string
@@ -1718,25 +1737,6 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	}
 
 	/**
-	 * Retrieve a member as a timestamp value
-	 *
-	 * @param string $member
-	 * @return Timestamp
-	 * @throws ParseException
-	 * @throws KeyNotFound
-	 * @throws ORMNotFound
-	 */
-	public function memberTimestamp(string $member): Timestamp
-	{
-		$this->refresh();
-		$value = $this->member($member);
-		if ($value instanceof Timestamp) {
-			return $value;
-		}
-		return Timestamp::factory()->parse($value);
-	}
-
-	/**
 	 * Retrieve a member as an integer
 	 * @param string $member
 	 * @return int
@@ -1938,6 +1938,29 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 	}
 
 	/**
+	 * Set a member to a value. You can add any member to an ORM.
+	 *
+	 * @param string $member
+	 * @param mixed $value
+	 * @param boolean $overwrite
+	 * @return $this
+	 */
+	public function setMember(string $member, mixed $value = null, bool $overwrite = true): self
+	{
+		try {
+			$this->refresh();
+		} catch (ORMNotFound) {
+		}
+		if ($overwrite || !array_key_exists($member, $this->members)) {
+			if ($member === $this->class->auto_column || in_array($member, $this->class->primary_keys)) {
+				$this->is_new_cached = null;
+			}
+			$this->members[$member] = $value;
+		}
+		return $this;
+	}
+
+	/**
 	 * Returns true if the member is empty
 	 * For multiple members, returns true if ANY member is empty
 	 * For multiple members, returns false if no members are passed in
@@ -1963,29 +1986,6 @@ class ORMBase extends Model implements MemberModelFactory, RouterArgument, Setti
 		}
 		$d = $this->raw_member($member);
 		return empty($d);
-	}
-
-	/**
-	 * Set a member to a value. You can add any member to an ORM.
-	 *
-	 * @param string $member
-	 * @param mixed $value
-	 * @param boolean $overwrite
-	 * @return $this
-	 */
-	public function setMember(string $member, mixed $value = null, bool $overwrite = true): self
-	{
-		try {
-			$this->refresh();
-		} catch (ORMNotFound) {
-		}
-		if ($overwrite || !array_key_exists($member, $this->members)) {
-			if ($member === $this->class->auto_column || in_array($member, $this->class->primary_keys)) {
-				$this->is_new_cached = null;
-			}
-			$this->members[$member] = $value;
-		}
-		return $this;
 	}
 
 	/**

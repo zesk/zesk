@@ -9,7 +9,6 @@ declare(strict_types=1);
 
 namespace zesk\Controller;
 
-use zesk\Controller\ThemeController;
 use zesk\Exception\ClassNotFound;
 use zesk\Request;
 
@@ -18,8 +17,7 @@ use zesk\Request;
  * @author kent
  *
  */
-class Search extends ThemeController
-{
+class Search extends ThemeController {
 	/**
 	 *
 	 * @return string
