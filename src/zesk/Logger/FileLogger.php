@@ -23,8 +23,7 @@ use zesk\Text;
 use zesk\Timestamp;
 use zesk\Types;
 
-class FileLogger implements LoggerInterface
-{
+class FileLogger implements LoggerInterface {
 	use LoggerTrait;
 
 	/**
@@ -122,7 +121,7 @@ class FileLogger implements LoggerInterface
 			$this->opened = false;
 			$this->filename = '';
 			$this->filename_pattern = '';
-		} elseif (StringTools::hasTokens($filename)) {
+		} else if (StringTools::hasTokens($filename)) {
 			$this->filename = '';
 			$this->filename_pattern = $filename;
 			$this->fp = null;
@@ -317,7 +316,7 @@ class FileLogger implements LoggerInterface
 					'linkname' => $linkname, 'filename' => $this->filename, 'time_zone' => $this->timeZone,
 				]);
 				@symlink($this->filename, $linkname);
-				// This still throws PHP Warning:  symlink(): File exists in zesk/modules/logger_file/classes/zesk/logger/file.inc on line 214 ... why? Lock not working?
+				// This still throws PHP Warning:  symlink(): File exists in zesk/src/modules/logger_file/classes/zesk/logger/file.inc on line 214 ... why? Lock not working?
 			}
 			flock($lock, LOCK_UN);
 		}

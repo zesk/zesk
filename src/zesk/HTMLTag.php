@@ -30,7 +30,7 @@ class HTMLTag extends Options
 	 * If empty, then singleton tag, e.g. <tag />
 	 * @var string
 	 */
-	private string $innerHTML = '';
+	private string $innerHTML;
 
 	/**
 	 * Original, outer HTML including tag itself.
@@ -38,7 +38,7 @@ class HTMLTag extends Options
 	 * If null, means it has not been matched in a document, or has been edited.
 	 * @var string
 	 */
-	private string $outerHTML = '';
+	private string $outerHTML;
 
 	/**
 	 * Offset to where the tag is in the found context

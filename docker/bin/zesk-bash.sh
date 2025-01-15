@@ -4,6 +4,11 @@
 #
 # Generic Shell setup for ALL users, ALL environments
 
+if [ -x "/usr/local/bin/build/tools.sh" ]; then
+  # shellcheck source=/dev/null
+  source /usr/local/bin/build/tools.sh
+fi
+
 # Bash settings for all containers
 zeskBashPrompt() {
   local role
@@ -12,7 +17,7 @@ zeskBashPrompt() {
   if [ -z "$role" ]; then
     role=$(cat /etc/docker-role 2>/dev/null || echo -n "no-role")
   fi
-  zeskPrompt --prefix "⚡️${role} $(decorate code "${BUILD_CODE:-no-code}")"
+  bashPrompt --label "🦓️${role} $(decorate code "${BUILD_CODE:-no-code}")" "$@"
 }
 
 #

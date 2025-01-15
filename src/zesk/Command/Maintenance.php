@@ -11,7 +11,6 @@ declare(strict_types=1);
 namespace zesk\Command;
 
 use zesk\Application;
-use zesk\HookMethod;
 use zesk\Types;
 
 /**

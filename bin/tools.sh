@@ -113,3 +113,5 @@ _zeskContainerLatest() {
 }
 
 __build .. bin "$@"
+
+bashSource

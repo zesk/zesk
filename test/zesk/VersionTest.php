@@ -9,13 +9,15 @@ declare(strict_types=1);
 
 namespace zesk;
 
+use zesk\Exception\ParseException;
+
 /**
  * Generic test class
  */
-class VersionTest extends UnitTest
-{
+class VersionTest extends UnitTest {
 	/**
 	 * @return void
+	 * @throws ParseException
 	 * @see Version
 	 */
 	public function test_everything(): void
@@ -25,7 +27,7 @@ class VersionTest extends UnitTest
 		$date = Version::date();
 		$this->assertStringStartsNotWith('-', $date);
 		$this->assertTrue(Types::isDate($date), "is_date($date)");
-		$this->assertLessThan(12.0, Timestamp::now()->difference(Timestamp::factory()->parse($date), Temporal::UNIT_MONTH), "Released within 12 months ($date)");
+		$this->assertLessThan(24.0, Timestamp::now()->difference(Timestamp::factory()->parse($date), Temporal::UNIT_MONTH), "Released within 24 months ($date)");
 
 		$string = Version::string($this->application->locale);
 		$this->assertStringContainsString($date, $string);

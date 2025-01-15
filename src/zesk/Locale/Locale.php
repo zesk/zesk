@@ -16,7 +16,6 @@ use zesk\Application;
 use zesk\ArrayTools;
 use zesk\Exception\KeyNotFound;
 use zesk\Hookable;
-use zesk\Exception\ClassNotFound;
 use zesk\Exception\ParseException;
 use zesk\Exception\SemanticsException;
 use zesk\StringTools;

@@ -78,6 +78,11 @@ class Loader
 	private Dependency $dependency;
 
 	/**
+	 * @var Typer
+	 */
+	private Typer $typer;
+
+	/**
 	 * Current file being processed
 	 *
 	 * @var string
@@ -93,6 +98,7 @@ class Loader
 	{
 		$this->settings = $settings;
 		$this->files = $files;
+		$this->setTyper(new Typer());
 		$this->dependency = new Dependency();
 	}
 
@@ -141,6 +147,17 @@ class Loader
 		}
 	}
 
+	public function setTyper(Typer $typer): self
+	{
+		$this->typer = $typer;
+		return $this;
+	}
+
+	private function determineHandler(string $name, string $content): string
+	{
+		return $this->typer->determineHandler($name, $content);
+	}
+
 	/**
 	 * Load a single file
 	 *
@@ -157,6 +174,12 @@ class Loader
 		}
 
 		$content = file_get_contents($file);
+		if ($handler === '') {
+			$handler = $this->determineHandler($file, $content);
+			if (!$handler) {
+				throw new FileParseException($file, 'No handler for {file}', ['file' => $file]);
+			}
+		}
 		return $this->loadContent($content, $handler ?: File::extension($file), $file);
 	}
 
@@ -169,7 +192,7 @@ class Loader
 	 * @return self
 	 * @throws FileParseException
 	 */
-	public function loadContent(string $content, string $handler, string $file_name = ''): self
+	public function loadContent(string $content, string $handler = '', string $file_name = ''): self
 	{
 		if (!$file_name) {
 			$file_name = strlen($content) . "-bytes-by-$handler";

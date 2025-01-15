@@ -6,7 +6,6 @@ declare(strict_types=1);
 
 namespace zesk;
 
-use PhpParser\Node\Scalar\MagicConst\Dir;
 use zesk\Exception\DirectoryNotFound;
 use zesk\Exception\SyntaxException;
 use zesk\PHPUnit\TestCase;
@@ -57,8 +56,7 @@ class DirectoryTest extends TestCase
 			['foo/.bar/..dotted', ['foo', [[['.bar']]], '..dotted']], ['a/b', ['a/', 'b']], ['a/b', ['a', '/b']],
 			['a/b', ['a/', '/b']], ['/a/b', ['/a/', '/b']], ['/a/b/', ['/a/', '/b/']],
 			['/a/b/', ['/a/', '/./', ['/./', '////', '/././', ], '/b/']], [
-				'/what/monitor-services/control/ruler-reader',
-				['/what/monitor-services', ['control', 'ruler-reader', ]],
+				'/what/monitor-services/control/ruler-reader', ['/what/monitor-services', ['control', 'ruler-reader', ]],
 			],
 		];
 	}

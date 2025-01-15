@@ -9,7 +9,6 @@ declare(strict_types=1);
 
 namespace zesk\Controller;
 
-use zesk\Controller\ThemeController;
 use zesk\Exception\ClassNotFound;
 use zesk\Request;
 

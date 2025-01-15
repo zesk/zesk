@@ -24,4 +24,4 @@ RUN echo -n mariadb > /etc/docker-role
 
 COPY docker/bin/*.sh /usr/local/bin/
 COPY docker/mariadb/db-health.sh /db-health.sh
-ADD docker/mariadb/bash_profile /root/.bashrc
+ADD docker/mariadb/bash_profile.sh /root/.bashrc

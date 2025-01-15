@@ -9,25 +9,62 @@ source "${BASH_SOURCE[0]%/*}/../../bin/build/tools.sh" || exit 99
 
 # Make shell files executable
 # Make all other files read by user and group
+# Argument: --read-only - Flag. Optional. Make files read-only by owner (default is writeable by owner.)
 __preCommit() {
   local usage="_${FUNCNAME[0]}"
+
+  local readOnly=false
+
+  # IDENTICAL argument-case-header 5
+  local saved=("$@") nArguments=$#
+  while [ $# -gt 0 ]; do
+    local argument argumentIndex=$((nArguments - $# + 1))
+    argument="$(usageArgumentString "$usage" "argument #$argumentIndex (Arguments: $(_command "${usage#_}" "${saved[@]}"))" "$1")" || return $?
+    case "$argument" in
+      # IDENTICAL --help 4
+      --help)
+        "$usage" 0
+        return $?
+        ;;
+      --read-only)
+        readOnly=true
+        ;;
+      *)
+        # IDENTICAL argumentUnknown 1
+        __failArgument "$usage" "unknown argument #$argumentIndex: $argument (Arguments: $(_command "${saved[@]}"))" || return $?
+        ;;
+    esac
+    # IDENTICAL argument-esac-shift 1
+    shift || __failArgument "$usage" "missing argument #$argumentIndex: $argument (Arguments: $(_command "${usage#_}" "${saved[@]}"))" || return $?
+  done
+
+  local home version mode
 
   home=$(__usageEnvironment "$usage" buildHome) || return $?
 
   version=$(__usageEnvironment "$usage" docker run -q -v "$home:/zesk" -w /zesk php:8 /zesk/bin/zesk version) || return $?
   statusMessage --last bigText "$(printf "%s v%s\n" "$(buildEnvironmentGet APPLICATION_NAME)" "$version")" | wrapLines "$(decorate bold-blue)" "$(decorate reset)"
-  __usageEnvironment "$usage" makeShellFilesExecutable "$home" || return $?
-  __usageEnvironment "$usage" find "$home" -type f -name '*.php' ! -path '*/bin/*' ! -path '*/.*/*' ! -path '*/vendor/*' -exec chmod 0640 {} \; || return $?
-  __usageEnvironment "$usage" find "$home" -type f -name '*.php' -path '*/bin/*' ! -path '*/.*/*' ! -path '*/vendor/*' -exec chmod 0770 {} \; || return $?
-  local extensions=(conf classes css csv data gif html inc ini js json less md png py router rst sql svg tpl ttf txt xls xml yml)
 
-  local extension aa=()
+  mode=$(_choose "$readOnly" 0440 0640)
+  __usageEnvironment "$usage" find "$home" -type f -name '*.php' ! -path '*/bin/*' ! -path '*/.*/*' ! -path '*/vendor/*' -exec chmod "$mode" {} \; || return $?
+  mode=$(_choose "$readOnly" 0770 0550)
+  __usageEnvironment "$usage" find "$home" -type f -name '*.php' -path '*/bin/*' ! -path '*/.*/*' ! -path '*/vendor/*' -exec chmod "$mode" {} \; || return $?
+  local extensions=(conf classes css csv data gif html inc ini json less md png py router rst sql svg tpl ttf txt xls xml yml)
+
+  local extension aa=() ee=()
   for extension in "${extensions[@]}"; do
-    aa+=(-or -name "*.$extension")
+    if ! hasHook "pre-commit-$extension"; then
+      aa+=(-or -name "*.$extension")
+      ee+=("$extension")
+    else
+      statusMessage decorate info "Skipping handled extension $(decorate code "$extension")"
+    fi
   done
   unset "a[0]"
   aa=("${aa[@]}")
-  __usageEnvironment "$usage" find "$home" -type f -name "${aa[@]}" ! -path '*/.*/*' -exec chmod -v 0440 {} \; || return $?
+  mode=$(_choose "$readOnly" 0440 0640)
+  __usageEnvironment "$usage" find "$home" -type f -name "${aa[@]}" ! -path '*/.*/*' -exec chmod -v "$mode" {} \; || return $?
+  statusMessage decorate info "Converted mode for $(decorate code "${ee[@]}")"
 }
 ___preCommit() {
   # IDENTICAL usageDocument 1

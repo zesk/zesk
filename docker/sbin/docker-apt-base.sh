@@ -16,7 +16,7 @@ apt-get install -y procps
 apt-get install -y bash software-properties-common net-tools >/dev/null
 
 # Development stuff
-apt-get install -y vim manpages git curl strace >/dev/null
+apt-get install -y vim manpages git curl strace jq >/dev/null
 
 if [ "$#" -gt 0 ]; then
   apt-get install -y "$@"

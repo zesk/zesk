@@ -44,6 +44,21 @@ abstract class Parser extends Options
 	protected ?Loader $loader = null;
 
 	/**
+	 * @param string $type
+	 * @return string
+	 * @throws ClassNotFound
+	 */
+	private static function typeToClass(string $type): string
+	{
+		return match (PHP::cleanFunction(strtoupper($type))) {
+			'CONF' => CONF::class,
+			'JSON' => JSON::class,
+			'SH' => SH::class,
+			default => throw new ClassNotFound(__NAMESPACE__ . '\\' . $type),
+		};
+	}
+
+	/**
 	 *
 	 * @param string $type
 	 * @param string $content
@@ -54,13 +69,18 @@ abstract class Parser extends Options
 	 */
 	public static function factory(string $type, mixed $content, ?SettingsInterface $settings = null, array $options = []): self
 	{
-		$class = match (PHP::cleanFunction(strtoupper($type))) {
-			'CONF' => CONF::class,
-			'JSON' => JSON::class,
-			'SH' => SH::class,
-			default => throw new ClassNotFound(__NAMESPACE__ . '\\' . $type),
-		};
+		$class = self::typeToClass($type);
 		return new $class($content, $settings, $options);
+	}
+
+	public static function exists(string $type): bool
+	{
+		try {
+			self::typeToClass($type);
+			return true;
+		} catch (ClassNotFound) {
+			return false;
+		}
 	}
 
 	/**

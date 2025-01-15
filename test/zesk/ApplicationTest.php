@@ -19,8 +19,7 @@ use zesk\Exception\ParseException;
 use zesk\Exception\SemanticsException;
 use zesk\Exception\UnsupportedException;
 
-class ACMETest
-{
+class ACMETest {
 	public string $name;
 
 	public function __construct(string $name)
@@ -35,8 +34,7 @@ class ACMETest
  * @see TestApplication
  * @see TestRequest
  */
-class ApplicationTest extends TestApplicationUnitTest
-{
+class ApplicationTest extends TestApplicationUnitTest {
 	public function initialize(): void
 	{
 	}
@@ -205,16 +203,16 @@ class ApplicationTest extends TestApplicationUnitTest
 
 		/* autoloadPath */
 		$this->assertEquals([
-			'/zesk/modules/Diff/zesk/Diff/', '/zesk/modules/CSV/zesk/CSV/',
+			'/zesk/src/modules/Diff/zesk/Diff/', '/zesk/src/modules/CSV/zesk/CSV/',
 		], array_keys($newApplication->autoloadPath()));
 
 		$newApplication->modules->loadMultiple(['PHPUnit', 'Doctrine', 'Repository']);
 		$paths = [];
-		$paths[] = $newApplication->zeskHome('modules/Diff/zesk/Diff/');
-		$paths[] = $newApplication->zeskHome('modules/CSV/zesk/CSV/');
-		$paths[] = $newApplication->zeskHome('modules/PHPUnit/zesk/PHPUnit/');
-		$paths[] = $newApplication->zeskHome('modules/Doctrine/zesk/Doctrine/');
-		$paths[] = $newApplication->zeskHome('modules/Repository/zesk/Repository/');
+		$paths[] = $newApplication->zeskHome('src/modules/Diff/zesk/Diff/');
+		$paths[] = $newApplication->zeskHome('src/modules/CSV/zesk/CSV/');
+		$paths[] = $newApplication->zeskHome('src/modules/PHPUnit/zesk/PHPUnit/');
+		$paths[] = $newApplication->zeskHome('src/modules/Doctrine/zesk/Doctrine/');
+		$paths[] = $newApplication->zeskHome('src/modules/Repository/zesk/Repository/');
 		$this->assertEquals($paths, array_keys($newApplication->autoloadPath()));
 
 		/* maintenance Loading */

@@ -24,8 +24,7 @@ use zesk\TestApplicationUnitTest;
 /**
  * Commands_Test
  */
-class CommandsTest extends TestApplicationUnitTest
-{
+class CommandsTest extends TestApplicationUnitTest {
 	public const allFalseModules = 'CSV: false
 Cron: false
 Daemon: false
@@ -85,7 +84,7 @@ World: false';
 				/* State is for application load time */ [[], 0, self::allFalseModules],
 				[['--loaded'], 0, "CSV : true\nDiff: true\n"], [['CSV'], 0, ''], [
 					['NopeModule'], 1,
-					"ERROR: Failed loading module: NopeModule: NopeModule was not found in /zesk/modules\n",
+					"ERROR: Failed loading module: NopeModule: NopeModule was not found in /zesk/src/modules\n",
 				], /* State is reset for application between calls */ [['--loaded'], 0, "CSV : true\nDiff: true\n"],
 			], Maintenance::class => [
 				/* Maintenance uses state on disk so call updates state */ [[], 1, ''],
