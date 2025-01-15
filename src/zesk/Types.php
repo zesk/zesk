@@ -18,8 +18,7 @@ use zesk\Exception\ParseException;
 use zesk\Exception\SemanticsException;
 use zesk\Interface\Simplifiable;
 
-class Types
-{
+class Types {
 	/**
 	 *
 	 */
@@ -229,11 +228,11 @@ class Types
 	{
 		if ($mixed === '' || $mixed === null) {
 			return $default;
-		} elseif (is_scalar($mixed)) {
+		} else if (is_scalar($mixed)) {
 			return explode($delimiter, strval($mixed));
-		} elseif (is_array($mixed)) {
+		} else if (is_array($mixed)) {
 			return $mixed;
-		} elseif (is_object($mixed) && method_exists($mixed, 'to_list')) {
+		} else if (is_object($mixed) && method_exists($mixed, 'toList')) {
 			return Types::toList($mixed->toList());
 		} else {
 			return $default;
@@ -325,7 +324,11 @@ class Types
 			return Types::toInteger($mixed, $default);
 		}
 		$b = intval($mixed);
-		$pow = ['g' => 3, 'm' => 2, 'k' => 1][$matches[1]] ?? 0;
+		$pow = [
+				   'g' => 3,
+				   'm' => 2,
+				   'k' => 1,
+			   ][$matches[1]] ?? 0;
 		return $b * (1024 ** $pow);
 	}
 
@@ -350,10 +353,26 @@ class Types
 	public static function toBool(mixed $value, ?bool $default = false): ?bool
 	{
 		static $true_values = [
-			1, '1', 't', 'y', 'yes', 'on', 'enabled', 'true',
+			1,
+			'1',
+			't',
+			'y',
+			'yes',
+			'on',
+			'enabled',
+			'true',
 		];
 		static $false_values = [
-			0, '', '0', 'f', 'n', 'no', 'off', 'disabled', 'false', 'null',
+			0,
+			'',
+			'0',
+			'f',
+			'n',
+			'no',
+			'off',
+			'disabled',
+			'false',
+			'null',
 		];
 		if (is_bool($value)) {
 			return $value;
@@ -460,9 +479,9 @@ class Types
 				$mixed[$k] = self::_replaceSubstrings($v, $map);
 			}
 			return $mixed;
-		} elseif (is_string($mixed)) {
+		} else if (is_string($mixed)) {
 			return strtr($mixed, $map);
-		} elseif (is_object($mixed)) {
+		} else if (is_object($mixed)) {
 			return method_exists($mixed, 'replaceSubstrings') ? $mixed->replaceSubstrings($map) : $mixed;
 		} else {
 			return $mixed;
@@ -489,8 +508,10 @@ class Types
 	private static function _weight(string|float|int $weight): float
 	{
 		static $weights = [
-			self::INTERNAL_WEIGHT_FIRST => -1e300, self::WEIGHT_FIRST => -1e299, self::WEIGHT_LAST => 1e299,
-			self::INTERNAL_WEIGHT_LAST => 1e300,
+			self::INTERNAL_WEIGHT_FIRST => -1e300,
+			self::WEIGHT_FIRST          => -1e299,
+			self::WEIGHT_LAST           => 1e299,
+			self::INTERNAL_WEIGHT_LAST  => 1e300,
 		];
 		return floatval($weights[strval($weight)] ?? $weight);
 	}
@@ -555,7 +576,11 @@ class Types
 	public static function configurationKey(string $key): array
 	{
 		return explode(self::KEY_SEPARATOR, strtr(strtolower($key), [
-			'__' => self::KEY_SEPARATOR, '.' => '_', '/' => '_', '-' => '_', ' ' => '_',
+			'__' => self::KEY_SEPARATOR,
+			'.'  => '_',
+			'/'  => '_',
+			'-'  => '_',
+			' '  => '_',
 		]));
 	}
 

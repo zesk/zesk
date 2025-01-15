@@ -14,22 +14,61 @@ use zesk\Exception\SyntaxException;
 /**
  * Generic test class
  */
-class TimeSpanTest extends UnitTest
-{
+class TimeSpanTest extends UnitTest {
 	public static function data_TimeSpan(): array
 	{
-		$days = Date::now()->setYear(Date::now()->year()+1)->isLeapYear() ? 366 : 365;
+		$days = Date::now()->setYear(Date::now()->year() + 1)->isLeapYear() ? 366 : 365;
 		return [
-			['s:0 00 m:0 00 h:0 00 d:0 00 000', '0', 0, ],
-			['s:0 00 m:0 00 h:0 00 d:0 00 000', '0', 0.0, ],
-			['s:1 01 m:0 00 h:0 00 d:0 00 000', '1', 1.0, ],
-			['s:1 01 m:0 00 h:0 00 d:0 00 000', '1', -1.0, ],
-			['s:1 01 m:0 00 h:0 00 d:0 00 000', '1', -1, ],
-			['s:0 00 m:0 00 h:0 00 d:0 00 000', '0', '0', ],
-			['s:1 01 m:0 00 h:0 00 d:0 00 000', '1', '1', ],
-			['s:86400 00 m:1440 00 h:24 00 d:1 01 001', strval(Temporal::SECONDS_PER_DAY), '1 day', ],
-			['s:31622400 00 m:527040 00 h:8784 00 d:366 366 001', strval(Temporal::SECONDS_PER_DAY * 366), '366 days', ],
-			["s:31622400 00 m:527040 00 h:8784 00 d:$days $days 001", strval(Temporal::SECONDS_PER_DAY * $days), 'next year', ],
+			[
+				's:0 00 m:0 00 h:0 00 d:0 00 000',
+				'0',
+				0,
+			],
+			[
+				's:0 00 m:0 00 h:0 00 d:0 00 000',
+				'0',
+				0.0,
+			],
+			[
+				's:1 01 m:0 00 h:0 00 d:0 00 000',
+				'1',
+				1.0,
+			],
+			[
+				's:1 01 m:0 00 h:0 00 d:0 00 000',
+				'1',
+				-1.0,
+			],
+			[
+				's:1 01 m:0 00 h:0 00 d:0 00 000',
+				'1',
+				-1,
+			],
+			[
+				's:0 00 m:0 00 h:0 00 d:0 00 000',
+				'0',
+				'0',
+			],
+			[
+				's:1 01 m:0 00 h:0 00 d:0 00 000',
+				'1',
+				'1',
+			],
+			[
+				's:86400 00 m:1440 00 h:24 00 d:1 01 001',
+				strval(Temporal::SECONDS_PER_DAY),
+				'1 day',
+			],
+			[
+				's:31622400 00 m:527040 00 h:8784 00 d:366 366 366',
+				strval(Temporal::SECONDS_PER_DAY * 366),
+				'366 days',
+			],
+			[
+				"s:31622400 00 m:527040 00 h:8784 00 d:$days $days $days",
+				strval(Temporal::SECONDS_PER_DAY * $days),
+				'next year',
+			],
 		];
 	}
 
@@ -67,7 +106,9 @@ class TimeSpanTest extends UnitTest
 	public static function data_badTimeSpan(): array
 	{
 		return [
-			['3 negarinos ago'], ['not a date'], ['99.64.1.2'],
+			['3 negarinos ago'],
+			['not a date'],
+			['99.64.1.2'],
 		];
 	}
 
@@ -87,9 +128,31 @@ class TimeSpanTest extends UnitTest
 	{
 		$randomInt = self::randomInteger();
 		return [
-			['s:0 00 m:0 00 h:0 00 d:0 00 000', -1, 1, ], ['s:0 00 m:0 00 h:0 00 d:0 00 000', -2, 2, ],
-			['s:0 00 m:0 00 h:0 00 d:0 00 000', -$randomInt, $randomInt, ],
-			['s:1000 40 m:16 16 h:0 00 d:0 00 000', 1000, 0, ], ['s:4600 40 m:76 16 h:1 01 d:0 00 000', 1000, 3600, ],
+			[
+				's:0 00 m:0 00 h:0 00 d:0 00 000',
+				-1,
+				1,
+			],
+			[
+				's:0 00 m:0 00 h:0 00 d:0 00 000',
+				-2,
+				2,
+			],
+			[
+				's:0 00 m:0 00 h:0 00 d:0 00 000',
+				-$randomInt,
+				$randomInt,
+			],
+			[
+				's:1000 40 m:16 16 h:0 00 d:0 00 000',
+				1000,
+				0,
+			],
+			[
+				's:4600 40 m:76 16 h:1 01 d:0 00 000',
+				1000,
+				3600,
+			],
 		];
 	}
 

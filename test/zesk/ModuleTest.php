@@ -3,8 +3,7 @@ declare(strict_types=1);
 
 namespace zesk;
 
-class ModuleTest extends UnitTest
-{
+class ModuleTest extends UnitTest {
 	protected array $load_modules = ['World'];
 
 	public function test_Module_World(): void
@@ -12,12 +11,12 @@ class ModuleTest extends UnitTest
 		$module = $this->application->modules->object('World');
 		$this->assertInstanceOf(\zesk\World\Module::class, $module);
 		$this->assertEquals('World', $module->baseName());
-		$ff = '/zesk/modules/World/World.module.json';
+		$ff = '/zesk/src/modules/World/World.module.json';
 		$configuration = JSON::decode(File::contents($ff));
 		$this->assertEquals($configuration, $module->moduleConfiguration());
 		$this->assertEquals($ff, $module->moduleConfigurationFile());
 		$this->assertEquals([
-			'path' => '/zesk/modules/World', 'base' => 'World', 'name' => 'World',
+			'path' => '/zesk/src/modules/World', 'base' => 'World', 'name' => 'World',
 			'configuration' => $configuration, 'configurationFile' => $ff,
 		], $module->moduleData());
 		$this->assertEquals('', $module->version());
@@ -28,12 +27,12 @@ class ModuleTest extends UnitTest
 		$module = $this->application->modules->object('Doctrine');
 		$this->assertInstanceOf(\zesk\Doctrine\Module::class, $module);
 		$this->assertEquals('Doctrine', $module->baseName());
-		$ff = '/zesk/modules/Doctrine/Doctrine.module.json';
+		$ff = '/zesk/src/modules/Doctrine/Doctrine.module.json';
 		$configuration = JSON::decode(File::contents($ff));
 		$this->assertEquals($configuration, $module->moduleConfiguration());
 		$this->assertEquals($ff, $module->moduleConfigurationFile());
 		$this->assertEquals([
-			'path' => '/zesk/modules/Doctrine', 'base' => 'Doctrine', 'name' => 'Doctrine',
+			'path' => '/zesk/src/modules/Doctrine', 'base' => 'Doctrine', 'name' => 'Doctrine',
 			'configuration' => $configuration, 'configurationFile' => $ff,
 		], $module->moduleData());
 		$this->assertEquals('', $module->version());
