@@ -6,7 +6,8 @@ namespace zesk;
 use zesk\Exception\DirectoryNotFound;
 use zesk\Exception\FilePermission;
 
-class FIFO_Test extends UnitTest {
+class FIFO_Test extends UnitTest
+{
 	public function test_fifo_create_false(): void
 	{
 		$fifo = new FIFO('does not matter whatever if create is false', false);
@@ -117,7 +118,7 @@ class FIFO_Test extends UnitTest {
 
 		// Our process reads from the writer and writes to the reader
 		$echoCode = ['<?php'];
-		# $echoCode[] = 'echo "echo server started" . PHP_EOL;';
+		// $echoCode[] = 'echo "echo server started" . PHP_EOL;';
 		$echoCode[] = 'fflush(STDOUT);';
 		$echoCode[] = '$w = new zesk\FIFO({writer_path}, true);';
 		$echoCode[] = '$r = new zesk\FIFO({reader_path}, false);';

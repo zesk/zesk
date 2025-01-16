@@ -21,7 +21,8 @@ use zesk\Exception\UnsupportedException;
  * @author kent
  *
  */
-class PHP {
+class PHP
+{
 	/**
 	 * @see PHP::requires
 	 * @var string
@@ -268,15 +269,15 @@ class PHP {
 			$result .= $this->array_value_separator;
 			$result .= str_repeat($this->indent_char, $indent_level * $this->indent_multiple) . $this->array_close_parenthesis_prefix . ']' . $this->array_close_parenthesis_suffix;
 			return $result;
-		} else if (is_string($x)) {
+		} elseif (is_string($x)) {
 			return '"' . addcslashes($x, "\$\"\\\0..\37") . '"';
-		} else if (is_int($x)) {
+		} elseif (is_int($x)) {
 			return "$x";
-		} else if ($x === null) {
+		} elseif ($x === null) {
 			return 'null';
-		} else if (is_bool($x)) {
+		} elseif (is_bool($x)) {
 			return $x ? 'true' : 'false';
-		} else if (is_object($x)) {
+		} elseif (is_object($x)) {
 			if (method_exists($x, 'toPHP')) {
 				return $x->toPHP();
 			}
@@ -557,19 +558,19 @@ class PHP {
 		}
 		self::$included[$path] = true;
 		foreach (Directory::listRecursive($path, $listOptions + [
-				Directory::LIST_RULE_DIRECTORY_WALK => [
-					"/\/./" => false,
-					"/\/vendor\//" => false,
-					true,
-				],
-				Directory::LIST_RULE_FILE           => [
-					"/\.php$/" => true,
-					false,
-				],
-			] + $listOptions + [
-				Directory::LIST_RULE_DIRECTORY => false,
-				Directory::LIST_ADD_PATH       => true,
-			]) as $phpFilePath) {
+			Directory::LIST_RULE_DIRECTORY_WALK => [
+				"/\/./" => false,
+				"/\/vendor\//" => false,
+				true,
+			],
+			Directory::LIST_RULE_FILE           => [
+				"/\.php$/" => true,
+				false,
+			],
+		] + $listOptions + [
+			Directory::LIST_RULE_DIRECTORY => false,
+			Directory::LIST_ADD_PATH       => true,
+		]) as $phpFilePath) {
 			require_once "$phpFilePath";
 		}
 		return true;

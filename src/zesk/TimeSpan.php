@@ -15,7 +15,8 @@ use zesk\Exception\SyntaxException;
  * @author kent
  *
  */
-class TimeSpan extends Temporal {
+class TimeSpan extends Temporal
+{
 	/**
 	 *
 	 * @var integer

@@ -15,7 +15,8 @@ use zesk\Model;
  * For things which support model factory calls
  * @see Model
  */
-interface MemberModelFactory {
+interface MemberModelFactory
+{
 	/**
 	 * Create a model
 	 *
