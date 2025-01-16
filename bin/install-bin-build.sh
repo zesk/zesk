@@ -82,7 +82,7 @@ __installPackageConfiguration() {
   _installRemotePackage "$rel" "bin/build" "install-bin-build.sh" --url-function __installBinBuildURL --check-function __installBinBuildCheck "$@"
 }
 
-# IDENTICAL _installRemotePackage 249
+# IDENTICAL _installRemotePackage 250
 
 # Usage: {fn} relativePath installPath url urlFunction [ --local localPackageDirectory ] [ --debug ] [ --force ] [ --diff ]
 # fn: {base}
@@ -111,7 +111,7 @@ __installPackageConfiguration() {
 # Argument: --debug - Optional. Flag. Debugging is on.
 # Argument: --force - Optional. Flag. Force installation even if file is up to date.
 # Argument: --diff - Optional. Flag. Show differences between old and new file.
-# Argument: --replace - Optional. Flag. Replace an old version of this script with this one and delete this one. Internal only, do not use.
+# Argument: --replace fie - Optional. Flag. Replace the target file with this script and delete this one. Internal only, do not use.
 # Exit Code: 1 - Environment error
 # Exit Code: 2 - Argument error
 _installRemotePackage() {
@@ -134,7 +134,8 @@ _installRemotePackage() {
         installArgs+=("$argument")
         ;;
       --replace)
-        newName="${BASH_SOURCE[0]%.*}"
+        shift
+        newName="$1"
         decorate bold-blue "Replacing $(decorate orange "${BASH_SOURCE[0]}") -> $(decorate boldOrange "$newName")"
         __usageEnvironment "$usage" cp -f "${BASH_SOURCE[0]}" "$newName" || return $?
         __usageEnvironment "$usage" rm -rf "${BASH_SOURCE[0]}" || return $?
@@ -324,7 +325,7 @@ __installRemotePackageLocal() {
     printf "%s %s \"%s\"\n" "__installPackageConfiguration" "$relTop" '$@'
   } >"$myBinary.$$"
   chmod +x "$myBinary.$$" || _environment "chmod +x failed" || return $?
-  "$myBinary.$$" --replace >"$log" 2>&1 &
+  "$myBinary.$$" --replace "$myBinary" >"$log" 2>&1 &
   local pid=$!
   if ! isUnsignedInteger "$pid"; then
     _environment "Unable to run $myBinary.$$" || return $?
