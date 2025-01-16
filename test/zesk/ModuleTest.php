@@ -3,7 +3,8 @@ declare(strict_types=1);
 
 namespace zesk;
 
-class ModuleTest extends UnitTest {
+class ModuleTest extends UnitTest
+{
 	protected array $load_modules = ['World'];
 
 	public function test_Module_World(): void

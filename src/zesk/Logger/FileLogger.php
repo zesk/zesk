@@ -23,7 +23,8 @@ use zesk\Text;
 use zesk\Timestamp;
 use zesk\Types;
 
-class FileLogger implements LoggerInterface {
+class FileLogger implements LoggerInterface
+{
 	use LoggerTrait;
 
 	/**
@@ -121,7 +122,7 @@ class FileLogger implements LoggerInterface {
 			$this->opened = false;
 			$this->filename = '';
 			$this->filename_pattern = '';
-		} else if (StringTools::hasTokens($filename)) {
+		} elseif (StringTools::hasTokens($filename)) {
 			$this->filename = '';
 			$this->filename_pattern = $filename;
 			$this->fp = null;

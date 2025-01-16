@@ -24,7 +24,8 @@ use zesk\TestApplicationUnitTest;
 /**
  * Commands_Test
  */
-class CommandsTest extends TestApplicationUnitTest {
+class CommandsTest extends TestApplicationUnitTest
+{
 	public const allFalseModules = 'CSV: false
 Cron: false
 Daemon: false

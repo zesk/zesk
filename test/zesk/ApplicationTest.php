@@ -19,7 +19,8 @@ use zesk\Exception\ParseException;
 use zesk\Exception\SemanticsException;
 use zesk\Exception\UnsupportedException;
 
-class ACMETest {
+class ACMETest
+{
 	public string $name;
 
 	public function __construct(string $name)
@@ -34,7 +35,8 @@ class ACMETest {
  * @see TestApplication
  * @see TestRequest
  */
-class ApplicationTest extends TestApplicationUnitTest {
+class ApplicationTest extends TestApplicationUnitTest
+{
 	public function initialize(): void
 	{
 	}
