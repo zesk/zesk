@@ -3,6 +3,64 @@
 # Copyright &copy; 2025 Market Acumen, Inc.
 #
 
+#
+# Usage: {fn} databaseHost [ dockerBuildArgs ... ]
+# Argument: databaseHost - String. Required. Database host.
+# Argument: dockerBuildArgs - Any additional arguments are passed directly to `docker build`
+#
+zeskContainerLatest() {
+  local usage="_${FUNCNAME[0]}"
+  local host quietLog start
+
+  quietLog=$(__usageEnvironment "$usage" buildQuietLog "$usage") || return $?
+  start=$(__usageEnvironment "$usage" beginTiming) || return $?
+
+  # IDENTICAL argument-case-header 5
+  local saved=("$@") nArguments=$#
+  while [ $# -gt 0 ]; do
+    local argument argumentIndex=$((nArguments - $# + 1))
+    argument="$(usageArgumentString "$usage" "argument #$argumentIndex (Arguments: $(_command "${usage#_}" "${saved[@]}"))" "$1")" || return $?
+    case "$argument" in
+      # IDENTICAL --help 4
+      --help)
+        "$usage" 0
+        return $?
+        ;;
+      *)
+        [ -z "$host" ] || __failArgument "$usage" "Host already specified" || return $?
+        host="$argument"
+        ;;
+    esac
+    # IDENTICAL argument-esac-shift 1
+    shift || __failArgument "$usage" "missing argument #$argumentIndex: $argument (Arguments: $(_command "${usage#_}" "${saved[@]}"))" || return $?
+  done
+
+  [ -z "$host" ] || __failArgument "$usage" "host requires" || return $?
+
+  local name=zesk
+
+  statusMessage decorate info -n "Build container $(decorate code "$name:latest") ... "
+  figlet "Build container" >>"$quietLog"
+  __usageEnvironment "$usage" docker build "$@" --build-arg "DATABASE_HOST=$host" -f ./docker/php.Dockerfile --tag "$name:latest" . >>"$quietLog" || buildFailed "$quietLog" || return $?
+  statusMessage --last reportTiming "$start" "Zesk latest container built in"
+}
+_zeskContainerLatest() {
+  # IDENTICAL usageDocument 1
+  usageDocument "${BASH_SOURCE[0]}" "${FUNCNAME[0]#_}" "$@"
+}
+
+__zeskTools() {
+  local usage="_${FUNCNAME[0]}"
+  __usageEnvironment "$usage" bashSourcePath "${BASH_SOURCE[0]%/*}/tools/" || return $?
+  if [ $# -gt 0 ]; then
+    __usageEnvironment "$usage" "$@" || return $?
+  fi
+}
+___zeskTools() {
+  # IDENTICAL usageDocument 1
+  usageDocument "${BASH_SOURCE[0]}" "${FUNCNAME[0]#_}" "$@"
+}
+
 # IDENTICAL __install 24
 # Load build tools (installing if needed) and run command
 # Usage: {fn} [ relativeHome installer source [ command ... ] ]
@@ -66,52 +124,4 @@ isUnsignedInteger() {
 
 # <-- END of IDENTICAL _return
 
-#
-# Usage: {fn} databaseHost [ dockerBuildArgs ... ]
-# Argument: databaseHost - String. Required. Database host.
-# Argument: dockerBuildArgs - Any additional arguments are passed directly to `docker build`
-#
-zeskContainerLatest() {
-  local usage="_${FUNCNAME[0]}"
-  local host quietLog start
-
-  quietLog=$(__usageEnvironment "$usage" buildQuietLog "$usage") || return $?
-  start=$(__usageEnvironment "$usage" beginTiming) || return $?
-
-  # IDENTICAL argument-case-header 5
-  local saved=("$@") nArguments=$#
-  while [ $# -gt 0 ]; do
-    local argument argumentIndex=$((nArguments - $# + 1))
-    argument="$(usageArgumentString "$usage" "argument #$argumentIndex (Arguments: $(_command "${usage#_}" "${saved[@]}"))" "$1")" || return $?
-    case "$argument" in
-      # IDENTICAL --help 4
-      --help)
-        "$usage" 0
-        return $?
-        ;;
-      *)
-        [ -z "$host" ] || __failArgument "$usage" "Host already specified" || return $?
-        host="$argument"
-        ;;
-    esac
-    # IDENTICAL argument-esac-shift 1
-    shift || __failArgument "$usage" "missing argument #$argumentIndex: $argument (Arguments: $(_command "${usage#_}" "${saved[@]}"))" || return $?
-  done
-
-  [ -z "$host" ] || __failArgument "$usage" "host requires" || return $?
-
-  local name=zesk
-
-  statusMessage decorate info -n "Build container $(decorate code "$name:latest") ... "
-  figlet "Build container" >>"$quietLog"
-  __usageEnvironment "$usage" docker build "$@" --build-arg "DATABASE_HOST=$host" -f ./docker/php.Dockerfile --tag "$name:latest" . >>"$quietLog" || buildFailed "$quietLog" || return $?
-  statusMessage --last reportTiming "$start" "Zesk latest container built in"
-}
-_zeskContainerLatest() {
-  # IDENTICAL usageDocument 1
-  usageDocument "${BASH_SOURCE[0]}" "${FUNCNAME[0]#_}" "$@"
-}
-
-__build .. bin "$@"
-
-bashSource
+__build .. bin __zeskTools "$@"
