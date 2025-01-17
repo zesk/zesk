@@ -31,7 +31,7 @@ zeskPipelineSetup() {
   local requireEnvironment=(
     DEPLOYMENT
     GITHUB_REPOSITORY_OWNER GITHUB_REPOSITORY_NAME
-    DATABASE_PORT DATABASE_HOST DATABASE_ROOT_PASSWORD CONTAINER_DATABASE_HOST
+    DATABASE_PORT DATABASE_HOST CONTAINER_DATABASE_HOST
   )
   # Will be exported to the environment file
   local buildEnvironment=("${requireEnvironment[@]}")
@@ -40,10 +40,9 @@ zeskPipelineSetup() {
 
   quietLog=$(__usageEnvironment "$usage" buildQuietLog "${FUNCNAME[0]}") || return $?
 
-  export "${requireEnvironment[@]}"
+  export "${requireEnvironment[@]}" "${buildEnvironment[@]}"
 
-  usageRequireEnvironment "$usage" "${requireEnvironment[@]}" || return $?
-
+  __usageEnvironment "$usage" buildEnvironmentLoad "${requireEnvironment[@]}" || return $?
   usageRequireBinary "$usage" docker || return $?
 
   #
@@ -69,6 +68,20 @@ zeskPipelineSetup() {
         ;;
     esac
   done
+
+  #
+  # Connect to the database and set up test schema
+  #
+  if [ -z "${DATABASE_ROOT_PASSWORD-}" ]; then
+    local variable
+    for variable in DATABASE_ROOT_PASSWORD MARIADB_ROOT_PASSWORD MYSQL_ROOT_PASSWORD; do
+      DATABASE_ROOT_PASSWORD=$(getFromPipelineYML "$variable" 2>/dev/null) || :
+      [ -z "$DATABASE_ROOT_PASSWORD" ] || break
+    done
+    [ -n "$DATABASE_ROOT_PASSWORD" ] || __failEnvironment "$usage" "No DATABASE_ROOT_PASSWORD defined in environment or bitbucket-pipelines.yml" || return $?
+  fi
+
+  usageRequireEnvironment "$usage" "${requireEnvironment[@]}" || return $?
 
   statusMessage decorate info "Started on $(date)"
 
@@ -97,9 +110,6 @@ zeskPipelineSetup() {
   __usageEnvironment "$usage" ./bin/test-bin.sh || return $?
   statusMessage reportTiming "$start" "Smoke tests completed in"
 
-  #
-  # Connect to the database and set up test schema
-  #
   start=$(__usageEnvironment "$usage" beginTiming) || return $?
   databaseArguments=("-u" "root" "-p$DATABASE_ROOT_PASSWORD" "-h" "$DATABASE_HOST" "--port" "$DATABASE_PORT")
   statusMessage decorate info "Setting up database ... "
