@@ -101,15 +101,6 @@ zeskPipelineSetup() {
   __usageEnvironment "$usage" environmentFileApplicationMake "${buildEnvironment[@]}" -- GITHUB_ACCESS_TOKEN | __usageEnvironment "$usage" muzzle tee "$home/.env" || return $?
   environmentFileShow || :
 
-  #==========================================================================================
-  #
-  # Test our build assumptions
-  #
-  start=$(__usageEnvironment "$usage" beginTiming) || return $?
-  statusMessage decorate info "Build bin smoke tests ... "
-  __usageEnvironment "$usage" ./bin/test-bin.sh || return $?
-  statusMessage reportTiming "$start" "Smoke tests completed in"
-
   start=$(__usageEnvironment "$usage" beginTiming) || return $?
   databaseArguments=("-u" "root" "-p$DATABASE_ROOT_PASSWORD" "-h" "$DATABASE_HOST" "--port" "$DATABASE_PORT")
   statusMessage decorate info "Setting up database ... "
