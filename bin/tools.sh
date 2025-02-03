@@ -12,8 +12,8 @@ zeskContainerLatest() {
   local usage="_${FUNCNAME[0]}"
   local host quietLog start
 
-  quietLog=$(__usageEnvironment "$usage" buildQuietLog "$usage") || return $?
-  start=$(__usageEnvironment "$usage" beginTiming) || return $?
+  quietLog=$(__catchEnvironment "$usage" buildQuietLog "$usage") || return $?
+  start=$(__catchEnvironment "$usage" beginTiming) || return $?
 
   # IDENTICAL argument-case-header 5
   local saved=("$@") nArguments=$#
@@ -27,21 +27,21 @@ zeskContainerLatest() {
         return $?
         ;;
       *)
-        [ -z "$host" ] || __failArgument "$usage" "Host already specified" || return $?
+        [ -z "$host" ] || __throwArgument "$usage" "Host already specified" || return $?
         host="$argument"
         ;;
     esac
     # IDENTICAL argument-esac-shift 1
-    shift || __failArgument "$usage" "missing argument #$argumentIndex: $argument (Arguments: $(_command "${usage#_}" "${saved[@]}"))" || return $?
+    shift || __throwArgument "$usage" "missing argument #$argumentIndex: $argument (Arguments: $(_command "${usage#_}" "${saved[@]}"))" || return $?
   done
 
-  [ -z "$host" ] || __failArgument "$usage" "host requires" || return $?
+  [ -z "$host" ] || __throwArgument "$usage" "host requires" || return $?
 
   local name=zesk
 
   statusMessage decorate info -n "Build container $(decorate code "$name:latest") ... "
   figlet "Build container" >>"$quietLog"
-  __usageEnvironment "$usage" docker build "$@" --build-arg "DATABASE_HOST=$host" -f ./docker/php.Dockerfile --tag "$name:latest" . >>"$quietLog" || buildFailed "$quietLog" || return $?
+  __catchEnvironment "$usage" docker build "$@" --build-arg "DATABASE_HOST=$host" -f ./docker/php.Dockerfile --tag "$name:latest" . >>"$quietLog" || buildFailed "$quietLog" || return $?
   statusMessage --last reportTiming "$start" "Zesk latest container built in"
 }
 _zeskContainerLatest() {
@@ -51,9 +51,9 @@ _zeskContainerLatest() {
 
 __zeskTools() {
   local usage="_${FUNCNAME[0]}"
-  __usageEnvironment "$usage" bashSourcePath "${BASH_SOURCE[0]%/*}/tools/" || return $?
+  __catchEnvironment "$usage" bashSourcePath "${BASH_SOURCE[0]%/*}/tools/" || return $?
   if [ $# -gt 0 ]; then
-    __usageEnvironment "$usage" "$@" || return $?
+    __catchEnvironment "$usage" "$@" || return $?
   fi
 }
 ___zeskTools() {

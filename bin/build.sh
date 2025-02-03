@@ -36,13 +36,13 @@ zeskPipelineSetup() {
   # Will be exported to the environment file
   local buildEnvironment=("${requireEnvironment[@]}")
 
-  startSetup=$(__usageEnvironment "$usage" beginTiming) || return $?
+  startSetup=$(__catchEnvironment "$usage" beginTiming) || return $?
 
-  quietLog=$(__usageEnvironment "$usage" buildQuietLog "${FUNCNAME[0]}") || return $?
+  quietLog=$(__catchEnvironment "$usage" buildQuietLog "${FUNCNAME[0]}") || return $?
 
   export "${requireEnvironment[@]}" "${buildEnvironment[@]}"
 
-  __usageEnvironment "$usage" buildEnvironmentLoad "${requireEnvironment[@]}" || return $?
+  __catchEnvironment "$usage" buildEnvironmentLoad "${requireEnvironment[@]}" || return $?
   usageRequireBinary "$usage" docker || return $?
 
   #
@@ -78,7 +78,7 @@ zeskPipelineSetup() {
       DATABASE_ROOT_PASSWORD=$(getFromPipelineYML "$variable" 2>/dev/null) || :
       [ -z "$DATABASE_ROOT_PASSWORD" ] || break
     done
-    [ -n "$DATABASE_ROOT_PASSWORD" ] || __failEnvironment "$usage" "No DATABASE_ROOT_PASSWORD defined in environment or bitbucket-pipelines.yml" || return $?
+    [ -n "$DATABASE_ROOT_PASSWORD" ] || __throwEnvironment "$usage" "No DATABASE_ROOT_PASSWORD defined in environment or bitbucket-pipelines.yml" || return $?
   fi
 
   usageRequireEnvironment "$usage" "${requireEnvironment[@]}" || return $?
@@ -90,18 +90,18 @@ zeskPipelineSetup() {
   # Install
   #
   local home
-  __usageEnvironment "$usage" packageInstall || return $?
-  __usageEnvironment "$usage" mariadbInstall || return $?
-  home=$(__usageEnvironment "$usage" buildHome) || return $?
+  __catchEnvironment "$usage" packageInstall || return $?
+  __catchEnvironment "$usage" mariadbInstall || return $?
+  home=$(__catchEnvironment "$usage" buildHome) || return $?
 
-  find "$home" -type f -name '*.sh' ! -path '*/vendor/*' ! -path '*/DEPRECATED/*' | __usageEnvironment "$usage" bashLintFiles || return $?
+  find "$home" -type f -name '*.sh' ! -path '*/vendor/*' ! -path '*/DEPRECATED/*' | __catchEnvironment "$usage" bashLintFiles || return $?
 
   statusMessage decorate info "Generating environment artifact ... " || :
 
-  __usageEnvironment "$usage" environmentFileApplicationMake "${buildEnvironment[@]}" -- GITHUB_ACCESS_TOKEN | __usageEnvironment "$usage" muzzle tee "$home/.env" || return $?
+  __catchEnvironment "$usage" environmentFileApplicationMake "${buildEnvironment[@]}" -- GITHUB_ACCESS_TOKEN | __catchEnvironment "$usage" muzzle tee "$home/.env" || return $?
   environmentFileShow || :
 
-  start=$(__usageEnvironment "$usage" beginTiming) || return $?
+  start=$(__catchEnvironment "$usage" beginTiming) || return $?
   databaseArguments=("-u" "root" "-p$DATABASE_ROOT_PASSWORD" "-h" "$DATABASE_HOST" "--port" "$DATABASE_PORT")
   statusMessage decorate info "Setting up database ... "
   {
@@ -119,8 +119,8 @@ zeskPipelineSetup() {
   # Load the test schema into our database
   #
   statusMessage decorate info "Loading schema ... "
-  start=$(__usageEnvironment "$usage" beginTiming) || return $?
-  __usageEnvironment "$usage" mariadb "${databaseArguments[@]}" <./docker/mariadb/schema.sql >>"$quietLog" || buildFailed "$quietLog" || return $?
+  start=$(__catchEnvironment "$usage" beginTiming) || return $?
+  __catchEnvironment "$usage" mariadb "${databaseArguments[@]}" <./docker/mariadb/schema.sql >>"$quietLog" || buildFailed "$quietLog" || return $?
   statusMessage reportTiming "$start" "Schema load completed in"
 
   #==========================================================================================
@@ -130,12 +130,12 @@ zeskPipelineSetup() {
   if test $clean; then
     if [ -d "./vendor" ]; then
       statusMessage decorate warning "Deleting ./vendor ..."
-      __usageEnvironment "$usage" rm -rf "./vendor" || return $?
+      __catchEnvironment "$usage" rm -rf "./vendor" || return $?
     fi
   fi
-  start=$(__usageEnvironment "$usage" beginTiming) || return $?
+  start=$(__catchEnvironment "$usage" beginTiming) || return $?
   statusMessage decorate info "Composer ... "
-  __usageEnvironment "$usage" phpComposer "$home" || return $?
+  __catchEnvironment "$usage" phpComposer "$home" || return $?
   statusMessage reportTiming "$start" "composer completed in"
 
   #==========================================================================================
@@ -146,24 +146,24 @@ zeskPipelineSetup() {
   if test "$clean"; then
     cleanArgs=("--no-cache" "--pull")
   fi
-  __usageEnvironment "$usage" zeskContainerLatest "$CONTAINER_DATABASE_HOST" "${cleanArgs[@]}" || return $?
+  __catchEnvironment "$usage" zeskContainerLatest "$CONTAINER_DATABASE_HOST" "${cleanArgs[@]}" || return $?
 
   #==========================================================================================
   #  ▀▛▘     ▐
   #   ▌▞▀▖▞▀▘▜▀
   #   ▌▛▀ ▝▀▖▐ ▖
   #   ▘▝▀▘▀▀  ▀
-  start=$(__usageEnvironment "$usage" beginTiming) || return $?
+  start=$(__catchEnvironment "$usage" beginTiming) || return $?
   clearLine
   statusMessage decorate info Testing ...
   for d in "test-results" ".zesk-coverage" "test-coverage" ".phpunit-cache"; do
     [ -d "$d" ] || mkdir -p "$d"
   done
-  __usageEnvironment "$usage" docker run -v "$(pwd)/:/zesk" zesk:latest /zesk/bin/test-zesk.sh "$@" || return $?
+  __catchEnvironment "$usage" docker run -v "$(pwd)/:/zesk" zesk:latest /zesk/bin/test-zesk.sh "$@" || return $?
   statusMessage reportTiming "$start" "zesk-test.sh completed in"
 
   statusMessage decorate info "Tagging ..."
-  __usageEnvironment "$usage" gitTagVersion "${versionArgs[@]}" || return $?
+  __catchEnvironment "$usage" gitTagVersion "${versionArgs[@]}" || return $?
   statusMessage reportTiming "$startSetup" "Setup complete."
   printf -- "\n"
 }

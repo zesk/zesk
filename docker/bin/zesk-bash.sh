@@ -59,7 +59,7 @@ zeskApplicationContext() {
   local usage="_${FUNCNAME[0]}"
   local conf=/etc/application.conf
 
-  __usageEnvironment "$usage" environmentFileLoad "$conf" || return $?
+  __catchEnvironment "$usage" environmentFileLoad "$conf" || return $?
 }
 _zeskApplicationContext() {
   # IDENTICAL usageDocument 1

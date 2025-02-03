@@ -48,3 +48,5 @@
 /vendor/
 /.php-cs-fixer.cache
 /.phpunit.result.cache
+/bin/developer.sh.approved
+/bin/developer-undo.sh.approved

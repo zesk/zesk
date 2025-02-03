@@ -13,7 +13,7 @@ fi
 
 maria() {
   local usage="_${FUNCNAME[0]}"
-  [ -n "${MARIADB_ROOT_PASSWORD-}" ] || __failEnvironment "$usage" "No MARIADB_ROOT_PASSWORD" || return $?
+  [ -n "${MARIADB_ROOT_PASSWORD-}" ] || __throwEnvironment "$usage" "No MARIADB_ROOT_PASSWORD" || return $?
   mysql -u root -p"$MARIADB_ROOT_PASSWORD" "$@"
 }
 _maria() {

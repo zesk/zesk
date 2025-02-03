@@ -53,17 +53,17 @@ __link() {
   path=$(usageArgumentDirectory "$usage" "path" "$path") || return $?
   linkName=$(usageArgumentString "$usage" "linkName" "$linkName") || return $?
   target=$(usageArgumentFileOrDirectory "$usage" "target" "$target") || return $?
-  target=$(__usageEnvironment "$usage" basename "$target") || return $?
+  target=$(__catchEnvironment "$usage" basename "$target") || return $?
 
-  [ -e "$path/$target" ] || __failEnvironment "$usage" "$path/$target must be a file or directory" || return $?
+  [ -e "$path/$target" ] || __throwEnvironment "$usage" "$path/$target must be a file or directory" || return $?
 
   local link="$here/$linkName" source="$path/$target"
   if [ ! -L "$link" ]; then
     if [ -f "$link" ]; then
-      __failEnvironment "$usage" "$(decorate file "$link") exists and was not a link $(decorate code "$(betterType "$link")")" || :
-      __usageEnvironment "$usage" mv "$link" "$link.$$.backup" || return $?
+      __throwEnvironment "$usage" "$(decorate file "$link") exists and was not a link $(decorate code "$(betterType "$link")")" || :
+      __catchEnvironment "$usage" mv "$link" "$link.$$.backup" || return $?
     fi
-    __usageEnvironment "$usage" ln -s "$linkName" "$source" || return $?
+    __catchEnvironment "$usage" ln -s "$linkName" "$source" || return $?
   fi
 }
 
@@ -76,10 +76,10 @@ __zesk() {
   # shellcheck source=/dev/null
   source "$tools" || _return 1 "Loading $tools" || return $?
 
-  __usageEnvironment "$usage" bashSourcePath "$here/tools/" || return $?
+  __catchEnvironment "$usage" bashSourcePath "$here/tools/" || return $?
 
   if [ "${me%.sh}" != "$me" ]; then
-    __usageEnvironment "$usage" linkCreate --no-backup "${BASH_SOURCE[0]}" zesk || return $?
+    __catchEnvironment "$usage" linkCreate --no-backup "${BASH_SOURCE[0]}" zesk || return $?
   fi
 
   local aa=() paths=() path debugFlag=false
@@ -123,20 +123,20 @@ __zesk() {
         ;;
     esac
     # IDENTICAL argument-esac-shift 1
-    shift || __failArgument "$usage" "missing argument #$argumentIndex: $argument (Arguments: $(_command "${usage#_}" "${saved[@]}"))" || return $?
+    shift || __throwArgument "$usage" "missing argument #$argumentIndex: $argument (Arguments: $(_command "${usage#_}" "${saved[@]}"))" || return $?
   done
 
-  whichExists php || __failArgument "$usage" "php is not installed in PATH $(decorate code "$PATH")" || return $?
+  whichExists php || __throwArgument "$usage" "php is not installed in PATH $(decorate code "$PATH")" || return $?
 
   local home tried=() previous
 
-  path="$(__usageEnvironment "$usage" pwd)" || return $?
-  home="$(__usageArgument "$usage" buildHome)" || return $?
+  path="$(__catchEnvironment "$usage" pwd)" || return $?
+  home="$(__catchArgument "$usage" buildHome)" || return $?
   paths+=("$path" "$home")
 
   set -- "${aa[@]+"${aa[@]}"}"
   for path in "${paths[@]}"; do
-    path=$(__usageEnvironment "$usage" realPath "$path") || return $?
+    path=$(__catchEnvironment "$usage" realPath "$path") || return $?
     if inArray "$path" "${tried[@]}"; then
       continue
     fi
@@ -152,13 +152,13 @@ __zesk() {
           ! $debugFlag || statusMessage decorate info "No binary $(decorate file "$binary")" || return $?
         done
         if [ ! -d "$path/vendor/bin" ]; then
-          __failEnvironment "$usage" "No vendor directory exists at $(decorate file "$path"), run: composer require zesk/zesk && composer install" || return $?
+          __throwEnvironment "$usage" "No vendor directory exists at $(decorate file "$path"), run: composer require zesk/zesk && composer install" || return $?
         fi
-        __failEnvironment "$usage" "No vendor zesk installed at $(decorate file "$path")" || return $?
+        __throwEnvironment "$usage" "No vendor zesk installed at $(decorate file "$path")" || return $?
       fi
       tried+=("$path")
       previous="$path"
-      path="$(__usageEnvironment "$usage" dirname "$previous")" || return $?
+      path="$(__catchEnvironment "$usage" dirname "$previous")" || return $?
     done
   done
 }
