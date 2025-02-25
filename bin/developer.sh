@@ -7,7 +7,6 @@
 # Zesk PHP Developer scripts
 
 # source this file to get additional tools within your Bash environment
-
 __zeskPHPAnnounce() {
   decorate info "Added aliases $(decorate each code z)"
   decorate info "Available functions $(decorate each code zeskPHPIdenticalRepair)"
@@ -30,7 +29,6 @@ __zeskPHPAliases() {
 
   # shellcheck disable=SC2139
   alias z="$home/bin/zesk.sh"
-  # shellcheck disable=SC2139
   alias IdenticalRepair="zeskPHPIdenticalRepair"
 }
 __zeskPHPAliasesUndo() {
