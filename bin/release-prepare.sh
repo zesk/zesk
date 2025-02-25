@@ -68,10 +68,10 @@ zeskPrepareRelease() {
 
   __catchEnvironment "$usage" dockerComposeInstall || return $?
 
-  __catchEnvironment "$usage" docker-compose -f "$yml" up -d >/dev/null
+  __catchEnvironment "$usage" docker-compose -f "$yml" up -d >/dev/null || return $?
 
   currentVersion=$(__catchEnvironment "$usage" hookVersionCurrent) || return $?
-  previousVersion=$(__catchEnvironment "$usage" gitVersionLast "$currentVersion")
+  previousVersion=$(__catchEnvironment "$usage" gitVersionLast "$currentVersion") || return $?
 
   #
   # Sync with remote

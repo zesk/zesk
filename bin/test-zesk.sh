@@ -83,7 +83,7 @@ zeskTest() {
 
   __catchEnvironment "$usage" requireDirectory "${needPaths[@]}" || return $?
 
-  __execute "$testBinary" "${args[@]}" "$@"
+  __execute "$testBinary" "${args[@]}" "$@" || return $?
 }
 _zeskTest() {
   usageDocument "${BASH_SOURCE[0]}" "${FUNCNAME[0]#_}" "$@"

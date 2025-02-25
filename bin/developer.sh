@@ -12,11 +12,13 @@ __zeskPHPAnnounce() {
 }
 
 zeskPHPIdenticalRepair() {
-  local home
+  local home name start
 
   home=$(__environment buildHome) || return $?
-
-  __environment "$home/bin/build/identical-repair.sh" --exclude '*/bin/build/tools/*' --exclude '*/bin/build/hooks/*'
+  start=$(__environment beginTiming) || return $?
+  __environment "$home/bin/build/identical-repair.sh" "$@" --exclude '*/bin/build/tools/*' --exclude '*/bin/build/hooks/*' --ignore-singles || return $?
+  name=$(buildEnvironmentGet APPLICATION_NAME)
+  hookRun notify "$(decorate bold-blue "$name") $(reportTiming "$start" "Identical repair completed in")"
 }
 
 __zeskPHPAliases() {
