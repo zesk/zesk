@@ -17,15 +17,17 @@
 #
 # Copyright &copy; 2025 Market Acumen, Inc.
 
-# IDENTICAL _return 24
+# IDENTICAL _return 26
+
 # Usage: {fn} [ exitCode [ message ... ] ]
-# Argument: exitCode - Optional. Integer. Exit code to return. Default is 1.
+# Argument: exitCode - Required. Integer. Exit code to return. Default is 1.
 # Argument: message ... - Optional. String. Message to output to stderr.
 # Exit Code: exitCode
+# Requires: isUnsignedInteger printf _return
 _return() {
-  local r="${1-:1}" && shift
+  local r="${1-:1}" && shift 2>/dev/null
   isUnsignedInteger "$r" || _return 2 "${FUNCNAME[1]-none}:${BASH_LINENO[1]-} -> ${FUNCNAME[0]} non-integer $r" "$@" || return $?
-  printf "[%d] ❌ %s\n" "$r" "${*-§}" 1>&2 || : && return "$r"
+  printf -- "[%d] ❌ %s\n" "$r" "${*-§}" 1>&2 || : && return "$r"
 }
 
 # Test if an argument is an unsigned integer
@@ -35,7 +37,7 @@ _return() {
 # Usage: {fn} argument ...
 # Exit Code: 0 - if it is an unsigned integer
 # Exit Code: 1 - if it is not an unsigned integer
-#
+# Requires: _return
 isUnsignedInteger() {
   [ $# -eq 1 ] || _return 2 "Single argument only: $*" || return $?
   case "${1#+}" in '' | *[!0-9]*) return 1 ;; esac
@@ -53,17 +55,17 @@ __link() {
   path=$(usageArgumentDirectory "$usage" "path" "$path") || return $?
   linkName=$(usageArgumentString "$usage" "linkName" "$linkName") || return $?
   target=$(usageArgumentFileOrDirectory "$usage" "target" "$target") || return $?
-  target=$(__usageEnvironment "$usage" basename "$target") || return $?
+  target=$(__catchEnvironment "$usage" basename "$target") || return $?
 
-  [ -e "$path/$target" ] || __failEnvironment "$usage" "$path/$target must be a file or directory" || return $?
+  [ -e "$path/$target" ] || __throwEnvironment "$usage" "$path/$target must be a file or directory" || return $?
 
   local link="$here/$linkName" source="$path/$target"
   if [ ! -L "$link" ]; then
     if [ -f "$link" ]; then
-      __failEnvironment "$usage" "$(decorate file "$link") exists and was not a link $(decorate code "$(betterType "$link")")" || :
-      __usageEnvironment "$usage" mv "$link" "$link.$$.backup" || return $?
+      __throwEnvironment "$usage" "$(decorate file "$link") exists and was not a link $(decorate code "$(betterType "$link")")" || :
+      __catchEnvironment "$usage" mv "$link" "$link.$$.backup" || return $?
     fi
-    __usageEnvironment "$usage" ln -s "$linkName" "$source" || return $?
+    __catchEnvironment "$usage" ln -s "$linkName" "$source" || return $?
   fi
 }
 
@@ -76,20 +78,20 @@ __zesk() {
   # shellcheck source=/dev/null
   source "$tools" || _return 1 "Loading $tools" || return $?
 
-  __usageEnvironment "$usage" bashSourcePath "$here/tools/" || return $?
+  __catchEnvironment "$usage" bashSourcePath "$here/tools/" || return $?
 
   if [ "${me%.sh}" != "$me" ]; then
-    __usageEnvironment "$usage" linkCreate --no-backup "${BASH_SOURCE[0]}" zesk || return $?
+    __catchEnvironment "$usage" linkCreate --no-backup "${BASH_SOURCE[0]}" zesk || return $?
   fi
 
   local aa=() paths=() path debugFlag=false
-  # IDENTICAL argument-case-header 5
-  local saved=("$@") nArguments=$#
+  # _IDENTICAL_ argument-case-header 5
+  local __saved=("$@") __count=$#
   while [ $# -gt 0 ]; do
-    local argument argumentIndex=$((nArguments - $# + 1))
-    argument="$(usageArgumentString "$usage" "argument #$argumentIndex (Arguments: $(_command "${usage#_}" "${saved[@]}"))" "$1")" || return $?
+    local argument="$1" __index=$((__count - $# + 1))
+    [ -n "$argument" ] || __throwArgument "$usage" "blank #$__index/$__count ($(decorate each quote "${__saved[@]}"))" || return $?
     case "$argument" in
-      # IDENTICAL --help 4
+      # _IDENTICAL_ --help 4
       --help)
         "$usage" 0
         return $?
@@ -122,21 +124,21 @@ __zesk() {
         aa+=("$argument")
         ;;
     esac
-    # IDENTICAL argument-esac-shift 1
-    shift || __failArgument "$usage" "missing argument #$argumentIndex: $argument (Arguments: $(_command "${usage#_}" "${saved[@]}"))" || return $?
+    # _IDENTICAL_ argument-esac-shift 1
+    shift
   done
 
-  whichExists php || __failArgument "$usage" "php is not installed in PATH $(decorate code "$PATH")" || return $?
+  whichExists php || __throwArgument "$usage" "php is not installed in PATH $(decorate code "$PATH")" || return $?
 
   local home tried=() previous
 
-  path="$(__usageEnvironment "$usage" pwd)" || return $?
-  home="$(__usageArgument "$usage" buildHome)" || return $?
+  path="$(__catchEnvironment "$usage" pwd)" || return $?
+  home="$(__catchArgument "$usage" buildHome)" || return $?
   paths+=("$path" "$home")
 
   set -- "${aa[@]+"${aa[@]}"}"
   for path in "${paths[@]}"; do
-    path=$(__usageEnvironment "$usage" realPath "$path") || return $?
+    path=$(__catchEnvironment "$usage" realPath "$path") || return $?
     if inArray "$path" "${tried[@]}"; then
       continue
     fi
@@ -152,18 +154,18 @@ __zesk() {
           ! $debugFlag || statusMessage decorate info "No binary $(decorate file "$binary")" || return $?
         done
         if [ ! -d "$path/vendor/bin" ]; then
-          __failEnvironment "$usage" "No vendor directory exists at $(decorate file "$path"), run: composer require zesk/zesk && composer install" || return $?
+          __throwEnvironment "$usage" "No vendor directory exists at $(decorate file "$path"), run: composer require zesk/zesk && composer install" || return $?
         fi
-        __failEnvironment "$usage" "No vendor zesk installed at $(decorate file "$path")" || return $?
+        __throwEnvironment "$usage" "No vendor zesk installed at $(decorate file "$path")" || return $?
       fi
       tried+=("$path")
       previous="$path"
-      path="$(__usageEnvironment "$usage" dirname "$previous")" || return $?
+      path="$(__catchEnvironment "$usage" dirname "$previous")" || return $?
     done
   done
 }
 ___zesk() {
-  # IDENTICAL usageDocument 1
+  # _IDENTICAL_ usageDocument 1
   usageDocument "${BASH_SOURCE[0]}" "${FUNCNAME[0]#_}" "$@"
 }
 

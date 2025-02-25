@@ -12,8 +12,8 @@ zeskContainerLatest() {
   local usage="_${FUNCNAME[0]}"
   local host quietLog start
 
-  quietLog=$(__usageEnvironment "$usage" buildQuietLog "$usage") || return $?
-  start=$(__usageEnvironment "$usage" beginTiming) || return $?
+  quietLog=$(__catchEnvironment "$usage" buildQuietLog "$usage") || return $?
+  start=$(__catchEnvironment "$usage" beginTiming) || return $?
 
   # IDENTICAL argument-case-header 5
   local saved=("$@") nArguments=$#
@@ -27,21 +27,21 @@ zeskContainerLatest() {
         return $?
         ;;
       *)
-        [ -z "$host" ] || __failArgument "$usage" "Host already specified" || return $?
+        [ -z "$host" ] || __throwArgument "$usage" "Host already specified" || return $?
         host="$argument"
         ;;
     esac
     # IDENTICAL argument-esac-shift 1
-    shift || __failArgument "$usage" "missing argument #$argumentIndex: $argument (Arguments: $(_command "${usage#_}" "${saved[@]}"))" || return $?
+    shift || __throwArgument "$usage" "missing argument #$argumentIndex: $argument (Arguments: $(_command "${usage#_}" "${saved[@]}"))" || return $?
   done
 
-  [ -z "$host" ] || __failArgument "$usage" "host requires" || return $?
+  [ -z "$host" ] || __throwArgument "$usage" "host requires" || return $?
 
   local name=zesk
 
   statusMessage decorate info -n "Build container $(decorate code "$name:latest") ... "
   figlet "Build container" >>"$quietLog"
-  __usageEnvironment "$usage" docker build "$@" --build-arg "DATABASE_HOST=$host" -f ./docker/php.Dockerfile --tag "$name:latest" . >>"$quietLog" || buildFailed "$quietLog" || return $?
+  __catchEnvironment "$usage" docker build "$@" --build-arg "DATABASE_HOST=$host" -f ./docker/php.Dockerfile --tag "$name:latest" . >>"$quietLog" || buildFailed "$quietLog" || return $?
   statusMessage --last reportTiming "$start" "Zesk latest container built in"
 }
 _zeskContainerLatest() {
@@ -51,9 +51,9 @@ _zeskContainerLatest() {
 
 __zeskTools() {
   local usage="_${FUNCNAME[0]}"
-  __usageEnvironment "$usage" bashSourcePath "${BASH_SOURCE[0]%/*}/tools/" || return $?
+  __catchEnvironment "$usage" bashSourcePath "${BASH_SOURCE[0]%/*}/tools/" || return $?
   if [ $# -gt 0 ]; then
-    __usageEnvironment "$usage" "$@" || return $?
+    __catchEnvironment "$usage" "$@" || return $?
   fi
 }
 ___zeskTools() {
@@ -61,14 +61,15 @@ ___zeskTools() {
   usageDocument "${BASH_SOURCE[0]}" "${FUNCNAME[0]#_}" "$@"
 }
 
-# IDENTICAL __install 24
+# IDENTICAL __install 25
+
 # Load build tools (installing if needed) and run command
-# Usage: {fn} [ relativeHome installer source [ command ... ] ]
 # Argument: installer - Required. File. Installation binary.
 # Argument: source - Required. File. Include file which should exist after installation.
 # Argument: relativeHome - Optional. Directory. Path to application home. Default is `..`.
 # Argument: command ... - Optional. Callable. A command to run and optional arguments.
 # Example:      __install bin/install-bin-build.sh bin/build/tools.sh ../../.. decorate info "$@"
+# Requires: _return __execute
 __install() {
   local installer="${1-}" source="${2-}" relativeHome="${3:-".."}" me="${BASH_SOURCE[0]}"
   local here="${me%/*}" e=253 arguments=()
@@ -87,26 +88,30 @@ __install() {
   __execute "${arguments[@]}" || return $?
 }
 
-# IDENTICAL __build 9
+# IDENTICAL __build 11
+
 # Load build tools (installing if needed) and run command
-# Usage: {fn} [ relativeHome installerPath [ command ... ] ]
 # Argument: installerPath - Optional. Directory. Path to `install-bin-build.sh` binary.
 # Argument: relativeHome - Required. Directory. Path to application home.
 # Argument: command ... - Optional. Callable. A command to run and optional arguments.
+# Requires: __install
+# Example:     __build ../../.. functionToCall "$@"
 __build() {
   local relative="${1:-".."}" installerPath="${2:-"bin"}" && shift && shift
   __install "$installerPath/install-bin-build.sh" "bin/build/tools.sh" "$relative" "$@" || return $?
 }
 
-# IDENTICAL _return 24
+# IDENTICAL _return 26
+
 # Usage: {fn} [ exitCode [ message ... ] ]
-# Argument: exitCode - Optional. Integer. Exit code to return. Default is 1.
+# Argument: exitCode - Required. Integer. Exit code to return. Default is 1.
 # Argument: message ... - Optional. String. Message to output to stderr.
 # Exit Code: exitCode
+# Requires: isUnsignedInteger printf _return
 _return() {
-  local r="${1-:1}" && shift
+  local r="${1-:1}" && shift 2>/dev/null
   isUnsignedInteger "$r" || _return 2 "${FUNCNAME[1]-none}:${BASH_LINENO[1]-} -> ${FUNCNAME[0]} non-integer $r" "$@" || return $?
-  printf "[%d] ❌ %s\n" "$r" "${*-§}" 1>&2 || : && return "$r"
+  printf -- "[%d] ❌ %s\n" "$r" "${*-§}" 1>&2 || : && return "$r"
 }
 
 # Test if an argument is an unsigned integer
@@ -116,7 +121,7 @@ _return() {
 # Usage: {fn} argument ...
 # Exit Code: 0 - if it is an unsigned integer
 # Exit Code: 1 - if it is not an unsigned integer
-#
+# Requires: _return
 isUnsignedInteger() {
   [ $# -eq 1 ] || _return 2 "Single argument only: $*" || return $?
   case "${1#+}" in '' | *[!0-9]*) return 1 ;; esac

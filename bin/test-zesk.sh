@@ -21,7 +21,7 @@ zeskTest() {
   local usage="_${FUNCNAME[0]}"
   local top
 
-  top=$(__usageEnvironment "$usage" "buildHome") || return $?
+  top=$(__catchEnvironment "$usage" "buildHome") || return $?
 
   export PATH
 
@@ -29,7 +29,7 @@ zeskTest() {
 
   local doCoverage=false doStop=false coverage_cache="./.zesk-coverage"
 
-  __usageEnvironment "$usage" pushd "$top" || return $?
+  __catchEnvironment "$usage" pushd "$top" || return $?
 
   # IDENTICAL argument-case-header 5
   local saved=("$@") nArguments=$#
@@ -53,7 +53,7 @@ zeskTest() {
         ;;
     esac
     # IDENTICAL argument-esac-shift 1
-    shift || __failArgument "$usage" "missing argument #$argumentIndex: $argument (Arguments: $(_command "${usage#_}" "${saved[@]}"))" || return $?
+    shift || __throwArgument "$usage" "missing argument #$argumentIndex: $argument (Arguments: $(_command "${usage#_}" "${saved[@]}"))" || return $?
   done
 
   local needPaths=() args=()
@@ -77,13 +77,13 @@ zeskTest() {
 
   args+=("--log-junit" "$testResultPath/junit.xml")
 
-  [ -x "$testBinary" ] || __failEnvironment "$usage" "$testBinary does not exist or is not executable" || return $?
+  [ -x "$testBinary" ] || __throwEnvironment "$usage" "$testBinary does not exist or is not executable" || return $?
 
   needPaths+=("$testResultPath")
 
-  __usageEnvironment "$usage" requireDirectory "${needPaths[@]}" || return $?
+  __catchEnvironment "$usage" requireDirectory "${needPaths[@]}" || return $?
 
-  __execute "$testBinary" "${args[@]}" "$@"
+  __execute "$testBinary" "${args[@]}" "$@" || return $?
 }
 _zeskTest() {
   usageDocument "${BASH_SOURCE[0]}" "${FUNCNAME[0]#_}" "$@"

@@ -31,24 +31,24 @@ __preCommit() {
         ;;
       *)
         # IDENTICAL argumentUnknown 1
-        __failArgument "$usage" "unknown argument #$argumentIndex: $argument (Arguments: $(_command "${saved[@]}"))" || return $?
+        __throwArgument "$usage" "unknown argument #$argumentIndex: $argument (Arguments: $(_command "${saved[@]}"))" || return $?
         ;;
     esac
     # IDENTICAL argument-esac-shift 1
-    shift || __failArgument "$usage" "missing argument #$argumentIndex: $argument (Arguments: $(_command "${usage#_}" "${saved[@]}"))" || return $?
+    shift || __throwArgument "$usage" "missing argument #$argumentIndex: $argument (Arguments: $(_command "${usage#_}" "${saved[@]}"))" || return $?
   done
 
   local home version mode
 
-  home=$(__usageEnvironment "$usage" buildHome) || return $?
+  home=$(__catchEnvironment "$usage" buildHome) || return $?
 
-  version=$(__usageEnvironment "$usage" docker run -q -v "$home:/zesk" -w /zesk php:8 /zesk/bin/zesk version) || return $?
+  version=$(__catchEnvironment "$usage" docker run -q -v "$home:/zesk" -w /zesk php:8 /zesk/bin/zesk version) || return $?
   statusMessage --last bigText "$(printf "%s v%s\n" "$(buildEnvironmentGet APPLICATION_NAME)" "$version")" | wrapLines "$(decorate bold-blue)" "$(decorate reset)"
 
   mode=$(_choose "$readOnly" 0440 0640)
-  __usageEnvironment "$usage" find "$home" -type f -name '*.php' ! -path '*/bin/*' ! -path '*/.*/*' ! -path '*/vendor/*' -exec chmod "$mode" {} \; || return $?
+  __catchEnvironment "$usage" find "$home" -type f -name '*.php' ! -path '*/bin/*' ! -path '*/.*/*' ! -path '*/vendor/*' -exec chmod "$mode" {} \; || return $?
   mode=$(_choose "$readOnly" 0770 0550)
-  __usageEnvironment "$usage" find "$home" -type f -name '*.php' -path '*/bin/*' ! -path '*/.*/*' ! -path '*/vendor/*' -exec chmod "$mode" {} \; || return $?
+  __catchEnvironment "$usage" find "$home" -type f -name '*.php' -path '*/bin/*' ! -path '*/.*/*' ! -path '*/vendor/*' -exec chmod "$mode" {} \; || return $?
   local extensions=(conf classes css csv data gif html inc ini json less md png py router rst sql svg tpl ttf txt xls xml yml)
 
   local extension aa=() ee=()
@@ -63,7 +63,7 @@ __preCommit() {
   unset "a[0]"
   aa=("${aa[@]}")
   mode=$(_choose "$readOnly" 0440 0640)
-  __usageEnvironment "$usage" find "$home" -type f -name "${aa[@]}" ! -path '*/.*/*' -exec chmod -v "$mode" {} \; || return $?
+  __catchEnvironment "$usage" find "$home" -type f -name "${aa[@]}" ! -path '*/.*/*' -exec chmod -v "$mode" {} \; || return $?
   statusMessage decorate info "Converted mode for $(decorate code "${ee[@]}")"
 }
 ___preCommit() {
