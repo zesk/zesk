@@ -14,7 +14,7 @@ zeskVersionCurrent() {
   local usage="_${FUNCNAME[0]}"
   local home
   home=$(__catchEnvironment "$usage" buildHome) || return $?
-  version=$(__catchEnvironment "$usage" docker run -v "$home:/zesk" -w /zesk php:8 /zesk/bin/zesk version) || return $?
+  version=$(__catchEnvironment "$usage" docker run -v "$home:/zesk" -w /zesk php:8 /zesk/bin/zesk.sh version) || return $?
   printf "v%s\n" "$version"
 }
 _zeskVersionCurrent() {
