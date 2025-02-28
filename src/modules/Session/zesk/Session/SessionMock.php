@@ -16,7 +16,8 @@ use zesk\Request;
 
 /**
  */
-class SessionMock extends Hookable implements SessionInterface {
+class SessionMock extends Hookable implements SessionInterface
+{
 	/**
 	 *
 	 * @var string

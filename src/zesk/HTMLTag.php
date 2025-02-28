@@ -17,7 +17,8 @@ namespace zesk;
  * @package zesk
  * @subpackage tools
  */
-class HTMLTag extends Options {
+class HTMLTag extends Options
+{
 	/**
 	 * Tag name
 	 * @var string
@@ -145,12 +146,12 @@ class HTMLTag extends Options {
 	public function toPHP()
 	{
 		return 'new ' . __CLASS__ . '(' . implode(', ', [
-				PHP::dump($this->name),
-				PHP::dump($this->options()),
-				PHP::dump($this->innerHTML),
-				PHP::dump($this->outerHTML),
-				$this->offset,
-			]) . ')';
+			PHP::dump($this->name),
+			PHP::dump($this->options()),
+			PHP::dump($this->innerHTML),
+			PHP::dump($this->outerHTML),
+			$this->offset,
+		]) . ')';
 	}
 
 	/**

@@ -14,7 +14,8 @@ use zesk\Exception\ParseException;
 /**
  * Generic test class
  */
-class VersionTest extends UnitTest {
+class VersionTest extends UnitTest
+{
 	/**
 	 * @return void
 	 * @throws ParseException

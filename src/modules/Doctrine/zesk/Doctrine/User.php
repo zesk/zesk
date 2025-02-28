@@ -35,7 +35,8 @@ use zesk\Types;
  * @author kent
  */
 #[Entity]
-class User extends Model implements Userlike {
+class User extends Model implements Userlike
+{
 	/**
 	 *
 	 */
@@ -146,6 +147,7 @@ class User extends Model implements Userlike {
 	public function fetchById(int|string|array $id): Userlike
 	{
 		$em = $this->application->entityManager();
+
 		try {
 			return $em->getRepository(self::class)->findOneBy(['id' => $id]);
 		} catch (Throwable $e) {
@@ -333,10 +335,10 @@ class User extends Model implements Userlike {
 				$result = false;
 				$skipLog = true;
 				$this->application->error("User::can({action},{context}) = {result} (Roles {roles}): Exception {throwableClass} {message}\n{backtrace}", [
-						'action'  => $action,
-						'context' => $context,
-						'result'  => false,
-					] + Exception::exceptionVariables($e));
+					'action'  => $action,
+					'context' => $context,
+					'result'  => false,
+				] + Exception::exceptionVariables($e));
 			}
 			if ($this->optionBool(self::OPTION_DEBUG_PERMISSION) && !$skipLog) {
 				$this->application->debug('User::can({action},{context}) = {result} (Roles {roles}) ({extra})', [
@@ -367,7 +369,7 @@ class User extends Model implements Userlike {
 			]);
 		}
 
-		return (bool)$result;
+		return (bool) $result;
 	}
 
 	/**
@@ -445,7 +447,7 @@ class User extends Model implements Userlike {
 					if ($this->can($a_permission, $a_context, $a_options)) {
 						$actions_passed[$href] = $attributes;
 					}
-				} else if ($this->can($permission, $context, $options)) {
+				} elseif ($this->can($permission, $context, $options)) {
 					$actions_passed[$href] = $attributes;
 				}
 			} else {

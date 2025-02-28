@@ -5,7 +5,8 @@ namespace zesk;
 
 use zesk\Exception\CommandFailed;
 
-class CLI_Test extends UnitTest {
+class CLI_Test extends UnitTest
+{
 	public static function data_CLI(): array
 	{
 		return [
