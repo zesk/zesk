@@ -10,6 +10,7 @@ declare(strict_types=1);
 
 namespace zesk\Doctrine;
 
+use Doctrine\ORM\EntityNotFoundException;
 use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Entity;
 use Throwable;
@@ -34,8 +35,7 @@ use zesk\Types;
  * @author kent
  */
 #[Entity]
-class User extends Model implements Userlike
-{
+class User extends Model implements Userlike {
 	/**
 	 *
 	 */
@@ -77,7 +77,13 @@ class User extends Model implements Userlike
 	public const OPTION_HOOK_AFTER_PERMISSION = 'hookAfterPermission';
 
 	public static array $allowedMethods = [
-		'md5', 'sha1', 'sha512', 'sha256', 'ripemd128', 'ripemd160', 'ripemd320',
+		'md5',
+		'sha1',
+		'sha512',
+		'sha256',
+		'ripemd128',
+		'ripemd160',
+		'ripemd320',
 	];
 
 	use AutoID;
@@ -129,9 +135,22 @@ class User extends Model implements Userlike
 	public function authenticationData(): array
 	{
 		return [
-			'email' => $this->email, 'nameFirst' => $this->nameFirst, 'nameLast' => $this->nameLast,
-			'lastLogin' => $this->lastLogin, 'validated' => $this->validated,
+			'email'     => $this->email,
+			'nameFirst' => $this->nameFirst,
+			'nameLast'  => $this->nameLast,
+			'lastLogin' => $this->lastLogin,
+			'validated' => $this->validated,
 		];
+	}
+
+	public function fetchById(int|string|array $id): Userlike
+	{
+		$em = $this->application->entityManager();
+		try {
+			return $em->getRepository(self::class)->findOneBy(['id' => $id]);
+		} catch (Throwable $e) {
+			throw new Exception\NotFoundException($e->getMessage());
+		}
 	}
 
 	/**
@@ -217,7 +236,10 @@ class User extends Model implements Userlike
 		$session = $this->application->requireSession($request);
 		$session->authenticate($this, $request);
 		$this->invokeHooks(self::HOOK_AUTHENTICATED, [
-			'user' => $this, 'request' => $request, 'response' => $response, 'session' => $session,
+			'user'     => $this,
+			'request'  => $request,
+			'response' => $response,
+			'session'  => $session,
 		]);
 		return $this;
 	}
@@ -245,7 +267,10 @@ class User extends Model implements Userlike
 	final public static function clean_permission($string): string
 	{
 		return strtolower(strtr($string, [
-			' ' => '_', '.' => '_', '-' => '_', '__' => '::',
+			' '  => '_',
+			'.'  => '_',
+			'-'  => '_',
+			'__' => '::',
 		]));
 	}
 
@@ -299,17 +324,25 @@ class User extends Model implements Userlike
 			$skipLog = false;
 
 			try {
-				$result = $this->invokeFilters(self::HOOK_CAN, $result, [$action, $context, $options]);
+				$result = $this->invokeFilters(self::HOOK_CAN, $result, [
+					$action,
+					$context,
+					$options,
+				]);
 			} catch (Throwable $e) {
 				$result = false;
 				$skipLog = true;
 				$this->application->error("User::can({action},{context}) = {result} (Roles {roles}): Exception {throwableClass} {message}\n{backtrace}", [
-					'action' => $action, 'context' => $context, 'result' => false,
-				] + Exception::exceptionVariables($e));
+						'action'  => $action,
+						'context' => $context,
+						'result'  => false,
+					] + Exception::exceptionVariables($e));
 			}
 			if ($this->optionBool(self::OPTION_DEBUG_PERMISSION) && !$skipLog) {
 				$this->application->debug('User::can({action},{context}) = {result} (Roles {roles}) ({extra})', [
-					'action' => $action, 'context' => $context, 'result' => $result,
+					'action'  => $action,
+					'context' => $context,
+					'result'  => $result,
 				]);
 			}
 			if ($is_or) {
@@ -327,11 +360,14 @@ class User extends Model implements Userlike
 		$hook = $options[self::OPTION_HOOK_AFTER_PERMISSION] ?? $this->option(self::OPTION_HOOK_AFTER_PERMISSION);
 		if ($hook !== null) {
 			$this->invokeHooks($result ? self::HOOK_PERMISSION_ALLOWED : self::HOOK_PERMISSION_DENIED, [
-				$this, $actions, $context, $options,
+				$this,
+				$actions,
+				$context,
+				$options,
 			]);
 		}
 
-		return (bool) $result;
+		return (bool)$result;
 	}
 
 	/**
@@ -397,13 +433,19 @@ class User extends Model implements Userlike
 				$permission = $attributes['permission'];
 				unset($attributes['permission']);
 				if (is_array($permission)) {
-					[$a_permission, $a_context, $a_options] = $permission + ([
-						null, null, [],
+					[
+						$a_permission,
+						$a_context,
+						$a_options,
+					] = $permission + ([
+						null,
+						null,
+						[],
 					]);
 					if ($this->can($a_permission, $a_context, $a_options)) {
 						$actions_passed[$href] = $attributes;
 					}
-				} elseif ($this->can($permission, $context, $options)) {
+				} else if ($this->can($permission, $context, $options)) {
 					$actions_passed[$href] = $attributes;
 				}
 			} else {

@@ -1,4 +1,4 @@
-FROM php:8.2git-cli
+FROM php:8.2-cli
 ENV PHP_INI_DIR=/usr/local/etc/php
 ENV BUILD_CODE=zesk
 ENV ETC_CONF=/usr/local/etc
@@ -14,7 +14,7 @@ RUN /root/sbin/docker-apt-clean.sh
 COPY bin/build/install-bin-build.sh /usr/local/bin/build/install-bin-build.sh
 RUN /usr/local/bin/build/install-bin-build.sh --force
 
-COPY docker/etc/env.sh /tmp/application.conf
+COPY docker/etc/application.conf /tmp/application.conf
 RUN echo "DATABASE_HOST=$DATABASE_HOST" >> /tmp/application.conf
 RUN /usr/local/bin/build/tools.sh anyEnvToBashEnv /tmp/application.conf | tee /etc/application.conf
 RUN rm /tmp/application.conf

@@ -14,11 +14,13 @@ use zesk\Exception\SyntaxException;
 /**
  * Generic test class
  */
-class TimeSpanTest extends UnitTest
-{
+class TimeSpanTest extends UnitTest {
 	public static function data_TimeSpan(): array
 	{
 		$days = Date::now()->setYear(Date::now()->year() + 1)->isLeapYear() ? 366 : 365;
+		$seconds = $days * 86400;
+		$minutes = $seconds / 60;
+		$hours = $minutes / 60;
 		return [
 			[
 				's:0 00 m:0 00 h:0 00 d:0 00 000',
@@ -66,7 +68,7 @@ class TimeSpanTest extends UnitTest
 				'366 days',
 			],
 			[
-				"s:31622400 00 m:527040 00 h:8784 00 d:$days $days $days",
+				"s:$seconds 00 m:$minutes 00 h:$hours 00 d:$days $days $days",
 				strval(Temporal::SECONDS_PER_DAY * $days),
 				'next year',
 			],

@@ -69,6 +69,16 @@ __link() {
   fi
 }
 
+# {fn}: zesk
+# Run commands in the PHP application context
+# --cd directory - Directory. Optional. Change to this directory before looking for our application. Changes the current directory.
+# --search directory - Directory. Optional. Search from this directory before looking for our application.
+# --debug - Flag. Optional. Output additional debugging information.
+# --set name=value - String. Optional. Set the global value `name` to `value`. Guesses the type unless quoted.
+# --unset name - String. Optional. Unset the global value `name`.
+# --define name=value - String. Optional. Define `name` as `value` prior to running anything else. Must not conflict.
+# --name=value - Set the global value `name` to `value`. Guesses the type unless quoted.
+# zeskCommand ... - The zesk command to run. Try `help` or `info`. Argument after the command are parsed by the command itself.
 __zesk() {
   local me="${BASH_SOURCE[0]}"
   local here="${me%/*}"
@@ -145,8 +155,10 @@ __zesk() {
     previous=""
     while [ "$path" != "$previous" ]; do
       ! $debugFlag || statusMessage decorate info "Searching $(decorate file "$path")" || return $?
-      if muzzle find "$path" -maxdepth 1 -type f -name '*.application.php'; then
-        for binary in "$path/bin/zesk-command.php" "$path/vendor/bin/zesk-command.php"; do
+      local appCount
+      appCount=$(find "$path" -maxdepth 1 -type f -name '*.application.php' 2>/dev/null | wc -l)
+      if [ "$appCount" -ge 1 ]; then
+        for binary in "${path%/}/bin/zesk-command.php" "${path%/}/vendor/bin/zesk-command.php"; do
           if [ -x "$binary" ]; then
             ! $debugFlag || statusMessage --last decorate success "Running $(decorate file "$binary")" "$@" || return $?
             exec php "$binary" "$@"
@@ -163,6 +175,7 @@ __zesk() {
       path="$(__catchEnvironment "$usage" dirname "$previous")" || return $?
     done
   done
+  __throwEnvironment "$usage" "No valid zesk application found" || return $?
 }
 ___zesk() {
   # _IDENTICAL_ usageDocument 1
