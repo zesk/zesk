@@ -5,7 +5,3 @@
 # Set up Zesk Build with any needed fixes
 #
 # Copyright &copy; 2025 Market Acumen, Inc.
-
-_format() {
-  debuggingStack >>"$BUILD_HOME/._format-called"
-}

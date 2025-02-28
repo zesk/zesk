@@ -3,8 +3,10 @@ declare(strict_types=1);
 /**
  *
  */
+
 namespace zesk\Interface;
 
+use zesk\Exception\NotFoundException;
 use zesk\Exception\PermissionDenied;
 use zesk\Model;
 
@@ -25,6 +27,12 @@ interface Userlike
 	 * @return int|string|array
 	 */
 	public function id(): int|string|array;
+
+	/**
+	 * Load the user
+	 * @throws NotFoundException
+	 */
+	public function fetchById(int|string|array $id): Userlike;
 
 	/**
 	 * @param string|array $actions

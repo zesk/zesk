@@ -1,6 +1,6 @@
 services:
   php:
-    env_file: docker/etc/env.sh
+    env_file: docker/etc/application.conf
     environment:
       BUILD_CODE: php
       DATABASE_HOST: mariadb
@@ -12,7 +12,7 @@ services:
     ports:
       - "4026:4026"
   mariadb:
-    env_file: docker/etc/env.sh
+    env_file: docker/etc/application.conf
     environment:
       BUILD_CODE: mariadb
       MARIADB_ROOT_PASSWORD: hard-to-guess

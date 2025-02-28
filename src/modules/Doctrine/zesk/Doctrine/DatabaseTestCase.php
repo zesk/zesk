@@ -7,6 +7,8 @@ declare(strict_types=1);
 namespace zesk\Doctrine;
 
 use Doctrine\Persistence\ObjectRepository;
+use zesk\Doctrine\Command\Doctrine;
+use zesk\Exception\ConfigurationException;
 use zesk\PHPUnit\TestCase;
 
 use Doctrine\ORM\EntityManager;
@@ -24,6 +26,22 @@ class DatabaseTestCase extends TestCase
 	{
 		$this->application->modules->load('Doctrine');
 		$this->application->setOption('userClass', User::class);
+
+		$password = $_SERVER['DATABASE_ROOT_PASSWORD'] ?? null;
+		if (!$password) {
+			throw new ConfigurationException('DATABASE_ROOT_PASSWORD', 'Database root password is required.');
+		}
+		$this->application->configuration->setPath([
+			Module::class,
+			'connections',
+			'default',
+		], [
+			'driver'   => 'mysqli',
+			'user'     => 'root',
+			'password' => $password,
+			'host'     => $_SERVER['DATABASE_HOST'] ?? 'localhost',
+			'name'     => 'test',
+		]);
 		$this->em = $this->application->entityManager();
 	}
 

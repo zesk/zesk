@@ -14,11 +14,11 @@ RUN /root/sbin/docker-apt-clean.sh
 
 # Copy SQL
 RUN mkdir -p $INITDBPATH
-COPY docker/etc/env.sh /tmp/env.sh
+COPY docker/etc/application.conf /tmp/application.conf
 COPY docker/mariadb/schema.sql /tmp/schema.sql
-RUN set -a && . /tmp/env.sh && /usr/local/bin/map.sh < /tmp/schema.sql > ${INITDBPATH}schema.sql
+RUN set -a && . /tmp/application.conf && /usr/local/bin/map.sh < /tmp/schema.sql > ${INITDBPATH}schema.sql
 RUN rm /tmp/schema.sql
-RUN rm /tmp/env.sh
+RUN rm /tmp/application.conf
 
 RUN echo -n mariadb > /etc/docker-role
 

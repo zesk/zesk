@@ -27,7 +27,7 @@ use Doctrine\ORM\Mapping\PrePersist;
 use Doctrine\ORM\Mapping\UniqueConstraint;
 
 use zesk\Application;
-use zesk\Cron\Attributes\CronClusterMinute;
+use zesk\Cron\Attributes\Cron;
 use zesk\Doctrine\Model;
 use zesk\Doctrine\Trait\AutoID;
 use zesk\Doctrine\User;
@@ -51,7 +51,10 @@ use function random_int;
  *
  */
 #[Entity]
-#[UniqueConstraint(name: 'tokenType', columns: ['token', 'type'])]
+#[UniqueConstraint(name: 'tokenType', columns: [
+	'token',
+	'type',
+])]
 class Session extends Model implements SessionInterface
 {
 	/**
@@ -228,7 +231,10 @@ class Session extends Model implements SessionInterface
 	 */
 	public function cookieExpire(): int
 	{
-		return Types::toInteger($this->optionPath(['cookie', 'expire'], 604800));
+		return Types::toInteger($this->optionPath([
+			'cookie',
+			'expire',
+		], 604800));
 	}
 
 	/**
@@ -330,7 +336,7 @@ class Session extends Model implements SessionInterface
 	 * @see self::expireSessions
 	 * @see \zesk\Cron\Module
 	 */
-	#[CronClusterMinute]
+	#[Cron]
 	public static function expireSessions(Application $application): void
 	{
 		$ex = Criteria::expr();
@@ -366,7 +372,10 @@ class Session extends Model implements SessionInterface
 	 */
 	private function cookieName(): string
 	{
-		return $this->optionPath(['cookie', 'name'], self::DEFAULT_COOKIE_NAME);
+		return $this->optionPath([
+			'cookie',
+			'name',
+		], self::DEFAULT_COOKIE_NAME);
 	}
 
 	/**
@@ -386,7 +395,10 @@ class Session extends Model implements SessionInterface
 	 */
 	public function fetchSession(string $token, string $type): self
 	{
-		$session = $this->em->getRepository(self::class)->findOneBy(['token' => $token, 'type' => $type]);
+		$session = $this->em->getRepository(self::class)->findOneBy([
+			'token' => $token,
+			'type'  => $type,
+		]);
 		if (!$session) {
 			throw new NotFoundException("No session with $token and $type");
 		}
@@ -401,7 +413,7 @@ class Session extends Model implements SessionInterface
 	public function initializeSession(Request $request): self
 	{
 		$methods = [
-			self::METHOD_COOKIE => $this->initializeCookieSession(...),
+			self::METHOD_COOKIE        => $this->initializeCookieSession(...),
 			self::METHOD_AUTHORIZATION => $this->initializeAuthorizationSession(...),
 		];
 		$method = $methods[$this->option(self::OPTION_METHOD)] ?? null;
@@ -409,7 +421,9 @@ class Session extends Model implements SessionInterface
 			return $method($request);
 		}
 		$this->application->warning('{class}::{option} is not set to one of {methods} - no session will load', [
-			'methods' => array_keys($methods), 'class' => self::class, 'option' => self::OPTION_METHOD,
+			'methods' => array_keys($methods),
+			'class'   => self::class,
+			'option'  => self::OPTION_METHOD,
 		]);
 		return $this;
 	}
@@ -528,13 +542,17 @@ class Session extends Model implements SessionInterface
 		$app = $user->application;
 		if ($expire_seconds < 0) {
 			$expire_seconds = Types::toInteger($app->configuration->getPath([
-				__CLASS__, 'one_time_expire_seconds',
+				__CLASS__,
+				'one_time_expire_seconds',
 			], 86400));
 		}
 		// Only one allowed at any time, I guess.
 		$em = $app->entityManager();
 		$delete = $em->createQuery('DELETE FROM ' . self::class . ' WHERE type=:type and user=:user');
-		$delete->setParameters(['type' => self::TYPE_ONE_TIME, 'user' => $user]);
+		$delete->setParameters([
+			'type' => self::TYPE_ONE_TIME,
+			'user' => $user,
+		]);
 		$delete->execute();
 
 		$session = new self($app);
@@ -560,7 +578,8 @@ class Session extends Model implements SessionInterface
 	{
 		$hash = trim($hash);
 		$criteria = [
-			'token' => $hash, 'type' => self::TYPE_ONE_TIME,
+			'token' => $hash,
+			'type'  => self::TYPE_ONE_TIME,
 		];
 		$oneTime = $application->entityManager()->getRepository(self::class)->findOneBy($criteria);
 		if ($oneTime instanceof self) {

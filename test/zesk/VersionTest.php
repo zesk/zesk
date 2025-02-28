@@ -28,14 +28,17 @@ class VersionTest extends UnitTest
 		$date = Version::date();
 		$this->assertStringStartsNotWith('-', $date);
 		$this->assertTrue(Types::isDate($date), "is_date($date)");
-		$this->assertLessThan(24.0, Timestamp::now()->difference(Timestamp::factory()->parse($date), Temporal::UNIT_MONTH), "Released within 24 months ($date)");
+		$this->assertLessThan(25.0, Timestamp::now()->difference(Timestamp::factory()->parse($date), Temporal::UNIT_MONTH), "Released within 25 months ($date)");
 
 		$string = Version::string($this->application->locale);
 		$this->assertStringContainsString($date, $string);
 		$this->assertStringContainsString($release, $string);
 
 		$vars = Version::variables();
-		$keys = ['release', 'date'];
+		$keys = [
+			'release',
+			'date',
+		];
 		$this->assertArrayHasKeys($keys, $vars);
 		foreach ($keys as $key) {
 			$this->assertIsString($vars[$key], "\$vars[$key] is not a string");

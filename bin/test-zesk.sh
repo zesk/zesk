@@ -6,11 +6,6 @@
 # Copyright &copy; 2025 Market Acumen, Inc.
 #
 
-set -eou pipefail
-
-# shellcheck source=/dev/null
-source "${BASH_SOURCE[0]%/*}/tools.sh" || exit 99
-
 # Run tests for zesk"
 # Usage: {fn} [ --coverage ] [ --stop ] testBinaryArguments ...
 # Argument: --coverage - Flag. Optional. Run coverage tests and output results to `./test-coverage`
@@ -20,6 +15,15 @@ source "${BASH_SOURCE[0]%/*}/tools.sh" || exit 99
 zeskTest() {
   local usage="_${FUNCNAME[0]}"
   local top
+
+  set -eou pipefail
+
+  local saved=("$@")
+
+  set --
+  # shellcheck source=/dev/null
+  source "${BASH_SOURCE[0]%/*}/tools.sh" || exit 99
+  set -- "${saved[@]+"${saved[@]}"}"
 
   top=$(__catchEnvironment "$usage" "buildHome") || return $?
 
@@ -31,13 +35,13 @@ zeskTest() {
 
   __catchEnvironment "$usage" pushd "$top" || return $?
 
-  # IDENTICAL argument-case-header 5
-  local saved=("$@") nArguments=$#
+  # _IDENTICAL_ argument-case-header 5
+  local __saved=("$@") __count=$#
   while [ $# -gt 0 ]; do
-    local argument argumentIndex=$((nArguments - $# + 1))
-    argument="$(usageArgumentString "$usage" "argument #$argumentIndex (Arguments: $(_command "${usage#_}" "${saved[@]}"))" "$1")" || return $?
+    local argument="$1" __index=$((__count - $# + 1))
+    [ -n "$argument" ] || __throwArgument "$usage" "blank #$__index/$__count ($(decorate each quote "${__saved[@]}"))" || return $?
     case "$argument" in
-      # IDENTICAL --help 4
+      # _IDENTICAL_ --help 4
       --help)
         "$usage" 0
         return $?
@@ -52,8 +56,8 @@ zeskTest() {
         break
         ;;
     esac
-    # IDENTICAL argument-esac-shift 1
-    shift || __throwArgument "$usage" "missing argument #$argumentIndex: $argument (Arguments: $(_command "${usage#_}" "${saved[@]}"))" || return $?
+    # _IDENTICAL_ argument-esac-shift 1
+    shift
   done
 
   local needPaths=() args=()

@@ -1,0 +1,11 @@
+{
+	"zesk\\Doctrine\\Module": {
+		"connections": {
+			"default": {
+				"driver": "mysql",
+				"name": "test",
+				"user": "root"
+			}
+		}
+	}
+}

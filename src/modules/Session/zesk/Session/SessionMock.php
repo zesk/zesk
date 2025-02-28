@@ -8,14 +8,11 @@ namespace zesk\Session;
 
 use Throwable;
 use zesk\Application;
-use zesk\Authentication;
+use zesk\Exception\AuthenticationException;
 use zesk\Hookable;
-use zesk\Userlike;
+use zesk\Interface\Userlike;
 use zesk\Interface\SessionInterface;
-use zesk\ORM\ORMBase;
-use zesk\ORM\User;
 use zesk\Request;
-use zesk\Response;
 
 /**
  */
@@ -72,9 +69,9 @@ class SessionMock extends Hookable implements SessionInterface
 		return $this->id;
 	}
 
-	public function has(int|string $name): bool
+	public function has(int|string $key): bool
 	{
-		return $this->__isset($name);
+		return $this->__isset($key);
 	}
 
 	public function __isset(int|string $key): bool
@@ -88,19 +85,16 @@ class SessionMock extends Hookable implements SessionInterface
 	 *
 	 * @see SettingsInterface::get()
 	 */
-	public function get(int|string|null $name = null, mixed $default = null): mixed
+	public function get(int|string|null $key = null, mixed $default = null): mixed
 	{
-		if ($name === null) {
+		if ($key === null) {
 			return $this->data;
 		}
-		return $this->data[$name] ?? $default;
+		return $this->data[$key] ?? $default;
 	}
 
 	/**
 	 *
-	 * {@inheritdoc}
-	 *
-	 * @see SettingsInterface::__get()
 	 */
 	public function __get(int|string $key): mixed
 	{
@@ -109,9 +103,6 @@ class SessionMock extends Hookable implements SessionInterface
 
 	/**
 	 *
-	 * {@inheritdoc}
-	 *
-	 * @see SettingsInterface::__set()
 	 */
 	public function __set(int|string $key, mixed $value): void
 	{
@@ -124,9 +115,9 @@ class SessionMock extends Hookable implements SessionInterface
 	 *
 	 * @see SettingsInterface::set()
 	 */
-	public function set(int|string $name, mixed $value = null): self
+	public function set(int|string $key, mixed $value = null): self
 	{
-		$this->__set($name, $value);
+		$this->__set($key, $value);
 		return $this;
 	}
 
@@ -136,7 +127,10 @@ class SessionMock extends Hookable implements SessionInterface
 	 */
 	private function global_session_userId(): string
 	{
-		return $this->application->configuration->getPath([__CLASS__, 'user_id_variable'], 'user');
+		return $this->application->configuration->getPath([
+			__CLASS__,
+			'userId_variable',
+		], 'user');
 	}
 
 	/**
@@ -158,19 +152,19 @@ class SessionMock extends Hookable implements SessionInterface
 	 */
 	public function user(): Userlike
 	{
-		$user_id = $this->userId();
-		if (empty($user_id)) {
-			throw new Authentication('No user ID');
+		$userId = $this->userId();
+		if (empty($userId)) {
+			throw new AuthenticationException('No user ID');
 		}
 
 		try {
-			$user = $this->application->ormFactory(User::class, $user_id)->fetch();
+			$user = $this->application->userFactory();
 			assert($user instanceof Userlike);
-			return $user;
+			return $user->fetch($userId);
 		} catch (Throwable $e) {
 			$this->__set($this->global_session_userId(), null);
 
-			throw new Authentication('User not found {user_id}', ['user_id' => $user_id], 0, $e);
+			throw new AuthenticationException('User not found {userId}', ['userId' => $userId], 0, $e);
 		}
 	}
 
@@ -180,16 +174,16 @@ class SessionMock extends Hookable implements SessionInterface
 	 *
 	 * @see SessionInterface::authenticate()
 	 */
-	public function authenticate(Userlike $user, Request $request, Response $response): void
+	public function authenticate(Userlike $user, Request $request): void
 	{
-		$this->__set($this->global_session_userId(), ORMBase::mixedToID($user));
+		$this->__set($this->global_session_userId(), $user->id());
 		$this->__set($this->global_session_userId() . '_IP', $request->remoteIP());
 	}
 
 	/**
 	 *
-	 * @see SessionInterface::isAuthenticated()
 	 * @return bool
+	 * @see SessionInterface::isAuthenticated()
 	 */
 	public function isAuthenticated(): bool
 	{

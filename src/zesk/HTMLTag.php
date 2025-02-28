@@ -143,11 +143,14 @@ class HTMLTag extends Options
 	 *
 	 * @return string
 	 */
-	public function _to_php()
+	public function toPHP()
 	{
 		return 'new ' . __CLASS__ . '(' . implode(', ', [
-			PHP::dump($this->name), PHP::dump($this->options()), PHP::dump($this->innerHTML),
-			PHP::dump($this->outerHTML), $this->offset,
+			PHP::dump($this->name),
+			PHP::dump($this->options()),
+			PHP::dump($this->innerHTML),
+			PHP::dump($this->outerHTML),
+			$this->offset,
 		]) . ')';
 	}
 

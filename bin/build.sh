@@ -83,6 +83,7 @@ zeskPipelineSetup() {
   #
   # Connect to the database and set up test schema
   #
+  export DATABASE_ROOT_PASSWORD DATABASE_HOST
   if [ -z "${DATABASE_ROOT_PASSWORD-}" ]; then
     local variable
     for variable in DATABASE_ROOT_PASSWORD MARIADB_ROOT_PASSWORD MYSQL_ROOT_PASSWORD; do
@@ -91,6 +92,7 @@ zeskPipelineSetup() {
     done
     [ -n "$DATABASE_ROOT_PASSWORD" ] || __throwEnvironment "$usage" "No DATABASE_ROOT_PASSWORD defined in environment or bitbucket-pipelines.yml" || return $?
   fi
+  [ -n "${DATABASE_HOST-}" ] || DATABASE_HOST="localhost"
 
   usageRequireEnvironment "$usage" "${requireEnvironment[@]}" || return $?
 
@@ -107,8 +109,13 @@ zeskPipelineSetup() {
 
   find "$home" -type f -name '*.sh' ! -path '*/vendor/*' ! -path '*/DEPRECATED/*' | __catchEnvironment "$usage" bashLintFiles || return $?
 
-  statusMessage decorate info "Generating environment artifact ... " || :
+  # Set up dependencies so hooks work (environmentFileApplicationMake calls hooks)
+  start=$(__catchEnvironment "$usage" beginTiming) || return $?
+  statusMessage decorate info "Composer ... "
+  __catchEnvironment "$usage" phpComposer "$home" || return $?
+  statusMessage reportTiming "$start" "composer completed in"
 
+  statusMessage decorate info "Generating environment artifact ... " || :
   __catchEnvironment "$usage" environmentFileApplicationMake "${buildEnvironment[@]}" -- GITHUB_ACCESS_TOKEN | __catchEnvironment "$usage" muzzle tee "$home/.env" || return $?
   environmentFileShow || :
 
@@ -144,11 +151,6 @@ zeskPipelineSetup() {
       __catchEnvironment "$usage" rm -rf "./vendor" || return $?
     fi
   fi
-  start=$(__catchEnvironment "$usage" beginTiming) || return $?
-  statusMessage decorate info "Composer ... "
-  __catchEnvironment "$usage" phpComposer "$home" || return $?
-  statusMessage reportTiming "$start" "composer completed in"
-
   #==========================================================================================
   #
   # Build the Zesk docker image
