@@ -13,7 +13,7 @@ zeskContainerLatest() {
   local host quietLog start
 
   quietLog=$(__catchEnvironment "$usage" buildQuietLog "$usage") || return $?
-  start=$(__catchEnvironment "$usage" beginTiming) || return $?
+  start=$(__catchEnvironment "$usage" timingStart) || return $?
 
   # _IDENTICAL_ argument-case-header 5
   local __saved=("$@") __count=$#
@@ -42,7 +42,7 @@ zeskContainerLatest() {
   statusMessage decorate info -n "Build container $(decorate code "$name:latest") ... "
   figlet "Build container" >>"$quietLog"
   __catchEnvironment "$usage" docker build "$@" --build-arg "DATABASE_HOST=$host" -f ./docker/php.Dockerfile --tag "$name:latest" . >>"$quietLog" || buildFailed "$quietLog" || return $?
-  statusMessage --last reportTiming "$start" "Zesk latest container built in"
+  statusMessage --last timingReport "$start" "Zesk latest container built in"
 }
 _zeskContainerLatest() {
   # IDENTICAL usageDocument 1

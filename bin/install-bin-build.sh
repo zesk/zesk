@@ -366,7 +366,7 @@ __installRemotePackage() {
 
 # Debug is enabled, show why
 # Requires: decorate
-# Debugging: dd1d7b110084e1d6903111b0d5e5b0975a010d0d
+# Debugging: 32d4d8d55438f3ee975344ed5322e9aedc762648
 __installRemotePackageDebug() {
   decorate orange "${1-} enabled" && set -x
 }
@@ -412,7 +412,7 @@ __installRemotePackageDirectoryLocal() {
     tempPath="$installPath.aboutToDelete.$$"
     __catchEnvironment "$usage" rm -rf "$tempPath" || return $?
     __catchEnvironment "$usage" mv -f "$installPath" "$tempPath" || return $?
-    __catchEnvironment "$usage" cp -r "$localPath" "$installPath" || _undo $? rf -f "$installPath" || _undo $? mv -f "$tempPath" "$installPath" || return $?
+    __catchEnvironment "$usage" cp -r "$localPath" "$installPath" || _undo $? rf -f "$installPath" -- mv -f "$tempPath" "$installPath" || return $?
     __catchEnvironment "$usage" rm -rf "$tempPath" || :
   else
     tempPath=$(__catchEnvironment "$usage" dirname "$installPath") || return $?
@@ -526,8 +526,9 @@ usageArgumentString() {
   printf "%s\n" "$1"
 }
 
-# IDENTICAL urlFetch 127
+# IDENTICAL urlFetch 128
 
+# Fetch URL content
 # DOC TEMPLATE: --help 1
 # Argument: --help - Optional. Flag. Display this help.
 # Argument: --header header - String. Optional. Send a header in the format 'Name: Value'
@@ -850,13 +851,13 @@ _isFunction() {
   usageDocument "${BASH_SOURCE[0]}" "${FUNCNAME[0]#_}" "$@"
 }
 
-# IDENTICAL decorate 180
+# IDENTICAL decorate 182
 
 # Sets the environment variable `BUILD_COLORS` if not set, uses `TERM` to calculate
 #
 # Usage: hasColors
 # Exit Code: 0 - Console or output supports colors
-# Exit Code; 1 - Colors are likely not supported by console
+# Exit Code: 1 - Colors are likely not supported by console
 # Environment: BUILD_COLORS - Optional. Boolean. Whether the build system will output ANSI colors.
 # Requires: isPositiveInteger tput
 hasColors() {
@@ -1007,8 +1008,10 @@ _caseStyles() {
   printf "%s %s %s\n" "$lp" "${dp:-$lp}" "$text"
 }
 
+# fn: decorate each
 # Usage: decorate each decoration argument1 argument2 ...
-# Runs the following command on each subsequent argument to allow for formatting with spaces
+# Runs the following command on each subsequent argument for formatting
+# Example:     decorate each code "$@"
 # Requires: decorate printf
 __decorateExtensionEach() {
   local code="$1" formatted=()
