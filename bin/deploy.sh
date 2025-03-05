@@ -51,7 +51,7 @@ __zeskChangeLog() {
   #  Generate our release notes for the online release
   #  Update the code in CHANGELOG.md which is effectively a concatenation of files
   #
-  start=$(__catchEnvironment "$usage" beginTiming) || return $?
+  start=$(__catchEnvironment "$usage" timingStart) || return $?
   remoteChangeLogName=".release-notes.md"
   remoteChangeLog="./$remoteChangeLogName"
   {
@@ -81,7 +81,7 @@ zeskDeploy() {
 
   home=$(__catchEnvironment "$usage" buildHome) || return $?
   releaseDate=$(__catchEnvironment "$usage" date) || return $?
-  releaseStart=$(__catchEnvironment "$usage" beginTiming) || return $?
+  releaseStart=$(__catchEnvironment "$usage" timingStart) || return $?
 
   __catchEnvironment "$usage" buildEnvironmentLoad "${ee[@]}" || return $?
   __catchEnvironment "$usage" environmentFileLoad --optional "$home/.local.env" --required "$home/.env" || return $?
@@ -96,9 +96,9 @@ zeskDeploy() {
   currentVersion=$(__catchEnvironment "$usage" runHook version-current) || return $?
 
   printf "%s" "$(decorate info "Generating release notes and CHANGELOG ...")"
-  start=$(__catchEnvironment "$usage" beginTiming) || return $?
+  start=$(__catchEnvironment "$usage" timingStart) || return $?
   remoteChangeLog=$(__zeskChangeLog "$usage" "$currentVersion") || return $?
-  printf "%s\n\n" "$(reportTiming "$start" OK)"
+  printf "%s\n\n" "$(timingReport "$start" OK)"
 
   #========================================================================
   #                _
@@ -117,9 +117,9 @@ zeskDeploy() {
 
   decorate info -n "Mark release in GitHub ... "
   usageRequireEnvironment "$usage" GITHUB_ACCESS_TOKEN GITHUB_REPOSITORY_OWNER GITHUB_REPOSITORY_NAME || return $?
-  start=$(__catchEnvironment "$usage" beginTiming) || return $?
+  start=$(__catchEnvironment "$usage" timingStart) || return $?
   githubRelease --token "$GITHUB_ACCESS_TOKEN" --owner "$GITHUB_REPOSITORY_OWNER" --name "$GITHUB_REPOSITORY_NAME" "$remoteChangeLog" "$currentVersion" || return $?
-  printf "%s\n\n" "$(reportTiming "$start" OK)"
+  printf "%s\n\n" "$(timingReport "$start" OK)"
 
   #========================================================================
   #
@@ -128,19 +128,19 @@ zeskDeploy() {
   decorate info "Pull github and push origin ... " && echo
   decorate decoration "$(echoBar)"
   decorate info "git pull --all" && echo
-  start=$(__catchEnvironment "$usage" beginTiming) || return $?
+  start=$(__catchEnvironment "$usage" timingStart) || return $?
   # TODO Remove this if they are AOK
   __echo git pull --all || decorate red "Failed: $?"
   printf -- "\n"
   decorate info "git push origin" && echo
   __echo git push origin || decorate red "Failed: $?"
   decorate decoration "$(echoBar)"
-  printf "%s\n\n" "$(reportTiming "$start" OK)"
+  printf "%s\n\n" "$(timingReport "$start" OK)"
   #
   #========================================================================
   #
   figlet "zesk $currentVersion OK"
-  reportTiming "$releaseStart" "Release complete."
+  timingReport "$releaseStart" "Release complete."
 
 }
 _zeskDeploy() {

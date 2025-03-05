@@ -36,7 +36,7 @@ zeskPipelineSetup() {
   # Will be exported to the environment file
   local buildEnvironment=("${requireEnvironment[@]}")
 
-  startSetup=$(__catchEnvironment "$usage" beginTiming) || return $?
+  startSetup=$(__catchEnvironment "$usage" timingStart) || return $?
 
   quietLog=$(__catchEnvironment "$usage" buildQuietLog "${FUNCNAME[0]}") || return $?
 
@@ -110,16 +110,16 @@ zeskPipelineSetup() {
   find "$home" -type f -name '*.sh' ! -path '*/vendor/*' ! -path '*/DEPRECATED/*' | __catchEnvironment "$usage" bashLintFiles || return $?
 
   # Set up dependencies so hooks work (environmentFileApplicationMake calls hooks)
-  start=$(__catchEnvironment "$usage" beginTiming) || return $?
+  start=$(__catchEnvironment "$usage" timingStart) || return $?
   statusMessage decorate info "Composer ... "
   __catchEnvironment "$usage" phpComposer "$home" || return $?
-  statusMessage reportTiming "$start" "composer completed in"
+  statusMessage timingReport "$start" "composer completed in"
 
   statusMessage decorate info "Generating environment artifact ... " || :
   __catchEnvironment "$usage" environmentFileApplicationMake "${buildEnvironment[@]}" -- GITHUB_ACCESS_TOKEN | __catchEnvironment "$usage" muzzle tee "$home/.env" || return $?
   environmentFileShow || :
 
-  start=$(__catchEnvironment "$usage" beginTiming) || return $?
+  start=$(__catchEnvironment "$usage" timingStart) || return $?
   databaseArguments=("-u" "root" "-p$DATABASE_ROOT_PASSWORD" "-h" "$DATABASE_HOST" "--port" "$DATABASE_PORT")
   statusMessage decorate info "Setting up database ... "
   {
@@ -130,16 +130,16 @@ zeskPipelineSetup() {
     echo "TODO TRY COMMAND:"
     echo docker run -t zesk:latest mariadb "${databaseArguments[@]}"
   } >>"$quietLog"
-  statusMessage reportTiming "$start" "Database setup completed in"
+  statusMessage timingReport "$start" "Database setup completed in"
 
   #==========================================================================================
   #
   # Load the test schema into our database
   #
   statusMessage decorate info "Loading schema ... "
-  start=$(__catchEnvironment "$usage" beginTiming) || return $?
+  start=$(__catchEnvironment "$usage" timingStart) || return $?
   __catchEnvironment "$usage" mariadb "${databaseArguments[@]}" <./docker/mariadb/schema.sql >>"$quietLog" || buildFailed "$quietLog" || return $?
-  statusMessage reportTiming "$start" "Schema load completed in"
+  statusMessage timingReport "$start" "Schema load completed in"
 
   #==========================================================================================
   #
@@ -166,18 +166,18 @@ zeskPipelineSetup() {
   #   ▌▞▀▖▞▀▘▜▀
   #   ▌▛▀ ▝▀▖▐ ▖
   #   ▘▝▀▘▀▀  ▀
-  start=$(__catchEnvironment "$usage" beginTiming) || return $?
+  start=$(__catchEnvironment "$usage" timingStart) || return $?
   clearLine
   statusMessage decorate info Testing ...
   for d in "test-results" ".zesk-coverage" "test-coverage" ".phpunit-cache"; do
     [ -d "$d" ] || mkdir -p "$d"
   done
   __catchEnvironment "$usage" docker run -v "$(pwd)/:/zesk" zesk:latest /zesk/bin/test-zesk.sh "$@" || return $?
-  statusMessage reportTiming "$start" "zesk-test.sh completed in"
+  statusMessage timingReport "$start" "zesk-test.sh completed in"
 
   statusMessage decorate info "Tagging ..."
   __catchEnvironment "$usage" gitTagVersion "${versionArgs[@]}" || return $?
-  statusMessage reportTiming "$startSetup" "Setup complete."
+  statusMessage timingReport "$startSetup" "Setup complete."
   printf -- "\n"
 }
 _zeskPipelineSetup() {
