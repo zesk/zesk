@@ -5,8 +5,8 @@ namespace zesk;
 
 use zesk\Controller\Share;
 use zesk\Exception\DirectoryNotFound;
-use zesk\Route\Controller as ControllerRoute;
 use zesk\PHPUnit\TestCase;
+use zesk\Route\Controller as ControllerRoute;
 
 class ShareControllerTest extends TestCase
 {

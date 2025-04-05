@@ -16,6 +16,7 @@ use zesk\Exception\RedirectTemporary;
 use zesk\Exception\SemanticsException;
 use zesk\Interface\SessionInterface;
 use zesk\Net_HTTP;
+use zesk\Preference\Type;
 use zesk\Response;
 use zesk\Types;
 
@@ -23,8 +24,7 @@ use zesk\Types;
  * @see Type
  * @author kent
  */
-class Redirect extends Type
-{
+class Redirect extends Type {
 	/**
 	 *
 	 * @return SessionInterface
@@ -45,7 +45,8 @@ class Redirect extends Type
 			$this->session()->redirect_message = null;
 		} catch (Throwable $e) {
 			$this->application->debug('{method} caused an exception {e}', [
-				'method' => __METHOD__, 'e' => $e,
+				'method' => __METHOD__,
+				'e'      => $e,
 			]);
 		}
 	}

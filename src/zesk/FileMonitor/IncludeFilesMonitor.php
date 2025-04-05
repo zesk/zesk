@@ -9,14 +9,15 @@ declare(strict_types=1);
 
 namespace zesk\FileMonitor;
 
+use zesk\CSV\Base;
+
 /**
  * Monitors current include files for changes
  *
  * @author kent
- * @see Base
+ * @see \zesk\Diff\Base
  */
-class IncludeFilesMonitor extends Base
-{
+class IncludeFilesMonitor extends Base {
 	/**
 	 * Retrieve the list of included files, currently.
 	 *

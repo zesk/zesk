@@ -1,0 +1,20 @@
+[
+	"zesk\\CSV\\Module",
+	"zesk\\Cron\\Module",
+	"zesk\\Diff\\Module",
+	"zesk\\Doctrine\\Module",
+	"zesk\\GitHub\\Module",
+	"zesk\\Mail\\Module",
+	"zesk\\Net\\Module",
+	"zesk\\PHPUnit\\Module",
+	"zesk\\Session\\Module",
+	"zesk\\World\\Module",
+	"zesk\\Daemon\\Module",
+	"zesk\\Git\\Module",
+	"zesk\\Job\\Module"
+	"zesk\\Locale\\Module",
+	"zesk\\Login\\Module",
+	"zesk\\Polyglot\\Module",
+	"zesk\\Preference\\Module",
+	"zesk\\Repository\\Module"
+]

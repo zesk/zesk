@@ -11,6 +11,7 @@ namespace zesk\Command;
 
 use zesk\Application;
 use zesk\ArrayTools;
+use zesk\GitHub\Command;
 use zesk\Kernel;
 use zesk\PHP;
 use zesk\Types;

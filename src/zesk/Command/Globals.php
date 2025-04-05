@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace zesk\Command;
 
 use zesk\ArrayTools;
+use zesk\GitHub\Command;
 use zesk\PHP;
 
 /**

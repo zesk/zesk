@@ -12,6 +12,7 @@ namespace zesk\Command;
 use DirectoryIterator;
 use SplFileInfo;
 use zesk\File;
+use zesk\GitHub\Command;
 
 /**
  *

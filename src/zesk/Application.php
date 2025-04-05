@@ -16,6 +16,7 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\LoggerTrait;
 use Psr\Log\NullLogger;
 use ReflectionException;
+use zesk\Cron\Module as CronModule;
 use Throwable;
 use zesk\Adapter\SettingsConfiguration;
 use zesk\Application\Classes;
@@ -24,7 +25,6 @@ use zesk\Application\Modules;
 use zesk\Application\Objects;
 use zesk\Application\Paths;
 use zesk\Configuration\Loader;
-use zesk\Cron\Module as CronModule;
 use zesk\Doctrine\Module as DoctrineModule;
 use zesk\Exception\AuthenticationException;
 use zesk\Exception\ClassNotFound;
@@ -34,7 +34,6 @@ use zesk\Exception\DirectoryNotFound;
 use zesk\Exception\DirectoryPermission;
 use zesk\Exception\FileNotFound;
 use zesk\Exception\FilePermission;
-use zesk\Exception\SystemException;
 use zesk\Exception\KeyNotFound;
 use zesk\Exception\NotFoundException;
 use zesk\Exception\ParameterException;
@@ -42,6 +41,7 @@ use zesk\Exception\ParseException;
 use zesk\Exception\Redirect;
 use zesk\Exception\SemanticsException;
 use zesk\Exception\SyntaxException;
+use zesk\Exception\SystemException;
 use zesk\Exception\UnsupportedException;
 use zesk\Interface\ModelFactory;
 use zesk\Interface\SessionInterface;
@@ -77,8 +77,7 @@ use function str_ends_with;
  * @method SessionInterface sessionFactory()
  * @method SessionModule sessionModule()
  */
-class Application extends Hookable implements ModelFactory, HookSource, LoggerInterface
-{
+class Application extends Hookable implements ModelFactory, HookSource, LoggerInterface {
 	use LoggerTrait;
 
 	public const HOOK_MAIN = __CLASS__ . '::main';
@@ -640,10 +639,10 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	{
 		$old = $this->deprecated;
 		$this->deprecated = [
-			self::DEPRECATED_BACKTRACE => self::DEPRECATED_BACKTRACE,
-			self::DEPRECATED_EXCEPTION => self::DEPRECATED_EXCEPTION,
-			self::DEPRECATED_LOG => self::DEPRECATED_LOG,
-		][$set] ?? self::DEPRECATED_IGNORE;
+								self::DEPRECATED_BACKTRACE => self::DEPRECATED_BACKTRACE,
+								self::DEPRECATED_EXCEPTION => self::DEPRECATED_EXCEPTION,
+								self::DEPRECATED_LOG       => self::DEPRECATED_LOG,
+							][$set] ?? self::DEPRECATED_IGNORE;
 		return $old;
 	}
 
@@ -665,14 +664,16 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 		switch ($this->deprecated) {
 			case self::DEPRECATED_EXCEPTION:
 				throw new Deprecated("{reason} Deprecated: {calling_function}\n{backtrace}", [
-					'reason' => $reason, 'calling_function' => Kernel::callingFunction(),
-					'backtrace' => Kernel::backtrace(4 + $depth),
-				] + $arguments);
+						'reason'           => $reason,
+						'calling_function' => Kernel::callingFunction(),
+						'backtrace'        => Kernel::backtrace(4 + $depth),
+					] + $arguments);
 			case self::DEPRECATED_LOG:
 				$this->logger->error("{reason} Deprecated: {calling_function}\n{backtrace}", [
-					'reason' => $reason ?: 'DEPRECATED', 'calling_function' => Kernel::callingFunction(),
-					'backtrace' => Kernel::backtrace(4 + $depth),
-				] + $arguments);
+						'reason'           => $reason ?: 'DEPRECATED',
+						'calling_function' => Kernel::callingFunction(),
+						'backtrace'        => Kernel::backtrace(4 + $depth),
+					] + $arguments);
 				break;
 			case self::DEPRECATED_BACKTRACE:
 				echo Kernel::backtrace();
@@ -686,7 +687,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 */
 	public function obsolete(): void
 	{
-		$this->logger->alert('Obsolete function called {function}', ['function' => Kernel::callingFunction(2), ]);
+		$this->logger->alert('Obsolete function called {function}', ['function' => Kernel::callingFunction(2),]);
 		if ($this->application->development()) {
 			echo Kernel::backtrace();
 			exit(1);
@@ -877,7 +878,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 			$this->addLocalePath($this->defaultLocalePath());
 		} catch (DirectoryNotFound $e) {
 			throw new DirectoryNotFound($e->path(), 'Default {function} paths broken {message}', [
-				'message' => $e->getMessage(), 'function' => $function,
+				'message'  => $e->getMessage(),
+				'function' => $function,
 			], $e->getCode(), $e);
 		}
 	}
@@ -1054,7 +1056,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 				$this->zeskCommandPath[] = $path;
 			} else {
 				$this->logger->debug('{method}: did not add "{path}" because it already exists', [
-					'method' => __METHOD__, 'path' => $path,
+					'method' => __METHOD__,
+					'path'   => $path,
 				]);
 			}
 		}
@@ -1302,7 +1305,9 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 		}
 		if ($object !== null) {
 			throw new SemanticsException('Singleton hook {hookName} returned type {objectType} expecting {expectedType}', [
-				'hookName' => $hookName, 'objectType' => $object::class, 'expectedType' => $desiredClass,
+				'hookName'     => $hookName,
+				'objectType'   => $object::class,
+				'expectedType' => $desiredClass,
 			]);
 		}
 		return $this->objects->singletonArguments($desiredClass, $arguments);
@@ -1412,7 +1417,10 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 		});
 
 		$this->paths->configure($this->options([
-			self::OPTION_COMMAND_PATH, self::OPTION_CACHE_PATH, self::OPTION_DATA_PATH, self::OPTION_HOME_PATH,
+			self::OPTION_COMMAND_PATH,
+			self::OPTION_CACHE_PATH,
+			self::OPTION_DATA_PATH,
+			self::OPTION_HOME_PATH,
 			self::OPTION_USER_HOME_PATH,
 		]));
 
@@ -1619,8 +1627,9 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 			return;
 		}
 		$ass_settings = [
-			self::ASSERT_ACTIVE => ASSERT_ACTIVE, self::ASSERT_WARNING => ASSERT_WARNING,
-			self::ASSERT_BAIL => ASSERT_BAIL,
+			self::ASSERT_ACTIVE  => ASSERT_ACTIVE,
+			self::ASSERT_WARNING => ASSERT_WARNING,
+			self::ASSERT_BAIL    => ASSERT_BAIL,
 		];
 		foreach ($ass_settings as $what) {
 			assert_options($what, 0);
@@ -1633,9 +1642,11 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 				$anyActive = 1;
 			} else {
 				throw new ConfigurationException([
-					__CLASS__, 'assert',
+					__CLASS__,
+					'assert',
 				], 'Invalid assert option: {code}, valid options: {settings}', [
-					'code' => $code, 'settings' => array_keys($ass_settings),
+					'code'     => $code,
+					'settings' => array_keys($ass_settings),
 				]);
 			}
 		}
@@ -1646,7 +1657,10 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 */
 	private function configuredHooks(): void
 	{
-		foreach ([Hooks::HOOK_DATABASE_CONFIGURE, Hooks::HOOK_CONFIGURED] as $hook) {
+		foreach ([
+					 Hooks::HOOK_DATABASE_CONFIGURE,
+					 Hooks::HOOK_CONFIGURED,
+				 ] as $hook) {
 			$this->invokeHooks($hook, [$this]);
 			$this->modules->addLoadHook($hook);
 		}
@@ -1805,7 +1819,10 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 */
 	final public function maintenance(): bool
 	{
-		return Types::toBool($this->optionPath(['maintenance', 'enabled'], false));
+		return Types::toBool($this->optionPath([
+			'maintenance',
+			'enabled',
+		], false));
 	}
 
 	/**
@@ -1821,20 +1838,28 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 			$result = $this->invokeFilters(self::FILTER_MAINTENANCE, ['maintenance' => $set], [$this]);
 			if (($result['maintenance'] ?? null) !== $set) {
 				throw new SemanticsException('Filters prevented {applicationClass}::setMaintenance({value})', [
-					'applicationClass' => get_class($this), Types::toText($set),
+					'applicationClass' => get_class($this),
+					Types::toText($set),
 				]);
 			}
 		} catch (Throwable $t) {
 			throw new SemanticsException('{applicationClass}::setMaintenance({value}) hook threw {exceptionClass} {message}', [
-				'applicationClass' => get_class($this), 'value' => $set ? 'true' : 'false',
-			] + Exception::phpExceptionVariables($t), 0, $t);
+					'applicationClass' => get_class($this),
+					'value'            => $set ? 'true' : 'false',
+				] + Exception::phpExceptionVariables($t), 0, $t);
 		}
 
 		if ($set) {
 			$this->_maintenanceEnabled($result);
-			$this->setOptionPath(['maintenance', 'enabled'], true);
+			$this->setOptionPath([
+				'maintenance',
+				'enabled',
+			], true);
 		} else {
-			$this->unsetOptionPath(['maintenance', 'enabled']);
+			$this->unsetOptionPath([
+				'maintenance',
+				'enabled',
+			]);
 			$this->_disableMaintenance($result);
 		}
 	}
@@ -1883,7 +1908,10 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 
 		try {
 			$request->initializeFromSettings([
-				'url' => $url, 'method' => HTTP::METHOD_GET, 'data' => '', 'variables' => URL::queryParseURL($path),
+				'url'       => $url,
+				'method'    => HTTP::METHOD_GET,
+				'data'      => '',
+				'variables' => URL::queryParseURL($path),
 			]);
 		} catch (FileNotFound) {
 			/* No files passed, not ever thrown */
@@ -1917,7 +1945,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 		try {
 			if ($inherit) {
 				$request->initializeFromRequest($inherit);
-			} elseif ($this->console()) {
+			} else if ($this->console()) {
 				$request->initializeFromSettings('http://console/');
 			} else {
 				$request->initializeFromGlobals();
@@ -1964,7 +1992,10 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 			'seconds' => sprintf('%.3f', microtime(true) - $this->initializationMicrotime),
 		]);
 		$this->themes->setVariables([
-			'locale' => $this->locale, 'application' => $this, 'router' => $router, 'request' => $request,
+			'locale'      => $this->locale,
+			'application' => $this,
+			'router'      => $router,
+			'request'     => $request,
 		]);
 
 		try {
@@ -2003,7 +2034,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 			$this->logger->debug('Matched route {class} Pattern: "{clean_pattern}" {options}', $route->variables());
 		}
 		$this->logger->debug('{uri} matched to {route}', [
-			'uri' => $request->uri(), 'route' => $route->getPattern(),
+			'uri'   => $request->uri(),
+			'route' => $route->getPattern(),
 		]);
 		return $route;
 	}
@@ -2055,14 +2087,19 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 
 		try {
 			$response->content = $this->themes->theme($this->classes->hierarchy($exception), [
-				'application' => $this, 'request' => $request, 'response' => $response, 'exception' => $exception,
-				'content' => $exception,
-			] + Exception::exceptionVariables($exception), [
+					'application' => $this,
+					'request'     => $request,
+					'response'    => $response,
+					'exception'   => $exception,
+					'content'     => $exception,
+				] + Exception::exceptionVariables($exception), [
 				'first' => true,
 			]);
 			if (!$exception instanceof Redirect) {
 				$this->invokeHooks(self::HOOK_EXCEPTION, [
-					'exception' => $exception, 'application' => $this, 'response' => $response,
+					'exception'   => $exception,
+					'application' => $this,
+					'response'    => $response,
 				]);
 			}
 		} catch (Redirect $e) {
@@ -2102,13 +2139,15 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 		}
 		if ($ending_depth !== $starting_depth) {
 			throw new SemanticsException('Request ending depth mismatch start {starting_depth} !== end {ending_depth}', [
-				'starting_depth' => $starting_depth, 'ending_depth' => $ending_depth,
+				'starting_depth' => $starting_depth,
+				'ending_depth'   => $ending_depth,
 			]);
 		}
 		$popped = ArrayTools::last($this->requestStack);
 		if ($popped !== $request) {
 			throw new SemanticsException('Request changed between push and pop? {original} => {popped}', [
-				'original' => $request->variables(), 'popped' => $popped->variables(),
+				'original' => $request->variables(),
+				'popped'   => $popped->variables(),
 			]);
 		}
 		array_pop($this->requestStack);
@@ -2153,8 +2192,9 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 			'{page-render-time}' => sprintf('%.3f', microtime(true) - $this->initializationMicrotime),
 		];
 		if (!$response || $response->isContentType([
-			'text/', 'javascript',
-		])) {
+				'text/',
+				'javascript',
+			])) {
 			if ($response->content !== null) {
 				$response->content = strtr($response->content, $final_map);
 			}
@@ -2185,7 +2225,10 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	public function setLocale(Locale $set): self
 	{
 		$this->locale = $set;
-		$this->invokeHooks(self::HOOK_LOCALE, [$this, $set]);
+		$this->invokeHooks(self::HOOK_LOCALE, [
+			$this,
+			$set,
+		]);
 		return $this;
 	}
 
@@ -2382,7 +2425,10 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 */
 	public function modelFactory(string $class, array $value = [], array $options = []): Model
 	{
-		$model = $this->objects->factoryArguments($class, [$this, $options]);
+		$model = $this->objects->factoryArguments($class, [
+			$this,
+			$options,
+		]);
 		assert($model instanceof Model);
 		return $model->initializeFromArray($value);
 	}
@@ -2543,14 +2589,18 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 		if (isset($this->callables[$name])) {
 			return call_user_func_array($this->callables[$name], $args);
 		}
-		foreach (['_module', 'Module'] as $suffix) {
+		foreach ([
+					 '_module',
+					 'Module',
+				 ] as $suffix) {
 			if (str_ends_with($name, $suffix)) {
 				return $this->modules->object(substr($name, 0, -strlen($suffix)));
 			}
 		}
 
 		throw new UnsupportedException("Application call {method} is not supported.\n\n\tCalled from: {calling}\n\nDo you ned to register the module which adds this functionality?\n\nAvailable: {available}", [
-			'method' => $name, 'calling' => Kernel::callingFunction(),
+			'method'    => $name,
+			'calling'   => Kernel::callingFunction(),
 			'available' => implode(', ', array_keys($this->callables)),
 		]);
 	}

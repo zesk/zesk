@@ -169,9 +169,11 @@ class KernelTest extends TestCase
 			//			[ZESK_ROOT . 'zesk/Kernel.php', Kernel::class, ['php'], []],
 			//			[ZESK_ROOT . 'zesk/Controller/Theme.php', ThemeController::class, ['php', 'sql'], []],
 			[
-				ZESK_ROOT . 'src/modules/Doctrine/zesk/Doctrine/User.php', 'zesk\\Doctrine\\User', ['php', 'sql'],
+				ZESK_ROOT . 'src/modules/Doctrine/zesk/Doctrine/User.php',
+				'zesk\\Doctrine\\User', ['php', 'sql'],
 				['Doctrine'],
-			], [null, 'zesk\\Doctrine\\User', ['other', 'none', ], ['Doctrine']],
+			], [null,
+				'zesk\\Doctrine\\User', ['other', 'none', ], ['Doctrine']],
 		];
 	}
 
