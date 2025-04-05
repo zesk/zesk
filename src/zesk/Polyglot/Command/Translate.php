@@ -21,7 +21,8 @@ use zesk\StringTools;
  * @author kent
  *
  */
-class Translate extends SimpleCommand {
+class Translate extends SimpleCommand
+{
 	/**
 	 *
 	 * @var integer

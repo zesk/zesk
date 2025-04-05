@@ -8,7 +8,8 @@ use zesk\Exception\KeyNotFound;
 use zesk\ORM\ORMNotFound;
 use zesk\ORM\ORMUnitTest;
 
-class Country_Test extends ORMUnitTest {
+class Country_Test extends ORMUnitTest
+{
 	protected array $load_modules = [
 		'World',
 	];

@@ -13,8 +13,7 @@ use zesk\Exception\Deprecated;
 use zesk\Exception\NotFoundException;
 use zesk\PHPUnit\TestCase;
 
-class SingletonSampler
-{
+class SingletonSampler {
 	public static string $serialNo = '';
 
 	public string $id;
@@ -30,8 +29,7 @@ class SingletonSampler
 	}
 }
 
-class KernelTest extends TestCase
-{
+class KernelTest extends TestCase {
 	/**
 	 * @var bool
 	 */
@@ -84,17 +82,22 @@ class KernelTest extends TestCase
 		$k1 = 'b';
 		$v = md5(microtime());
 		$this->application->configuration->setPath([
-			$k, 'b',
+			$k,
+			'b',
 		], $v);
 		$this->application->configuration->setPath([
-			$k, 'c',
+			$k,
+			'c',
 		], $v);
 		$this->application->configuration->setPath([
-			$k, 'd',
+			$k,
+			'd',
 		], $v);
 
 		$this->assertEquals([
-			'b' => $v, 'c' => $v, 'd' => $v,
+			'b' => $v,
+			'c' => $v,
+			'd' => $v,
 		], $this->application->configuration->getPath($k));
 	}
 
@@ -139,8 +142,9 @@ class KernelTest extends TestCase
 		$testDir = Directory::depend($this->test_sandbox('lower-prefix'));
 
 		$this->application->autoloader->addPath($testDir, [
-			Autoloader::OPTION_LOWER => true, Autoloader::OPTION_CLASS_PREFIX => 'zesk\\AutoloaderTest\\',
-			Autoloader::OPTION_EXTENSIONS => ['txt'],
+			Autoloader::OPTION_LOWER        => true,
+			Autoloader::OPTION_CLASS_PREFIX => 'zesk\\AutoloaderTest\\',
+			Autoloader::OPTION_EXTENSIONS   => ['txt'],
 		]);
 		File::put("$testDir/hooboy.txt", '<' . "?php\nnamespace zesk\\AutoloaderTest;\nclass HooBoy {}\n");
 		$this->assertTrue(class_exists('zesk\\AutoloaderTest\\HooBoy'));
@@ -170,10 +174,22 @@ class KernelTest extends TestCase
 			//			[ZESK_ROOT . 'zesk/Controller/Theme.php', ThemeController::class, ['php', 'sql'], []],
 			[
 				ZESK_ROOT . 'src/modules/Doctrine/zesk/Doctrine/User.php',
-				'zesk\\Doctrine\\User', ['php', 'sql'],
+				'zesk\\Doctrine\\User',
+				[
+					'php',
+					'sql',
+				],
 				['Doctrine'],
-			], [null,
-				'zesk\\Doctrine\\User', ['other', 'none', ], ['Doctrine']],
+			],
+			[
+				null,
+				'zesk\\Doctrine\\User',
+				[
+					'other',
+					'none',
+				],
+				['Doctrine'],
+			],
 		];
 	}
 
@@ -181,11 +197,16 @@ class KernelTest extends TestCase
 	{
 		return [
 			[
-				'', '',
-			], [
-				'  z e s k \\-O~b@j%e^c t!@#$%', '__z_e_s_k___O_b_j_e_c_t_____',
-			], [
-				'bunch,of-random-chars', 'bunch_of_random_chars',
+				'',
+				'',
+			],
+			[
+				'  z e s k \\-O~b@j%e^c t!@#$%',
+				'__z_e_s_k___O_b_j_e_c_t_____',
+			],
+			[
+				'bunch,of-random-chars',
+				'bunch_of_random_chars',
 			],
 		];
 	}
@@ -206,9 +227,12 @@ class KernelTest extends TestCase
 	{
 		return [
 			[
-				'', '',
-			], [
-				'  z e s k \\-O~b@j%e^c t!@#$%', '__z_e_s_k_\\_O_b_j_e_c_t_____',
+				'',
+				'',
+			],
+			[
+				'  z e s k \\-O~b@j%e^c t!@#$%',
+				'__z_e_s_k_\\_O_b_j_e_c_t_____',
 			],
 		];
 	}
@@ -292,12 +316,18 @@ class KernelTest extends TestCase
 
 	public function test_find_directory(): void
 	{
-		$this->assertEquals(['/etc/apt'], Directory::findAll(['/', '/etc'], 'apt'));
+		$this->assertEquals(['/etc/apt'], Directory::findAll([
+			'/',
+			'/etc',
+		], 'apt'));
 	}
 
 	public function test_find_file(): void
 	{
-		$this->assertEquals('/etc/group', File::findFirst(['/', '/etc'], 'group'));
+		$this->assertEquals('/etc/group', File::findFirst([
+			'/',
+			'/etc',
+		], 'group'));
 	}
 
 	public function test_get(): void
@@ -314,9 +344,48 @@ class KernelTest extends TestCase
 	public static function data_has(): array
 	{
 		return [
-			[true, Application::class], [true, [Application::class, 'deprecated']], [true, Kernel::class],
-			[true, [Application::class, Application::OPTION_HOME_PATH], ], [true, Options::class], [false, md5('HOME')],
-			[true, 'HOME'], [false, 'HoMe'], [false, '0192830128301283123'],
+			[
+				true,
+				Application::class,
+			],
+			[
+				true,
+				[
+					Application::class,
+					'deprecated',
+				],
+			],
+			[
+				true,
+				Kernel::class,
+			],
+			[
+				true,
+				[
+					Application::class,
+					Application::OPTION_HOME_PATH,
+				],
+			],
+			[
+				true,
+				Options::class,
+			],
+			[
+				false,
+				md5('HOME'),
+			],
+			[
+				true,
+				'HOME',
+			],
+			[
+				false,
+				'HoMe',
+			],
+			[
+				false,
+				'0192830128301283123',
+			],
 		];
 	}
 
@@ -341,8 +410,10 @@ class KernelTest extends TestCase
 		$this->application->loader->loadFile($file);
 
 		$globals = [
-			'TEST_VAR' => 'smooth move', 'VAR_2' => 'Ha ha! smooth move ex-lax', 'VAR_3' => 'smooth',
-			'VAR_4' => 'default value',
+			'TEST_VAR' => 'smooth move',
+			'VAR_2'    => 'Ha ha! smooth move ex-lax',
+			'VAR_3'    => 'smooth',
+			'VAR_4'    => 'default value',
 		];
 
 		foreach ($globals as $v => $result) {
@@ -354,11 +425,6 @@ class KernelTest extends TestCase
 	public function test_maintenance(): void
 	{
 		$this->application->maintenance();
-	}
-
-	public function test_module_path(): void
-	{
-		$this->application->addModulePath($this->test_sandbox());
 	}
 
 	public function test_set(): void
@@ -387,7 +453,26 @@ class KernelTest extends TestCase
 	public static function data_document_root_prefix(): array
 	{
 		return [
-			['/foobar', '/foobar'], ['foobar', 'foobar'], ['', ''], ['antidis', 'antidis/'], ['antidis', 'antidis////'],
+			[
+				'/foobar',
+				'/foobar',
+			],
+			[
+				'foobar',
+				'foobar',
+			],
+			[
+				'',
+				'',
+			],
+			[
+				'antidis',
+				'antidis/',
+			],
+			[
+				'antidis',
+				'antidis////',
+			],
 		];
 	}
 
@@ -432,28 +517,52 @@ class KernelTest extends TestCase
 
 		/* Coverage */
 		$configuration = $app->configuration;
-		$configuration->setPath([Logger::class, 'utc_time'], true);
-		foreach (['active', 'warning', 'bail'] as $assertSetting) {
-			$configuration->setPath([$app::class, Application::OPTION_ASSERT], $assertSetting);
+		$configuration->setPath([
+			Logger::class,
+			'utc_time',
+		], true);
+		foreach ([
+					 'active',
+					 'warning',
+					 'bail',
+				 ] as $assertSetting) {
+			$configuration->setPath([
+				$app::class,
+				Application::OPTION_ASSERT,
+			], $assertSetting);
 			$app->setConfiguration()->configure();
 		}
 		foreach ([
-			Application::DEPRECATED_BACKTRACE, Application::DEPRECATED_IGNORE, Application::DEPRECATED_LOG,
-		] as $deprecatedSetting) {
-			$configuration->setPath([$app::class, 'deprecated'], $deprecatedSetting);
+					 Application::DEPRECATED_BACKTRACE,
+					 Application::DEPRECATED_IGNORE,
+					 Application::DEPRECATED_LOG,
+				 ] as $deprecatedSetting) {
+			$configuration->setPath([
+				$app::class,
+				'deprecated',
+			], $deprecatedSetting);
 			$app->setConfiguration()->configure();
 		}
-		$configuration->setPath([$app::class, Application::OPTION_DEPRECATED], Application::DEPRECATED_LOG);
+		$configuration->setPath([
+			$app::class,
+			Application::OPTION_DEPRECATED,
+		], Application::DEPRECATED_LOG);
 		$app->setConfiguration()->configure();
 		// Should log (no Exception)
 		$app->deprecated('Adios');
 
 		// Back to normal
-		$configuration->setPath([$app::class, Application::OPTION_DEPRECATED], Application::DEPRECATED_EXCEPTION);
+		$configuration->setPath([
+			$app::class,
+			Application::OPTION_DEPRECATED,
+		], Application::DEPRECATED_EXCEPTION);
 		$app->setConfiguration()->configure();
 
 
-		$configuration->setPath([$app::class, Application::OPTION_ASSERT], 'badsetting');
+		$configuration->setPath([
+			$app::class,
+			Application::OPTION_ASSERT,
+		], 'badsetting');
 
 		$app->profileTimer(__METHOD__, microtime(true) - $start);
 	}
@@ -468,13 +577,22 @@ class KernelTest extends TestCase
 	{
 		$this->assertEquals(__FILE__ . ' ' . __CLASS__ . '->test_calling:' . __LINE__, Kernel::callingFunction(0));
 		$this->assertEquals([
-			'file' => __FILE__, 'type' => '->', 'function' => __FUNCTION__, 'args' => [],
-			'method' => __CLASS__ . '->' . __FUNCTION__, 'class' => __CLASS__, 'object' => $this,
-			'fileMethod' => __FILE__ . ' ' . __CLASS__ . '->' . __FUNCTION__, 'lineSuffix' => ':' . (__LINE__ + 4),
-			'methodLine' => __CLASS__ . '->' . __FUNCTION__ . ':' . (__LINE__ + 3),
+			'file'           => __FILE__,
+			'type'           => '->',
+			'function'       => __FUNCTION__,
+			'args'           => [],
+			'method'         => __CLASS__ . '->' . __FUNCTION__,
+			'class'          => __CLASS__,
+			'object'         => $this,
+			'fileMethod'     => __FILE__ . ' ' . __CLASS__ . '->' . __FUNCTION__,
+			'lineSuffix'     => ':' . (__LINE__ + 4),
+			'methodLine'     => __CLASS__ . '->' . __FUNCTION__ . ':' . (__LINE__ + 3),
 			'fileMethodLine' => __FILE__ . ' ' . __CLASS__ . '->' . __FUNCTION__ . ':' . (__LINE__ + 2),
-			'line' => __LINE__ + 1,
-		], ArrayTools::filterKeys(Kernel::caller(0), null, ['callingLine', 'callingFile']));
+			'line'           => __LINE__ + 1,
+		], ArrayTools::filterKeys(Kernel::caller(0), null, [
+			'callingLine',
+			'callingFile',
+		]));
 
 		for ($i = 0; $i < 4; $i++) {
 			$this->assertEquals(Kernel::callingFunction($i, true), Kernel::caller($i)['fileMethodLine']);
@@ -493,8 +611,7 @@ class KernelTest extends TestCase
  * @author kent
  *
  */
-class A extends Hookable
-{
+class A extends Hookable {
 }
 
 /**
@@ -502,8 +619,7 @@ class A extends Hookable
  * @author kent
  *
  */
-class B extends A
-{
+class B extends A {
 }
 
 /**
@@ -511,6 +627,5 @@ class B extends A
  * @author kent
  *
  */
-class C extends B
-{
+class C extends B {
 }

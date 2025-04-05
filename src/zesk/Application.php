@@ -870,8 +870,6 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 			$this->_initializeDocumentRoot();
 			$function = 'addZeskCommandPath';
 			$this->addZeskCommandPath($this->defaultZeskCommandPath());
-			$function = 'addModulePath';
-			$this->addModulePath($this->defaultModulesPath());
 			$function = 'addThemePath';
 			$this->addThemePath($this->defaultThemePath());
 			$function = 'addLocalePath';
@@ -1070,31 +1068,6 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	private function defaultZeskCommandPath(): string
 	{
 		return $this->paths->zesk('src/zesk/Command');
-	}
-
-	/**
-	 * Set the module search path
-	 *
-	 * @param string $add
-	 * @return $this
-	 * @throws DirectoryNotFound
-	 */
-	final public function addModulePath(string $add): self
-	{
-		if (!is_dir($add)) {
-			throw new DirectoryNotFound($add);
-		}
-		$this->modulePaths[] = $add;
-		return $this;
-	}
-
-	/**
-	 *
-	 * @return string
-	 */
-	private function defaultModulesPath(): string
-	{
-		return $this->paths->zesk('src/modules');
 	}
 
 	/**

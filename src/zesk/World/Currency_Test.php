@@ -5,7 +5,8 @@ namespace zesk\World;
 
 use zesk\ORM\ORMUnitTest;
 
-class Currency_Test extends ORMUnitTest {
+class Currency_Test extends ORMUnitTest
+{
 	protected array $load_modules = [
 		'World',
 	];
@@ -38,7 +39,7 @@ class Currency_Test extends ORMUnitTest {
 		return [
 			[
 				Currency::class,
-				[Currency::MEMBER_BANK_COUNTRY => fn() => self::sampleCountry()],
+				[Currency::MEMBER_BANK_COUNTRY => fn () => self::sampleCountry()],
 				[],
 			],
 		];

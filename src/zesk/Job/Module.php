@@ -29,7 +29,8 @@ use zesk\Router;
  *
  * @author kent
  */
-class Module extends BaseModule implements Routes {
+class Module extends BaseModule implements Routes
+{
 	/**
 	 * Call a method to wait for a job to be delivered instead of polling the database (default) every n seconds.
 	 */

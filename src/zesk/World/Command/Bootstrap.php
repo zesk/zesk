@@ -16,7 +16,8 @@ use zesk\World\Bootstrap\BootstrapProvince;
  * @author kent
  *
  */
-class Bootstrap extends SimpleCommand {
+class Bootstrap extends SimpleCommand
+{
 	protected array $shortcuts = ['world-bootstrap'];
 
 	protected array $option_types = [

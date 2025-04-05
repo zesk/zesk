@@ -14,7 +14,8 @@ use zesk\Repository\Base as Repository;
 /**
  * @author kent
  */
-class Latest extends SimpleCommand {
+class Latest extends SimpleCommand
+{
 	protected array $shortcuts = ['latest'];
 
 	protected array $load_modules = [

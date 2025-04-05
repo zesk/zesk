@@ -22,7 +22,8 @@ use zesk\Repository\CommandBase;
  * @see \src\Cron\Module
  * @author kent
  */
-class Repository extends CommandBase {
+class Repository extends CommandBase
+{
 	/**
 	 * @var string
 	 */

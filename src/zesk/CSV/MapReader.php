@@ -27,7 +27,8 @@ use zesk\Types;
  * @package zesk
  * @subpackage tools
  */
-class MapReader extends Reader {
+class MapReader extends Reader
+{
 	/**
 	 * A read map group allows you to read a subset of a row and map the column names into new names. This is useful when
 	 * mapping a CSV row into one or more zesk\ORM subclasses.
@@ -181,7 +182,7 @@ class MapReader extends Reader {
 						default:
 							throw new KeyNotFound("Unknown type map $type in CSV::_applyTypes");
 					}
-				} else if (is_array($type)) {
+				} elseif (is_array($type)) {
 					$v = $type[$v] ?? $defaultMap[$k] ?? null;
 					if ($v !== null) {
 						$row[$k] = $v;

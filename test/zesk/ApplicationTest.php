@@ -19,8 +19,7 @@ use zesk\Exception\ParseException;
 use zesk\Exception\SemanticsException;
 use zesk\Exception\UnsupportedException;
 
-class ACMETest
-{
+class ACMETest {
 	public string $name;
 
 	public function __construct(string $name)
@@ -35,8 +34,7 @@ class ACMETest
  * @see TestApplication
  * @see TestRequest
  */
-class ApplicationTest extends TestApplicationUnitTest
-{
+class ApplicationTest extends TestApplicationUnitTest {
 	public function initialize(): void
 	{
 	}
@@ -97,7 +95,6 @@ class ApplicationTest extends TestApplicationUnitTest
 	{
 		$notDir = $this->test_sandbox('not-a-directory');
 		$this->expectException(DirectoryNotFound::class);
-		$this->testApplication->addModulePath($notDir);
 	}
 
 	public function test_application_badLocalePath(): void
@@ -113,7 +110,10 @@ class ApplicationTest extends TestApplicationUnitTest
 		$start = $this->testApplication->zeskCommandPath();
 
 		try {
-			$this->testApplication->addZeskCommandPath([$this->test_sandbox(), $notDir]);
+			$this->testApplication->addZeskCommandPath([
+				$this->test_sandbox(),
+				$notDir,
+			]);
 			$this->fail('Should throw directory not found');
 		} catch (DirectoryNotFound) {
 			$result = $this->testApplication->zeskCommandPath();
@@ -205,10 +205,15 @@ class ApplicationTest extends TestApplicationUnitTest
 
 		/* autoloadPath */
 		$this->assertEquals([
-			'/zesk/src/modules/Diff/zesk/Diff/', '/zesk/src/modules/CSV/zesk/CSV/',
+			'/zesk/src/modules/Diff/zesk/Diff/',
+			'/zesk/src/modules/CSV/zesk/CSV/',
 		], array_keys($newApplication->autoloadPath()));
 
-		$newApplication->modules->loadMultiple(['PHPUnit', 'Doctrine', 'Repository']);
+		$newApplication->modules->loadMultiple([
+			'PHPUnit',
+			'Doctrine',
+			'Repository',
+		]);
 		$paths = [];
 		$paths[] = $newApplication->zeskHome('src/modules/Diff/zesk/Diff/');
 		$paths[] = $newApplication->zeskHome('src/modules/CSV/zesk/CSV/');
@@ -246,7 +251,10 @@ class ApplicationTest extends TestApplicationUnitTest
 		$newApplication->configureInclude([$myConfigConf], true);
 		$newApplication->configureInclude([$myConfigJSON], false);
 
-		$this->assertEquals([$myConfigConf, $myConfigJSON], $newApplication->includes());
+		$this->assertEquals([
+			$myConfigConf,
+			$myConfigJSON,
+		], $newApplication->includes());
 
 		$this->assertFalse($newApplication->isConfigured());
 
@@ -273,10 +281,14 @@ class ApplicationTest extends TestApplicationUnitTest
 		$this->requestRoundTrip($rootRequest, 'home', '10.0.0.71');
 
 		$dumpRoute = [
-			'content' => '{route}', 'map' => [
+			'content' => '{route}',
+			'map'     => [
 				'route',
-			], 'id' => 'dumpRoute', '_source' => '/zesk/test/classes/TestApplication.router', 'weight' => 0.007,
-			'class' => 'zesk\\Route\\Content',
+			],
+			'id'      => 'dumpRoute',
+			'_source' => '/zesk/test/classes/TestApplication.router',
+			'weight'  => 0.007,
+			'class'   => 'zesk\\Route\\Content',
 		];
 		$this->requestRoundTrip($rootRequest, 'dump/route', JSON::encodePretty($dumpRoute));
 
@@ -367,7 +379,10 @@ class ApplicationTest extends TestApplicationUnitTest
 		$this->assertInstanceOf(Application::class, $newApplication);
 		$newApplication->addThemePath($themePath);
 
-		$newApplication->configuration->setPath([Response::class, Response::OPTION_SKIP_HEADERS], true);
+		$newApplication->configuration->setPath([
+			Response::class,
+			Response::OPTION_SKIP_HEADERS,
+		], true);
 
 		$this->expectOutputString("<!DOCTYPE html>\n<html><head></head>\n<body>Hello, whirled\n</body>\n</html>");
 		$response = $newApplication->index();
@@ -431,7 +446,10 @@ class ApplicationTest extends TestApplicationUnitTest
 		$pid = $this->testApplication->process->id();
 		$className = 'TestCommand' . $pid;
 		$randomShortcut = $this->randomHex();
-		$shortcuts = ['test-command', $randomShortcut];
+		$shortcuts = [
+			'test-command',
+			$randomShortcut,
+		];
 		$testCommand = [];
 		$testCommand[] = '<?' . "php\n namespace zesk\Command;";
 		$testCommand[] = "class $className extends SimpleCommand {";

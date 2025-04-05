@@ -35,7 +35,8 @@ use zesk\Preference\Class\Class_Value;
  *
  * @author kent
  */
-class Value extends ORMBase {
+class Value extends ORMBase
+{
 	public const MEMBER_ID = 'id';
 
 	public const MEMBER_USER = 'user';
@@ -258,8 +259,8 @@ class Value extends ORMBase {
 
 			try {
 				return $app->ormRegistry(__CLASS__)->queryInsert()->setValues($where + [
-						self::MEMBER_VALUE => $serializedValue,
-					])->id();
+					self::MEMBER_VALUE => $serializedValue,
+				])->id();
 			} catch (Exception $e) {
 				throw new ORMDuplicate(__CLASS__, '{exceptionClass} {message}', $e->variables(), $e);
 			}

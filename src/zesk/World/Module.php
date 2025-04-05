@@ -20,7 +20,8 @@ use zesk\Module as BaseModule;
  * @author kent
  *
  */
-class Module extends BaseModule {
+class Module extends BaseModule
+{
 	/**
 	 * List of currencies to include (Currency)
 	 */

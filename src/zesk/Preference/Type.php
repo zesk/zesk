@@ -24,7 +24,8 @@ use zesk\Preference\Class\Class_Value;
  * @author kent
  *
  */
-class Type extends ORMBase {
+class Type extends ORMBase
+{
 	public const MEMBER_CODE = 'code';
 
 	/**

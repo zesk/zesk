@@ -17,7 +17,8 @@ use zesk\CSV\Base;
  * @author kent
  * @see \zesk\Diff\Base
  */
-class IncludeFilesMonitor extends Base {
+class IncludeFilesMonitor extends Base
+{
 	/**
 	 * Retrieve the list of included files, currently.
 	 *

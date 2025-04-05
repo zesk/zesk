@@ -17,7 +17,8 @@ use zesk\Polyglot\Token;
  * @author kent
  *
  */
-class Export extends SimpleCommand {
+class Export extends SimpleCommand
+{
 	protected array $shortcuts = ['polyglot-export'];
 
 	public array $option_types = [
@@ -70,11 +71,11 @@ class Export extends SimpleCommand {
 		}
 		$csv->close();
 		$this->log('Wrote {destination} {n_written} {rows}, excluded {n_excluded} {phrases}.', compact('destination') + [
-				'n_written'  => $n_written,
-				'rows'       => $this->application->locale->plural('row', $n_written),
-				'n_excluded' => $n_excluded,
-				'phrases'    => $this->application->locale->plural('phrase', $n_excluded),
-			]);
+			'n_written'  => $n_written,
+			'rows'       => $this->application->locale->plural('row', $n_written),
+			'n_excluded' => $n_excluded,
+			'phrases'    => $this->application->locale->plural('phrase', $n_excluded),
+		]);
 		return 0;
 	}
 

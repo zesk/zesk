@@ -5,7 +5,8 @@ namespace zesk\World;
 
 use zesk\ORM\ORMUnitTest;
 
-class World_Test extends ORMUnitTest {
+class World_Test extends ORMUnitTest
+{
 	protected array $load_modules = [
 		'World',
 	];

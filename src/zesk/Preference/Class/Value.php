@@ -13,7 +13,8 @@ namespace zesk\Preference\Class;
 use zesk\ORM\Class_Base;
 use zesk\ORM\User;
 
-class Class_Value extends Class_Base {
+class Class_Value extends Class_Base
+{
 	public string $code_name = 'Preference';
 
 	public string $id_column = 'id';

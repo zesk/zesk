@@ -20,7 +20,8 @@ use zesk\URL;
  * @author kent
  *
  */
-class Repository_Git_Test extends TestCase {
+class Repository_Git_Test extends TestCase
+{
 	protected array $load_modules = ['git'];
 
 	/**

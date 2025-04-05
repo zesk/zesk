@@ -24,7 +24,8 @@ use zesk\Types;
  * @see Type
  * @author kent
  */
-class Redirect extends Type {
+class Redirect extends Type
+{
 	/**
 	 *
 	 * @return SessionInterface

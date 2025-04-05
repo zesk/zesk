@@ -63,7 +63,8 @@ use zesk\Types;
  * @property array $data
  * @property string $status
  */
-class Job extends ORMBase implements SystemProcess, ProgressStack {
+class Job extends ORMBase implements SystemProcess, ProgressStack
+{
 	public const OPTION_RETRY_ATTEMPTS = 'retryAttempts';
 
 	/**
@@ -306,7 +307,7 @@ class Job extends ORMBase implements SystemProcess, ProgressStack {
 	{
 		if ($when === null) {
 			$when = Timestamp::now();
-		} else if (!$when instanceof Timestamp) {
+		} elseif (!$when instanceof Timestamp) {
 			$when = Timestamp::factory($when);
 		}
 		$this->start = $when;

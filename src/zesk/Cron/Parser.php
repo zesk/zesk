@@ -23,7 +23,8 @@ use zesk\Timestamp;
  * @author kent
  *
  */
-class Parser {
+class Parser
+{
 	/**
 	 *
 	 * @var boolean
@@ -107,27 +108,27 @@ class Parser {
 			$low,
 			$high,
 		] = [
-				[
-					0,
-					60,
-				],
-				[
-					0,
-					23,
-				],
-				[
-					1,
-					31,
-				],
-				[
-					1,
-					12,
-				],
-				[
-					0,
-					6,
-				],
-			][$index] ?? [
+			[
+				0,
+				60,
+			],
+			[
+				0,
+				23,
+			],
+			[
+				1,
+				31,
+			],
+			[
+				1,
+				12,
+			],
+			[
+				0,
+				6,
+			],
+		][$index] ?? [
 			null,
 			null,
 		];
@@ -229,7 +230,7 @@ class Parser {
 				if ($match[$cindex] === '0') {
 					if ($cron_value === '*') {
 						$match[$cindex] = '1';
-					} else if (($interval = $this->is_time_repeat($cron_value)) !== false) {
+					} elseif (($interval = $this->is_time_repeat($cron_value)) !== false) {
 						assert($unit !== 'weekday');
 						if ($divisor < 0) {
 							$next_value = $next->month() + ($next->year() * 12);
@@ -260,7 +261,7 @@ class Parser {
 								$match[$cindex] = '1';
 
 								break;
-							} else if ($cron_value > $next_value) {
+							} elseif ($cron_value > $next_value) {
 								$next->setUnit($unit, intval($cron_value));
 								foreach ($lower_units as $cindex_tmp => $lower_unit) {
 									$next->setUnit($lower_unit, ($lower_unit == 'day' || $lower_unit == 'month') ? 1 : 0);
@@ -403,7 +404,7 @@ class Parser {
 						if ($hh <= 12) {
 							if (str_starts_with($ampm, 'p')) {
 								$hh += 12;
-							} else if ($ampm === null) {
+							} elseif ($ampm === null) {
 								// 12-hour time
 								if ($hh < 6) {
 									$hh += 12;
@@ -421,31 +422,31 @@ class Parser {
 							$hh,
 							$mm,
 						] = [
-								'midnight' => [
-									0,
-									0,
-								],
-								'noon'     => [
-									12,
-									0,
-								],
-								'dusk'     => [
-									19,
-									0,
-								],
-								'dawn'     => [
-									7,
-									0,
-								],
-								'sunrise'  => [
-									7,
-									0,
-								],
-								'sunset'   => [
-									19,
-									0,
-								],
-							][$match[1]] ?? [
+							'midnight' => [
+								0,
+								0,
+							],
+							'noon'     => [
+								12,
+								0,
+							],
+							'dusk'     => [
+								19,
+								0,
+							],
+							'dawn'     => [
+								7,
+								0,
+							],
+							'sunrise'  => [
+								7,
+								0,
+							],
+							'sunset'   => [
+								19,
+								0,
+							],
+						][$match[1]] ?? [
 							null,
 							null,
 						];
@@ -678,7 +679,7 @@ class Parser {
 			foreach ($min as $m) {
 				if ($m == 0 && $h == 0) {
 					$times[] = $this->locale->__('midnight');
-				} else if ($m == 0 && $h == 12) {
+				} elseif ($m == 0 && $h == 12) {
 					$times[] = $this->locale->__('noon');
 				} else {
 					$t = new Time();
@@ -717,7 +718,7 @@ class Parser {
 		$plural_dow = false;
 		if (($time_language = $this->time_repeat_to_language($min, 'minute', $locale)) !== false) {
 			$time_every = true;
-		} else if (($time_language = $this->time_repeat_to_language($hour, 'hour', $locale)) !== false) {
+		} elseif (($time_language = $this->time_repeat_to_language($hour, 'hour', $locale)) !== false) {
 			$time_every = true;
 		}
 		if (($day_language = $this->time_repeat_to_language($day, 'day', $locale)) !== false) {

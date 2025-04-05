@@ -9,7 +9,8 @@ use ReflectionMethod;
 use zesk\HookableAttribute;
 
 #[Attribute(Attribute::TARGET_METHOD)]
-class Cron implements HookableAttribute {
+class Cron implements HookableAttribute
+{
 	/**
 	 * At scheduled time, run a process on every instance of the application. (Everywhere)
 	 */

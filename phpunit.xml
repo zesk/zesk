@@ -9,13 +9,13 @@
             <directory>test/zesk</directory>
         </testsuite>
         <testsuite name="CSV">
-            <directory>src/modules/CSV/test</directory>
+            <directory>src/zesk/CSV/test</directory>
         </testsuite>
         <testsuite name="Diff">
-            <directory>src/modules/Diff/test</directory>
+            <directory>src/zesk/Diff/test</directory>
         </testsuite>
         <testsuite name="Doctrine">
-            <directory>src/modules/Doctrine/test</directory>
+            <directory>src/zesk/Doctrine/test</directory>
         </testsuite>
     </testsuites>
     <php>

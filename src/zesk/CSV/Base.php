@@ -25,7 +25,8 @@ use zesk\StringTools;
  * @package zesk
  * @subpackage system
  */
-abstract class Base extends Options {
+abstract class Base extends Options
+{
 	/**
 	 * @var resource
 	 */

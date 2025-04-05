@@ -11,7 +11,8 @@ use zesk\ORM\User;
  * @author kent
  *
  */
-class Class_SessionORM extends Class_Base {
+class Class_SessionORM extends Class_Base
+{
 	/**
 	 * ID Column
 	 *

@@ -22,7 +22,8 @@ use zesk\World\Module;
  * @author kent
  *
  */
-class BootstrapCurrency extends Hookable {
+class BootstrapCurrency extends Hookable
+{
 	/**
 	 *
 	 * @var array

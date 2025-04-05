@@ -19,7 +19,8 @@ use zesk\Timestamp;
  * @category Management
  * @author kent
  */
-class Cron extends SimpleCommand {
+class Cron extends SimpleCommand
+{
 	protected array $shortcuts = ['cron'];
 
 	protected string $help = 'Run zesk cron hooks';

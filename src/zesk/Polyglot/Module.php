@@ -28,7 +28,8 @@ use zesk\World\Language;
  * @author kent
  *
  */
-class Module extends BaseModule implements Routes {
+class Module extends BaseModule implements Routes
+{
 	/**
 	 *
 	 * @var array
@@ -92,23 +93,23 @@ class Module extends BaseModule implements Routes {
 		];
 		$router->addRoute('polyglot', $base);
 		$router->addRoute('polyglot/load/{dialect}', $base + [
-				'action'    => 'load',
-				'arguments' => [
-					2,
-				],
-			]);
+			'action'    => 'load',
+			'arguments' => [
+				2,
+			],
+		]);
 		$router->addRoute('polyglot/token/{dialect}', $base + [
-				'action'    => 'token',
-				'arguments' => [
-					2,
-				],
-			]);
+			'action'    => 'token',
+			'arguments' => [
+				2,
+			],
+		]);
 		$router->addRoute('polyglot/update/{dialect}', $base + [
-				'action'    => 'update',
-				'arguments' => [
-					2,
-				],
-			]);
+			'action'    => 'update',
+			'arguments' => [
+				2,
+			],
+		]);
 	}
 
 	/**

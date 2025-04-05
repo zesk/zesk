@@ -38,7 +38,8 @@ use zesk\Timestamp;
  * @property string $status
  * @property Timestamp $updated
  */
-class Token extends ORMBase {
+class Token extends ORMBase
+{
 	/**
 	 *
 	 * @var Validate

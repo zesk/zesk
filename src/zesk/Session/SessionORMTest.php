@@ -19,7 +19,8 @@ use zesk\ORM\User;
  * @author kent
  *
  */
-class SessionORMTest extends ORMUnitTest {
+class SessionORMTest extends ORMUnitTest
+{
 	protected array $load_modules = [
 		'Session',
 	];

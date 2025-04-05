@@ -18,13 +18,6 @@ zeskTest() {
 
   set -eou pipefail
 
-  local saved=("$@")
-
-  set --
-  # shellcheck source=/dev/null
-  source "${BASH_SOURCE[0]%/*}/tools.sh" || exit 99
-  set -- "${saved[@]+"${saved[@]}"}"
-
   top=$(__catchEnvironment "$usage" "buildHome") || return $?
 
   export PATH

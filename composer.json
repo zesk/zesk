@@ -39,26 +39,15 @@
 	],
 	"autoload": {
 		"psr-0": {
-			"zesk\\": "./src"
+			"zesk\\": "./src/zesk"
 		}
 	},
 	"bin": [
 		"bin/zesk.sh",
 		"bin/zesk-command.php",
-		"bin/link-vendor-to-dev-zesk.sh",
-		"bin/file-trigger.sh",
-		"bin/php-find.sh"
+		"bin/zesk"
 	],
 	"type": "library",
 	"license": "MIT",
-	"homepage": "https://zesk.com",
-	"autoload-dev": {
-		"classmap": [
-			"src/modules/Doctrine/zesk/Doctrine/ModelTestCase.php",
-			"src/modules/Doctrine/zesk/Doctrine/DatabaseTestCase.php",
-			"src/modules/Doctrine/zesk/Doctrine/ControllerTestCase.php",
-			"src/modules/PHPUnit/zesk/PHPUnit/TestCase.php",
-			"src/modules/Repository/zesk/Repository/TestCase.php"
-		]
-	}
+	"homepage": "https://php.zesk.com"
 }

@@ -9,7 +9,8 @@ use zesk\Daemon\ConfigurationManager;
 use zesk\HookableAttribute;
 
 #[Attribute(flags: Attribute::TARGET_METHOD)]
-class DaemonMethod implements HookableAttribute {
+class DaemonMethod implements HookableAttribute
+{
 	/**
 	 * Daemon method
 	 *

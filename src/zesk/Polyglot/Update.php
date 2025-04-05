@@ -38,7 +38,8 @@ use zesk\Timestamp;
  * @property User $user
  * @property Timestamp $updated
  */
-class Update extends Model {
+class Update extends Model
+{
 	/**
 	 * @param Application $application
 	 * @param string $locale
