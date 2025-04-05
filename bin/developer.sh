@@ -31,10 +31,12 @@ __zeskPHPAliases() {
   alias z="$home/bin/zesk.sh"
   alias IdenticalRepair="zeskPHPIdenticalRepair"
 
-  # shellcheck disable=SC2139
-  alias zeskBash="__dockerPHPExec \"$home\" www-data bash"
-  # shellcheck disable=SC2139
-  alias suZeskBash='__dockerPHPExec \"$home\" root bash'
+  if whichExists docker; then
+    # shellcheck disable=SC2139
+    alias zeskBash="__dockerPHPExec \"$home\" www-data bash"
+    # shellcheck disable=SC2139
+    alias suZeskBash='__dockerPHPExec \"$home\" root bash'
+  fi
 }
 __zeskPHPAliasesUndo() {
   unalias z 2>/dev/null

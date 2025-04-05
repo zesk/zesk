@@ -1,18 +1,18 @@
 # Zesk PHP
 
-**Zesk PHP Application Framework**: One-button PHP Cloud, Big Data, and Secure Web Applications.
+**Zesk PHP Application Framework**: PHP Cloud, Big Data, and Secure Web Applications.
 
 **Zesk is a suite of tools which make writing web applications easy and fast.** Levering Doctrine's **Object Relational Mapping**  and Database interfaces, easy command line tool coding, and tons of tools to allow you to write web applications quickly.
 
 It also has a modular interface to all extension via modules, a powerful hook system to allow integration and notifications for events, and an object-oriented architecture to allow for fast development using subclasses.
 
-Strict PHP 8.1 support is planned for 2023 and migration to PHPUnit for all testing and coverage as well as docker testing built-in.
+Strict PHP 8 support is planned for 2025 and migration to PHPUnit for all testing and coverage as well as docker testing built-in.
 
 Visit [Zesk.com](https://zesk.com) for up-to-date information. For technical information, read the [docs](./docs/index.md).
 
 Now using **[Zesk Build](https://github.com/zesk/build)** for build, integration and deployment support.
 
-Copyright &copy; [Market Acumen, Inc.](https://marketacumen.com/?crsource=zesk-readme) 2022 All Rights Reserved
+Copyright &copy; [Market Acumen, Inc.](https://marketacumen.com/?crsource=zesk-readme) 2022-2025 All Rights Reserved
 
 See [the license to use Zesk](./LICENSE.md). (the MIT license)
 

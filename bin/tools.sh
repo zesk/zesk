@@ -45,7 +45,7 @@ zeskContainerLatest() {
   statusMessage --last timingReport "$start" "Zesk latest container built in"
 }
 _zeskContainerLatest() {
-  # IDENTICAL usageDocument 1
+  # _IDENTICAL_ usageDocument 1
   usageDocument "${BASH_SOURCE[0]}" "${FUNCNAME[0]#_}" "$@"
 }
 
@@ -57,7 +57,7 @@ __zeskTools() {
   fi
 }
 ___zeskTools() {
-  # IDENTICAL usageDocument 1
+  # _IDENTICAL_ usageDocument 1
   usageDocument "${BASH_SOURCE[0]}" "${FUNCNAME[0]#_}" "$@"
 }
 

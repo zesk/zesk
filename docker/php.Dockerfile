@@ -1,4 +1,4 @@
-FROM php:8.2-cli
+FROM php:8.3-cli
 ENV PHP_INI_DIR=/usr/local/etc/php
 ENV BUILD_CODE=zesk
 ENV ETC_CONF=/usr/local/etc

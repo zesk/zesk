@@ -16,12 +16,13 @@ __installBinBuildLatest() {
 }
 
 # Download remote JSON as a temporary file (delete it)
+# Requires: whichExists __throwEnvironment fileTemporaryName __installBinBuildLatest curl urlFetch printf
 __installBinBuildJSON() {
   local usage="$1" jsonFile message
 
   whichExists jq || __throwEnvironment "$usage" "Requires jq to install" || return $?
   jsonFile=$(fileTemporaryName "$usage") || return $?
-  if ! curl -s "$(__installBinBuildLatest)" >"$jsonFile" 2>&1; then
+  if ! urlFetch "$(__installBinBuildLatest)" "$jsonFile"; then
     message="$(printf -- "%s\n%s\n" "Unable to fetch latest JSON:" "$(cat "$jsonFile")")"
     rm -rf "$jsonFile" || :
     __throwEnvironment "$usage" "$message" || return $?
@@ -29,23 +30,15 @@ __installBinBuildJSON() {
   printf "%s\n" "$jsonFile"
 }
 
-__installJSONField() {
-  local usage="$1" selector="$2" jsonFile="$3" value message
-  if ! value=$(jq -r "$selector" <"$jsonFile"); then
-    message="$(printf -- "%s\n%s\n" "Unable to fetch selector from JSON:" "$(cat "$jsonFile")")"
-    rm -f "$jsonFile" || :
-    __throwEnvironment "$usage" "$message" || return $?
-  fi
-  printf -- "%s\n" "$value"
-}
-
+# Requires: jsonField printf
 __githubInstallationURL() {
   local usage="$1" jsonFile="$2"
-  url=$(__installJSONField "$usage" .tarball_url "$jsonFile") || return $?
+  url=$(jsonField "$usage" "$jsonFile" .tarball_url) || return $?
   printf -- "%s\n" "$url"
 }
 
 # Installs Zesk Build from GitHub
+# Requires: __installBinBuildJSON __githubInstallationURL rm __throwArgument printf
 __installBinBuildURL() {
   local usage="$1" jsonFile
 
@@ -63,6 +56,7 @@ __installBinBuildURL() {
 }
 
 # Checks Zesk Build version on GitHub
+# Requires: __installBinBuildJSON jsonField jq versionSort decorate __githubInstallationURL __throwArgument
 __installBinBuildVersion() {
   local usage="$1" installPath="$2" packagePath="$3" jsonFile version url upIcon="☝️" okIcon="👌"
 
@@ -71,8 +65,7 @@ __installBinBuildVersion() {
   jsonFile=$(__installBinBuildJSON "$usage") || return $?
 
   # Version comparison
-  version=$(__installJSONField "$usage" .tag_name "$jsonFile") || return $?
-  [ -n "$version" ] || __throwEnvironment "$usage" "Fetched version was blank" || return $?
+  version=$(jsonField "$usage" "$jsonFile" .tag_name) || return $?
   if [ -d "$packagePath" ] && [ -f "$packagePath/build.json" ]; then
     local latest
     myVersion=$(jq -r .version <"$packagePath/build.json")
@@ -94,8 +87,33 @@ __installBinBuildVersion() {
 }
 
 # Check the install directory after installation and output the version
+# Requires: __installCheck
 __installBinBuildCheck() {
   __installCheck "zesk/build" "build.json" "$@"
+}
+
+# _IDENTICAL_ jsonField 22
+
+# Fetch a non-blank field from a JSON file with error handling
+# Argument: handler - Function. Required. Error handler.
+# Argument: jsonFile - File. Required. A JSON file to parse
+# Argument: ... - Arguments. Optional. Passed directly to jq
+# stdout: selected field
+# stderr: error messages
+# Exit Code: 0 - Field was found and was non-blank
+# Exit Code: 1 - Field was not found or is blank
+# Requires: jq whichExists __throwEnvironment printf rm decorate head
+jsonField() {
+  local handler="$1" jsonFile="$2" value message && shift 2
+
+  [ -f "$jsonFile" ] || __throwEnvironment "$handler" "$jsonFile is not a file" || return $?
+  whichExists jq || __throwEnvironment "$handler" "Requires jq - not installed" || return $?
+  if ! value=$(jq -r "$@" <"$jsonFile"); then
+    message="$(printf -- "%s\n%s\n" "Unable to fetch selector $(decorate each code "$@") from JSON:" "$(head -n 100 "$jsonFile")")"
+    __throwEnvironment "$handler" "$message" || return $?
+  fi
+  [ -n "$value" ] || __throwEnvironment "$handler" "$(printf -- "%s\n%s\n" "Selector $(decorate each code "$@") was blank from JSON:" "$(head -n 100 "$jsonFile")")" || return $?
+  printf -- "%s\n" "$value"
 }
 
 # IDENTICAL __installCheck 18
@@ -139,7 +157,7 @@ __installPackageConfiguration() {
   _installRemotePackage "$rel" "bin/build" "install-bin-build.sh" --version-function __installBinBuildVersion --url-function __installBinBuildURL --check-function __installBinBuildCheck --name "Zesk Build" "$@"
 }
 
-# IDENTICAL _installRemotePackage 301
+# IDENTICAL _installRemotePackage 327
 
 # Installs {name} in a local project directory if not installed. Also
 # will overwrite {source} with the latest version after installation.
@@ -181,6 +199,7 @@ __installPackageConfiguration() {
 # Argument: --version-function urlFunction - Optional. Function. Function to compare live version to local version. Exits 0 if they match. Output version text if you want. INTERNAL.
 # Argument: --url-function urlFunction - Optional. Function. Function to return the URL to download. INTERNAL.
 # Argument: --check-function checkFunction - Optional. Function. Function to check the installation and output the version number or package name. INTERNAL.
+# Argument: --installer installer - Optional. Executable. Binary to run after installation succeeds.
 # Argument: --replace fie - Optional. Flag. Replace the target file with this script and delete this one. Internal only, do not use. INTERNAL.
 # Argument: --debug - Optional. Flag. Debugging is on. INTERNAL.
 # Argument: --force - Optional. Flag. Force installation even if file is up to date.
@@ -266,6 +285,10 @@ _installRemotePackage() {
         isFunction "${1-}" || __throwArgument "$usage" "$argument not callable: ${1-}" || return $?
         urlFunction="$1"
         ;;
+      --installer)
+        shift
+        installers+=("$(usageArgumentString "$usage" "$argument" "${1-}")") || return $?
+        ;;
       --check-function)
         shift
         [ -z "$checkFunction" ] || __throwArgument "$usage" "$argument already" || return $?
@@ -288,17 +311,6 @@ _installRemotePackage() {
   applicationHome=$(__catchEnvironment "$usage" realPath "$myPath/$relative") || return $?
   installPath="$applicationHome/$packagePath"
 
-  if ! $forceFlag && [ -n "$versionFunction" ]; then
-    local newVersion=""
-    if newVersion=$("$versionFunction" "$usage" "$applicationHome" "$installPath"); then
-      printf "%s %s %s\n" "$(decorate value "$name")" "$(decorate info "Newest version installed")" "$newVersion"
-      __installRemotePackageGitCheck "$applicationHome" "$packagePath" || :
-      return 0
-    fi
-    forceFlag=true
-    installReason="newer version available: $newVersion"
-  fi
-
   if [ -z "$url" ]; then
     if [ -n "$urlFunction" ]; then
       url=$(__catchEnvironment "$usage" "$urlFunction" "$usage") || return $?
@@ -317,7 +329,17 @@ _installRemotePackage() {
       printf "%s (%s)\n" "$(decorate orange "Forcing installation")" "$(decorate blue "$installReason")"
     fi
     installFlag=true
-  elif $forceFlag; then
+  elif ! $forceFlag && [ -n "$versionFunction" ]; then
+    local newVersion=""
+    if newVersion=$("$versionFunction" "$usage" "$applicationHome" "$installPath"); then
+      printf "%s %s %s\n" "$(decorate value "$name")" "$(decorate info "Newest version installed")" "$newVersion"
+      __installRemotePackageGitCheck "$applicationHome" "$packagePath" || :
+      return 0
+    fi
+    forceFlag=true
+    installReason="newer version available: $newVersion"
+  fi
+  if $forceFlag; then
     [ -n "$installReason" ] || installReason="directory exists"
     printf "%s (%s)\n" "$(decorate orange "Forcing installation")" "$(decorate bold-blue "$installReason")"
     installFlag=true
@@ -350,6 +372,13 @@ _installRemotePackage() {
   message="$message (local)$binName"
   printf -- "%s\n" "$message"
   __installRemotePackageLocal "$installPath/$packageInstallerName" "$myBinary" "$relative"
+
+  local installer
+  for installer in "${installers[@]+"${installers[@]}"}"; do
+    [ -f "$installer" ] || __throwEnvironment "$usage" "$installer is missing" || return $?
+    [ -x "$installer" ] || __throwEnvironment "$usage" "$installer is not executable" || return $?
+    __catchEnvironment "$usage" "$installer" || return $?
+  done
 }
 
 # Error handler for _installRemotePackage
@@ -764,16 +793,16 @@ realPath() {
 # IDENTICAL fileTemporaryName 19
 
 # Generate a temporary file name using mktemp, and fail using a function
-# Argument: usage - Function. Required. Function to call if mktemp fails
+# Argument: handler - Function. Required. Function to call if mktemp fails. Function Type: _return
 # DOC TEMPLATE: --help 1
 # Argument: --help - Optional. Flag. Display this help.
 # Argument: ... - Optional. Arguments. Any additional arguments are passed through to mktemp.
 # Requires: __help __catchEnvironment mktemp usageDocument
 fileTemporaryName() {
-  local usage="_${FUNCNAME[0]}"
-  __help "$usage" "$@" || return 0
-  usage="$1" && shift
-  __catchEnvironment "$usage" mktemp "$@" || return $?
+  local handler="_${FUNCNAME[0]}"
+  __help "$handler" "$@" || return 0
+  handler="$1" && shift
+  __catchEnvironment "$handler" mktemp "$@" || return $?
 }
 _fileTemporaryName() {
   # _IDENTICAL_ usageDocument 1
@@ -782,7 +811,7 @@ _fileTemporaryName() {
 
 # <-- END of IDENTICAL fileTemporaryName
 
-# IDENTICAL whichExists 19
+# IDENTICAL whichExists 20
 
 # Usage: {fn} binary ...
 # Argument: binary - Required. String. Binary to find in the system `PATH`.
@@ -794,13 +823,14 @@ whichExists() {
   local __saved=("$@") __count=$#
   [ $# -gt 0 ] || __throwArgument "$usage" "no arguments" || return $?
   while [ $# -gt 0 ]; do
-    [ -n "${1-}" ] || __throwArgument "$usage"  "blank argument #$((__count - $# + 1)) ($(decorate each code "${__saved[@]}"))" || return $?
+    [ -n "${1-}" ] || __throwArgument "$usage" "blank argument #$((__count - $# + 1)) ($(decorate each code "${__saved[@]}"))" || return $?
     which "$1" >/dev/null || return 1
     shift
   done
 }
 _whichExists() {
-  usageDocument "${BASH_SOURCE{0]}" "${FUNCNAME[0]#_}" "$@"
+  # _IDENTICAL_ usageDocument 1
+  usageDocument "${BASH_SOURCE[0]}" "${FUNCNAME[0]#_}" "$@"
 }
 
 # IDENTICAL _type 46
@@ -1180,12 +1210,12 @@ _undo() {
         args=()
         ;;
       *)
-
         args+=("$1")
         ;;
     esac
     shift
   done
+  [ "${#args[@]}" -eq 0 ] || __execute "${args[@]}" || :
   return "$exitCode"
 }
 __undo() {
