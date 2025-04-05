@@ -4,7 +4,7 @@ declare(strict_types=1);
  *
  */
 
-namespace zesk;
+namespace test\zesk;
 
 use stdClass;
 use zesk\Exception\SemanticsException;
@@ -14,13 +14,12 @@ use zesk\Exception\SemanticsException;
  * @author kent
  *
  */
-class HTML_Test extends UnitTest
-{
+class HTML_Test extends UnitTest {
 	public function test_style_clean(): void
 	{
 		$attr = [
 			'type' => 'text/javascript',
-			'src' => 'style.css',
+			'src'  => 'style.css',
 			'crap' => 'nope',
 		];
 		$allowed = null;
@@ -28,7 +27,7 @@ class HTML_Test extends UnitTest
 		$result = HTML::styleClean($attr, $allowed, $disallowed);
 		$this->assertEquals([
 			'type' => 'text/javascript',
-			'src' => 'style.css',
+			'src'  => 'style.css',
 		], $result);
 	}
 
@@ -50,7 +49,7 @@ class HTML_Test extends UnitTest
 		$this->assertEquals(['1' => true], HTML::parseAttributes('1'));
 
 		$this->assertEquals([
-			'article' => '12',
+			'article'  => '12',
 			'template' => 'volunteer-help',
 		], HTML::parseAttributes('template="volunteer-help" article="12"'));
 	}
@@ -160,14 +159,16 @@ class HTML_Test extends UnitTest
 	public static function dataprovider_request(): array
 	{
 		return [
-			[function () {
-				$app = self::app();
-				$request0 = $app->factory(Request::class, $app);
-				$request0->initializeFromSettings([
-					'url' => 'http://localhost/path/',
-				]);
-				return $request0;
-			}],
+			[
+				function () {
+					$app = self::app();
+					$request0 = $app->factory(Request::class, $app);
+					$request0->initializeFromSettings([
+						'url' => 'http://localhost/path/',
+					]);
+					return $request0;
+				},
+			],
 		];
 	}
 
@@ -220,7 +221,13 @@ class HTML_Test extends UnitTest
 			[
 				'<a href="/"><strong>Bold</strong><em>Italic</em><p>Paragraphs</p></a><h1>Heading</h1>Another Heading',
 				$simple_html,
-				['a', 'strong', 'p', 'h1', 'em'],
+				[
+					'a',
+					'strong',
+					'p',
+					'h1',
+					'em',
+				],
 				[],
 			],
 		];
@@ -238,7 +245,12 @@ class HTML_Test extends UnitTest
 	public static function dataCleanTagAttributes(): array
 	{
 		return [
-			['<a class="dude">Link</a>', [], ['class'], '<a>Link</a>'],
+			[
+				'<a class="dude">Link</a>',
+				[],
+				['class'],
+				'<a>Link</a>',
+			],
 		];
 	}
 
@@ -254,8 +266,16 @@ class HTML_Test extends UnitTest
 	public static function dataCleanTagsWithoutAttributes(): array
 	{
 		return [
-			['<a href=\'dude\'>Link</a>', ['a'], '<a href=\'dude\'>Link</a>'],
-			['<a href=\'dude\'>Link</a>Nolink', ['a'], '<a href=\'dude\'>Link</a><a>Nolink</a>'],
+			[
+				'<a href=\'dude\'>Link</a>',
+				['a'],
+				'<a href=\'dude\'>Link</a>',
+			],
+			[
+				'<a href=\'dude\'>Link</a>Nolink',
+				['a'],
+				'<a href=\'dude\'>Link</a><a>Nolink</a>',
+			],
 		];
 	}
 
@@ -376,7 +396,13 @@ class HTML_Test extends UnitTest
 	public static function data_extractEmails(): array
 	{
 		return [
-			[['info@example.com', 'nowhere@noone.com'], '<a href="mailto:info@example.com">nowhere@noone.com</a>'],
+			[
+				[
+					'info@example.com',
+					'nowhere@noone.com',
+				],
+				'<a href="mailto:info@example.com">nowhere@noone.com</a>',
+			],
 		];
 	}
 
@@ -397,8 +423,16 @@ class HTML_Test extends UnitTest
 	public static function data_extractTagContents(): array
 	{
 		return [
-			['Link', 'a', '<a href="">Link</a>'],
-			['Link', 'a', '<a href="">Link</a><a>Loop</a>'],
+			[
+				'Link',
+				'a',
+				'<a href="">Link</a>',
+			],
+			[
+				'Link',
+				'a',
+				'<a href="">Link</a><a>Loop</a>',
+			],
 		];
 	}
 
@@ -415,8 +449,16 @@ class HTML_Test extends UnitTest
 	{
 		$outer_html = '<a href="/">Link</a>';
 		return [
-			[new HTMLTag('a', ['href' => '/'], 'Link', $outer_html, 0), 'a', $outer_html],
-			[new HTMLTag('a', ['href' => '/'], 'Link', $outer_html, 0), 'a', $outer_html . '<a>Loop</a>'],
+			[
+				new HTMLTag('a', ['href' => '/'], 'Link', $outer_html, 0),
+				'a',
+				$outer_html,
+			],
+			[
+				new HTMLTag('a', ['href' => '/'], 'Link', $outer_html, 0),
+				'a',
+				$outer_html . '<a>Loop</a>',
+			],
 		];
 	}
 
@@ -485,10 +527,7 @@ class HTML_Test extends UnitTest
 		$name = 'inputname';
 		$value = 'random';
 		$attributes = ['data-test' => 'hello'];
-		$this->assertEquals(
-			'<input data-test="hello" name="inputname" value="random" type="submit" id="inputname" />',
-			HTML::input_submit($name, $value, $attributes)
-		);
+		$this->assertEquals('<input data-test="hello" name="inputname" value="random" type="submit" id="inputname" />', HTML::input_submit($name, $value, $attributes));
 	}
 
 	public function test_insert_inside_end(): void
@@ -501,10 +540,22 @@ class HTML_Test extends UnitTest
 	public static function data_isEndTag(): array
 	{
 		return [
-			['a', '</a>'],
-			['a', '</a   >'],
-			['a', '</    a   >'],
-			['waybetter', '</    waybetter   >'],
+			[
+				'a',
+				'</a>',
+			],
+			[
+				'a',
+				'</a   >',
+			],
+			[
+				'a',
+				'</    a   >',
+			],
+			[
+				'waybetter',
+				'</    waybetter   >',
+			],
 		];
 	}
 
@@ -521,7 +572,28 @@ class HTML_Test extends UnitTest
 	{
 		return [
 			[
-				[['<a>', 'a', ''], ['<b>', 'b', ''], ['<strong>', 'strong', ''], ['<li>', 'li', '']],
+				[
+					[
+						'<a>',
+						'a',
+						'',
+					],
+					[
+						'<b>',
+						'b',
+						'',
+					],
+					[
+						'<strong>',
+						'strong',
+						'',
+					],
+					[
+						'<li>',
+						'li',
+						'',
+					],
+				],
 				'<a><b></b><strong></strong><li>',
 			],
 		];
@@ -543,13 +615,34 @@ class HTML_Test extends UnitTest
 		$tag = new HTMLTag('tag');
 		$tag->setInnerHTML('Yoyoyo');
 		return [
-			['', null],
-			['', 5123],
-			['', 99.2],
-			['', new stdClass()],
-			['string', 'string'],
-			['Yoyoyo', $tag],
-			['Yoyoyo', ['ho' => $tag]],
+			[
+				'',
+				null,
+			],
+			[
+				'',
+				5123,
+			],
+			[
+				'',
+				99.2,
+			],
+			[
+				'',
+				new stdClass(),
+			],
+			[
+				'string',
+				'string',
+			],
+			[
+				'Yoyoyo',
+				$tag,
+			],
+			[
+				'Yoyoyo',
+				['ho' => $tag],
+			],
 		];
 	}
 
@@ -568,15 +661,18 @@ class HTML_Test extends UnitTest
 	{
 		$this->assertEquals([
 			'background-color' => 'red',
-			'position' => 'absolute',
-			'z-index' => '2000',
+			'position'         => 'absolute',
+			'z-index'          => '2000',
 		], HTML::parse_styles('background-color: red; position: absolute; z-index: 2000'));
 	}
 
 	public static function data_parseTags(): array
 	{
 		return [
-			[['a' => ['href' => '/']], '<a href="/">Link</a>'],
+			[
+				['a' => ['href' => '/']],
+				'<a href="/">Link</a>',
+			],
 		];
 	}
 
@@ -594,8 +690,18 @@ class HTML_Test extends UnitTest
 	public static function data_removeTags(): array
 	{
 		return [
-			['', 'a', '<a href="/">Link</a>', true],
-			['Link', 'a', '<a href="/">Link</a>', false],
+			[
+				'',
+				'a',
+				'<a href="/">Link</a>',
+				true,
+			],
+			[
+				'Link',
+				'a',
+				'<a href="/">Link</a>',
+				false,
+			],
 		];
 	}
 
@@ -617,9 +723,9 @@ class HTML_Test extends UnitTest
 		$name = 'ThingsToBuy';
 		$value = 'opt';
 		$options = [
-			'opt' => 'car',
-			'opt2' => 'home',
-			'opt3' => 'insurance',
+			'opt'   => 'car',
+			'opt2'  => 'home',
+			'opt3'  => 'insurance',
 			'opt99' => 'fun',
 		];
 		$attributes = [];
@@ -651,8 +757,14 @@ class HTML_Test extends UnitTest
 	public static function data_strlen(): array
 	{
 		return [
-			[4, '<a href="/">Link</a>'],
-			[5, '<a href="/">Links</a>'],
+			[
+				4,
+				'<a href="/">Link</a>',
+			],
+			[
+				5,
+				'<a href="/">Links</a>',
+			],
 		];
 	}
 
@@ -670,9 +782,21 @@ class HTML_Test extends UnitTest
 	public static function data_style_units(): array
 	{
 		return [
-			['3px', '3', 'px'],
-			['3em', '3em', 'px'],
-			['32em', '32em', 'px'],
+			[
+				'3px',
+				'3',
+				'px',
+			],
+			[
+				'3em',
+				'3em',
+				'px',
+			],
+			[
+				'32em',
+				'32em',
+				'px',
+			],
 		];
 	}
 
@@ -692,12 +816,42 @@ class HTML_Test extends UnitTest
 	{
 		$sample = '<h1>Heading</h1><p>Once upon a time</p>';
 		return [
-			['<h1>H</h1>', $sample, 0, 1],
-			['<h1>Heading</h1><p>Onc</p>', $sample, 0, 10],
-			['<h1>Heading</h1><p>Once upon a t</p>', $sample, 0, 20],
-			['<h1>Heading</h1><p>Once upon a tim</p>', $sample, 0, 22],
-			[$sample, $sample, 0, 30],
-			[$sample, '<h1>Heading</h1><p>Once upon a time</p>', 0, 50],
+			[
+				'<h1>H</h1>',
+				$sample,
+				0,
+				1,
+			],
+			[
+				'<h1>Heading</h1><p>Onc</p>',
+				$sample,
+				0,
+				10,
+			],
+			[
+				'<h1>Heading</h1><p>Once upon a t</p>',
+				$sample,
+				0,
+				20,
+			],
+			[
+				'<h1>Heading</h1><p>Once upon a tim</p>',
+				$sample,
+				0,
+				22,
+			],
+			[
+				$sample,
+				$sample,
+				0,
+				30,
+			],
+			[
+				$sample,
+				'<h1>Heading</h1><p>Once upon a time</p>',
+				0,
+				50,
+			],
 		];
 	}
 
@@ -717,9 +871,24 @@ class HTML_Test extends UnitTest
 	public static function data_tag(): array
 	{
 		return [
-			['<h1>Heading</h1>', 'h1', [], 'Heading'],
-			['<h1 class="dude">Heading</h1>', 'h1', '.dude', 'Heading'],
-			['<h1 id="dude">Heading</h1>', 'h1', '#dude', 'Heading'],
+			[
+				'<h1>Heading</h1>',
+				'h1',
+				[],
+				'Heading',
+			],
+			[
+				'<h1 class="dude">Heading</h1>',
+				'h1',
+				'.dude',
+				'Heading',
+			],
+			[
+				'<h1 id="dude">Heading</h1>',
+				'h1',
+				'#dude',
+				'Heading',
+			],
 		];
 	}
 
@@ -755,14 +924,20 @@ class HTML_Test extends UnitTest
 				"<h1 class=\"main\">Heading</h1>\n<h1 class=\"main\">Another</h1>\n",
 				'h1',
 				'.main',
-				['Heading', 'Another'],
+				[
+					'Heading',
+					'Another',
+				],
 				$separator,
 			],
 			[
 				"<h1 class=\"main\">Heading</h1>\n\n\nboo\n\n\n<h1 class=\"main\">Another</h1>\n\n\nboo\n\n\n",
 				'h1',
 				'.main',
-				['Heading', 'Another'],
+				[
+					'Heading',
+					'Another',
+				],
 				"\n\n\nboo\n\n\n",
 			],
 		];
@@ -786,15 +961,28 @@ class HTML_Test extends UnitTest
 	{
 		// 2023-02 removed this exception
 		// $this->expectException(Semantics::class);
-		HTML::tags('li', '#id #another', ['a', 'b', 'c']);
+		HTML::tags('li', '#id #another', [
+			'a',
+			'b',
+			'c',
+		]);
 	}
 
 	public static function data_toAttributes(): array
 	{
 		return [
-			[['class' => 'dude'], '.dude'],
-			[['id' => 'dude'], '#dude'],
-			[['class' => 'dude'], 'dude'],
+			[
+				['class' => 'dude'],
+				'.dude',
+			],
+			[
+				['id' => 'dude'],
+				'#dude',
+			],
+			[
+				['class' => 'dude'],
+				'dude',
+			],
 		];
 	}
 
@@ -810,7 +998,10 @@ class HTML_Test extends UnitTest
 	public static function data_trimWhiteSpace(): array
 	{
 		return [
-			['<a href=".">link</a>', '   <a href=".">link</a><p>&nbsp;&nbsp;</p><p>    </p><br /><br><br> <p /> '],
+			[
+				'<a href=".">link</a>',
+				'   <a href=".">link</a><p>&nbsp;&nbsp;</p><p>    </p><br /><br><br> <p /> ',
+			],
 		];
 	}
 
@@ -829,18 +1020,66 @@ class HTML_Test extends UnitTest
 	{
 		$test_phrase_1 = '<h1>one two three four five <em>six seven eight</em> nine ten</h1>';
 		return [
-			[$test_phrase_1, $test_phrase_1, 10],
-			['<h1>one two three four five <em>six seven eight</em> nine </h1>', $test_phrase_1, 9],
-			['<h1>one two three four five <em>six seven eight</em></h1>', $test_phrase_1, 8],
-			['<h1>one two three four five <em>six seven </em></h1>', $test_phrase_1, 7],
-			['<h1>one two three four five <em>six </em></h1>', $test_phrase_1, 6],
-			['<h1>one two three four five </h1>', $test_phrase_1, 5],
-			['<h1>one two three four </h1>', $test_phrase_1, 4],
-			['<h1>one two three </h1>', $test_phrase_1, 3],
-			['<h1>one two </h1>', $test_phrase_1, 2],
-			['<h1>one </h1>', $test_phrase_1, 1],
-			['', $test_phrase_1, 0],
-			['', $test_phrase_1, -1],
+			[
+				$test_phrase_1,
+				$test_phrase_1,
+				10,
+			],
+			[
+				'<h1>one two three four five <em>six seven eight</em> nine </h1>',
+				$test_phrase_1,
+				9,
+			],
+			[
+				'<h1>one two three four five <em>six seven eight</em></h1>',
+				$test_phrase_1,
+				8,
+			],
+			[
+				'<h1>one two three four five <em>six seven </em></h1>',
+				$test_phrase_1,
+				7,
+			],
+			[
+				'<h1>one two three four five <em>six </em></h1>',
+				$test_phrase_1,
+				6,
+			],
+			[
+				'<h1>one two three four five </h1>',
+				$test_phrase_1,
+				5,
+			],
+			[
+				'<h1>one two three four </h1>',
+				$test_phrase_1,
+				4,
+			],
+			[
+				'<h1>one two three </h1>',
+				$test_phrase_1,
+				3,
+			],
+			[
+				'<h1>one two </h1>',
+				$test_phrase_1,
+				2,
+			],
+			[
+				'<h1>one </h1>',
+				$test_phrase_1,
+				1,
+			],
+			[
+				'',
+				$test_phrase_1,
+				0,
+			],
+			[
+				'',
+				$test_phrase_1,
+				-1,
+			],
 		];
 	}
 
@@ -856,7 +1095,11 @@ class HTML_Test extends UnitTest
 	public static function data_urlify(): array
 	{
 		return [
-			['<a href="http://example.com">http://example.com</a>', 'http://example.com', []],
+			[
+				'<a href="http://example.com">http://example.com</a>',
+				'http://example.com',
+				[],
+			],
 		];
 	}
 

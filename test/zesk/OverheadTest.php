@@ -7,15 +7,14 @@
  */
 declare(strict_types=1);
 
-namespace zesk;
+namespace test\zesk;
 
 /**
  *
  * @author kent
  *
  */
-class OverheadTest extends UnitTest
-{
+class OverheadTest extends UnitTest {
 	protected array $load_modules = [
 		'Doctrine',
 	];
@@ -37,7 +36,8 @@ class OverheadTest extends UnitTest
 		} while ($current < $stop);
 		$nObjects = count($servers);
 		$this->log('{nObjects} objects fit in {bytes}, or {perObject} per object', [
-			'nObjects' => $nObjects, 'bytes' => Number::formatBytes($this->application->locale, $test_limit),
+			'nObjects'  => $nObjects,
+			'bytes'     => Number::formatBytes($this->application->locale, $test_limit),
 			'perObject' => Number::formatBytes($this->application->locale, intval($test_limit / $nObjects)),
 		]);
 	}

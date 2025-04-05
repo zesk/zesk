@@ -1,9 +1,9 @@
 <?php
 declare(strict_types=1);
-namespace zesk;
 
-class UnsignedLongTest extends UnitTest
-{
+namespace test\zesk;
+
+class UnsignedLongTest extends UnitTest {
 	public function test_ulong(): void
 	{
 		$x = 0;

@@ -1,35 +1,49 @@
 <?php
 declare(strict_types=1);
 
-namespace zesk;
+namespace test\zesk;
 
 use zesk\Exception\KeyNotFound;
 
 /**
  *
  */
-class pregTest extends UnitTest
-{
+class pregTest extends UnitTest {
 	public function collectIterationKeys(preg $iterator): array
 	{
 		$text = $iterator->text();
 		$keys = [];
 		$i = 0;
 		foreach ($iterator as $item) {
-			[$_, $key] = $item;
+			[
+				$_,
+				$key,
+			] = $item;
 			$keys[] = $key;
 			$text = $iterator->replaceCurrent("$i");
 			$i++;
 		}
-		return [$keys, $text];
+		return [
+			$keys,
+			$text,
+		];
 	}
 
 	public function test_preg(): void
 	{
 		$original = '{dog} {fence} {lunch} {dialogue} {Ignored } {Dreadlock}';
 		$iterator = preg::matches("/\{([A-Za-z]+)\}/", $original);
-		[$keys, $text] = $this->collectIterationKeys($iterator);
-		$this->assertEquals(['dog', 'fence', 'lunch', 'dialogue', 'Dreadlock'], $keys);
+		[
+			$keys,
+			$text,
+		] = $this->collectIterationKeys($iterator);
+		$this->assertEquals([
+			'dog',
+			'fence',
+			'lunch',
+			'dialogue',
+			'Dreadlock',
+		], $keys);
 		$this->assertCount(5, $keys);
 		$this->assertEquals('0 1 2 3 {Ignored } 4', $text);
 
@@ -37,18 +51,38 @@ class pregTest extends UnitTest
 		$this->assertTrue(isset($iterator[1]));
 		$this->assertFalse(isset($iterator[99]));
 
-		$this->assertEquals(['{dog}', 'dog'], $iterator[0]);
-		$this->assertEquals(['{fence}', 'fence'], $iterator[1]);
-		$this->assertEquals(['{Dreadlock}', 'Dreadlock'], $iterator[4]);
+		$this->assertEquals([
+			'{dog}',
+			'dog',
+		], $iterator[0]);
+		$this->assertEquals([
+			'{fence}',
+			'fence',
+		], $iterator[1]);
+		$this->assertEquals([
+			'{Dreadlock}',
+			'Dreadlock',
+		], $iterator[4]);
 
 		$iterator = preg::matches("/\{([A-Za-z]+)\}/", $original);
 
 		/* Editing, for coverage, not sure of the use cases here */
-		$iterator[0] = ['{purple}', 'purple']; // Don't
+		$iterator[0] = [
+			'{purple}',
+			'purple',
+		]; // Don't
 		unset($iterator[4]);
 
-		[$keys, $text] = $this->collectIterationKeys($iterator);
-		$this->assertEquals(['purple', 'fence', 'lunch', 'dialogue'], $keys);
+		[
+			$keys,
+			$text,
+		] = $this->collectIterationKeys($iterator);
+		$this->assertEquals([
+			'purple',
+			'fence',
+			'lunch',
+			'dialogue',
+		], $keys);
 		$this->assertCount(4, $keys);
 		$this->assertEquals('0 1 2 3 {Ignored } {Dreadlock}', $text);
 	}
@@ -57,7 +91,10 @@ class pregTest extends UnitTest
 	{
 		$original = '{dog} {fence} {lunch} {dialogue} {Ignored } {Dreadlock}';
 		$iterator = preg::matches("/\[([A-Za-z]+)\]/", $original);
-		[$keys, $text] = $this->collectIterationKeys($iterator);
+		[
+			$keys,
+			$text,
+		] = $this->collectIterationKeys($iterator);
 		$this->assertCount(0, $keys);
 		$this->assertEquals($original, $text);
 	}

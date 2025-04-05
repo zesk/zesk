@@ -8,10 +8,11 @@ declare(strict_types=1);
  * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
 
-namespace zesk\Configuration;
+namespace test\zesk\Configuration;
 
 use zesk\Adapter\SettingsArray;
 use zesk\Adapter\SettingsConfiguration;
+use zesk\Configuration\Loader;
 use zesk\Configuration;
 use zesk\Configuration\Parser\CONF;
 use zesk\Directory;
@@ -44,7 +45,10 @@ class LoaderTest extends TestCase
 		Directory::depend($three = Directory::path($path, 'three'));
 
 		$array = [
-			'name' => 'ralph', 'rank' => 'admiral', 'weight' => 140, 'eye_color' => 'brown',
+			'name'      => 'ralph',
+			'rank'      => 'admiral',
+			'weight'    => 140,
+			'eye_color' => 'brown',
 		];
 		$config = new Configuration($array);
 		$settings = new SettingsConfiguration($config);
@@ -53,26 +57,41 @@ class LoaderTest extends TestCase
 		// Four files
 
 		$one_json = [
-			'Person' => [
-				'name' => '${name}-one-json', 'rank' => '${rank}-one-json', 'weight' => '${weight}-one-json',
+			'Person'      => [
+				'name'      => '${name}-one-json',
+				'rank'      => '${rank}-one-json',
+				'weight'    => '${weight}-one-json',
 				'eye_color' => '${eye_color}-one-json',
-			], 'LAST' => 'one-json', 'FILE_LOADED' => [
+			],
+			'LAST'        => 'one-json',
+			'FILE_LOADED' => [
 				'ONE_JSON' => 1,
 			],
 		];
 		$two_conf = [
-			'# Comment', '', 'Person::name=$name-two-conf', 'Person::eye_color="${eye_color:=red}-two-conf"',
-			'Person::hair_color="${hair_color:=red}-two-conf"', 'LAST=two-conf', 'FILE_LOADED__TWO_CONF=1',
+			'# Comment',
+			'',
+			'Person::name=$name-two-conf',
+			'Person::eye_color="${eye_color:=red}-two-conf"',
+			'Person::hair_color="${hair_color:=red}-two-conf"',
+			'LAST=two-conf',
+			'FILE_LOADED__TWO_CONF=1',
 			'zesk___User__class=User',
 		];
 		$three_json = [
-			'Person::name' => '${name}-three-json', 'Person::rank' => '${rank}-three-json', 'LAST' => 'three-json',
-			'FILE_LOADED' => [
+			'Person::name' => '${name}-three-json',
+			'Person::rank' => '${rank}-three-json',
+			'LAST'         => 'three-json',
+			'FILE_LOADED'  => [
 				'THREE_JSON' => 1,
 			],
 		];
 		$three_conf = [
-			'# Comment', '', 'Person::name=$name-three-conf', 'Person::weight="$weight-three-conf"', 'LAST=three-conf',
+			'# Comment',
+			'',
+			'Person::name=$name-three-conf',
+			'Person::weight="$weight-three-conf"',
+			'LAST=three-conf',
 			'FILE_LOADED::THREE_CONF=1',
 		];
 
@@ -83,10 +102,15 @@ class LoaderTest extends TestCase
 
 		$files = [];
 		foreach ([
-			$one, Directory::path($path, 'nope'), $two, Directory::path($path, 'double_nope'), $three,
+			$one,
+			Directory::path($path, 'nope'),
+			$two,
+			Directory::path($path, 'double_nope'),
+			$three,
 		] as $dir) {
 			foreach ([
-				'a.conf', 'b.json',
+				'a.conf',
+				'b.json',
 			] as $f) {
 				$files[] = Directory::path($dir, $f);
 			}
@@ -97,17 +121,32 @@ class LoaderTest extends TestCase
 
 		$variables = $loader->variables();
 		$this->assertEquals($variables['processed'], [
-			Directory::path($path, "one/$json_name"), Directory::path($path, "two/$conf_name"),
-			Directory::path($path, "three/$conf_name"), Directory::path($path, "three/$json_name"),
+			Directory::path($path, "one/$json_name"),
+			Directory::path($path, "two/$conf_name"),
+			Directory::path($path, "three/$conf_name"),
+			Directory::path($path, "three/$json_name"),
 		]);
 
 		$this->assertEquals([
-			'name' => 'ralph', 'rank' => 'admiral', 'weight' => 140, 'eye_color' => 'brown', 'Person' => [
-				'name' => 'ralph-three-json', 'rank' => 'admiral-three-json', 'weight' => '140-three-conf',
-				'eye_color' => 'brown-two-conf', 'hair_color' => 'red-two-conf',
-			], 'LAST' => 'three-json', 'FILE_LOADED' => [
-				'ONE_JSON' => 1, 'TWO_CONF' => 1, 'THREE_CONF' => 1, 'THREE_JSON' => 1,
-			], 'zesk\\User' => [
+			'name'        => 'ralph',
+			'rank'        => 'admiral',
+			'weight'      => 140,
+			'eye_color'   => 'brown',
+			'Person'      => [
+				'name'       => 'ralph-three-json',
+				'rank'       => 'admiral-three-json',
+				'weight'     => '140-three-conf',
+				'eye_color'  => 'brown-two-conf',
+				'hair_color' => 'red-two-conf',
+			],
+			'LAST'        => 'three-json',
+			'FILE_LOADED' => [
+				'ONE_JSON'   => 1,
+				'TWO_CONF'   => 1,
+				'THREE_CONF' => 1,
+				'THREE_JSON' => 1,
+			],
+			'zesk\\User'  => [
 				'class' => 'User',
 			],
 		], Types::toArray($config));
@@ -116,24 +155,52 @@ class LoaderTest extends TestCase
 	public function test_load_globals_lines1(): void
 	{
 		$lines = [
-			'FOO=/foo/foo', 'BAR=/bar/bar', 'B_R=red', 'UNQ0="quotes0"', 'UNQ1=\'quotes1\'', 'FOOTEST0=${FOO:-123}',
-			'FOOTEST1=${UNDEF:-123}', 'FOOTEST2=${FOO:-123}${BAR:-456}', 'FOOTEST3=${UNDEF:-123}${BAR:-456}',
-			'FOOTEST4=some${FOO:-123}some${UNDEF:-456}some', 'FOOTEST5=goo${UNDEF:-123}goo${BAR:-456}goo',
-			'FOOTEST6=goo${FOO}goo${BAR}goo', 'FOOTEST7=goo${UNDEF}goo${U_NDEF2}goo', 'FOOTEST8=${B_R}$B_R$B_R',
-			'export FOOTEST9=${B_R}$B_R$B_R', "export\tFOOTEST10=\${B_R}\$B_R\$B_R",
-			"export\t\t\tFOOTEST10=\${B_R}\$B_R\$B_R", 'FOOTEST11="$B_Rthing"', 'FOOTEST12=true', 'FOOTEST13=false',
+			'FOO=/foo/foo',
+			'BAR=/bar/bar',
+			'B_R=red',
+			'UNQ0="quotes0"',
+			'UNQ1=\'quotes1\'',
+			'FOOTEST0=${FOO:-123}',
+			'FOOTEST1=${UNDEF:-123}',
+			'FOOTEST2=${FOO:-123}${BAR:-456}',
+			'FOOTEST3=${UNDEF:-123}${BAR:-456}',
+			'FOOTEST4=some${FOO:-123}some${UNDEF:-456}some',
+			'FOOTEST5=goo${UNDEF:-123}goo${BAR:-456}goo',
+			'FOOTEST6=goo${FOO}goo${BAR}goo',
+			'FOOTEST7=goo${UNDEF}goo${U_NDEF2}goo',
+			'FOOTEST8=${B_R}$B_R$B_R',
+			'export FOOTEST9=${B_R}$B_R$B_R',
+			"export\tFOOTEST10=\${B_R}\$B_R\$B_R",
+			"export\t\t\tFOOTEST10=\${B_R}\$B_R\$B_R",
+			'FOOTEST11="$B_Rthing"',
+			'FOOTEST12=true',
+			'FOOTEST13=false',
 		];
 
 		$results = [
-			'FOO' => '/foo/foo', 'BAR' => '/bar/bar', 'B_R' => 'red', 'UNQ0' => 'quotes0', 'UNQ1' => 'quotes1',
-			'FOOTEST0' => '/foo/foo', 'FOOTEST1' => 123, 'FOOTEST2' => '/foo/foo/bar/bar', 'FOOTEST3' => '123/bar/bar',
-			'FOOTEST4' => 'some/foo/foosome456some', 'FOOTEST5' => 'goo123goo/bar/bargoo',
-			'FOOTEST6' => 'goo/foo/foogoo/bar/bargoo', 'FOOTEST7' => 'googoogoo', 'FOOTEST8' => 'redredred',
-			'FOOTEST9' => 'redredred', 'FOOTEST10' => 'redredred', 'FOOTEST11' => '', 'FOOTEST12' => true,
+			'FOO'       => '/foo/foo',
+			'BAR'       => '/bar/bar',
+			'B_R'       => 'red',
+			'UNQ0'      => 'quotes0',
+			'UNQ1'      => 'quotes1',
+			'FOOTEST0'  => '/foo/foo',
+			'FOOTEST1'  => 123,
+			'FOOTEST2'  => '/foo/foo/bar/bar',
+			'FOOTEST3'  => '123/bar/bar',
+			'FOOTEST4'  => 'some/foo/foosome456some',
+			'FOOTEST5'  => 'goo123goo/bar/bargoo',
+			'FOOTEST6'  => 'goo/foo/foogoo/bar/bargoo',
+			'FOOTEST7'  => 'googoogoo',
+			'FOOTEST8'  => 'redredred',
+			'FOOTEST9'  => 'redredred',
+			'FOOTEST10' => 'redredred',
+			'FOOTEST11' => '',
+			'FOOTEST12' => true,
 			'FOOTEST13' => false,
 		];
 		$options = [
-			'overwrite' => false, 'lower' => false,
+			'overwrite' => false,
+			'lower'     => false,
 		];
 		$actual = [];
 		$settings = new SettingsArray($actual);
@@ -155,7 +222,8 @@ class LoaderTest extends TestCase
 				[
 					$dir . 'Configuration_Loader_Test_dependencies0.conf',
 				],
-			], [
+			],
+			[
 				[
 					$dir . 'Configuration_Loader_Test_dependencies0.conf',
 					$dir . 'Configuration_Loader_Test_dependencies1.conf',

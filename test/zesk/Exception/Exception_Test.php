@@ -3,7 +3,8 @@ declare(strict_types=1);
 /**
  *
  */
-namespace zesk\Exception;
+
+namespace test\zesk\Exception;
 
 use zesk\PHPUnit\ExceptionTestCase;
 

@@ -1,16 +1,27 @@
 <?php
 declare(strict_types=1);
 
-namespace zesk;
+namespace test\zesk;
 
-class Text_Test extends UnitTest
-{
+class Text_Test extends UnitTest {
 	public static function data_fill(): array
 	{
 		return [
-			['          ', 10, ' '],
-			['=-=-=-=-=-', 10, '=-'],
-			['abcabcabca', 10, 'abc'],
+			[
+				'          ',
+				10,
+				' ',
+			],
+			[
+				'=-=-=-=-=-',
+				10,
+				'=-',
+			],
+			[
+				'abcabcabca',
+				10,
+				'abc',
+			],
 		];
 	}
 
@@ -30,12 +41,36 @@ class Text_Test extends UnitTest
 	{
 		$lines1 = "how\nmany\nlines\ncan\nwe\nmake\nup\na\nb\nc";
 		return [
-			[$lines1, $lines1, 1000],
-			["up\na\nb\nc", $lines1, 4],
-			["a\nb\nc", $lines1, 3],
-			["b\nc", $lines1, 2],
-			['c', $lines1, 1],
-			['', $lines1, 0],
+			[
+				$lines1,
+				$lines1,
+				1000,
+			],
+			[
+				"up\na\nb\nc",
+				$lines1,
+				4,
+			],
+			[
+				"a\nb\nc",
+				$lines1,
+				3,
+			],
+			[
+				"b\nc",
+				$lines1,
+				2,
+			],
+			[
+				'c',
+				$lines1,
+				1,
+			],
+			[
+				'',
+				$lines1,
+				0,
+			],
 		];
 	}
 
@@ -64,7 +99,7 @@ class Text_Test extends UnitTest
 			],
 			[
 				'longervar' => 1,
-				'b' => 'Hello',
+				'b'         => 'Hello',
 			],
 		];
 		$prefix = '---';
@@ -74,22 +109,10 @@ class Text_Test extends UnitTest
 		$this->assertEquals("---a: A\n---b: B\n", Text::formatPairs($map[0], $prefix, $space, $suffix, $br));
 		$prefix = '$dude$';
 		$space = '==';
-		$this->assertEquals("\$dude\$longervar: 1\n\$dude\$b========: Hello\n", Text::formatPairs(
-			$map[1],
-			$prefix,
-			$space,
-			$suffix,
-			$br
-		));
+		$this->assertEquals("\$dude\$longervar: 1\n\$dude\$b========: Hello\n", Text::formatPairs($map[1], $prefix, $space, $suffix, $br));
 		$prefix = '-';
 		$space = '=';
-		$this->assertEquals("-longervar: 1\n-b========: Hello\n", Text::formatPairs(
-			$map[1],
-			$prefix,
-			$space,
-			$suffix,
-			$br
-		));
+		$this->assertEquals("-longervar: 1\n-b========: Hello\n", Text::formatPairs($map[1], $prefix, $space, $suffix, $br));
 
 		$map = [
 			'Name' => 'John',
@@ -104,23 +127,35 @@ class Text_Test extends UnitTest
 	public static function data_format_table(): array
 	{
 		$rowset1 = [
-			['ID' => 1, 'Name' => 'Dude', 'Role' => 'Administrator'],
-			['ID' => 2, 'Name' => 'Rod', 'Role' => 'Admin'],
-			['ID' => 3, 'Name' => 'Staff', 'Role' => 'None'],
-			['ID' => 95312, 'Name' => 'Alex', 'Role' => 'CIO'],
+			[
+				'ID'   => 1,
+				'Name' => 'Dude',
+				'Role' => 'Administrator',
+			],
+			[
+				'ID'   => 2,
+				'Name' => 'Rod',
+				'Role' => 'Admin',
+			],
+			[
+				'ID'   => 3,
+				'Name' => 'Staff',
+				'Role' => 'None',
+			],
+			[
+				'ID'   => 95312,
+				'Name' => 'Alex',
+				'Role' => 'CIO',
+			],
 		];
-		$expected1 =
-			"+-------+-------+---------------+\n" .
-			"| ID    | Name  | Role          |\n" .
-			"+-------+-------+---------------+\n" .
-			"| 1     | Dude  | Administrator |\n" .
-			"| 2     | Rod   | Admin         |\n" .
-			"| 3     | Staff | None          |\n" .
-			"| 95312 | Alex  | CIO           |\n" .
-			"+-------+-------+---------------+\n";
+		$expected1 = "+-------+-------+---------------+\n" . "| ID    | Name  | Role          |\n" . "+-------+-------+---------------+\n" . "| 1     | Dude  | Administrator |\n" . "| 2     | Rod   | Admin         |\n" . "| 3     | Staff | None          |\n" . "| 95312 | Alex  | CIO           |\n" . "+-------+-------+---------------+\n";
 
 		return [
-			[$expected1, $rowset1, ''],
+			[
+				$expected1,
+				$rowset1,
+				'',
+			],
 		];
 	}
 
@@ -139,7 +174,14 @@ class Text_Test extends UnitTest
 	public static function data_indent(): array
 	{
 		return [
-			["    Hello, world\n    How is life\n", "Hello, world\nHow is life", 4, true, ' ', "\n"],
+			[
+				"    Hello, world\n    How is life\n",
+				"Hello, world\nHow is life",
+				4,
+				true,
+				' ',
+				"\n",
+			],
 		];
 	}
 
@@ -161,8 +203,18 @@ class Text_Test extends UnitTest
 	public static function data_indentString(): array
 	{
 		return [
-			["xxxxxxHello, world\nxxxxxxHow is life\nxxxxxx Extra space", "Hello, world\nHow is life\n Extra space", 'xxxxxx', "\n"],
-			["\tHello, world\n\tHow is life\n\t Extra space", "Hello, world\nHow is life\n Extra space", "\t", "\n"],
+			[
+				"xxxxxxHello, world\nxxxxxxHow is life\nxxxxxx Extra space",
+				"Hello, world\nHow is life\n Extra space",
+				'xxxxxx',
+				"\n",
+			],
+			[
+				"\tHello, world\n\tHow is life\n\t Extra space",
+				"Hello, world\nHow is life\n Extra space",
+				"\t",
+				"\n",
+			],
 		];
 	}
 
@@ -173,7 +225,7 @@ class Text_Test extends UnitTest
 	 * @param string $indentString
 	 * @param string $newline
 	 * @return void
-	 * @see Text::indentString()
+	 * @see          Text::indentString()
 	 */
 	public function test_indentString(string $expected, string $text, string $indentString, string $newline): void
 	{
@@ -183,13 +235,55 @@ class Text_Test extends UnitTest
 	public static function data_leftAlign()
 	{
 		return [
-			['Hello--------', 'Hello', 13, '-', true],
-			['Hello========', 'Hello', 13, '=', false],
-			['Hello=======', 'Hello', 12, '=', false],
-			['Hello', 'Hello', 0, '=', false],
-			['Hello', 'Hello', -1, '=', false],
-			['Delic', 'Delicioso', 5, '-', true],
-			['Delicioso', 'Delicioso', 5, '-', false],
+			[
+				'Hello--------',
+				'Hello',
+				13,
+				'-',
+				true,
+			],
+			[
+				'Hello========',
+				'Hello',
+				13,
+				'=',
+				false,
+			],
+			[
+				'Hello=======',
+				'Hello',
+				12,
+				'=',
+				false,
+			],
+			[
+				'Hello',
+				'Hello',
+				0,
+				'=',
+				false,
+			],
+			[
+				'Hello',
+				'Hello',
+				-1,
+				'=',
+				false,
+			],
+			[
+				'Delic',
+				'Delicioso',
+				5,
+				'-',
+				true,
+			],
+			[
+				'Delicioso',
+				'Delicioso',
+				5,
+				'-',
+				false,
+			],
 		];
 	}
 
@@ -210,16 +304,86 @@ class Text_Test extends UnitTest
 	public static function data_lines_wrap(): array
 	{
 		return [
-			['', '', '', '', null, null],
-			['a', 'a', '', '', null, null],
-			['a', 'a', '', '', null, null],
-			['a', '', 'a', '', null, null],
-			['a', '', '', 'a', null, null],
-			['a', '', '', '', 'a', null],
-			['a', '', '', '', null, 'a'],
-			["1\n2", "1\n2", '', '', null, null],
-			["[1]\n[2]", "1\n2", '[', ']', null, null],
-			["{[1]\n[2]}", "1\n2", '[', ']', '{[', ']}'],
+			[
+				'',
+				'',
+				'',
+				'',
+				null,
+				null,
+			],
+			[
+				'a',
+				'a',
+				'',
+				'',
+				null,
+				null,
+			],
+			[
+				'a',
+				'a',
+				'',
+				'',
+				null,
+				null,
+			],
+			[
+				'a',
+				'',
+				'a',
+				'',
+				null,
+				null,
+			],
+			[
+				'a',
+				'',
+				'',
+				'a',
+				null,
+				null,
+			],
+			[
+				'a',
+				'',
+				'',
+				'',
+				'a',
+				null,
+			],
+			[
+				'a',
+				'',
+				'',
+				'',
+				null,
+				'a',
+			],
+			[
+				"1\n2",
+				"1\n2",
+				'',
+				'',
+				null,
+				null,
+			],
+			[
+				"[1]\n[2]",
+				"1\n2",
+				'[',
+				']',
+				null,
+				null,
+			],
+			[
+				"{[1]\n[2]}",
+				"1\n2",
+				'[',
+				']',
+				'{[',
+				']}',
+			],
 		];
 	}
 
@@ -241,11 +405,15 @@ class Text_Test extends UnitTest
 		return [
 			[
 				[
-					['name' => 'dude', 'region' => 'us-west-9', 'bytes' => '412'],
 					[
-						'name' => 'sue',
+						'name'   => 'dude',
+						'region' => 'us-west-9',
+						'bytes'  => '412',
+					],
+					[
+						'name'   => 'sue',
 						'region' => 'us-west-10',
-						'bytes' => '99991 ignore',
+						'bytes'  => '99991 ignore',
 					],
 				],
 				"name  region   bytes\ndude us-west-9    412\nsue\tus-west-10\t99991 ignore\n\n\n",
@@ -273,13 +441,55 @@ class Text_Test extends UnitTest
 	public static function data_rightAlign()
 	{
 		return [
-			['--------Hello', 'Hello', 13, '-', true],
-			['========Hello', 'Hello', 13, '=', false],
-			['=======Hello', 'Hello', 12, '=', false],
-			['Hello', 'Hello', 0, '=', false],
-			['Hello', 'Hello', -1, '=', false],
-			['Delic', 'Delicioso', 5, '-', true],
-			['Delicioso', 'Delicioso', 5, '-', false],
+			[
+				'--------Hello',
+				'Hello',
+				13,
+				'-',
+				true,
+			],
+			[
+				'========Hello',
+				'Hello',
+				13,
+				'=',
+				false,
+			],
+			[
+				'=======Hello',
+				'Hello',
+				12,
+				'=',
+				false,
+			],
+			[
+				'Hello',
+				'Hello',
+				0,
+				'=',
+				false,
+			],
+			[
+				'Hello',
+				'Hello',
+				-1,
+				'=',
+				false,
+			],
+			[
+				'Delic',
+				'Delicioso',
+				5,
+				'-',
+				true,
+			],
+			[
+				'Delicioso',
+				'Delicioso',
+				5,
+				'-',
+				false,
+			],
 		];
 	}
 
@@ -300,16 +510,66 @@ class Text_Test extends UnitTest
 	public static function data_remove_line_comments(): array
 	{
 		return [
-			['', '#', '#', true],
-			['', '#', '#', false],
-			["\n\n\n", "\n\n\n", '#', true],
-			["\n\n\n", "\n\n\n", '#', false],
-			["\n\n", "#\n#\n#", '#', false],
-			['', "#\n#\n#", '#', true],
-			["a#b\na#b\na#", "a#b\na#b\n#b\na#", '#', true],
-			["a\na\n\na", "a#b\na#b\n#b\na#", '#', false],
-			["\nHello # Remove\n", "#\n\n# Bad comment\nHello # Remove\n# Remove also\n", '#', true],
-			["\n\n\nHello \n\n", "#\n\n# Bad comment\nHello # Remove\n# Remove also\n", '#', false],
+			[
+				'',
+				'#',
+				'#',
+				true,
+			],
+			[
+				'',
+				'#',
+				'#',
+				false,
+			],
+			[
+				"\n\n\n",
+				"\n\n\n",
+				'#',
+				true,
+			],
+			[
+				"\n\n\n",
+				"\n\n\n",
+				'#',
+				false,
+			],
+			[
+				"\n\n",
+				"#\n#\n#",
+				'#',
+				false,
+			],
+			[
+				'',
+				"#\n#\n#",
+				'#',
+				true,
+			],
+			[
+				"a#b\na#b\na#",
+				"a#b\na#b\n#b\na#",
+				'#',
+				true,
+			],
+			[
+				"a\na\n\na",
+				"a#b\na#b\n#b\na#",
+				'#',
+				false,
+			],
+			[
+				"\nHello # Remove\n",
+				"#\n\n# Bad comment\nHello # Remove\n# Remove also\n",
+				'#',
+				true,
+			],
+			[
+				"\n\n\nHello \n\n",
+				"#\n\n# Bad comment\nHello # Remove\n# Remove also\n",
+				'#',
+				false,
+			],
 		];
 	}
 
@@ -329,9 +589,21 @@ class Text_Test extends UnitTest
 	public static function data_set_line_breaks(): array
 	{
 		return [
-			['1x2x3x4x5', "1\r\n2\n3\r4\r\n5", 'x'],
-			['1x2x3x4x5x', "1\r\n2\n3\r4\r\n5\r", 'x'],
-			['1y2y3y4y5', "1\r\n2\n3\r4\r\n5", 'y'],
+			[
+				'1x2x3x4x5',
+				"1\r\n2\n3\r4\r\n5",
+				'x',
+			],
+			[
+				'1x2x3x4x5x',
+				"1\r\n2\n3\r4\r\n5\r",
+				'x',
+			],
+			[
+				'1y2y3y4y5',
+				"1\r\n2\n3\r4\r\n5",
+				'y',
+			],
 		];
 	}
 
@@ -350,19 +622,71 @@ class Text_Test extends UnitTest
 	public static function data_trim_words(): array
 	{
 		return [
-			[' nine ten ', ' nine ten ', 2],
-			[' a  ', ' a  b c d ', 1],
-			[' a  b ', ' a  b c d ', 2],
-			[' a  b c ', ' a  b c d ', 3],
-			[' a  b c d ', ' a  b c d ', 4],
-			[' a  b c d ', ' a  b c d ', 5],
-			['a b c   ', 'a b c   d e f   ', 3],
-			['a b c   d e f   ', 'a b c   d e f   ', 6],
-			['a b c   d e f   ', 'a b c   d e f   ', 7],
-			[' nine ten ', ' nine ten ', 3],
-			[' nine ', ' nine ten ', 1],
-			['', ' nine ten ', 0],
-			['', ' nine ten ', -1],
+			[
+				' nine ten ',
+				' nine ten ',
+				2,
+			],
+			[
+				' a  ',
+				' a  b c d ',
+				1,
+			],
+			[
+				' a  b ',
+				' a  b c d ',
+				2,
+			],
+			[
+				' a  b c ',
+				' a  b c d ',
+				3,
+			],
+			[
+				' a  b c d ',
+				' a  b c d ',
+				4,
+			],
+			[
+				' a  b c d ',
+				' a  b c d ',
+				5,
+			],
+			[
+				'a b c   ',
+				'a b c   d e f   ',
+				3,
+			],
+			[
+				'a b c   d e f   ',
+				'a b c   d e f   ',
+				6,
+			],
+			[
+				'a b c   d e f   ',
+				'a b c   d e f   ',
+				7,
+			],
+			[
+				' nine ten ',
+				' nine ten ',
+				3,
+			],
+			[
+				' nine ',
+				' nine ten ',
+				1,
+			],
+			[
+				'',
+				' nine ten ',
+				0,
+			],
+			[
+				'',
+				' nine ten ',
+				-1,
+			],
 		];
 	}
 
@@ -378,9 +702,18 @@ class Text_Test extends UnitTest
 	public static function data_words(): array
 	{
 		return [
-			[1, 'friend'],
-			[1, 'dog'],
-			[9, 'the  quick  brown   fox jumped over the lazy dog'],
+			[
+				1,
+				'friend',
+			],
+			[
+				1,
+				'dog',
+			],
+			[
+				9,
+				'the  quick  brown   fox jumped over the lazy dog',
+			],
 		];
 	}
 
@@ -398,13 +731,27 @@ class Text_Test extends UnitTest
 	public static function data_format_array(): array
 	{
 		$fields = [
-			'Kind' => 'Apple',
+			'Kind'     => 'Apple',
 			'Consumer' => 'Bear',
-			'Place' => 'Polar',
+			'Place'    => 'Polar',
 		];
 		return [
-			["---- Kind: Apple\n Consumer: Bear\n--- Place: Polar\n", $fields, '-', ' ', ': ', "\n"],
-			["----Kind: Apple\nConsumer: Bear\n---Place: Polar\n", $fields, '-', '', ': ', "\n"],
+			[
+				"---- Kind: Apple\n Consumer: Bear\n--- Place: Polar\n",
+				$fields,
+				'-',
+				' ',
+				': ',
+				"\n",
+			],
+			[
+				"----Kind: Apple\nConsumer: Bear\n---Place: Polar\n",
+				$fields,
+				'-',
+				'',
+				': ',
+				"\n",
+			],
 		];
 	}
 
@@ -442,74 +789,74 @@ class Text_Test extends UnitTest
 				[
 					[
 						'Filesystem' => '/dev/ploop61924p1',
-						'1K-blocks' => '99279368',
-						'Used' => '48798856',
-						'Available' => '45430712',
-						'Use%' => '52%',
+						'1K-blocks'  => '99279368',
+						'Used'       => '48798856',
+						'Available'  => '45430712',
+						'Use%'       => '52%',
 						'Mounted on' => '/',
 					],
 					[
 						'Filesystem' => '/dev/simfs',
-						'1K-blocks' => '99279368',
-						'Used' => '48798856',
-						'Available' => '45430712',
-						'Use%' => '52%',
+						'1K-blocks'  => '99279368',
+						'Used'       => '48798856',
+						'Available'  => '45430712',
+						'Use%'       => '52%',
 						'Mounted on' => '/tmp',
 					],
 					[
 						'Filesystem' => '/dev/simfs',
-						'1K-blocks' => '99279368',
-						'Used' => '48798856',
-						'Available' => '45430712',
-						'Use%' => '52%',
+						'1K-blocks'  => '99279368',
+						'Used'       => '48798856',
+						'Available'  => '45430712',
+						'Use%'       => '52%',
 						'Mounted on' => '/var/tmp',
 					],
 					[
 						'Filesystem' => 'none',
-						'1K-blocks' => '4194304',
-						'Used' => '4',
-						'Available' => '4194300',
-						'Use%' => '1%',
+						'1K-blocks'  => '4194304',
+						'Used'       => '4',
+						'Available'  => '4194300',
+						'Use%'       => '1%',
 						'Mounted on' => '/dev',
 					],
 					[
 						'Filesystem' => '/dev/ploop61924p1',
-						'1K-blocks' => '99279368',
-						'Used' => '48798856',
-						'Available' => '45430712',
-						'Use%' => '52%',
+						'1K-blocks'  => '99279368',
+						'Used'       => '48798856',
+						'Available'  => '45430712',
+						'Use%'       => '52%',
 						'Mounted on' => '/var/named/chroot/etc/named',
 					],
 					[
 						'Filesystem' => '/dev/ploop61924p1',
-						'1K-blocks' => '99279368',
-						'Used' => '48798856',
-						'Available' => '45430712',
-						'Use%' => '52%',
+						'1K-blocks'  => '99279368',
+						'Used'       => '48798856',
+						'Available'  => '45430712',
+						'Use%'       => '52%',
 						'Mounted on' => '/var/named/chroot/var/named',
 					],
 					[
 						'Filesystem' => '/dev/ploop61924p1',
-						'1K-blocks' => '99279368',
-						'Used' => '48798856',
-						'Available' => '45430712',
-						'Use%' => '52%',
+						'1K-blocks'  => '99279368',
+						'Used'       => '48798856',
+						'Available'  => '45430712',
+						'Use%'       => '52%',
 						'Mounted on' => '/var/named/chroot/usr/lib64/bind',
 					],
 					[
 						'Filesystem' => '/dev/ploop61924p1',
-						'1K-blocks' => '99279368',
-						'Used' => '48798856',
-						'Available' => '45430712',
-						'Use%' => '52%',
+						'1K-blocks'  => '99279368',
+						'Used'       => '48798856',
+						'Available'  => '45430712',
+						'Use%'       => '52%',
 						'Mounted on' => '/var/named/chroot/etc/services',
 					],
 					[
 						'Filesystem' => '/dev/ploop61924p1',
-						'1K-blocks' => '99279368',
-						'Used' => '48798856',
-						'Available' => '45430712',
-						'Use%' => '52%',
+						'1K-blocks'  => '99279368',
+						'Used'       => '48798856',
+						'Available'  => '45430712',
+						'Use%'       => '52%',
 						'Mounted on' => '/var/named/chroot/etc/protocols',
 					],
 				],
@@ -523,28 +870,28 @@ class Text_Test extends UnitTest
 				],
 				[
 					[
-						'Filesystem' => '/dev/ad0s1a',
+						'Filesystem'  => '/dev/ad0s1a',
 						'1024-blocks' => '9647558',
-						'Used' => '7032010',
-						'Avail' => '1843744',
-						'Capacity' => '79%',
-						'Mounted on' => '/',
+						'Used'        => '7032010',
+						'Avail'       => '1843744',
+						'Capacity'    => '79%',
+						'Mounted on'  => '/',
 					],
 					[
-						'Filesystem' => 'devfs',
+						'Filesystem'  => 'devfs',
 						'1024-blocks' => '1',
-						'Used' => '1',
-						'Avail' => '0',
-						'Capacity' => '100%',
-						'Mounted on' => '/dev',
+						'Used'        => '1',
+						'Avail'       => '0',
+						'Capacity'    => '100%',
+						'Mounted on'  => '/dev',
 					],
 					[
-						'Filesystem' => '/dev/ada1',
+						'Filesystem'  => '/dev/ada1',
 						'1024-blocks' => '10319004',
-						'Used' => '4144436',
-						'Avail' => '5349048',
-						'Capacity' => '44%',
-						'Mounted on' => '/storage',
+						'Used'        => '4144436',
+						'Avail'       => '5349048',
+						'Capacity'    => '44%',
+						'Mounted on'  => '/storage',
 					],
 				],
 			],
@@ -562,84 +909,84 @@ class Text_Test extends UnitTest
 				],
 				[
 					[
-						'Filesystem' => '/dev/disk0s2',
-						'512-blocks' => '975425848',
-						'Used' => '821572784',
-						'Available' => '153341064',
+						'Filesystem'      => '/dev/disk0s2',
+						'512-blocks'      => '975425848',
+						'Used'            => '821572784',
+						'Available'       => '153341064',
 						'Capacity  iused' => '85%  4686237',
-						'ifree' => '4290281042',
-						'%iused' => '0%',
-						'Mounted on' => '/',
+						'ifree'           => '4290281042',
+						'%iused'          => '0%',
+						'Mounted on'      => '/',
 					],
 					[
-						'Filesystem' => 'devfs',
-						'512-blocks' => '448',
-						'Used' => '448',
-						'Available' => '0',
+						'Filesystem'      => 'devfs',
+						'512-blocks'      => '448',
+						'Used'            => '448',
+						'Available'       => '0',
 						'Capacity  iused' => '100%      776',
-						'ifree' => '0',
-						'%iused' => '100%',
-						'Mounted on' => '/dev',
+						'ifree'           => '0',
+						'%iused'          => '100%',
+						'Mounted on'      => '/dev',
 					],
 					[
-						'Filesystem' => 'map -hosts',
-						'512-blocks' => '0',
-						'Used' => '0',
-						'Available' => '0',
+						'Filesystem'      => 'map -hosts',
+						'512-blocks'      => '0',
+						'Used'            => '0',
+						'Available'       => '0',
 						'Capacity  iused' => '100%        0',
-						'ifree' => '0',
-						'%iused' => '100%',
-						'Mounted on' => '/net',
+						'ifree'           => '0',
+						'%iused'          => '100%',
+						'Mounted on'      => '/net',
 					],
 					[
-						'Filesystem' => 'map auto_home',
-						'512-blocks' => '0',
-						'Used' => '0',
-						'Available' => '0',
+						'Filesystem'      => 'map auto_home',
+						'512-blocks'      => '0',
+						'Used'            => '0',
+						'Available'       => '0',
 						'Capacity  iused' => '100%        0',
-						'ifree' => '0',
-						'%iused' => '100%',
-						'Mounted on' => '/home',
+						'ifree'           => '0',
+						'%iused'          => '100%',
+						'Mounted on'      => '/home',
 					],
 					[
-						'Filesystem' => '/dev/disk2s2',
-						'512-blocks' => '7813365344',
-						'Used' => '7674477632',
-						'Available' => '138887712',
+						'Filesystem'      => '/dev/disk2s2',
+						'512-blocks'      => '7813365344',
+						'Used'            => '7674477632',
+						'Available'       => '138887712',
 						'Capacity  iused' => '99%  1177798',
-						'ifree' => '4293789481',
-						'%iused' => '0%',
-						'Mounted on' => '/Volumes/Media',
+						'ifree'           => '4293789481',
+						'%iused'          => '0%',
+						'Mounted on'      => '/Volumes/Media',
 					],
 					[
-						'Filesystem' => '/dev/disk1s2',
-						'512-blocks' => '23441139680',
-						'Used' => '17453172672',
-						'Available' => '5987967008',
+						'Filesystem'      => '/dev/disk1s2',
+						'512-blocks'      => '23441139680',
+						'Used'            => '17453172672',
+						'Available'       => '5987967008',
 						'Capacity  iused' => '75% 21840546',
-						'ifree' => '4273126733',
-						'%iused' => '1%',
-						'Mounted on' => '/Volumes/Tardis',
+						'ifree'           => '4273126733',
+						'%iused'          => '1%',
+						'Mounted on'      => '/Volumes/Tardis',
 					],
 					[
-						'Filesystem' => '/dev/disk7s2',
-						'512-blocks' => '355600',
-						'Used' => '355600',
-						'Available' => '0',
+						'Filesystem'      => '/dev/disk7s2',
+						'512-blocks'      => '355600',
+						'Used'            => '355600',
+						'Available'       => '0',
 						'Capacity  iused' => '100%      361',
-						'ifree' => '4294966918',
-						'%iused' => '0%',
-						'Mounted on' => '/Volumes/Google Chrome',
+						'ifree'           => '4294966918',
+						'%iused'          => '0%',
+						'Mounted on'      => '/Volumes/Google Chrome',
 					],
 					[
-						'Filesystem' => '/dev/disk8s2',
-						'512-blocks' => '20400',
-						'Used' => '15232',
-						'Available' => '5168',
+						'Filesystem'      => '/dev/disk8s2',
+						'512-blocks'      => '20400',
+						'Used'            => '15232',
+						'Available'       => '5168',
 						'Capacity  iused' => '75%      657',
-						'ifree' => '4294966622',
-						'%iused' => '0%',
-						'Mounted on' => '/Volumes/SteerMouse',
+						'ifree'           => '4294966622',
+						'%iused'          => '0%',
+						'Mounted on'      => '/Volumes/SteerMouse',
 					],
 				],
 			],
@@ -667,138 +1014,138 @@ class Text_Test extends UnitTest
 				[
 					[
 						'Filesystem' => 'udev',
-						'1K-blocks' => '482380',
-						'Used' => '0',
-						'Available' => '482380',
-						'Use%' => '0%',
+						'1K-blocks'  => '482380',
+						'Used'       => '0',
+						'Available'  => '482380',
+						'Use%'       => '0%',
 						'Mounted on' => '/dev',
 					],
 					[
 						'Filesystem' => 'tmpfs',
-						'1K-blocks' => '100928',
-						'Used' => '11332',
-						'Available' => '89596',
-						'Use%' => '12%',
+						'1K-blocks'  => '100928',
+						'Used'       => '11332',
+						'Available'  => '89596',
+						'Use%'       => '12%',
 						'Mounted on' => '/run',
 					],
 					[
 						'Filesystem' => '/dev/sda1',
-						'1K-blocks' => '64891708',
-						'Used' => '5079872',
-						'Available' => '56492492',
-						'Use%' => '9%',
+						'1K-blocks'  => '64891708',
+						'Used'       => '5079872',
+						'Available'  => '56492492',
+						'Use%'       => '9%',
 						'Mounted on' => '/',
 					],
 					[
 						'Filesystem' => 'tmpfs',
-						'1K-blocks' => '504636',
-						'Used' => '216',
-						'Available' => '504420',
-						'Use%' => '1%',
+						'1K-blocks'  => '504636',
+						'Used'       => '216',
+						'Available'  => '504420',
+						'Use%'       => '1%',
 						'Mounted on' => '/dev/shm',
 					],
 					[
 						'Filesystem' => 'tmpfs',
-						'1K-blocks' => '5120',
-						'Used' => '4',
-						'Available' => '5116',
-						'Use%' => '1%',
+						'1K-blocks'  => '5120',
+						'Used'       => '4',
+						'Available'  => '5116',
+						'Use%'       => '1%',
 						'Mounted on' => '/run/lock',
 					],
 					[
 						'Filesystem' => 'tmpfs',
-						'1K-blocks' => '504636',
-						'Used' => '0',
-						'Available' => '504636',
-						'Use%' => '0%',
+						'1K-blocks'  => '504636',
+						'Used'       => '0',
+						'Available'  => '504636',
+						'Use%'       => '0%',
 						'Mounted on' => '/sys/fs/cgroup',
 					],
 					[
 						'Filesystem' => 'Home',
-						'1K-blocks' => '487712924',
-						'Used' => '411037236',
-						'Available' => '76675688',
-						'Use%' => '85%',
+						'1K-blocks'  => '487712924',
+						'Used'       => '411037236',
+						'Available'  => '76675688',
+						'Use%'       => '85%',
 						'Mounted on' => '/media/psf/Home',
 					],
 					[
 						'Filesystem' => 'iCloud',
-						'1K-blocks' => '487712924',
-						'Used' => '411037236',
-						'Available' => '76675688',
-						'Use%' => '85%',
+						'1K-blocks'  => '487712924',
+						'Used'       => '411037236',
+						'Available'  => '76675688',
+						'Use%'       => '85%',
 						'Mounted on' => '/media/psf/iCloud',
 					],
 					[
 						'Filesystem' => 'Media',
-						'1K-blocks' => '3906682672',
-						'Used' => '3837238816',
-						'Available' => '69443856',
-						'Use%' => '99%',
+						'1K-blocks'  => '3906682672',
+						'Used'       => '3837238816',
+						'Available'  => '69443856',
+						'Use%'       => '99%',
 						'Mounted on' => '/media/psf/Media',
 					],
 					[
 						'Filesystem' => 'Tardis',
-						'1K-blocks' => '11720569840',
-						'Used' => '8726586336',
-						'Available' => '2993983504',
-						'Use%' => '75%',
+						'1K-blocks'  => '11720569840',
+						'Used'       => '8726586336',
+						'Available'  => '2993983504',
+						'Use%'       => '75%',
 						'Mounted on' => '/media/psf/Tardis',
 					],
 					[
 						'Filesystem' => 'Google Chrome',
-						'1K-blocks' => '177800',
-						'Used' => '177800',
-						'Available' => '0',
-						'Use%' => '100%',
+						'1K-blocks'  => '177800',
+						'Used'       => '177800',
+						'Available'  => '0',
+						'Use%'       => '100%',
 						'Mounted on' => '/media/psf/Google Chrome',
 					],
 					[
 						'Filesystem' => 'Photo Library',
-						'1K-blocks' => '3906682672',
-						'Used' => '3837238816',
-						'Available' => '69443856',
-						'Use%' => '99%',
+						'1K-blocks'  => '3906682672',
+						'Used'       => '3837238816',
+						'Available'  => '69443856',
+						'Use%'       => '99%',
 						'Mounted on' => '/media/psf/Photo Library',
 					],
 					[
 						'Filesystem' => 'Dropbox',
-						'1K-blocks' => '3906682672',
-						'Used' => '3837238816',
-						'Available' => '69443856',
-						'Use%' => '99%',
+						'1K-blocks'  => '3906682672',
+						'Used'       => '3837238816',
+						'Available'  => '69443856',
+						'Use%'       => '99%',
 						'Mounted on' => '/media/psf/Dropbox',
 					],
 					[
 						'Filesystem' => 'Dropbox for Business',
-						'1K-blocks' => '3906682672',
-						'Used' => '3837238816',
-						'Available' => '69443856',
-						'Use%' => '99%',
+						'1K-blocks'  => '3906682672',
+						'Used'       => '3837238816',
+						'Available'  => '69443856',
+						'Use%'       => '99%',
 						'Mounted on' => '/media/psf/Dropbox for Business',
 					],
 					[
 						'Filesystem' => 'Google Drive',
-						'1K-blocks' => '487712924',
-						'Used' => '411037236',
-						'Available' => '76675688',
-						'Use%' => '85%',
+						'1K-blocks'  => '487712924',
+						'Used'       => '411037236',
+						'Available'  => '76675688',
+						'Use%'       => '85%',
 						'Mounted on' => '/media/psf/Google Drive',
 					],
 					[
 						'Filesystem' => 'SteerMouse',
-						'1K-blocks' => '10200',
-						'Used' => '7616',
-						'Available' => '2584',
-						'Use%' => '75%',
+						'1K-blocks'  => '10200',
+						'Used'       => '7616',
+						'Available'  => '2584',
+						'Use%'       => '75%',
 						'Mounted on' => '/media/psf/SteerMouse',
 					],
 					[
 						'Filesystem' => 'tmpfs',
-						'1K-blocks' => '100928',
-						'Used' => '92',
-						'Available' => '100836',
-						'Use%' => '1%',
+						'1K-blocks'  => '100928',
+						'Used'       => '92',
+						'Available'  => '100836',
+						'Use%'       => '1%',
 						'Mounted on' => '/run/user/1000',
 					],
 				],

@@ -1,9 +1,9 @@
 <?php
 declare(strict_types=1);
-namespace zesk;
 
-class HTMLTagTest extends UnitTest
-{
+namespace test\zesk;
+
+class HTMLTagTest extends UnitTest {
 	public function test_basics(): void
 	{
 		$name = 'div';

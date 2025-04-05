@@ -5,14 +5,21 @@ declare(strict_types=1);
  * @package zesk
  * @subpackage test
  */
-namespace zesk;
 
-class DateInterval_Test extends UnitTest
-{
+namespace test\zesk;
+
+class DateInterval_Test extends UnitTest {
 	public static function data_sample_interval_row(): array
 	{
 		return [
-			['P1Y'], ['PT1S'], ['PT60S'], ['PT6000S'], ['PT3600S'], ['PT86400M'], ['P1D'], ['P2D'],
+			['P1Y'],
+			['PT1S'],
+			['PT60S'],
+			['PT6000S'],
+			['PT3600S'],
+			['PT86400M'],
+			['P1D'],
+			['P2D'],
 		];
 	}
 
@@ -21,7 +28,10 @@ class DateInterval_Test extends UnitTest
 		$result = [];
 		foreach (self::data_sample_interval_row() as $sample_interval_row) {
 			$sample_interval = $sample_interval_row[0];
-			$result[] = [new DateInterval($sample_interval), new \DateInterval($sample_interval)];
+			$result[] = [
+				new DateInterval($sample_interval),
+				new \DateInterval($sample_interval),
+			];
 		}
 		return $result;
 	}
@@ -53,9 +63,38 @@ class DateInterval_Test extends UnitTest
 	public static function data_toSeconds(): array
 	{
 		return [
-			['P1Y', Temporal::SECONDS_PER_YEAR], ['PT1S', 1.0], ['PT60S', 60.0], ['PT6000S', 6000.0],
-			['PT3600S', 3600.0], ['PT86400M', 5184000.0],
-			['P1D', 86400.0], ['P2D', 86400.0 * 2.0],
+			[
+				'P1Y',
+				Temporal::SECONDS_PER_YEAR,
+			],
+			[
+				'PT1S',
+				1.0,
+			],
+			[
+				'PT60S',
+				60.0,
+			],
+			[
+				'PT6000S',
+				6000.0,
+			],
+			[
+				'PT3600S',
+				3600.0,
+			],
+			[
+				'PT86400M',
+				5184000.0,
+			],
+			[
+				'P1D',
+				86400.0,
+			],
+			[
+				'P2D',
+				86400.0 * 2.0,
+			],
 		];
 	}
 }

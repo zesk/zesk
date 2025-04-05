@@ -1,23 +1,46 @@
 <?php
 declare(strict_types=1);
 
-namespace zesk;
+namespace test\zesk;
 
 use zesk\Exception\SyntaxException;
 
-class CSSTest extends UnitTest
-{
+class CSSTest extends UnitTest {
 	public static function data_isColor(): array
 	{
 		return [
-			[true, 'red'],
-			[true, 'green'],
-			[true, 'blue'],
-			[true, 'orange'],
-			[true, 'red'],
-			[true, '#FFF'],
-			[true, 'rgb(1,2,3)'],
-			[false, 'cat'],
+			[
+				true,
+				'red',
+			],
+			[
+				true,
+				'green',
+			],
+			[
+				true,
+				'blue',
+			],
+			[
+				true,
+				'orange',
+			],
+			[
+				true,
+				'red',
+			],
+			[
+				true,
+				'#FFF',
+			],
+			[
+				true,
+				'rgb(1,2,3)',
+			],
+			[
+				false,
+				'cat',
+			],
 		];
 	}
 
@@ -60,7 +83,11 @@ class CSSTest extends UnitTest
 				continue;
 			}
 			$this->assertNotNull($result);
-			[$r, $g, $b] = explode(';', $result);
+			[
+				$r,
+				$g,
+				$b,
+			] = explode(';', $result);
 			//		$aresult = array('r' => intval($r),'g' => intval($g),'b'=>intval($b));
 			$aresult = [
 				intval($r),
@@ -79,7 +106,11 @@ class CSSTest extends UnitTest
 
 	public function test_colorFormat(): void
 	{
-		$rgb = [250, 206, 190];
+		$rgb = [
+			250,
+			206,
+			190,
+		];
 		$this->assertEquals('#FACEBE', CSS::colorFormat($rgb));
 	}
 
@@ -137,9 +168,30 @@ class CSSTest extends UnitTest
 	public static function data_rgbToHex(): array
 	{
 		return [
-			['000102', [0, 1, 2]],
-			['FFFFFF', [255, 255, 255]],
-			['FFFFFF', [256, 255, 255]],
+			[
+				'000102',
+				[
+					0,
+					1,
+					2,
+				],
+			],
+			[
+				'FFFFFF',
+				[
+					255,
+					255,
+					255,
+				],
+			],
+			[
+				'FFFFFF',
+				[
+					256,
+					255,
+					255,
+				],
+			],
 		];
 	}
 }

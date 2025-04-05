@@ -1,21 +1,32 @@
 <?php
 declare(strict_types=1);
 
-namespace zesk;
+namespace test\zesk;
 
 use stdClass;
 use zesk\Exception\KeyNotFound;
 use zesk\Exception\ParseException;
 use zesk\Exception\UnimplementedException;
 
-class PHPTest extends UnitTest
-{
+class PHPTest extends UnitTest {
 	public function test_php_basics(): void
 	{
 		$this->assertFalse(!![]);
-		$this->assertTrue(!![1, ]);
-		$truthy = [new stdClass(), [1, ], ['', ], [0, ], [null, ], ];
-		$falsy = [0, '', null, false, 0.0, ];
+		$this->assertTrue(!![1,]);
+		$truthy = [
+			new stdClass(),
+			[1,],
+			['',],
+			[0,],
+			[null,],
+		];
+		$falsy = [
+			0,
+			'',
+			null,
+			false,
+			0.0,
+		];
 		foreach ($truthy as $true) {
 			$this->assertTrue(!!$true, gettype($true) . ' is not TRUE ' . var_export($true, true));
 		}
@@ -69,12 +80,38 @@ class PHPTest extends UnitTest
 	public static function data_provider_render(): array
 	{
 		return [
-			[false, 'false', ],
-			[true, 'true', ],
-			[null, 'null', ],
-			[0, '0'],
-			[0.123, '0.123'],
-			['$Hello', '"\\$Hello"', ], [['1', '2', '3', ], '["1", "2", "3", ]', ],
+			[
+				false,
+				'false',
+			],
+			[
+				true,
+				'true',
+			],
+			[
+				null,
+				'null',
+			],
+			[
+				0,
+				'0',
+			],
+			[
+				0.123,
+				'0.123',
+			],
+			[
+				'$Hello',
+				'"\\$Hello"',
+			],
+			[
+				[
+					'1',
+					'2',
+					'3',
+				],
+				'["1", "2", "3", ]',
+			],
 		];
 	}
 
@@ -89,8 +126,18 @@ class PHPTest extends UnitTest
 	public static function data_setFeature(): array
 	{
 		return [
-			[PHP::FEATURE_MEMORY_LIMIT, 512 * 1024 * 1024], [PHP::FEATURE_TIME_LIMIT, null],
-			['not-a-feature', null],
+			[
+				PHP::FEATURE_MEMORY_LIMIT,
+				512 * 1024 * 1024,
+			],
+			[
+				PHP::FEATURE_TIME_LIMIT,
+				null,
+			],
+			[
+				'not-a-feature',
+				null,
+			],
 		];
 	}
 
@@ -114,8 +161,18 @@ class PHPTest extends UnitTest
 	public function test_php_references(): void
 	{
 		$bigthing = [
-			'a' => ['kind' => 'letter', 'code' => 65, ], 'b' => ['kind' => 'letter', 'code' => 66, ],
-			'9' => ['kind' => 'number', 'code' => ord('9'), ],
+			'a' => [
+				'kind' => 'letter',
+				'code' => 65,
+			],
+			'b' => [
+				'kind' => 'letter',
+				'code' => 66,
+			],
+			'9' => [
+				'kind' => 'number',
+				'code' => ord('9'),
+			],
 		];
 
 		$otherarray = [];
@@ -125,8 +182,18 @@ class PHPTest extends UnitTest
 		// Nothing, unset applies only to the key in the array
 
 		$this->assertEquals($bigthing, [
-			'a' => ['kind' => 'letter', 'code' => 65, ], 'b' => ['kind' => 'letter', 'code' => 66, ],
-			'9' => ['kind' => 'number', 'code' => ord('9'), ],
+			'a' => [
+				'kind' => 'letter',
+				'code' => 65,
+			],
+			'b' => [
+				'kind' => 'letter',
+				'code' => 66,
+			],
+			'9' => [
+				'kind' => 'number',
+				'code' => ord('9'),
+			],
 		]);
 	}
 
@@ -149,21 +216,73 @@ class PHPTest extends UnitTest
 	public static function data_autoType(): array
 	{
 		$stdClass = new stdClass();
-		return
-		[
-			[12093019, '12093019'],
-			[0, '0'],
-			[1, '1'],
-			[8675309, '8675309'],
-			[99.999, '99.999'],
-			[$stdClass, $stdClass],
-			[null, 'null'],
-			['User', 'User'],
-			[[], '[]'],
-			[[1, 2, 3], '[1,2,3]'],
-			[[1, 2, 3], '[1,2,3,]', true],
-			[[1, 2, 3], '{1,2,3}', true],
-			[['hello' => 'world'], '{"hello":"world"}'],
+		return [
+			[
+				12093019,
+				'12093019',
+			],
+			[
+				0,
+				'0',
+			],
+			[
+				1,
+				'1',
+			],
+			[
+				8675309,
+				'8675309',
+			],
+			[
+				99.999,
+				'99.999',
+			],
+			[
+				$stdClass,
+				$stdClass,
+			],
+			[
+				null,
+				'null',
+			],
+			[
+				'User',
+				'User',
+			],
+			[
+				[],
+				'[]',
+			],
+			[
+				[
+					1,
+					2,
+					3,
+				],
+				'[1,2,3]',
+			],
+			[
+				[
+					1,
+					2,
+					3,
+				],
+				'[1,2,3,]',
+				true,
+			],
+			[
+				[
+					1,
+					2,
+					3,
+				],
+				'{1,2,3}',
+				true,
+			],
+			[
+				['hello' => 'world'],
+				'{"hello":"world"}',
+			],
 		];
 	}
 }

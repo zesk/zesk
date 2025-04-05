@@ -1,15 +1,14 @@
 <?php
 declare(strict_types=1);
 
-namespace zesk;
+namespace test\zesk;
 
 use zesk\Exception\DirectoryCreate;
 use zesk\Exception\DirectoryPermission;
 use zesk\Exception\FileNotFound;
 use zesk\Exception\FilePermission;
 
-class File_Test extends UnitTest
-{
+class File_Test extends UnitTest {
 	private function _test_atomic_increment(string $path, $start): void
 	{
 		$this->assertTrue(File::atomicPut($path, "$start"), 'Creating initial file');
@@ -25,10 +24,26 @@ class File_Test extends UnitTest
 	public static function data_absolute_path(): array
 	{
 		return [
-			['/whatever', '/whatever', 'does not matter'],
-			['/whatever', '/whatever', null],
-			['/var/dude', 'dude', '/var'],
-			['etc/hosts/dude/er/ino', 'dude/er/ino', 'etc/hosts'],
+			[
+				'/whatever',
+				'/whatever',
+				'does not matter',
+			],
+			[
+				'/whatever',
+				'/whatever',
+				null,
+			],
+			[
+				'/var/dude',
+				'dude',
+				'/var',
+			],
+			[
+				'etc/hosts/dude/er/ino',
+				'dude/er/ino',
+				'etc/hosts',
+			],
 		];
 	}
 
@@ -72,9 +87,18 @@ class File_Test extends UnitTest
 	public static function data_base(): array
 	{
 		return [
-			['foo/bar/dee.inc', 'dee'],
-			['foo/bar/dee', 'dee'],
-			['C:/Users/Volumes/Places/foo.xlsx', 'foo'],
+			[
+				'foo/bar/dee.inc',
+				'dee',
+			],
+			[
+				'foo/bar/dee',
+				'dee',
+			],
+			[
+				'C:/Users/Volumes/Places/foo.xlsx',
+				'foo',
+			],
 		];
 	}
 
@@ -151,16 +175,46 @@ class File_Test extends UnitTest
 	public static function data_extension()
 	{
 		return [
-			['foo.xLSx', 'xLSx'],
-			['foo.xlsx', 'xlsx'],
-			['foo.', ''],
-			['foo-bar-none', ''],
-			['foo.XlsX', 'XlsX'],
-			['foo.xlsx', 'xlsx'],
-			['/path/to/a/filename.XLSX', 'XLSX'],
-			['/path/to/a/../b/filename.xlsx', 'xlsx'],
-			['/path/t.o/a/filename.XLSX', 'XLSX'],
-			['/p.ath/to/a/filename.xlsx', 'xlsx'],
+			[
+				'foo.xLSx',
+				'xLSx',
+			],
+			[
+				'foo.xlsx',
+				'xlsx',
+			],
+			[
+				'foo.',
+				'',
+			],
+			[
+				'foo-bar-none',
+				'',
+			],
+			[
+				'foo.XlsX',
+				'XlsX',
+			],
+			[
+				'foo.xlsx',
+				'xlsx',
+			],
+			[
+				'/path/to/a/filename.XLSX',
+				'XLSX',
+			],
+			[
+				'/path/to/a/../b/filename.xlsx',
+				'xlsx',
+			],
+			[
+				'/path/t.o/a/filename.XLSX',
+				'XLSX',
+			],
+			[
+				'/p.ath/to/a/filename.xlsx',
+				'xlsx',
+			],
 		];
 	}
 
@@ -183,8 +237,16 @@ class File_Test extends UnitTest
 	public static function data_nameClean(): array
 	{
 		return [
-			['yer!@#$the%^&*(()_+{}|dude.xml', '-', 'yer-the-_-dude.xml'],
-			['yer!@#$the%^&*(()_+{}|dude.xml', '_', 'yer_the_dude.xml'],
+			[
+				'yer!@#$the%^&*(()_+{}|dude.xml',
+				'-',
+				'yer-the-_-dude.xml',
+			],
+			[
+				'yer!@#$the%^&*(()_+{}|dude.xml',
+				'_',
+				'yer_the_dude.xml',
+			],
 		];
 	}
 
@@ -206,10 +268,22 @@ class File_Test extends UnitTest
 	public static function data_pathCheck(): array
 	{
 		return [
-			['foo/' . chr(194) . 'bar/doo.xlsx', false],
-			['foo/../bar/.././doo.xlsx', false],
-			['normalish.xlsx', true],
-			['a/very/normalish.xlsx', true],
+			[
+				'foo/' . chr(194) . 'bar/doo.xlsx',
+				false,
+			],
+			[
+				'foo/../bar/.././doo.xlsx',
+				false,
+			],
+			[
+				'normalish.xlsx',
+				true,
+			],
+			[
+				'a/very/normalish.xlsx',
+				true,
+			],
 		];
 	}
 
@@ -239,15 +313,42 @@ class File_Test extends UnitTest
 	public static function data_stripExtension(): array
 	{
 		return [
-			['C:/path/to/a/place/whatever.fii', 'C:/path/to/a/place/whatever.fii.sucka'],
-			['//path/to/a/place/whatever.fii', '//path/to/a/place/whatever.fii.sucka'],
-			['/path/to/a/place/whatever.fii', '/path/to/a/place/whatever.fii.sucka'],
-			['path/to/a/place/whatever.fii', 'path/to/a/place/whatever.fii.sucka'],
-			['./path/to/a/place/whatever.fii', './path/to/a/place/whatever.fii.sucka'],
-			['./whatever.fii', './whatever.fii.sucka'],
-			['whatever.fii', 'whatever.fii.sucka'],
-			['whats......', 'whats.......goingon'],
-			['things/in/front/of/it./with.dots/whats......', 'things/in/front/of/it./with.dots/whats.......goingon'],
+			[
+				'C:/path/to/a/place/whatever.fii',
+				'C:/path/to/a/place/whatever.fii.sucka',
+			],
+			[
+				'//path/to/a/place/whatever.fii',
+				'//path/to/a/place/whatever.fii.sucka',
+			],
+			[
+				'/path/to/a/place/whatever.fii',
+				'/path/to/a/place/whatever.fii.sucka',
+			],
+			[
+				'path/to/a/place/whatever.fii',
+				'path/to/a/place/whatever.fii.sucka',
+			],
+			[
+				'./path/to/a/place/whatever.fii',
+				'./path/to/a/place/whatever.fii.sucka',
+			],
+			[
+				'./whatever.fii',
+				'./whatever.fii.sucka',
+			],
+			[
+				'whatever.fii',
+				'whatever.fii.sucka',
+			],
+			[
+				'whats......',
+				'whats.......goingon',
+			],
+			[
+				'things/in/front/of/it./with.dots/whats......',
+				'things/in/front/of/it./with.dots/whats.......goingon',
+			],
 		];
 	}
 

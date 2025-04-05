@@ -1,13 +1,12 @@
 <?php
 declare(strict_types=1);
 
-namespace zesk;
+namespace test\zesk;
 
 use zesk\Exception\DirectoryNotFound;
 use zesk\Exception\FilePermission;
 
-class FIFO_Test extends UnitTest
-{
+class FIFO_Test extends UnitTest {
 	public function test_fifo_create_false(): void
 	{
 		$fifo = new FIFO('does not matter whatever if create is false', false);
@@ -50,7 +49,21 @@ class FIFO_Test extends UnitTest
 	public static function data_fifo_dataSet(): array
 	{
 		return [
-			[[0, 1, 2, 3, null, 'alphabet', ['array'], ['a' => 1, 'b' => 2]]],
+			[
+				[
+					0,
+					1,
+					2,
+					3,
+					null,
+					'alphabet',
+					['array'],
+					[
+						'a' => 1,
+						'b' => 2,
+					],
+				],
+			],
 		];
 	}
 
@@ -114,7 +127,10 @@ class FIFO_Test extends UnitTest
 
 		$termToken = $this->randomHex(20);
 
-		$map = ['writer_path' => PHP::dump($writer_path), 'reader_path' => PHP::dump($reader_path)];
+		$map = [
+			'writer_path' => PHP::dump($writer_path),
+			'reader_path' => PHP::dump($reader_path),
+		];
 
 		// Our process reads from the writer and writes to the reader
 		$echoCode = ['<?php'];

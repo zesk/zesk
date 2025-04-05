@@ -3,15 +3,15 @@ declare(strict_types=1);
 /**
  *
  */
-namespace zesk;
+
+namespace test\zesk;
 
 /**
  *
  * @author kent
  *
  */
-class Template_Test extends UnitTest
-{
+class Template_Test extends UnitTest {
 	public function initialize(): void
 	{
 	}

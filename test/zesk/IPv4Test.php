@@ -1,13 +1,12 @@
 <?php
 declare(strict_types=1);
 
-namespace zesk;
+namespace test\zesk;
 
 /**
  *
  */
-class IPv4Test extends UnitTest
-{
+class IPv4Test extends UnitTest {
 	public function test_from_integer(): void
 	{
 		$this->assertEquals('192.168.0.200', IPv4::fromInteger(3232235720));
@@ -43,24 +42,132 @@ class IPv4Test extends UnitTest
 	public static function data_mask_to_integers(): array
 	{
 		return [
-			[[null, null], '127.0.0.2.3'],
-			[[null, null], '256.0.0'],
-			[[null, null], '1.0.-4'],
-			[[null, null], '1.0.2343'],
-			[[null, null], '1.*.2343'],
-			[[null, null], '127.0.0.1/33'],
-			[[2130706433.0, 32], '127.0.0.1'],
-			[[2130706432.0, 24], '127.0.0'],
-			[[2130706432.0, 16], '127.0'],
-			[[2130706432.0, 8], '127'],
-			[[2130706432.0, 24], '127.0.0.1/24'],
-			[[2130706432.0, 16], '127.0.0.1/16'],
-			[[167772160.0, 8], '10.0.0.1/8'],
-			[[167772160.0, 16], '10.0.0.1/16'],
-			[[167772160.0, 24], '10.0.0.1/24'],
-			[[167772160.0, 25], '10.0.0.1/25'],
-			[[167772160.0, 31], '10.0.0.1/31'],
-			[[167772161.0, 32], '10.0.0.1/32'],
+			[
+				[
+					null,
+					null,
+				],
+				'127.0.0.2.3',
+			],
+			[
+				[
+					null,
+					null,
+				],
+				'256.0.0',
+			],
+			[
+				[
+					null,
+					null,
+				],
+				'1.0.-4',
+			],
+			[
+				[
+					null,
+					null,
+				],
+				'1.0.2343',
+			],
+			[
+				[
+					null,
+					null,
+				],
+				'1.*.2343',
+			],
+			[
+				[
+					null,
+					null,
+				],
+				'127.0.0.1/33',
+			],
+			[
+				[
+					2130706433.0,
+					32,
+				],
+				'127.0.0.1',
+			],
+			[
+				[
+					2130706432.0,
+					24,
+				],
+				'127.0.0',
+			],
+			[
+				[
+					2130706432.0,
+					16,
+				],
+				'127.0',
+			],
+			[
+				[
+					2130706432.0,
+					8,
+				],
+				'127',
+			],
+			[
+				[
+					2130706432.0,
+					24,
+				],
+				'127.0.0.1/24',
+			],
+			[
+				[
+					2130706432.0,
+					16,
+				],
+				'127.0.0.1/16',
+			],
+			[
+				[
+					167772160.0,
+					8,
+				],
+				'10.0.0.1/8',
+			],
+			[
+				[
+					167772160.0,
+					16,
+				],
+				'10.0.0.1/16',
+			],
+			[
+				[
+					167772160.0,
+					24,
+				],
+				'10.0.0.1/24',
+			],
+			[
+				[
+					167772160.0,
+					25,
+				],
+				'10.0.0.1/25',
+			],
+			[
+				[
+					167772160.0,
+					31,
+				],
+				'10.0.0.1/31',
+			],
+			[
+				[
+					167772161.0,
+					32,
+				],
+				'10.0.0.1/32',
+			],
 		];
 	}
 
@@ -80,7 +187,10 @@ class IPv4Test extends UnitTest
 		$ips = file($this->application->zeskHome('test/test-data/ip.txt'));
 
 		$ip = '192.168.0.248';
-		[$a, $b] = IPv4::mask_to_integers("$ip/29");
+		[
+			$a,
+			$b,
+		] = IPv4::mask_to_integers("$ip/29");
 		$this->assertEquals("$ip/29", IPv4::fromInteger($a) . "/$b");
 
 		foreach ($ips as $ip) {
@@ -90,11 +200,20 @@ class IPv4Test extends UnitTest
 			}
 			for ($i = 32; $i >= 8; $i--) {
 				$string = "$ip/$i";
-				[$a, $b] = IPv4::mask_to_integers($string);
+				[
+					$a,
+					$b,
+				] = IPv4::mask_to_integers($string);
 				$check_string = IPv4::mask_to_string($a, $b, false);
-				[$a1, $b1] = IPv4::mask_to_integers($check_string);
+				[
+					$a1,
+					$b1,
+				] = IPv4::mask_to_integers($check_string);
 				$check_string1 = IPv4::mask_to_string($a1, $b1, false);
-				[$a, $b] = IPv4::mask_to_integers($check_string1);
+				[
+					$a,
+					$b,
+				] = IPv4::mask_to_integers($check_string1);
 
 				$this->assertEquals($check_string, $check_string1, "$string ($a, $a1 => $b, $b1)");
 				$this->assertEquals($a, $a1, sprintf('%032b === %032b', $a, $a1));
@@ -148,8 +267,8 @@ class IPv4Test extends UnitTest
 		return [
 			[
 				'1.0.0.0/16',
-				(float) 0x01000000,
-				(float) 0x0100FFFF,
+				(float)0x01000000,
+				(float)0x0100FFFF,
 			],
 			[
 				'192.168.*',
@@ -199,7 +318,10 @@ class IPv4Test extends UnitTest
 		if (is_string($ip_check_high)) {
 			$ip_check_high = IPv4::toInteger($ip_check_high);
 		}
-		[$ip_low, $ip_high] = IPv4::network($ipmask);
+		[
+			$ip_low,
+			$ip_high,
+		] = IPv4::network($ipmask);
 		$this->assertEquals($ip_low, $ip_check_low, 'Low Check: ' . IPv4::fromInteger($ip_low) . ' !== ' . IPv4::fromInteger($ip_check_low));
 		$this->assertEquals($ip_high, $ip_check_high, 'High Check: ' . IPv4::fromInteger($ip_high) . ' !== ' . IPv4::fromInteger($ip_check_high));
 	}
@@ -207,25 +329,82 @@ class IPv4Test extends UnitTest
 	public static function data_to_integer(): array
 	{
 		return [
-			[floatval(1), 1],
-			[floatval(9999), 9999],
-			[floatval(0xFFFFFFFF), 0xFFFFFFFF],
-			[123123145.0, 123123145.0],
-			[floatval(0xFFFFFFFF), '255.255.255.255'],
-			[0, ''],
-			[0, false],
-			[0, []],
-			[0, null],
-			[16909060.0, '1.2.3.4'],
-			[33752065.0, '2.3.4.1'],
-			[99.0, '0.0.0.99'],
-			[0, '1.0.0.256'],
-			[0, '1.0.256.0'],
-			[0, '1.0.256.0'],
-			[0, '1.256.0.0'],
-			[0, '256.0.0.0'],
-			[3232235736.0, '192.168.0.216'],
-			[4294967288.0, '255.255.255.248'],
+			[
+				floatval(1),
+				1,
+			],
+			[
+				floatval(9999),
+				9999,
+			],
+			[
+				floatval(0xFFFFFFFF),
+				0xFFFFFFFF,
+			],
+			[
+				123123145.0,
+				123123145.0,
+			],
+			[
+				floatval(0xFFFFFFFF),
+				'255.255.255.255',
+			],
+			[
+				0,
+				'',
+			],
+			[
+				0,
+				false,
+			],
+			[
+				0,
+				[],
+			],
+			[
+				0,
+				null,
+			],
+			[
+				16909060.0,
+				'1.2.3.4',
+			],
+			[
+				33752065.0,
+				'2.3.4.1',
+			],
+			[
+				99.0,
+				'0.0.0.99',
+			],
+			[
+				0,
+				'1.0.0.256',
+			],
+			[
+				0,
+				'1.0.256.0',
+			],
+			[
+				0,
+				'1.0.256.0',
+			],
+			[
+				0,
+				'1.256.0.0',
+			],
+			[
+				0,
+				'256.0.0.0',
+			],
+			[
+				3232235736.0,
+				'192.168.0.216',
+			],
+			[
+				4294967288.0,
+				'255.255.255.248',
+			],
 		];
 	}
 
@@ -281,18 +460,55 @@ class IPv4Test extends UnitTest
 	public static function data_subnet_mask_not(): array
 	{
 		return [
-			[0, 32],
-			[1, 31],
-			[3, 30],
-			[127, 25],
-			[1023, 22], // 10 bits
-			[16383, 18],
-			[65535, 16],
-			[16777215, 8],
-			[268435455, 4],
-			[1073741823, 2],
-			[2147483647, 1],
-			[4294967295, 0],
+			[
+				0,
+				32,
+			],
+			[
+				1,
+				31,
+			],
+			[
+				3,
+				30,
+			],
+			[
+				127,
+				25,
+			],
+			[
+				1023,
+				22,
+			],
+			// 10 bits
+			[
+				16383,
+				18,
+			],
+			[
+				65535,
+				16,
+			],
+			[
+				16777215,
+				8,
+			],
+			[
+				268435455,
+				4,
+			],
+			[
+				1073741823,
+				2,
+			],
+			[
+				2147483647,
+				1,
+			],
+			[
+				4294967295,
+				0,
+			],
 		];
 	}
 
@@ -310,24 +526,78 @@ class IPv4Test extends UnitTest
 	public static function data_valid(): array
 	{
 		return [
-			['192.168.0.1', true, ],
-			['192.168.0.0', false, ],
-			['0.168.0.1', false, ],
-			['1.168.0.1', true, ],
-			['256.168.0.1', false, ],
-			['-1.168.0.1', false, ],
-			['192.168.0.0.1', false, ],
-			['10.0.0.1', true, ],
-			['10.0.256.1', false, ],
-			['10.0.-1.1', false, ],
-			['10.0.42A.1', false, ],
-			['10.0.42A.1', false, ],
-			['10.0.42A.1', false, ],
-			['255.255.255.255', true, ],
-			['256.255.255.255', false, ],
-			['255.256.255.255', false, ],
-			['255.255.256.255', false, ],
-			['255.255.255.256', false, ],
+			[
+				'192.168.0.1',
+				true,
+			],
+			[
+				'192.168.0.0',
+				false,
+			],
+			[
+				'0.168.0.1',
+				false,
+			],
+			[
+				'1.168.0.1',
+				true,
+			],
+			[
+				'256.168.0.1',
+				false,
+			],
+			[
+				'-1.168.0.1',
+				false,
+			],
+			[
+				'192.168.0.0.1',
+				false,
+			],
+			[
+				'10.0.0.1',
+				true,
+			],
+			[
+				'10.0.256.1',
+				false,
+			],
+			[
+				'10.0.-1.1',
+				false,
+			],
+			[
+				'10.0.42A.1',
+				false,
+			],
+			[
+				'10.0.42A.1',
+				false,
+			],
+			[
+				'10.0.42A.1',
+				false,
+			],
+			[
+				'255.255.255.255',
+				true,
+			],
+			[
+				'256.255.255.255',
+				false,
+			],
+			[
+				'255.256.255.255',
+				false,
+			],
+			[
+				'255.255.256.255',
+				false,
+			],
+			[
+				'255.255.255.256',
+				false,
+			],
 		];
 	}
 
@@ -416,19 +686,58 @@ class IPv4Test extends UnitTest
 		$r1 = self::randomInteger(0, 255);
 		$r2 = self::randomInteger(0, 255);
 		return [
-			[true, '10.2.3.4'],
-			[true, '10.255.3.4'],
-			[true, '10.2.32.4'],
-			[true, '10.2.3.41'],
-			[true, '0.2.3.41'],
-			[true, '100.64.4.255'],
-			[true, '100.65.255.255'],
-			[false, '100.192.255.255'],
-			[true, "127.$r0.$r1.$r2"],
-			[true, "169.254.$r0.$r1"],
-			[true, "169.254.$r1.$r2"],
-			[false, "169.255.$r1.$r2"],
-			[true, "224.$r1.$r2.$r2"],
+			[
+				true,
+				'10.2.3.4',
+			],
+			[
+				true,
+				'10.255.3.4',
+			],
+			[
+				true,
+				'10.2.32.4',
+			],
+			[
+				true,
+				'10.2.3.41',
+			],
+			[
+				true,
+				'0.2.3.41',
+			],
+			[
+				true,
+				'100.64.4.255',
+			],
+			[
+				true,
+				'100.65.255.255',
+			],
+			[
+				false,
+				'100.192.255.255',
+			],
+			[
+				true,
+				"127.$r0.$r1.$r2",
+			],
+			[
+				true,
+				"169.254.$r0.$r1",
+			],
+			[
+				true,
+				"169.254.$r1.$r2",
+			],
+			[
+				false,
+				"169.255.$r1.$r2",
+			],
+			[
+				true,
+				"224.$r1.$r2.$r2",
+			],
 		];
 	}
 

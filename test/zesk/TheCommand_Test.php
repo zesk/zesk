@@ -6,7 +6,7 @@ declare(strict_types=1);
  *
  */
 
-namespace zesk;
+namespace test\zesk;
 
 use Stringable;
 use zesk\Command\SimpleCommand;
@@ -16,8 +16,7 @@ use zesk\Command\SimpleCommand;
  * @author kent
  *
  */
-class TheCommand_Test extends UnitTest
-{
+class TheCommand_Test extends UnitTest {
 	/**
 	 * @throws ParameterException
 	 */
@@ -28,10 +27,21 @@ class TheCommand_Test extends UnitTest
 		file_put_contents($f, 'test');
 
 		$argv = [
-			__CLASS__, '--no-ansi', '--file', $f, '--dir', $d, '--', 'ignored', '--', 'another',
+			__CLASS__,
+			'--no-ansi',
+			'--file',
+			$f,
+			'--dir',
+			$d,
+			'--',
+			'ignored',
+			'--',
+			'another',
 		];
 
-		$testObject = new SimpleCommand_Test($this->application, ['stdout' => true, 'no-ansi' => false]);
+		$testObject = new SimpleCommand_Test($this->application, ['stdout'  => true,
+																  'no-ansi' => false,
+		]);
 
 		$testObject->parseArguments($argv);
 
@@ -49,7 +59,9 @@ class TheCommand_Test extends UnitTest
 		$this->assertCount(3, $testObject->parseArguments($argv)->argumentsRemaining(false));
 
 		$this->assertEquals([
-			'ignored', '--', 'another',
+			'ignored',
+			'--',
+			'another',
 		], $testObject->parseArguments($argv)->argumentsRemaining(false));
 
 		$this->assertFalse($testObject->hasErrors());
@@ -85,13 +97,13 @@ class TheCommand_Test extends UnitTest
  * @author kent
  *
  */
-class SimpleCommand_Test extends SimpleCommand
-{
+class SimpleCommand_Test extends SimpleCommand {
 	public function initialize(): void
 	{
 		parent::initialize();
 		$this->option_types += [
-			'file' => 'file', 'dir' => 'dir',
+			'file' => 'file',
+			'dir'  => 'dir',
 		];
 	}
 

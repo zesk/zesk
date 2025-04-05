@@ -3,15 +3,15 @@ declare(strict_types=1);
 /**
  *
  */
-namespace zesk;
+
+namespace test\zesk;
 
 /**
  *
  * @author kent
  *
  */
-class Hexadecimal_Test extends UnitTest
-{
+class Hexadecimal_Test extends UnitTest {
 	public function test_decode(): void
 	{
 		$decoded = Hexadecimal::decode('DEADBEEF');

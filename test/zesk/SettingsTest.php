@@ -1,15 +1,14 @@
 <?php
 declare(strict_types=1);
 
-namespace zesk;
+namespace test\zesk;
 
 use zesk\Adapter\SettingsArray;
 use zesk\Adapter\SettingsArrayNoCase;
 use zesk\Adapter\SettingsConfiguration;
 use zesk\Interface\SettingsInterface;
 
-class SettingsTest extends UnitTest
-{
+class SettingsTest extends UnitTest {
 	public static array $arrayTarget = [];
 
 	public static array $arrayNoCaseTarget = [];

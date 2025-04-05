@@ -1,16 +1,16 @@
 <?php
 declare(strict_types=1);
 
-namespace zesk;
+namespace test\zesk;
 
 use zesk\Route\Controller as ControllerRoute;
 
-class CTest extends Controller
-{
+class CTest extends Controller {
 	protected array $argumentMethods = [];
 
 	protected array $actionMethods = [
-		'action_{action}', 'action_index',
+		'action_{action}',
+		'action_index',
 	];
 
 	protected array $beforeMethods = [
@@ -30,14 +30,24 @@ class CTest extends Controller
 
 	public function action_index(string $a = '', string $b = ''): string
 	{
-		$this->application->optionAppend(__CLASS__, [$a, $b]);
+		$this->application->optionAppend(__CLASS__, [
+			$a,
+			$b,
+		]);
 		return "$a|$b";
 	}
 
 	public function action_array(string $a, string $b, Request $request): array
 	{
-		$this->application->optionAppend(__CLASS__, [$a, $b]);
-		return ['first' => $a, 'second' => $b, 'request' => $request];
+		$this->application->optionAppend(__CLASS__, [
+			$a,
+			$b,
+		]);
+		return [
+			'first'   => $a,
+			'second'  => $b,
+			'request' => $request,
+		];
 	}
 
 	public static function getOption(Application $app): array
@@ -46,8 +56,7 @@ class CTest extends Controller
 	}
 }
 
-class ControllerTest extends UnitTest
-{
+class ControllerTest extends UnitTest {
 	/**
 	 *
 	 */
@@ -56,7 +65,7 @@ class ControllerTest extends UnitTest
 		$app = $this->application;
 
 		$app->addThemePath($this->test_sandbox());
-		$themeContent =  "--Test--\n";
+		$themeContent = "--Test--\n";
 		$themeContent .= '<' . "?php\n";
 		$themeContent .= "echo \"\$content\n\";\n";
 		$themeContent .= "echo gettype(\$content) . \"\n\";\n";
@@ -68,28 +77,48 @@ class ControllerTest extends UnitTest
 		$router = $app->router();
 
 		$router->addRoute('({first}(/{second}))', [
-			'controller' => Ctest::class, 'arguments' => [0, 1], 'action' => 'index', 'default' => true, 'weight' => 1,
+			'controller' => Ctest::class,
+			'arguments'  => [
+				0,
+				1,
+			],
+			'action'     => 'index',
+			'default'    => true,
+			'weight'     => 1,
 		]);
 		$testRouteStart = 'array'; /* No slashes allowed - indexes 1,2 */
 		$router->addRoute($testRouteStart . '(/{what}(/{verb}))', [
-			'controller' => Ctest::class, 'arguments' => [1, 2, '{request}'], 'action' => 'array', 'weight' => -1,
+			'controller' => Ctest::class,
+			'arguments'  => [
+				1,
+				2,
+				'{request}',
+			],
+			'action'     => 'array',
+			'weight'     => -1,
 		]);
 
 		$expected = ['init'];
 		foreach ([
-			'',
-			"$testRouteStart",
-			"$testRouteStart/1",
-			"$testRouteStart/Love",
-			"$testRouteStart/One",
-			"$testRouteStart/Heart/...lets-get",
-		] as $suffix) {
+					 '',
+					 "$testRouteStart",
+					 "$testRouteStart/1",
+					 "$testRouteStart/Love",
+					 "$testRouteStart/One",
+					 "$testRouteStart/Heart/...lets-get",
+				 ] as $suffix) {
 			$request = Request::factory($app, 'http://localhost/' . $suffix);
 
 			$route = $router->matchRequest($request);
 			$this->assertInstanceOf(ControllerRoute::class, $route);
 
-			[$first, $second] = explode('/', $suffix, 3) + ['', ''];
+			[
+				$first,
+				$second,
+			] = explode('/', $suffix, 3) + [
+				'',
+				'',
+			];
 			$response = $route->execute($request);
 			if (str_starts_with($suffix, $testRouteStart)) {
 				$remain = ltrim(StringTools::removePrefix($suffix, $testRouteStart), '/') . '//';
@@ -101,11 +130,14 @@ class ControllerTest extends UnitTest
 				$this->assertEquals($middlePart, $response->content());
 				$remain = $suffix;
 			}
-			$expected[] = $remain ? array_slice(explode('/', $remain, 3), 0, 2) : ['', ''];
+			$expected[] = $remain ? array_slice(explode('/', $remain, 3), 0, 2) : [
+				'',
+				'',
+			];
 			$this->assertInstanceOf(Response::class, $response);
 			$response->setPageTheme('test-theme');
 
-			$renderedContent = $response->render([Response::OPTION_SKIP_HEADERS => true, ]);
+			$renderedContent = $response->render([Response::OPTION_SKIP_HEADERS => true,]);
 			$this->assertEquals("--Test--\n$middlePart\nstring\nEOF", $renderedContent);
 		}
 

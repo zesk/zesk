@@ -6,19 +6,19 @@ declare(strict_types=1);
  * @copyright &copy; 2023 Market Acumen, Inc.
  * @author kent
  */
-namespace zesk;
+
+namespace test\zesk;
 
 /**
  * Generic test class
  */
-class MIME_Test extends UnitTest
-{
+class MIME_Test extends UnitTest {
 	public static function data_from_bad(): array
 	{
 		return [
-			['who/wants/a/foo.iges1', ],
-			['who/wants/a/foo.dessr', ],
-			['who/wants/a/foo.ssnbp', ],
+			['who/wants/a/foo.iges1',],
+			['who/wants/a/foo.dessr',],
+			['who/wants/a/foo.ssnbp',],
 		];
 	}
 
@@ -38,9 +38,18 @@ class MIME_Test extends UnitTest
 	public static function data_from(): array
 	{
 		return [
-			['model/iges', 'who/wants/a/foo.iges', ],
-			['application/x-x509-ca-cert', 'who/wants/a/foo.crt', ],
-			['application/vnd.wolfram.player', 'who/wants/a/foo.nbp', ],
+			[
+				'model/iges',
+				'who/wants/a/foo.iges',
+			],
+			[
+				'application/x-x509-ca-cert',
+				'who/wants/a/foo.crt',
+			],
+			[
+				'application/vnd.wolfram.player',
+				'who/wants/a/foo.nbp',
+			],
 		];
 	}
 
@@ -59,9 +68,18 @@ class MIME_Test extends UnitTest
 	public static function data_to(): array
 	{
 		return [
-			['igs', 'model/iges'],
-			['der', 'application/x-x509-ca-cert'],
-			['nbp', 'application/vnd.wolfram.player', ],
+			[
+				'igs',
+				'model/iges',
+			],
+			[
+				'der',
+				'application/x-x509-ca-cert',
+			],
+			[
+				'nbp',
+				'application/vnd.wolfram.player',
+			],
 		];
 	}
 
@@ -82,7 +100,7 @@ class MIME_Test extends UnitTest
 		return [
 			['model//iges'],
 			['application/y-x509-ca-cert'],
-			['application/vnd.wolfram', ],
+			['application/vnd.wolfram',],
 		];
 	}
 

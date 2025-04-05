@@ -1,9 +1,9 @@
 <?php
 declare(strict_types=1);
-namespace zesk;
 
-class Base26Test extends UnitTest
-{
+namespace test\zesk;
+
+class Base26Test extends UnitTest {
 	public function test_from_integer(): void
 	{
 		$this->assertEquals('AAAAAC', Base26::fromInteger(2, 6));

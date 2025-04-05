@@ -1,18 +1,25 @@
 <?php
 declare(strict_types=1);
-namespace zesk;
 
-class UTF8_Test extends UnitTest
-{
+namespace test\zesk;
+
+class UTF8_Test extends UnitTest {
 	public static function data_sampleUTF8(): array
 	{
-		return [['abc'], ['The quick brown fox jumped over the lazy dog.'], ['OMG I Totally ❤️ that'], ];
+		return [
+			['abc'],
+			['The quick brown fox jumped over the lazy dog.'],
+			['OMG I Totally ❤️ that'],
+		];
 	}
 
 	public static function data_to_iso8859(): array
 	{
 		return [
-			['français', 'fran' . chr(0xE7) . 'ais'],
+			[
+				'français',
+				'fran' . chr(0xE7) . 'ais',
+			],
 		];
 	}
 

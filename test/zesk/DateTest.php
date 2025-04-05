@@ -7,7 +7,7 @@ declare(strict_types=1);
  * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
 
-namespace zesk;
+namespace test\zesk;
 
 use OutOfBoundsException;
 use zesk\Exception\ParseException;
@@ -18,13 +18,70 @@ use zesk\Exception\SemanticsException;
  * @author kent
  *
  */
-class DateTest extends UnitTest
-{
+class DateTest extends UnitTest {
 	public static function data_daysInMonth(): array
 	{
 		return [
-			[1, 2022, 31], [2, 2022, 28], [3, 2022, 31], [4, 2022, 30], [5, 2022, 31], [6, 2022, 30], [7, 2022, 31],
-			[8, 2022, 31], [9, 2022, 30], [10, 2022, 31], [11, 2022, 30], [12, 2022, 31],
+			[
+				1,
+				2022,
+				31,
+			],
+			[
+				2,
+				2022,
+				28,
+			],
+			[
+				3,
+				2022,
+				31,
+			],
+			[
+				4,
+				2022,
+				30,
+			],
+			[
+				5,
+				2022,
+				31,
+			],
+			[
+				6,
+				2022,
+				30,
+			],
+			[
+				7,
+				2022,
+				31,
+			],
+			[
+				8,
+				2022,
+				31,
+			],
+			[
+				9,
+				2022,
+				30,
+			],
+			[
+				10,
+				2022,
+				31,
+			],
+			[
+				11,
+				2022,
+				30,
+			],
+			[
+				12,
+				2022,
+				31,
+			],
 		];
 	}
 
@@ -43,10 +100,54 @@ class DateTest extends UnitTest
 	public static function data_yearDay(): array
 	{
 		return [
-			['1970-01-01', '1970-01-01', 0, 0], ['1970-01-02', '1970-01-01', 0, 1], ['1970-01-03', '1970-01-01', 0, 2],
-			['1970-01-04', '1970-01-01', 0, 3], ['1970-02-01', '1970-01-01', 0, 31],
-			['1970-02-02', '1970-01-01', 0, 32], ['1970-12-31', '1970-01-01', 0, 364],
-			['1971-01-01', '1970-01-01', 0, 365],
+			[
+				'1970-01-01',
+				'1970-01-01',
+				0,
+				0,
+			],
+			[
+				'1970-01-02',
+				'1970-01-01',
+				0,
+				1,
+			],
+			[
+				'1970-01-03',
+				'1970-01-01',
+				0,
+				2,
+			],
+			[
+				'1970-01-04',
+				'1970-01-01',
+				0,
+				3,
+			],
+			[
+				'1970-02-01',
+				'1970-01-01',
+				0,
+				31,
+			],
+			[
+				'1970-02-02',
+				'1970-01-01',
+				0,
+				32,
+			],
+			[
+				'1970-12-31',
+				'1970-01-01',
+				0,
+				364,
+			],
+			[
+				'1971-01-01',
+				'1970-01-01',
+				0,
+				365,
+			],
 		];
 	}
 
@@ -109,19 +210,39 @@ class DateTest extends UnitTest
 	{
 		return [
 			[
-				-1, null, null,
-			], [
-				null, -1, null,
-			], [
-				null, 0, null,
-			], [
-				null, 13, null,
-			], [
-				null, null, -1,
-			], [
-				null, null, 0,
-			], [
-				null, null, 32,
+				-1,
+				null,
+				null,
+			],
+			[
+				null,
+				-1,
+				null,
+			],
+			[
+				null,
+				0,
+				null,
+			],
+			[
+				null,
+				13,
+				null,
+			],
+			[
+				null,
+				null,
+				-1,
+			],
+			[
+				null,
+				null,
+				0,
+			],
+			[
+				null,
+				null,
+				32,
 			],
 		];
 	}
@@ -185,19 +306,25 @@ class DateTest extends UnitTest
 		$this->assertEquals(20, $x->day());
 
 		foreach ([
-			'{YYYY}-{MM}-{DD}' => '2008-08-20', '{YY}-{MM}-{DD}' => '08-08-20', '{YY}-{M}-{D}' => '08-8-20',
-			'{MMM} {DDD}, {YYYY}' => 'Aug 20th, 2008', '{MMMM} {DDD}, {YYYY}' => 'August 20th, 2008',
-			'{YYY} {DDDD}' => '{YYY} {DDDD}',
-		] as $format_string => $expected) {
+					 '{YYYY}-{MM}-{DD}'     => '2008-08-20',
+					 '{YY}-{MM}-{DD}'       => '08-08-20',
+					 '{YY}-{M}-{D}'         => '08-8-20',
+					 '{MMM} {DDD}, {YYYY}'  => 'Aug 20th, 2008',
+					 '{MMMM} {DDD}, {YYYY}' => 'August 20th, 2008',
+					 '{YYY} {DDDD}'         => '{YYY} {DDDD}',
+				 ] as $format_string => $expected) {
 			$this->assertEquals($expected, $x->format($format_string, ['locale' => $this->application->locale]));
 		}
 
 		$x->parse('1999-12-01');
 		foreach ([
-			'{YYYY}-{MM}-{DD}' => '1999-12-01', '{YY}-{MM}-{DD}' => '99-12-01', '{YY}-{M}-{D}' => '99-12-1',
-			'{MMM} {DDD}, {YYYY}' => 'Dec 1st, 1999', '{MMMM} {DDD}, {YYYY}' => 'December 1st, 1999',
-			'{YYY} {DDDD}' => '{YYY} {DDDD}',
-		] as $format_string => $expected) {
+					 '{YYYY}-{MM}-{DD}'     => '1999-12-01',
+					 '{YY}-{MM}-{DD}'       => '99-12-01',
+					 '{YY}-{M}-{D}'         => '99-12-1',
+					 '{MMM} {DDD}, {YYYY}'  => 'Dec 1st, 1999',
+					 '{MMMM} {DDD}, {YYYY}' => 'December 1st, 1999',
+					 '{YYY} {DDDD}'         => '{YYY} {DDDD}',
+				 ] as $format_string => $expected) {
 			$this->assertEquals($expected, $x->format($format_string, ['locale' => $this->application->locale]));
 		}
 	}

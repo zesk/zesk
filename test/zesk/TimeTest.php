@@ -1,13 +1,12 @@
 <?php
 declare(strict_types=1);
 
-namespace zesk;
+namespace test\zesk;
 
 use OutOfBoundsException;
 use zesk\Exception\ParameterException;
 
-class TimeTest extends UnitTest
-{
+class TimeTest extends UnitTest {
 	public function test_instance(): void
 	{
 		$hh = 0;

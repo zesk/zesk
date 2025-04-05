@@ -9,10 +9,9 @@ declare(strict_types=1);
  * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
 
-namespace zesk;
+namespace test\zesk;
 
-class ProcessTools_Test extends UnitTest
-{
+class ProcessTools_Test extends UnitTest {
 	/**
 	 * @todo this
 	 */

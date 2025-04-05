@@ -8,15 +8,6 @@
         <testsuite name="core">
             <directory>test/zesk</directory>
         </testsuite>
-        <testsuite name="CSV">
-            <directory>src/zesk/CSV/test</directory>
-        </testsuite>
-        <testsuite name="Diff">
-            <directory>src/zesk/Diff/test</directory>
-        </testsuite>
-        <testsuite name="Doctrine">
-            <directory>src/zesk/Doctrine/test</directory>
-        </testsuite>
     </testsuites>
     <php>
         <const name="PHPUNIT" value="true"/>

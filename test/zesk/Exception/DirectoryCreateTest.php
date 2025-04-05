@@ -7,16 +7,18 @@ declare(strict_types=1);
  * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
 
-namespace zesk\Exception;
+namespace test\zesk\Exception;
 
 use zesk\PHPUnit\ExceptionTestCase;
+
+use zesk\Exception\DirectoryCreate;
 
 class DirectoryCreateTest extends ExceptionTestCase
 {
 	public function test_basics(): void
 	{
-		$testx = new DirectoryCreate(__DIR__);
-		$this->assertThrowable($testx);
+		$testObject = new DirectoryCreate(__DIR__);
+		$this->assertThrowable($testObject);
 	}
 
 	/*

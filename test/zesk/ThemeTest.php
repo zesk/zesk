@@ -1,10 +1,9 @@
 <?php
 declare(strict_types=1);
 
-namespace zesk;
+namespace test\zesk;
 
-class ThemeTest extends UnitTest
-{
+class ThemeTest extends UnitTest {
 	public function test_themePath(): void
 	{
 		$prefix = '';

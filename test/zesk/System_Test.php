@@ -1,10 +1,9 @@
 <?php
 declare(strict_types=1);
 
-namespace zesk;
+namespace test\zesk;
 
-class System_Test extends UnitTest
-{
+class System_Test extends UnitTest {
 	public function test_uname(): void
 	{
 		System::uname();
@@ -35,13 +34,24 @@ class System_Test extends UnitTest
 	{
 		$averages = System::loadAverages();
 		$this->assertIsArray($averages);
-		$this->assertArrayHasKeys([0, 1, 2], $averages);
+		$this->assertArrayHasKeys([
+			0,
+			1,
+			2,
+		], $averages);
 	}
 
 	public function test_distro(): void
 	{
 		$result = System::distro();
-		$this->assertArrayHasKeys(['system', 'release', 'arch', 'brand', 'distro', 'source'], $result);
+		$this->assertArrayHasKeys([
+			'system',
+			'release',
+			'arch',
+			'brand',
+			'distro',
+			'source',
+		], $result);
 		$this->assertEquals('Linux', $result['system']);
 		$this->assertEquals('Debian', $result['brand']);
 		$this->assertEquals('/etc/debian_version', $result['source']);

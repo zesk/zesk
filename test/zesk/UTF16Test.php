@@ -1,13 +1,16 @@
 <?php
 declare(strict_types=1);
 
-namespace zesk;
+namespace test\zesk;
 
-class UTF16Test extends UnitTest
-{
+class UTF16Test extends UnitTest {
 	public static function data_sampleUTF8(): array
 	{
-		return [['abc'], ['The quick brown fox jumped over the lazy dog.'], ['OMG I Totally ❤️ that'], ];
+		return [
+			['abc'],
+			['The quick brown fox jumped over the lazy dog.'],
+			['OMG I Totally ❤️ that'],
+		];
 	}
 
 	/**
@@ -41,7 +44,10 @@ class UTF16Test extends UnitTest
 	public static function data_test_to_utf8(): array
 	{
 		return [
-			['ABC', true, chr(0xfe) . chr(0xff) . chr(0) . chr(65) . chr(0) . chr(66) . chr(0) . chr(67),
+			[
+				'ABC',
+				true,
+				chr(0xfe) . chr(0xff) . chr(0) . chr(65) . chr(0) . chr(66) . chr(0) . chr(67),
 			],
 		];
 	}

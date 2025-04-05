@@ -4,10 +4,9 @@ declare(strict_types=1);
  *
  */
 
-namespace zesk;
+namespace test\zesk;
 
-class TrieTest extends UnitTest
-{
+class TrieTest extends UnitTest {
 	public static function data_trie(): array
 	{
 		$aa_json = [
@@ -68,16 +67,16 @@ class TrieTest extends UnitTest
 		];
 		$aptitude_json = [
 			'a' => [
-				'' => 1,
+				''  => 1,
 				'p' => [
 					't' => [
-						'' => 1,
+						''  => 1,
 						'e' => 'd',
 						'i' => 'tude',
 					],
 				],
 				't' => [
-					'' => 1,
+					''  => 1,
 					'e' => 1,
 				],
 			],
@@ -85,14 +84,48 @@ class TrieTest extends UnitTest
 		return [
 			[
 				[
-					'aahed', 'aalii', 'aargh', 'aarti', 'abaca', 'abaci', 'aback', 'abacs', 'abaft', 'abaka', 'abamp',
-					'aband', 'abase', 'abash', 'abask', 'abate', 'abaya', 'abbas', 'abbed', 'abbes', 'abbey', 'abbot',
-					'abcee', 'abeam', 'abear', 'abele', 'abets', 'abhor', 'abide', 'abies',
+					'aahed',
+					'aalii',
+					'aargh',
+					'aarti',
+					'abaca',
+					'abaci',
+					'aback',
+					'abacs',
+					'abaft',
+					'abaka',
+					'abamp',
+					'aband',
+					'abase',
+					'abash',
+					'abask',
+					'abate',
+					'abaya',
+					'abbas',
+					'abbed',
+					'abbes',
+					'abbey',
+					'abbot',
+					'abcee',
+					'abeam',
+					'abear',
+					'abele',
+					'abets',
+					'abhor',
+					'abide',
+					'abies',
 				],
 				$aa_json,
 			],
 			[
-				['a', 'at', 'ate', 'apt', 'apted', 'aptitude'],
+				[
+					'a',
+					'at',
+					'ate',
+					'apt',
+					'apted',
+					'aptitude',
+				],
 				$aptitude_json,
 			],
 		];
@@ -108,7 +141,10 @@ class TrieTest extends UnitTest
 	public function get_words(Trie $x): array
 	{
 		$this->saved = [];
-		$x->walk([$this, 'save_words']);
+		$x->walk([
+			$this,
+			'save_words',
+		]);
 		sort($this->saved);
 		return $this->saved;
 	}

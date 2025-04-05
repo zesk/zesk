@@ -1,14 +1,14 @@
 <?php
 declare(strict_types=1);
-namespace zesk;
+
+namespace test\zesk;
 
 /**
  *
  * @author kent
  *
  */
-class TimerTest extends UnitTest
-{
+class TimerTest extends UnitTest {
 	public function test_now(): void
 	{
 		Timer::now();

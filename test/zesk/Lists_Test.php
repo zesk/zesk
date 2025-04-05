@@ -4,15 +4,14 @@ declare(strict_types=1);
  *
  */
 
-namespace zesk;
+namespace test\zesk;
 
 /**
  *
  * @author kent
  *
  */
-class Lists_Test extends UnitTest
-{
+class Lists_Test extends UnitTest {
 	public static function data_append_data_provider(): array
 	{
 		$lists = [
@@ -75,13 +74,13 @@ class Lists_Test extends UnitTest
 		];
 		$datum = [];
 		foreach ([
-			false,
-			true,
-		] as $list_is_array) {
+					 false,
+					 true,
+				 ] as $list_is_array) {
 			foreach ([
-				false,
-				true,
-			] as $add_is_array) {
+						 false,
+						 true,
+					 ] as $add_is_array) {
 				foreach ($lists as $list) {
 					foreach ($adds as $add) {
 						foreach ($seps as $sep) {
@@ -154,8 +153,18 @@ class Lists_Test extends UnitTest
 	public static function data_keysRemove(): array
 	{
 		return [
-			['a;c;d;e', 'a;b;c;d;e', 'b', ';'],
-			['a;c;d;e', 'a;b;c;d;e', 'b', ';'],
+			[
+				'a;c;d;e',
+				'a;b;c;d;e',
+				'b',
+				';',
+			],
+			[
+				'a;c;d;e',
+				'a;b;c;d;e',
+				'b',
+				';',
+			],
 		];
 	}
 

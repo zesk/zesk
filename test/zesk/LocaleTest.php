@@ -4,7 +4,7 @@ declare(strict_types=1);
  *
  */
 
-namespace zesk;
+namespace test\zesk;
 
 use zesk\Exception\ClassNotFound;
 use zesk\Locale\Locale;
@@ -14,8 +14,7 @@ use zesk\Locale\Locale;
  * @author kent
  *
  */
-class LocaleTest extends UnitTest
-{
+class LocaleTest extends UnitTest {
 	public function test_locale___(): void
 	{
 		$locale = $this->application->locale;
@@ -25,33 +24,36 @@ class LocaleTest extends UnitTest
 	public static function data_plural(): array
 	{
 		$tests = [
-			'Jazz' => 'Jazzes',
-			'JAZZ' => 'JAZZES',
-			'JaZz' => 'Jazzes',
-			'funny' => 'funnies',
-			'funnY' => 'funnies',
-			'FUNNY' => 'FUNNIES',
-			'clock' => 'clocks',
-			'sheep' => 'sheep',
-			'Sheep' => 'Sheep',
-			'SHEEP' => 'SHEEP',
-			'dog' => 'dogs',
-			'person' => 'people',
-			'cat' => 'cats',
-			'topaz' => 'topazes',
-			'kiss' => 'kisses',
+			'Jazz'    => 'Jazzes',
+			'JAZZ'    => 'JAZZES',
+			'JaZz'    => 'Jazzes',
+			'funny'   => 'funnies',
+			'funnY'   => 'funnies',
+			'FUNNY'   => 'FUNNIES',
+			'clock'   => 'clocks',
+			'sheep'   => 'sheep',
+			'Sheep'   => 'Sheep',
+			'SHEEP'   => 'SHEEP',
+			'dog'     => 'dogs',
+			'person'  => 'people',
+			'cat'     => 'cats',
+			'topaz'   => 'topazes',
+			'kiss'    => 'kisses',
 			'octopus' => 'octopi',
 			'Octopus' => 'Octopi',
 			'OCTOPUS' => 'OCTOPI',
 			'OcToPuS' => 'Octopi',
-			'FOX' => 'FOXES',
-			'box' => 'boxes',
-			'z' => 'zs',
-			'w' => 'ws',
+			'FOX'     => 'FOXES',
+			'box'     => 'boxes',
+			'z'       => 'zs',
+			'w'       => 'ws',
 		];
 		$result = [];
 		foreach ($tests as $test => $expected) {
-			$result[] = [$expected, $test];
+			$result[] = [
+				$expected,
+				$test,
+			];
 		}
 		return $result;
 	}
@@ -73,22 +75,34 @@ class LocaleTest extends UnitTest
 	{
 		return [
 			[
-				['Apples', 'Pears', 'Frogs'],
+				[
+					'Apples',
+					'Pears',
+					'Frogs',
+				],
 				'and',
 				'Apples, Pears, and Frogs',
 			],
 			[
-				['Apples', 'Pears', 'Frogs'],
+				[
+					'Apples',
+					'Pears',
+					'Frogs',
+				],
 				'',
 				'Apples, Pears, or Frogs',
 			],
 			[
-				['Apples', 'Pears', 'Frogs'],
+				[
+					'Apples',
+					'Pears',
+					'Frogs',
+				],
 				'no',
 				'Apples, Pears, no Frogs',
 			],
 			[
-				['one thing', ],
+				['one thing',],
 				'',
 				'one thing',
 			],
@@ -178,7 +192,7 @@ class LocaleTest extends UnitTest
 		$args = [];
 		foreach (Lists::unique(Types::toList($id_list)) as $id) {
 			$args[] = [
-				fn () => self::app()->localeFactory($id),
+				fn() => self::app()->localeFactory($id),
 			];
 		}
 		return $args;
@@ -229,11 +243,26 @@ class LocaleTest extends UnitTest
 	public static function data_parseDialect(): array
 	{
 		return [
-			['US', 'en_us'],
-			['US', 'EN_US'],
-			['US', 'EN_US_Southern'],
-			['', 'En'],
-			['', ''],
+			[
+				'US',
+				'en_us',
+			],
+			[
+				'US',
+				'EN_US',
+			],
+			[
+				'US',
+				'EN_US_Southern',
+			],
+			[
+				'',
+				'En',
+			],
+			[
+				'',
+				'',
+			],
 		];
 	}
 
@@ -254,11 +283,36 @@ class LocaleTest extends UnitTest
 		foreach (self::data_en_locales() as $localeTest) {
 			$locale = $localeTest[0];
 			$newTests = [
-				['1 second', 1, 'second', $locale],
-				['2 seconds', 2, 'second', $locale],
-				['60 seconds', 60, 'second', $locale],
-				['2 minutes', 120, 'second', $locale],
-				['2 minutes', 120, 'second', $locale],
+				[
+					'1 second',
+					1,
+					'second',
+					$locale,
+				],
+				[
+					'2 seconds',
+					2,
+					'second',
+					$locale,
+				],
+				[
+					'60 seconds',
+					60,
+					'second',
+					$locale,
+				],
+				[
+					'2 minutes',
+					120,
+					'second',
+					$locale,
+				],
+				[
+					'2 minutes',
+					120,
+					'second',
+					$locale,
+				],
 			];
 			$tests = array_merge($tests, $newTests);
 		}
@@ -314,9 +368,27 @@ class LocaleTest extends UnitTest
 		foreach (self::data_en_locales() as $localeTest) {
 			$locale = $localeTest[0];
 			$newTests = [
-				['zero', 'now', Temporal::UNIT_MINUTE, 'zero', $locale],
-				['1 minute ago', '-1 minute', Temporal::UNIT_MINUTE, 'zero', $locale],
-				['in 1 minute', '90 seconds', Temporal::UNIT_MINUTE, 'zero', $locale],
+				[
+					'zero',
+					'now',
+					Temporal::UNIT_MINUTE,
+					'zero',
+					$locale,
+				],
+				[
+					'1 minute ago',
+					'-1 minute',
+					Temporal::UNIT_MINUTE,
+					'zero',
+					$locale,
+				],
+				[
+					'in 1 minute',
+					'90 seconds',
+					Temporal::UNIT_MINUTE,
+					'zero',
+					$locale,
+				],
 			];
 			$tests = array_merge($tests, $newTests);
 		}
@@ -336,22 +408,70 @@ class LocaleTest extends UnitTest
 	public static function data_ordinal_en(): array
 	{
 		return [
-			['1st', 1],
-			['2nd', 2],
-			['3rd', 3],
-			['11th', 11],
-			['12th', 12],
-			['13th', 13],
-			['21st', 21],
-			['22nd', 22],
-			['23rd', 23],
-			['101st', 101],
-			['102nd', 102],
-			['103rd', 103],
-			['110th', 110],
-			['111th', 111],
-			['112th', 112],
-			['113th', 113],
+			[
+				'1st',
+				1,
+			],
+			[
+				'2nd',
+				2,
+			],
+			[
+				'3rd',
+				3,
+			],
+			[
+				'11th',
+				11,
+			],
+			[
+				'12th',
+				12,
+			],
+			[
+				'13th',
+				13,
+			],
+			[
+				'21st',
+				21,
+			],
+			[
+				'22nd',
+				22,
+			],
+			[
+				'23rd',
+				23,
+			],
+			[
+				'101st',
+				101,
+			],
+			[
+				'102nd',
+				102,
+			],
+			[
+				'103rd',
+				103,
+			],
+			[
+				'110th',
+				110,
+			],
+			[
+				'111th',
+				111,
+			],
+			[
+				'112th',
+				112,
+			],
+			[
+				'113th',
+				113,
+			],
 		];
 	}
 
@@ -381,36 +501,45 @@ class LocaleTest extends UnitTest
 	public static function data_ordinal_fr(): array
 	{
 		return [
-			['1r', 1],
-			['2e', 2],
-			['21e', 21],
+			[
+				'1r',
+				1,
+			],
+			[
+				'2e',
+				2,
+			],
+			[
+				'21e',
+				21,
+			],
 		];
 	}
 
 	public function test_plural2(): void
 	{
 		$tests = [
-			'Jazz' => 'Jazzes',
-			'JAZZ' => 'JAZZES',
-			'JaZz' => 'Jazzes',
-			'funny' => 'funnies',
-			'funnY' => 'funnies',
-			'FUNNY' => 'FUNNIES',
-			'clock' => 'clocks',
-			'sheep' => 'sheep',
-			'Sheep' => 'Sheep',
-			'SHEEP' => 'SHEEP',
-			'dog' => 'dogs',
-			'person' => 'people',
-			'cat' => 'cats',
-			'topaz' => 'topazes',
-			'kiss' => 'kisses',
+			'Jazz'    => 'Jazzes',
+			'JAZZ'    => 'JAZZES',
+			'JaZz'    => 'Jazzes',
+			'funny'   => 'funnies',
+			'funnY'   => 'funnies',
+			'FUNNY'   => 'FUNNIES',
+			'clock'   => 'clocks',
+			'sheep'   => 'sheep',
+			'Sheep'   => 'Sheep',
+			'SHEEP'   => 'SHEEP',
+			'dog'     => 'dogs',
+			'person'  => 'people',
+			'cat'     => 'cats',
+			'topaz'   => 'topazes',
+			'kiss'    => 'kisses',
 			'octopus' => 'octopi',
 			'Octopus' => 'Octopi',
 			'OCTOPUS' => 'OCTOPI',
 			'OcToPuS' => 'Octopi',
-			'FOX' => 'FOXES',
-			'box' => 'boxes',
+			'FOX'     => 'FOXES',
+			'box'     => 'boxes',
 		];
 
 		$n = 2;
@@ -430,28 +559,28 @@ class LocaleTest extends UnitTest
 		$locale = $this->applyClosures($mixed);
 		/* @var $locale Locale */
 		$tests = [
-			'woman' => 'women',
-			'Jazz' => 'Jazzes',
-			'JAZZ' => 'JAZZES',
-			'JaZz' => 'Jazzes',
-			'funny' => 'funnies',
-			'funnY' => 'funnies',
-			'FUNNY' => 'FUNNIES',
-			'clock' => 'clocks',
-			'sheep' => 'sheep',
-			'Sheep' => 'Sheep',
-			'SHEEP' => 'SHEEP',
-			'dog' => 'dogs',
-			'person' => 'people',
-			'cat' => 'cats',
-			'topaz' => 'topazes',
-			'kiss' => 'kisses',
+			'woman'   => 'women',
+			'Jazz'    => 'Jazzes',
+			'JAZZ'    => 'JAZZES',
+			'JaZz'    => 'Jazzes',
+			'funny'   => 'funnies',
+			'funnY'   => 'funnies',
+			'FUNNY'   => 'FUNNIES',
+			'clock'   => 'clocks',
+			'sheep'   => 'sheep',
+			'Sheep'   => 'Sheep',
+			'SHEEP'   => 'SHEEP',
+			'dog'     => 'dogs',
+			'person'  => 'people',
+			'cat'     => 'cats',
+			'topaz'   => 'topazes',
+			'kiss'    => 'kisses',
 			'octopus' => 'octopi',
 			'Octopus' => 'Octopi',
 			'OCTOPUS' => 'OCTOPI',
 			'OcToPuS' => 'Octopi',
-			'FOX' => 'FOXES',
-			'box' => 'boxes',
+			'FOX'     => 'FOXES',
+			'box'     => 'boxes',
 		];
 
 		$n = null;
@@ -480,27 +609,27 @@ class LocaleTest extends UnitTest
 	{
 		$locale = $this->en_locale();
 		$tests = [
-			'Jazz' => 'Jazzes',
-			'JAZZ' => 'JAZZES',
-			'JaZz' => 'Jazzes',
-			'funny' => 'funnies',
-			'funnY' => 'funnies',
-			'FUNNY' => 'FUNNIES',
-			'clock' => 'clocks',
-			'sheep' => 'sheep',
-			'Sheep' => 'Sheep',
-			'SHEEP' => 'SHEEP',
-			'dog' => 'dogs',
-			'person' => 'people',
-			'cat' => 'cats',
-			'topaz' => 'topazes',
-			'kiss' => 'kisses',
+			'Jazz'    => 'Jazzes',
+			'JAZZ'    => 'JAZZES',
+			'JaZz'    => 'Jazzes',
+			'funny'   => 'funnies',
+			'funnY'   => 'funnies',
+			'FUNNY'   => 'FUNNIES',
+			'clock'   => 'clocks',
+			'sheep'   => 'sheep',
+			'Sheep'   => 'Sheep',
+			'SHEEP'   => 'SHEEP',
+			'dog'     => 'dogs',
+			'person'  => 'people',
+			'cat'     => 'cats',
+			'topaz'   => 'topazes',
+			'kiss'    => 'kisses',
 			'octopus' => 'octopi',
 			'Octopus' => 'Octopi',
 			'OCTOPUS' => 'OCTOPI',
 			'OcToPuS' => 'Octopi',
-			'FOX' => 'FOXES',
-			'box' => 'boxes',
+			'FOX'     => 'FOXES',
+			'box'     => 'boxes',
 		];
 
 		$n = null;
@@ -585,9 +714,9 @@ class LocaleTest extends UnitTest
 	{
 		$locale = $this->applyClosures($mixed);
 		foreach ([
-			'Hello',
-			'world',
-		] as $phrase) {
+					 'Hello',
+					 'world',
+				 ] as $phrase) {
 			$this->assertEquals($locale->__($phrase), $locale($phrase));
 		}
 	}

@@ -3,18 +3,18 @@ declare(strict_types=1);
 /**
  *
  */
-namespace zesk;
+
+namespace test\zesk;
 
 /**
  *
  * @author kent
  *
  */
-class DocComment_Test extends UnitTest
-{
+class DocComment_Test extends UnitTest {
 	public function test_extract(): void
 	{
-		$testfile = ZESK_ROOT . 'src/zesk/ArrayTools.php';
+		$testfile = ZESK_ROOT . 'src/ArrayTools.php';
 		$content = file_get_contents($testfile);
 		$comments = DocComment::extract($content);
 		$this->assertIsArray($comments);
@@ -54,7 +54,7 @@ class DocComment_Test extends UnitTest
 	{
 		$doc = DocComment::instance([
 			'desc' => 'Hello, world',
-			'see' => '\\zesk\\Kernel',
+			'see'  => '\\zesk\\Kernel',
 
 		], [
 			DocComment::OPTION_DESC_NO_TAG => true,
@@ -90,8 +90,8 @@ class DocComment_Test extends UnitTest
 	 */
 ',
 				[
-					'desc' => 'Removes stars from beginning and end of doccomments',
-					'param' => [
+					'desc'   => 'Removes stars from beginning and end of doccomments',
+					'param'  => [
 						'$string' => [
 							'string',
 							'$string',
@@ -127,17 +127,17 @@ class DocComment_Test extends UnitTest
  */
 ',
 				[
-					'desc' => "Server\n\nRepresents a server (virtual or physical)",
-					'see' => [
+					'desc'     => "Server\n\nRepresents a server (virtual or physical)",
+					'see'      => [
 						'Class_Server',
 						'ServerMeta',
 					],
 					'property' => [
-						'$id' => [
+						'$id'            => [
 							'id',
 							'$id',
 						],
-						'$name' => [
+						'$name'          => [
 							'string',
 							'$name',
 						],
@@ -149,23 +149,23 @@ class DocComment_Test extends UnitTest
 							'string',
 							'$name_external',
 						],
-						'$ip4_internal' => [
+						'$ip4_internal'  => [
 							'ip4',
 							'$ip4_internal',
 						],
-						'$ip4_external' => [
+						'$ip4_external'  => [
 							'ip4',
 							'$ip4_external',
 						],
-						'$free_disk' => [
+						'$free_disk'     => [
 							'integer',
 							'$free_disk',
 						],
-						'$load' => [
+						'$load'          => [
 							'double',
 							'$load',
 						],
-						'$alive' => [
+						'$alive'         => [
 							'Timestamp',
 							'$alive',
 						],
@@ -202,7 +202,7 @@ class DocComment_Test extends UnitTest
 		return [
 			[
 				[
-					'see' => [
+					'see'  => [
 						'line1',
 						'line2',
 					],

@@ -4,7 +4,7 @@ declare(strict_types=1);
  *
  */
 
-namespace zesk;
+namespace test\zesk;
 
 use OutOfBoundsException;
 use zesk\Exception\ParseException;
@@ -14,11 +14,29 @@ use zesk\Exception\ParseException;
  * @author kent
  *
  */
-class TimestampTest extends UnitTest
-{
+class TimestampTest extends UnitTest {
 	public static function data_instance(): array
 	{
-		return [['2022-11-16 10:32:32', 2022, 11, 16, 10, 32, 32], ['2000-01-01 09:09:02', 2000, 1, 1, 9, 9, 2], ];
+		return [
+			[
+				'2022-11-16 10:32:32',
+				2022,
+				11,
+				16,
+				10,
+				32,
+				32,
+			],
+			[
+				'2000-01-01 09:09:02',
+				2000,
+				1,
+				1,
+				9,
+				9,
+				2,
+			],
+		];
 	}
 
 	/**
@@ -71,9 +89,24 @@ class TimestampTest extends UnitTest
 	public static function data_seconds_to_unit(): array
 	{
 		return [
-			[Temporal::UNIT_HOUR, 1.0, 3600, Temporal::UNIT_SECOND],
-			[Temporal::UNIT_MINUTE, 1.0, 60, Temporal::UNIT_SECOND],
-			[Temporal::UNIT_SECOND, 1.0, 1, Temporal::UNIT_SECOND],
+			[
+				Temporal::UNIT_HOUR,
+				1.0,
+				3600,
+				Temporal::UNIT_SECOND,
+			],
+			[
+				Temporal::UNIT_MINUTE,
+				1.0,
+				60,
+				Temporal::UNIT_SECOND,
+			],
+			[
+				Temporal::UNIT_SECOND,
+				1.0,
+				1,
+				Temporal::UNIT_SECOND,
+			],
 		];
 	}
 
@@ -117,12 +150,34 @@ class TimestampTest extends UnitTest
 
 	public static function data_bad_months(): array
 	{
-		return [[-1], [0], [13], [14], [19], [141231241], [-12], [-11], ];
+		return [
+			[-1],
+			[0],
+			[13],
+			[14],
+			[19],
+			[141231241],
+			[-12],
+			[-11],
+		];
 	}
 
 	public static function data_good_months(): array
 	{
-		return [[1], [2], [3], [4], [5], [6], [7], [8], [9], [10], [11], [12], ];
+		return [
+			[1],
+			[2],
+			[3],
+			[4],
+			[5],
+			[6],
+			[7],
+			[8],
+			[9],
+			[10],
+			[11],
+			[12],
+		];
 	}
 
 	/**
@@ -381,7 +436,11 @@ class TimestampTest extends UnitTest
 		$this->assertGreaterThan($x->compare($value), 0);
 
 		$tt = Timestamp::unitsTranslationTable();
-		$this->assertArrayHasKeys([Temporal::UNIT_HOUR, Temporal::UNIT_SECOND, Temporal::UNIT_DAY], $tt);
+		$this->assertArrayHasKeys([
+			Temporal::UNIT_HOUR,
+			Temporal::UNIT_SECOND,
+			Temporal::UNIT_DAY,
+		], $tt);
 
 		$seconds = 2;
 		$divide = 0;
@@ -403,7 +462,7 @@ class TimestampTest extends UnitTest
 
 		$model = new Timestamp();
 		$model2 = Timestamp::now();
-		$ts2=$model2->unixTimestamp();
+		$ts2 = $model2->unixTimestamp();
 		$this->assertEquals($model->unixTimestamp(), $ts2);
 
 		$equal = false;
@@ -495,9 +554,11 @@ class TimestampTest extends UnitTest
 	public static function data_serializeExamples(): array
 	{
 		return [
-			[Timestamp::now(), ], [Timestamp::instance(2000, 10, 2, 18, 59, 59, 123), ],
-			[Timestamp::instance(1970, 12, 31, 18, 59, 59, 123), ], [Timestamp::instance(1950, 2, 14, 4, 0, 1, 412), ],
-			[Timestamp::instance(1900, 2, 2, 23, 59, 59, 999), ],
+			[Timestamp::now(),],
+			[Timestamp::instance(2000, 10, 2, 18, 59, 59, 123),],
+			[Timestamp::instance(1970, 12, 31, 18, 59, 59, 123),],
+			[Timestamp::instance(1950, 2, 14, 4, 0, 1, 412),],
+			[Timestamp::instance(1900, 2, 2, 23, 59, 59, 999),],
 		];
 	}
 

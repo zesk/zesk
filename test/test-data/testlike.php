@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace zesk\Command;
+namespace test\zesk\Command;
 
 class Testlike extends SimpleCommand
 {

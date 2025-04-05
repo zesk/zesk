@@ -7,15 +7,14 @@ declare(strict_types=1);
  * @author kent
  */
 
-namespace zesk;
+namespace test\zesk;
 
 use zesk\Exception\ParseException;
 
 /**
  * Generic test class
  */
-class VersionTest extends UnitTest
-{
+class VersionTest extends UnitTest {
 	/**
 	 * @return void
 	 * @throws ParseException

@@ -1,15 +1,14 @@
 <?php
 declare(strict_types=1);
 
-namespace zesk;
+namespace test\zesk;
 
 use zesk\Controller\Share;
 use zesk\Exception\DirectoryNotFound;
 use zesk\PHPUnit\TestCase;
 use zesk\Route\Controller as ControllerRoute;
 
-class ShareControllerTest extends TestCase
-{
+class ShareControllerTest extends TestCase {
 	protected Share $share;
 
 	public function setUp(): void

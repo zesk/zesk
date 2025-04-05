@@ -7,15 +7,14 @@ declare(strict_types=1);
  * @author kent
  */
 
-namespace zesk;
+namespace test\zesk;
 
 use zesk\Exception\SyntaxException;
 
 /**
  * Generic test class
  */
-class TimeSpanTest extends UnitTest
-{
+class TimeSpanTest extends UnitTest {
 	public static function data_TimeSpan(): array
 	{
 		$days = Date::now()->setYear(Date::now()->year() + 1)->isLeapYear() ? 366 : 365;

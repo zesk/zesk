@@ -3,7 +3,8 @@ declare(strict_types=1);
 /**
  *
  */
-namespace zesk;
+
+namespace test\zesk;
 
 use zesk\Exception\SemanticsException;
 
@@ -12,12 +13,14 @@ use zesk\Exception\SemanticsException;
  * @author kent
  *
  */
-class JavaScriptTest extends UnitTest
-{
+class JavaScriptTest extends UnitTest {
 	public static function data_cleanFunctionName(): array
 	{
 		return [
-			['foobar', 'foo bar'],
+			[
+				'foobar',
+				'foo bar',
+			],
 		];
 	}
 
@@ -62,9 +65,18 @@ class JavaScriptTest extends UnitTest
 	public static function data_string(): array
 	{
 		return [
-			['\'Normal string\'', 'Normal string'],
-			["'That\'s string'", 'That\'s string'],
-			["'Multiline\\n' +\n'String'", "Multiline\nString"],
+			[
+				'\'Normal string\'',
+				'Normal string',
+			],
+			[
+				"'That\'s string'",
+				'That\'s string',
+			],
+			[
+				"'Multiline\\n' +\n'String'",
+				"Multiline\nString",
+			],
 		];
 	}
 

@@ -38,8 +38,13 @@
 		"framework"
 	],
 	"autoload": {
-		"psr-0": {
-			"zesk\\": "zesk"
+		"psr-4": {
+			"zesk\\": "src"
+		}
+	},
+	"autoload-dev": {
+		"psr-4": {
+			"test\\zesk\\": "test/zesk"
 		}
 	},
 	"bin": [

@@ -3,15 +3,15 @@ declare(strict_types=1);
 /**
  *
  */
-namespace zesk;
+
+namespace test\zesk;
 
 /**
  *
  * @author kent
  *
  */
-class DebugTest extends UnitTest
-{
+class DebugTest extends UnitTest {
 	public function test_calling_file(): void
 	{
 		$this->assertEquals(__FILE__, Debug::callingFile());

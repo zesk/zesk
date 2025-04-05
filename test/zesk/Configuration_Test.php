@@ -1,11 +1,11 @@
 <?php
 declare(strict_types=1);
-namespace zesk;
+
+namespace test\zesk;
 
 use stdClass;
 
-class Configuration_Test extends UnitTest
-{
+class Configuration_Test extends UnitTest {
 	public static function data_value_types(): array
 	{
 		return [

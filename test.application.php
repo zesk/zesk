@@ -24,14 +24,15 @@ class TestApplicationFactory
 	public static function application(): Application
 	{
 		try {
-			$fileCache = __DIR__ . '/fileCache';
+			$fileCache = __DIR__ . '/.fileCache';
 			Directory::depend($fileCache);
 			$pool = new FileCacheItemPool($fileCache);
 
 			return ApplicationLoader::application([
-				Application::OPTION_APPLICATION_CLASS => Zesk::class, Application::OPTION_PATH => __DIR__,
-				Application::OPTION_CACHE_POOL => $pool,
-				Application::OPTION_DEPRECATED => Application::DEPRECATED_EXCEPTION,
+				Application::OPTION_APPLICATION_CLASS => Zesk::class,
+				Application::OPTION_PATH              => __DIR__,
+				Application::OPTION_CACHE_POOL        => $pool,
+				Application::OPTION_DEPRECATED        => Application::DEPRECATED_EXCEPTION,
 			]);
 		} catch (Throwable $e) {
 			PHP::log($e);

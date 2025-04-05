@@ -4,7 +4,7 @@ declare(strict_types=1);
  *
  */
 
-namespace zesk;
+namespace test\zesk;
 
 use zesk\Exception\DirectoryNotFound;
 use zesk\Exception\SyntaxException;
@@ -16,8 +16,7 @@ use function is_windows;
  * @author kent
  *
  */
-class testdir
-{
+class testdir {
 	public static array $dirs = [];
 
 	public static array $files = [];
@@ -37,7 +36,8 @@ class testdir
 	public static function dump(): array
 	{
 		return [
-			self::$dirs, self::$files,
+			self::$dirs,
+			self::$files,
 		];
 	}
 }
@@ -47,16 +47,93 @@ class testdir
  * @author kent
  *
  */
-class DirectoryTest extends TestCase
-{
+class DirectoryTest extends TestCase {
 	public static function data_path(): array
 	{
 		return [
-			['nothing', ['nothing']], ['a/b', ['a', 'b']], ['foo/.bar', ['foo', '.bar']],
-			['foo/.bar/..dotted', ['foo', [[['.bar']]], '..dotted']], ['a/b', ['a/', 'b']], ['a/b', ['a', '/b']],
-			['a/b', ['a/', '/b']], ['/a/b', ['/a/', '/b']], ['/a/b/', ['/a/', '/b/']],
-			['/a/b/', ['/a/', '/./', ['/./', '////', '/././', ], '/b/']], [
-				'/what/monitor-services/control/ruler-reader', ['/what/monitor-services', ['control', 'ruler-reader', ]],
+			[
+				'nothing',
+				['nothing'],
+			],
+			[
+				'a/b',
+				[
+					'a',
+					'b',
+				],
+			],
+			[
+				'foo/.bar',
+				[
+					'foo',
+					'.bar',
+				],
+			],
+			[
+				'foo/.bar/..dotted',
+				[
+					'foo',
+					[[['.bar']]],
+					'..dotted',
+				],
+			],
+			[
+				'a/b',
+				[
+					'a/',
+					'b',
+				],
+			],
+			[
+				'a/b',
+				[
+					'a',
+					'/b',
+				],
+			],
+			[
+				'a/b',
+				[
+					'a/',
+					'/b',
+				],
+			],
+			[
+				'/a/b',
+				[
+					'/a/',
+					'/b',
+				],
+			],
+			[
+				'/a/b/',
+				[
+					'/a/',
+					'/b/',
+				],
+			],
+			[
+				'/a/b/',
+				[
+					'/a/',
+					'/./',
+					[
+						'/./',
+						'////',
+						'/././',
+					],
+					'/b/',
+				],
+			],
+			[
+				'/what/monitor-services/control/ruler-reader',
+				[
+					'/what/monitor-services',
+					[
+						'control',
+						'ruler-reader',
+					],
+				],
 			],
 		];
 	}
@@ -76,8 +153,34 @@ class DirectoryTest extends TestCase
 	public static function data_isAbsolute(): array
 	{
 		return [
-			[true, '/', ], [true, '/a', ], [true, '/a/b/c', ], [false, './'], [false, './place/to/go', ],
-			[false, '../place/to/go', ], [is_windows(), '\\windows\\', ],
+			[
+				true,
+				'/',
+			],
+			[
+				true,
+				'/a',
+			],
+			[
+				true,
+				'/a/b/c',
+			],
+			[
+				false,
+				'./',
+			],
+			[
+				false,
+				'./place/to/go',
+			],
+			[
+				false,
+				'../place/to/go',
+			],
+			[
+				is_windows(),
+				'\\windows\\',
+			],
 		];
 	}
 
@@ -133,11 +236,16 @@ class DirectoryTest extends TestCase
 	{
 		return [
 			[
-				'/path/to/foo', '/path/to/a/file/../../foo',
-			], [
-				'/path/to/..foo', '/path/to/a/file/../../..foo',
-			], [
-				null, '/path/to/a/file/../../../../../../foo',
+				'/path/to/foo',
+				'/path/to/a/file/../../foo',
+			],
+			[
+				'/path/to/..foo',
+				'/path/to/a/file/../../..foo',
+			],
+			[
+				null,
+				'/path/to/a/file/../../../../../../foo',
 			],
 		];
 	}
@@ -158,13 +266,15 @@ class DirectoryTest extends TestCase
 	public function test_list_recursive(): void
 	{
 		$options['rules_file'] = [
-			'/.*test\.php$/i' => true, false,
+			'/.*test\.php$/i' => true,
+			false,
 		];
 		$options['rules_directory'] = [
 			false,
 		];
 		$options['rules_directory_walk'] = [
-			'/\.svn/' => false, true,
+			'/\.svn/' => false,
+			true,
 		];
 
 		$results = Directory::listRecursive($this->application->zeskHome(), $options);
@@ -175,8 +285,22 @@ class DirectoryTest extends TestCase
 	public static function data_stripSlash(): array
 	{
 		return [
-			['foo///', 'foo'], ['/a/way/to/go/to/the/place/', '/a/way/to/go/to/the/place'], ['quality', 'quality'],
-			['', ''],
+			[
+				'foo///',
+				'foo',
+			],
+			[
+				'/a/way/to/go/to/the/place/',
+				'/a/way/to/go/to/the/place',
+			],
+			[
+				'quality',
+				'quality',
+			],
+			[
+				'',
+				'',
+			],
 		];
 	}
 
@@ -217,14 +341,19 @@ class DirectoryTest extends TestCase
 		$source = ZESK_ROOT;
 		ob_start();
 		Directory::iterate($source, [
-			__NAMESPACE__ . '\\testdir', 'collect_dirs',
+			__NAMESPACE__ . '\\testdir',
+			'collect_dirs',
 		], [
-			__NAMESPACE__ . '\\testdir', 'collect_files',
+			__NAMESPACE__ . '\\testdir',
+			'collect_files',
 		]);
 		$iterate_dump = ob_get_clean();
 
 		$this->assertStringContainsString(ZESK_ROOT . 'autoload.php', $iterate_dump);
-		[$dirs, $files] = testdir::dump();
+		[
+			$dirs,
+			$files,
+		] = testdir::dump();
 		//		Debug::dump($files);
 
 		$this->assertTrue(in_array(ZESK_ROOT . 'autoload.php', $files));
@@ -310,8 +439,22 @@ class DirectoryTest extends TestCase
 	public static function data_add_slash(): array
 	{
 		return [
-			['foo/', 'foo'], ['foo/', 'foo/'], ['./whatever/not/', './whatever/not'],
-			['./whatever/not//', './whatever/not//'],
+			[
+				'foo/',
+				'foo',
+			],
+			[
+				'foo/',
+				'foo/',
+			],
+			[
+				'./whatever/not/',
+				'./whatever/not',
+			],
+			[
+				'./whatever/not//',
+				'./whatever/not//',
+			],
 		];
 	}
 }

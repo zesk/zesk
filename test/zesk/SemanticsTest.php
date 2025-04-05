@@ -7,13 +7,12 @@ declare(strict_types=1);
  * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
 
-namespace zesk;
+namespace test\zesk;
 
 use zesk\Exception\SemanticsException;
 use zesk\PHPUnit\ExceptionTestCase;
 
-class SemanticsTest extends ExceptionTestCase
-{
+class SemanticsTest extends ExceptionTestCase {
 	public function test_basics(): void
 	{
 		$exception = new SemanticsException();

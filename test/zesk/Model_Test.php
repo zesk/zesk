@@ -7,23 +7,71 @@ declare(strict_types=1);
  * @author kent
  */
 
-namespace zesk;
+namespace test\zesk;
 
 /**
  * Generic test class
  */
-class Model_Test extends UnitTest
-{
+class Model_Test extends UnitTest {
 	public static function data_themePaths(): array
 	{
 		$model = Model::class;
 		$testModel = TestModel::class;
 		return [
-			[['zesk/Model/view'], $model, ''], [['/test'], $model, '/test'], [['./test'], $model, './test'],
-			[['zesk/Model/test'], $model, 'test'], [['zesk/TestModel/view', 'zesk/Model/view'], $testModel, ''],
-			[['/test'], $testModel, '/test'], [['./not-Filtered'], $testModel, './not-Filtered'],
-			[['zesk/TestModel/test', 'zesk/Model/test'], $testModel, 'test'],
-			[['zesk/TestModel/path/to/Another', 'zesk/Model/path/to/Another'], $testModel, 'path/to/Another'],
+			[
+				['zesk/Model/view'],
+				$model,
+				'',
+			],
+			[
+				['/test'],
+				$model,
+				'/test',
+			],
+			[
+				['./test'],
+				$model,
+				'./test',
+			],
+			[
+				['zesk/Model/test'],
+				$model,
+				'test',
+			],
+			[
+				[
+					'zesk/TestModel/view',
+					'zesk/Model/view',
+				],
+				$testModel,
+				'',
+			],
+			[
+				['/test'],
+				$testModel,
+				'/test',
+			],
+			[
+				['./not-Filtered'],
+				$testModel,
+				'./not-Filtered',
+			],
+			[
+				[
+					'zesk/TestModel/test',
+					'zesk/Model/test',
+				],
+				$testModel,
+				'test',
+			],
+			[
+				[
+					'zesk/TestModel/path/to/Another',
+					'zesk/Model/path/to/Another',
+				],
+				$testModel,
+				'path/to/Another',
+			],
 		];
 	}
 

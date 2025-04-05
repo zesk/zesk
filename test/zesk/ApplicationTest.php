@@ -4,8 +4,16 @@ declare(strict_types=1);
  *
  */
 
-namespace zesk;
+namespace test\zesk;
 
+use zesk\Application;
+use zesk\Directory;
+use zesk\File;
+use zesk\JSON;
+use zesk\PHP;
+use zesk\CommandLoader;
+use zesk\Response;
+use zesk\Request;
 use zesk\Exception\ClassNotFound;
 use zesk\Exception\ConfigurationException;
 use zesk\Exception\DirectoryCreate;
@@ -453,7 +461,7 @@ class ApplicationTest extends TestApplicationUnitTest
 			$randomShortcut,
 		];
 		$testCommand = [];
-		$testCommand[] = '<?' . "php\n namespace zesk\Command;";
+		$testCommand[] = '<?' . "php\n namespace test\zesk\Command;";
 		$testCommand[] = "class $className extends SimpleCommand {";
 		$testCommand[] = '	protected array $shortcuts = ' . PHP::dump($shortcuts) . ';';
 		$testCommand[] = '	function run(): int {';

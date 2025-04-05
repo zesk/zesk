@@ -4,7 +4,7 @@ declare(strict_types=1);
  *
  */
 
-namespace zesk;
+namespace test\zesk;
 
 use zesk\Exception\ClassNotFound;
 use zesk\Exception\ConfigurationException;
@@ -24,8 +24,7 @@ use zesk\Exception\UnsupportedException;
  * @see TestApplication
  * @see TestRequest
  */
-class ResponseTest extends TestApplicationUnitTest
-{
+class ResponseTest extends TestApplicationUnitTest {
 	/**
 	 * @return void
 	 * @throws ClassNotFound
@@ -51,7 +50,11 @@ class ResponseTest extends TestApplicationUnitTest
 
 		/* setApplicationRoot */
 
-		$newApplication->modules->loadMultiple(['PHPUnit', 'Doctrine', 'World']);
+		$newApplication->modules->loadMultiple([
+			'PHPUnit',
+			'Doctrine',
+			'World',
+		]);
 
 		$this->assertFalse($newApplication->isConfigured());
 		$newApplication->configure();
@@ -108,13 +111,15 @@ class ResponseTest extends TestApplicationUnitTest
 
 		$this->assertEquals([], $response->htmlAttributes());
 		$sampleAttributes = [
-			'class' => 'nojs', 'data-application' => 'thingamabob',
+			'class'            => 'nojs',
+			'data-application' => 'thingamabob',
 		];
 		$this->assertEquals($response, $response->setHTMLAttributes($sampleAttributes));
 		$this->assertEquals($sampleAttributes, $response->htmlAttributes());
 
 		$sampleAttributes = [
-			'class' => 'bodystyle', 'data-application' => 'poughkeepsie',
+			'class'            => 'bodystyle',
+			'data-application' => 'poughkeepsie',
 		];
 
 		$this->assertEquals([], $response->bodyAttributes());
@@ -148,19 +153,24 @@ class ResponseTest extends TestApplicationUnitTest
 
 		$nocache = false;
 		$this->assertEquals($response, $response->javascript(['https://www.example.com/main.js'], [
-			'nocache' => $nocache, 'id' => 'main',
+			'nocache' => $nocache,
+			'id'      => 'main',
 		]));
 		$this->assertEquals($response, $response->javascript(['https://www.example.com/last.js'], [
-			'nocache' => $nocache, 'after' => 'main',
+			'nocache' => $nocache,
+			'after'   => 'main',
 		]));
 		$this->assertEquals($response, $response->javascript('https://www.example.com/first.js', [
-			'before' => 'main', 'nocache' => $nocache,
+			'before'  => 'main',
+			'nocache' => $nocache,
 		]));
 		$this->assertEquals($response, $response->javascript('https://www.example.com/not-last.js', [
-			'before' => 'last', 'nocache' => $nocache,
+			'before'  => 'last',
+			'nocache' => $nocache,
 		]));
 		$this->assertEquals($response, $response->inlineJavaScript('alert(\'boo!\');', [
-			'before' => 'first', 'nocache' => $nocache,
+			'before'  => 'first',
+			'nocache' => $nocache,
 		]));
 		$expectedScripts = [];
 		$expectedScripts[] = '<script>alert(\'boo!\');</script>';
@@ -205,7 +215,10 @@ class ResponseTest extends TestApplicationUnitTest
 		$this->assertInstanceOf(Application::class, $newApplication);
 		$newApplication->addThemePath($themePath);
 
-		$newApplication->configuration->setPath([Response::class, Response::OPTION_SKIP_HEADERS], true);
+		$newApplication->configuration->setPath([
+			Response::class,
+			Response::OPTION_SKIP_HEADERS,
+		], true);
 
 		$this->expectOutputString("<!DOCTYPE html>\n<html><head></head>\n<body>Hello, whirled\n</body>\n</html>");
 		$response = $newApplication->index();
@@ -268,9 +281,12 @@ class ResponseTest extends TestApplicationUnitTest
 		$pid = $this->testApplication->process->id();
 		$className = 'TestCommand' . $pid;
 		$randomShortcut = $this->randomHex();
-		$shortcuts = ['test-command', $randomShortcut];
+		$shortcuts = [
+			'test-command',
+			$randomShortcut,
+		];
 		$testCommand = [];
-		$testCommand[] = '<?' . "php\n namespace zesk;";
+		$testCommand[] = '<?' . "php\n namespace test\zesk;;";
 		$testCommand[] = "class $className extends SimpleCommand {";
 		$testCommand[] = '	protected array $shortcuts = ' . PHP::dump($shortcuts) . ';';
 		$testCommand[] = '	function run(): int {';
@@ -285,7 +301,10 @@ class ResponseTest extends TestApplicationUnitTest
 		File::put($this->test_sandbox('testCommand.php'), implode("\n", $testCommand));
 		$allShortcuts = $loader->collectCommandShortcuts();
 
-		$this->assertArrayHasKeys(['test-like', 'test-command'], $allShortcuts);
+		$this->assertArrayHasKeys([
+			'test-like',
+			'test-command',
+		], $allShortcuts);
 		$this->assertEquals(__NAMESPACE__ . '\\Command\\' . $className, $allShortcuts['test-command']);
 		//$this->assertEquals(__NAMESPACE__ . '\\' . $className, $allShortcuts[$randomShortcut]);
 	}

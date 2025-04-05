@@ -3,12 +3,12 @@ declare(strict_types=1);
 /**
  * @test_sandbox true
  */
-namespace zesk;
+
+namespace test\zesk;
 
 use zesk\Exception\NotFoundException;
 
-class Router_Test extends UnitTest
-{
+class Router_Test extends UnitTest {
 	public function test_Router_sleep(): void
 	{
 		$router = new Router($this->application);

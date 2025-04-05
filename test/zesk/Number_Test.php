@@ -3,26 +3,26 @@ declare(strict_types=1);
 /**
  *
  */
-namespace zesk;
+
+namespace test\zesk;
 
 /**
  *
  * @author kent
  *
  */
-class Number_Test extends UnitTest
-{
+class Number_Test extends UnitTest {
 	public function test_format_bytes(): void
 	{
 		$locale = $this->application->localeRegistry('en');
 		$tests = [
-			0 => '0 bytes',
-			1 => '1 byte',
-			2 => '2 bytes',
-			1024 => '1 KB',
-			1024 * 1024 => '1 MB',
-			1536133 => '1.5 MB',
-			2684354560 => '2.5 GB',
+			0             => '0 bytes',
+			1             => '1 byte',
+			2             => '2 bytes',
+			1024          => '1 KB',
+			1024 * 1024   => '1 MB',
+			1536133       => '1.5 MB',
+			2684354560    => '2.5 GB',
 			1099511627776 => '1 TB',
 			2199023255552 => '2 TB',
 		];
@@ -35,13 +35,34 @@ class Number_Test extends UnitTest
 	public static function data_parseBytes(): array
 	{
 		return [
-			[2199023255552.0, '2TB'],
-			[2199023255552.0, '2T'],
-			[2684354560.0, '2.5gb'],
-			[2560.0, '2.5kb'],
-			[2560.0, '2.5K'],
-			[103809024.0, '99mb'],
-			[103809024.0, '99m'],
+			[
+				2199023255552.0,
+				'2TB',
+			],
+			[
+				2199023255552.0,
+				'2T',
+			],
+			[
+				2684354560.0,
+				'2.5gb',
+			],
+			[
+				2560.0,
+				'2.5kb',
+			],
+			[
+				2560.0,
+				'2.5K',
+			],
+			[
+				103809024.0,
+				'99mb',
+			],
+			[
+				103809024.0,
+				'99m',
+			],
 		];
 	}
 
@@ -62,9 +83,28 @@ class Number_Test extends UnitTest
 	public static function data_stddev(): array
 	{
 		return [
-			[0, []],
-			[1.0, [0.0, 1.0, 2.0]],
-			[0.1581, [0.1, 0.2, 0.3, 0.4, 0.5]],
+			[
+				0,
+				[],
+			],
+			[
+				1.0,
+				[
+					0.0,
+					1.0,
+					2.0,
+				],
+			],
+			[
+				0.1581,
+				[
+					0.1,
+					0.2,
+					0.3,
+					0.4,
+					0.5,
+				],
+			],
 		];
 	}
 
@@ -97,9 +137,28 @@ class Number_Test extends UnitTest
 	public static function data_mean(): array
 	{
 		return [
-			[0, []],
-			[1.0, [0.0, 1.0, 2.0]],
-			[0.3, [0.1, 0.2, 0.3, 0.4, 0.5]],
+			[
+				0,
+				[],
+			],
+			[
+				1.0,
+				[
+					0.0,
+					1.0,
+					2.0,
+				],
+			],
+			[
+				0.3,
+				[
+					0.1,
+					0.2,
+					0.3,
+					0.4,
+					0.5,
+				],
+			],
 		];
 	}
 }

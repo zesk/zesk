@@ -1,29 +1,40 @@
 <?php
 declare(strict_types=1);
 
-namespace zesk;
+namespace test\zesk;
 
 use zesk\Exception\SemanticsException;
 use zesk\Exception\SyntaxException;
 
-class URLTest extends UnitTest
-{
+class URLTest extends UnitTest {
 	public static function data_parse(): array
 	{
 		return [
 			[
 				[
-					'scheme' => 'scheme', 'user' => 'user', 'pass' => 'pass', 'host' => 'host', 'path' => '/path',
-					'query' => 'query', 'fragment' => 'fragment',
-					'url' => 'scheme://user:pass@host/path?query#fragment',
-				], 'scheme://user:pass@host/path?query#fragment',
-			], [
-				false, 'http:///list/flush%20mount%20fuel%20cap.htm',
-			], [
+					'scheme'   => 'scheme',
+					'user'     => 'user',
+					'pass'     => 'pass',
+					'host'     => 'host',
+					'path'     => '/path',
+					'query'    => 'query',
+					'fragment' => 'fragment',
+					'url'      => 'scheme://user:pass@host/path?query#fragment',
+				],
+				'scheme://user:pass@host/path?query#fragment',
+			],
+			[
+				false,
+				'http:///list/flush%20mount%20fuel%20cap.htm',
+			],
+			[
 				[
-					'scheme' => 'mailto', 'user' => 'someone', 'host' => 'example.com',
-					'url' => 'mailto:someone@example.com',
-				], 'mailto:someone@example.com',
+					'scheme' => 'mailto',
+					'user'   => 'someone',
+					'host'   => 'example.com',
+					'url'    => 'mailto:someone@example.com',
+				],
+				'mailto:someone@example.com',
 			],
 		];
 	}
@@ -46,7 +57,11 @@ class URLTest extends UnitTest
 	public static function data_queryAppend(): array
 	{
 		return [
-			['/path?a=foo', '/path', ['a' => 'foo'], ],
+			[
+				'/path?a=foo',
+				'/path',
+				['a' => 'foo'],
+			],
 		];
 	}
 
@@ -66,10 +81,24 @@ class URLTest extends UnitTest
 	{
 		return [
 			[
-				'/foo?c=three&d=four&a=one&b=two', '/foo?c=three&d=fourish',
-				['a' => 'one', 'b' => 'two', 'd' => 'four'], [],
-			], [
-				'/foo?d=four&a=one&b=two', '/foo?c=three&d=fourish', ['a' => 'one', 'b' => 'two', 'd' => 'four'], ['c'],
+				'/foo?c=three&d=four&a=one&b=two',
+				'/foo?c=three&d=fourish',
+				[
+					'a' => 'one',
+					'b' => 'two',
+					'd' => 'four',
+				],
+				[],
+			],
+			[
+				'/foo?d=four&a=one&b=two',
+				'/foo?c=three&d=fourish',
+				[
+					'a' => 'one',
+					'b' => 'two',
+					'd' => 'four',
+				],
+				['c'],
 			],
 		];
 	}
@@ -89,8 +118,24 @@ class URLTest extends UnitTest
 	public static function data_queryKeysRemoveInsensitive(): array
 	{
 		return [
-			['/foo', '/foo?BAR=one&Loo=Foo&PoP=age', ['bar', 'loo', 'pop']],
-			['/foo', '/foo?BAR=one&Loo=Foo&PoP=age', ['BAR', 'LOO', 'Pop']],
+			[
+				'/foo',
+				'/foo?BAR=one&Loo=Foo&PoP=age',
+				[
+					'bar',
+					'loo',
+					'pop',
+				],
+			],
+			[
+				'/foo',
+				'/foo?BAR=one&Loo=Foo&PoP=age',
+				[
+					'BAR',
+					'LOO',
+					'Pop',
+				],
+			],
 		];
 	}
 
@@ -130,15 +175,18 @@ class URLTest extends UnitTest
 	{
 		$rows = [];
 		foreach ([
-			'http://www.test.com:81/SIMPLE.html' => 'http://www.test.com:81/SIMPLE.html',
-			'http://john:dude@www.test.com:81/SIMPLE.html' => 'http://john:dude@www.test.com:81/SIMPLE.html',
-			'http:/www.test.com/SIMPLE.html' => false,
-			'http://www.TEST.com/SIMPLE.html?a=b&c=d*&#frag' => 'http://www.test.com/SIMPLE.html?a=b&c=d*&#frag',
-			'http://www.TEST.com:80/SIMPLE.html?a=b&c=d*&#frag' => 'http://www.test.com/SIMPLE.html?a=b&c=d*&#frag',
-			'file:///usr/local/etc/php.ini' => 'file:///usr/local/etc/php.ini',
-			'FTP://Kent:PaSsWoRd@localhost/usr/local/etc/php.ini' => 'ftp://Kent:PaSsWoRd@localhost/usr/local/etc/php.ini',
-		] as $u => $u_final) {
-			$rows[] = [$u_final, $u];
+					 'http://www.test.com:81/SIMPLE.html'                  => 'http://www.test.com:81/SIMPLE.html',
+					 'http://john:dude@www.test.com:81/SIMPLE.html'        => 'http://john:dude@www.test.com:81/SIMPLE.html',
+					 'http:/www.test.com/SIMPLE.html'                      => false,
+					 'http://www.TEST.com/SIMPLE.html?a=b&c=d*&#frag'      => 'http://www.test.com/SIMPLE.html?a=b&c=d*&#frag',
+					 'http://www.TEST.com:80/SIMPLE.html?a=b&c=d*&#frag'   => 'http://www.test.com/SIMPLE.html?a=b&c=d*&#frag',
+					 'file:///usr/local/etc/php.ini'                       => 'file:///usr/local/etc/php.ini',
+					 'FTP://Kent:PaSsWoRd@localhost/usr/local/etc/php.ini' => 'ftp://Kent:PaSsWoRd@localhost/usr/local/etc/php.ini',
+				 ] as $u => $u_final) {
+			$rows[] = [
+				$u_final,
+				$u,
+			];
 		}
 		return $rows;
 	}
@@ -169,10 +217,13 @@ class URLTest extends UnitTest
 
 			[
 				'http://new-host:423/path/to/some-file.php?id=1452123&q42=53234#hash_mark',
-				'http://www.dude.com:423/path/to/some-file.php?id=1452123&q42=53234#hash_mark', 'new-host',
-			], [
+				'http://www.dude.com:423/path/to/some-file.php?id=1452123&q42=53234#hash_mark',
+				'new-host',
+			],
+			[
 				'http://new-host/path/to/some-file.php?id=1452123&q42=53234#hash_mark',
-				'http://www.dude.com:80/path/to/some-file.php?id=1452123&q42=53234#hash_mark', 'new-host',
+				'http://www.dude.com:80/path/to/some-file.php?id=1452123&q42=53234#hash_mark',
+				'new-host',
 			],
 		];
 	}
@@ -192,12 +243,36 @@ class URLTest extends UnitTest
 	{
 		$url = 'http://www.example.com/path/to/file.php?query=value&vale1=412#position';
 		return [
-			['http://www.example.com/path/to/another-file.php?foo=bar#place', $url, 'another-file.php?foo=bar#place'],
-			['http://www.example.com/another-file.php?foo=bar#place', $url, '/another-file.php?foo=bar#place'],
-			['http://www.example.com/another-file.php', $url, '/another-file.php'],
-			['http://www.example.com/path/to/file.php?query=value&vale1=412#frag', $url, '#frag'],
-			['http://www.example.com/path/to/file.php?query=fuck#frag', $url, '?query=fuck#frag'],
-			['http://www.example.com/path/to/file.php?query=fuck', $url, '?query=fuck'],
+			[
+				'http://www.example.com/path/to/another-file.php?foo=bar#place',
+				$url,
+				'another-file.php?foo=bar#place',
+			],
+			[
+				'http://www.example.com/another-file.php?foo=bar#place',
+				$url,
+				'/another-file.php?foo=bar#place',
+			],
+			[
+				'http://www.example.com/another-file.php',
+				$url,
+				'/another-file.php',
+			],
+			[
+				'http://www.example.com/path/to/file.php?query=value&vale1=412#frag',
+				$url,
+				'#frag',
+			],
+			[
+				'http://www.example.com/path/to/file.php?query=fuck#frag',
+				$url,
+				'?query=fuck#frag',
+			],
+			[
+				'http://www.example.com/path/to/file.php?query=fuck',
+				$url,
+				'?query=fuck',
+			],
 		];
 	}
 
@@ -215,7 +290,12 @@ class URLTest extends UnitTest
 
 	public static function data_host(): array
 	{
-		return [['www.dude.com', 'https://john:doe@www.dude.com:1234/path?query#hash'], ];
+		return [
+			[
+				'www.dude.com',
+				'https://john:doe@www.dude.com:1234/path?query#hash',
+			],
+		];
 	}
 
 	/**
@@ -231,22 +311,30 @@ class URLTest extends UnitTest
 	public static function data_is()
 	{
 		$input = [
-			'http://localhost/SIMPLE.html' => true,
-			'https://*12312:asdfasdf@localhost:9293/SIMPLE.html?asdfasdljhalskjdhfasdf=asdgasdf&foo=bar&$20=/' => true,
-			'https://localhost/SIMPLE.html' => true, 'http:/localhost/SIMPLE.html' => false,
-			'https:/localhost/SIMPLE.html' => false, 'http://notjam:dude@www.test.com:81/SIMPLE.html' => true,
-			'http:/www.test.com/SIMPLE.html' => false, 'http://www.TEST.com/SIMPLE.html?a=b&c=d*&#frag' => true,
-			'http://www.TEST.com:80/SIMPLE.html?a=b&c=d*&#frag' => true, 'file:///usr/local/etc/php.ini' => true,
-			'mailto://donotemail@localhost' => true, 'ftp://zesktest:hKfas^911@hornet.dreamhost.com/' => true,
-			'mailto://donotemail@marketacumen.com' => true,
-			'mhtml:///file://C:Documents and SettingsstarvisionMy DocumentsThank You for Your Order - LakeChamplainChocolates_com.mht' => false,
-			'mhtml:///ftp://C:Documents and SettingsstarvisionMy DocumentsThank You for Your Order - LakeChamplainChocolates_com.mht' => false,
-			'mhtml:///http://C:Documents and SettingsstarvisionMy DocumentsThank You for Your Order - LakeChamplainChocolates_com.mht' => false,
+			'http://localhost/SIMPLE.html'                                                                                              => true,
+			'https://*12312:asdfasdf@localhost:9293/SIMPLE.html?asdfasdljhalskjdhfasdf=asdgasdf&foo=bar&$20=/'                          => true,
+			'https://localhost/SIMPLE.html'                                                                                             => true,
+			'http:/localhost/SIMPLE.html'                                                                                               => false,
+			'https:/localhost/SIMPLE.html'                                                                                              => false,
+			'http://notjam:dude@www.test.com:81/SIMPLE.html'                                                                            => true,
+			'http:/www.test.com/SIMPLE.html'                                                                                            => false,
+			'http://www.TEST.com/SIMPLE.html?a=b&c=d*&#frag'                                                                            => true,
+			'http://www.TEST.com:80/SIMPLE.html?a=b&c=d*&#frag'                                                                         => true,
+			'file:///usr/local/etc/php.ini'                                                                                             => true,
+			'mailto://donotemail@localhost'                                                                                             => true,
+			'ftp://zesktest:hKfas^911@hornet.dreamhost.com/'                                                                            => true,
+			'mailto://donotemail@marketacumen.com'                                                                                      => true,
+			'mhtml:///file://C:Documents and SettingsstarvisionMy DocumentsThank You for Your Order - LakeChamplainChocolates_com.mht'  => false,
+			'mhtml:///ftp://C:Documents and SettingsstarvisionMy DocumentsThank You for Your Order - LakeChamplainChocolates_com.mht'   => false,
+			'mhtml:///http://C:Documents and SettingsstarvisionMy DocumentsThank You for Your Order - LakeChamplainChocolates_com.mht'  => false,
 			'mhtml:///https://C:Documents and SettingsstarvisionMy DocumentsThank You for Your Order - LakeChamplainChocolates_com.mht' => false,
 		];
 		$output = [];
 		foreach ($input as $url => $expected) {
-			$output[] = [$expected, $url];
+			$output[] = [
+				$expected,
+				$url,
+			];
 		}
 		return $output;
 	}
@@ -262,9 +350,42 @@ class URLTest extends UnitTest
 	public static function data_isAbsolute(): array
 	{
 		return [
-			[true, 'https://www.dude.com/whatever'], [true, 'https://www.dude.com/'], [true, 'https://www.dude.com'],
-			[true, 'https://localhost'], [true, 'http://localhost'], [false, '//localhost'], [false, '//path'],
-			[false, '/path'], [false, '/path?query'],
+			[
+				true,
+				'https://www.dude.com/whatever',
+			],
+			[
+				true,
+				'https://www.dude.com/',
+			],
+			[
+				true,
+				'https://www.dude.com',
+			],
+			[
+				true,
+				'https://localhost',
+			],
+			[
+				true,
+				'http://localhost',
+			],
+			[
+				false,
+				'//localhost',
+			],
+			[
+				false,
+				'//path',
+			],
+			[
+				false,
+				'/path',
+			],
+			[
+				false,
+				'/path?query',
+			],
 		];
 	}
 
@@ -281,8 +402,26 @@ class URLTest extends UnitTest
 	public static function data_isSecure(): array
 	{
 		return [
-			[true, 'https://www.example.com/'], [false, 'http://www.example.com/'], [true, 'sftp://user:pass@host/'],
-			[true, 'ssh://user@host'], [false, 'telnet://user@host'],
+			[
+				true,
+				'https://www.example.com/',
+			],
+			[
+				false,
+				'http://www.example.com/',
+			],
+			[
+				true,
+				'sftp://user:pass@host/',
+			],
+			[
+				true,
+				'ssh://user@host',
+			],
+			[
+				false,
+				'telnet://user@host',
+			],
 		];
 	}
 
@@ -301,12 +440,51 @@ class URLTest extends UnitTest
 	{
 		$url = 'https://user:password@host:1234/path/to/thing.html?query=1&id=51213#hash';
 		return [
-			['https://user:password@host:1234/path/to/thing.html?query=1&id=51213#hash', $url, ''],
-			['https://user:password@host:1234/path/to/thing.html?query=1&id=51213#hash', $url, 'hash'],
-			['https://user:password@host:1234/path/to/thing.html?query=1&id=51213', $url, 'query'],
-			['https://user:password@host:1234/path/to/thing.html', $url, 'path'],
-			['https://user:password@host:1234/', $url, 'port'], ['https://user:password@host/', $url, 'host'],
-			['https://user:password@/', $url, 'pass'], ['https://user@/', $url, 'user'], ['https:///', $url, 'scheme'],
+			[
+				'https://user:password@host:1234/path/to/thing.html?query=1&id=51213#hash',
+				$url,
+				'',
+			],
+			[
+				'https://user:password@host:1234/path/to/thing.html?query=1&id=51213#hash',
+				$url,
+				'hash',
+			],
+			[
+				'https://user:password@host:1234/path/to/thing.html?query=1&id=51213',
+				$url,
+				'query',
+			],
+			[
+				'https://user:password@host:1234/path/to/thing.html',
+				$url,
+				'path',
+			],
+			[
+				'https://user:password@host:1234/',
+				$url,
+				'port',
+			],
+			[
+				'https://user:password@host/',
+				$url,
+				'host',
+			],
+			[
+				'https://user:password@/',
+				$url,
+				'pass',
+			],
+			[
+				'https://user@/',
+				$url,
+				'user',
+			],
+			[
+				'https:///',
+				$url,
+				'scheme',
+			],
 		];
 	}
 
@@ -326,25 +504,29 @@ class URLTest extends UnitTest
 	public static function data_left_host(): array
 	{
 		$tests = [
-			'http://www.test.com:81/SIMPLE.html' => 'http://www.test.com:81/',
-			'http://john:dude@www.test.com:81/SIMPLE.html' => 'http://john:dude@www.test.com:81/',
-			'http:/www.test.com/SIMPLE.html' => false,
-			'http://www.TEST.com/SIMPLE.html?a=b&c=d*&#frag' => 'http://www.test.com/',
-			'http://www.TEST.com:80/SIMPLE.html?a=b&c=d*&#frag' => 'http://www.test.com/',
-			'file:///usr/local/etc/php.ini' => 'file:///',
-			'FTP://Kent:PaSsWoRd@localhost/usr/local/etc/php.ini' => 'ftp://Kent:PaSsWoRd@localhost/',
-			'HTTP://WWW.EXAMPLE.COM/' => 'http://www.example.com/',
-			'HTTPS://WWW.EXAMPLE.COM/?test=test' => 'https://www.example.com/',
-			'ftp://USER:PASSWORD@EXAMPLE.COM/' => 'ftp://USER:PASSWORD@example.com/',
-			'HTTP://WWW.EXAMPLE.COM' => 'http://www.example.com/',
-			'HTTPS://WWW.EXAMPLE.COM?test=test' => 'https://www.example.com/',
-			'ftp://USER:PASSWORD@EXAMPLE.COM' => 'ftp://USER:PASSWORD@example.com/', 'FILE://foo' => 'file:///',
-			'file:///' => 'file:///',
+			'http://www.test.com:81/SIMPLE.html'                        => 'http://www.test.com:81/',
+			'http://john:dude@www.test.com:81/SIMPLE.html'              => 'http://john:dude@www.test.com:81/',
+			'http:/www.test.com/SIMPLE.html'                            => false,
+			'http://www.TEST.com/SIMPLE.html?a=b&c=d*&#frag'            => 'http://www.test.com/',
+			'http://www.TEST.com:80/SIMPLE.html?a=b&c=d*&#frag'         => 'http://www.test.com/',
+			'file:///usr/local/etc/php.ini'                             => 'file:///',
+			'FTP://Kent:PaSsWoRd@localhost/usr/local/etc/php.ini'       => 'ftp://Kent:PaSsWoRd@localhost/',
+			'HTTP://WWW.EXAMPLE.COM/'                                   => 'http://www.example.com/',
+			'HTTPS://WWW.EXAMPLE.COM/?test=test'                        => 'https://www.example.com/',
+			'ftp://USER:PASSWORD@EXAMPLE.COM/'                          => 'ftp://USER:PASSWORD@example.com/',
+			'HTTP://WWW.EXAMPLE.COM'                                    => 'http://www.example.com/',
+			'HTTPS://WWW.EXAMPLE.COM?test=test'                         => 'https://www.example.com/',
+			'ftp://USER:PASSWORD@EXAMPLE.COM'                           => 'ftp://USER:PASSWORD@example.com/',
+			'FILE://foo'                                                => 'file:///',
+			'file:///'                                                  => 'file:///',
 			'http://www.example.com:98/path/index.php?id=323&o=123#top' => 'http://www.example.com:98/',
 		];
 		$output = [];
 		foreach ($tests as $url => $expected) {
-			$output[] = [$expected, $url];
+			$output[] = [
+				$expected,
+				$url,
+			];
 		}
 		return $output;
 	}
@@ -370,22 +552,31 @@ class URLTest extends UnitTest
 			[
 				'https://pwned.org:443/random/url?query=string#fragment=more-query&not=query',
 				'https://pwned.org/random/url',
-			], [
+			],
+			[
 				'https://pwned.org:80/random/url?query=string#fragment=more-query&not=query',
 				'https://pwned.org:80/random/url',
-			], [
+			],
+			[
 				'http://pwned.org:80/random/url?query=string#fragment=more-query&not=query',
 				'http://pwned.org/random/url',
-			], [
+			],
+			[
 				'https://pwned.org:4123/random/url?query=string#fragment=more-query&not=query',
 				'https://pwned.org:4123/random/url',
-			], [
+			],
+			[
 				'https://pwned.org:4123/random/url?query=string#fragment=more-query&not=query',
 				'https://pwned.org:4123/random/url',
-			], [
+			],
+			[
 				'https://pwned.org/random/url/?query=string#fragment=more-query&not=query',
 				'https://pwned.org/random/url/',
-			], ['http://www.example.com/path/?_foo=bar&number1=or-number-2', 'http://www.example.com/path/', ],
+			],
+			[
+				'http://www.example.com/path/?_foo=bar&number1=or-number-2',
+				'http://www.example.com/path/',
+			],
 		];
 	}
 
@@ -400,26 +591,31 @@ class URLTest extends UnitTest
 	public static function data_normalize(): array
 	{
 		$urls = [
-			'http://www.test.com:81/SIMPLE.html' => 'http://www.test.com:81/SIMPLE.html',
-			'http://john:dude@www.test.com:81/SIMPLE.html' => 'http://john:dude@www.test.com:81/SIMPLE.html',
-			'http:/www.test.com/SIMPLE.html' => false,
-			'http://www.TEST.com/SIMPLE.html?a=b&c=d*&#frag' => 'http://www.test.com/SIMPLE.html?a=b&c=d*&#frag',
-			'http://www.TEST.com:80/SIMPLE.html?a=b&c=d*&#frag' => 'http://www.test.com/SIMPLE.html?a=b&c=d*&#frag',
-			'file:///usr/local/etc/php.ini' => 'file:///usr/local/etc/php.ini',
+			'http://www.test.com:81/SIMPLE.html'                  => 'http://www.test.com:81/SIMPLE.html',
+			'http://john:dude@www.test.com:81/SIMPLE.html'        => 'http://john:dude@www.test.com:81/SIMPLE.html',
+			'http:/www.test.com/SIMPLE.html'                      => false,
+			'http://www.TEST.com/SIMPLE.html?a=b&c=d*&#frag'      => 'http://www.test.com/SIMPLE.html?a=b&c=d*&#frag',
+			'http://www.TEST.com:80/SIMPLE.html?a=b&c=d*&#frag'   => 'http://www.test.com/SIMPLE.html?a=b&c=d*&#frag',
+			'file:///usr/local/etc/php.ini'                       => 'file:///usr/local/etc/php.ini',
 			'FTP://Kent:PaSsWoRd@localhost/usr/local/etc/php.ini' => 'ftp://Kent:PaSsWoRd@localhost/usr/local/etc/php.ini',
 		];
 		$norm_urls = [
-			'HTTP://WWW.EXAMPLE.COM/' => 'http://www.example.com/',
+			'HTTP://WWW.EXAMPLE.COM/'            => 'http://www.example.com/',
 			'HTTPS://WWW.EXAMPLE.COM/?test=test' => 'https://www.example.com/?test=test',
-			'ftp://USER:PASSWORD@EXAMPLE.COM/' => 'ftp://USER:PASSWORD@example.com/',
-			'HTTP://WWW.EXAMPLE.COM' => 'http://www.example.com/',
-			'HTTPS://WWW.EXAMPLE.COM?test=test' => 'https://www.example.com/?test=test',
-			'ftp://USER:PASSWORD@EXAMPLE.COM' => 'ftp://USER:PASSWORD@example.com/', 'FILE://foo' => 'file:///foo',
-			'file:///' => 'file:///', 'file:///foo' => 'file:///foo',
+			'ftp://USER:PASSWORD@EXAMPLE.COM/'   => 'ftp://USER:PASSWORD@example.com/',
+			'HTTP://WWW.EXAMPLE.COM'             => 'http://www.example.com/',
+			'HTTPS://WWW.EXAMPLE.COM?test=test'  => 'https://www.example.com/?test=test',
+			'ftp://USER:PASSWORD@EXAMPLE.COM'    => 'ftp://USER:PASSWORD@example.com/',
+			'FILE://foo'                         => 'file:///foo',
+			'file:///'                           => 'file:///',
+			'file:///foo'                        => 'file:///foo',
 		];
 		$output = [];
 		foreach ($urls + $norm_urls as $url => $expected) {
-			$output[] = [$expected, $url];
+			$output[] = [
+				$expected,
+				$url,
+			];
 		}
 		return $output;
 	}
@@ -440,8 +636,50 @@ class URLTest extends UnitTest
 	public static function data_protocolPort(): array
 	{
 		return [
-			[80, 'hTtP'], [80, 'http'], [80, 'HTTP'], [443, 'hTtPs'], [443, 'https'], [443, 'HTTPS'], [21, 'ftp'],
-			[25, 'mailto'], [-1, 'file'], [-1, 'foo'], [25, 'MAILTO'],
+			[
+				80,
+				'hTtP',
+			],
+			[
+				80,
+				'http',
+			],
+			[
+				80,
+				'HTTP',
+			],
+			[
+				443,
+				'hTtPs',
+			],
+			[
+				443,
+				'https',
+			],
+			[
+				443,
+				'HTTPS',
+			],
+			[
+				21,
+				'ftp',
+			],
+			[
+				25,
+				'mailto',
+			],
+			[
+				-1,
+				'file',
+			],
+			[
+				-1,
+				'foo',
+			],
+			[
+				25,
+				'MAILTO',
+			],
 		];
 	}
 
@@ -458,7 +696,12 @@ class URLTest extends UnitTest
 
 	public static function data_query(): array
 	{
-		return [['a=b&c=d', 'https://user@localhost:123/path-to/things?a=b&c=d#hash'], ];
+		return [
+			[
+				'a=b&c=d',
+				'https://user@localhost:123/path-to/things?a=b&c=d#hash',
+			],
+		];
 	}
 
 	/**
@@ -472,9 +715,36 @@ class URLTest extends UnitTest
 	public static function data_queryParseInsensitive(): array
 	{
 		return [
-			['12345', 'NAME=john&Id=12345', 'Id', 'nope'], ['12345', 'NAME=john&Id=12345', 'id', 'nope'],
-			['nope', 'NAME=john&Id=12345', 'Isd', 'nope'], ['john', 'NAME=john&Id=12345', 'name', 'nope'],
-			['john', 'NAME=john&Id=12345', 'Name', 'nope'],
+			[
+				'12345',
+				'NAME=john&Id=12345',
+				'Id',
+				'nope',
+			],
+			[
+				'12345',
+				'NAME=john&Id=12345',
+				'id',
+				'nope',
+			],
+			[
+				'nope',
+				'NAME=john&Id=12345',
+				'Isd',
+				'nope',
+			],
+			[
+				'john',
+				'NAME=john&Id=12345',
+				'name',
+				'nope',
+			],
+			[
+				'john',
+				'NAME=john&Id=12345',
+				'Name',
+				'nope',
+			],
 		];
 	}
 
@@ -492,16 +762,29 @@ class URLTest extends UnitTest
 
 	public function test_queryUnparse(): void
 	{
-		$m = ['A' => 'A', 'B' => 'C', 'D' => 'E', ];
+		$m = [
+			'A' => 'A',
+			'B' => 'C',
+			'D' => 'E',
+		];
 		$this->assertEquals('?A=A&B=C&D=E', URL::queryToString($m));
 	}
 
 	public static function data_remove_password(): array
 	{
 		return [
-			['http://joe@example.com/', 'http://joe:password@example.com/'],
-			['https://example.com/', 'https://:password@example.com/'],
-			['http://example.com/', 'http://:password@example.com/'],
+			[
+				'http://joe@example.com/',
+				'http://joe:password@example.com/',
+			],
+			[
+				'https://example.com/',
+				'https://:password@example.com/',
+			],
+			[
+				'http://example.com/',
+				'http://:password@example.com/',
+			],
 		];
 	}
 
@@ -521,7 +804,10 @@ class URLTest extends UnitTest
 		$output = [];
 		$f = file(ZESK_ROOT . 'test/test-data/url-repair.txt');
 		foreach ($f as $lineno => $u) {
-			$output[] = [rtrim($u), $lineno];
+			$output[] = [
+				rtrim($u),
+				$lineno,
+			];
 		}
 		return $output;
 	}
@@ -544,13 +830,22 @@ class URLTest extends UnitTest
 	{
 		$output = [];
 		foreach ([
-			'http://www.example.com' => 'http', 'https://www.example.com' => 'https',
-			'ftp://www.example.com' => 'ftp', 'file://foo' => 'file', 'mailto:john@doe.com' => 'mailto',
-			'HTTP://www.example.com' => 'http', 'HTTPS://www.example.com' => 'https',
-			'FTP://www.example.com' => 'ftp', 'FiLe://foo' => 'file', 'MaIlTo:john@doe.com' => 'mailto',
-			'mysql://foo:bar@localhost/db_name?table_prefix=323' => 'mysql',
-		] as $url => $expected) {
-			$output[] = [$expected, $url];
+					 'http://www.example.com'                             => 'http',
+					 'https://www.example.com'                            => 'https',
+					 'ftp://www.example.com'                              => 'ftp',
+					 'file://foo'                                         => 'file',
+					 'mailto:john@doe.com'                                => 'mailto',
+					 'HTTP://www.example.com'                             => 'http',
+					 'HTTPS://www.example.com'                            => 'https',
+					 'FTP://www.example.com'                              => 'ftp',
+					 'FiLe://foo'                                         => 'file',
+					 'MaIlTo:john@doe.com'                                => 'mailto',
+					 'mysql://foo:bar@localhost/db_name?table_prefix=323' => 'mysql',
+				 ] as $url => $expected) {
+			$output[] = [
+				$expected,
+				$url,
+			];
 		}
 		return $output;
 	}
@@ -569,12 +864,34 @@ class URLTest extends UnitTest
 	public static function data_makeSecure(): array
 	{
 		return [
-			['ssh://user@host/', 'telnet://user@host/'], ['sftp://user@host/', 'ftp://user@host/'],
-			['https://www.example.com/', 'http://www.example.com/'], [
+			[
+				'ssh://user@host/',
+				'telnet://user@host/',
+			],
+			[
+				'sftp://user@host/',
+				'ftp://user@host/',
+			],
+			[
+				'https://www.example.com/',
+				'http://www.example.com/',
+			],
+			[
 				'https://auser:password@www.example.com/pathto/gold.gif?query=abc#place',
 				'http://auser:password@www.example.com:80/pathto/gold.gif?query=abc#place',
-			], ['', 'http://auser:password@www.example.com:442/'], ['ssh://user@host:99/', 'ssh://user@host:99/'],
-			['', 'ftp://user@host:29/'],
+			],
+			[
+				'',
+				'http://auser:password@www.example.com:442/',
+			],
+			[
+				'ssh://user@host:99/',
+				'ssh://user@host:99/',
+			],
+			[
+				'',
+				'ftp://user@host:29/',
+			],
 		];
 	}
 
@@ -597,19 +914,71 @@ class URLTest extends UnitTest
 	public static function data_isSameServer(): array
 	{
 		return [
-			[true, 'http://www.example.com:80/place', 'http://www.example.com/another-place'],
-			[false, 'http://www.example.com:80/place', 'http://www.example.com:81/another-place'],
-			[false, 'http://www.example.com:80/place', 'http://www.example.com:81/another-place'],
-			[true, 'http://www.example.com:80/', 'http://www.example.com:80/'],
-			[true, 'http://www.example.com:80/', 'http://www.example.com:80/foo'],
-			[true, 'http://www.example.com:80/', 'http://www.example.com:80/foo/bar?query=bar'],
-			[true, 'http://www.example.com:80/', 'http://www.example.com:80/foo/bar?query=bar#frag'],
-			[true, 'http://www.example.com:80/', 'http://www.example.com/foo/bar?query=bar#frag'],
-			[true, 'http://www.example.com:80/', 'http://user@www.example.com/foo/bar?query=bar#frag'],
-			[true, 'http://www.example.com:80/', 'http://user:pass@www.example.com/foo/bar?query=bar#frag'],
-			[false, 'http://www.example.com:80/', 'http://www.example.com:81/'],
-			[false, 'http://www.example.com:80/', 'http://www.example.co:80/'],
-			[false, 'http://www.example.com:80/', 'http://www.example.co:80/'],
+			[
+				true,
+				'http://www.example.com:80/place',
+				'http://www.example.com/another-place',
+			],
+			[
+				false,
+				'http://www.example.com:80/place',
+				'http://www.example.com:81/another-place',
+			],
+			[
+				false,
+				'http://www.example.com:80/place',
+				'http://www.example.com:81/another-place',
+			],
+			[
+				true,
+				'http://www.example.com:80/',
+				'http://www.example.com:80/',
+			],
+			[
+				true,
+				'http://www.example.com:80/',
+				'http://www.example.com:80/foo',
+			],
+			[
+				true,
+				'http://www.example.com:80/',
+				'http://www.example.com:80/foo/bar?query=bar',
+			],
+			[
+				true,
+				'http://www.example.com:80/',
+				'http://www.example.com:80/foo/bar?query=bar#frag',
+			],
+			[
+				true,
+				'http://www.example.com:80/',
+				'http://www.example.com/foo/bar?query=bar#frag',
+			],
+			[
+				true,
+				'http://www.example.com:80/',
+				'http://user@www.example.com/foo/bar?query=bar#frag',
+			],
+			[
+				true,
+				'http://www.example.com:80/',
+				'http://user:pass@www.example.com/foo/bar?query=bar#frag',
+			],
+			[
+				false,
+				'http://www.example.com:80/',
+				'http://www.example.com:81/',
+			],
+			[
+				false,
+				'http://www.example.com:80/',
+				'http://www.example.co:80/',
+			],
+			[
+				false,
+				'http://www.example.com:80/',
+				'http://www.example.co:80/',
+			],
 		];
 	}
 

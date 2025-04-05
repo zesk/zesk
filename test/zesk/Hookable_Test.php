@@ -1,10 +1,9 @@
 <?php
 declare(strict_types=1);
 
-namespace zesk;
+namespace test\zesk;
 
-class hookable_test_a extends Hookable
-{
+class hookable_test_a extends Hookable {
 	public const HOOK_TEST = __CLASS__ . '::test';
 
 	public static Application $app;
@@ -31,8 +30,7 @@ class hookable_test_a extends Hookable
 	}
 }
 
-class hookable_test_b extends hookable_test_a
-{
+class hookable_test_b extends hookable_test_a {
 	#[HookMethod(handles: self::HOOK_TEST, filter: true)]
 	public function requiresObjectHookB(array $data): array
 	{
@@ -58,8 +56,7 @@ class hookable_test_b extends hookable_test_a
 	}
 }
 
-class Hookable_Test extends UnitTest
-{
+class Hookable_Test extends UnitTest {
 	public static $counter = 0;
 
 	public function test_hook_series(): void
@@ -70,13 +67,20 @@ class Hookable_Test extends UnitTest
 		$data = [
 			'dude' => 'as in the',
 		];
-		$this->application->classes->register([hookable_test_a::class, hookable_test_b::class]);
+		$this->application->classes->register([
+			hookable_test_a::class,
+			hookable_test_b::class,
+		]);
 
 		$a = new hookable_test_a($this->application);
 		$result = $a->hookit($data);
 
 		$this->assertArrayHasKeys([
-			'dude', 'hookit', 'test1', 'test2', 'test_a',
+			'dude',
+			'hookit',
+			'test1',
+			'test2',
+			'test_a',
 		], $result, JSON::encodePretty($result));
 		$this->assertEquals('as in the', $result['dude']);
 		$this->assertEquals('1', $result['test1']);
@@ -85,7 +89,12 @@ class Hookable_Test extends UnitTest
 
 		$data = $a->invokeObjectFilters(hookable_test_a::HOOK_TEST, $data);
 		$this->assertArrayHasKeys([
-			'dude', 'hookit', 'test1', 'test2', 'test_a', 'test2',
+			'dude',
+			'hookit',
+			'test1',
+			'test2',
+			'test_a',
+			'test2',
 		], $result, JSON::encodePretty($result));
 
 		$b = new hookable_test_b($this->application);
@@ -94,8 +103,13 @@ class Hookable_Test extends UnitTest
 		];
 		$data = $b->invokeObjectFilters(hookable_test_a::HOOK_TEST, $data);
 		$this->assertEquals([
-			'dude' => 'the', 'test_b' => 99, 'test2' => '2', 'test3' => 'three', 'test1a' => 'three not 1a',
-			'nice' => 'pony', 'test_a' => 99,
+			'dude'   => 'the',
+			'test_b' => 99,
+			'test2'  => '2',
+			'test3'  => 'three',
+			'test1a' => 'three not 1a',
+			'nice'   => 'pony',
+			'test_a' => 99,
 		], $data);
 
 		/*array(10) {
@@ -139,12 +153,15 @@ class Hookable_Test extends UnitTest
 		$conf->setPath(hookable_test_a::class . '::test1', 'test1');
 		$conf->setPath(hookable_test_a::class . '::test2', 'test2');
 		$conf->setPath(hookable_test_a::class . '::test3array', [
-			0, false, null,
+			0,
+			false,
+			null,
 		]);
 
 		// No longer honored/merged as of 2016-01-01
 		$conf->setPath(hookable_test_a::class . '::options', $optoptions = [
-			'test1' => 'test2', 'more' => 'dude',
+			'test1' => 'test2',
+			'more'  => 'dude',
 		]);
 
 		$options->inheritConfiguration();
@@ -154,9 +171,14 @@ class Hookable_Test extends UnitTest
 		$this->assertArrayNotHasKey('more', $options);
 
 		$this->assertEquals($options, [
-			'test1' => 'test1', 'test2' => 'test2', 'test3array' => [
-				0, false, null,
-			], 'options' => $optoptions,
+			'test1'      => 'test1',
+			'test2'      => 'test2',
+			'test3array' => [
+				0,
+				false,
+				null,
+			],
+			'options'    => $optoptions,
 		]);
 	}
 }

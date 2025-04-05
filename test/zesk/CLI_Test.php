@@ -1,12 +1,11 @@
 <?php
 declare(strict_types=1);
 
-namespace zesk;
+namespace test\zesk;
 
 use zesk\Exception\CommandFailed;
 
-class CLI_Test extends UnitTest
-{
+class CLI_Test extends UnitTest {
 	public static function data_CLI(): array
 	{
 		return [

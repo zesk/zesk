@@ -4,7 +4,7 @@ declare(strict_types=1);
  *
  */
 
-namespace zesk;
+namespace test\zesk;
 
 use stdClass;
 use zesk\Exception\ParseException;
@@ -15,8 +15,7 @@ use zesk\Exception\SemanticsException;
  * @author kent
  *
  */
-class JSONTest extends UnitTest
-{
+class JSONTest extends UnitTest {
 	public function test_decode(): void
 	{
 		$this->expectException(ParseException::class);
@@ -67,11 +66,64 @@ class JSONTest extends UnitTest
 		};
 		$random_string = self::randomHex(16);
 		return [
-			[null, null, [], []], [[], [], [], []], [['a'], ['a'], [], []], [['a' => 'b'], ['a' => 'b'], [], []],
-			[['yes' => 'works'], $thing1, ['doit'], []], [['param' => 'a'], $thing1, ['doit_again'], ['a']],
-			[['param' => $random_string], $thing1, ['doit_again'], [$random_string]],
-			['thing one', $thing1, ['not_found'], []],
-			[['kind' => 'thing', 'type' => 'class', 'id' => 1232], $thing2, ['not_found'], []],
+			[
+				null,
+				null,
+				[],
+				[],
+			],
+			[
+				[],
+				[],
+				[],
+				[],
+			],
+			[
+				['a'],
+				['a'],
+				[],
+				[],
+			],
+			[
+				['a' => 'b'],
+				['a' => 'b'],
+				[],
+				[],
+			],
+			[
+				['yes' => 'works'],
+				$thing1,
+				['doit'],
+				[],
+			],
+			[
+				['param' => 'a'],
+				$thing1,
+				['doit_again'],
+				['a'],
+			],
+			[
+				['param' => $random_string],
+				$thing1,
+				['doit_again'],
+				[$random_string],
+			],
+			[
+				'thing one',
+				$thing1,
+				['not_found'],
+				[],
+			],
+			[
+				[
+					'kind' => 'thing',
+					'type' => 'class',
+					'id'   => 1232,
+				],
+				$thing2,
+				['not_found'],
+				[],
+			],
 		];
 	}
 
@@ -97,15 +149,31 @@ class JSONTest extends UnitTest
 	public static function data_encode(): array
 	{
 		return [
-			[null, fopen('php://stdin', 'rb')],
-			['null', null, ],
+			[
+				null,
+				fopen('php://stdin', 'rb'),
+			],
+			[
+				'null',
+				null,
+			],
 			[
 				'{"0":{"Hello":"Dude","1241`2":"odd","__2341":2,"a459123":{}},"1":false,"2":true,"3":12312312,"4":"A string","5":"A string","*do encode result":"document.referrer","6":null,"dog":null}',
 				[
 					[
-						'Hello' => 'Dude', '1241`2' => 'odd', '__2341' => 2, 'a459123' => new stdClass(),
-					], false, true, 12312312, 'A string', 'A string', '*do encode result' => 'document.referrer', null,
-					'dog' => null,
+						'Hello'   => 'Dude',
+						'1241`2'  => 'odd',
+						'__2341'  => 2,
+						'a459123' => new stdClass(),
+					],
+					false,
+					true,
+					12312312,
+					'A string',
+					'A string',
+					'*do encode result' => 'document.referrer',
+					null,
+					'dog'               => null,
 				],
 			],
 		];
@@ -147,17 +215,35 @@ class JSONTest extends UnitTest
 	{
 		return [
 			[
-				'null', null,
-			], [
-				'[0,1,2,3]', [0, 1, 2, 3],
+				'null',
+				null,
+			],
+			[
+				'[0,1,2,3]',
+				[
+					0,
+					1,
+					2,
+					3,
+				],
 			],
 			[
 				'{"0":{"Hello":"Dude","1241`2":"odd","__2341":2,"a459123":{}},"1":false,"2":true,"3":12312312,"4":"A string","5":"A string","don\'t encode result":document.referrer,"6":null,"dog":null}',
 				[
 					[
-						'Hello' => 'Dude', '1241`2' => 'odd', '__2341' => 2, 'a459123' => new stdClass(),
-					], false, true, 12312312, 'A string', 'A string', '*don\'t encode result' => 'document.referrer',
-					null, 'dog' => null,
+						'Hello'   => 'Dude',
+						'1241`2'  => 'odd',
+						'__2341'  => 2,
+						'a459123' => new stdClass(),
+					],
+					false,
+					true,
+					12312312,
+					'A string',
+					'A string',
+					'*don\'t encode result' => 'document.referrer',
+					null,
+					'dog'                   => null,
 				],
 			],
 		];
@@ -178,26 +264,45 @@ class JSONTest extends UnitTest
 	{
 		return [
 			[
-				'null', null,
-			], [
-				'[0,1,2,3]', [0, 1, 2, 3],
-			], [
+				'null',
+				null,
+			],
+			[
+				'[0,1,2,3]',
+				[
+					0,
+					1,
+					2,
+					3,
+				],
+			],
+			[
 				'{"0":{Hello:"Dude","1241`2":"odd",__2341:2,a459123:{}},"1":false,"2":true,"3":12312312,"4":"A string","5":"A string","don\'t encode result":document.referrer,"6":null,dog:null}',
 				[
 					[
-						'Hello' => 'Dude', '1241`2' => 'odd', '__2341' => 2, 'a459123' => new stdClass(),
-					], false, true, 12312312, 'A string', 'A string', '*don\'t encode result' => 'document.referrer',
-					null, 'dog' => null,
+						'Hello'   => 'Dude',
+						'1241`2'  => 'odd',
+						'__2341'  => 2,
+						'a459123' => new stdClass(),
+					],
+					false,
+					true,
+					12312312,
+					'A string',
+					'A string',
+					'*don\'t encode result' => 'document.referrer',
+					null,
+					'dog'                   => null,
 				],
 			],
 		];
 	}
 
 	/**
-	 * @return void
-	 * @dataProvider data_object_member_name_quote
 	 * @param string $name
 	 * @param string $expected
+	 * @return void
+	 * @dataProvider data_object_member_name_quote
 	 */
 	public function test_object_member_name_quote(string $name, string $expected): void
 	{
@@ -207,8 +312,38 @@ class JSONTest extends UnitTest
 	public static function data_object_member_name_quote(): array
 	{
 		return [
-			['', '""'], ['a', 'a'], ['dude_123', 'dude_123'], [' ', '" "'], ['a b', '"a b"'], ['@#', '"@#"'],
-			['Equalit\'', '"Equalit\'"'], ['egalité', '"egalité"'],
+			[
+				'',
+				'""',
+			],
+			[
+				'a',
+				'a',
+			],
+			[
+				'dude_123',
+				'dude_123',
+			],
+			[
+				' ',
+				'" "',
+			],
+			[
+				'a b',
+				'"a b"',
+			],
+			[
+				'@#',
+				'"@#"',
+			],
+			[
+				'Equalit\'',
+				'"Equalit\'"',
+			],
+			[
+				'egalité',
+				'"egalité"',
+			],
 		];
 	}
 
@@ -226,20 +361,68 @@ class JSONTest extends UnitTest
 	public static function data_quote(): array
 	{
 		return [
-			['"\\\\t\\\\n\\\\r\\\\"', '\t\n\r\\'],
-			['"this.is.a.word"', 'this.is.a.word'],
-			['"thingy"', 'thingy'],
-			['"2thingy"', '2thingy'],
-			['"thingy2"', 'thingy2'],
-			['"th-ingy2"', 'th-ingy2'],
+			[
+				'"\\\\t\\\\n\\\\r\\\\"',
+				'\t\n\r\\',
+			],
+			[
+				'"this.is.a.word"',
+				'this.is.a.word',
+			],
+			[
+				'"thingy"',
+				'thingy',
+			],
+			[
+				'"2thingy"',
+				'2thingy',
+			],
+			[
+				'"thingy2"',
+				'thingy2',
+			],
+			[
+				'"th-ingy2"',
+				'th-ingy2',
+			],
 		];
 	}
 
 	public static function data_valid_member_name(): array
 	{
 		return [
-			[false, ''], [true, 'a'], [true, 'dude_123'], [false, ' '], [false, 'a b'], [false, '@#'],
-			[false, 'Equalit\''], [false, 'egalité'],
+			[
+				false,
+				'',
+			],
+			[
+				true,
+				'a',
+			],
+			[
+				true,
+				'dude_123',
+			],
+			[
+				false,
+				' ',
+			],
+			[
+				false,
+				'a b',
+			],
+			[
+				false,
+				'@#',
+			],
+			[
+				false,
+				'Equalit\'',
+			],
+			[
+				false,
+				'egalité',
+			],
 		];
 	}
 
@@ -259,30 +442,39 @@ class JSONTest extends UnitTest
 		$obj = new stdClass();
 		$obj->foo = 'foo';
 		$obj->_thing_to_save = [
-			'1', '2', '5',
+			'1',
+			'2',
+			'5',
 		];
 		$obj->another = new stdClass();
 
 		return [
 			[
 				null,
-			], [
+			],
+			[
 				true,
-			], [
+			],
+			[
 				false,
-			], [
+			],
+			[
 				[],
-			], [
+			],
+			[
 				[
 					'a' => 'b',
 				],
-			], [
+			],
+			[
 				[
 					[
-						'hello' => 'world', 'how' => 'zit',
+						'hello' => 'world',
+						'how'   => 'zit',
 					],
 				],
-			], [
+			],
+			[
 				$obj,
 			],
 		];
@@ -306,10 +498,12 @@ class JSONTest extends UnitTest
 	{
 		return [
 			[
-				'{ "fructose.marketacumen.com": "fructose" }', [
+				'{ "fructose.marketacumen.com": "fructose" }',
+				[
 					'fructose.marketacumen.com' => 'fructose',
 				],
-			], [
+			],
+			[
 				'{
     "glossary": {
         "title": "example glossary",
@@ -331,30 +525,47 @@ class JSONTest extends UnitTest
             }
         }
     }
-}', [
+}',
+				[
 					'glossary' => [
-						'title' => 'example glossary', 'GlossDiv' => [
-							'title' => 'S', 'GlossList' => [
+						'title'    => 'example glossary',
+						'GlossDiv' => [
+							'title'     => 'S',
+							'GlossList' => [
 								'GlossEntry' => [
-									'ID' => 'SGML', 'SortAs' => 'SGML',
-									'GlossTerm' => 'Standard Generalized Markup Language', 'Acronym' => 'SGML',
-									'Abbrev' => 'ISO 8879:1986', 'GlossDef' => [
-										'para' => 'A meta-markup language, used to create markup languages such as DocBook.',
+									'ID'        => 'SGML',
+									'SortAs'    => 'SGML',
+									'GlossTerm' => 'Standard Generalized Markup Language',
+									'Acronym'   => 'SGML',
+									'Abbrev'    => 'ISO 8879:1986',
+									'GlossDef'  => [
+										'para'         => 'A meta-markup language, used to create markup languages such as DocBook.',
 										'GlossSeeAlso' => [
-											'GML', 'XML',
+											'GML',
+											'XML',
 										],
-									], 'GlossSee' => 'markup',
+									],
+									'GlossSee'  => 'markup',
 								],
 							],
 						],
 					],
 				],
-			], [
+			],
+			[
 				'{"truly":true,"falsely":false,"nullish":null,"floaty":  -5.812342e+24,"intlike":51231412,"listy":[0,1,2,3,5]}',
 				[
-					'truly' => true, 'falsely' => false, 'nullish' => null, 'floaty' => -58123.42e+20,
-					'intlike' => 51231412, 'listy' => [
-						0, 1, 2, 3, 5,
+					'truly'   => true,
+					'falsely' => false,
+					'nullish' => null,
+					'floaty'  => -58123.42e+20,
+					'intlike' => 51231412,
+					'listy'   => [
+						0,
+						1,
+						2,
+						3,
+						5,
 					],
 				],
 			],

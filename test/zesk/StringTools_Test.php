@@ -1,12 +1,11 @@
 <?php
 declare(strict_types=1);
 
-namespace zesk;
+namespace test\zesk;
 
 use stdClass;
 
-class StringTools_Test extends UnitTest
-{
+class StringTools_Test extends UnitTest {
 	/**
 	 * @param string $expected
 	 * @param string $test
@@ -24,19 +23,66 @@ class StringTools_Test extends UnitTest
 	public static function data_mapClean(): array
 	{
 		return [
-			['He wanted  [days]', 'He wanted {n} [days]', '{', '}', ],
-			['He wanted {n} ', 'He wanted {n} [days]', '[', ']', ],
-			['He wanted {n} [days]', 'He wanted {n} [days]', '[', '}', ],
-			['He wanted ', 'He wanted {n} [days]', '{', ']', ],
-			['except}', '{}{}{}{}{}{all}{of}{this}{is}{removed}except}{}', '{', '}', ],
+			[
+				'He wanted  [days]',
+				'He wanted {n} [days]',
+				'{',
+				'}',
+			],
+			[
+				'He wanted {n} ',
+				'He wanted {n} [days]',
+				'[',
+				']',
+			],
+			[
+				'He wanted {n} [days]',
+				'He wanted {n} [days]',
+				'[',
+				'}',
+			],
+			[
+				'He wanted ',
+				'He wanted {n} [days]',
+				'{',
+				']',
+			],
+			[
+				'except}',
+				'{}{}{}{}{}{all}{of}{this}{is}{removed}except}{}',
+				'{',
+				'}',
+			],
 		];
 	}
 
 	public static function data_joinArray(): array
 	{
 		return [
-			['^one^two^three^', '^', ['^^one', '^two^', 'three^', ]],
-			['path/part/whoops/embed/deep', '/', ['path', 'part', ['whoops', ['embed', 'deep']]]],
+			[
+				'^one^two^three^',
+				'^',
+				[
+					'^^one',
+					'^two^',
+					'three^',
+				],
+			],
+			[
+				'path/part/whoops/embed/deep',
+				'/',
+				[
+					'path',
+					'part',
+					[
+						'whoops',
+						[
+							'embed',
+							'deep',
+						],
+					],
+				],
+			],
 		];
 	}
 
@@ -51,7 +97,9 @@ class StringTools_Test extends UnitTest
 	{
 		$separator = '^';
 		$mixed = [
-			'^^one', '^two^', 'three^',
+			'^^one',
+			'^two^',
+			'three^',
 		];
 		$result = StringTools::joinArray($separator, $mixed);
 		$this->assertEquals('^one^two^three^', $result);
@@ -63,17 +111,72 @@ class StringTools_Test extends UnitTest
 	public static function data_begins(): array
 	{
 		return [
-			['food', '', false, true],
-			['food', '', true, true],
-			['food', 'foo', false, true],
-			['food', ['foo'], false, true],
-			[['food'], 'foo', false, true],
-			[['food'], ['foo'], false, true],
-			['food', 'foo', false, true],
-			['food', 'Foo', true, true],
-			['Food', 'Foo', true, true],
-			['Food', 'foo', true, true],
-			['Food', 'foo', false, false],
+			[
+				'food',
+				'',
+				false,
+				true,
+			],
+			[
+				'food',
+				'',
+				true,
+				true,
+			],
+			[
+				'food',
+				'foo',
+				false,
+				true,
+			],
+			[
+				'food',
+				['foo'],
+				false,
+				true,
+			],
+			[
+				['food'],
+				'foo',
+				false,
+				true,
+			],
+			[
+				['food'],
+				['foo'],
+				false,
+				true,
+			],
+			[
+				'food',
+				'foo',
+				false,
+				true,
+			],
+			[
+				'food',
+				'Foo',
+				true,
+				true,
+			],
+			[
+				'Food',
+				'Foo',
+				true,
+				true,
+			],
+			[
+				'Food',
+				'foo',
+				true,
+				true,
+			],
+			[
+				'Food',
+				'foo',
+				false,
+				false,
+			],
 		];
 	}
 
@@ -89,10 +192,22 @@ class StringTools_Test extends UnitTest
 	public static function data_capitalize(): array
 	{
 		return [
-			['', ''],
-			['hello', 'Hello', ],
-			['I WOULD LIKE SOME HELP', 'I Would Like Some Help', ],
-			['a rather fun title to have for the new ages', 'A Rather Fun Title To Have For The New Ages', ],
+			[
+				'',
+				'',
+			],
+			[
+				'hello',
+				'Hello',
+			],
+			[
+				'I WOULD LIKE SOME HELP',
+				'I Would Like Some Help',
+			],
+			[
+				'a rather fun title to have for the new ages',
+				'A Rather Fun Title To Have For The New Ages',
+			],
 		];
 	}
 
@@ -111,8 +226,14 @@ class StringTools_Test extends UnitTest
 	public static function data_to_camel(): array
 	{
 		return [
-			['long_ass_string', 'longAssString'],
-			['_long_ass_string', 'LongAssString'],
+			[
+				'long_ass_string',
+				'longAssString',
+			],
+			[
+				'_long_ass_string',
+				'LongAssString',
+			],
 		];
 	}
 
@@ -131,8 +252,14 @@ class StringTools_Test extends UnitTest
 	public static function data_from_camel(): array
 	{
 		return [
-			['longAssString', 'long_ass_string'],
-			['LongAssString', '_long_ass_string'],
+			[
+				'longAssString',
+				'long_ass_string',
+			],
+			[
+				'LongAssString',
+				'_long_ass_string',
+			],
 		];
 	}
 
@@ -148,18 +275,66 @@ class StringTools_Test extends UnitTest
 	public static function data_caseMatch(): array
 	{
 		return [
-			['test', 'John', 'Test'],
-			['Test', 'John', 'Test'],
-			['test', 'John', 'Test'],
-			['TeSt', 'John', 'Test'],
-			['test', 'JOHN', 'TEST'],
-			['Test', 'JOHN', 'TEST'],
-			['test', 'JOHN', 'TEST'],
-			['TeSt', 'JOHn', 'TEST'],
-			['test', 'john', 'test'],
-			['Test', 'john', 'test'],
-			['test', 'john', 'test'],
-			['TeSt', 'john', 'test'],
+			[
+				'test',
+				'John',
+				'Test',
+			],
+			[
+				'Test',
+				'John',
+				'Test',
+			],
+			[
+				'test',
+				'John',
+				'Test',
+			],
+			[
+				'TeSt',
+				'John',
+				'Test',
+			],
+			[
+				'test',
+				'JOHN',
+				'TEST',
+			],
+			[
+				'Test',
+				'JOHN',
+				'TEST',
+			],
+			[
+				'test',
+				'JOHN',
+				'TEST',
+			],
+			[
+				'TeSt',
+				'JOHn',
+				'TEST',
+			],
+			[
+				'test',
+				'john',
+				'test',
+			],
+			[
+				'Test',
+				'john',
+				'test',
+			],
+			[
+				'test',
+				'john',
+				'test',
+			],
+			[
+				'TeSt',
+				'john',
+				'test',
+			],
 		];
 	}
 
@@ -180,17 +355,72 @@ class StringTools_Test extends UnitTest
 		$n = 20;
 		$random_string = self::randomHex($n);
 		return [
-			[$random_string, -1, '...', $random_string],
-			[$random_string, $n - 1, '!', substr($random_string, 0, -1) . '!'],
-			[$random_string, $n, '...', $random_string],
-			[$random_string, $n + 1, '...', $random_string],
-			['A quick brown fox jumps over the lazy dog.', 1, '...', 'A...'],
-			['A quick brown fox jumps over the lazy dog.', 5, '...', 'A...'],
-			['A quick brown fox jumps over the lazy dog.', 10, '...', 'A quick...'],
-			['A quick brown fox jumps over the lazy dog.', 15, '...', 'A quick brown...'],
-			['A quick brown fox jumps over the lazy dog.', 20, '...', 'A quick brown fox...'],
-			['A quick brown fox jumps over the lazy dog.', 25, '...', 'A quick brown fox jumps...'],
-			['A quick brown fox jumps over the lazy dog.', 30, '...', 'A quick brown fox jumps over...'],
+			[
+				$random_string,
+				-1,
+				'...',
+				$random_string,
+			],
+			[
+				$random_string,
+				$n - 1,
+				'!',
+				substr($random_string, 0, -1) . '!',
+			],
+			[
+				$random_string,
+				$n,
+				'...',
+				$random_string,
+			],
+			[
+				$random_string,
+				$n + 1,
+				'...',
+				$random_string,
+			],
+			[
+				'A quick brown fox jumps over the lazy dog.',
+				1,
+				'...',
+				'A...',
+			],
+			[
+				'A quick brown fox jumps over the lazy dog.',
+				5,
+				'...',
+				'A...',
+			],
+			[
+				'A quick brown fox jumps over the lazy dog.',
+				10,
+				'...',
+				'A quick...',
+			],
+			[
+				'A quick brown fox jumps over the lazy dog.',
+				15,
+				'...',
+				'A quick brown...',
+			],
+			[
+				'A quick brown fox jumps over the lazy dog.',
+				20,
+				'...',
+				'A quick brown fox...',
+			],
+			[
+				'A quick brown fox jumps over the lazy dog.',
+				25,
+				'...',
+				'A quick brown fox jumps...',
+			],
+			[
+				'A quick brown fox jumps over the lazy dog.',
+				30,
+				'...',
+				'A quick brown fox jumps over...',
+			],
 		];
 	}
 
@@ -206,15 +436,60 @@ class StringTools_Test extends UnitTest
 	public static function data_replaceTabs(): array
 	{
 		return [
-			['    Hello', "\tHello", -1, ' '],
-			['A+++Hello', "A\tHello", -1, '+'],
-			['AB??Hello', "AB\tHello", -1, '?'],
-			['ABC_Hello', "ABC\tHello", -1, '_'],
-			['ABCD    Hello', "ABCD\tHello", -1, ' '],
-			['ABCD Hello', "ABCD\tHello", 5, ' '],
-			["  Hello\n  Hello", "\tHello\n\tHello", 2, ' '],
-			[" Hello\n Hello", "\tHello\n\tHello", 1, ' '],
-			["Hello\nHello", "\tHello\n\tHello", 0, ' '],
+			[
+				'    Hello',
+				"\tHello",
+				-1,
+				' ',
+			],
+			[
+				'A+++Hello',
+				"A\tHello",
+				-1,
+				'+',
+			],
+			[
+				'AB??Hello',
+				"AB\tHello",
+				-1,
+				'?',
+			],
+			[
+				'ABC_Hello',
+				"ABC\tHello",
+				-1,
+				'_',
+			],
+			[
+				'ABCD    Hello',
+				"ABCD\tHello",
+				-1,
+				' ',
+			],
+			[
+				'ABCD Hello',
+				"ABCD\tHello",
+				5,
+				' ',
+			],
+			[
+				"  Hello\n  Hello",
+				"\tHello\n\tHello",
+				2,
+				' ',
+			],
+			[
+				" Hello\n Hello",
+				"\tHello\n\tHello",
+				1,
+				' ',
+			],
+			[
+				"Hello\nHello",
+				"\tHello\n\tHello",
+				0,
+				' ',
+			],
 		];
 	}
 
@@ -234,21 +509,83 @@ class StringTools_Test extends UnitTest
 	{
 		$trueTests = [];
 		foreach (array_merge(self::data_begins(), self::data_ends()) as $test) {
-			[$haystack, $needle, $lower, $expected] = $test;
+			[
+				$haystack,
+				$needle,
+				$lower,
+				$expected,
+			] = $test;
 			if ($expected) {
 				$trueTests[] = $test;
 			}
 		}
 		return array_merge($trueTests, [
-			[['walking', 'runner'], 'alk', false, true],
-			[['walking', 'runner'], ['alk'], false, true],
-			['walking', ['alk'], false, true],
-			['walking', ['ner'], false, false],
-			['walking', ['kin'], false, true],
-			['walking', ['foo', 'g'], false, true],
-			['walking', ['foo', ''], false, true],
-			['walking', '', false, true],
-			['walking', '', true, true],
+			[
+				[
+					'walking',
+					'runner',
+				],
+				'alk',
+				false,
+				true,
+			],
+			[
+				[
+					'walking',
+					'runner',
+				],
+				['alk'],
+				false,
+				true,
+			],
+			[
+				'walking',
+				['alk'],
+				false,
+				true,
+			],
+			[
+				'walking',
+				['ner'],
+				false,
+				false,
+			],
+			[
+				'walking',
+				['kin'],
+				false,
+				true,
+			],
+			[
+				'walking',
+				[
+					'foo',
+					'g',
+				],
+				false,
+				true,
+			],
+			[
+				'walking',
+				[
+					'foo',
+					'',
+				],
+				false,
+				true,
+			],
+			[
+				'walking',
+				'',
+				false,
+				true,
+			],
+			[
+				'walking',
+				'',
+				true,
+				true,
+			],
 		]);
 	}
 
@@ -268,26 +605,135 @@ class StringTools_Test extends UnitTest
 	public static function data_ends(): array
 	{
 		return [
-			['a', '', false, true],
-			['a', '', true, true],
-			[['walking', 'runner'], 'ing', false, true],
-			[['walking', 'runner'], ['ing'], false, true],
-			['walking', ['ing'], false, true],
-			['walking', ['ner'], false, false],
-			['walking', ['g'], false, true],
-			['walking', ['ner', 'g'], false, true],
-			['a', 'A', false, false],
-			['A', 'a', false, false],
-			['a', 'a', false, true],
-			['A', 'A', false, true],
-			['a', 'A', true, true],
-			['A', 'a', true, true],
-			['a', 'a', true, true],
-			['A', 'A', true, true],
-			['1', '1', false, true],
-			['1', '1', true, true],
-			['could_be_setting_with_password', '_password', false, true],
-			['_password ', '_password', false, false],
+			[
+				'a',
+				'',
+				false,
+				true,
+			],
+			[
+				'a',
+				'',
+				true,
+				true,
+			],
+			[
+				[
+					'walking',
+					'runner',
+				],
+				'ing',
+				false,
+				true,
+			],
+			[
+				[
+					'walking',
+					'runner',
+				],
+				['ing'],
+				false,
+				true,
+			],
+			[
+				'walking',
+				['ing'],
+				false,
+				true,
+			],
+			[
+				'walking',
+				['ner'],
+				false,
+				false,
+			],
+			[
+				'walking',
+				['g'],
+				false,
+				true,
+			],
+			[
+				'walking',
+				[
+					'ner',
+					'g',
+				],
+				false,
+				true,
+			],
+			[
+				'a',
+				'A',
+				false,
+				false,
+			],
+			[
+				'A',
+				'a',
+				false,
+				false,
+			],
+			[
+				'a',
+				'a',
+				false,
+				true,
+			],
+			[
+				'A',
+				'A',
+				false,
+				true,
+			],
+			[
+				'a',
+				'A',
+				true,
+				true,
+			],
+			[
+				'A',
+				'a',
+				true,
+				true,
+			],
+			[
+				'a',
+				'a',
+				true,
+				true,
+			],
+			[
+				'A',
+				'A',
+				true,
+				true,
+			],
+			[
+				'1',
+				'1',
+				false,
+				true,
+			],
+			[
+				'1',
+				'1',
+				true,
+				true,
+			],
+			[
+				'could_be_setting_with_password',
+				'_password',
+				false,
+				true,
+			],
+			[
+				'_password ',
+				'_password',
+				false,
+				false,
+			],
 		];
 	}
 
@@ -310,22 +756,70 @@ class StringTools_Test extends UnitTest
 	public static function data_toBool(): array
 	{
 		return [
-			['', false, ],
-			[null, false, ],
-			[0, false, ],
-			[0.0, false, ],
-			[[], false, ],
-			[false, false, ],
-			['f', false, ],
-			['0', false, ],
-			['false', false, ],
-			['FALSE', false, ],
-			['off', false, ],
-			[true, true, ],
-			[1, true, ],
-			[new stdClass(), true, ],
-			[[1], true, ],
-			[[0], true, ],
+			[
+				'',
+				false,
+			],
+			[
+				null,
+				false,
+			],
+			[
+				0,
+				false,
+			],
+			[
+				0.0,
+				false,
+			],
+			[
+				[],
+				false,
+			],
+			[
+				false,
+				false,
+			],
+			[
+				'f',
+				false,
+			],
+			[
+				'0',
+				false,
+			],
+			[
+				'false',
+				false,
+			],
+			[
+				'FALSE',
+				false,
+			],
+			[
+				'off',
+				false,
+			],
+			[
+				true,
+				true,
+			],
+			[
+				1,
+				true,
+			],
+			[
+				new stdClass(),
+				true,
+			],
+			[
+				[1],
+				true,
+			],
+			[
+				[0],
+				true,
+			],
 		];
 	}
 
@@ -358,13 +852,41 @@ class StringTools_Test extends UnitTest
 	public static function data_isUTF16(): array
 	{
 		return [
-			[chr(0xFF) . chr(0xFE) . 'is this utf16', true, false],
-			[chr(0xFE) . chr(0xFF) . 'is this utf16', true, true],
-			[chr(0xFF) . chr(0xFF) . 'is this utf16', false, false],
-			[chr(0xFE) . chr(0xFE) . 'is this utf16', false, false],
-			['', false, false],
-			['1', false, false],
-			['22', false, false],
+			[
+				chr(0xFF) . chr(0xFE) . 'is this utf16',
+				true,
+				false,
+			],
+			[
+				chr(0xFE) . chr(0xFF) . 'is this utf16',
+				true,
+				true,
+			],
+			[
+				chr(0xFF) . chr(0xFF) . 'is this utf16',
+				false,
+				false,
+			],
+			[
+				chr(0xFE) . chr(0xFE) . 'is this utf16',
+				false,
+				false,
+			],
+			[
+				'',
+				false,
+				false,
+			],
+			[
+				'1',
+				false,
+				false,
+			],
+			[
+				'22',
+				false,
+				false,
+			],
 		];
 	}
 
@@ -384,28 +906,61 @@ class StringTools_Test extends UnitTest
 	public static function data_wrap_tests(): array
 	{
 		return [
-			[['This is a [simple] example', '<strong>[]</strong>'], 'This is a <strong>simple</strong> example', ],
-			[['This is a [1:simple] example', '<strong>[]</strong>'], 'This is a simple example', ],
 			[
-				['This is an example with [two] [items] example', '<strong>[]</strong>', '<em>[]</em>'],
+				[
+					'This is a [simple] example',
+					'<strong>[]</strong>',
+				],
+				'This is a <strong>simple</strong> example',
+			],
+			[
+				[
+					'This is a [1:simple] example',
+					'<strong>[]</strong>',
+				],
+				'This is a simple example',
+			],
+			[
+				[
+					'This is an example with [two] [items] example',
+					'<strong>[]</strong>',
+					'<em>[]</em>',
+				],
 				'This is an example with <strong>two</strong> <em>items</em> example',
 			],
 			[
-				['This is an example with [two] [0:items] example', '<strong>[]</strong>', '<em>[]</em>'],
+				[
+					'This is an example with [two] [0:items] example',
+					'<strong>[]</strong>',
+					'<em>[]</em>',
+				],
 				'This is an example with <strong>two</strong> <strong>items</strong> example',
 			],
 			[
-				['This is an example with [1:two] [items] example', '<strong>[]</strong>', '<em>[]</em>'],
+				[
+					'This is an example with [1:two] [items] example',
+					'<strong>[]</strong>',
+					'<em>[]</em>',
+				],
 				'This is an example with <em>two</em> <em>items</em> example',
 			],
 
 			[
-				['This is an example with [1:two] [1:items] example', '<strong>[]</strong>', '<em>[]</em>'],
+				[
+					'This is an example with [1:two] [1:items] example',
+					'<strong>[]</strong>',
+					'<em>[]</em>',
+				],
 				'This is an example with <em>two</em> <em>items</em> example',
 			],
 
 			[
-				['Nested example with [outernest [nest0] [nest1]] example', '<0>[]</0>', '<1>[]</1>', '<2>[]</2>'],
+				[
+					'Nested example with [outernest [nest0] [nest1]] example',
+					'<0>[]</0>',
+					'<1>[]</1>',
+					'<2>[]</2>',
+				],
 				'Nested example with <2>outernest <0>nest0</0> <1>nest1</1></2> example',
 			],
 		];
@@ -435,15 +990,42 @@ class StringTools_Test extends UnitTest
 	public static function data_is_utf8_file(): array
 	{
 		return [
-			['utf16-le-no-bom.data', false, ],
-			['utf16-no-bom.data', false, ],
-			['iso-latin-1.data', true],
-			['gb-18030.data', true],
-			['utf16-le.data', false],
-			['iso-latin-9.data', true],
-			['utf16.data', false],
-			['utf8.data', true],
-			['utf8-cn.data', true],
+			[
+				'utf16-le-no-bom.data',
+				false,
+			],
+			[
+				'utf16-no-bom.data',
+				false,
+			],
+			[
+				'iso-latin-1.data',
+				true,
+			],
+			[
+				'gb-18030.data',
+				true,
+			],
+			[
+				'utf16-le.data',
+				false,
+			],
+			[
+				'iso-latin-9.data',
+				true,
+			],
+			[
+				'utf16.data',
+				false,
+			],
+			[
+				'utf8.data',
+				true,
+			],
+			[
+				'utf8-cn.data',
+				true,
+			],
 		];
 	}
 
@@ -463,10 +1045,30 @@ class StringTools_Test extends UnitTest
 	public static function data_left(): array
 	{
 		return [
-			['haystack to find that thing', 'that', 'default', 'haystack to find '],
-			['haystack to find that thing', 'that', null, 'haystack to find '],
-			['haystack to find that thing', 'thot', 'default', 'default'],
-			['haystack to find that thing', 'thot', null, 'haystack to find that thing'],
+			[
+				'haystack to find that thing',
+				'that',
+				'default',
+				'haystack to find ',
+			],
+			[
+				'haystack to find that thing',
+				'that',
+				null,
+				'haystack to find ',
+			],
+			[
+				'haystack to find that thing',
+				'thot',
+				'default',
+				'default',
+			],
+			[
+				'haystack to find that thing',
+				'thot',
+				null,
+				'haystack to find that thing',
+			],
 		];
 	}
 
@@ -486,16 +1088,106 @@ class StringTools_Test extends UnitTest
 	public static function data_pair(): array
 	{
 		return [
-			['string', 'delim', 'left', 'right', ['left', 'right']],
-			['string', 'r', 'left', 'right', ['st', 'ing']],
-			['NAME=VALUE', '=', 'left', 'right', ['NAME', 'VALUE']],
-			['=VALUE', '=', 'left', 'right', ['', 'VALUE']],
-			['NAME=', '=', 'left', 'right', ['NAME', '']],
-			['NAME=', '!', 'left', 'right', ['left', 'right']],
-			['NAME=VALUE=VALUE', '=', 'left', 'right', ['NAME', 'VALUE=VALUE']],
-			['=VALUE=VALUE', '=', 'left', 'right', ['', 'VALUE=VALUE']],
-			['NAME=NAME=', '=', 'left', 'right', ['NAME', 'NAME=']],
-			['NAME=NAME=', '!', 'left', 'right', ['left', 'right']],
+			[
+				'string',
+				'delim',
+				'left',
+				'right',
+				[
+					'left',
+					'right',
+				],
+			],
+			[
+				'string',
+				'r',
+				'left',
+				'right',
+				[
+					'st',
+					'ing',
+				],
+			],
+			[
+				'NAME=VALUE',
+				'=',
+				'left',
+				'right',
+				[
+					'NAME',
+					'VALUE',
+				],
+			],
+			[
+				'=VALUE',
+				'=',
+				'left',
+				'right',
+				[
+					'',
+					'VALUE',
+				],
+			],
+			[
+				'NAME=',
+				'=',
+				'left',
+				'right',
+				[
+					'NAME',
+					'',
+				],
+			],
+			[
+				'NAME=',
+				'!',
+				'left',
+				'right',
+				[
+					'left',
+					'right',
+				],
+			],
+			[
+				'NAME=VALUE=VALUE',
+				'=',
+				'left',
+				'right',
+				[
+					'NAME',
+					'VALUE=VALUE',
+				],
+			],
+			[
+				'=VALUE=VALUE',
+				'=',
+				'left',
+				'right',
+				[
+					'',
+					'VALUE=VALUE',
+				],
+			],
+			[
+				'NAME=NAME=',
+				'=',
+				'left',
+				'right',
+				[
+					'NAME',
+					'NAME=',
+				],
+			],
+			[
+				'NAME=NAME=',
+				'!',
+				'left',
+				'right',
+				[
+					'left',
+					'right',
+				],
+			],
 		];
 	}
 
@@ -516,16 +1208,106 @@ class StringTools_Test extends UnitTest
 	public static function data_reversePair(): array
 	{
 		return [
-			['string', 'delim', 'left', 'right', ['left', 'right']],
-			['string', 'r', 'left', 'right', ['st', 'ing']],
-			['NAME=VALUE', '=', 'left', 'right', ['NAME', 'VALUE']],
-			['=VALUE', '=', 'left', 'right', ['', 'VALUE']],
-			['NAME=', '=', 'left', 'right', ['NAME', '']],
-			['NAME=', '!', 'left', 'right', ['left', 'right']],
-			['NAME=VALUE=VALUE', '=', 'left', 'right', ['NAME=VALUE', 'VALUE']],
-			['=VALUE=VALUE', '=', 'left', 'right', ['=VALUE', 'VALUE']],
-			['NAME=NAME=', '=', 'left', 'right', ['NAME=NAME', '']],
-			['NAME=NAME=', '!', 'left', 'right', ['left', 'right']],
+			[
+				'string',
+				'delim',
+				'left',
+				'right',
+				[
+					'left',
+					'right',
+				],
+			],
+			[
+				'string',
+				'r',
+				'left',
+				'right',
+				[
+					'st',
+					'ing',
+				],
+			],
+			[
+				'NAME=VALUE',
+				'=',
+				'left',
+				'right',
+				[
+					'NAME',
+					'VALUE',
+				],
+			],
+			[
+				'=VALUE',
+				'=',
+				'left',
+				'right',
+				[
+					'',
+					'VALUE',
+				],
+			],
+			[
+				'NAME=',
+				'=',
+				'left',
+				'right',
+				[
+					'NAME',
+					'',
+				],
+			],
+			[
+				'NAME=',
+				'!',
+				'left',
+				'right',
+				[
+					'left',
+					'right',
+				],
+			],
+			[
+				'NAME=VALUE=VALUE',
+				'=',
+				'left',
+				'right',
+				[
+					'NAME=VALUE',
+					'VALUE',
+				],
+			],
+			[
+				'=VALUE=VALUE',
+				'=',
+				'left',
+				'right',
+				[
+					'=VALUE',
+					'VALUE',
+				],
+			],
+			[
+				'NAME=NAME=',
+				'=',
+				'left',
+				'right',
+				[
+					'NAME=NAME',
+					'',
+				],
+			],
+			[
+				'NAME=NAME=',
+				'!',
+				'left',
+				'right',
+				[
+					'left',
+					'right',
+				],
+			],
 		];
 	}
 
@@ -541,9 +1323,24 @@ class StringTools_Test extends UnitTest
 	public static function data_replaceFirst(): array
 	{
 		return [
-			['dude', 'bar', 'you pass butter', 'you pass butter'],
-			['bar', 'but', 'you pass barter', 'you pass butter'],
-			['is', 'at', 'This is a test', 'That is a test'],
+			[
+				'dude',
+				'bar',
+				'you pass butter',
+				'you pass butter',
+			],
+			[
+				'bar',
+				'but',
+				'you pass barter',
+				'you pass butter',
+			],
+			[
+				'is',
+				'at',
+				'This is a test',
+				'That is a test',
+			],
 			[
 				'DOG',
 				'CAT',
@@ -569,11 +1366,36 @@ class StringTools_Test extends UnitTest
 	public static function data_right(): array
 	{
 		return [
-			['NAME and VALUE', 'and', 'default', ' VALUE', ],
-			['NAME and VALUE', 'and V', 'default', 'ALUE', ],
-			['NAME and VALUE', ' ', 'default', 'and VALUE', ],
-			['NAME and VALUE', 'D', 'default', 'default', ],
-			['NAME and VALUE', 'D', null, 'NAME and VALUE', ],
+			[
+				'NAME and VALUE',
+				'and',
+				'default',
+				' VALUE',
+			],
+			[
+				'NAME and VALUE',
+				'and V',
+				'default',
+				'ALUE',
+			],
+			[
+				'NAME and VALUE',
+				' ',
+				'default',
+				'and VALUE',
+			],
+			[
+				'NAME and VALUE',
+				'D',
+				'default',
+				'default',
+			],
+			[
+				'NAME and VALUE',
+				'D',
+				null,
+				'NAME and VALUE',
+			],
 		];
 	}
 
@@ -595,11 +1417,36 @@ class StringTools_Test extends UnitTest
 	public static function data_reverseLeft(): array
 	{
 		return [
-			['NAME and VALUE', 'and', 'default', 'NAME ', ],
-			['NAME and VALUE', 'and V', 'default', 'NAME ', ],
-			['NAME and VALUE', ' ', 'default', 'NAME and', ],
-			['NAME and VALUE', 'D', 'default', 'default', ],
-			['NAME and VALUE', 'D', null, 'NAME and VALUE', ],
+			[
+				'NAME and VALUE',
+				'and',
+				'default',
+				'NAME ',
+			],
+			[
+				'NAME and VALUE',
+				'and V',
+				'default',
+				'NAME ',
+			],
+			[
+				'NAME and VALUE',
+				' ',
+				'default',
+				'NAME and',
+			],
+			[
+				'NAME and VALUE',
+				'D',
+				'default',
+				'default',
+			],
+			[
+				'NAME and VALUE',
+				'D',
+				null,
+				'NAME and VALUE',
+			],
 		];
 	}
 
@@ -622,11 +1469,36 @@ class StringTools_Test extends UnitTest
 	public static function data_reverseRight(): array
 	{
 		return [
-			['NAME and VALUE', 'and', 'default', ' VALUE', ],
-			['NAME and VALUE', 'and V', 'default', 'ALUE', ],
-			['NAME and VALUE', ' ', 'default', 'VALUE', ],
-			['NAME and VALUE', 'D', 'default', 'default', ],
-			['NAME and VALUE', 'D', null, 'NAME and VALUE', ],
+			[
+				'NAME and VALUE',
+				'and',
+				'default',
+				' VALUE',
+			],
+			[
+				'NAME and VALUE',
+				'and V',
+				'default',
+				'ALUE',
+			],
+			[
+				'NAME and VALUE',
+				' ',
+				'default',
+				'VALUE',
+			],
+			[
+				'NAME and VALUE',
+				'D',
+				'default',
+				'default',
+			],
+			[
+				'NAME and VALUE',
+				'D',
+				null,
+				'NAME and VALUE',
+			],
 		];
 	}
 
@@ -657,42 +1529,138 @@ class StringTools_Test extends UnitTest
 	public static function data_toBoolOriginal(): array
 	{
 		return [
-			[true, true],
-			['t', true],
-			['T', true],
-			['y', true],
-			['Y', true],
-			['Yes', true],
-			['yES', true],
-			['oN', true],
-			['on', true],
-			['enabled', true],
-			['trUE', true],
-			['true', true],
+			[
+				true,
+				true,
+			],
+			[
+				't',
+				true,
+			],
+			[
+				'T',
+				true,
+			],
+			[
+				'y',
+				true,
+			],
+			[
+				'Y',
+				true,
+			],
+			[
+				'Yes',
+				true,
+			],
+			[
+				'yES',
+				true,
+			],
+			[
+				'oN',
+				true,
+			],
+			[
+				'on',
+				true,
+			],
+			[
+				'enabled',
+				true,
+			],
+			[
+				'trUE',
+				true,
+			],
+			[
+				'true',
+				true,
+			],
 
-			['f', false],
-			['F', false],
-			['n', false],
-			['N', false],
-			['no', false],
-			['NO', false],
-			['OFF', false],
-			['off', false],
-			['disabled', false],
-			['DISABLED', false],
-			['false', false],
-			['null', false],
-			['', false],
+			[
+				'f',
+				false,
+			],
+			[
+				'F',
+				false,
+			],
+			[
+				'n',
+				false,
+			],
+			[
+				'N',
+				false,
+			],
+			[
+				'no',
+				false,
+			],
+			[
+				'NO',
+				false,
+			],
+			[
+				'OFF',
+				false,
+			],
+			[
+				'off',
+				false,
+			],
+			[
+				'disabled',
+				false,
+			],
+			[
+				'DISABLED',
+				false,
+			],
+			[
+				'false',
+				false,
+			],
+			[
+				'null',
+				false,
+			],
+			[
+				'',
+				false,
+			],
 
-			[0, false],
-			['0', false],
+			[
+				0,
+				false,
+			],
+			[
+				'0',
+				false,
+			],
 
-			[1, true],
-			['1', true],
+			[
+				1,
+				true,
+			],
+			[
+				'1',
+				true,
+			],
 
-			['01', true],
-			[[], false],
-			[new stdClass(), true],
+			[
+				'01',
+				true,
+			],
+			[
+				[],
+				false,
+			],
+			[
+				new stdClass(),
+				true,
+			],
 
 		];
 	}
@@ -703,22 +1671,117 @@ class StringTools_Test extends UnitTest
 	public static function data_removePrefix(): array
 	{
 		return [
-			[['String', 'stretch'], ['Stri', 'Stre'], true, ['ng', 'tch']],
-			['string', 'str', false, 'ing'],
-			['string', 'str', true, 'ing'],
+			[
+				[
+					'String',
+					'stretch',
+				],
+				[
+					'Stri',
+					'Stre',
+				],
+				true,
+				[
+					'ng',
+					'tch',
+				],
+			],
+			[
+				'string',
+				'str',
+				false,
+				'ing',
+			],
+			[
+				'string',
+				'str',
+				true,
+				'ing',
+			],
 
-			['string', 'Str', false, 'string'],
-			['string', 'Str', true, 'ing'],
+			[
+				'string',
+				'Str',
+				false,
+				'string',
+			],
+			[
+				'string',
+				'Str',
+				true,
+				'ing',
+			],
 
-			['String', 'str', false, 'String'],
-			['String', 'str', true, 'ing'],
+			[
+				'String',
+				'str',
+				false,
+				'String',
+			],
+			[
+				'String',
+				'str',
+				true,
+				'ing',
+			],
 
-			['String', 'Str', false, 'ing'],
-			['String', 'Str', true, 'ing'],
-			['String', 'Str', false, 'ing'],
-			[['String', 'Stretch'], 'Str', true, ['ing', 'etch']],
-			[['String', 'stretch'], 'Str', false, ['ing', 'stretch']],
-			[['String', 'stretch'], ['Stri', 'Stre'], false, ['ng', 'stretch']],
+			[
+				'String',
+				'Str',
+				false,
+				'ing',
+			],
+			[
+				'String',
+				'Str',
+				true,
+				'ing',
+			],
+			[
+				'String',
+				'Str',
+				false,
+				'ing',
+			],
+			[
+				[
+					'String',
+					'Stretch',
+				],
+				'Str',
+				true,
+				[
+					'ing',
+					'etch',
+				],
+			],
+			[
+				[
+					'String',
+					'stretch',
+				],
+				'Str',
+				false,
+				[
+					'ing',
+					'stretch',
+				],
+			],
+			[
+				[
+					'String',
+					'stretch',
+				],
+				[
+					'Stri',
+					'Stre',
+				],
+				false,
+				[
+					'ng',
+					'stretch',
+				],
+			],
 		];
 	}
 
@@ -730,8 +1793,7 @@ class StringTools_Test extends UnitTest
 	 * @return void
 	 * @dataProvider data_removePrefix
 	 */
-	public function test_removePrefix(string|array $string, string|array $prefix, bool $case_insensitive, string|array $expected):
-	void
+	public function test_removePrefix(string|array $string, string|array $prefix, bool $case_insensitive, string|array $expected): void
 	{
 		$this->assertEquals($expected, StringTools::removePrefix($string, $prefix, $case_insensitive));
 	}
@@ -742,12 +1804,36 @@ class StringTools_Test extends UnitTest
 	public static function data_prefixMatch(): array
 	{
 		return [
-			['', '', ''],
-			['', '', ' '],
-			[' ', ' ', ' '],
-			['dude', 'dudette', 'dudesser'],
-			['', 'dudette', 'Dudesser'],
-			["\t", "\t ", "\t\t"],
+			[
+				'',
+				'',
+				'',
+			],
+			[
+				'',
+				'',
+				' ',
+			],
+			[
+				' ',
+				' ',
+				' ',
+			],
+			[
+				'dude',
+				'dudette',
+				'dudesser',
+			],
+			[
+				'',
+				'dudette',
+				'Dudesser',
+			],
+			[
+				"\t",
+				"\t ",
+				"\t\t",
+			],
 		];
 	}
 
@@ -769,20 +1855,90 @@ class StringTools_Test extends UnitTest
 	public static function data_removeSuffix(): array
 	{
 		return [
-			['string', 'ing', false, 'str'],
-			['string', 'ing', true, 'str'],
+			[
+				'string',
+				'ing',
+				false,
+				'str',
+			],
+			[
+				'string',
+				'ing',
+				true,
+				'str',
+			],
 
-			['string', 'ING', false, 'string'],
-			['string', 'ING', true, 'str'],
+			[
+				'string',
+				'ING',
+				false,
+				'string',
+			],
+			[
+				'string',
+				'ING',
+				true,
+				'str',
+			],
 
-			['String', 'ing', false, 'Str'],
-			['String', 'ing', true, 'Str'],
+			[
+				'String',
+				'ing',
+				false,
+				'Str',
+			],
+			[
+				'String',
+				'ing',
+				true,
+				'Str',
+			],
 
-			['String', 'Ing', false, 'String'],
-			['String', 'Ing', true, 'Str'],
+			[
+				'String',
+				'Ing',
+				false,
+				'String',
+			],
+			[
+				'String',
+				'Ing',
+				true,
+				'Str',
+			],
 
-			[['String', 'string', 'Blowing', 'EatING'], 'Ing', true, ['Str', 'str', 'Blow', 'Eat']],
-			[['String', 'string', 'Blowing', 'EatIng'], 'Ing', false, ['String', 'string', 'Blowing', 'Eat']],
+			[
+				[
+					'String',
+					'string',
+					'Blowing',
+					'EatING',
+				],
+				'Ing',
+				true,
+				[
+					'Str',
+					'str',
+					'Blow',
+					'Eat',
+				],
+			],
+			[
+				[
+					'String',
+					'string',
+					'Blowing',
+					'EatIng',
+				],
+				'Ing',
+				false,
+				[
+					'String',
+					'string',
+					'Blowing',
+					'Eat',
+				],
+			],
 		];
 	}
 
@@ -794,8 +1950,7 @@ class StringTools_Test extends UnitTest
 	 * @return void
 	 * @dataProvider data_removeSuffix
 	 */
-	public function test_removeSuffix(string|array $string, string $suffix, bool $case_insensitive, string|array $expected):
-	void
+	public function test_removeSuffix(string|array $string, string $suffix, bool $case_insensitive, string|array $expected): void
 	{
 		$this->assertEquals($expected, StringTools::removeSuffix($string, $suffix, $case_insensitive));
 	}
@@ -803,15 +1958,51 @@ class StringTools_Test extends UnitTest
 	public static function data_zeroPad(): array
 	{
 		return [
-			['0', 2, '00'],
-			['00', 2, '00'],
-			['1', 2, '01'],
-			['01', 2, '01'],
-			['0', 3, '000'],
-			['00', 3, '000'],
-			['1', 3, '001'],
-			['01', 3, '001'],
-			['xx', 4, '00xx'],
+			[
+				'0',
+				2,
+				'00',
+			],
+			[
+				'00',
+				2,
+				'00',
+			],
+			[
+				'1',
+				2,
+				'01',
+			],
+			[
+				'01',
+				2,
+				'01',
+			],
+			[
+				'0',
+				3,
+				'000',
+			],
+			[
+				'00',
+				3,
+				'000',
+			],
+			[
+				'1',
+				3,
+				'001',
+			],
+			[
+				'01',
+				3,
+				'001',
+			],
+			[
+				'xx',
+				4,
+				'00xx',
+			],
 		];
 	}
 
@@ -829,10 +2020,34 @@ class StringTools_Test extends UnitTest
 	public static function data_leftAlign(): array
 	{
 		return [
-			['text', 10, '-', true, 'text------'],
-			['text ', 10, '-', true, 'text -----'],
-			['textificiation', 10, '-', false, 'textificiation'],
-			['textificiation', 10, '-', true, 'textificia'],
+			[
+				'text',
+				10,
+				'-',
+				true,
+				'text------',
+			],
+			[
+				'text ',
+				10,
+				'-',
+				true,
+				'text -----',
+			],
+			[
+				'textificiation',
+				10,
+				'-',
+				false,
+				'textificiation',
+			],
+			[
+				'textificiation',
+				10,
+				'-',
+				true,
+				'textificia',
+			],
 		];
 	}
 
@@ -853,10 +2068,34 @@ class StringTools_Test extends UnitTest
 	public static function data_rightAlign(): array
 	{
 		return [
-			['text', 10, '-', true, '------text'],
-			['text ', 10, '-', true, '-----text '],
-			['textificiation', 10, '-', false, 'textificiation'],
-			['textificiation', 10, '-', true, 'textificia'],
+			[
+				'text',
+				10,
+				'-',
+				true,
+				'------text',
+			],
+			[
+				'text ',
+				10,
+				'-',
+				true,
+				'-----text ',
+			],
+			[
+				'textificiation',
+				10,
+				'-',
+				false,
+				'textificiation',
+			],
+			[
+				'textificiation',
+				10,
+				'-',
+				true,
+				'textificia',
+			],
 		];
 	}
 
@@ -915,7 +2154,12 @@ class StringTools_Test extends UnitTest
 			],
 		];
 		foreach ($tests as $index => $test) {
-			[$name, $rules, $default, $result] = $test;
+			[
+				$name,
+				$rules,
+				$default,
+				$result,
+			] = $test;
 			$this->assertEquals(StringTools::filter($name, $rules, $default), $result, "Test #$index failed: $name");
 		}
 	}
@@ -937,16 +2181,63 @@ class StringTools_Test extends UnitTest
 	public static function data_substr(): array
 	{
 		$sample1 = '😉2345🤣789🙄1👍3456789😁';
-		return
-		[
-			['😉', $sample1, 0, 1, ''],
-			['😉', $sample1, 0, 1, 'UTF-8'],
-			['😁', $sample1, -1, 1, ''],
-			['😁', $sample1, -1, 1, 'UTF-8'],
-			['😉2345', $sample1, 0, 5, ''],
-			[$sample1, $sample1, 0, 20, ''],
-			[$sample1, $sample1, 0, 20, 'UTF-8'],
-			['3456789', $sample1, 12, 7, 'UTF-8'],
+		return [
+			[
+				'😉',
+				$sample1,
+				0,
+				1,
+				'',
+			],
+			[
+				'😉',
+				$sample1,
+				0,
+				1,
+				'UTF-8',
+			],
+			[
+				'😁',
+				$sample1,
+				-1,
+				1,
+				'',
+			],
+			[
+				'😁',
+				$sample1,
+				-1,
+				1,
+				'UTF-8',
+			],
+			[
+				'😉2345',
+				$sample1,
+				0,
+				5,
+				'',
+			],
+			[
+				$sample1,
+				$sample1,
+				0,
+				20,
+				'',
+			],
+			[
+				$sample1,
+				$sample1,
+				0,
+				20,
+				'UTF-8',
+			],
+			[
+				'3456789',
+				$sample1,
+				12,
+				7,
+				'UTF-8',
+			],
 		];
 	}
 
@@ -981,31 +2272,124 @@ class StringTools_Test extends UnitTest
 	public static function data_str_split(): array
 	{
 		return [
-			[['😉', '🤣', '🙄', '👍'], '😉🤣🙄👍', -1, 'UTF-8'],
-			[['😉', '🤣', '🙄', '👍'], '😉🤣🙄👍', 1, 'UTF-8'],
-			[['😉🤣', '🙄👍'], '😉🤣🙄👍', 2, 'UTF-8'],
-			[['wo', 'rd', 's😉', '🤣🙄', '👍'], 'words😉🤣🙄👍', 2, 'UTF-8'],
-			[['wor', 'ds😉', '🤣🙄👍'], 'words😉🤣🙄👍', 3, 'UTF-8'],
-			[['word', 's😉🤣🙄', '👍'], 'words😉🤣🙄👍', 4, 'UTF-8'],
+			[
+				[
+					'😉',
+					'🤣',
+					'🙄',
+					'👍',
+				],
+				'😉🤣🙄👍',
+				-1,
+				'UTF-8',
+			],
+			[
+				[
+					'😉',
+					'🤣',
+					'🙄',
+					'👍',
+				],
+				'😉🤣🙄👍',
+				1,
+				'UTF-8',
+			],
+			[
+				[
+					'😉🤣',
+					'🙄👍',
+				],
+				'😉🤣🙄👍',
+				2,
+				'UTF-8',
+			],
+			[
+				[
+					'wo',
+					'rd',
+					's😉',
+					'🤣🙄',
+					'👍',
+				],
+				'words😉🤣🙄👍',
+				2,
+				'UTF-8',
+			],
+			[
+				[
+					'wor',
+					'ds😉',
+					'🤣🙄👍',
+				],
+				'words😉🤣🙄👍',
+				3,
+				'UTF-8',
+			],
+			[
+				[
+					'word',
+					's😉🤣🙄',
+					'👍',
+				],
+				'words😉🤣🙄👍',
+				4,
+				'UTF-8',
+			],
 		];
 	}
 
 	public static function data_csv_quote_row(): array
 	{
 		return [
-			["ID,Name\r\n", ['ID', 'Name']],
-			["\"This \"\"has\"\" quotes\",\"Oxford, is it required?\"\r\n", ['This "has" quotes', 'Oxford, is it required?']],
-			["\"Just a new\nline\",Nothing\r\n", ["Just a new\nline", 'Nothing']],
-			["Simple,Line\r\n", ['Simple', 'Line']],
+			[
+				"ID,Name\r\n",
+				[
+					'ID',
+					'Name',
+				],
+			],
+			[
+				"\"This \"\"has\"\" quotes\",\"Oxford, is it required?\"\r\n",
+				[
+					'This "has" quotes',
+					'Oxford, is it required?',
+				],
+			],
+			[
+				"\"Just a new\nline\",Nothing\r\n",
+				[
+					"Just a new\nline",
+					'Nothing',
+				],
+			],
+			[
+				"Simple,Line\r\n",
+				[
+					'Simple',
+					'Line',
+				],
+			],
 		];
 	}
 
 	public static function data_length(): array
 	{
 		return [
-			[4, '😉🤣🙄👍', ''],
-			[4, '😉🤣🙄👍', 'UTF-8'],
-			[9, 'words😉🤣🙄👍', 'UTF-8'],
+			[
+				4,
+				'😉🤣🙄👍',
+				'',
+			],
+			[
+				4,
+				'😉🤣🙄👍',
+				'UTF-8',
+			],
+			[
+				9,
+				'words😉🤣🙄👍',
+				'UTF-8',
+			],
 		];
 	}
 

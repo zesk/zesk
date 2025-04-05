@@ -4,7 +4,7 @@ declare(strict_types=1);
  *
  */
 
-namespace zesk;
+namespace test\zesk;
 
 use stdClass;
 
@@ -13,8 +13,7 @@ use stdClass;
  * @author kent
  *
  */
-class TypesTest extends UnitTest
-{
+class TypesTest extends UnitTest {
 	public function test_patterns(): void
 	{
 		for ($i = 0; $i < 255; $i++) {
@@ -43,16 +42,20 @@ class TypesTest extends UnitTest
 
 		$this->assertEquals('42.5123', $themes->theme('microsecond', [42.512312]));
 		$this->assertEquals('42.5%', $themes->theme('percent', [
-			42.512312, 1,
+			42.512312,
+			1,
 		]));
 		$this->assertEquals('42.6%', $themes->theme('percent', [
-			42.552312, 1,
+			42.552312,
+			1,
 		]));
 		$this->assertEquals('42.6%', $themes->theme('percent', [
-			42.552312, 1,
+			42.552312,
+			1,
 		]));
 		$this->assertEquals('43%', $themes->theme('percent', [
-			42.552312, 0,
+			42.552312,
+			0,
 		]));
 		$this->assertEquals('43%', $themes->theme('percent', [
 			42.552312,
@@ -90,14 +93,19 @@ class TypesTest extends UnitTest
 	public static function data_bad_dates(): array
 	{
 		return [
-			[''], [-1],
+			[''],
+			[-1],
 		];
 	}
 
 	public static function data_good_dates(): array
 	{
 		return [
-			['2012-10-15'], ['today'], ['next Tuesday'], ['+3 days'], ['October 15th, 2012'],
+			['2012-10-15'],
+			['today'],
+			['next Tuesday'],
+			['+3 days'],
+			['October 15th, 2012'],
 		];
 	}
 
@@ -122,13 +130,17 @@ class TypesTest extends UnitTest
 		return [
 			[
 				'info@conversionruler.com',
-			], [
+			],
+			[
 				'John-Doearasdf@conversionruler.com',
-			], [
+			],
+			[
 				'John-Doe#arasdf@conversionruler.com',
-			], [
+			],
+			[
 				'John-Doe`arasdf@conversionruler.co.uk',
-			], [
+			],
+			[
 				'John-Doe`#arasdf@conversionruler.co.uk',
 			],
 		];
@@ -139,9 +151,11 @@ class TypesTest extends UnitTest
 		return [
 			[
 				'info@conversion$ruler.com',
-			], [
+			],
+			[
 				'.NotAGoodOne@example.com',
-			], [
+			],
+			[
 				'NotAGoodOne@-example.com',
 			],
 		];
@@ -166,8 +180,34 @@ class TypesTest extends UnitTest
 	public static function data_isPhone(): array
 	{
 		return [
-			[false, ''], [true, '215-555-1212'], [true, '+011 44 23 41 23 23', ], [true, '+1 215-555-1212'],
-			[false, '+1 215-5R55-1212'], [true, '(212) 828-4423'], [true, '222.333.4444'],
+			[
+				false,
+				'',
+			],
+			[
+				true,
+				'215-555-1212',
+			],
+			[
+				true,
+				'+011 44 23 41 23 23',
+			],
+			[
+				true,
+				'+1 215-555-1212',
+			],
+			[
+				false,
+				'+1 215-5R55-1212',
+			],
+			[
+				true,
+				'(212) 828-4423',
+			],
+			[
+				true,
+				'222.333.4444',
+			],
 		];
 	}
 
@@ -199,8 +239,60 @@ class TypesTest extends UnitTest
 	public static function data_clamp(): array
 	{
 		return [
-			[0, -1, 0, 1], [-1, -1, -1, 1], [1, -1, 1, 1], [1, -1, 1.0000001, 1], [1, -1, 1e99, 1], [-1, -1, -1e99, 1],
-			[-1, -1, -1.0000001, 1], [-0.0000001, -1, -0.0000001, 1], [0.0000001, -1, 0.0000001, 1],
+			[
+				0,
+				-1,
+				0,
+				1,
+			],
+			[
+				-1,
+				-1,
+				-1,
+				1,
+			],
+			[
+				1,
+				-1,
+				1,
+				1,
+			],
+			[
+				1,
+				-1,
+				1.0000001,
+				1,
+			],
+			[
+				1,
+				-1,
+				1e99,
+				1,
+			],
+			[
+				-1,
+				-1,
+				-1e99,
+				1,
+			],
+			[
+				-1,
+				-1,
+				-1.0000001,
+				1,
+			],
+			[
+				-0.0000001,
+				-1,
+				-0.0000001,
+				1,
+			],
+			[
+				0.0000001,
+				-1,
+				0.0000001,
+				1,
+			],
 		];
 	}
 
@@ -218,15 +310,58 @@ class TypesTest extends UnitTest
 	public static function data_vartype(): array
 	{
 		return [
-			['NULL', null], ['stdClass', new stdClass()], ['zesk\\Date', new Date()], ['integer', 223],
-			['double', 223.2], ['string', ''], ['string', 'dude'], ['boolean', false], ['boolean', true],
+			[
+				'NULL',
+				null,
+			],
+			[
+				'stdClass',
+				new stdClass(),
+			],
+			[
+				'zesk\\Date',
+				new Date(),
+			],
+			[
+				'integer',
+				223,
+			],
+			[
+				'double',
+				223.2,
+			],
+			[
+				'string',
+				'',
+			],
+			[
+				'string',
+				'dude',
+			],
+			[
+				'boolean',
+				false,
+			],
+			[
+				'boolean',
+				true,
+			],
 		];
 	}
 
 	public static function data_toList(): array
 	{
 		return [
-			['1,2,3', [], ',', ['1', '2', '3']],
+			[
+				'1,2,3',
+				[],
+				',',
+				[
+					'1',
+					'2',
+					'3',
+				],
+			],
 		];
 	}
 
@@ -257,8 +392,46 @@ class TypesTest extends UnitTest
 	public static function data_to_integer(): array
 	{
 		return [
-			['124512', 124512], [124512, 124512], ['124512.7', 124512], [124512.7, 124512], [124512.999999, 124512],
-			['0.999999', 0], ['1.999999', 1], [false, 0], [true, 1], [[], 0],
+			[
+				'124512',
+				124512,
+			],
+			[
+				124512,
+				124512,
+			],
+			[
+				'124512.7',
+				124512,
+			],
+			[
+				124512.7,
+				124512,
+			],
+			[
+				124512.999999,
+				124512,
+			],
+			[
+				'0.999999',
+				0,
+			],
+			[
+				'1.999999',
+				1,
+			],
+			[
+				false,
+				0,
+			],
+			[
+				true,
+				1,
+			],
+			[
+				[],
+				0,
+			],
 		];
 	}
 
@@ -276,9 +449,31 @@ class TypesTest extends UnitTest
 	public static function data_toFloat(): array
 	{
 		return [
-			[100, 100.0], [1, 1.0], ['10000', 10000.0], ['-1', -1.0],
+			[
+				100,
+				100.0,
+			],
+			[
+				1,
+				1.0,
+			],
+			[
+				'10000',
+				10000.0,
+			],
+			[
+				'-1',
+				-1.0,
+			],
 
-			['e10000', 0.0], [[], 0.0],
+			[
+				'e10000',
+				0.0,
+			],
+			[
+				[],
+				0.0,
+			],
 		];
 	}
 
@@ -296,14 +491,143 @@ class TypesTest extends UnitTest
 	public static function data_toBool(): array
 	{
 		return [
-			[true, true], [1, true], ['1', true], ['t', true], ['T', true], ['y', true], ['Y', true], ['Yes', true],
-			['yES', true], ['oN', true], ['on', true], ['enabled', true], ['enaBLed', true], ['trUE', true],
-			['true', true],
+			[
+				true,
+				true,
+			],
+			[
+				1,
+				true,
+			],
+			[
+				'1',
+				true,
+			],
+			[
+				't',
+				true,
+			],
+			[
+				'T',
+				true,
+			],
+			[
+				'y',
+				true,
+			],
+			[
+				'Y',
+				true,
+			],
+			[
+				'Yes',
+				true,
+			],
+			[
+				'yES',
+				true,
+			],
+			[
+				'oN',
+				true,
+			],
+			[
+				'on',
+				true,
+			],
+			[
+				'enabled',
+				true,
+			],
+			[
+				'enaBLed',
+				true,
+			],
+			[
+				'trUE',
+				true,
+			],
+			[
+				'true',
+				true,
+			],
 
-			[0, false], ['0', false], ['f', false], ['F', false], ['n', false], ['N', false], ['no', false],
-			['NO', false], ['OFF', false], ['off', false], ['disabled', false], ['DISABLED', false],
-			['DISaBLED', false], ['false', false], ['null', false], ['', false], ['01', null], [[], null],
-			[new stdClass(), true],
+			[
+				0,
+				false,
+			],
+			[
+				'0',
+				false,
+			],
+			[
+				'f',
+				false,
+			],
+			[
+				'F',
+				false,
+			],
+			[
+				'n',
+				false,
+			],
+			[
+				'N',
+				false,
+			],
+			[
+				'no',
+				false,
+			],
+			[
+				'NO',
+				false,
+			],
+			[
+				'OFF',
+				false,
+			],
+			[
+				'off',
+				false,
+			],
+			[
+				'disabled',
+				false,
+			],
+			[
+				'DISABLED',
+				false,
+			],
+			[
+				'DISaBLED',
+				false,
+			],
+			[
+				'false',
+				false,
+			],
+			[
+				'null',
+				false,
+			],
+			[
+				'',
+				false,
+			],
+			[
+				'01',
+				null,
+			],
+			[
+				[],
+				null,
+			],
+			[
+				new stdClass(),
+				true,
+			],
 		];
 	}
 
@@ -328,10 +652,23 @@ class TypesTest extends UnitTest
 	public static function to_bool_in_array($value, $default = false)
 	{
 		static $tarray = [
-			1, 't', 'y', 'yes', 'on', 'enabled', 'true',
+			1,
+			't',
+			'y',
+			'yes',
+			'on',
+			'enabled',
+			'true',
 		];
 		static $farray = [
-			0, 'f', 'n', 'no', 'off', 'disabled', 'false', 'null',
+			0,
+			'f',
+			'n',
+			'no',
+			'off',
+			'disabled',
+			'false',
+			'null',
 		];
 		if (is_bool($value)) {
 			return $value;
@@ -443,7 +780,10 @@ EOF;
 
 		$prefix = 'dude';
 		$a = [
-			'a' => 'b', 'b' => 'c', 'c' => 'd', 'd' => 'e',
+			'a' => 'b',
+			'b' => 'c',
+			'c' => 'd',
+			'd' => 'e',
 		];
 		$contents = '{dudea}{a}{dudeb}{b}{duDeC}{c}{dudeD}{d}';
 		$v = ArrayTools::map($contents, ArrayTools::prefixKeys($a, $prefix), true);

@@ -7,13 +7,12 @@ declare(strict_types=1);
  * @copyright Copyright &copy; 2025, Market Acumen, Inc.
  */
 
-namespace zesk;
+namespace test\zesk;
 
 use zesk\Exception\FileParseException;
 use zesk\Exception\ParseException;
 
-class CharacterSetTest extends UnitTest
-{
+class CharacterSetTest extends UnitTest {
 	/**
 	 * @return array
 	 */
@@ -56,7 +55,16 @@ class CharacterSetTest extends UnitTest
 			$result = CharacterSet::toUTF8($every_char, $charset);
 			//echo Text::leftAlign($charset, 20) . $result . "\n";
 			if (in_array($charset, [
-				'CP037', 'CP1026', 'CP424', 'CP500', 'CP864', 'CP875', 'GSM0338', 'STDENC', 'SYMBOL', 'US-ASCII-QUOTES',
+				'CP037',
+				'CP1026',
+				'CP424',
+				'CP500',
+				'CP864',
+				'CP875',
+				'GSM0338',
+				'STDENC',
+				'SYMBOL',
+				'US-ASCII-QUOTES',
 				'ZDINGBAT',
 			])) {
 				$this->assertNotEquals($result, $every_char, "Failed for charset $charset");
@@ -67,13 +75,22 @@ class CharacterSetTest extends UnitTest
 
 		$tests = [
 			[
-				chr(0xC1) . chr(0xC2) . chr(0xC3) . chr(0xC4), 'CP424', 'ABCD',
-			], [
-				chr(0xE7), 'ISO-8859-10', UTF16::toUTF8(chr(0x01) . chr(0x2F)),
+				chr(0xC1) . chr(0xC2) . chr(0xC3) . chr(0xC4),
+				'CP424',
+				'ABCD',
+			],
+			[
+				chr(0xE7),
+				'ISO-8859-10',
+				UTF16::toUTF8(chr(0x01) . chr(0x2F)),
 			],
 		];
 		foreach ($tests as $test) {
-			[$data, $charset, $expect] = $test;
+			[
+				$data,
+				$charset,
+				$expect,
+			] = $test;
 			$result = CharacterSet::toUTF8($data, $charset);
 			echo "$data\n";
 			echo "$charset\n";

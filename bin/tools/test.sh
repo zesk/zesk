@@ -26,7 +26,7 @@ zeskTest() {
 
   local doCoverage=false doStop=false coverage_cache="./.zesk-coverage"
 
-  __catchEnvironment "$usage" pushd "$top" || return $?
+  __catchEnvironment "$usage" muzzle pushd "$top" || return $?
 
   # _IDENTICAL_ argument-case-header 5
   local __saved=("$@") __count=$#
@@ -78,7 +78,7 @@ zeskTest() {
 
   needPaths+=("$testResultPath")
 
-  __catchEnvironment "$usage" requireDirectory "${needPaths[@]}" || return $?
+  muzzle __catchEnvironment "$usage" requireDirectory "${needPaths[@]}" || return $?
 
   __execute "$testBinary" "${args[@]}" "$@" || return $?
 }

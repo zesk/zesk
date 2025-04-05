@@ -4,7 +4,7 @@ declare(strict_types=1);
  *
  */
 
-namespace zesk;
+namespace test\zesk;
 
 use function md5;
 use function microtime;
@@ -14,20 +14,39 @@ use function microtime;
  * @author kent
  *
  */
-class Options_Test extends UnitTest
-{
+class Options_Test extends UnitTest {
 	public function test_options(): void
 	{
-		$init = ['item' => 1, 'thing' => 'sure', 'space underscore_dash-' => 'ok'];
-		$mapped = ['item' => 1, 'thing' => 'sure', 'space_underscore_dash_' => 'ok'];
+		$init = [
+			'item'                   => 1,
+			'thing'                  => 'sure',
+			'space underscore_dash-' => 'ok',
+		];
+		$mapped = [
+			'item'                   => 1,
+			'thing'                  => 'sure',
+			'space_underscore_dash_' => 'ok',
+		];
 		$options = new Options($init);
 
 		$this->assertEquals($mapped, $options->options());
 
-		$selected = ['item' => 2, 'thing' => 'not', 'another' => 'yes'];
-		$this->assertEquals(['item' => 1, 'thing' => 'sure', 'another' => 'yes'], $options->options($selected));
+		$selected = [
+			'item'    => 2,
+			'thing'   => 'not',
+			'another' => 'yes',
+		];
+		$this->assertEquals([
+			'item'    => 1,
+			'thing'   => 'sure',
+			'another' => 'yes',
+		], $options->options($selected));
 
-		$this->assertEquals(['item', 'thing', 'space_underscore_dash_'], $options->optionKeys());
+		$this->assertEquals([
+			'item',
+			'thing',
+			'space_underscore_dash_',
+		], $options->optionKeys());
 
 
 		$key = md5(microtime());
@@ -59,24 +78,109 @@ class Options_Test extends UnitTest
 		$this->assertEquals(23.3, $options->optionFloat($key, 23.3));
 		$options->optionAppend($key, 'thing2');
 		$options->optionAppend($key, '99');
-		$this->assertEquals(['thing1', 'thing2', '99'], $options->optionArray($key));
-		$this->assertEquals(['thing1', 'thing2', '99'], $options->optionIterable($key));
+		$this->assertEquals([
+			'thing1',
+			'thing2',
+			'99',
+		], $options->optionArray($key));
+		$this->assertEquals([
+			'thing1',
+			'thing2',
+			'99',
+		], $options->optionIterable($key));
 
-		$options->setOption($key, ['thing1', 'thing2', '99']);
-		$this->assertEquals(['thing1', 'thing2', '99'], $options->optionIterable($key, []));
+		$options->setOption($key, [
+			'thing1',
+			'thing2',
+			'99',
+		]);
+		$this->assertEquals([
+			'thing1',
+			'thing2',
+			'99',
+		], $options->optionIterable($key, []));
 
 		$this->assertEquals('abcd', $options->optionPath([], 'abcd'));
 	}
 
 	public static function data_hasAny(): array
 	{
-		$testOptions = new Options(['one' => 1, 'two' => 2, 'three space' => 3, 'four-dash' => 4, 'five-😀' => 5]);
+		$testOptions = new Options([
+			'one'         => 1,
+			'two'         => 2,
+			'three space' => 3,
+			'four-dash'   => 4,
+			'five-😀'      => 5,
+		]);
 		return [
-			[true, ['one', 'two'], $testOptions], [true, 'one', $testOptions], [true, 'two', $testOptions],
-			[true, 'three space', $testOptions], [true, 'three_space', $testOptions],
-			[true, 'three-space', $testOptions], [true, 'four dash', $testOptions], [true, 'four-dash', $testOptions],
-			[true, 'four_dash', $testOptions], [true, 'five-😀', $testOptions], [false, 'five-😀-', $testOptions],
-			[true, ['no', 'no', 'no', 'two'], $testOptions],
+			[
+				true,
+				[
+					'one',
+					'two',
+				],
+				$testOptions,
+			],
+			[
+				true,
+				'one',
+				$testOptions,
+			],
+			[
+				true,
+				'two',
+				$testOptions,
+			],
+			[
+				true,
+				'three space',
+				$testOptions,
+			],
+			[
+				true,
+				'three_space',
+				$testOptions,
+			],
+			[
+				true,
+				'three-space',
+				$testOptions,
+			],
+			[
+				true,
+				'four dash',
+				$testOptions,
+			],
+			[
+				true,
+				'four-dash',
+				$testOptions,
+			],
+			[
+				true,
+				'four_dash',
+				$testOptions,
+			],
+			[
+				true,
+				'five-😀',
+				$testOptions,
+			],
+			[
+				false,
+				'five-😀-',
+				$testOptions,
+			],
+			[
+				true,
+				[
+					'no',
+					'no',
+					'no',
+					'two',
+				],
+				$testOptions,
+			],
 		];
 	}
 
@@ -95,33 +199,74 @@ class Options_Test extends UnitTest
 	public function test_options_path_simple(): void
 	{
 		$opts = new Options();
-		$opts->setOptionPath(['a', 'b', 'c', 'd'], '1');
-		$opts->setOptionPath(['a', 'b', 'c', 'e'], 1);
-		$this->assertEquals(['a' => ['b' => ['c' => ['d' => '1', 'e' => 1, ], ], ], ], $opts->options());
+		$opts->setOptionPath([
+			'a',
+			'b',
+			'c',
+			'd',
+		], '1');
+		$opts->setOptionPath([
+			'a',
+			'b',
+			'c',
+			'e',
+		], 1);
+		$this->assertEquals([
+			'a' => [
+				'b' => [
+					'c' => [
+						'd' => '1',
+						'e' => 1,
+					],
+				],
+			],
+		], $opts->options());
 	}
 
 	public function test_options_path(): void
 	{
 		$opts = new Options();
 
-		$paths = ['a.a.a', 'a.a.b', 'a.b.c', 'a.b.d', 'a.b.e', 'a.b.f', 'a.c.a', 'b.c.a', 'd.c.a', ];
+		$paths = [
+			'a.a.a',
+			'a.a.b',
+			'a.b.c',
+			'a.b.d',
+			'a.b.e',
+			'a.b.f',
+			'a.c.a',
+			'b.c.a',
+			'd.c.a',
+		];
 		foreach ($paths as $path) {
 			$opts->setOptionPath(explode('.', $path), $path);
 		}
 		$expectedOptions = [
 			'a' => [
 				'a' => [
-					'a' => 'a.a.a', 'b' => 'a.a.b',
-				], 'b' => [
-					'c' => 'a.b.c', 'd' => 'a.b.d', 'e' => 'a.b.e', 'f' => 'a.b.f',
-				], 'c' => ['a' => 'a.c.a', ],
-			], 'b' => ['c' => ['a' => 'b.c.a', ], ], 'd' => ['c' => ['a' => 'd.c.a', ], ],
+					'a' => 'a.a.a',
+					'b' => 'a.a.b',
+				],
+				'b' => [
+					'c' => 'a.b.c',
+					'd' => 'a.b.d',
+					'e' => 'a.b.e',
+					'f' => 'a.b.f',
+				],
+				'c' => ['a' => 'a.c.a',],
+			],
+			'b' => ['c' => ['a' => 'b.c.a',],],
+			'd' => ['c' => ['a' => 'd.c.a',],],
 		];
 		$this->assertEquals($expectedOptions, $opts->options());
 		foreach ($paths as $path) {
 			$this->assertEquals($path, $opts->optionPath(explode('.', $path)));
 		}
 
-		$this->assertNull($opts->optionPath(['a', 'a', 'c'], null));
+		$this->assertNull($opts->optionPath([
+			'a',
+			'a',
+			'c',
+		], null));
 	}
 }

@@ -3,15 +3,15 @@ declare(strict_types=1);
 /**
  *
  */
-namespace zesk;
+
+namespace test\zesk;
 
 /**
  *
  * @author kent
  *
  */
-class Response_Test extends UnitTest
-{
+class Response_Test extends UnitTest {
 	/**
 	 *
 	 */
@@ -33,7 +33,7 @@ class Response_Test extends UnitTest
 		$response->html()->addBodyAttributes([
 			'dee' => 'foofla',
 		]);
-		$response->html()->addBodyAttributes(['dee'=> 'actual']);
+		$response->html()->addBodyAttributes(['dee' => 'actual']);
 		$response->html()->addBodyAttributes(['loo' => 'actual']);
 
 		$attrs = $response->html()->bodyAttributes();
@@ -63,7 +63,7 @@ class Response_Test extends UnitTest
 		]);
 
 		$content = $this->application->themes->theme('Response/HTML/scripts', [
-			'response' => $response,
+			'response'     => $response,
 			'jquery_ready' => [],
 		]);
 		$scripts = $response->html()->scripts();
