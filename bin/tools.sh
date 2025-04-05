@@ -1,64 +1,49 @@
 #!/usr/bin/env bash
 #
-# Copyright &copy; 2025 Market Acumen, Inc.
+# Zesk Build application tools extension
+#
+# Copyright &copy; 2025, Market Acumen, Inc.
+#
+# This file generically loads all application tools in `./bin/tools` and allows for extensions
+# to Zesk Build within an application with little effort.
+#
+# Copy this file into your application project at `./bin/` next to `install-bin-build.sh`
+#
+# To do `developerTrack` define `DEVELOPER_TRACK` prior to sourcing this file to get
+# access to functions created via `__applicationToolsList`.
+#
+# Environment: DEVELOPER_TRACK
 #
 
-#
-# Usage: {fn} databaseHost [ dockerBuildArgs ... ]
-# Argument: databaseHost - String. Required. Database host.
-# Argument: dockerBuildArgs - Any additional arguments are passed directly to `docker build`
-#
-zeskContainerLatest() {
-  local usage="_${FUNCNAME[0]}"
-  local host quietLog start
+# IDENTICAL __source 19
 
-  quietLog=$(__catchEnvironment "$usage" buildQuietLog "$usage") || return $?
-  start=$(__catchEnvironment "$usage" timingStart) || return $?
-
-  # _IDENTICAL_ argument-case-header 5
-  local __saved=("$@") __count=$#
-  while [ $# -gt 0 ]; do
-    local argument="$1" __index=$((__count - $# + 1))
-    [ -n "$argument" ] || __throwArgument "$usage" "blank #$__index/$__count ($(decorate each quote "${__saved[@]}"))" || return $?
-    case "$argument" in
-      # _IDENTICAL_ --help 4
-      --help)
-        "$usage" 0
-        return $?
-        ;;
-      *)
-        [ -z "$host" ] || __throwArgument "$usage" "Host already specified" || return $?
-        host="$argument"
-        ;;
-    esac
-    # _IDENTICAL_ argument-esac-shift 1
-    shift
-  done
-
-  [ -z "$host" ] || __throwArgument "$usage" "host requires" || return $?
-
-  local name=zesk
-
-  statusMessage decorate info -n "Build container $(decorate code "$name:latest") ... "
-  figlet "Build container" >>"$quietLog"
-  __catchEnvironment "$usage" docker build "$@" --build-arg "DATABASE_HOST=$host" -f ./docker/php.Dockerfile --tag "$name:latest" . >>"$quietLog" || buildFailed "$quietLog" || return $?
-  statusMessage --last timingReport "$start" "Zesk latest container built in"
-}
-_zeskContainerLatest() {
-  # _IDENTICAL_ usageDocument 1
-  usageDocument "${BASH_SOURCE[0]}" "${FUNCNAME[0]#_}" "$@"
+# Load a source file and run a command
+# Argument: source - Required. File. Path to source relative to application root..
+# Argument: relativeHome - Required. Directory. Path to application root.
+# Argument: command ... - Optional. Callable. A command to run and optional arguments.
+# Requires: _return
+# Security: source
+__source() {
+  local me="${BASH_SOURCE[0]}" e=253
+  local here="${me%/*}" a=()
+  local source="$here/${2:-".."}/${1-}" && shift 2 || _return $e "missing source" || return $?
+  [ -d "${source%/*}" ] || _return $e "${source%/*} is not a directory" || return $?
+  [ -f "$source" ] && [ -x "$source" ] || _return $e "$source not an executable file" "$@" || return $?
+  while [ $# -gt 0 ]; do a+=("$1") && shift; done
+  # shellcheck source=/dev/null
+  source "$source" || _return $e source "$source" "$@" || return $?
+  [ ${#a[@]} -gt 0 ] || return 0
+  "${a[@]}" || return $?
 }
 
-__zeskTools() {
-  local usage="_${FUNCNAME[0]}"
-  __catchEnvironment "$usage" bashSourcePath "${BASH_SOURCE[0]%/*}/tools/" || return $?
-  if [ $# -gt 0 ]; then
-    __catchEnvironment "$usage" "$@" || return $?
-  fi
-}
-___zeskTools() {
-  # _IDENTICAL_ usageDocument 1
-  usageDocument "${BASH_SOURCE[0]}" "${FUNCNAME[0]#_}" "$@"
+# IDENTICAL __tools 8
+
+# Load build tools and run command
+# Argument: relativeHome - Required. Directory. Path to application root.
+# Argument: command ... - Optional. Callable. A command to run and optional arguments.
+# Requires: __source _return
+__tools() {
+  __source bin/build/tools.sh "$@"
 }
 
 # IDENTICAL __install 25
@@ -129,4 +114,36 @@ isUnsignedInteger() {
 
 # <-- END of IDENTICAL _return
 
-__build .. bin __zeskTools "$@"
+__applicationToolsList() {
+  developerTrack "${BASH_SOURCE[0]}" --list
+}
+
+__applicationTools() {
+  local source="${BASH_SOURCE[0]}"
+  local here="${source%/*}"
+  local __saved=("$@") track=false
+
+  export BUILD_TEXT_BINARY
+  export DEVELOPER_TRACK
+  if [ -n "${DEVELOPER_TRACK-}" ]; then
+    unset DEVELOPER_TRACK
+    track=true
+  fi
+
+  set --
+  __build ".." bin : >/dev/null || return $?
+
+  ! $track || developerTrack "${BASH_SOURCE[0]}"
+
+  bashSourcePath "$(realPath "$here/tools/")" || return $?
+
+  [ -n "${BUILD_TEXT_BINARY-}" ] || BUILD_TEXT_BINARY=toilet
+
+  __execute "${__saved[@]+"${__saved[@]}"}" || return $?
+}
+
+if [ "$(basename "${0##-}")" = "$(basename "${BASH_SOURCE[0]}")" ] && [ $# -gt 0 ]; then
+  __applicationTools "$@"
+else
+  __applicationTools :
+fi

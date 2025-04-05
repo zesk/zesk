@@ -6,6 +6,7 @@
 #
 # Zesk PHP Developer scripts (undo any changes to shell)
 
-__zeskPHPAliasesUndo
-
-unset __zeskPHPAliasesUndo zeskPHPIdenticalRepair __dockerPHPExec
+if isFunction __zeskPHPDeveloperUndo; then
+  __zeskPHPDeveloperUndo
+  unset __zeskPHPDeveloperUndo
+fi
