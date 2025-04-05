@@ -42,7 +42,7 @@ __preCommit() {
 
   home=$(__catchEnvironment "$usage" buildHome) || return $?
 
-  version=$(__catchEnvironment "$usage" docker run -q -v "$home:/zesk" -w /zesk php:8 /zesk/bin/zesk version) || return $?
+  version=$(hookVersionCurrent) || return $?
   statusMessage --last bigText "$(printf "%s v%s\n" "$(buildEnvironmentGet APPLICATION_NAME)" "$version")" | wrapLines "$(decorate bold-blue)" "$(decorate reset)"
 
   mode=$(_choose "$readOnly" 0440 0640)
