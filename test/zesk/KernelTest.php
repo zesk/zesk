@@ -13,7 +13,8 @@ use zesk\Exception\Deprecated;
 use zesk\Exception\NotFoundException;
 use zesk\PHPUnit\TestCase;
 
-class SingletonSampler {
+class SingletonSampler
+{
 	public static string $serialNo = '';
 
 	public string $id;
@@ -29,7 +30,8 @@ class SingletonSampler {
 	}
 }
 
-class KernelTest extends TestCase {
+class KernelTest extends TestCase
+{
 	/**
 	 * @var bool
 	 */
@@ -522,10 +524,10 @@ class KernelTest extends TestCase {
 			'utc_time',
 		], true);
 		foreach ([
-					 'active',
-					 'warning',
-					 'bail',
-				 ] as $assertSetting) {
+			'active',
+			'warning',
+			'bail',
+		] as $assertSetting) {
 			$configuration->setPath([
 				$app::class,
 				Application::OPTION_ASSERT,
@@ -533,10 +535,10 @@ class KernelTest extends TestCase {
 			$app->setConfiguration()->configure();
 		}
 		foreach ([
-					 Application::DEPRECATED_BACKTRACE,
-					 Application::DEPRECATED_IGNORE,
-					 Application::DEPRECATED_LOG,
-				 ] as $deprecatedSetting) {
+			Application::DEPRECATED_BACKTRACE,
+			Application::DEPRECATED_IGNORE,
+			Application::DEPRECATED_LOG,
+		] as $deprecatedSetting) {
 			$configuration->setPath([
 				$app::class,
 				'deprecated',
@@ -611,7 +613,8 @@ class KernelTest extends TestCase {
  * @author kent
  *
  */
-class A extends Hookable {
+class A extends Hookable
+{
 }
 
 /**
@@ -619,7 +622,8 @@ class A extends Hookable {
  * @author kent
  *
  */
-class B extends A {
+class B extends A
+{
 }
 
 /**
@@ -627,5 +631,6 @@ class B extends A {
  * @author kent
  *
  */
-class C extends B {
+class C extends B
+{
 }
