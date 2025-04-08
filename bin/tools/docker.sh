@@ -56,7 +56,15 @@ __dockerPHPExec() {
 }
 
 zeskCompose() {
-  dockerCompose --default-env ZESK_ROOT=/zesk --default-env XDEBUG_ENABLED=true --default-env PHP_IDE_CONFIG="serverName=zesk" --default-env DEVELOPMENT=1 "$@"
+  local envs=(
+    --env CONTAINER_PORT_WEB=4071
+    --env CONTAINER_PORT_DATABASE=13306
+    --env ZESK_ROOT=/zesk
+    --env XDEBUG_ENABLED=true
+    --env PHP_IDE_CONFIG="serverName=zesk"
+    --env DEVELOPMENT=1
+  )
+  dockerCompose "${envs[@]}" "$@"
 }
 _zeskCompose() {
   # _IDENTICAL_ usageDocument 1

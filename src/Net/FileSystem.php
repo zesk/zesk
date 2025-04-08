@@ -11,7 +11,8 @@ use zesk\Exception\FilePermission;
 use zesk\Exception\KeyNotFound;
 use zesk\Timestamp;
 
-interface FileSystem {
+interface FileSystem
+{
 	public const FEATURE_MODIFICATION_TIME = 'mtime';
 
 	/**

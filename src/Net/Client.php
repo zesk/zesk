@@ -19,7 +19,8 @@ use zesk\Exception\SyntaxException;
 use zesk\Hookable;
 use zesk\URL;
 
-abstract class Client extends Hookable {
+abstract class Client extends Hookable
+{
 	/**
 	 * Connection string
 	 * @var string

@@ -32,6 +32,7 @@
 /.vscode/
 /.zesk-coverage/
 /bin/build/
+/bin/build
 /bin/zesk
 /cache/
 /CHANGELOG.md.backup
@@ -46,3 +47,4 @@
 /test.log
 /test/test-data/conf2json/conf2json.json
 /vendor/
+/.code-ATTIC/

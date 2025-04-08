@@ -6,7 +6,8 @@
 # Copyright &copy; 2025 Market Acumen, Inc.
 #
 
-# Run tests for zesk"
+# Run tests for Zesk for PHP
+#
 # Usage: {fn} [ --coverage ] [ --stop ] testBinaryArguments ...
 # Argument: --coverage - Flag. Optional. Run coverage tests and output results to `./test-coverage`
 # Argument: --stop - Flag. Optional. Stop on any error.

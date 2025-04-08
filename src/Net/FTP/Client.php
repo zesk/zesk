@@ -27,7 +27,8 @@ use zesk\Timestamp;
  * @author kent
  *
  */
-class Client extends ClientBase implements FileSystem {
+class Client extends ClientBase implements FileSystem
+{
 	/**
 	 * Resource connection to ftp_connect
 	 * @var Connection|null
@@ -65,14 +66,14 @@ class Client extends ClientBase implements FileSystem {
 		}
 		$host = $this->urlParts['host'];
 		$port = $this->urlParts['port'] ?? 21;
-		$path = $this->urlParts['path'] ?? "";
+		$path = $this->urlParts['path'] ?? '';
 		$this->ftp = ftp_connect($host, $port);
 		if (!$this->ftp) {
 			$ip = gethostbyname($host);
 			$this->ftp = ftp_connect($ip, $port);
 		}
 		// Special case to enable relative paths
-		if ($path !== "") {
+		if ($path !== '') {
 			if (str_starts_with($path, '/')) {
 				$path = substr($path, 1);
 			}
@@ -138,8 +139,7 @@ class Client extends ClientBase implements FileSystem {
 
 	private function parseFTPListingLine(string $string): array
 	{
-
-		return explode(" ", $string, 5);
+		return explode(' ', $string, 5);
 	}
 
 	public function ls(string $path): array
@@ -171,7 +171,7 @@ class Client extends ClientBase implements FileSystem {
 	public function rmdir(string $path): void
 	{
 		if (!ftp_rmdir($this->ftp, $path)) {
-			throw new FilePermission($path, "Unable to remove FTP directory {path}", ['path' => $path]);
+			throw new FilePermission($path, 'Unable to remove FTP directory {path}', ['path' => $path]);
 		}
 	}
 
@@ -200,14 +200,14 @@ class Client extends ClientBase implements FileSystem {
 		$this->_passive();
 		$result = ftp_put($this->ftp, $remotePath, $localPath);
 		if (!$result) {
-			throw new FileSystemException($localPath, "Upload {localPath} to {remotePath} failed", [
+			throw new FileSystemException($localPath, 'Upload {localPath} to {remotePath} failed', [
 				'localPath'  => $localPath,
 				'remotePath' => $remotePath,
 			]);
 		}
 		if ($temporary) {
 			if (!unlink($localPath)) {
-				throw new FilePermission($localPath, "Deleting {localPath} failed", ['localPath' => $localPath]);
+				throw new FilePermission($localPath, 'Deleting {localPath} failed', ['localPath' => $localPath]);
 			}
 		}
 	}
@@ -233,7 +233,7 @@ class Client extends ClientBase implements FileSystem {
 	public function chmod($path, int $mode = 0o770): void
 	{
 		if (!ftp_chmod($this->ftp, $mode, $path)) {
-			throw new FilePermission($path, "Unable to set {mode} mode", ['mode' => $mode]);
+			throw new FilePermission($path, 'Unable to set {mode} mode', ['mode' => $mode]);
 		}
 	}
 
@@ -264,7 +264,7 @@ class Client extends ClientBase implements FileSystem {
 	 */
 	public function connectGreeting(): string
 	{
-		return "";
+		return '';
 	}
 
 	/**
@@ -278,6 +278,7 @@ class Client extends ClientBase implements FileSystem {
 		if ($result > 0) {
 			return Timestamp::factory($result);
 		}
+
 		throw new FileNotFound($path);
 	}
 
