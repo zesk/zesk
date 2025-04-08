@@ -9,8 +9,7 @@ declare(strict_types=1);
 
 namespace zesk\Git;
 
-use aws\classes\Module;
-use zesk\CommandFailed;
+use zesk\Exception\CommandFailed;
 use zesk\Exception\SemanticsException;
 use zesk\Exception\UnimplementedException;
 use zesk\Exception\UnsupportedException;
@@ -19,7 +18,6 @@ use zesk\Repository\CommandBase;
 /**
  * Git Repository implementation
  *
- * @see \src\Cron\Module
  * @author kent
  */
 class Repository extends CommandBase
@@ -72,7 +70,7 @@ class Repository extends CommandBase
 	 * @return boolean
 	 * @throws SemanticsException|CommandFailed
 	 */
-	public function needUpdate(string $target): bool
+	public function needUpdate(string $target = ''): bool
 	{
 		if (!$this->validate()) {
 			return true;
@@ -115,7 +113,7 @@ class Repository extends CommandBase
 	 * @param string $target
 	 * @throws UnimplementedException
 	 */
-	public function update(string $target): void
+	public function update(string $target = ''): void
 	{
 		throw new UnimplementedException(__METHOD__);
 	}
@@ -127,7 +125,7 @@ class Repository extends CommandBase
 	 * @return void
 	 * @throws UnimplementedException
 	 */
-	public function rollback(string $target): void
+	public function rollback(string $target = ''): void
 	{
 		throw new UnimplementedException(__METHOD__);
 	}

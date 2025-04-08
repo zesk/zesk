@@ -8,6 +8,9 @@ namespace test\zesk\Exception;
 
 use zesk\PHPUnit\ExceptionTestCase;
 
+use zesk\Exception\DirectoryNotFound;
+use zesk\Exception\DirectoryCreate;
+
 /**
  *
  * @author kent

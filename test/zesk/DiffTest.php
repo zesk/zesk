@@ -23,9 +23,9 @@ class DiffTest extends TestCase
 	{
 		$a = 'a';
 		$b = 'a';
-		$testx = new Binary($a, $b);
-		$this->assertTrue($testx->isIdentical());
-		$edits = $testx->edits();
+		$testObject = new Binary($a, $b);
+		$this->assertTrue($testObject->isIdentical());
+		$edits = $testObject->edits();
 		$this->assertCount(1, $edits);
 	}
 
@@ -33,8 +33,8 @@ class DiffTest extends TestCase
 	{
 		$a = 'a';
 		$b = 'ab';
-		$testx = new Binary($a, $b);
-		$diffs = $testx->diffs();
+		$testObject = new Binary($a, $b);
+		$diffs = $testObject->diffs();
 		$this->assertCount(1, $diffs);
 		$this->assertEquals(new Edit(Edit::DIFF_INSERT, 1, 1, 'b'), $diffs[0]);
 	}
@@ -43,8 +43,8 @@ class DiffTest extends TestCase
 	{
 		$a = 'a';
 		$b = 'ba';
-		$testx = new Binary($a, $b);
-		$diffs = $testx->diffs();
+		$testObject = new Binary($a, $b);
+		$diffs = $testObject->diffs();
 		$this->assertEquals(1, count($diffs));
 		$this->assertEquals(new Edit(Edit::DIFF_INSERT, 0, 1, 'b'), $diffs[0]);
 	}
@@ -53,8 +53,8 @@ class DiffTest extends TestCase
 	{
 		$a = 'ab';
 		$b = 'a';
-		$testx = new Binary($a, $b);
-		$diffs = $testx->diffs();
+		$testObject = new Binary($a, $b);
+		$diffs = $testObject->diffs();
 		$this->assertEquals(1, count($diffs));
 		$this->assertEquals(new Edit(Edit::DIFF_DELETE, 1, 1), $diffs[0]);
 	}
@@ -63,8 +63,8 @@ class DiffTest extends TestCase
 	{
 		$a = 'ab';
 		$b = 'b';
-		$testx = new Binary($a, $b);
-		$diffs = $testx->diffs();
+		$testObject = new Binary($a, $b);
+		$diffs = $testObject->diffs();
 		$this->assertEquals(1, count($diffs));
 		$this->assertEquals(new Edit(Edit::DIFF_DELETE, 0, 1), $diffs[0]);
 	}
@@ -74,8 +74,8 @@ class DiffTest extends TestCase
 		$a = "Learning\nto\nuse\nthe\npotty";
 		$b = "Learning\n\nto\nuse\nthe\nnew\npotty";
 
-		$testx = new Binary($a, $b);
-		$diffs = $testx->diffs();
+		$testObject = new Binary($a, $b);
+		$diffs = $testObject->diffs();
 		$this->assertCount(2, $diffs);
 		$this->assertEquals($diffs[0], new Edit(Edit::DIFF_INSERT, 9, 1, "\n"));
 		$this->assertEquals($diffs[1], new Edit(Edit::DIFF_INSERT, 21, 4, "new\n"));
@@ -86,8 +86,8 @@ class DiffTest extends TestCase
 		$a = "Learning\nto\nuse\nthe\nnew\npotty";
 		$b = "Learning\nto\nuse\nthe\npotty";
 
-		$testx = new Binary($a, $b);
-		$diffs = $testx->diffs();
+		$testObject = new Binary($a, $b);
+		$diffs = $testObject->diffs();
 		$this->assertCount(1, $diffs);
 		$this->assertEquals(new Edit(Edit::DIFF_DELETE, 20, 4), $diffs[0]);
 	}
@@ -98,8 +98,8 @@ class DiffTest extends TestCase
 
 		$b = "Learning\nto\nuse\nthe\nnew\npotty";
 
-		$testx = new Binary($a, $b);
-		$diffs = $testx->diffs();
+		$testObject = new Binary($a, $b);
+		$diffs = $testObject->diffs();
 		$this->assertCount(2, $diffs);
 		$this->assertEquals(new Edit(Edit::DIFF_DELETE, 20, 3), $diffs[0]);
 		$this->assertEquals(new Edit(Edit::DIFF_INSERT, 20, 3, 'new'), $diffs[1]);
@@ -109,21 +109,21 @@ class DiffTest extends TestCase
 	{
 		$a = "Line1\nLine2\nLine4";
 		$b = "Line1\nLine2\nLine3\nLine4";
-		$testx = new Lines($a, $b);
+		$testObject = new Lines($a, $b);
 
 		$this->log("Sample 1: \n$a");
 		$this->log("Sample 2: \n$b");
-		$this->log("Output: \n" . $testx->output());
+		$this->log("Output: \n" . $testObject->output());
 
 		$this->assertEquals([
 			new Edit(Edit::DIFF_INSERT, 2, 1, [
 				'Line3',
 			]),
-		], $testx->diffs());
-		$testx = new Lines($b, $a);
+		], $testObject->diffs());
+		$testObject = new Lines($b, $a);
 		$this->assertEquals([
 			new Edit(Edit::DIFF_DELETE, 2, 1),
-		], $testx->diffs());
+		], $testObject->diffs());
 	}
 
 	public function test_diff_text(): void

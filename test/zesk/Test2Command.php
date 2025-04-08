@@ -3,7 +3,10 @@ declare(strict_types=1);
 
 namespace test\zesk;
 
-class Test2Command extends Command {
+use zesk\Command;
+
+class Test2Command extends Command
+{
 	protected array $shortcuts = ['testomatic2'];
 
 	/**

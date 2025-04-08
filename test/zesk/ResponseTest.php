@@ -24,7 +24,8 @@ use zesk\Exception\UnsupportedException;
  * @see TestApplication
  * @see TestRequest
  */
-class ResponseTest extends TestApplicationUnitTest {
+class ResponseTest extends TestApplicationUnitTest
+{
 	/**
 	 * @return void
 	 * @throws ClassNotFound

@@ -9,13 +9,14 @@ declare(strict_types=1);
 
 namespace test\zesk\Exception;
 
+use zesk\Exception\DirectoryNotFound;
 use zesk\PHPUnit\ExceptionTestCase;
 
 class DirectoryNotFoundTest extends ExceptionTestCase
 {
 	public function test_basics(): void
 	{
-		$testx = new DirectoryNotFound();
-		$this->assertThrowable($testx);
+		$testObject = new DirectoryNotFound();
+		$this->assertThrowable($testObject);
 	}
 }

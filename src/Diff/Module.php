@@ -6,6 +6,7 @@ declare(strict_types=1);
  * @author kent
  * @copyright &copy; 2023, Market Acumen, Inc.
  */
+
 namespace zesk\Diff;
 
 use zesk\Module as BaseModule;
@@ -20,4 +21,15 @@ class Module extends BaseModule
 	/*
 	 * This port is based on the etc/diff.c.txt file
 	 */
+	public function initialize(): void
+	{
+		$this->setOptions([
+			'name'        => 'Diff',
+			'description' => 'Diff tools',
+			'urlLicense'  => './etc/diff.c.txt',
+			'licenses'    => [
+				'MIT',
+			],
+		]);
+	}
 }

@@ -20,24 +20,24 @@ class ENTest extends TestCase
 {
 	public function test_everything(): void
 	{
-		$testx = $this->application->localeFactory('en');
+		$testObject = $this->application->localeFactory('en');
 
-		$testx->formatDate();
+		$testObject->formatDate();
 
-		$testx->formatDateTime();
+		$testObject->formatDateTime();
 
 		$include_seconds = false;
-		$testx->formatTime($include_seconds);
+		$testObject->formatTime($include_seconds);
 
 		$word = 'sheep';
 		$count = 2;
-		$this->assertEquals('sheep', $testx->plural($word, $count));
+		$this->assertEquals('sheep', $testObject->plural($word, $count));
 
 		$word = 'hour away';
 		$caps = false;
-		$this->assertEquals('an', $testx->indefiniteArticle($word, []));
-		$this->assertEquals('An', $testx->indefiniteArticle($word, ['capitalize' => true]));
-		$this->assertEquals('An', $testx->indefiniteArticle('HOUR AWAY', ['capitalize' => true]));
+		$this->assertEquals('an', $testObject->indefiniteArticle($word, []));
+		$this->assertEquals('An', $testObject->indefiniteArticle($word, ['capitalize' => true]));
+		$this->assertEquals('An', $testObject->indefiniteArticle('HOUR AWAY', ['capitalize' => true]));
 
 		$x = [
 			'lions',
@@ -45,12 +45,12 @@ class ENTest extends TestCase
 			'bears',
 		];
 		$conj = 'and';
-		$this->assertEquals('lions, tigers, and bears', $testx->conjunction($x, $conj));
+		$this->assertEquals('lions, tigers, and bears', $testObject->conjunction($x, $conj));
 
 		$s = 'word';
 		$n = 3;
 		$locale = null;
-		$this->assertEquals('3 words', $testx->pluralNumber($s, $n));
+		$this->assertEquals('3 words', $testObject->pluralNumber($s, $n));
 	}
 
 	public static function data_ordinal_tests(): array
@@ -112,7 +112,7 @@ class ENTest extends TestCase
 	 */
 	public function test_ordinal(int $input, string $result): void
 	{
-		$testx = $this->application->localeRegistry('en');
-		$this->assertEquals($testx->ordinal($input), $result);
+		$testObject = $this->application->localeRegistry('en');
+		$this->assertEquals($testObject->ordinal($input), $result);
 	}
 }

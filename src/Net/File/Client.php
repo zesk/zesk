@@ -17,8 +17,7 @@ use zesk\Net\FileSystem;
  * @author kent
  *
  */
-class Client extends NetClient implements FileSystem
-{
+class Client extends NetClient implements FileSystem {
 	/**
 	 * Are we "connected"? Simply for semantic integrity between clients.
 	 * @var boolean
@@ -139,7 +138,7 @@ class Client extends NetClient implements FileSystem
 		return chdir($path);
 	}
 
-	public function chmod($path, $mode = 0o770)
+	public function chmod($path, int $mode = 0o770)
 	{
 		return chmod($path, $mode);
 	}
@@ -153,8 +152,8 @@ class Client extends NetClient implements FileSystem
 			$stats = File::stat($path);
 		} catch (FileNotFound $e) {
 			return $entry + [
-				'type' => null,
-			];
+					'type' => null,
+				];
 		}
 		$entry['mode'] = $stats['perms']['string'];
 		$entry['type'] = $stats['filetype']['type'];

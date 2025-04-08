@@ -9,6 +9,25 @@ declare(strict_types=1);
 
 namespace test\zesk\Command;
 
+use zesk\Command\Arguments;
+use zesk\Command\Cache;
+use zesk\Command\Cannon;
+use zesk\Command\CONF2JSON;
+use zesk\Command\CWD;
+use zesk\Command\Globals;
+use zesk\Command\Gremlins;
+use zesk\Command\Help;
+use zesk\Command\Host;
+use zesk\Command\Included;
+use zesk\Command\Info;
+use zesk\Command\Licenses;
+use zesk\Command\Maintenance;
+use zesk\Command\Module;
+use zesk\Command\ModuleVersion;
+use zesk\Command\RunTime;
+use zesk\Command\Shell;
+use zesk\Command\Version;
+use zesk\Command\Configuration;
 use zesk\Directory;
 use zesk\Exception\ClassNotFound;
 use zesk\Exception\ConfigurationException;
@@ -18,6 +37,7 @@ use zesk\Exception\ParseException;
 use zesk\Exception\SemanticsException;
 use zesk\Exception\UnsupportedException;
 use zesk\File;
+use zesk\JSON;
 use zesk\System;
 use test\zesk\TestApplicationUnitTest;
 
@@ -185,7 +205,7 @@ World: false';
 				[
 					['NopeModule'],
 					1,
-					"ERROR: Failed loading module: NopeModule: NopeModule was not found in /zesk/src/modules\n",
+					"ERROR: Failed loading module: NopeModule not found\n",
 				],
 				/* State is reset for application between calls */
 				[
@@ -279,7 +299,7 @@ World: false';
 						'--json',
 					],
 					0,
-					File::contents(self::applicationPath('test/test-data/license.json')),
+					JSON::encodePretty(json_decode(File::contents(self::applicationPath('test/test-data/license.json')))),
 				],
 			],
 			CWD::class           => [

@@ -97,9 +97,9 @@ class Net_POP_Client_Test extends TestCase
 		$timer = new Timer();
 		echo "Searching for subject containing: $test_key\n";
 		do {
-			$testx = new Net_POP_Client($this->application, $test_url, $options);
+			$testObject = new Net_POP_Client($this->application, $test_url, $options);
 
-			$iterator = $testx->iterator();
+			$iterator = $testObject->iterator();
 			foreach ($iterator as $message_id => $headers) {
 				$subject = $headers['subject'] ?? '-no-subject-';
 				echo "Examining message id $message_id ... Subject: " . $subject . "\n";
@@ -112,7 +112,7 @@ class Net_POP_Client_Test extends TestCase
 					$success = true;
 				}
 			}
-			$testx->disconnect();
+			$testObject->disconnect();
 			if ($success) {
 				break;
 			}
@@ -137,13 +137,13 @@ class Net_POP_Client_Test extends TestCase
 		$test_url = URL::stringify($parts);
 
 		$options = [
-			'echo_log' => true,
+			'echo_log'   => true,
 			'read_debug' => true,
-			'debug' => true,
+			'debug'      => true,
 			'debug_apop' => true,
 		];
-		$testx = new Net_POP_Client($this->application, $test_url, $options);
+		$testObject = new Net_POP_Client($this->application, $test_url, $options);
 
-		$testx->authenticate();
+		$testObject->authenticate();
 	}
 }

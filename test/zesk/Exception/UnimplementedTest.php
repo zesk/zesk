@@ -15,7 +15,7 @@ class UnimplementedTest extends ExceptionTestCase
 {
 	public function test_basics(): void
 	{
-		$testx = new UnimplementedException();
-		$this->assertThrowable($testx);
+		$testObject = new UnimplementedException();
+		$this->assertThrowable($testObject);
 	}
 }

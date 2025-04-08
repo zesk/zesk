@@ -9,13 +9,14 @@ declare(strict_types=1);
 
 namespace test\zesk\Exception;
 
+use zesk\Exception\FilePermission;
 use zesk\PHPUnit\ExceptionTestCase;
 
 class FilePermissionTest extends ExceptionTestCase
 {
 	public function test_basics(): void
 	{
-		$testx = new FilePermission();
-		$this->assertThrowable($testx);
+		$testObject = new FilePermission();
+		$this->assertThrowable($testObject);
 	}
 }

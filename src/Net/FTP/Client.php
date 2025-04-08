@@ -9,10 +9,17 @@ declare(strict_types=1);
 
 namespace zesk\Net\FTP;
 
+use FTP\Connection;
 use zesk\Exception\DirectoryCreate;
-use zesk\Net_Client;
-use zesk\Net_FileSystem;
-use zesk\Semantics;
+use zesk\Exception\DirectoryNotFound;
+use zesk\Exception\FileNotFound;
+use zesk\Exception\FilePermission;
+use zesk\Exception\FileSystemException;
+use zesk\Exception\NotFoundException;
+use zesk\Exception\SemanticsException;
+use zesk\Exception\UnimplementedException;
+use zesk\Net\Client as ClientBase;
+use zesk\Net\FileSystem;
 use zesk\Timestamp;
 
 /**
@@ -20,63 +27,61 @@ use zesk\Timestamp;
  * @author kent
  *
  */
-class Net_FTP_Client extends Net_Client implements Net_FileSystem
-{
+class Client extends ClientBase implements FileSystem {
 	/**
 	 * Resource connection to ftp_connect
-	 * @var resource
+	 * @var Connection|null
 	 */
-	protected $ftp = null;
+	protected Connection|null $ftp = null;
 
 	/**
 	 * Passive mode on/off
 	 * @var boolean
 	 */
-	protected $passive = true;
+	protected bool $passive = true;
 
 	/**
 	 * Connection passive mode (null for unset)
 	 * @var boolean
 	 */
-	protected $ftp_passive = null;
+	protected ?bool $ftp_passive = null;
 
 	/**
 	 * Local stat cache for "stat" call
 	 * @var array
 	 */
-	private $stat_cache = [];
+	private array $stat_cache = [];
 
 	/**
 	 * Connect to the remote host
+	 * @throws SemanticsException
+	 * @throws DirectoryNotFound
 	 * @see Net_Client::connect()
 	 */
-	public function connect(): void
+	public function connect(): self
 	{
 		if ($this->isConnected()) {
-			throw new Semantics('Already connected.');
+			throw new SemanticsException('Already connected.');
 		}
-		$host = null;
-		$port = 21;
-		$path = null;
-		extract($this->url_parts, EXTR_IF_EXISTS);
-		if (!is_numeric($port)) {
-			$port = 21;
-		}
+		$host = $this->urlParts['host'];
+		$port = $this->urlParts['port'] ?? 21;
+		$path = $this->urlParts['path'] ?? "";
 		$this->ftp = ftp_connect($host, $port);
 		if (!$this->ftp) {
-			$ip = gethostbyname($this->Host);
-			$this->ftp = ftp_connect($this->ftp);
+			$ip = gethostbyname($host);
+			$this->ftp = ftp_connect($ip, $port);
 		}
 		// Special case to enable relative paths
-		if ($path !== null) {
+		if ($path !== "") {
 			if (str_starts_with($path, '/')) {
 				$path = substr($path, 1);
 			}
-			$this->url_parts['path'] = $path;
+			$this->urlParts['path'] = $path;
 			$this->cd($path);
 		} else {
-			$this->url_parts['path'] = $this->pwd();
+			$this->urlParts['path'] = $this->pwd();
 		}
+		return $this;
 	}
 
 	/**
@@ -84,25 +89,23 @@ class Net_FTP_Client extends Net_Client implements Net_FileSystem
 	 * @return boolean
 	 * @see Net_Client::connect()
 	 */
-	public function isConnected()
+	public function isConnected(): bool
 	{
-		return is_resource($this->ftp);
+		return $this->ftp !== null;
 	}
 
 	/**
 	 * Disconnect if connected
-	 * @return boolean true if disconnected, false if already disconnected
+	 * @return void true if disconnected, false if already disconnected
 	 * @see Net_Client::connect()
 	 */
-	public function disconnect()
+	public function disconnect(): void
 	{
 		if ($this->isConnected()) {
 			$this->stat_cache = [];
 			ftp_close($this->ftp);
 			$this->ftp = null;
-			return true;
 		}
-		return false;
 	}
 
 	/**
@@ -133,70 +136,108 @@ class Net_FTP_Client extends Net_Client implements Net_FileSystem
 		}
 	}
 
-	public function ls($path = null)
+	private function parseFTPListingLine(string $string): array
+	{
+
+		return explode(" ", $string, 5);
+	}
+
+	public function ls(string $path): array
 	{
 		$this->_passive();
-		$lines = ftp_rawlist($this->ftp, $path === null ? '' : $path);
+		$lines = ftp_rawlist($this->ftp, $path);
 		$entries = [];
 		foreach ($lines as $line) {
-			$entry = $this->parse_ls_line($line);
-			if (is_array($entry)) {
-				$entries[] = $entry;
-			}
+			$entries[] = $this->parseFTPListingLine($line);
 		}
 		return $entries;
 	}
 
-	public function mkdir($path)
+	/**
+	 * @param string $path
+	 * @return void
+	 * @throws DirectoryCreate
+	 */
+	public function mkdir(string $path): void
 	{
 		if (!ftp_mkdir($this->ftp, $path)) {
 			throw new DirectoryCreate($path);
 		}
-		return true;
 	}
 
-	public function rmdir($path)
+	/**
+	 * @throws FilePermission
+	 */
+	public function rmdir(string $path): void
 	{
-		return ftp_rmdir($this->ftp, $path);
-	}
-
-	public function unlink($path)
-	{
-		return ftp_delete($this->ftp, $path);
-	}
-
-	public function download($remote_path, $local_path)
-	{
-		$this->_passive();
-		return ftp_get($this->ftp, $local_path, $remote_path, FTP_BINARY);
-	}
-
-	public function upload($local_path, $remote_path, $temporary = false)
-	{
-		$this->_passive();
-		$result = ftp_put($this->ftp, $remote_path, $local_path, FTP_BINARY);
-		if ($result) {
-			unlink($local_path);
+		if (!ftp_rmdir($this->ftp, $path)) {
+			throw new FilePermission($path, "Unable to remove FTP directory {path}", ['path' => $path]);
 		}
-		return $result;
 	}
 
-	public function pwd()
+	public function unlink(string $path): void
+	{
+		ftp_delete($this->ftp, $path);
+	}
+
+	/**
+	 * @throws NotFoundException
+	 */
+	public function download(string $remotePath, string $localPath): void
+	{
+		$this->_passive();
+		if (!ftp_get($this->ftp, $localPath, $remotePath)) {
+			throw new NotFoundException($localPath);
+		}
+	}
+
+	/**
+	 * @throws FilePermission
+	 * @throws FileSystemException
+	 */
+	public function upload(string $localPath, string $remotePath, bool $temporary = false): void
+	{
+		$this->_passive();
+		$result = ftp_put($this->ftp, $remotePath, $localPath);
+		if (!$result) {
+			throw new FileSystemException($localPath, "Upload {localPath} to {remotePath} failed", [
+				'localPath'  => $localPath,
+				'remotePath' => $remotePath,
+			]);
+		}
+		if ($temporary) {
+			if (!unlink($localPath)) {
+				throw new FilePermission($localPath, "Deleting {localPath} failed", ['localPath' => $localPath]);
+			}
+		}
+	}
+
+	public function pwd(): string
 	{
 		return ftp_pwd($this->ftp);
 	}
 
-	public function cd($path)
+	/**
+	 * @throws DirectoryNotFound
+	 */
+	public function cd(string $path): void
 	{
-		return ftp_chdir($this->ftp, $path);
+		if (!ftp_chdir($this->ftp, $path)) {
+			throw new DirectoryNotFound($path);
+		}
 	}
 
-	public function chmod($path, $mode = 0o770)
+	/**
+	 * @throws FilePermission
+	 */
+	public function chmod($path, int $mode = 0o770): void
 	{
-		return ftp_chmod($this->ftp, $mode, $path);
+		if (!ftp_chmod($this->ftp, $mode, $path)) {
+			throw new FilePermission($path, "Unable to set {mode} mode", ['mode' => $mode]);
+		}
 	}
 
-	public function stat($path)
+	public function stat(string $path): array
 	{
 		$dir = dirname($path);
 		$file = basename($path);
@@ -205,17 +246,49 @@ class Net_FTP_Client extends Net_Client implements Net_FileSystem
 			$this->stat_cache[$dir] = $listing = $this->ls($dir);
 		}
 		return $listing[$file] ?? [
-			'type' => null, 'name' => $file,
+			'type' => null,
+			'name' => $file,
 		];
 	}
 
-	public function mtime($path, Timestamp $ts)
+	public function hasFeature($feature): bool
 	{
-		return false;
+		return match ($feature) {
+			self::FEATURE_MODIFICATION_TIME => true,
+			default => false,
+		};
 	}
 
-	public function has_feature($feature)
+	/**
+	 * @return string
+	 */
+	public function connectGreeting(): string
 	{
-		return false;
+		return "";
+	}
+
+	/**
+	 * @param string $path
+	 * @return Timestamp
+	 * @throws FileNotFound
+	 */
+	public function modificationTime(string $path): Timestamp
+	{
+		$result = ftp_mdtm($this->ftp, $path);
+		if ($result > 0) {
+			return Timestamp::factory($result);
+		}
+		throw new FileNotFound($path);
+	}
+
+	/**
+	 * @param string $path
+	 * @param Timestamp $mtime
+	 * @return void
+	 * @throws UnimplementedException
+	 */
+	public function setModificationTime(string $path, Timestamp $mtime): void
+	{
+		throw new UnimplementedException(__METHOD__);
 	}
 }

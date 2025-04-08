@@ -6,6 +6,9 @@
 #
 # Copyright &copy; 2025 Market Acumen, Inc.
 
+#
+# Prepare for a release by running all of our cleaning and build steps
+#
 zeskPrepareRelease() {
   local usage="_${FUNCNAME[0]}"
 
@@ -60,7 +63,7 @@ zeskPrepareRelease() {
 
   __catchEnvironment "$usage" dockerComposeInstall || return $?
 
-  __catchEnvironment "$usage" docker-compose -f "$yml" up -d >/dev/null || return $?
+  __catchEnvironment "$usage" dockerCompose up -d >/dev/null || return $?
 
   currentVersion=$(__catchEnvironment "$usage" hookVersionCurrent) || return $?
   previousVersion=$(__catchEnvironment "$usage" gitVersionLast "$currentVersion") || return $?
@@ -87,13 +90,7 @@ zeskPrepareRelease() {
     statusMessage decorate info "Git status is clean."
   fi
 
-  local releaseDir
-
-  releaseDir="$home/docs/release"
-
-  __catchEnvironment "$usage" requireDirectory "$releaseDir" || return $?
-
-  currentChangeLog="$releaseDir/$currentVersion.md"
+  currentChangeLog="$(releaseNotes)"
   permanentChangeLog="$home/CHANGELOG.md"
 
   if [ ! -f "$currentChangeLog" ] || "$forceWrite"; then

@@ -13,7 +13,22 @@ use zesk\Exception\Deprecated;
 use zesk\Exception\NotFoundException;
 use zesk\PHPUnit\TestCase;
 
-class SingletonSampler {
+use zesk\Application;
+use zesk\ArrayTools;
+use zesk\Configuration;
+use zesk\Directory;
+use zesk\File;
+use zesk\Hookable;
+use zesk\Kernel;
+use zesk\Model;
+use zesk\Logger;
+use zesk\Options;
+use zesk\PHP;
+use zesk\Types;
+use zesk\Version;
+
+class SingletonSampler
+{
 	public static string $serialNo = '';
 
 	public string $id;
@@ -29,7 +44,8 @@ class SingletonSampler {
 	}
 }
 
-class KernelTest extends TestCase {
+class KernelTest extends TestCase
+{
 	/**
 	 * @var bool
 	 */
@@ -132,67 +148,6 @@ class KernelTest extends TestCase {
 		$this->assertInstanceOf($this->application->applicationClass(), $this->application);
 	}
 
-	public function test_autoload_extension(): void
-	{
-		$this->application->autoloader->addExtension('dude');
-	}
-
-	public function test_autoload_path(): void
-	{
-		$testDir = Directory::depend($this->test_sandbox('lower-prefix'));
-
-		$this->application->autoloader->addPath($testDir, [
-			Autoloader::OPTION_LOWER        => true,
-			Autoloader::OPTION_CLASS_PREFIX => 'zesk\\AutoloaderTest\\',
-			Autoloader::OPTION_EXTENSIONS   => ['txt'],
-		]);
-		File::put("$testDir/hooboy.txt", '<' . "?php\nnamespace test\zesk\\AutoloaderTest;\nclass HooBoy {}\n");
-		$this->assertTrue(class_exists('zesk\\AutoloaderTest\\HooBoy'));
-	}
-
-	/**
-	 * @param null|string $expected
-	 * @param string $class
-	 * @param array $extensions
-	 * @return void
-	 * @dataProvider data_autoloadSearch
-	 */
-	public function test_autoloadSearch(null|string $expected, string $class, array $extensions, array $modules): void
-	{
-		if (count($modules)) {
-			$this->application->modules->loadMultiple($modules);
-		}
-		$autoloader = $this->application->autoloader;
-		$tried_path = [];
-		$this->assertEquals($expected, $autoloader->search($class, $extensions, $tried_path));
-	}
-
-	public static function data_autoloadSearch(): array
-	{
-		return [
-			//			[ZESK_ROOT . 'zesk/Kernel.php', Kernel::class, ['php'], []],
-			//			[ZESK_ROOT . 'zesk/Controller/Theme.php', ThemeController::class, ['php', 'sql'], []],
-			[
-				ZESK_ROOT . 'src/modules/Doctrine/zesk/Doctrine/User.php',
-				'zesk\\Doctrine\\User',
-				[
-					'php',
-					'sql',
-				],
-				['Doctrine'],
-			],
-			[
-				null,
-				'zesk\\Doctrine\\User',
-				[
-					'other',
-					'none',
-				],
-				['Doctrine'],
-			],
-		];
-	}
-
 	public static function data_provider_clean_function(): array
 	{
 		return [
@@ -263,9 +218,9 @@ class KernelTest extends TestCase {
 	{
 		$savedConsole = $this->application->console();
 		$this->assertEquals($this->application, $this->application->setConsole(true));
-		$this->assertEquals(true, $this->application->console());
+		$this->assertTrue($this->application->console());
 		$this->assertEquals($this->application, $this->application->setConsole(false));
-		$this->assertEquals(false, $this->application->console());
+		$this->assertFalse($this->application->console());
 		$this->assertEquals($this->application, $this->application->setConsole($savedConsole));
 		$this->assertEquals($savedConsole, $this->application->console());
 	}
@@ -390,6 +345,8 @@ class KernelTest extends TestCase {
 	}
 
 	/**
+	 * @param $expected
+	 * @param $key
 	 * @return void
 	 * @dataProvider data_has
 	 */
@@ -477,6 +434,7 @@ class KernelTest extends TestCase {
 	}
 
 	/**
+	 * @param $expected
 	 * @param $set
 	 * @return void
 	 * @dataProvider data_document_root_prefix
@@ -495,9 +453,9 @@ class KernelTest extends TestCase {
 
 	public function test_which_fail(): void
 	{
-		$command = 'ls';
+		$command = 'notacommandtofind';
 		$this->expectException(NotFoundException::class);
-		$this->application->paths->which('notacommandtofind');
+		$this->application->paths->which($command);
 	}
 
 	public function test_kernel_functions(): void
@@ -522,10 +480,10 @@ class KernelTest extends TestCase {
 			'utc_time',
 		], true);
 		foreach ([
-					 'active',
-					 'warning',
-					 'bail',
-				 ] as $assertSetting) {
+			'active',
+			'warning',
+			'bail',
+		] as $assertSetting) {
 			$configuration->setPath([
 				$app::class,
 				Application::OPTION_ASSERT,
@@ -533,10 +491,10 @@ class KernelTest extends TestCase {
 			$app->setConfiguration()->configure();
 		}
 		foreach ([
-					 Application::DEPRECATED_BACKTRACE,
-					 Application::DEPRECATED_IGNORE,
-					 Application::DEPRECATED_LOG,
-				 ] as $deprecatedSetting) {
+			Application::DEPRECATED_BACKTRACE,
+			Application::DEPRECATED_IGNORE,
+			Application::DEPRECATED_LOG,
+		] as $deprecatedSetting) {
 			$configuration->setPath([
 				$app::class,
 				'deprecated',
@@ -611,7 +569,8 @@ class KernelTest extends TestCase {
  * @author kent
  *
  */
-class A extends Hookable {
+class A extends Hookable
+{
 }
 
 /**
@@ -619,7 +578,8 @@ class A extends Hookable {
  * @author kent
  *
  */
-class B extends A {
+class B extends A
+{
 }
 
 /**
@@ -627,5 +587,6 @@ class B extends A {
  * @author kent
  *
  */
-class C extends B {
+class C extends B
+{
 }

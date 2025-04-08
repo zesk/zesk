@@ -13,7 +13,8 @@ use zesk\Exception\SyntaxException;
 use zesk\Exception\UnsupportedException;
 use zesk\PHPUnit\ExceptionTestCase;
 
-class ThrowableTest extends ExceptionTestCase {
+class ThrowableTest extends ExceptionTestCase
+{
 	public static function data_simpleThrowables(): array
 	{
 		return [

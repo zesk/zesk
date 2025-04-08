@@ -3,15 +3,22 @@ declare(strict_types=1);
 
 namespace test\zesk;
 
+use zesk\Command;
+use zesk\File;
+use zesk\Request;
+use zesk\HookMethod;
+use zesk\Directory;
 use zesk\Exception\AuthenticationException;
 use zesk\Locale\Locale;
 use zesk\Router\RouterFile;
+use zesk\Application;
 
 /**
  * @see ApplicationTest
  */
-class TestApplication extends Application {
-	public const TEST_MAINTENANCE_FILE = './.testMaint.json';
+class TestApplication extends Application
+{
+	public const TEST_MAINTENANCE_FILE = './.testMaintenance.json';
 
 	protected array $options = [
 		self::OPTION_MAINTENANCE_FILE => self::TEST_MAINTENANCE_FILE,

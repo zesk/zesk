@@ -28,12 +28,14 @@ class TestApplicationFactory
 			Directory::depend($fileCache);
 			$pool = new FileCacheItemPool($fileCache);
 
-			return ApplicationLoader::application([
+			$application = ApplicationLoader::application([
 				Application::OPTION_APPLICATION_CLASS => Zesk::class,
 				Application::OPTION_PATH              => __DIR__,
 				Application::OPTION_CACHE_POOL        => $pool,
 				Application::OPTION_DEPRECATED        => Application::DEPRECATED_EXCEPTION,
 			]);
+			$logger = new Logger\FileLogger('test.log');
+			return $application->setLogger($logger);
 		} catch (Throwable $e) {
 			PHP::log($e);
 			exit($e->getCode() === 0 ? -1 : $e->getCode());

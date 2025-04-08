@@ -3,12 +3,15 @@ declare(strict_types=1);
 
 namespace test\zesk;
 
+use zesk\Model;
+
 //class TestModel extends Model {
 //	public string $name = '';
 //
 //	public string $value = '';
 //}
-class TestModel extends Model {
+class TestModel extends Model
+{
 	public string $thing = '';
 
 	public int $thingTwo = 0;

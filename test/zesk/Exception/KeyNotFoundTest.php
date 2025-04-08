@@ -15,7 +15,7 @@ class KeyNotFoundTest extends ExceptionTestCase
 {
 	public function test_basics(): void
 	{
-		$testx = new KeyNotFound();
-		$this->assertThrowable($testx);
+		$testObject = new KeyNotFound();
+		$this->assertThrowable($testObject);
 	}
 }

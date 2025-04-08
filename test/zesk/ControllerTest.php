@@ -3,60 +3,14 @@ declare(strict_types=1);
 
 namespace test\zesk;
 
+use zesk\File;
+use zesk\Request;
+use zesk\Response;
 use zesk\Route\Controller as ControllerRoute;
+use zesk\StringTools;
 
-class CTest extends Controller {
-	protected array $argumentMethods = [];
-
-	protected array $actionMethods = [
-		'action_{action}',
-		'action_index',
-	];
-
-	protected array $beforeMethods = [
-
-	];
-
-	protected array $afterMethods = [
-
-	];
-
-	public function initialize(): void
-	{
-		parent::initialize();
-		$this->application->setOption(__CLASS__, []);
-		$this->application->optionAppend(__CLASS__, 'init');
-	}
-
-	public function action_index(string $a = '', string $b = ''): string
-	{
-		$this->application->optionAppend(__CLASS__, [
-			$a,
-			$b,
-		]);
-		return "$a|$b";
-	}
-
-	public function action_array(string $a, string $b, Request $request): array
-	{
-		$this->application->optionAppend(__CLASS__, [
-			$a,
-			$b,
-		]);
-		return [
-			'first'   => $a,
-			'second'  => $b,
-			'request' => $request,
-		];
-	}
-
-	public static function getOption(Application $app): array
-	{
-		return $app->optionArray(__CLASS__);
-	}
-}
-
-class ControllerTest extends UnitTest {
+class ControllerTest extends TestCase
+{
 	/**
 	 *
 	 */
@@ -77,7 +31,7 @@ class ControllerTest extends UnitTest {
 		$router = $app->router();
 
 		$router->addRoute('({first}(/{second}))', [
-			'controller' => Ctest::class,
+			'controller' => TestController::class,
 			'arguments'  => [
 				0,
 				1,
@@ -88,7 +42,7 @@ class ControllerTest extends UnitTest {
 		]);
 		$testRouteStart = 'array'; /* No slashes allowed - indexes 1,2 */
 		$router->addRoute($testRouteStart . '(/{what}(/{verb}))', [
-			'controller' => Ctest::class,
+			'controller' => TestController::class,
 			'arguments'  => [
 				1,
 				2,
@@ -100,13 +54,13 @@ class ControllerTest extends UnitTest {
 
 		$expected = ['init'];
 		foreach ([
-					 '',
-					 "$testRouteStart",
-					 "$testRouteStart/1",
-					 "$testRouteStart/Love",
-					 "$testRouteStart/One",
-					 "$testRouteStart/Heart/...lets-get",
-				 ] as $suffix) {
+			'',
+			"$testRouteStart",
+			"$testRouteStart/1",
+			"$testRouteStart/Love",
+			"$testRouteStart/One",
+			"$testRouteStart/Heart/...lets-get",
+		] as $suffix) {
 			$request = Request::factory($app, 'http://localhost/' . $suffix);
 
 			$route = $router->matchRequest($request);
@@ -137,11 +91,11 @@ class ControllerTest extends UnitTest {
 			$this->assertInstanceOf(Response::class, $response);
 			$response->setPageTheme('test-theme');
 
-			$renderedContent = $response->render([Response::OPTION_SKIP_HEADERS => true,]);
+			$renderedContent = $response->render([Response::OPTION_SKIP_HEADERS => true, ]);
 			$this->assertEquals("--Test--\n$middlePart\nstring\nEOF", $renderedContent);
 		}
 
 
-		$this->assertEquals($expected, CTest::getOption($this->application));
+		$this->assertEquals($expected, TestController::getOption($this->application));
 	}
 }

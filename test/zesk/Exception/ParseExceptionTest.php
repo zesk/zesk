@@ -15,7 +15,7 @@ class ParseExceptionTest extends ExceptionTestCase
 {
 	public function test_basics(): void
 	{
-		$testx = new ParseException();
-		$this->assertThrowable($testx);
+		$testObject = new ParseException();
+		$this->assertThrowable($testObject);
 	}
 }

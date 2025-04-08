@@ -6,7 +6,8 @@ namespace test\zesk;
 use zesk\Interface\SettingsInterface;
 use zesk\PHPUnit\TestCase;
 
-class SettingsTestCase extends TestCase {
+class SettingsTestCase extends TestCase
+{
 	public static function setUpBeforeClass(): void
 	{
 		// pass

@@ -6,9 +6,13 @@ declare(strict_types=1);
 
 namespace test\zesk;
 
+use zesk\Application;
+use zesk\Directory;
+use zesk\Exception\DirectoryCreate;
 use zesk\Exception\DirectoryNotFound;
 use zesk\Exception\SyntaxException;
 use zesk\PHPUnit\TestCase;
+use zesk\StringTools;
 use function is_windows;
 
 /**
@@ -16,7 +20,8 @@ use function is_windows;
  * @author kent
  *
  */
-class testdir {
+class testdir
+{
 	public static array $dirs = [];
 
 	public static array $files = [];
@@ -47,7 +52,8 @@ class testdir {
  * @author kent
  *
  */
-class DirectoryTest extends TestCase {
+class DirectoryTest extends TestCase
+{
 	public static function data_path(): array
 	{
 		return [
@@ -331,14 +337,17 @@ class DirectoryTest extends TestCase {
 		$this->assertEquals([], Directory::ls($path, $filter, false));
 	}
 
+	/**
+	 * @throws DirectoryNotFound
+	 */
 	public function test_iterate(): void
 	{
-		$source = ZESK_ROOT;
+		$source = Application::zeskPath();
 		$directory_function = null;
 		$file_function = null;
 		Directory::iterate($source, $directory_function, $file_function);
 
-		$source = ZESK_ROOT;
+		$source = Application::zeskPath();
 		ob_start();
 		Directory::iterate($source, [
 			__NAMESPACE__ . '\\testdir',
@@ -349,22 +358,23 @@ class DirectoryTest extends TestCase {
 		]);
 		$iterate_dump = ob_get_clean();
 
-		$this->assertStringContainsString(ZESK_ROOT . 'autoload.php', $iterate_dump);
+		$root = Application::zeskPath();
+		$this->assertStringContainsString($root . 'autoload.php', $iterate_dump);
 		[
 			$dirs,
 			$files,
 		] = testdir::dump();
 		//		Debug::dump($files);
 
-		$this->assertTrue(in_array(ZESK_ROOT . 'autoload.php', $files));
-		$this->assertTrue(in_array(ZESK_ROOT . 'LICENSE.md', $files));
-		$this->assertFalse(in_array(ZESK_ROOT . 'LICENSE.md', $dirs));
+		$this->assertTrue(in_array($root . 'autoload.php', $files));
+		$this->assertTrue(in_array($root . 'LICENSE.md', $files));
+		$this->assertFalse(in_array($root . 'LICENSE.md', $dirs));
 
-		$this->assertTrue(in_array(ZESK_ROOT . 'src/zesk', $dirs));
-		$this->assertFalse(in_array(ZESK_ROOT . '.', $dirs));
-		$this->assertFalse(in_array(ZESK_ROOT . '..', $dirs));
-		$this->assertFalse(in_array(ZESK_ROOT . '.', $files));
-		$this->assertFalse(in_array(ZESK_ROOT . '..', $files));
+		$this->assertTrue(in_array($root . 'src/zesk', $dirs));
+		$this->assertFalse(in_array($root . '.', $dirs));
+		$this->assertFalse(in_array($root . '..', $dirs));
+		$this->assertFalse(in_array($root . '.', $files));
+		$this->assertFalse(in_array($root . '..', $files));
 		$this->assertTrue(in_array(__FILE__, $files));
 	}
 
@@ -392,12 +402,13 @@ class DirectoryTest extends TestCase {
 
 	public function test_duplicate(): void
 	{
+		$root = Application::zeskPath();
 		$rando = $this->randomHex(8);
-		$source = ZESK_ROOT . 'cache/test-' . $rando;
-		$destination = ZESK_ROOT . 'cache/test1-' . $rando;
+		$source = $root . 'cache/test-' . $rando;
+		$destination = $root . 'cache/test1-' . $rando;
 
 		$this->assertFalse(is_dir($source));
-		$this->assertTrue(mkdir($source, 511 /* 0o777 */));
+		$this->assertTrue(mkdir($source, 0o777 /* 0o777 */));
 		$nfiles = 8;
 		for ($i = 0; $i < $nfiles; $i++) {
 			$name = Directory::path($source, $this->randomHex(16) . '.txt');
@@ -420,6 +431,9 @@ class DirectoryTest extends TestCase {
 		$this->assertFalse(is_dir($destination));
 	}
 
+	/**
+	 * @throws DirectoryCreate
+	 */
 	public function test_create(): void
 	{
 		$path = $this->sandbox('/testpath/');
@@ -428,6 +442,8 @@ class DirectoryTest extends TestCase {
 	}
 
 	/**
+	 * @param string $expected
+	 * @param string $test
 	 * @return void
 	 * @dataProvider data_add_slash
 	 */

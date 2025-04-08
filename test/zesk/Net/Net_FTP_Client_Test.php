@@ -9,7 +9,7 @@ declare(strict_types=1);
 
 namespace test\zesk\Net;
 
-use zesk\Net\FTP\Net_FTP_Client;
+use zesk\Net\FTP\Client as FTPClient;
 use zesk\UnitTest;
 
 /**
@@ -20,13 +20,16 @@ class Net_FTP_Client_Test extends UnitTest
 	public function test_basics(): void
 	{
 		$url = 'ftp://user:pass@localhost';
-		$directory = null;
-		$log_file = false;
-		$testx = new Net_FTP_Client($this->application, $url);
 
-		$isOn = true;
-		$testx->passive($isOn);
+		$testObject = new FTPClient($this->application, $url);
 
-		$this->assertFalse($testx->isConnected());
+		foreach ([
+			true,
+			false,
+		] as $isOn) {
+			$this->assertEquals($isOn, $testObject->setPassive($isOn)->passive());
+		}
+
+		$this->assertFalse($testObject->isConnected());
 	}
 }

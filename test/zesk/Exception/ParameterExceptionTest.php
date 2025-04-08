@@ -11,11 +11,13 @@ namespace test\zesk\Exception;
 
 use zesk\PHPUnit\ExceptionTestCase;
 
+use zesk\Exception\ParameterException;
+
 class ParameterExceptionTest extends ExceptionTestCase
 {
 	public function test_basics(): void
 	{
-		$testx = new ParameterException();
-		$this->assertThrowable($testx);
+		$testObject = new ParameterException();
+		$this->assertThrowable($testObject);
 	}
 }

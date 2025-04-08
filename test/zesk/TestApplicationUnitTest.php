@@ -3,9 +3,10 @@ declare(strict_types=1);
 
 namespace test\zesk;
 
-;
-
+use zesk\Application;
 use zesk\CacheItemPool\FileCacheItemPool;
+use zesk\Command;
+use zesk\Directory;
 use zesk\Exception\ClassNotFound;
 use zesk\Exception\ConfigurationException;
 use zesk\Exception\DirectoryCreate;
@@ -16,7 +17,10 @@ use zesk\Exception\ParameterException;
 use zesk\Exception\ParseException;
 use zesk\Exception\SemanticsException;
 use zesk\Exception\UnsupportedException;
+use zesk\JSON;
+use zesk\Kernel;
 use zesk\PHPUnit\TestCase;
+use zesk\StringTools;
 
 class TestApplicationUnitTest extends TestCase
 {
@@ -80,9 +84,7 @@ class TestApplicationUnitTest extends TestCase
 	 * @throws DirectoryCreate
 	 * @throws DirectoryNotFound
 	 * @throws DirectoryPermission
-	 * @throws NotFoundException
-	 * @throws ParseException
-	 * @throws UnsupportedException
+	 * @throws NotFoundException|SemanticsException
 	 */
 	private function newApplicationFactory(array $options = []): TestApplication
 	{
@@ -138,7 +140,8 @@ class TestApplicationUnitTest extends TestCase
 	 */
 	public function assertCommandClass(string $class, array $testArguments, int $expectedStatus, string $expectedOutputOrPattern): void
 	{
-		$options = ['exit'    => false,
+		$options = [
+			'exit'    => false,
 			'no-ansi' => true,
 		];
 

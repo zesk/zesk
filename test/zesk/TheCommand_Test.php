@@ -16,7 +16,8 @@ use zesk\Command\SimpleCommand;
  * @author kent
  *
  */
-class TheCommand_Test extends UnitTest {
+class TheCommand_Test extends TestCase
+{
 	/**
 	 * @throws ParameterException
 	 */
@@ -39,8 +40,9 @@ class TheCommand_Test extends UnitTest {
 			'another',
 		];
 
-		$testObject = new SimpleCommand_Test($this->application, ['stdout'  => true,
-																  'no-ansi' => false,
+		$testObject = new SimpleCommand_Test($this->application, [
+			'stdout'  => true,
+			'no-ansi' => false,
 		]);
 
 		$testObject->parseArguments($argv);
@@ -97,7 +99,8 @@ class TheCommand_Test extends UnitTest {
  * @author kent
  *
  */
-class SimpleCommand_Test extends SimpleCommand {
+class SimpleCommand_Test extends SimpleCommand
+{
 	public function initialize(): void
 	{
 		parent::initialize();

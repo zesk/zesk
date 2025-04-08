@@ -14,12 +14,12 @@ use zesk\Application;
 use zesk\Exception\ConfigurationException;
 use zesk\Exception\ConnectionFailed;
 use zesk\Exception\KeyNotFound;
+use zesk\Exception\SemanticsException;
 use zesk\Exception\SyntaxException;
 use zesk\Hookable;
 use zesk\URL;
 
-abstract class Client extends Hookable
-{
+abstract class Client extends Hookable {
 	/**
 	 * Connection string
 	 * @var string
@@ -70,6 +70,8 @@ abstract class Client extends Hookable
 	/**
 	 * Connect. Returns the greeting line from the server.
 	 *
+	 * SemanticsException
+	 * @throws SemanticsException
 	 * @throws ConnectionFailed
 	 * @throws ConfigurationException
 	 */

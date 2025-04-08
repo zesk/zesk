@@ -9,14 +9,21 @@ namespace test\zesk;
 
 use zesk\Exception\SemanticsException;
 use zesk\Exception\SyntaxException;
-use zesk\Repository\TestCase;
+use test\zesk\Repository\TestCase;
+
+use zesk\Directory;
+use zesk\Repository\Base as Repository;
+use zesk\StringTools;
+use zesk\Types;
+use zesk\URL;
 
 /**
  *
  * @author kent
  *
  */
-class Repository_Git_Test extends TestCase {
+class Repository_Git_Test extends TestCase
+{
 	protected array $load_modules = ['git'];
 
 	/**
@@ -52,8 +59,8 @@ class Repository_Git_Test extends TestCase {
 	 */
 	public function testInfo(Repository $repo): void
 	{
-		$repo->url($this->url);
-		$repo->update();
+		$repo->setURL($this->url);
+		$repo->update('/');
 		$info = $repo->info();
 		$this->assertArrayHasKeys([
 			Repository::INFO_URL,
@@ -81,14 +88,14 @@ class Repository_Git_Test extends TestCase {
 		$this->assertStringMatchesFormat('%agittest%A', $path);
 		$url = $this->url;
 		$this->assertTrue(URL::valid($url), "URL $url is not a valid URL");
-		$repo->url($url);
+		$repo->setURL($url);
 		Directory::deleteContents($path);
 		$this->assertTrue(Directory::isEmpty($path));
 		$this->assertTrue($repo->needUpdate(), 'Repo should need update');
 		$repo->update();
 		$this->assertTrue($repo->validate());
 		$this->assertFalse(Directory::isEmpty($path));
-		$this->assertDirectoryExists(path($this->path, '.svn'));
+		$this->assertDirectoryExists(Directory::path($this->path, '.svn'));
 		$this->assertFalse($repo->needUpdate(), 'Repo should no longer need update');
 		$this->assertDirectoriesExist($this->pathCatenator($this->path, [
 			'.svn',
@@ -96,7 +103,7 @@ class Repository_Git_Test extends TestCase {
 			'tags',
 			'branches',
 		]));
-		$tags = toArray($this->configuration->getPath([
+		$tags = Types::toArray($this->configuration->getPath([
 			__CLASS__,
 			'tags_tests',
 		]));
@@ -113,7 +120,7 @@ class Repository_Git_Test extends TestCase {
 				'tags',
 				'branches',
 			]));
-			$tag_name_file = path($this->path, 'tag-name.txt');
+			$tag_name_file = Directory::path($this->path, 'tag-name.txt');
 			$this->assertFileExists($tag_name_file);
 			$this->assertEquals($tag, trim(file_get_contents($tag_name_file)), "File should contain tag name $tag");
 		}

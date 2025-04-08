@@ -194,6 +194,15 @@ class Module extends Hookable
 	}
 
 	/**
+	 * Override in subclasses - called upon configure
+	 * @throws ConfigurationException
+	 * @throws UnsupportedException
+	 */
+	public function configure(): void
+	{
+	}
+
+	/**
 	 * @return void
 	 */
 	public function shutdown(): void

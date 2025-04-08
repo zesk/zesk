@@ -3,10 +3,13 @@ declare(strict_types=1);
 
 namespace test\zesk;
 
+use zesk\Request;
+
 /**
  * See if we can customize system objects
  */
-class TestRequest extends Request {
+class TestRequest extends Request
+{
 	/**
 	 * @return array
 	 */

@@ -230,7 +230,7 @@ class Modules
 			throw new SemanticsException("$module already loaded");
 		}
 		if (!$this->validModule($lowerName)) {
-			throw new NotFoundException('Module {name} not found', ['name' => $lowerName]);
+			throw new NotFoundException('{name} not found', ['name' => $name]);
 		}
 		$module = $this->application->factory($this->moduleClasses[$lowerName], $this->application);
 		$module->checkDependencies();

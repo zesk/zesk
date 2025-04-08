@@ -6,9 +6,13 @@ namespace test\zesk;
 use zesk\Adapter\SettingsArray;
 use zesk\Adapter\SettingsArrayNoCase;
 use zesk\Adapter\SettingsConfiguration;
+use zesk\Exception\KeyNotFound;
 use zesk\Interface\SettingsInterface;
 
-class SettingsTest extends UnitTest {
+use zesk\Configuration;
+
+class SettingsTest extends TestCase
+{
 	public static array $arrayTarget = [];
 
 	public static array $arrayNoCaseTarget = [];
@@ -29,6 +33,7 @@ class SettingsTest extends UnitTest {
 	 * @param SettingsInterface $settings
 	 * @return void
 	 * @dataProvider data_settings_types
+	 * @throws KeyNotFound
 	 */
 	public function test_settings(SettingsInterface $settings): void
 	{

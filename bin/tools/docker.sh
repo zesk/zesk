@@ -54,3 +54,11 @@ __dockerPHPExec() {
   [ -t 0 ] || ttyArg+=(-T)
   docker compose -f "$home/docker-compose.yml" exec "${ttyArg[@]}" -u "${user}" php "$@"
 }
+
+zeskCompose() {
+  dockerCompose --default-env ZESK_ROOT=/zesk --default-env XDEBUG_ENABLED=true --default-env PHP_IDE_CONFIG="serverName=zesk" --default-env DEVELOPMENT=1 "$@"
+}
+_zeskCompose() {
+  # _IDENTICAL_ usageDocument 1
+  usageDocument "${BASH_SOURCE[0]}" "${FUNCNAME[0]#_}" "$@"
+}

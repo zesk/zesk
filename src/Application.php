@@ -54,6 +54,7 @@ use zesk\Mail\Module as MailModule;
 use zesk\Session\Module as SessionModule;
 use zesk\Settings\FileSystemSettings;
 use function str_ends_with;
+use zesk\Repository\Module;
 
 /**
  * Core web application object for Zesk.
@@ -2492,9 +2493,6 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	{
 		$old_factory = $this->callables[$code] ?? null;
 		$this->callables[$code] = $callable;
-		$this->logger->debug('Adding factory for {code}', [
-			'code' => $code,
-		]);
 		return $old_factory;
 	}
 

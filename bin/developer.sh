@@ -31,6 +31,8 @@ if source "${BASH_SOURCE[0]%/*}/tools.sh"; then
       alias suZeskBash='__dockerPHPExec \"$home\" root bash'
     fi
 
+    reloadChanges --stop --quiet
+    reloadChanges --name "Zesk PHP Tools" bin/tools.sh bin/tools/
     developerAnnounce < <(__applicationToolsList)
   }
 

@@ -15,7 +15,8 @@ use zesk\PHPUnit\TestCase;
  * @author kent
  *
  */
-class MailTest extends TestCase {
+class MailTest extends TestCase
+{
 	/**
 	 *
 	 */
@@ -99,17 +100,17 @@ class MailTest extends TestCase {
 			[
 				'=?US-ASCII?Q?Keith_Moore?= <moore@cs.utk.edu>',
 				'Keith Moore <moore@cs.utk.edu>',
-				['US-ASCII',],
+				['US-ASCII', ],
 			],
 			[
 				'=?ISO-8859-1?Q?Keld_J=F8rn_Simonsen?= <keld@dkuug.dk>',
 				'Keld J' . UTF8::fromCharacterSet(chr(hexdec('F8')), 'ISO-8859-1') . 'rn Simonsen <keld@dkuug.dk>',
-				['ISO-8859-1',],
+				['ISO-8859-1', ],
 			],
 			[
 				'=?ISO-8859-1?Q?Andr=E9?= Pirard <PIRARD@vm1.ulg.ac.be>',
 				'Andr' . chr(hexdec('C3')) . chr(hexdec('A9')) . ' Pirard <PIRARD@vm1.ulg.ac.be>',
-				['ISO-8859-1',],
+				['ISO-8859-1', ],
 			],
 			[
 				'=?ISO-8859-1?B?SWYgeW91IGNhbiByZWFkIHRoaXMgeW8=?=
@@ -125,7 +126,7 @@ class MailTest extends TestCase {
  (=?iso-8859-8?b?7eXs+SDv4SDp7Oj08A==?=)',
 				'Nathaniel Borenstein <nsb@thumper.bellcore.com>
  (םולש ןב ילטפנ)',
-				['ISO-8859-8',],
+				['ISO-8859-8', ],
 			],
 			[
 				'(=?ISO-8859-1?Q?a?=
@@ -146,7 +147,7 @@ class MailTest extends TestCase {
 			[
 				'(=?ISO-8859-1?Q?a_b?=)',
 				'(a b)',
-				['ISO-8859-1',],
+				['ISO-8859-1', ],
 			],
 			[
 				'(=?ISO-8859-1?Q?a?= =?iso-8859-2?q?_b?=)',
@@ -512,7 +513,7 @@ All work and no play makes Kent a dull boy.
 		$success = false;
 		$timer = new Timer();
 		do {
-			$pop = new Net\POP\Client($this->application, $pop_url, ['echo_log' => false,]);
+			$pop = new Net\POP\Client($this->application, $pop_url, ['echo_log' => false, ]);
 			$iterator = $pop->iterator();
 			foreach ($iterator as $headers) {
 				$remote_subject = $headers['subject'] ?? null;

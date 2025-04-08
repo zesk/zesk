@@ -107,7 +107,7 @@ class CharacterSet
 	 */
 	private static function characterSetPath(string $charset = null): string
 	{
-		return ZESK_ROOT . 'etc/charset-data/' . ($charset === null ? '' : strtolower($charset) . '.txt');
+		return Application::zeskPath('etc/charset-data/' . ($charset === null ? '' : strtolower($charset) . '.txt'));
 	}
 
 	/**

@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace test\zesk\Command;
 
+use zesk\Command\SimpleCommand;
+
 class Testlike extends SimpleCommand
 {
 	protected array $shortcuts = ['test-like'];

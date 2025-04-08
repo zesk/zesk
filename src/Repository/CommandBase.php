@@ -9,9 +9,9 @@ declare(strict_types=1);
 
 namespace zesk\Repository;
 
-use Module;
 use zesk\ArrayTools;
-use zesk\CommandFailed;
+use zesk\Directory;
+use zesk\Exception\CommandFailed;
 use zesk\Exception\NotFoundException;
 use zesk\Exception\ParameterException;
 use zesk\Exception\UnimplementedException;
@@ -23,7 +23,6 @@ use zesk\Process;
  * @author kent
  * @see \zesk\Login\Module
  * @see \zesk\Git\Repository
- * @see \zesk\Subversion\Repository
  */
 abstract class CommandBase extends Base
 {
@@ -78,7 +77,10 @@ abstract class CommandBase extends Base
 		if ($this->optionBool('find_root') && $root = $this->findRoot($path)) {
 			if ($root !== $path) {
 				$this->application->debug('{method} {code} moved to {root} instead of {path}', [
-					'method' => __METHOD__, 'code' => $this->code, 'root' => $root, 'path' => $path,
+					'method' => __METHOD__,
+					'code'   => $this->code,
+					'root'   => $root,
+					'path'   => $path,
 				]);
 			}
 			$this->path = $root;
@@ -143,7 +145,7 @@ abstract class CommandBase extends Base
 		if (!is_dir($this->path)) {
 			return false;
 		}
-		if (!is_dir(path($this->path, $this->dot_directory))) {
+		if (!is_dir(Directory::path($this->path, $this->dot_directory))) {
 			return false;
 		}
 		return true;
@@ -163,7 +165,7 @@ abstract class CommandBase extends Base
 		}
 		$directory = realpath($directory);
 		while (!empty($directory) && $directory !== '.') {
-			if (is_dir(path($directory, $this->dot_directory))) {
+			if (is_dir(Directory::path($directory, $this->dot_directory))) {
 				return $directory;
 			}
 			$directory = dirname($directory);

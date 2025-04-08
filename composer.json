@@ -11,7 +11,7 @@
 		"ext-posix": "*",
 		"ext-pcntl": "*",
 		"ext-intl": "*",
-		"doctrine/orm": "^2"
+		"doctrine/orm": "^2",
 	},
 	"suggest": {
 		"ext-xdebug": "*",
@@ -22,7 +22,8 @@
 	"require-dev": {
 		"phpunit/phpunit": ">=10",
 		"phpunit/php-invoker": "*",
-		"friendsofphp/php-cs-fixer": "*"
+		"friendsofphp/php-cs-fixer": "*",
+		"ext-ftp": "*"
 	},
 	"authors": [
 		{

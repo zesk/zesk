@@ -15,7 +15,7 @@ class FileCreateTest extends ExceptionTestCase
 {
 	public function test_basics(): void
 	{
-		$testx = new FileCreate();
-		$this->assertThrowable($testx);
+		$testObject = new FileCreate();
+		$this->assertThrowable($testObject);
 	}
 }

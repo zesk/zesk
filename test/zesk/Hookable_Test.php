@@ -3,7 +3,14 @@ declare(strict_types=1);
 
 namespace test\zesk;
 
-class hookable_test_a extends Hookable {
+use zesk\Application;
+use zesk\Hookable;
+use zesk\HookMethod;
+use zesk\JSON;
+use zesk\Types;
+
+class hookable_test_a extends Hookable
+{
 	public const HOOK_TEST = __CLASS__ . '::test';
 
 	public static Application $app;
@@ -23,14 +30,15 @@ class hookable_test_a extends Hookable {
 	}
 
 	#[HookMethod(handles: self::HOOK_TEST, filter: true)]
-	public static function doit(array $data): array
+	public static function doTheThing(array $data): array
 	{
 		$data['test_a'] = 99;
 		return $data;
 	}
 }
 
-class hookable_test_b extends hookable_test_a {
+class hookable_test_b extends hookable_test_a
+{
 	#[HookMethod(handles: self::HOOK_TEST, filter: true)]
 	public function requiresObjectHookB(array $data): array
 	{
@@ -39,14 +47,14 @@ class hookable_test_b extends hookable_test_a {
 	}
 
 	#[HookMethod(handles: self::HOOK_TEST, filter: true)]
-	public static function hook_test2(array $data)
+	public static function hook_test2(array $data): array
 	{
 		$data['test2'] = '2';
 		return $data;
 	}
 
 	#[HookMethod(handles: self::HOOK_TEST, filter: true)]
-	public function hook_test3(array $data)
+	public function hook_test3(array $data): array
 	{
 		$data['test3'] = 'three';
 		$data['test1a'] = 'three not 1a';
@@ -56,8 +64,9 @@ class hookable_test_b extends hookable_test_a {
 	}
 }
 
-class Hookable_Test extends UnitTest {
-	public static $counter = 0;
+class Hookable_Test extends TestCase
+{
+	public static int $counter = 0;
 
 	public function test_hook_series(): void
 	{
@@ -136,7 +145,7 @@ class Hookable_Test extends UnitTest {
 } */
 	}
 
-	public function hook_test1(array $data)
+	public function hook_test1(array $data): array
 	{
 		$data[__METHOD__] = microtime(true);
 		$data['test1'] = '1';

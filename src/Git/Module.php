@@ -22,8 +22,17 @@ class Module extends ModuleBase
 	public function initialize(): void
 	{
 		parent::initialize();
+	}
+
+	public function configure(): void
+	{
 		$this->registerRepository(Repository::class, [
 			'git',
 		]);
+	}
+
+	public function checkDependencies(): void
+	{
+		$this->application->modules->load('Repository');
 	}
 }

@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+
 namespace zesk\Net;
 
 use zesk\Application;
@@ -7,10 +8,10 @@ use zesk\Exception\DirectoryNotFound;
 use zesk\Exception\DirectoryPermission;
 use zesk\Exception\FileNotFound;
 use zesk\Exception\FilePermission;
+use zesk\Exception\KeyNotFound;
 use zesk\Timestamp;
 
-interface FileSystem
-{
+interface FileSystem {
 	public const FEATURE_MODIFICATION_TIME = 'mtime';
 
 	/**
@@ -54,28 +55,29 @@ interface FileSystem
 	public function stat(string $path): array;
 
 	/**
-	 * @param $path
+	 * @param string $path
 	 * @return void
 	 * @throws DirectoryNotFound
 	 * @throws DirectoryPermission
 	 */
-	public function mkdir($path): void;
+	public function mkdir(string $path): void;
 
 	/**
-	 * @param $path
+	 * @param string $path
 	 * @return void
 	 * @throws DirectoryNotFound
 	 * @throws DirectoryPermission
 	 */
-	public function rmdir($path): void;
+	public function rmdir(string $path): void;
 
 	/**
-	 * @param $path
+	 * @param string $path
+	 * @param int $mode
 	 * @return void
 	 * @throws DirectoryNotFound
 	 * @throws DirectoryPermission
 	 */
-	public function chmod($path, $mode = 0o770): void;
+	public function chmod(string $path, int $mode = 0o770): void;
 
 	/**
 	 * @param string $remotePath
@@ -108,7 +110,7 @@ interface FileSystem
 	/**
 	 * @param string $path
 	 * @param Timestamp $mtime
-	 * @return mixed
+	 * @return void
 	 */
 	public function setModificationTime(string $path, Timestamp $mtime): void;
 

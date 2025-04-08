@@ -9,7 +9,13 @@ namespace test\zesk;
 
 use stdClass;
 
-class ArrayToolsTest extends UnitTest {
+use zesk\ArrayTools;
+use zesk\Exception\SemanticsException;
+use zesk\StringTools;
+use zesk\Types;
+
+class ArrayToolsTest extends TestCase
+{
 	/**
 	 * @return void
 	 */
@@ -107,6 +113,7 @@ class ArrayToolsTest extends UnitTest {
 	 * @param array $expected
 	 * @param array $array
 	 * @return void
+	 * @throws SemanticsException
 	 */
 	public function test_simplify(array $expected, array $array): void
 	{
@@ -318,7 +325,7 @@ class ArrayToolsTest extends UnitTest {
 				[
 					'a' => 'abbb',
 				],
-				['a' => 'b',],
+				['a' => 'b', ],
 				'a',
 				'bb',
 			],
@@ -629,6 +636,7 @@ class ArrayToolsTest extends UnitTest {
 	/**
 	 * @param bool $expected
 	 * @param array $array
+	 * @param string|array|int $keys
 	 * @return void
 	 * @dataProvider data_hasAnyKey
 	 */
@@ -1174,6 +1182,9 @@ class ArrayToolsTest extends UnitTest {
 	}
 
 	/**
+	 * @param array $array
+	 * @param array $key_map
+	 * @param array $expected
 	 * @return void
 	 * @dataProvider data_keysMap
 	 */
@@ -1270,6 +1281,9 @@ class ArrayToolsTest extends UnitTest {
 	}
 
 	/**
+	 * @param $array
+	 * @param $value_map
+	 * @param $expected
 	 * @return void
 	 * @dataProvider data_valuesMap
 	 */
@@ -1568,16 +1582,6 @@ class ArrayToolsTest extends UnitTest {
 			'1',
 			2 => '4',
 		], $result);
-
-		// $x = null;
-		// $keys = null;
-		// $got_exception = false;
-		// try {
-		// ArrayTools::filter($x, $keys);
-		// } catch (Exception $e) {
-		// $got_exception = true;
-		// }
-		// $this->assertTrue($got_exception ), "Exception should be thrown");
 
 		$x = [
 			'A' => 'Kent',
@@ -1943,6 +1947,9 @@ class ArrayToolsTest extends UnitTest {
 	}
 
 	/**
+	 * @param array $array
+	 * @param mixed $default
+	 * @param mixed $expected
 	 * @return void
 	 * @dataProvider data_min
 	 */
@@ -2314,6 +2321,10 @@ class ArrayToolsTest extends UnitTest {
 	}
 
 	/**
+	 * @param array $actual
+	 * @param string $key
+	 * @param mixed $value
+	 * @param array $expected
 	 * @return void
 	 * @dataProvider data_prepend
 	 */
@@ -2389,7 +2400,8 @@ class ArrayToolsTest extends UnitTest {
 	}
 }
 
-class faker {
+class faker
+{
 	public function __set($n, $v): void
 	{
 		$this->$n = $v;

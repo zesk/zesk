@@ -21,8 +21,8 @@ class FileSystemExceptionTest extends ExceptionTestCase
 			'hello' => 'world',
 		];
 		$code = 42;
-		$testx = new FileSystemException($filename, $message, $arguments, $code);
+		$testObject = new FileSystemException($filename, $message, $arguments, $code);
 
-		$this->assertThrowable($testx);
+		$this->assertThrowable($testObject);
 	}
 }

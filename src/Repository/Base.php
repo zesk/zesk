@@ -11,7 +11,6 @@ namespace zesk\Repository;
 
 use zesk\Application;
 use zesk\Directory;
-use zesk\Doctrine\Command\Command;
 use zesk\Exception\ClassNotFound;
 use zesk\Exception\NotFoundException;
 use zesk\Exception\SemanticsException;
@@ -21,7 +20,6 @@ use zesk\URL;
 
 /**
  * @see \zesk\GitHub\Command
- * @see \zesk\Subversion\Repository
  * @see \zesk\Git\Repository
  * @author kent
  */
@@ -140,7 +138,6 @@ abstract class Base extends Hookable
 	/**
 	 * The current repository's URL
 	 *
-	 * @see \Git\classes\Repository::info
 	 * @var string
 	 */
 	public const INFO_URL = 'url';
@@ -191,7 +188,7 @@ abstract class Base extends Hookable
 		if (!$this->path) {
 			throw new SemanticsException('Need to set the path before using path call');
 		}
-		return path($this->path, $suffix);
+		return Directory::path($this->path, $suffix);
 	}
 
 	/**
@@ -210,7 +207,9 @@ abstract class Base extends Hookable
 		$final_path = realpath($final_path);
 		if (!str_starts_with($this->path, $final_path)) {
 			throw new SemanticsException('Passed absolute path {target} (-> {final_path}) must be a subdirectory of {path}', [
-				'target' => $target, 'final_path' => $final_path, 'path' => $final_path,
+				'target'     => $target,
+				'final_path' => $final_path,
+				'path'       => $final_path,
 			]);
 		}
 		return $final_path;
@@ -252,10 +251,9 @@ abstract class Base extends Hookable
 	 * @return Base
 	 * @throws NotFoundException
 	 */
-	public static function factory(Application $application, string $type, string $root = null, array $options = []):
-	Base
+	public static function factory(Application $application, string $type, string $root = null, array $options = []): Base
 	{
-		$repo = $application->repository_module();
+		$repo = $application->repositoryModule();
 		$class = $repo->findRepository($type);
 
 		try {
@@ -364,22 +362,22 @@ abstract class Base extends Hookable
 	 * @param string $target
 	 * @return boolean
 	 */
-	abstract public function needUpdate(string $target): bool;
+	abstract public function needUpdate(string $target = ''): bool;
 
 	/**
 	 * Update repository and get changes from remote
 	 *
 	 * @param string $target
 	 */
-	abstract public function update(string $target): void;
+	abstract public function update(string $target = ''): void;
 
 	/**
 	 * Undo changes to a target and reset to current branch/tag
 	 *
 	 * @param string $target Directory of target directory
-	 * @return boolean
+	 * @return void
 	 */
-	abstract public function rollback(string $target): void;
+	abstract public function rollback(string $target = ''): void;
 
 	/**
 	 * Return the latest version string for this repository. Should mimic `zesk version` formatting.

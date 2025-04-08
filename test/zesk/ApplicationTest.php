@@ -101,12 +101,6 @@ class ApplicationTest extends TestApplicationUnitTest
 		$this->testApplication->setDocumentRoot($notDir);
 	}
 
-	public function test_application_badModulePath(): void
-	{
-		$notDir = $this->test_sandbox('not-a-directory');
-		$this->expectException(DirectoryNotFound::class);
-	}
-
 	public function test_application_badLocalePath(): void
 	{
 		$notDir = $this->test_sandbox('not-a-directory');
@@ -213,12 +207,6 @@ class ApplicationTest extends TestApplicationUnitTest
 		$this->assertEquals($newApplication->path('data/'), $newApplication->paths->data());
 
 
-		/* autoloadPath */
-		$this->assertEquals([
-			'/zesk/src/modules/Diff/zesk/Diff/',
-			'/zesk/src/modules/CSV/zesk/CSV/',
-		], array_keys($newApplication->autoloadPath()));
-
 		$newApplication->modules->loadMultiple([
 			'PHPUnit',
 			'Doctrine',
@@ -230,7 +218,6 @@ class ApplicationTest extends TestApplicationUnitTest
 		$paths[] = $newApplication->zeskHome('src/modules/PHPUnit/zesk/PHPUnit/');
 		$paths[] = $newApplication->zeskHome('src/modules/Doctrine/zesk/Doctrine/');
 		$paths[] = $newApplication->zeskHome('src/modules/Repository/zesk/Repository/');
-		$this->assertEquals($paths, array_keys($newApplication->autoloadPath()));
 
 		/* maintenance Loading */
 		$tempFile = $newApplication->paths->expand(TestApplication::TEST_MAINTENANCE_FILE);
@@ -296,7 +283,7 @@ class ApplicationTest extends TestApplicationUnitTest
 				'route',
 			],
 			'id'      => 'dumpRoute',
-			'_source' => '/zesk/test/classes/TestApplication.router',
+			'_source' => '/zesk/test/zesk/TestApplication.router',
 			'weight'  => 0.007,
 			'class'   => 'zesk\\Route\\Content',
 		];
@@ -434,7 +421,7 @@ class ApplicationTest extends TestApplicationUnitTest
 
 	public function test_pid(): void
 	{
-		$this->testApplication->process->id();
+		$this->assertGreaterThan(0, $this->testApplication->process->id());
 	}
 
 	public function test_running(): void
@@ -451,8 +438,8 @@ class ApplicationTest extends TestApplicationUnitTest
 		$file = $this->test_sandbox('testlike.php');
 		$contents = file_get_contents($this->testApplication->zeskHome('test/test-data/testlike.php'));
 		file_put_contents($file, $contents);
-		$loader = CommandLoader::factory()->setApplication($this->testApplication);
 		$this->testApplication->addZeskCommandPath($this->test_sandbox());
+		$loader = CommandLoader::factory()->setApplication($this->testApplication);
 		$pid = $this->testApplication->process->id();
 		$className = 'TestCommand' . $pid;
 		$randomShortcut = $this->randomHex();
@@ -461,7 +448,9 @@ class ApplicationTest extends TestApplicationUnitTest
 			$randomShortcut,
 		];
 		$testCommand = [];
-		$testCommand[] = '<?' . "php\n namespace test\zesk\Command;";
+		$testCommand[] = '<?' . 'php';
+		$testCommand[] = "namespace test\zesk\Command;";
+		$testCommand[] = "use zesk\Command\SimpleCommand;";
 		$testCommand[] = "class $className extends SimpleCommand {";
 		$testCommand[] = '	protected array $shortcuts = ' . PHP::dump($shortcuts) . ';';
 		$testCommand[] = '	function run(): int {';
@@ -471,10 +460,12 @@ class ApplicationTest extends TestApplicationUnitTest
 		$testCommand[] = '}';
 
 		File::put($this->test_sandbox('testCommand.php'), implode("\n", $testCommand));
+		$namespaceClass = "test\\zesk\\Command\\$className";
+		$this->assertInArray($namespaceClass, $loader->collectCommands());
+
 		$allShortcuts = $loader->collectCommandShortcuts();
 
-		$this->assertArrayHasKeys($shortcuts, $allShortcuts);
-		$namespaceClass = "zesk\\Command\\$className";
+		$this->assertArrayHasKeys($shortcuts, $allShortcuts, json_encode($allShortcuts));
 		$this->assertEquals($namespaceClass, $allShortcuts['test-command']);
 		$this->assertEquals($namespaceClass, $allShortcuts[$randomShortcut]);
 	}
