@@ -4,6 +4,10 @@
 #
 # Copyright &copy; 2025, Market Acumen, Inc.
 #
+
+# _IDENTICAL_ application.sh 129
+
+#
 # This file generically loads all application tools in `./bin/tools` and allows for extensions
 # to Zesk Build within an application with little effort.
 #
@@ -25,11 +29,11 @@
 # Security: source
 __source() {
   local me="${BASH_SOURCE[0]}" e=253
-  local here="${me%/*}" a=()
+  local here="${me%/*}"
   local source="$here/${2:-".."}/${1-}" && shift 2 || _return $e "missing source" || return $?
   [ -d "${source%/*}" ] || _return $e "${source%/*} is not a directory" || return $?
   [ -f "$source" ] && [ -x "$source" ] || _return $e "$source not an executable file" "$@" || return $?
-  while [ $# -gt 0 ]; do a+=("$1") && shift; done
+  local a=("$@") && set --
   # shellcheck source=/dev/null
   source "$source" || _return $e source "$source" "$@" || return $?
   [ ${#a[@]} -gt 0 ] || return 0
@@ -57,7 +61,7 @@ __tools() {
 # Requires: _return __execute
 __install() {
   local installer="${1-}" source="${2-}" relativeHome="${3:-".."}" me="${BASH_SOURCE[0]}"
-  local here="${me%/*}" e=253 arguments=()
+  local here="${me%/*}" e=253 a
   local install="$here/$relativeHome/$installer" tools="$here/$relativeHome/$source"
   [ -n "$installer" ] || _return $e "blank installer" || return $?
   [ -n "$source" ] || _return $e "blank source" || return $?
@@ -66,11 +70,11 @@ __install() {
     [ -d "${tools%/*}" ] || _return $e "$install failed to create directory ${tools%/*}" || return $?
   fi
   [ -x "$tools" ] || _return $e "$install failed to create $tools" "$@" || return $?
-  shift && shift && shift && while [ $# -gt 0 ]; do arguments+=("$1") && shift; done
+  shift 3 && a=("$@") && set --
   # shellcheck source=/dev/null
-  source "$tools" || _return $e source "$tools" || return $?
-  [ ${#arguments[@]} -gt 0 ] || return 0
-  __execute "${arguments[@]}" || return $?
+  source "$tools" || _return "$e" source "$tools" || return $?
+  [ ${#a[@]} -gt 0 ] || return 0
+  __execute "${a[@]}" || return $?
 }
 
 # IDENTICAL __build 11
@@ -114,30 +118,14 @@ isUnsignedInteger() {
 
 # <-- END of IDENTICAL _return
 
-__applicationToolsList() {
-  developerTrack "${BASH_SOURCE[0]}" --list
-}
-
 __applicationTools() {
   local source="${BASH_SOURCE[0]}"
-  local here="${source%/*}"
-  local __saved=("$@") track=false
-
-  export BUILD_TEXT_BINARY
-  export DEVELOPER_TRACK
-  if [ -n "${DEVELOPER_TRACK-}" ]; then
-    unset DEVELOPER_TRACK
-    track=true
-  fi
+  local here="${source%/*}" __saved=("$@")
 
   set --
-  __build ".." bin : >/dev/null || return $?
-
-  ! $track || developerTrack "${BASH_SOURCE[0]}"
+  __build .. bin : >/dev/null || return $?
 
   bashSourcePath "$(realPath "$here/tools/")" || return $?
-
-  [ -n "${BUILD_TEXT_BINARY-}" ] || BUILD_TEXT_BINARY=toilet
 
   __execute "${__saved[@]+"${__saved[@]}"}" || return $?
 }

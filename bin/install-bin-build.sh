@@ -8,7 +8,7 @@
 #
 # Copyright &copy; 2025 Market Acumen, Inc.
 #
-# Debugging: da39a3ee5e6b4b0d3255bfef95601890afd80709
+# Debugging: 73b0bd4ba49583263542da725669003fc821eb63
 
 # URL of latest release
 __installBinBuildLatest() {
@@ -703,7 +703,7 @@ _urlFetch() {
 # Example:     __help "$usage" "$@" || return 0
 # Example:     [ $# -eq 0 ] || __help --only "_${FUNCNAME[0]}" "$@" || return 0
 # Example:     [ $# -eq 0 ] || __help --only "$usage" "$@" || return 0
-# Depends: __throwArgument
+# Requires: __throwArgument
 __help() {
   local usage="${1-}" && shift
   if [ "$usage" = "--only" ]; then
@@ -753,7 +753,7 @@ bashFunctionComment() {
   local source="${1-}" functionName="${2-}"
   local maxLines=1000
   __help "_${FUNCNAME[0]}" "$@" || return 0
-  grep -m 1 -B $maxLines "$functionName() {" "$source" | grep -v -e '( IDENTICAL | _IDENTICAL_ |DOC TEMPLATE:|Internal:)' |
+  grep -m 1 -B $maxLines "^$functionName() {" "$source" | grep -v -e '( IDENTICAL | _IDENTICAL_ |DOC TEMPLATE:|Internal:)' |
     reverseFileLines | grep -B "$maxLines" -m 1 -E '^\s*$' |
     reverseFileLines | grep -E '^#' | cut -c 3-
 }
@@ -881,7 +881,7 @@ _isFunction() {
   usageDocument "${BASH_SOURCE[0]}" "${FUNCNAME[0]#_}" "$@"
 }
 
-# IDENTICAL decorate 182
+# IDENTICAL decorate 190
 
 # Sets the environment variable `BUILD_COLORS` if not set, uses `TERM` to calculate
 #
@@ -1041,16 +1041,24 @@ _caseStyles() {
 # fn: decorate each
 # Usage: decorate each decoration argument1 argument2 ...
 # Runs the following command on each subsequent argument for formatting
+# Also supports formatting input lines instead (on the same line)
 # Example:     decorate each code "$@"
 # Requires: decorate printf
 __decorateExtensionEach() {
-  local code="$1" formatted=()
+  local code="$1" formatted=() item
 
   shift || return 0
-  while [ $# -gt 0 ]; do
-    formatted+=("$(decorate "$code" "$1")")
-    shift
-  done
+  if [ $# -eq 0 ]; then
+    while read -r item; do
+      formatted+=("$(decorate "$code" "$item")")
+    done
+  else
+    while [ $# -gt 0 ]; do
+      item="$1"
+      formatted+=("$(decorate "$code" "$item")")
+      shift
+    done
+  fi
   IFS=" " printf -- "%s\n" "${formatted[*]-}"
 }
 

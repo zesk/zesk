@@ -52,7 +52,7 @@ _zeskContainerLatest() {
 __dockerPHPExec() {
   local home="$1" user="$2" ttyArg=() && shift 2
   [ -t 0 ] || ttyArg+=(-T)
-  docker compose -f "$home/docker-compose.yml" exec "${ttyArg[@]}" -u "${user}" php "$@"
+  docker compose -f "$home/docker-compose.yml" exec "${ttyArg[@]}" -u "${user}" web "$@"
 }
 
 zeskCompose() {

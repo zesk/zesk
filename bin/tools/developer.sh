@@ -6,36 +6,33 @@
 #
 # Copyright &copy; 2025 Market Acumen, Inc.
 
+# Add a development link to the local version of Zesk Build for testing in local projects
+# Argument: --reset - Flag. Optional. Revert the link and reinstall using the original binary.
 zeskPHPDevelopmentLink() {
   local usage="_${FUNCNAME[0]}"
-  local home
 
-  local desiredTarget="/usr/local/zesk"
+  # _IDENTICAL_ argument-case-header 5
+  local __saved=("$@") __count=$#
+  while [ $# -gt 0 ]; do
+    local argument="$1" __index=$((__count - $# + 1))
+    [ -n "$argument" ] || __throwArgument "$usage" "blank #$__index/$__count ($(decorate each quote "${__saved[@]}"))" || return $?
+    case "$argument" in
+      # _IDENTICAL_ --help 4
+      --help)
+        "$usage" 0
+        return $?
+        ;;
+      --reset | --copy) ;;
 
-  home=$(buildHome)
-  if [ ! -d "$home/vendor" ]; then
-    __throwEnvironment "$usage" "No vendor directory" || return $?
-  fi
-
-  local vendorZesk="$home/vendor/zesk/zesk"
-  local verb="Writing"
-
-  if [ -d "$vendorZesk" ] && [ ! -L "$vendorZesk" ]; then
-    verb="Backing up and writing"
-    __catchEnvironment "$usage" mv "$vendorZesk" "$home/vendor/zesk/zesk.BACKUP" || return $?
-  fi
-  if [ -L "$vendorZesk" ]; then
-    local linkTarget
-    linkTarget=$(__catchEnvironment "$usage" readlink "$vendorZesk") || return $?
-    if [ "$linkTarget" = "$desiredTarget" ]; then
-      decorate info "Zesk is linked locally"
-      return 0
-    fi
-    verb="Rewriting"
-  fi
-  [ ! -e "$vendorZesk" ] || __catchEnvironment "$usage" rm -f "$vendorZesk" || return $?
-  decorate info "$verb Zesk link to $(decorate file "$desiredTarget")"
-  __catchEnvironment "$usage" ln -s "$desiredTarget" "$vendorZesk" || return $?
+      *)
+        # _IDENTICAL_ argumentUnknown 1
+        __throwArgument "$usage" "unknown #$__index/$__count \"$argument\" ($(decorate each code "${__saved[@]}"))" || return $?
+        ;;
+    esac
+    # _IDENTICAL_ argument-esac-shift 1
+    shift
+  done
+  developerDevelopmentLink --handler "$usage" --composer "zesk/zesk" --variable "ZESK_PHP_DEVELOPMENT_HOME" "${__saved[@]+"${__saved[@]}"}"
 }
 _zeskPHPDevelopmentLink() {
   # _IDENTICAL_ usageDocument 1
