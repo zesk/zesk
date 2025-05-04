@@ -90,7 +90,8 @@ class Model extends Hookable
 			$result = array_merge($result_prefix, $result);
 		}
 		return array_map(fn ($name) => strtr($name, [
-			'_' => '/', '\\' => '/',
+			'_'  => '/',
+			'\\' => '/',
 		]), $result);
 	}
 
@@ -112,10 +113,12 @@ class Model extends Hookable
 			'content' => $variables,
 		] : $variables;
 		$variables += [
-			'object' => $this, strtolower(get_class($this)) => $this,
+			'object'                     => $this,
+			strtolower(get_class($this)) => $this,
 		];
 		return $this->application->themes->theme($this->themePaths($theme_names), $variables, [
-			'default' => $default, 'first' => true,
+			'default' => $default,
+			'first'   => true,
 		]);
 	}
 
@@ -144,7 +147,17 @@ class Model extends Hookable
 		}
 
 		throw new ParseException('Unable to convert {mixed} ({type}) to ID', [
-			'mixed' => $mixed, 'type' => Types::type($mixed),
+			'mixed' => $mixed,
+			'type'  => Types::type($mixed),
 		]);
+	}
+
+	/**
+	 * @param JSONWalker $options
+	 * @return array
+	 */
+	public function json(JSONWalker $options): array
+	{
+		return $options->walk($this);
 	}
 }

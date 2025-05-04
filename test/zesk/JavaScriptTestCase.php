@@ -6,7 +6,7 @@ declare(strict_types=1);
 
 namespace test\zesk;
 
-use zesk\Exception\SemanticsException;
+use zesk\Exception\ProtocolException;
 
 /**
  *
@@ -57,7 +57,7 @@ class JavaScriptTestCase extends TestCase
 	 */
 	public function test_obfuscate_end(): void
 	{
-		$this->expectException(SemanticsException::class);
+		$this->expectException(ProtocolException::class);
 		$function_map = [];
 		JavaScript::obfuscate_end($function_map);
 		JavaScript::obfuscate_end($function_map);

@@ -8,7 +8,7 @@ namespace test\zesk;
 
 use stdClass;
 use zesk\Exception\ParseException;
-use zesk\Exception\SemanticsException;
+use zesk\Exception\ProtocolException;
 
 /**
  *
@@ -31,7 +31,7 @@ class JSONTestCase extends TestCase
 
 	/**
 	 * @return void
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 */
 	public function test_malencode(): void
 	{
@@ -134,7 +134,7 @@ class JSONTestCase extends TestCase
 	 * @param $methods
 	 * @param $arguments
 	 * @return void
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 * @dataProvider data_prepare
 	 */
 	public function test_prepare($expected, $mixed, $methods, $arguments): void
@@ -184,13 +184,13 @@ class JSONTestCase extends TestCase
 	 * @param string|null $expected
 	 * @param mixed $mixed
 	 * @return void
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 * @dataProvider data_encode
 	 */
 	public function test_encode(?string $expected, mixed $mixed): void
 	{
 		if ($expected === null) {
-			$this->expectException(SemanticsException::class);
+			$this->expectException(ProtocolException::class);
 		}
 		$this->assertEquals($expected, JSON::encode($mixed));
 	}
@@ -204,7 +204,7 @@ class JSONTestCase extends TestCase
 	public function test_encodeSpecial(?string $expected, mixed $mixed): void
 	{
 		if ($expected === null) {
-			$this->expectException(SemanticsException::class);
+			$this->expectException(ProtocolException::class);
 		}
 		$this->assertEquals($expected, JSON::encodeSpecial($mixed));
 	}
@@ -485,7 +485,7 @@ class JSONTestCase extends TestCase
 	 * @dataProvider data_internal_values
 	 * @param mixed $mixed
 	 * @return void
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 */
 	public function test_internal(mixed $mixed): void
 	{

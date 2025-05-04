@@ -6,7 +6,7 @@ declare(strict_types=1);
 
 namespace zesk;
 
-use zesk\Exception\SemanticsException;
+use zesk\Exception\ProtocolException;
 use zesk\Exception\SyntaxException;
 use function trim;
 
@@ -20,14 +20,27 @@ class URL
 	 *
 	 * @var array
 	 */
-	protected static array $secureProtocols = ['http' => 'https', 'ftp' => 'sftp', 'telnet' => 'ssh', ];
+	protected static array $secureProtocols = [
+		'http'   => 'https',
+		'ftp'    => 'sftp',
+		'telnet' => 'ssh',
+	];
 
 	/**
 	 * What's the order for items in a URL (typically http URLs)?
 	 *
 	 * @var array
 	 */
-	public static array $urlPartOrdering = ['scheme', 'user', 'pass', 'host', 'port', 'path', 'query', 'fragment', ];
+	public static array $urlPartOrdering = [
+		'scheme',
+		'user',
+		'pass',
+		'host',
+		'port',
+		'path',
+		'query',
+		'fragment',
+	];
 
 	/**
 	 * Query string parsing (case-sensitive)
@@ -105,7 +118,10 @@ class URL
 		$tokens = explode('&', $url);
 		$urlVars = [];
 		foreach ($tokens as $token) {
-			[$token, $value] = StringTools::pair($token, '=', $token);
+			[
+				$token,
+				$value,
+			] = StringTools::pair($token, '=', $token);
 			$matches = false;
 			if (!$simple && preg_match('/^([^\[]*)(\[.*])$/', $token, $matches)) {
 				self::_queryParseArray($urlVars, $matches[1], $matches[2], $value);
@@ -168,7 +184,10 @@ class URL
 	 */
 	public static function queryFormat(string $path, string|array $add = [], array|string $remove = []): string
 	{
-		[$uri, $qs] = StringTools::pair($path, '?', $path);
+		[
+			$uri,
+			$qs,
+		] = StringTools::pair($path, '?', $path);
 		if ($qs === '') {
 			$qs = [];
 		} else {
@@ -270,7 +289,10 @@ class URL
 	 */
 	public static function queryKeysRemove(string $url, array|string $names): string
 	{
-		[$url, $m] = StringTools::pair($url, '#', $url);
+		[
+			$url,
+			$m,
+		] = StringTools::pair($url, '#', $url);
 		$x = strpos($url, '?');
 		if ($x === false) {
 			return $url;
@@ -355,12 +377,17 @@ class URL
 			throw new SyntaxException('Not a URL');
 		}
 		if (strtolower(substr($url, 0, 7)) === 'file://') {
-			$result = ['scheme' => 'file', 'host' => '', 'path' => substr($url, 7), ];
+			$result = [
+				'scheme' => 'file',
+				'host'   => '',
+				'path'   => substr($url, 7),
+			];
 		} else {
 			$result = parse_url($url);
 			if (!is_array($result)) {
 				throw new SyntaxException('parse_url({url}) failed {type}', [
-					'type' => Types::type($result), 'url' => $url,
+					'type' => Types::type($result),
+					'url'  => $url,
 				]);
 			}
 		}
@@ -371,7 +398,10 @@ class URL
 		if ($result['scheme'] === 'mailto' && array_key_exists('path', $result)) {
 			$path = $result['path'];
 			unset($result['path']);
-			[$user, $host] = StringTools::reversePair($path, '@', '', $path);
+			[
+				$user,
+				$host,
+			] = StringTools::reversePair($path, '@', '', $path);
 			if ($user) {
 				$result['user'] = $user;
 			}
@@ -515,7 +545,14 @@ class URL
 	public static function protocolPort(string $scheme): int
 	{
 		static $protocols = [
-			'ftp' => 21, 'smtp' => 25, 'mailto' => 25, 'http' => 80, 'pop' => 110, 'https' => 443, 'file' => -1, 'telnet' => 23,
+			'ftp'    => 21,
+			'smtp'   => 25,
+			'mailto' => 25,
+			'http'   => 80,
+			'pop'    => 110,
+			'https'  => 443,
+			'file'   => -1,
+			'telnet' => 23,
 		];
 		return $protocols[strtolower($scheme)] ?? -1;
 	}
@@ -745,7 +782,7 @@ class URL
 	 *            A URL to test
 	 * @return string Secured URL
 	 * @throws SyntaxException
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 * @see URL_Test::test_makeSecure()
 	 */
 	public static function makeSecure(string $url): string
@@ -756,17 +793,17 @@ class URL
 		$parts = self::parse($url);
 		$scheme = $parts['scheme'] ?? '';
 		if (!array_key_exists($scheme, self::$secureProtocols)) {
-			throw new SemanticsException('{url} Not a known insecure protocol: {choices}', [
-				'url' => $url,
+			throw new ProtocolException('{url} Not a known insecure protocol: {choices}', [
+				'url'     => $url,
 				'choices' => array_keys(self::$secureProtocols),
 			]);
 		}
 		$defaultPort = self::protocolPort($scheme);
 		if (intval($parts['port'] ?? $defaultPort) !== $defaultPort) {
-			throw new SemanticsException('{url} Port must be standard to promote: {port} !== {defaultPort}', [
-				'url' => $url,
+			throw new ProtocolException('{url} Port must be standard to promote: {port} !== {defaultPort}', [
+				'url'         => $url,
 				'defaultPort' => $defaultPort,
-				'port' => $parts['port'],
+				'port'        => $parts['port'],
 			]);
 		}
 		$parts['scheme'] = self::$secureProtocols[$scheme];
@@ -824,15 +861,15 @@ class URL
 	 *            Href on the page
 	 * @return string Reconciled href
 	 * @throws SyntaxException
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 */
 	public static function computeHREF(string $url, string $href): string
 	{
 		if (empty($href)) {
-			throw new SemanticsException('href is blank');
+			throw new ProtocolException('href is blank');
 		}
 		if (str_starts_with($href, 'javascript:')) {
-			throw new SemanticsException('javascript: href is invalid');
+			throw new ProtocolException('javascript: href is invalid');
 		}
 		if (self::is($href)) {
 			return self::normalize($href);

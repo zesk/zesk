@@ -32,13 +32,6 @@ class Module extends Hookable
 	protected string $name = '';
 
 	/**
-	 * Path to this module
-	 *
-	 * @var string
-	 */
-	private string $path;
-
-	/**
 	 * @var string
 	 */
 	private string $configurationFile;
@@ -98,17 +91,6 @@ class Module extends Hookable
 		$this->configurationData = $data['configurationData'];
 		$this->modelClasses = $data['modelClasses'];
 		$this->classAliases = $data['classAliases'];
-	}
-
-	/**
-	 * The path to the module root
-	 *
-	 * @param string $suffix
-	 * @return string
-	 */
-	final public function path(string $suffix = ''): string
-	{
-		return Directory::path($this->path, $suffix);
 	}
 
 	/**

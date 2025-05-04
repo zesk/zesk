@@ -15,7 +15,7 @@ use Stringable;
 use Traversable;
 use TypeError;
 use zesk\Exception\ParseException;
-use zesk\Exception\SemanticsException;
+use zesk\Exception\ProtocolException;
 use zesk\Interface\Simplifiable;
 
 class Types
@@ -428,7 +428,7 @@ class Types
 	 *
 	 * @param mixed $mixed
 	 * @return string|int|float|bool
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 */
 	public static function flatten(mixed $mixed): string|int|float|bool
 	{

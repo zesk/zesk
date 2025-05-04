@@ -13,7 +13,7 @@ use Exception;
 use Throwable;
 use zesk\Application;
 use zesk\Exception\FilePermission;
-use zesk\Exception\SemanticsException;
+use zesk\Exception\ProtocolException;
 use zesk\Exception\ParameterException;
 use zesk\PHP;
 use zesk\StopIteration;
@@ -41,20 +41,31 @@ use function str_starts_with;
  */
 class Shell extends SimpleCommand
 {
-	protected array $shortcuts = ['shell', 'eval', 'evaluate'];
+	protected array $shortcuts = [
+		'shell',
+		'eval',
+		'evaluate',
+	];
 
 	protected array $option_types = [
-		'skip-configure' => 'boolean', 'json' => 'boolean', 'interactive' => 'boolean', 'debug-state' => 'boolean',
-		'*' => 'string',
+		'skip-configure' => 'boolean',
+		'json'           => 'boolean',
+		'interactive'    => 'boolean',
+		'debug-state'    => 'boolean',
+		'*'              => 'string',
 	];
 
 	protected array $option_help = [
-		'skip-configure' => 'Skip application configuration', 'json' => 'Output results as JSON instead of PHP',
-		'interactive' => 'Run interactively', 'debug-state' => 'Debug interactive state management', '*' => 'string',
+		'skip-configure' => 'Skip application configuration',
+		'json'           => 'Output results as JSON instead of PHP',
+		'interactive'    => 'Run interactively',
+		'debug-state'    => 'Debug interactive state management',
+		'*'              => 'string',
 	];
 
 	protected array $option_chars = [
-		'i' => 'interactive', 's' => 'skip-configure',
+		'i' => 'interactive',
+		's' => 'skip-configure',
 	];
 
 	/**
@@ -77,7 +88,7 @@ class Shell extends SimpleCommand
 	 * @return int
 	 * @throws FilePermission
 	 * @throws ParameterException
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 */
 	public function run(): int
 	{
@@ -123,7 +134,7 @@ class Shell extends SimpleCommand
 	 * Interactive evaluation of commands
 	 *
 	 * @return int
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 */
 	public function interactive(): int
 	{
@@ -153,7 +164,10 @@ class Shell extends SimpleCommand
 				if ($content) {
 					echo "# Content\n$content\n";
 				}
-				$this->application->invokeHooks(Application::HOOK_COMMAND, [$this->application, $ex]);
+				$this->application->invokeHooks(Application::HOOK_COMMAND, [
+					$this->application,
+					$ex,
+				]);
 				$last_exit_code = 99;
 				continue;
 			}
@@ -205,7 +219,8 @@ class Shell extends SimpleCommand
 		}
 		$prefix = 'return';
 		if (StringTools::begins($string, [
-			'echo ', 'print ',
+			'echo ',
+			'print ',
 		]) || str_contains($string, ';')) {
 			$prefix = '';
 		}

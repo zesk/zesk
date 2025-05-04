@@ -26,7 +26,7 @@ use zesk\Exception\FilePermission;
 use zesk\Exception\NotFoundException;
 use zesk\Exception\ParameterException;
 use zesk\Exception\ParseException;
-use zesk\Exception\SemanticsException;
+use zesk\Exception\ProtocolException;
 use zesk\Exception\SystemException;
 use zesk\Exception\UnsupportedException;
 use zesk\File;
@@ -682,7 +682,7 @@ class Update extends SimpleCommand
 	 * @throws DirectoryNotFound
 	 * @throws DirectoryPermission
 	 * @throws FileNotFound
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 */
 	private function fetch(array $data): self|null
 	{

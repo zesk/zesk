@@ -24,7 +24,7 @@ use zesk\ArrayTools;
 use zesk\Doctrine\Trait\AutoID;
 use zesk\Doctrine\Trait\Name;
 use zesk\Exception\KeyNotFound;
-use zesk\Exception\SemanticsException;
+use zesk\Exception\ProtocolException;
 use zesk\Exception\TimeoutExpired;
 use zesk\Interface\MetaInterface;
 use zesk\IPv4;
@@ -227,7 +227,7 @@ class Server extends Model implements MetaInterface
 		try {
 			$dead_to_me = Timestamp::now('UTC');
 			$dead_to_me->addUnit($timeout_seconds);
-		} catch (KeyNotFound|SemanticsException $e) {
+		} catch (KeyNotFound|ProtocolException $e) {
 			$this->application->error($e);
 			return;
 		}

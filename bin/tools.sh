@@ -5,7 +5,7 @@
 # Copyright &copy; 2025, Market Acumen, Inc.
 #
 
-# _IDENTICAL_ application.sh 129
+# _IDENTICAL_ application.sh 132
 
 #
 # This file generically loads all application tools in `./bin/tools` and allows for extensions
@@ -19,17 +19,19 @@
 # Environment: DEVELOPER_TRACK
 #
 
-# IDENTICAL __source 19
+# IDENTICAL __source 21
 
 # Load a source file and run a command
 # Argument: source - Required. File. Path to source relative to application root..
-# Argument: relativeHome - Required. Directory. Path to application root.
+# Argument: relativeHome - Optional. Directory. Path to application root. Defaults to `..`
 # Argument: command ... - Optional. Callable. A command to run and optional arguments.
 # Requires: _return
 # Security: source
+# Exit Code: 253 - source failed to load (internal error)
+# Exit Code: 0 - source loaded (and command succeeded)
+# Exit Code: ? - All other codes are returned by the command itself
 __source() {
-  local me="${BASH_SOURCE[0]}" e=253
-  local here="${me%/*}"
+  local here="${BASH_SOURCE[0]%/*}" e=253
   local source="$here/${2:-".."}/${1-}" && shift 2 || _return $e "missing source" || return $?
   [ -d "${source%/*}" ] || _return $e "${source%/*} is not a directory" || return $?
   [ -f "$source" ] && [ -x "$source" ] || _return $e "$source not an executable file" "$@" || return $?
@@ -45,14 +47,14 @@ __source() {
 # Load build tools and run command
 # Argument: relativeHome - Required. Directory. Path to application root.
 # Argument: command ... - Optional. Callable. A command to run and optional arguments.
-# Requires: __source _return
+# Requires: __source
 __tools() {
   __source bin/build/tools.sh "$@"
 }
 
 # IDENTICAL __install 25
 
-# Load build tools (installing if needed) and run command
+# Load a bash script (installing if needed) and run an optional command
 # Argument: installer - Required. File. Installation binary.
 # Argument: source - Required. File. Include file which should exist after installation.
 # Argument: relativeHome - Optional. Directory. Path to application home. Default is `..`.
@@ -79,9 +81,9 @@ __install() {
 
 # IDENTICAL __build 11
 
-# Load build tools (installing if needed) and run command
-# Argument: installerPath - Optional. Directory. Path to `install-bin-build.sh` binary.
-# Argument: relativeHome - Required. Directory. Path to application home.
+# Load build tools (installing if needed) and runs a command
+# Argument: relativeHome - Optional. Directory. Path to application home.
+# Argument: installerPath - Optional. Directory. Path to `install-bin-build.sh` binary. Defaults to `bin`
 # Argument: command ... - Optional. Callable. A command to run and optional arguments.
 # Requires: __install
 # Example:     __build ../../.. functionToCall "$@"
@@ -90,17 +92,18 @@ __build() {
   __install "$installerPath/install-bin-build.sh" "bin/build/tools.sh" "$relative" "$@" || return $?
 }
 
-# IDENTICAL _return 26
+# IDENTICAL _return 27
 
-# Usage: {fn} [ exitCode [ message ... ] ]
-# Argument: exitCode - Required. Integer. Exit code to return. Default is 1.
-# Argument: message ... - Optional. String. Message to output to stderr.
+# Return passed in integer return code and output message to `stderr` (non-zero) or `stdout` (zero)
+# Argument: exitCode - Required. UnsignedInteger. Exit code to return. Default is 1.
+# Argument: message ... - Optional. String. Message to output
 # Exit Code: exitCode
 # Requires: isUnsignedInteger printf _return
 _return() {
-  local r="${1-:1}" && shift 2>/dev/null
-  isUnsignedInteger "$r" || _return 2 "${FUNCNAME[1]-none}:${BASH_LINENO[1]-} -> ${FUNCNAME[0]} non-integer $r" "$@" || return $?
-  printf -- "[%d] ❌ %s\n" "$r" "${*-§}" 1>&2 || : && return "$r"
+  local code="${1:-1}" && shift 2>/dev/null
+  isUnsignedInteger "$code" || _return 2 "${FUNCNAME[1]-none}:${BASH_LINENO[1]-} -> ${FUNCNAME[0]} non-integer \"$code\"" "$@" || return $?
+  [ "$code" -eq 0 ] && printf -- "✅ %s\n" "${*-§}" && return 0 || printf -- "❌ [%d] %s\n" "$code" "${*-§}" 1>&2
+  return "$code"
 }
 
 # Test if an argument is an unsigned integer
@@ -123,7 +126,7 @@ __applicationTools() {
   local here="${source%/*}" __saved=("$@")
 
   set --
-  __build .. bin : >/dev/null || return $?
+  __build .. bin >/dev/null || return $?
 
   bashSourcePath "$(realPath "$here/tools/")" || return $?
 

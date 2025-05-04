@@ -14,7 +14,7 @@ use zesk\Application;
 use zesk\Exception\ConfigurationException;
 use zesk\Exception\ConnectionFailed;
 use zesk\Exception\KeyNotFound;
-use zesk\Exception\SemanticsException;
+use zesk\Exception\ProtocolException;
 use zesk\Exception\SyntaxException;
 use zesk\Hookable;
 use zesk\URL;
@@ -72,7 +72,7 @@ abstract class Client extends Hookable
 	 * Connect. Returns the greeting line from the server.
 	 *
 	 * SemanticsException
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 * @throws ConnectionFailed
 	 * @throws ConfigurationException
 	 */

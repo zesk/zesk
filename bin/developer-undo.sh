@@ -6,7 +6,7 @@
 #
 # Zesk PHP Developer scripts (undo any changes to shell)
 
-if isFunction __zeskPHPDeveloperUndo; then
-  __zeskPHPDeveloperUndo
-  unset __zeskPHPDeveloperUndo
+if isFunction __zeskPHPDeveloperContextUndo; then
+  __zeskPHPDeveloperContextUndo
+  unset __zeskPHPDeveloperContextUndo
 fi

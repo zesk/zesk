@@ -15,7 +15,7 @@ use zesk\Exception\FileNotFound;
 use zesk\Exception\KeyNotFound;
 use zesk\Exception\NotFoundException;
 use zesk\Exception\ParseException;
-use zesk\Exception\SemanticsException;
+use zesk\Exception\ProtocolException;
 use zesk\Exception\UnsupportedException;
 
 /**
@@ -35,7 +35,7 @@ class ResponseTest extends TestApplicationUnitTest
 	 * @throws KeyNotFound
 	 * @throws NotFoundException
 	 * @throws ParseException
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 * @throws UnsupportedException
 	 * @throws FileNotFound
 	 */

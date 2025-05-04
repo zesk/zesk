@@ -5,7 +5,6 @@
 /.build/
 /.buildpath
 /.composer/
-/.env*
 /.github.conf
 /.history/
 /.history/

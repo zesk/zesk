@@ -103,11 +103,20 @@ class Method extends Route
 	{
 		$class = $method = '';
 		if (is_string($function)) {
-			[$class, $method] = StringTools::pair($function, '::', '', $function);
+			[
+				$class,
+				$method,
+			] = StringTools::pair($function, '::', '', $function);
 		} elseif (is_array($function)) {
-			[$class, $method] = $function;
+			[
+				$class,
+				$method,
+			] = $function;
 		}
-		[$include, $require] = $this->_includeFiles();
+		[
+			$include,
+			$require,
+		] = $this->_includeFiles();
 		if (is_string($class)) {
 			if (!class_exists($class, $this->optionBool(self::OPTION_AUTOLOAD, true))) {
 				throw new ParameterException('No such class found {class}', [
@@ -116,25 +125,31 @@ class Method extends Route
 			}
 			if (!method_exists($class, $method)) {
 				throw new ParameterException("No such method {class}::{method} exists in $require or $include for {pattern}", $this->variables() + [
-					'require' => $require, 'include' => $include, 'method' => $method,
+					'require' => $require,
+					'include' => $include,
+					'method'  => $method,
 				]);
 			}
 		} elseif (is_object($class)) {
 			if (!method_exists($class, $method)) {
 				throw new ParameterException("No such method {objectClass}::{method} exists in $require or $include for {pattern}", $this->variables() + [
-					'require' => $require, 'include' => $include, 'method' => $method,
+					'require'     => $require,
+					'include'     => $include,
+					'method'      => $method,
 					'objectClass' => $class::class,
 				]);
 			}
 		} elseif (is_string($function)) {
 			if (!function_exists($function)) {
 				throw new ParameterException('No such function exists in {require} or {include} for {pattern}', $this->variables() + [
-					'require' => $require, 'include' => $include,
+					'require' => $require,
+					'include' => $include,
 				]);
 			}
 		} elseif (!is_callable($function)) {
 			throw new ParameterException('Not callable: {callable} for {pattern}', $this->variables() + [
-				'callable' => Hooks::callableString($function), 'pattern' => $this->pattern,
+				'callable' => Hooks::callableString($function),
+				'pattern'  => $this->pattern,
 			]);
 		}
 		return true;
@@ -170,7 +185,10 @@ class Method extends Route
 				] + Exception::exceptionVariables($t) + $this->variables(), 0, $t);
 			}
 		}
-		return [$includes, $requires];
+		return [
+			$includes,
+			$requires,
+		];
 	}
 
 	/**
@@ -185,7 +203,10 @@ class Method extends Route
 
 		try {
 			if (is_string($method) && str_contains($method, '::')) {
-				[$class, $method] = StringTools::pair($method, '::', 'stdClass', $method);
+				[
+					$class,
+					$method,
+				] = StringTools::pair($method, '::', 'stdClass', $method);
 				$method = new ReflectionMethod($class, $method);
 				$construct_arguments = $this->_mapVariables($request, $this->optionArray('construct arguments'));
 				$object = $method->isStatic() ? null : $app->objects->factoryArguments($class, $construct_arguments);
@@ -198,7 +219,9 @@ class Method extends Route
 			$content = null;
 			$app->invokeHooks(Application::HOOK_EXCEPTION, [$e]);
 			$app->error('{class}::_execute() Running {method} threw exception {e}', [
-				'class' => __CLASS__, 'method' => $app->hooks->callableString($method), 'e' => $e,
+				'class'  => __CLASS__,
+				'method' => $app->hooks->callableString($method),
+				'e'      => $e,
 			]);
 		}
 		return $content;
@@ -236,7 +259,10 @@ class Method extends Route
 		}
 
 		try {
-			$method = $this->_mapVariables($request, $this->optionString(self::OPTION_METHOD));
+			$method = $this->option(self::OPTION_METHOD);
+			if (is_string($method)) {
+				$method = $this->_mapVariables($request, $method);
+			}
 			ob_start();
 			$content = $this->executeMethod($request, $method, $this->_mapVariables($request, $this->args));
 			$buffer = ob_get_clean();

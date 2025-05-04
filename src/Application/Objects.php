@@ -13,7 +13,7 @@ use ReflectionMethod;
 use stdClass;
 use zesk\Exception;
 use zesk\Exception\ClassNotFound;
-use zesk\Exception\SemanticsException;
+use zesk\Exception\ProtocolException;
 use zesk\Hookable;
 use zesk\Kernel;
 use zesk\PHP;
@@ -146,7 +146,7 @@ class Objects
 	 * @param object $object
 	 * @param string|null $class The resolved class to save this class under.
 	 * @return $this
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 */
 	public function setSingleton(object $object, ?string $class = null): self
 	{
@@ -160,8 +160,9 @@ class Objects
 				return $this;
 			}
 
-			throw new SemanticsException('Singletons should not change existing {found_object} !== set {object}', [
-				'found_object' => $found_object, 'object' => $found_object,
+			throw new ProtocolException('Singletons should not change existing {found_object} !== set {object}', [
+				'found_object' => $found_object,
+				'object'       => $found_object,
 			]);
 		}
 		$this->_setSingleton($object, $resolved_class);
@@ -186,13 +187,14 @@ class Objects
 	 *
 	 * @param mixed $object
 	 * @return mixed
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 */
 	private function _setSingleton(object $object, string $resolvedClass): object
 	{
 		if (isset($this->singletons[$resolvedClass])) {
-			throw new SemanticsException('{method}(Object of {class_name}) Can not set singleton {class_name} twice, originally set in {first_caller}', [
-				'method' => __METHOD__, 'class_name' => $resolvedClass,
+			throw new ProtocolException('{method}(Object of {class_name}) Can not set singleton {class_name} twice, originally set in {first_caller}', [
+				'method'       => __METHOD__,
+				'class_name'   => $resolvedClass,
 				'first_caller' => $this->singletonsCaller[$resolvedClass],
 			]);
 		}
@@ -232,7 +234,7 @@ class Objects
 			throw new ClassNotFound($resolveClass);
 		} catch (ReflectionException|LogicException $e) {
 			throw new ClassNotFound($resolveClass, '', [], $e);
-		} catch (SemanticsException $e) {
+		} catch (ProtocolException $e) {
 			/* NEVER from _setSingleton */
 			throw new ClassNotFound($resolveClass, 'Semantics SHOULD NOT HAPPEN as getSingleton returned
 			null', [], $e);
@@ -259,7 +261,7 @@ class Objects
 			return $this->_setSingleton($rc->newInstanceArgs($arguments), $resolveClass);
 		} catch (ReflectionException|LogicException $e) {
 			throw new ClassNotFound($resolveClass, '', [], $e);
-		} catch (SemanticsException $e) {
+		} catch (ProtocolException $e) {
 			/* NEVER from _setSingleton */
 			throw new ClassNotFound($resolveClass, 'Semantics SHOULD NOT HAPPEN as getSingleton returned
 			null', [], $e);
@@ -296,7 +298,9 @@ class Objects
 			$rc = new ReflectionClass($resolveClass);
 			if ($rc->isAbstract()) {
 				throw new ClassNotFound($resolveClass, '{this_method}({class} => {resolve_class}) is abstract - can not instantiate', [
-					'this_method' => __METHOD__, 'class' => $class, 'resolve_class' => $resolveClass,
+					'this_method'   => __METHOD__,
+					'class'         => $class,
+					'resolve_class' => $resolveClass,
 				]);
 			}
 			return $rc->newInstanceArgs($arguments);
@@ -304,8 +308,12 @@ class Objects
 		}
 
 		throw new ClassNotFound($class, "{method}({class} => {resolve_class}, {args}) {message}\nBacktrace: {backtrace}", [
-			'method' => __METHOD__, 'class' => $class, 'resolve_class' => $resolveClass,
-			'args' => array_keys($arguments), 'message' => $e->getMessage(), 'backtrace' => $e->getTraceAsString(),
+			'method'        => __METHOD__,
+			'class'         => $class,
+			'resolve_class' => $resolveClass,
+			'args'          => array_keys($arguments),
+			'message'       => $e->getMessage(),
+			'backtrace'     => $e->getTraceAsString(),
 		]);
 	}
 }

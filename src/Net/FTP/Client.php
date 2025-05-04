@@ -16,7 +16,7 @@ use zesk\Exception\FileNotFound;
 use zesk\Exception\FilePermission;
 use zesk\Exception\FileSystemException;
 use zesk\Exception\NotFoundException;
-use zesk\Exception\SemanticsException;
+use zesk\Exception\ProtocolException;
 use zesk\Exception\UnimplementedException;
 use zesk\Net\Client as ClientBase;
 use zesk\Net\FileSystem;
@@ -55,14 +55,14 @@ class Client extends ClientBase implements FileSystem
 
 	/**
 	 * Connect to the remote host
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 * @throws DirectoryNotFound
 	 * @see Net_Client::connect()
 	 */
 	public function connect(): self
 	{
 		if ($this->isConnected()) {
-			throw new SemanticsException('Already connected.');
+			throw new ProtocolException('Already connected.');
 		}
 		$host = $this->urlParts['host'];
 		$port = $this->urlParts['port'] ?? 21;

@@ -1,9 +1,10 @@
 <?php
 declare(strict_types=1);
+
 namespace zesk\Configuration;
 
 use zesk\ArrayTools;
-use zesk\Exception\SemanticsException;
+use zesk\Exception\ProtocolException;
 
 /**
  * A class dedicated to determining: In a series of configuration files, what external dependencies do we have?
@@ -45,12 +46,12 @@ class Dependency
 
 	/**
 	 * @return self
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 */
 	public function pop(): self
 	{
 		if (count($this->context) === 0) {
-			throw new SemanticsException('Popped once to many times?');
+			throw new ProtocolException('Popped once to many times?');
 		}
 		array_pop($this->context);
 		return $this;
@@ -74,7 +75,7 @@ class Dependency
 			}
 		}
 		$this->definitions[$variable] = [
-			'context' => $context,
+			'context'      => $context,
 			'dependencies' => $dependencies,
 		];
 		return $this;

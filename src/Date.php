@@ -16,7 +16,7 @@ use DateTime;
 use OutOfBoundsException;
 use zesk\Exception\ParameterException;
 use zesk\Exception\ParseException;
-use zesk\Exception\SemanticsException;
+use zesk\Exception\ProtocolException;
 use zesk\Locale\Locale;
 use function gregoriantojd;
 use function jdtogregorian;
@@ -503,14 +503,14 @@ class Date extends Temporal
 	 * @inline_test zesk\Date::factory('2020-01-02')->year_day() === 1
 	 * @param int $set
 	 * @return self
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 * @see Date_Test::test_yearDay()
 	 */
 	public function setYearday(int $set): self
 	{
 		$yearday = $this->yearDay();
 		if ($yearday === null) {
-			throw new SemanticsException('Empty date, can not {method}', ['method' => __METHOD__]);
+			throw new ProtocolException('Empty date, can not {method}', ['method' => __METHOD__]);
 		}
 		return $this->add(0, 0, $set - $yearday);
 	}
@@ -536,7 +536,17 @@ class Date extends Temporal
 	public static function daysInMonth(int $month, int $year): int
 	{
 		$daysInMonth = [
-			1 => 31, 2 => 28, 3 => 31, 4 => 30, 5 => 31, 6 => 30, 7 => 31, 8 => 31, 9 => 30, 10 => 31, 11 => 30,
+			1  => 31,
+			2  => 28,
+			3  => 31,
+			4  => 30,
+			5  => 31,
+			6  => 30,
+			7  => 31,
+			8  => 31,
+			9  => 30,
+			10 => 31,
+			11 => 30,
 			12 => 31,
 		];
 		if ($month < 1 || $month > 12) {
@@ -678,7 +688,9 @@ class Date extends Temporal
 			self::UNIT_QUARTER => $this->add(0, $n_units * self::MONTHS_PER_QUARTER),
 			self::UNIT_YEAR => $this->add($n_units),
 			default => throw new ParameterException('{method)({n_units}, {units}): Invalid unit', [
-				'method' => __METHOD__, 'n_units' => $n_units, 'units' => $units,
+				'method'  => __METHOD__,
+				'n_units' => $n_units,
+				'units'   => $units,
 			]),
 		};
 	}
@@ -689,8 +701,18 @@ class Date extends Temporal
 	 * @var array
 	 */
 	private static array $months = [
-		1 => 'January', 2 => 'February', 3 => 'March', 4 => 'April', 5 => 'May', 6 => 'June', 7 => 'July',
-		8 => 'August', 9 => 'September', 10 => 'October', 11 => 'November', 12 => 'December',
+		1  => 'January',
+		2  => 'February',
+		3  => 'March',
+		4  => 'April',
+		5  => 'May',
+		6  => 'June',
+		7  => 'July',
+		8  => 'August',
+		9  => 'September',
+		10 => 'October',
+		11 => 'November',
+		12 => 'December',
 	];
 
 	/**
@@ -706,7 +728,13 @@ class Date extends Temporal
 	 * @var array
 	 */
 	private static array $weekday_names = [
-		0 => 'Sunday', 1 => 'Monday', 2 => 'Tuesday', 3 => 'Wednesday', 4 => 'Thursday', 5 => 'Friday', 6 => 'Saturday',
+		0 => 'Sunday',
+		1 => 'Monday',
+		2 => 'Tuesday',
+		3 => 'Wednesday',
+		4 => 'Thursday',
+		5 => 'Friday',
+		6 => 'Saturday',
 	];
 
 	/**
@@ -961,7 +989,11 @@ class Date extends Temporal
 	 */
 	public function setGregorian(int $set): self
 	{
-		[$month, $day, $year] = explode('/', jdtogregorian($set + self::_gregorian_offset()), 3);
+		[
+			$month,
+			$day,
+			$year,
+		] = explode('/', jdtogregorian($set + self::_gregorian_offset()), 3);
 
 		try {
 			return $this->ymd(intval($year), intval($month), intval($day));

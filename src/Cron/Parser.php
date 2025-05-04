@@ -10,7 +10,7 @@ namespace zesk\Cron;
 use zesk\ArrayTools;
 use zesk\Date;
 use zesk\Exception\ParseException;
-use zesk\Exception\SemanticsException;
+use zesk\Exception\ProtocolException;
 use zesk\HTML;
 use zesk\Locale\Locale;
 use zesk\StringTools;
@@ -155,7 +155,7 @@ class Parser
 	 *
 	 * @param Timestamp $now
 	 * @return Timestamp
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 */
 	public function compute_next(Timestamp $now): Timestamp
 	{
@@ -292,7 +292,7 @@ class Parser
 				}
 			}
 			if ($loops > 100) {
-				throw new SemanticsException('Infinite loop in Schedule next');
+				throw new ProtocolException('Infinite loop in Schedule next');
 			}
 		}
 		return $next;

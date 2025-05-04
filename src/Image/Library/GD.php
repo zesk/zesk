@@ -9,7 +9,7 @@ namespace zesk\Image\Library;
 use zesk\ArrayTools;
 use zesk\CSS;
 use zesk\Exception\KeyNotFound;
-use zesk\Exception\SemanticsException;
+use zesk\Exception\ProtocolException;
 use zesk\Exception\SyntaxException;
 use zesk\Image\Library;
 
@@ -26,7 +26,10 @@ use zesk\MIME;
 class GD extends Library
 {
 	private static array $output_map = [
-		'png' => 'png', 'gif' => 'gif', 'jpeg' => 'jpeg', 'jpg' => 'jpeg',
+		'png'  => 'png',
+		'gif'  => 'gif',
+		'jpeg' => 'jpeg',
+		'jpg'  => 'jpeg',
 	];
 
 	/**
@@ -145,20 +148,21 @@ class GD extends Library
 	 * @param string $data
 	 * @param array $options
 	 * @return string
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 * @throws ParseException
 	 */
 	public function imageScaleData(string $data, array $options): string
 	{
 		if (empty($data)) {
-			throw new SemanticsException('{method} passed an empty string', [
+			throw new ProtocolException('{method} passed an empty string', [
 				'method' => __METHOD__,
 			]);
 		}
 		$src = @imagecreatefromstring($data);
 		if ($src) {
-			throw new SemanticsException('{method} passed an invalid string of {n} bytes', [
-				'n' => strlen($data), 'method' => __METHOD__,
+			throw new ProtocolException('{method} passed an invalid string of {n} bytes', [
+				'n'      => strlen($data),
+				'method' => __METHOD__,
 			]);
 		}
 		return $this->_image_scale_resource($src, '', $options);
@@ -172,7 +176,7 @@ class GD extends Library
 	 * @return bool
 	 * @throws FileNotFound
 	 * @throws ParseException
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 * @see Image_Library::imageScale()
 	 */
 	public function imageScale(string $source, string $dest, array $options): bool
@@ -187,7 +191,7 @@ class GD extends Library
 	 * @param string $source image file path to load
 	 * @return GdImage
 	 * @throws FileNotFound
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 */
 	private function _imageLoad(string $source): GdImage
 	{
@@ -197,8 +201,10 @@ class GD extends Library
 		}
 		$src = imagecreatefromstring($contents);
 		if (!$src instanceof GdImage) {
-			throw new SemanticsException('{method} passed an invalid string from {source} of {n} bytes', [
-				'n' => strlen($contents), 'source' => $source, 'method' => __METHOD__,
+			throw new ProtocolException('{method} passed an invalid string from {source} of {n} bytes', [
+				'n'      => strlen($contents),
+				'source' => $source,
+				'method' => __METHOD__,
 			]);
 		}
 		return $src;
@@ -239,7 +245,10 @@ class GD extends Library
 			default => $method($dst, null),
 		};
 		if ($result === false) {
-			throw new ParseException('{method} returned false {dest}', ['method' => $method, 'dest' => $dest]);
+			throw new ParseException('{method} returned false {dest}', [
+				'method' => $method,
+				'dest'   => $dest,
+			]);
 		}
 	}
 
@@ -290,13 +299,19 @@ class GD extends Library
 	 */
 	private function parseColor(array|string $value): array
 	{
-		$defaultColor = [0, 0, 0, ];
+		$defaultColor = [
+			0,
+			0,
+			0,
+		];
 		if (is_array($value)) {
 			if (ArrayTools::isList($value)) {
 				return array_slice(array_values($value), 0, 3);
 			}
 			return [
-				$value['r'] ?? 0, $value['g'] ?? 0, $value['b'] ?? 0,
+				$value['r'] ?? 0,
+				$value['g'] ?? 0,
+				$value['b'] ?? 0,
 			];
 		} else {
 			try {
@@ -309,7 +324,7 @@ class GD extends Library
 
 	/**
 	 * @throws FileNotFound
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 * {@inheritDoc}
 	 * @see Image_Library::imageRotate()
 	 */
@@ -319,7 +334,11 @@ class GD extends Library
 		$backgroundColor = $options['background_color'] ?? 0;
 		$gdBackgroundColor = 0;
 		if ($backgroundColor) {
-			[$r, $g, $b] = $this->parseColor($backgroundColor);
+			[
+				$r,
+				$g,
+				$b,
+			] = $this->parseColor($backgroundColor);
 			$gdBackgroundColor = imagecolorallocate($source_resource, $r, $g, $b);
 		}
 		$rotate = imagerotate($source_resource, $degrees, $gdBackgroundColor);

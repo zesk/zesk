@@ -11,7 +11,7 @@
 		"ext-posix": "*",
 		"ext-pcntl": "*",
 		"ext-intl": "*",
-		"doctrine/orm": "^2"
+		"doctrine/orm": "^3"
 	},
 	"suggest": {
 		"ext-xdebug": "*",
@@ -28,11 +28,10 @@
 	"authors": [
 		{
 			"name": "Kent Davidson",
-			"email": "getsupport@marketacumen.com"
+			"email": "projects@marketacumen.com"
 		}
 	],
-	"scripts": {
-	},
+	"scripts": {},
 	"keywords": [
 		"zesk",
 		"application",
@@ -55,5 +54,6 @@
 	],
 	"type": "library",
 	"license": "MIT",
-	"homepage": "https://php.zesk.com"
+	"homepage": "https://php.zesk.com",
+	"version": "0.32.0"
 }

@@ -13,7 +13,7 @@ use zesk\Exception\FileNotFound;
 use zesk\Exception\FileParseException;
 use zesk\Exception\FilePermission;
 use zesk\Exception\KeyNotFound;
-use zesk\Exception\SemanticsException;
+use zesk\Exception\ProtocolException;
 use zesk\Timestamp;
 use zesk\Types;
 
@@ -104,12 +104,12 @@ class MapReader extends Reader
 	 * @param array $defaultMap
 	 * @return MapReader
 	 * @throws KeyNotFound
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 */
 	public function addReadMap(string $name, array $map, array $mapTypes = [], array $defaultMap = []): self
 	{
 		if (!count($this->Headers)) {
-			throw new SemanticsException('Must have headers before setting map');
+			throw new ProtocolException('Must have headers before setting map');
 		}
 		$this->headers();
 		$mapGroup = [];
@@ -145,12 +145,12 @@ class MapReader extends Reader
 	 * @param string $name
 	 * @return array
 	 * @throws KeyNotFound
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 */
 	public function readMap(string $name): array
 	{
 		if (!count($this->Headers)) {
-			throw new SemanticsException('Must have headers before setting map');
+			throw new ProtocolException('Must have headers before setting map');
 		}
 		return $this->_getReadMap($name);
 	}

@@ -366,16 +366,16 @@ class DirectoryTest extends TestCase
 		] = testdir::dump();
 		//		Debug::dump($files);
 
-		$this->assertTrue(in_array($root . 'autoload.php', $files));
-		$this->assertTrue(in_array($root . 'LICENSE.md', $files));
-		$this->assertFalse(in_array($root . 'LICENSE.md', $dirs));
+		$this->assertInArray($root . 'autoload.php', $files);
+		$this->assertInArray($root . 'LICENSE.md', $files);
+		$this->assertNotInArray($root . 'LICENSE.md', $dirs);
 
-		$this->assertTrue(in_array($root . 'src/zesk', $dirs));
-		$this->assertFalse(in_array($root . '.', $dirs));
-		$this->assertFalse(in_array($root . '..', $dirs));
-		$this->assertFalse(in_array($root . '.', $files));
-		$this->assertFalse(in_array($root . '..', $files));
-		$this->assertTrue(in_array(__FILE__, $files));
+		$this->assertInArray($root . 'src/Exception', $dirs);
+		$this->assertNotInArray($root . '.', $dirs);
+		$this->assertNotInArray($root . '..', $dirs);
+		$this->assertNotInArray($root . '.', $files);
+		$this->assertNotInArray($root . '..', $files);
+		$this->assertInArray(__FILE__, $files);
 	}
 
 	public function test_isEmpty(): void

@@ -13,7 +13,7 @@ use zesk\Application\Hooks;
 use zesk\Exception\FileNotFound;
 use zesk\Exception\FilePermission;
 use zesk\Exception\KeyNotFound;
-use zesk\Exception\SemanticsException;
+use zesk\Exception\ProtocolException;
 use zesk\JSON;
 use zesk\Types;
 
@@ -137,12 +137,12 @@ class Writer extends Base
 	 * @param array|null $defaultMap
 	 * @return self
 	 * @throws KeyNotFound
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 */
 	public function add_object_map(string $name, array $map, array $defaultMap = null): self
 	{
 		if (!count($this->HeadersToIndex)) {
-			throw new SemanticsException("Need to set headers prior to setting a translation map ($name)");
+			throw new ProtocolException("Need to set headers prior to setting a translation map ($name)");
 		}
 		$this->headers();
 		$mapGroup = [];
@@ -211,12 +211,12 @@ class Writer extends Base
 	 *            A list of values to map to and from upon writing
 	 * @return self
 	 * @throws KeyNotFound
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 */
 	public function add_translation_map(array|string $column_names, array $map): self
 	{
 		if (!count($this->HeadersToIndex)) {
-			throw new SemanticsException("Need to set headers prior to setting a translation map ($column_names)");
+			throw new ProtocolException("Need to set headers prior to setting a translation map ($column_names)");
 		}
 		$column_names = Types::toList($column_names);
 		foreach ($column_names as $column_name) {
@@ -328,13 +328,13 @@ class Writer extends Base
 
 	/**
 	 * @return void
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 */
 	public function writeRow(): void
 	{
 		$this->_check_file();
 		if (!count($this->Row)) {
-			throw new SemanticsException('CSV_Writer:writeRow: Must set row values first');
+			throw new ProtocolException('CSV_Writer:writeRow: Must set row values first');
 		}
 		$headers = $this->headers();
 		if (!$this->WroteHeaders && $this->optionBool('write_header', true)) {

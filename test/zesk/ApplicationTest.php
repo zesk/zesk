@@ -24,7 +24,7 @@ use zesk\Exception\FilePermission;
 use zesk\Exception\NotFoundException;
 use zesk\Exception\ParameterException;
 use zesk\Exception\ParseException;
-use zesk\Exception\SemanticsException;
+use zesk\Exception\ProtocolException;
 use zesk\Exception\UnsupportedException;
 
 class ACMETest
@@ -72,14 +72,14 @@ class ApplicationTest extends TestApplicationUnitTest
 
 	public function test_missing_request(): void
 	{
-		$this->expectException(SemanticsException::class);
+		$this->expectException(ProtocolException::class);
 
 		$this->testApplication->request();
 	}
 
 	public function test_invalidPopRequest(): void
 	{
-		$this->expectException(SemanticsException::class);
+		$this->expectException(ProtocolException::class);
 		$request = $this->testApplication->requestFactory();
 		$this->assertInstanceOf(Request::class, $request);
 		$this->testApplication->popRequest($request);
@@ -137,11 +137,11 @@ class ApplicationTest extends TestApplicationUnitTest
 
 	/**
 	 * @return void
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 */
 	public function test_noCommand(): void
 	{
-		$this->expectException(SemanticsException::class);
+		$this->expectException(ProtocolException::class);
 		$this->testApplication->command();
 	}
 
@@ -283,7 +283,7 @@ class ApplicationTest extends TestApplicationUnitTest
 				'route',
 			],
 			'id'      => 'dumpRoute',
-			'_source' => '/zesk/test/zesk/TestApplication.router',
+			'_source' => $this->application->path('/test/zesk/TestApplication.router'),
 			'weight'  => 0.007,
 			'class'   => 'zesk\\Route\\Content',
 		];
@@ -314,7 +314,7 @@ class ApplicationTest extends TestApplicationUnitTest
 		$newApplication->setOption('preventMaintenance', true);
 		$newApplication->setMaintenance(false);
 		$this->assertFalse($newApplication->maintenance());
-		$this->expectException(SemanticsException::class);
+		$this->expectException(ProtocolException::class);
 		$newApplication->setMaintenance(true);
 	}
 
@@ -331,7 +331,7 @@ class ApplicationTest extends TestApplicationUnitTest
 		$newApplication->setOption('preventMaintenance', 'throw');
 		$newApplication->setMaintenance(false);
 		$this->assertFalse($newApplication->maintenance());
-		$this->expectException(SemanticsException::class);
+		$this->expectException(ProtocolException::class);
 		$newApplication->setMaintenance(true);
 	}
 

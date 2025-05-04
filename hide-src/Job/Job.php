@@ -22,7 +22,7 @@ use zesk\Exception\KeyNotFound;
 use zesk\Exception\NotFoundException;
 use zesk\Exception\ParameterException;
 use zesk\Exception\ParseException;
-use zesk\Exception\SemanticsException;
+use zesk\Exception\ProtocolException;
 use zesk\Interface\ProgressStack;
 use zesk\Interface\SystemProcess;
 use zesk\Job\Class\Class_Job;
@@ -145,7 +145,7 @@ class Job extends ORMBase implements SystemProcess, ProgressStack
 	 * @throws ORMNotFound
 	 * @throws ParameterException
 	 * @throws ParseException
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 * @throws StoreException
 	 * @see Modue_Job::daemon
 	 */
@@ -153,7 +153,7 @@ class Job extends ORMBase implements SystemProcess, ProgressStack
 	{
 		$hookCall = StringTools::pair($hook, '::');
 		if (!is_callable($hookCall)) {
-			throw new SemanticsException('{hook} is not callable', [
+			throw new ProtocolException('{hook} is not callable', [
 				'hook' => Debug::dump($hook),
 			]);
 		}
@@ -185,7 +185,7 @@ class Job extends ORMBase implements SystemProcess, ProgressStack
 	 * @throws ORMNotFound
 	 * @throws ParameterException
 	 * @throws ParseException
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 * @throws Throwable
 	 */
 	public static function mockRun(Application $application, int $id, array $options = []): SystemProcess
@@ -300,7 +300,7 @@ class Job extends ORMBase implements SystemProcess, ProgressStack
 	 * @throws ORMNotFound
 	 * @throws ParameterException
 	 * @throws ParseException
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 * @throws StoreException
 	 */
 	public function start(null|string|int|Timestamp $when = null): self
@@ -333,7 +333,7 @@ class Job extends ORMBase implements SystemProcess, ProgressStack
 	 * @throws ORMNotFound
 	 * @throws ParameterException
 	 * @throws ParseException
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 * @throws Throwable
 	 */
 	public static function executeJobs(SystemProcess $process): int
@@ -446,7 +446,7 @@ class Job extends ORMBase implements SystemProcess, ProgressStack
 	 * @throws NoResults
 	 * @throws TableNotFound
 	 * @throws KeyNotFound
-	 * @throws SemanticsException|SQLException
+	 * @throws ProtocolException|SQLException
 	 */
 	private static function cleanDeadProcessIDs(Application $application, Server $server): void
 	{
@@ -474,7 +474,7 @@ class Job extends ORMBase implements SystemProcess, ProgressStack
 	 * @throws ClassNotFound
 	 * @throws KeyNotFound
 	 * @throws ORMEmpty
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 * @throws Throwable
 	 */
 	public function execute(SystemProcess $process): void
@@ -535,7 +535,7 @@ class Job extends ORMBase implements SystemProcess, ProgressStack
 	 * @return void
 	 * @throws InterruptException
 	 * @throws ORMEmpty
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 * @throws Duplicate
 	 * @throws NoResults
 	 * @throws TableNotFound
@@ -576,7 +576,7 @@ class Job extends ORMBase implements SystemProcess, ProgressStack
 	 * @throws ORMNotFound
 	 * @throws ParameterException
 	 * @throws ParseException
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 * @throws StoreException
 	 */
 	public function setCompleted(int $exitCode): self
@@ -620,7 +620,7 @@ class Job extends ORMBase implements SystemProcess, ProgressStack
 	 * @throws ORMNotFound
 	 * @throws ParameterException
 	 * @throws ParseException
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 * @throws StoreException
 	 * @throws SQLException
 	 */
@@ -677,7 +677,7 @@ class Job extends ORMBase implements SystemProcess, ProgressStack
 	 * @throws ORMNotFound
 	 * @throws ParameterException
 	 * @throws ParseException
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 * @throws StoreException
 	 */
 	public function died(int $exitCode = 255): self
@@ -695,7 +695,7 @@ class Job extends ORMBase implements SystemProcess, ProgressStack
 	 * @throws TableNotFound
 	 * @throws KeyNotFound
 	 * @throws ORMEmpty
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 */
 	private function release(): void
 	{

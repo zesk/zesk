@@ -9,14 +9,14 @@ declare(strict_types=1);
 
 namespace test\zesk;
 
-use zesk\Exception\SemanticsException;
+use zesk\Exception\ProtocolException;
 use zesk\PHPUnit\ExceptionTestCase;
 
 class SemanticsTest extends ExceptionTestCase
 {
 	public function test_basics(): void
 	{
-		$exception = new SemanticsException();
+		$exception = new ProtocolException();
 		$this->assertThrowable($exception);
 	}
 }

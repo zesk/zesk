@@ -10,7 +10,7 @@ namespace test\zesk;
 use stdClass;
 
 use zesk\ArrayTools;
-use zesk\Exception\SemanticsException;
+use zesk\Exception\ProtocolException;
 use zesk\StringTools;
 use zesk\Types;
 
@@ -113,7 +113,7 @@ class ArrayToolsTest extends TestCase
 	 * @param array $expected
 	 * @param array $array
 	 * @return void
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 */
 	public function test_simplify(array $expected, array $array): void
 	{

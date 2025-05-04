@@ -9,6 +9,8 @@ declare(strict_types=1);
 
 namespace zesk;
 
+use zesk\Exception\SemanticsException;
+
 /**
  * The Options object is universally used to tag various objects in the system with optional
  * configuration settings and values.
@@ -238,10 +240,19 @@ class Options
 	 * @param string $name
 	 * @param mixed|null $default
 	 * @return mixed
+	 * @throws SemanticsException
 	 */
 	public function optionString(string $name, string $default = ''): string
 	{
-		return strval($this->options[self::_optionKey($name)] ?? $default);
+		$value = $this->options[self::_optionKey($name)] ?? $default;
+		if (is_array($value)) {
+			throw new SemanticsException('Fetching key {name} as a string from {class}: {rawValue}', [
+				'name'     => $name,
+				'class'    => self::class,
+				'rawValue' => PHP::dump($value),
+			]);
+		}
+		return strval($value);
 	}
 
 	/**
@@ -270,7 +281,8 @@ class Options
 	final protected static function _optionKey(string|int $name): string
 	{
 		return strtr(trim(strval($name)), [
-			'-' => self::CHARACTER_OPTION_SPACE, '_' => self::CHARACTER_OPTION_SPACE,
+			'-' => self::CHARACTER_OPTION_SPACE,
+			'_' => self::CHARACTER_OPTION_SPACE,
 			' ' => self::CHARACTER_OPTION_SPACE,
 		]);
 	}

@@ -20,7 +20,7 @@ use zesk\Exception\FilePermission;
 use zesk\File;
 use zesk\JSON;
 use zesk\Exception\ParseException;
-use zesk\Exception\SemanticsException;
+use zesk\Exception\ProtocolException;
 use zesk\Types;
 use zesk\Version as ZeskVersion;
 
@@ -45,20 +45,33 @@ class Version extends SimpleCommand
 	/**
 	 * @var array|string[]
 	 */
-	protected array $shortcuts = ['version', 'v'];
+	protected array $shortcuts = [
+		'version',
+		'v',
+	];
 
 	protected array $option_types = [
-		'tag' => 'string', 'zesk' => 'boolean', 'major' => 'boolean', 'minor' => 'boolean', 'maintenance' => 'boolean',
-		'patch' => 'boolean', 'decrement' => 'boolean', 'zero' => 'boolean', 'init' => 'boolean',
+		'tag'         => 'string',
+		'zesk'        => 'boolean',
+		'major'       => 'boolean',
+		'minor'       => 'boolean',
+		'maintenance' => 'boolean',
+		'patch'       => 'boolean',
+		'decrement'   => 'boolean',
+		'zero'        => 'boolean',
+		'init'        => 'boolean',
 	];
 
 	protected array $option_help = [
-		'tag' => 'Set tag to this value', 'major' => 'Bump major version (cascades)',
-		'minor' => 'Bump minor version (cascades)', 'maintenance' => 'Bump maintenance version',
-		'patch' => 'Bump patch version', 'decrement' => 'Decrement version instead of increasing version (cascades)',
-		'zero' => 'Set version component to zero instead (cascades)',
-		'init' => 'Write default etc/version-schema.json for the application',
-		'zesk' => 'Ignore all other options and output the version of Zesk (not application version)',
+		'tag'         => 'Set tag to this value',
+		'major'       => 'Bump major version (cascades)',
+		'minor'       => 'Bump minor version (cascades)',
+		'maintenance' => 'Bump maintenance version',
+		'patch'       => 'Bump patch version',
+		'decrement'   => 'Decrement version instead of increasing version (cascades)',
+		'zero'        => 'Set version component to zero instead (cascades)',
+		'init'        => 'Write default etc/version-schema.json for the application',
+		'zesk'        => 'Ignore all other options and output the version of Zesk (not application version)',
 	];
 
 	/**
@@ -114,7 +127,7 @@ class Version extends SimpleCommand
 	 * @return int
 	 * @throws FileNotFound
 	 * @throws FilePermission
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 */
 	public function run(): int
 	{
@@ -138,7 +151,7 @@ class Version extends SimpleCommand
 
 		try {
 			$parser = $this->versionParser($schema['parser'] ?? []);
-		} catch (SemanticsException) {
+		} catch (ProtocolException) {
 			$this->error('Unable to geneate parser for version');
 			return self::EXIT_CODE_INVALID_PARSER;
 		}
@@ -157,7 +170,8 @@ class Version extends SimpleCommand
 			$version_structure = $parser($version_raw);
 		} catch (Throwable $e) {
 			$this->error('Error parsing version {version}: {message}', [
-				'message' => $e->getMessage(), 'version' => $version_raw,
+				'message' => $e->getMessage(),
+				'version' => $version_raw,
 			]);
 			return self::EXIT_CODE_PARSER_FAILED;
 		}
@@ -178,7 +192,10 @@ class Version extends SimpleCommand
 		$reset = false;
 		$flags = [];
 		$tokens = $schema['tokens'] ?? [
-			'major', 'minor', 'maintenance', 'patch',
+			'major',
+			'minor',
+			'maintenance',
+			'patch',
 		];
 		foreach ($tokens as $token) {
 			if ($this->optionBool($token)) {
@@ -199,7 +216,8 @@ class Version extends SimpleCommand
 			$new_version = $generator($version_structure);
 		} catch (Throwable $e) {
 			$this->error('Error generating new version from structure {message} ({version_structure})', [
-				'message' => $e->getMessage(), 'version_structure' => $version_structure,
+				'message'           => $e->getMessage(),
+				'version_structure' => $version_structure,
 			]);
 		}
 		if ($changed) {
@@ -216,13 +234,16 @@ class Version extends SimpleCommand
 			$new_version_raw = $reader($schema);
 			if ($new_version_raw === $version_raw) {
 				$this->error('Version number {version} is unchanged despite {flags}', [
-					'version' => $version_structure, 'flags' => $flags,
+					'version' => $version_structure,
+					'flags'   => $flags,
 				]);
 				return self::EXIT_CODE_VERSION_UPDATE_UNCHANGED;
 			} else {
 				$params = [
-					'previousVersion' => $previousVersion, 'version' => $new_version_raw, 'command' => $this,
-					'application' => $this->application,
+					'previousVersion' => $previousVersion,
+					'version'         => $new_version_raw,
+					'command'         => $this,
+					'application'     => $this->application,
 				];
 				$this->invokeHooks(self::HOOK_UPDATED, [$params]);
 				$this->info('Updated version from {previousVersion} to {version}', $params);
@@ -257,14 +278,17 @@ class Version extends SimpleCommand
 		}
 		$version_file_path = 'etc/version.json';
 		$json_path = [
-			Application::class, Application::OPTION_VERSION,
+			Application::class,
+			Application::OPTION_VERSION,
 		];
 
 		try {
 			File::put($schema_file_path, JSON::encodePretty([
-				'file' => $version_file_path, 'reader' => [
+				'file'   => $version_file_path,
+				'reader' => [
 					'json' => $json_path,
-				], 'writer' => [
+				],
+				'writer' => [
 					'json' => $json_path,
 				],
 			]));
@@ -300,19 +324,24 @@ class Version extends SimpleCommand
 	 *
 	 * @param array $__parser
 	 * @return Closure
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 */
 	private function versionParser(array $__parser): Closure
 	{
 		$pattern = $__parser['pattern'] ?? '/([0-9]+)\\.([0-9]+)\\.([0-9]+)(?:\\.([0-9]+))?([a-z][a-z0-9]*)?/i';
 		$matches = $__parser['matches'] ?? [
-			'version', 'major', 'minor', 'maintenance', 'patch', 'tag',
+			'version',
+			'major',
+			'minor',
+			'maintenance',
+			'patch',
+			'tag',
 		];
 		if (!$pattern) {
-			throw new SemanticsException('Missing pattern');
+			throw new ProtocolException('Missing pattern');
 		}
 		if (!is_array($matches)) {
-			throw new SemanticsException('parser should have `pattern` and `matches` set, `matches` is missing');
+			throw new ProtocolException('parser should have `pattern` and `matches` set, `matches` is missing');
 		}
 		return function ($content) use ($pattern, $matches) {
 			$found = [];
@@ -336,7 +365,8 @@ class Version extends SimpleCommand
 	{
 		$json = $__reader['json'] ?? null;
 		$path = $__reader['path'] ?? [
-			Application::class, 'version',
+			Application::class,
+			'version',
 		];
 		$application_root = $this->application->path();
 		if ($json) {
@@ -360,7 +390,7 @@ class Version extends SimpleCommand
 	/**
 	 * @param array $__generator
 	 * @return Closure
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 */
 	private function versionGenerator(array $__generator): Closure
 	{
@@ -369,7 +399,7 @@ class Version extends SimpleCommand
 			return fn (array $version_structure): string|array => ArrayTools::map($map, $version_structure);
 		}
 
-		throw new SemanticsException('{schema_path} `generator` must have key `map`', [
+		throw new ProtocolException('{schema_path} `generator` must have key `map`', [
 			'schema_path' => $this->versionSchemaPath(),
 		]);
 	}

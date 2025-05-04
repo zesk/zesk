@@ -34,7 +34,7 @@ use zesk\Exception\ConfigurationException;
 use zesk\Exception\NotFoundException;
 use zesk\Exception\ParameterException;
 use zesk\Exception\ParseException;
-use zesk\Exception\SemanticsException;
+use zesk\Exception\ProtocolException;
 use zesk\Exception\UnsupportedException;
 use zesk\File;
 use zesk\JSON;
@@ -70,8 +70,8 @@ World: false';
 	private static function commandTestArguments(): array
 	{
 		$versionInitLines = [
-			'INFO: wrote /zesk/cache/testApp/etc/version-schema.json',
-			'INFO: wrote /zesk/cache/testApp/etc/version.json',
+			'INFO: wrote /var/www/app/cache/testApp/etc/version-schema.json',
+			'INFO: wrote /var/www/app/cache/testApp/etc/version.json',
 			'',
 		];
 		return [
@@ -108,7 +108,7 @@ World: false';
 						'clear',
 					],
 					0,
-					"NOTICE: /zesk/cache/testApp/cache/ is empty.\n",
+					"NOTICE: /var/www/app/cache/testApp/cache/ is empty.\n",
 				],
 			],
 			Version::class       => [
@@ -306,24 +306,24 @@ World: false';
 				[
 					[],
 					0,
-					"/zesk/\n",
+					"/var/www/app//\n",
 				],
 			],
 			Configuration::class => [
 				[
 					['--loaded'],
 					0,
-					'#/zesk/test/etc/test.json#',
+					'#/var/www/app/test/etc/test.json#',
 				],
 				[
 					['--not-loaded'],
 					0,
-					'#/zesk/test/etc/nope.json#',
+					'#/var/www/app/test/etc/nope.json#',
 				],
 				[
 					['--skipped'],
 					0,
-					'#/zesk/test/etc/bad.json#',
+					'#/var/www/app/test/etc/bad.json#',
 				],
 				[
 					['--externals'],
@@ -371,7 +371,7 @@ World: false';
 				[
 					[],
 					0,
-					"#/zesk/bin/zesk-command\.php#",
+					"#/var/www/app/bin/zesk-command\.php#",
 				],
 			],
 			Help::class          => [
@@ -505,7 +505,7 @@ World: false';
 	 * @throws NotFoundException
 	 * @throws ParameterException
 	 * @throws ParseException
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 * @throws UnsupportedException
 	 * @dataProvider dataIncludeClasses
 	 */

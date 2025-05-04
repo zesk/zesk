@@ -11,7 +11,7 @@ namespace zesk\World;
 
 use zesk\Doctrine\Module as DoctrineModule;
 use zesk\Exception\KeyNotFound;
-use zesk\Exception\SemanticsException;
+use zesk\Exception\ProtocolException;
 use zesk\HookMethod;
 use zesk\Module as BaseModule;
 
@@ -52,7 +52,7 @@ class Module extends BaseModule
 	/**
 	 * @return void
 	 * @throws KeyNotFound
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 * @see self::schemaWasUpdated()
 	 */
 	#[HookMethod(handles: DoctrineModule::HOOK_SCHEMA_UPDATED)]

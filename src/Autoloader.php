@@ -12,7 +12,7 @@ namespace zesk;
 use Closure;
 use zesk\Exception\ClassNotFound;
 use zesk\Exception\DirectoryNotFound;
-use zesk\Exception\SemanticsException;
+use zesk\Exception\ProtocolException;
 
 /**
  * Handles autoloader for Zesk
@@ -153,7 +153,7 @@ class Autoloader
 	 *
 	 * @param string $class
 	 * @return boolean
-	 * @throws ClassNotFound|SemanticsException
+	 * @throws ClassNotFound|ProtocolException
 	 */
 	public function php_autoloader(string $class): bool
 	{
@@ -177,7 +177,7 @@ class Autoloader
 	 * @param boolean $no_exception
 	 *            Do not throw an exception if class is not found
 	 * @return string
-	 * @throws SemanticsException|ClassNotFound
+	 * @throws ProtocolException|ClassNotFound
 	 * @see ZESK_NO_CONFLICT
 	 * @see $this->no_exception
 	 */
@@ -191,9 +191,10 @@ class Autoloader
 			}
 
 			throw new ClassNotFound($class, "Class {class} called from {calling_function} invoked from:\n{backtrace}\n{tried_path}", [
-				'class' => $class, 'calling_function' => Kernel::callingFunction(2),
-				'tried_path' => Text::indent(implode("\n", $tried_path)),
-				'backtrace' => Text::indent(Kernel::backtrace()),
+				'class'            => $class,
+				'calling_function' => Kernel::callingFunction(2),
+				'tried_path'       => Text::indent(implode("\n", $tried_path)),
+				'backtrace'        => Text::indent(Kernel::backtrace()),
 			]);
 		}
 		if ($this->debug) {
@@ -203,7 +204,7 @@ class Autoloader
 		if ($this->debug) {
 			$content = ob_get_clean();
 			if ($content !== '') {
-				throw new SemanticsException('Include file {include} should not output text', [
+				throw new ProtocolException('Include file {include} should not output text', [
 					'include' => $include,
 				]);
 			}
@@ -348,7 +349,7 @@ class Autoloader
 		}
 		$options += [
 			self::OPTION_CLASS_PREFIX => self::OPTION_CLASS_PREFIX_DEFAULT,
-			self::OPTION_LOWER => self::OPTION_LOWER_DEFAULT,
+			self::OPTION_LOWER        => self::OPTION_LOWER_DEFAULT,
 		];
 		if ($options[self::OPTION_FIRST] ?? null) {
 			$this->first[$add] = $options;

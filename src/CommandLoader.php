@@ -18,7 +18,7 @@ use zesk\Exception\FileNotFound;
 use zesk\Exception\NotFoundException;
 use zesk\Exception\ParameterException;
 use zesk\Exception\ParseException;
-use zesk\Exception\SemanticsException;
+use zesk\Exception\ProtocolException;
 use zesk\Exception\UnsupportedException;
 use zesk\Locale\Locale;
 use const STDERR;
@@ -156,7 +156,7 @@ class CommandLoader
 	 * @throws ConfigurationException
 	 * @throws ExitedException
 	 * @throws ParameterException
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 * @throws UnsupportedException
 	 */
 	public function run(): int
@@ -235,7 +235,7 @@ class CommandLoader
 	/**
 	 * @return int
 	 * @throws ExitedException
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 */
 	private function bootstrapApplication(): int
 	{
@@ -372,11 +372,16 @@ class CommandLoader
 			} elseif (is_dir($path)) {
 				try {
 					$commands = Directory::listRecursive($path, [
-						Directory::LIST_RULE_FILE => [
-							"#\.php$#" => true, false,
-						], Directory::LIST_RULE_DIRECTORY_WALK => [
-							"#/\.#" => false, true,
-						], Directory::LIST_RULE_DIRECTORY => false, Directory::LIST_ADD_PATH => true,
+						Directory::LIST_RULE_FILE           => [
+							"#\.php$#" => true,
+							false,
+						],
+						Directory::LIST_RULE_DIRECTORY_WALK => [
+							"#/\.#" => false,
+							true,
+						],
+						Directory::LIST_RULE_DIRECTORY      => false,
+						Directory::LIST_ADD_PATH            => true,
 					]);
 					foreach ($commands as $commandInclude) {
 						try {
@@ -421,13 +426,15 @@ class CommandLoader
 				if (array_key_exists($shortcut, $allShortcuts)) {
 					if (str_starts_with($commandClass, __NAMESPACE__ . '\\')) {
 						$this->application->info('Shortcut {shortcut} for {previousClass} overridden by handler {class}', [
-							'shortcut' => $shortcut, 'class' => $commandClass,
+							'shortcut'      => $shortcut,
+							'class'         => $commandClass,
 							'previousClass' => $allShortcuts[$shortcut],
 						]);
 						$allShortcuts[$shortcut] = $commandClass;
 					} else {
 						$this->application->debug('Shortcut {shortcut} for {class} will not override existing handler {currentClass}', [
-							'shortcut' => $shortcut, 'class' => $commandClass,
+							'shortcut'     => $shortcut,
+							'class'        => $commandClass,
 							'currentClass' => $allShortcuts[$shortcut],
 						]);
 					}
@@ -456,7 +463,8 @@ class CommandLoader
 	{
 		$commands = $this->collectCommandShortcuts();
 		$exceptionArgs = [
-			'command' => $shortcut, 'commands' => array_keys($commands),
+			'command'  => $shortcut,
+			'commands' => array_keys($commands),
 		];
 		if (!array_key_exists($shortcut, $commands)) {
 			throw new NotFoundException('Command {command} not found', $exceptionArgs);
@@ -490,7 +498,7 @@ class CommandLoader
 
 		try {
 			$this->debug('Remaining class arguments: ' . JSON::encode($args));
-		} catch (SemanticsException) {
+		} catch (ProtocolException) {
 			// JSON failed, bah
 		}
 		if ($result !== 0) {
@@ -573,10 +581,14 @@ class CommandLoader
 	{
 		global $_ZESK;
 		$root_files = null;
-		$keys = ['ZESK_APPLICATION_PATTERNS', 'zesk_root_files'];
+		$keys = [
+			'ZESK_APPLICATION_PATTERNS',
+			'zesk_root_files',
+		];
 		foreach ($keys as $key) {
 			foreach ([
-				$_ZESK, $_SERVER,
+				$_ZESK,
+				$_SERVER,
 			] as $super) {
 				if (!is_array($super)) {
 					continue;
@@ -662,7 +674,7 @@ class CommandLoader
 
 			$this->commands = $this->collectCommandShortcuts();
 			return 0;
-		} catch (SemanticsException $e) {
+		} catch (ProtocolException $e) {
 			throw new ExitedException('No application', [], 0, $e);
 		}
 	}
@@ -692,8 +704,12 @@ class CommandLoader
 			$this->usage('--set missing argument');
 		}
 
-		[$key, $value] = explode('=', $pair, 2) + [
-			null, true,
+		[
+			$key,
+			$value,
+		] = explode('=', $pair, 2) + [
+			null,
+			true,
 		];
 		if ($key === 'debug') {
 			$this->debug = true;
@@ -772,8 +788,12 @@ class CommandLoader
 		if ($arg === null) {
 			$this->usage('--define missing argument');
 		}
-		[$name, $value] = explode('=', $arg, 2) + [
-			$arg, true,
+		[
+			$name,
+			$value,
+		] = explode('=', $arg, 2) + [
+			$arg,
+			true,
 		];
 		if (!defined($name)) {
 			define($name, $value);

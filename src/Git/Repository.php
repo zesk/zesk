@@ -10,7 +10,7 @@ declare(strict_types=1);
 namespace zesk\Git;
 
 use zesk\Exception\CommandFailed;
-use zesk\Exception\SemanticsException;
+use zesk\Exception\ProtocolException;
 use zesk\Exception\UnimplementedException;
 use zesk\Exception\UnsupportedException;
 use zesk\Repository\CommandBase;
@@ -68,7 +68,7 @@ class Repository extends CommandBase
 	 *
 	 * @param string $target
 	 * @return boolean
-	 * @throws SemanticsException|CommandFailed
+	 * @throws ProtocolException|CommandFailed
 	 */
 	public function needUpdate(string $target = ''): bool
 	{

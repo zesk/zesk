@@ -10,12 +10,10 @@
 # source this file to get additional tools within your Bash environment
 #
 
-export DEVELOPER_TRACK=true
-
 # shellcheck source=/dev/null
 if source "${BASH_SOURCE[0]%/*}/tools.sh"; then
 
-  __zeskPHPDeveloper() {
+  __zeskPHPDeveloperContext() {
     local home
 
     home=$(__environment buildHome) || return $?
@@ -28,7 +26,7 @@ if source "${BASH_SOURCE[0]%/*}/tools.sh"; then
       # shellcheck disable=SC2139
       alias zeskBash="__dockerPHPExec \"$home\" www-data bash"
       # shellcheck disable=SC2139
-      alias suZeskBash='__dockerPHPExec \"$home\" root bash'
+      alias suZeskBash="__dockerPHPExec \"$home\" root bash"
     fi
 
     reloadChanges --stop --quiet
@@ -36,14 +34,11 @@ if source "${BASH_SOURCE[0]%/*}/tools.sh"; then
     developerAnnounce < <(__applicationToolsList)
   }
 
-  __zeskPHPDeveloperUndo() {
-    unalias z 2>/dev/null
-    unalias IdenticalRepair 2>/dev/null
-    unalias zeskBash 2>/dev/null
-    unalias suZeskBash 2>/dev/null
+  __zeskPHPDeveloperContextUndo() {
+    developerUndo < <(__applicationToolsList)
   }
 
-  __zeskPHPDeveloper
+  __zeskPHPDeveloperContext
 
-  unset __zeskPHPDeveloper
+  unset __zeskPHPDeveloperContext
 fi

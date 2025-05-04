@@ -39,7 +39,7 @@ use zesk\Exception\NotFoundException;
 use zesk\Exception\ParameterException;
 use zesk\Exception\ParseException;
 use zesk\Exception\Redirect;
-use zesk\Exception\SemanticsException;
+use zesk\Exception\ProtocolException;
 use zesk\Exception\SyntaxException;
 use zesk\Exception\SystemException;
 use zesk\Exception\UnsupportedException;
@@ -598,7 +598,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @param CacheItemPoolInterface $cacheItemPool
 	 * @throws ClassNotFound
 	 * @throws DirectoryNotFound
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 */
 	public function __construct(Configuration $configuration, CacheItemPoolInterface $cacheItemPool)
 	{
@@ -770,7 +770,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @return void
 	 * @throws ClassNotFound
 	 * @throws DirectoryNotFound
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 */
 	protected function _initialize(Configuration $configuration, CacheItemPoolInterface $pool): void
 	{
@@ -1253,7 +1253,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @param array $arguments
 	 * @return object
 	 * @throws ClassNotFound
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 */
 	final public function singletonArguments(string $class, array $arguments = []): object
 	{
@@ -1264,7 +1264,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 			return $object;
 		}
 		if ($object !== null) {
-			throw new SemanticsException('Singleton hook {hookName} returned type {objectType} expecting {expectedType}', [
+			throw new ProtocolException('Singleton hook {hookName} returned type {objectType} expecting {expectedType}', [
 				'hookName'     => $hookName,
 				'objectType'   => $object::class,
 				'expectedType' => $desiredClass,
@@ -1297,7 +1297,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @param string $class
 	 * @return Model
 	 * @throws ClassNotFound
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 */
 	final public function modelSingleton(string $class): Model
 	{
@@ -1789,20 +1789,20 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 *
 	 * @param bool $set
 	 * @return void
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 */
 	final public function setMaintenance(bool $set): void
 	{
 		try {
 			$result = $this->invokeFilters(self::FILTER_MAINTENANCE, ['maintenance' => $set], [$this]);
 			if (($result['maintenance'] ?? null) !== $set) {
-				throw new SemanticsException('Filters prevented {applicationClass}::setMaintenance({value})', [
+				throw new ProtocolException('Filters prevented {applicationClass}::setMaintenance({value})', [
 					'applicationClass' => get_class($this),
 					Types::toText($set),
 				]);
 			}
 		} catch (Throwable $t) {
-			throw new SemanticsException('{applicationClass}::setMaintenance({value}) hook threw {exceptionClass} {message}', [
+			throw new ProtocolException('{applicationClass}::setMaintenance({value}) hook threw {exceptionClass} {message}', [
 				'applicationClass' => get_class($this),
 				'value'            => $set ? 'true' : 'false',
 			] + Exception::phpExceptionVariables($t), 0, $t);
@@ -1829,7 +1829,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 
 		try {
 			file_put_contents($this->maintenanceFile(), JSON::encode($context));
-		} catch (SemanticsException) {
+		} catch (ProtocolException) {
 		}
 	}
 
@@ -1846,7 +1846,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 
 	/**
 	 * Utility for index.php file for all public-served content.
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 */
 	final public function content(string $path): string
 	{
@@ -1882,7 +1882,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 			$response->output([
 				'skip_headers' => true,
 			]);
-		} catch (SemanticsException) {
+		} catch (ProtocolException) {
 		}
 		$content = ob_get_clean();
 		unset($this->contentRecursion[$path]);
@@ -1918,7 +1918,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	/**
 	 * @param Request $request
 	 * @return Response
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 */
 	public function main(Request $request): Response
 	{
@@ -2085,26 +2085,26 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	/**
 	 * @param Request $request
 	 * @return self
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 */
 	final public function popRequest(Request $request): self
 	{
 		$starting_depth = $request->optionInt('stack_index');
 		$ending_depth = count($this->requestStack);
 		if ($ending_depth === 0) {
-			throw new SemanticsException('Nothing to pop (attempted to pop {url})', [
+			throw new ProtocolException('Nothing to pop (attempted to pop {url})', [
 				'request' => $request->url(),
 			]);
 		}
 		if ($ending_depth !== $starting_depth) {
-			throw new SemanticsException('Request ending depth mismatch start {starting_depth} !== end {ending_depth}', [
+			throw new ProtocolException('Request ending depth mismatch start {starting_depth} !== end {ending_depth}', [
 				'starting_depth' => $starting_depth,
 				'ending_depth'   => $ending_depth,
 			]);
 		}
 		$popped = ArrayTools::last($this->requestStack);
 		if ($popped !== $request) {
-			throw new SemanticsException('Request changed between push and pop? {original} => {popped}', [
+			throw new ProtocolException('Request changed between push and pop? {original} => {popped}', [
 				'original' => $request->variables(),
 				'popped'   => $popped->variables(),
 			]);
@@ -2129,7 +2129,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * Utility for index.php file for all public-served content.
 	 *
 	 * KMD 2018-01 Made this more Response-centric and less content-centric
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 */
 	public function index(): Response
 	{
@@ -2252,7 +2252,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	/**
 	 *
 	 * @return Command
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 */
 	public function command(): Command
 	{
@@ -2260,7 +2260,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 			return $this->command;
 		}
 
-		throw new SemanticsException('No command set');
+		throw new ProtocolException('No command set');
 	}
 
 	/**
@@ -2557,7 +2557,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @return Userlike|null
 	 * @throws ClassNotFound
 	 * @throws KeyNotFound
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 */
 	public function user(?Request $request = null, bool $require = true): Userlike|null
 	{
@@ -2571,7 +2571,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @return Userlike
 	 * @throws ClassNotFound
 	 * @throws KeyNotFound
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 */
 	public function requireUser(?Request $request = null): Userlike
 	{
@@ -2580,7 +2580,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 				$request = $this->request();
 			}
 			assert($request instanceof Request);
-		} catch (SemanticsException) {
+		} catch (ProtocolException) {
 			return $this->userFactory();
 		}
 
@@ -2597,7 +2597,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * If performing sub-requests, this reflects the most-recent request state (a stack).
 	 *
 	 * @return Request
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 */
 	final public function request(): Request
 	{
@@ -2606,7 +2606,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 			return $request;
 		}
 
-		throw new SemanticsException('No request');
+		throw new ProtocolException('No request');
 	}
 
 	/**
@@ -2618,7 +2618,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @return Userlike
 	 * @throws ClassNotFound
 	 * @throws KeyNotFound
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 */
 	public function userFactory(): Userlike
 	{
@@ -2641,7 +2641,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	{
 		try {
 			$request = $request ?: $this->request();
-		} catch (SemanticsException) {
+		} catch (ProtocolException) {
 			/* No session */
 			return null;
 		}

@@ -15,7 +15,7 @@ use zesk\Exception\FilePermission;
 use zesk\Exception\KeyNotFound;
 use zesk\Exception\ParameterException;
 use zesk\Exception\ParseException;
-use zesk\Exception\SemanticsException;
+use zesk\Exception\ProtocolException;
 use zesk\StopIteration;
 use zesk\StringTools;
 use zesk\UTF16;
@@ -44,7 +44,7 @@ class Reader extends Base
 	 * @throws FileNotFound
 	 * @throws FilePermission
 	 * @throws ParseException
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 */
 	public function __construct(string $filename = '', array $options = [])
 	{
@@ -64,7 +64,7 @@ class Reader extends Base
 	 * @throws FileNotFound
 	 * @throws FilePermission
 	 * @throws ParseException
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 */
 	public static function factory(string $filename = '', array $options = []): self
 	{
@@ -98,7 +98,7 @@ class Reader extends Base
 	 * @throws FileNotFound
 	 * @throws FilePermission
 	 * @throws ParseException
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 */
 	public function setFilename(string $filename): self
 	{
@@ -129,17 +129,17 @@ class Reader extends Base
 	 * Seek to a previous tell point. Do not try to construct this structure
 	 *
 	 * @param array $tell
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 */
 	public function seek(array $tell): void
 	{
 		if (!array_key_exists('key', $tell)) {
-			throw new SemanticsException('Invalid tell for CSV File {filename}', [
+			throw new ProtocolException('Invalid tell for CSV File {filename}', [
 				'filename' => $this->FileName,
 			]);
 		}
 		if ($tell['key'] !== $this->_magicNumber()) {
-			throw new SemanticsException('Invalid tell for CSV File, hashes do not match {filename}', [
+			throw new ProtocolException('Invalid tell for CSV File, hashes do not match {filename}', [
 				'filename' => $this->FileName,
 			]);
 		}
@@ -215,7 +215,7 @@ class Reader extends Base
 	 * Read the headers from the CSV file
 	 *
 	 * @return array
-	 * @throws SemanticsException|KeyNotFound|FileParseException
+	 * @throws ProtocolException|KeyNotFound|FileParseException
 	 */
 	public function read_headers(): array
 	{
@@ -223,7 +223,7 @@ class Reader extends Base
 		if (!count($this->Headers)) {
 			$headers = $this->read_line();
 			if (!count($headers)) {
-				throw new SemanticsException('No headers');
+				throw new ProtocolException('No headers');
 			}
 			$this->RowIndex++;
 			$this->setHeaders($headers, false);
@@ -243,7 +243,7 @@ class Reader extends Base
 	 * @return array
 	 * @throws FileParseException
 	 * @throws KeyNotFound
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 */
 	public function read_row(): array
 	{
@@ -268,7 +268,7 @@ class Reader extends Base
 	 * @return array
 	 * @throws FileParseException
 	 * @throws KeyNotFound
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 */
 	public function read_row_assoc(): array
 	{
@@ -328,12 +328,12 @@ class Reader extends Base
 	 *
 	 * @return void
 	 * @throws ParseException
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 */
 	private function determineEncoding(): void
 	{
 		if (!is_resource($this->File)) {
-			throw new SemanticsException('File is not a resource: {filename}', [
+			throw new ProtocolException('File is not a resource: {filename}', [
 				'filename' => $this->FileName,
 			]);
 		}

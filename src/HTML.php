@@ -11,7 +11,7 @@ declare(strict_types=1);
 namespace zesk;
 
 use zesk\Exception\NotFoundException;
-use zesk\Exception\SemanticsException;
+use zesk\Exception\ProtocolException;
 
 /**
  * Abstraction of HTML markup language, with tools for generating and parsing HTML
@@ -41,8 +41,22 @@ class HTML
 	 * @var array
 	 */
 	private static array $global_attributes = [
-		'accesskey', 'class', 'contenteditable', 'contextmenu', 'data-*', 'dir', 'draggable', 'dropzone', 'hidden',
-		'id', 'lang', 'spellcheck', 'style', 'tabindex', 'title', 'translate',
+		'accesskey',
+		'class',
+		'contenteditable',
+		'contextmenu',
+		'data-*',
+		'dir',
+		'draggable',
+		'dropzone',
+		'hidden',
+		'id',
+		'lang',
+		'spellcheck',
+		'style',
+		'tabindex',
+		'title',
+		'translate',
 	];
 
 	/**
@@ -51,14 +65,56 @@ class HTML
 	 * @var array[]
 	 */
 	private static array $tag_attributes = [
-		'a' => [
-			'href', 'hreflang', 'title', 'target', 'type', 'media', 'download',
-		], 'input' => [
-			'accept', 'alt', 'checked', 'disabled', 'ismap', 'maxlength', 'name', 'onblur', 'onchange', 'onclick',
-			'ondblclick', 'onfocus', 'onkeydown', 'onkeypress', 'onkeyup', 'onmousedown', 'onmousemove', 'onmouseout',
-			'onmouseover', 'onmouseup', 'onselect', 'placeholder', 'readonly', 'size', 'src', 'type', 'usemap', 'value',
-		], 'select' => 'input', 'li' => ['value', ], 'link' => [
-			'charset', 'crossorigin', 'href', 'hreflang', 'media', 'rel', 'sizes', 'type',
+		'a'      => [
+			'href',
+			'hreflang',
+			'title',
+			'target',
+			'type',
+			'media',
+			'download',
+		],
+		'input'  => [
+			'accept',
+			'alt',
+			'checked',
+			'disabled',
+			'ismap',
+			'maxlength',
+			'name',
+			'onblur',
+			'onchange',
+			'onclick',
+			'ondblclick',
+			'onfocus',
+			'onkeydown',
+			'onkeypress',
+			'onkeyup',
+			'onmousedown',
+			'onmousemove',
+			'onmouseout',
+			'onmouseover',
+			'onmouseup',
+			'onselect',
+			'placeholder',
+			'readonly',
+			'size',
+			'src',
+			'type',
+			'usemap',
+			'value',
+		],
+		'select' => 'input',
+		'li'     => ['value', ],
+		'link'   => [
+			'charset',
+			'crossorigin',
+			'href',
+			'hreflang',
+			'media',
+			'rel',
+			'sizes',
+			'type',
 		],
 	];
 
@@ -305,7 +361,8 @@ class HTML
 		$name = self::cleanTagName($name);
 		if (array_key_exists($name, self::$attributes_alter)) {
 			$attributes = Kernel::singleton()->application()->invokeTypedFilters(__METHOD__ . "::$name", $attributes, [
-				$attributes, $content,
+				$attributes,
+				$content,
 			], 0);
 		}
 		return "<$name" . self::attributes(self::toAttributes($attributes)) . ($content === null ? ' />' : ">$content</$name>");
@@ -338,24 +395,59 @@ class HTML
 	public static function inputAttributeNames(array $types = []): array
 	{
 		if (count($types) === 0) {
-			$types = ['core', 'events', 'input'];
+			$types = [
+				'core',
+				'events',
+				'input',
+			];
 		} else {
 			$types = ArrayTools::changeValueCase($types);
 		}
 		$attr_list = [];
 		if (in_array('core', $types)) {
-			$attr_list = array_merge($attr_list, ['id', 'class', 'style', 'title', 'placeholder']);
+			$attr_list = array_merge($attr_list, [
+				'id',
+				'class',
+				'style',
+				'title',
+				'placeholder',
+			]);
 		}
 		if (in_array('events', $types)) {
 			$attr_list = array_merge($attr_list, [
-				'onclick', 'ondblclick', 'onmousedown', 'onmouseup', 'onmouseover', 'onmousemove', 'onmouseout',
-				'onkeypress', 'onkeydown', 'onkeyup',
+				'onclick',
+				'ondblclick',
+				'onmousedown',
+				'onmouseup',
+				'onmouseover',
+				'onmousemove',
+				'onmouseout',
+				'onkeypress',
+				'onkeydown',
+				'onkeyup',
 			]);
 		}
 		if (in_array('input', $types)) {
 			$attr_list = array_merge($attr_list, [
-				'type', 'name', 'value', 'checked', 'disabled', 'readonly', 'size', 'maxlength', 'src', 'alt', 'usemap',
-				'ismap', 'tabindex', 'accesskey', 'onfocus', 'onblur', 'onselect', 'onchange', 'accept',
+				'type',
+				'name',
+				'value',
+				'checked',
+				'disabled',
+				'readonly',
+				'size',
+				'maxlength',
+				'src',
+				'alt',
+				'usemap',
+				'ismap',
+				'tabindex',
+				'accesskey',
+				'onfocus',
+				'onblur',
+				'onselect',
+				'onchange',
+				'accept',
 			]);
 		}
 		return $attr_list;
@@ -532,7 +624,11 @@ class HTML
 		/* match a start/end tag in the source */
 		$RE_HTML_TAG_DOUBLE = '/' . $RE_TAG_START_CHAR_DEF . '([^' . self::$RE_TAG_START_CHAR . self::$RE_TAG_END_CHAR . ']*)' . self::$RE_TAG_END_CHAR . '/si';
 
-		return [$RE_HTML_TAG_SINGLE, $RE_HTML_TAG_DOUBLE, $RE_HTML_TAG_START, ];
+		return [
+			$RE_HTML_TAG_SINGLE,
+			$RE_HTML_TAG_DOUBLE,
+			$RE_HTML_TAG_START,
+		];
 	}
 
 	/**
@@ -560,10 +656,12 @@ class HTML
 
 		$results = [];
 		$reverse_search = [
-			self::$RE_TAG_START_CHAR, self::$RE_TAG_END_CHAR,
+			self::$RE_TAG_START_CHAR,
+			self::$RE_TAG_END_CHAR,
 		];
 		$reverse_replace = [
-			$tag, $endTag,
+			$tag,
+			$endTag,
 		];
 
 		$search = [];
@@ -591,7 +689,10 @@ class HTML
 				$search = [];
 				$replace = [];
 				foreach ($matches as $match) {
-					[$matched, $matched_offset] = array_shift($match);
+					[
+						$matched,
+						$matched_offset,
+					] = array_shift($match);
 					[$attrs] = array_shift($match);
 
 					$options = self::parseAttributes($attrs);
@@ -661,16 +762,16 @@ class HTML
 	 *
 	 * @param null|string $name
 	 * @return string
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 */
 	public static function tag_close(string $name = null): string
 	{
 		if (count(self::$tag_stack) === 0) {
-			throw new SemanticsException("Closing tag without open ($name)");
+			throw new ProtocolException("Closing tag without open ($name)");
 		}
 		$top_name = array_pop(self::$tag_stack);
 		if ($name !== null && strcasecmp($name, $top_name) !== 0) {
-			throw new SemanticsException("Closing tag $name when it should be $top_name");
+			throw new ProtocolException("Closing tag $name when it should be $top_name");
 		}
 		return '</' . $top_name . '>';
 	}
@@ -706,7 +807,10 @@ class HTML
 	public static function ediv(string|array $attributes = []): string
 	{
 		$args = array_merge(['div', ], func_get_args());
-		return call_user_func_array([__CLASS__, 'etag', ], $args);
+		return call_user_func_array([
+			__CLASS__,
+			'etag',
+		], $args);
 	}
 
 	/**
@@ -718,14 +822,17 @@ class HTML
 	public static function espan(string|array $attributes = []): string
 	{
 		$args = array_merge(['span', ], func_get_args());
-		return call_user_func_array([__CLASS__, 'etag', ], $args);
+		return call_user_func_array([
+			__CLASS__,
+			'etag',
+		], $args);
 	}
 
 	/**
 	 * Common tag_close case
 	 *
 	 * @return string
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 */
 	public static function div_close(): string
 	{
@@ -736,7 +843,7 @@ class HTML
 	 * Common tag_close case
 	 *
 	 * @return string
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 */
 	public static function span_close(): string
 	{
@@ -877,7 +984,10 @@ class HTML
 		$html_offset = 0;
 		$result = '';
 		foreach ($matches[0] as $match) {
-			[$tag, $tag_offset] = $match;
+			[
+				$tag,
+				$tag_offset,
+			] = $match;
 			if ($tag_offset > $html_offset) {
 				$add_chars = $tag_offset - $html_offset;
 				if ($text_offset + $add_chars > $length) {
@@ -1304,7 +1414,10 @@ class HTML
 		}
 
 		//		dump($matches);
-		[$tagMatch, $offset] = array_shift($matches);
+		[
+			$tagMatch,
+			$offset,
+		] = array_shift($matches);
 		[$tagName] = array_shift($matches);
 		[$tagClose] = array_shift($matches);
 
@@ -1313,8 +1426,13 @@ class HTML
 		$nWords = Text::countWords(substr($string, 0, $offset));
 		$tagMatchLength = strlen($tagMatch);
 		return [
-			'offset' => $offset, 'next' => $offset + $tagMatchLength, 'tagMatchLength' => $tagMatchLength,
-			'tagMatch' => $tagMatch, 'words' => $nWords, 'tagContents' => $tagContents, 'tagName' => $tagName,
+			'offset'         => $offset,
+			'next'           => $offset + $tagMatchLength,
+			'tagMatchLength' => $tagMatchLength,
+			'tagMatch'       => $tagMatch,
+			'words'          => $nWords,
+			'tagContents'    => $tagContents,
+			'tagName'        => $tagName,
 		];
 	}
 
@@ -1546,9 +1664,18 @@ class HTML
 	{
 		$domain_prefix = rtrim($domain_prefix, '/');
 		$map = [];
-		foreach (['href', 'src', ] as $attr) {
-			foreach (['"', '\'', ] as $quote) {
-				foreach (['/' => '', '.' => '/', ] as $prefix => $append) {
+		foreach ([
+			'href',
+			'src',
+		] as $attr) {
+			foreach ([
+				'"',
+				'\'',
+			] as $quote) {
+				foreach ([
+					'/' => '',
+					'.' => '/',
+				] as $prefix => $append) {
 					$map[$attr . '=' . $quote . $prefix] = $attr . '=' . $quote . $domain_prefix . $append . $prefix;
 				}
 			}
@@ -1564,7 +1691,12 @@ class HTML
 	 */
 	public static function entities_replace(string $html): string
 	{
-		$html = strtr($html, ['&ldquo;' => '"', '&rdquo;' => '"', '&lsquo;' => '\'', '&rsquo;' => '\'', ]);
+		$html = strtr($html, [
+			'&ldquo;' => '"',
+			'&rdquo;' => '"',
+			'&lsquo;' => '\'',
+			'&rsquo;' => '\'',
+		]);
 		return html_entity_decode($html);
 	}
 
@@ -1618,7 +1750,13 @@ class HTML
 			}
 			$global_match_index++;
 			$replace_value = $args[$index] ?? '[]';
-			[$left, $right] = explode('[]', $replace_value, 2) + [null, '', ];
+			[
+				$left,
+				$right,
+			] = explode('[]', $replace_value, 2) + [
+				null,
+				'',
+			];
 			if ($left === null) {
 				$replace_value = '(*' . count($skip_s) . '*)';
 				$skip_s[] = $replace_value;

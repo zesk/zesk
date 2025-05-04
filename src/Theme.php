@@ -11,7 +11,7 @@ use zesk\Exception\FileNotFound;
 use zesk\Exception\FilePermission;
 use zesk\Exception\NotFoundException;
 use zesk\Exception\Redirect;
-use zesk\Exception\SemanticsException;
+use zesk\Exception\ProtocolException;
 use zesk\Interface\Themeable;
 
 /**
@@ -112,7 +112,8 @@ class Theme implements Themeable
 	 * @var array
 	 */
 	private static array $_stats = [
-		'counts' => [], 'times' => [],
+		'counts' => [],
+		'times'  => [],
 	];
 
 	/**
@@ -228,12 +229,12 @@ class Theme implements Themeable
 	 * @param array $variables Optional variables to apply to the template
 	 * @param string $content_variable
 	 * @return string
-	 * @throws SemanticsException|Redirect
+	 * @throws ProtocolException|Redirect
 	 */
 	public function end(array $variables = [], string $content_variable = 'content'): string
 	{
 		if (count($this->wrappers) === 0) {
-			throw new SemanticsException('Template::end when no template on the wrapper stack');
+			throw new ProtocolException('Template::end when no template on the wrapper stack');
 		}
 		$t = array_pop($this->wrappers);
 		/* @var $t Theme */
@@ -261,16 +262,16 @@ class Theme implements Themeable
 	 * Pop the variable stack
 	 *
 	 * @return $this
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 */
 	public function pop(): self
 	{
 		$top = $this->themes->popTemplate();
 		if ($top !== $this) {
-			throw new SemanticsException("Popped template ($top->_path) not this ($this->_path)");
+			throw new ProtocolException("Popped template ($top->_path) not this ($this->_path)");
 		}
 		if (--$this->_running < 0) {
-			throw new SemanticsException('Template::pop negative running');
+			throw new ProtocolException('Template::pop negative running');
 		}
 		/*
 		 * If we have a stack and variables changed
@@ -325,16 +326,25 @@ class Theme implements Themeable
 		if (Directory::isAbsolute($path)) {
 			$id = '';
 			if (file_exists($path)) {
-				return [$path, $id];
+				return [
+					$path,
+					$id,
+				];
 			}
-			return ['', $id];
+			return [
+				'',
+				$id,
+			];
 		}
 
 		try {
 			$result = $this->themes->themeFind($path, [
 				'no_extension' => true,
 			]);
-			return [$result, $path];
+			return [
+				$result,
+				$path,
+			];
 		} catch (NotFoundException) {
 			$themePaths = $this->themes->themePath();
 			if (self::$debug) {
@@ -344,10 +354,15 @@ class Theme implements Themeable
 					$template_path = true;
 				}
 				$this->themes->logger?->warning('Template::path("{path}") not found in themePath ({n_paths} paths).', [
-					'path' => $path, 'themePaths' => $themePaths, 'n_paths' => count($themePaths),
+					'path' => $path,
+					'themePaths' => $themePaths,
+					'n_paths' => count($themePaths),
 				]);
 			}
-			return ['', ''];
+			return [
+				'',
+				'',
+			];
 		}
 	}
 
@@ -380,7 +395,10 @@ class Theme implements Themeable
 	 */
 	public function setPath(string $set): self
 	{
-		[$this->_path, $this->_id] = $this->_findPath($set);
+		[
+			$this->_path,
+			$this->_id,
+		] = $this->_findPath($set);
 		return $this;
 	}
 
@@ -488,7 +506,7 @@ class Theme implements Themeable
 
 		try {
 			$this->pop();
-		} catch (SemanticsException) {
+		} catch (ProtocolException) {
 			$this->themes->logger->error('pop semantics error {path}', $this->variables());
 		}
 		$contents = ob_get_clean();
@@ -601,7 +619,8 @@ class Theme implements Themeable
 			return $this->_vars[$key];
 		}
 		return [
-			'variables' => $this->_vars, 'self' => $this,
+			'variables' => $this->_vars,
+			'self'      => $this,
 		][$key] ?? null;
 	}
 

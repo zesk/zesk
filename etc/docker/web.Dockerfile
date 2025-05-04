@@ -9,6 +9,9 @@ ENV BUILD_CODE=web
 ENV USER_HOME=/var/www
 
 ENV APPLICATION_HOME=/var/www/app
+ENV LOG_PATH=/var/www/log
+ENV APPLICATION_USER=www-data
+ENV APPLICATION_PREFIX=""
 ENV WEB_ROOT=$APPLICATION_HOME/public
 
 # IDENTICAL phpContainerDockerPrefix 15
@@ -25,25 +28,29 @@ COPY bin/build/ /usr/local/bin/build/
 RUN /usr/local/sbin/install.sh
 RUN /usr/local/sbin/install.sh __installBase
 RUN /usr/local/sbin/install.sh __installDevelopment
-RUN touch /tmp/application.conf
+COPY .env /tmp/application.conf
 # -- phpContainerDockerPrefix
 
-RUN /usr/local/sbin/install.sh __installEnvironment /tmp/application.conf "$APPLICATION_CONF" "$APPLICATION_HOME"
+ADD . "$APPLICATION_HOME"
 
 # ===========================================================================
 # -- Middle part --
 
-RUN chmod 640 "$APPLICATION_CONF"
-RUN chown root:www-data "$APPLICATION_CONF"
+RUN /usr/local/sbin/install.sh __installEnvironment /tmp/application.conf "$APPLICATION_CONF" "$APPLICATION_HOME" "$APPLICATION_PREFIX" XDEBUG_IDE_KEY XDEBUG_CLIENT_HOST APPLICATION_USER LOG_PATH
+RUN chmod 640 "$APPLICATION_CONF" && chown "root:$APPLICATION_USER" "$APPLICATION_CONF"
+
+RUN mkdir -p "$LOG_PATH" && chmod 750 "$LOG_PATH" && chown "root:$APPLICATION_USER" "$LOG_PATH"
 
 # PHP
 COPY etc/docker/php.ini /usr/local/etc/php/MAP.php.ini
+# XDebug
+COPY etc/docker/xdebug.ini /usr/local/etc/php/conf.d/MAP.xdebug.ini
 
 RUN /usr/local/sbin/install.sh __mapFiles /usr/local/etc/php
 
 COPY composer.json /tmp/composer.json
-
 RUN /usr/local/sbin/install.sh __installPHP /tmp/composer.json
+
 RUN /usr/local/sbin/install.sh __installPHPXdebug
 RUN date > /etc/xdebug-enabled
 
@@ -58,7 +65,7 @@ COPY etc/docker/web.conf /etc/apache2/sites-available/MAP.web.conf
 COPY etc/docker/bashrc.sh "$USER_HOME/MAP..bashrc"
 COPY etc/docker/bashrc.sh "/root/MAP..bashrc"
 
-RUN /usr/local/sbin/install.sh __mapFiles --keep "$APPLICATION_HOME" /
+RUN /usr/local/sbin/install.sh __mapFiles /etc/apache2/ "$USER_HOME" "/root/" --keep "$APPLICATION_HOME"
 
 RUN /usr/sbin/a2enmod rewrite alias
 # RUN printf "%s\n" "*" | a2disconf >/dev/null || :
@@ -68,5 +75,5 @@ RUN rm -rf "/var/www/html"
 
 RUN chown www-data "$USER_HOME/.bashrc" "$USER_HOME"
 
-USER www-data
+USER "$APPLICATION_USER"
 WORKDIR "$APPLICATION_HOME"

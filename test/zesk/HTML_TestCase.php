@@ -8,7 +8,7 @@ namespace test\zesk;
 
 use stdClass;
 use zesk\Exception\NotFoundException;
-use zesk\Exception\SemanticsException;
+use zesk\Exception\ProtocolException;
 
 use zesk\HTML;
 use zesk\HTMLTag;
@@ -930,7 +930,7 @@ class HTML_TestCase extends TestCase
 
 	public function test_tag_close(): void
 	{
-		$this->expectException(SemanticsException::class);
+		$this->expectException(ProtocolException::class);
 		HTML::tag_close('p');
 	}
 

@@ -26,7 +26,5 @@ services:
       timeout: 2s
       retries: 10
 volumes:
-  file_data:
-    driver: local
   database_data:
     driver: local

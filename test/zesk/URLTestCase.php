@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace test\zesk;
 
 use zesk\Application;
-use zesk\Exception\SemanticsException;
+use zesk\Exception\ProtocolException;
 use zesk\Exception\SyntaxException;
 
 class URLTestCase extends TestCase
@@ -902,13 +902,13 @@ class URLTestCase extends TestCase
 	 * @param string $url
 	 * @return void
 	 * @throws Exception\SyntaxException
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 * @dataProvider data_makeSecure
 	 */
 	public function test_makeSecure(string $expected, string $url): void
 	{
 		if ($expected === '') {
-			$this->expectException(SemanticsException::class);
+			$this->expectException(ProtocolException::class);
 		}
 		$this->assertEquals($expected, URL::makeSecure($url));
 	}

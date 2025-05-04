@@ -7,8 +7,16 @@ declare(strict_types=1);
 namespace test\zesk;
 
 use zesk\Exception\SyntaxException;
+use zesk\File;
 use zesk\Mail\Mail;
 use zesk\PHPUnit\TestCase;
+
+use zesk\System;
+use zesk\Timer;
+use zesk\Types;
+use zesk\URL;
+use zesk\UTF8;
+use zesk\Net\POP\Client as POPClient;
 
 /**
  *
@@ -298,13 +306,13 @@ This is the text email.
 
 Thanks,
 
-http://www.example.com/unsubscribe?email={email}
+https://www.example.com/unsubscribe?email={email}
 --HTML--
 This is the <strong>HTML</strong> email.
 
 Thanks,
 
-<a href="http://www.example.com/unsubscribe?email={email}">Unsubscribe</a>
+<a href="https://www.example.com/unsubscribe?email={email}">Unsubscribe</a>
 EOF;
 		file_put_contents($filename, $contents);
 
@@ -318,12 +326,12 @@ EOF;
 
 Thanks,
 
-http://www.example.com/unsubscribe?email={email}', $result['body_text'], 'Text failed: ' . $result['body_text']);
+https://www.example.com/unsubscribe?email={email}', $result['body_text'], 'Text failed: ' . $result['body_text']);
 		$this->assertEquals('This is the <strong>HTML</strong> email.
 
 Thanks,
 
-<a href="http://www.example.com/unsubscribe?email={email}">Unsubscribe</a>', $result['body_html'], 'HTML Failed: ' . $result['body_html']);
+<a href="https://www.example.com/unsubscribe?email={email}">Unsubscribe</a>', $result['body_html'], 'HTML Failed: ' . $result['body_html']);
 	}
 
 	public function test_loadTheme(): void
@@ -513,7 +521,7 @@ All work and no play makes Kent a dull boy.
 		$success = false;
 		$timer = new Timer();
 		do {
-			$pop = new Net\POP\Client($this->application, $pop_url, ['echo_log' => false, ]);
+			$pop = new POPClient($this->application, $pop_url, ['echo_log' => false, ]);
 			$iterator = $pop->iterator();
 			foreach ($iterator as $headers) {
 				$remote_subject = $headers['subject'] ?? null;

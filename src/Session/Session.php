@@ -33,7 +33,7 @@ use zesk\Exception as zeskException;
 use zesk\Exception\AuthenticationException;
 use zesk\Exception\KeyNotFound;
 use zesk\Exception\NotFoundException;
-use zesk\Exception\SemanticsException;
+use zesk\Exception\ProtocolException;
 use zesk\HTTP;
 use zesk\Interface\SessionInterface;
 use zesk\Interface\Userlike;
@@ -448,7 +448,7 @@ class Session extends Model implements SessionInterface
 	 * @return Session
 	 * @throws KeyNotFound
 	 * @throws ORMException
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 */
 	protected function initializeCookieSession(Request $request): self
 	{
@@ -592,12 +592,12 @@ class Session extends Model implements SessionInterface
 	 * @param Request $request
 	 * @return $this
 	 * @throws AuthenticationException
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 */
 	public function oneTimeAuthenticate(Userlike $user, Request $request): self
 	{
 		if ($this->type !== self::TYPE_ONE_TIME) {
-			throw new SemanticsException('Not a one-time session');
+			throw new ProtocolException('Not a one-time session');
 		}
 		$this->token = $this->_generateToken();
 		$this->type = self::TYPE_COOKIE;

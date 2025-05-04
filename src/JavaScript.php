@@ -9,7 +9,7 @@ declare(strict_types=1);
 
 namespace zesk;
 
-use zesk\Exception\SemanticsException;
+use zesk\Exception\ProtocolException;
 
 /**
  * Javascript tools
@@ -46,12 +46,12 @@ class JavaScript
 	 * Begin JavaScript obfuscation output capture
 	 *
 	 * Depends on output buffering
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 */
 	public static function obfuscate_begin(): void
 	{
 		if (self::$obfuscated) {
-			throw new SemanticsException('Already called obfuscate_begin');
+			throw new ProtocolException('Already called obfuscate_begin');
 		}
 		self::$obfuscated = true;
 		ob_start();
@@ -62,17 +62,30 @@ class JavaScript
 	 *
 	 * @param array $function_map Apply string mapping at end
 	 * @return string
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 */
 	public static function obfuscate_end(array $function_map = []): string
 	{
 		if (!self::$obfuscated) {
-			throw new SemanticsException('Need to call obfuscate_begin first');
+			throw new ProtocolException('Need to call obfuscate_begin first');
 		}
 		self::$obfuscated = false;
 		$formatting = [
-			"\t" => ' ', "\n" => '', '  ' => ' ', ', ' => ',', ' {' => '{', '{ ' => '{', ' =' => '=', '= ' => '=',
-			'; ' => ';', '+ ' => '+', ' +' => '+', '} ' => '}', 'if (' => 'if(', ') {' => '){', ' if(' => 'if(',
+			"\t"     => ' ',
+			"\n"     => '',
+			'  '     => ' ',
+			', '     => ',',
+			' {'     => '{',
+			'{ '     => '{',
+			' ='     => '=',
+			'= '     => '=',
+			'; '     => ';',
+			'+ '     => '+',
+			' +'     => '+',
+			'} '     => '}',
+			'if ('   => 'if(',
+			') {'    => '){',
+			' if('   => 'if(',
 			'elseif' => 'else if',
 		];
 		$js = ob_get_clean();

@@ -20,7 +20,7 @@ use zesk\Exception\KeyNotFound;
 use zesk\Exception\NotFoundException;
 use zesk\Exception\ParameterException;
 use zesk\Exception\ParseException;
-use zesk\Exception\SemanticsException;
+use zesk\Exception\ProtocolException;
 use zesk\Exception\UnsupportedException;
 use zesk\File;
 use zesk\Hookable;
@@ -75,7 +75,10 @@ class Client extends Hookable
 	 * @var array
 	 */
 	public static array $sample_agents = [
-		self::USER_AGENT_CHROME, self::USER_AGENT_FIREFOX, self::USER_AGENT_INTERNET_EXPLORER, self::USER_AGENT_SAFARI,
+		self::USER_AGENT_CHROME,
+		self::USER_AGENT_FIREFOX,
+		self::USER_AGENT_INTERNET_EXPLORER,
+		self::USER_AGENT_SAFARI,
 	];
 
 	/**
@@ -227,7 +230,8 @@ class Client extends Hookable
 	 * @var array
 	 */
 	public static array $ignore_response_headers = [
-		HTTP::RESPONSE_CONTENT_ENCODING => true, HTTP::RESPONSE_TRANSFER_ENCODING => true,
+		HTTP::RESPONSE_CONTENT_ENCODING  => true,
+		HTTP::RESPONSE_TRANSFER_ENCODING => true,
 	];
 
 	/**
@@ -595,7 +599,8 @@ class Client extends Hookable
 	{
 		$httpHeaders = [];
 		$this->curl_opts = [
-			CURLOPT_ENCODING => 1, CURLOPT_RETURNTRANSFER => 1,
+			CURLOPT_ENCODING       => 1,
+			CURLOPT_RETURNTRANSFER => 1,
 			CURLOPT_SSL_VERIFYPEER => $this->optionBool(self::OPTION_VERIFY_SSL, self::DEFAULT_OPTION_VERIFY_SSL),
 		];
 		$data = $this->_encodeData();
@@ -886,8 +891,10 @@ class Client extends Hookable
 			}
 			// TODO 2017-08 These should probably all be their own Exception class
 			$errno_map = [
-				CURLE_COULDNT_CONNECT => self::ERROR_CONNECTION, CURLE_COULDNT_RESOLVE_HOST => self::ERROR_RESOLVE_HOST,
-				CURLE_OPERATION_TIMEOUTED => self::ERROR_TIMEOUT, CURLE_SSL_CONNECT_ERROR => self::ERROR_SSL_CONNECT,
+				CURLE_COULDNT_CONNECT      => self::ERROR_CONNECTION,
+				CURLE_COULDNT_RESOLVE_HOST => self::ERROR_RESOLVE_HOST,
+				CURLE_OPERATION_TIMEOUTED  => self::ERROR_TIMEOUT,
+				CURLE_SSL_CONNECT_ERROR    => self::ERROR_SSL_CONNECT,
 			];
 			$error_string = $errno_map[$errno] ?? "UnknownErrno-$errno";
 
@@ -901,21 +908,23 @@ class Client extends Hookable
 	/**
 	 * @param string $url
 	 * @return string
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 * @throws ConnectionFailed
 	 */
 	public static function simpleGet(string $url): string
 	{
 		if (!$url) {
-			throw new SemanticsException('Require non-blank URL');
+			throw new ProtocolException('Require non-blank URL');
 		}
 		$parts = parse_url($url);
 		$protocol = $parts['scheme'] ?? '';
 		if (!in_array($protocol, [
-			'http', 'https',
+			'http',
+			'https',
 		])) {
-			throw new SemanticsException('Require valid HTTP URL {protocol} ({url})', [
-				'protocol' => $protocol, 'url' => $url,
+			throw new ProtocolException('Require valid HTTP URL {protocol} ({url})', [
+				'protocol' => $protocol,
+				'url'      => $url,
 			]);
 		}
 		$ctx_options = [
@@ -930,7 +939,8 @@ class Client extends Hookable
 			];
 		} else {
 			$ctx_options['ssl'] = [
-				'verify_peer' => true, 'cafile' => $cafile,
+				'verify_peer' => true,
+				'cafile'      => $cafile,
 			];
 		}
 		$context = stream_context_create($ctx_options);
@@ -967,7 +977,9 @@ class Client extends Hookable
 		$result = $x->response_code_type();
 		if ($result !== 2) {
 			throw new ClientException('{method}({url}) returned response code {result} ', [
-				'method' => __METHOD__, 'ur' => $url, 'result' => $x->response_code(),
+				'method' => __METHOD__,
+				'ur'     => $url,
+				'result' => $x->response_code(),
 			]);
 		}
 		return $x->responseHeaders();
@@ -980,7 +992,7 @@ class Client extends Hookable
 			return $data;
 		}
 		if (!is_array($data)) {
-			throw new SemanticsException('Data is not a string or array?');
+			throw new ProtocolException('Data is not a string or array?');
 		}
 		return http_build_query($data);
 	}
@@ -1096,7 +1108,9 @@ class Client extends Hookable
 		}
 
 		throw new NotFoundException('Cookie {cookieName}', [
-			'cookieName' => $cookieName, 'domain' => $domain, 'path' => $path,
+			'cookieName' => $cookieName,
+			'domain'     => $domain,
+			'path'       => $path,
 		]);
 	}
 
@@ -1125,7 +1139,10 @@ class Client extends Hookable
 		foreach ($cookies as $cookie) {
 			$parts = explode(';', $cookie);
 			$cookie_item = array_shift($parts);
-			[$cookieName, $cookieValue] = StringTools::pair($cookie_item, '=', $cookie_item);
+			[
+				$cookieName,
+				$cookieValue,
+			] = StringTools::pair($cookie_item, '=', $cookie_item);
 			$cookieName = trim($cookieName);
 			if (empty($cookieName)) {
 				continue;
@@ -1135,7 +1152,10 @@ class Client extends Hookable
 			$domain = $this->domain();
 			$expireString = false;
 			foreach ($parts as $cname) {
-				[$cname, $cvalue] = StringTools::pair($cname, '=', $cname);
+				[
+					$cname,
+					$cvalue,
+				] = StringTools::pair($cname, '=', $cname);
 				$cname = strtolower(trim($cname));
 				$cvalue = trim($cvalue);
 				switch ($cname) {
@@ -1218,7 +1238,10 @@ class Client extends Hookable
 	{
 		$headers = ($content === '') ? $this->content : $content;
 		$this->responseHeaders = [];
-		[$headers, $new_content] = pair($headers, "\r\n\r\n", $headers);
+		[
+			$headers,
+			$new_content,
+		] = pair($headers, "\r\n\r\n", $headers);
 		$headers = explode("\r\n", $headers);
 		$response = explode(' ', array_shift($headers), 3);
 		$this->responseProtocol = array_shift($response);
@@ -1228,7 +1251,10 @@ class Client extends Hookable
 			if (empty($h)) {
 				continue;
 			}
-			[$h, $v] = pair($h, ':');
+			[
+				$h,
+				$v,
+			] = pair($h, ':');
 			$h = trim($h);
 			ArrayTools::append($this->responseHeaders, strtolower($h), ltrim($v));
 		}
@@ -1306,7 +1332,10 @@ class Client extends Hookable
 		// Content-Disposition: attachment; filename=foo.tar.gz
 		$dispositions = ArrayTools::listTrimClean(explode(';', $this->responseHeader(HTTP::RESPONSE_CONTENT_DISPOSITION, '')));
 		while (($disposition = array_shift($dispositions)) !== null) {
-			[$name, $value] = pair($disposition, '=');
+			[
+				$name,
+				$value,
+			] = pair($disposition, '=');
 			if ($name === 'filename') {
 				return StringTools::unquote($value);
 			}
@@ -1346,7 +1375,9 @@ class Client extends Hookable
 	{
 		$this->setMethod($method = $request->method());
 		if (in_array($method, [
-			'PUT', 'PATCH', 'POST',
+			'PUT',
+			'PATCH',
+			'POST',
 		])) {
 			$this->setData($request->rawData());
 		}
@@ -1384,8 +1415,10 @@ class Client extends Hookable
 	public function requestVariables(): array
 	{
 		return [
-			'url' => $this->url(), 'requestMethod' => $this->method(), 'requestCookies' => $this->requestCookie,
-			'requestData' => $this->data(),
+			'url'            => $this->url(),
+			'requestMethod'  => $this->method(),
+			'requestCookies' => $this->requestCookie,
+			'requestData'    => $this->data(),
 		];
 	}
 
@@ -1395,9 +1428,11 @@ class Client extends Hookable
 	public function responseVariables(): array
 	{
 		return [
-			'responseCode' => $this->responseCode, 'responseMessage' => $this->responseMessage,
-			'responseProtocol' => $this->responseProtocol, 'responseCodeType' => $this->response_code_type(),
-			'responseData' => $this->content,
+			'responseCode'     => $this->responseCode,
+			'responseMessage'  => $this->responseMessage,
+			'responseProtocol' => $this->responseProtocol,
+			'responseCodeType' => $this->response_code_type(),
+			'responseData'     => $this->content,
 		];
 	}
 

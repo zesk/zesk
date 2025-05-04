@@ -11,7 +11,7 @@ declare(strict_types=1);
  * @author kent
  */
 
-namespace zesk\Doctrine;
+namespace zesk;
 
 /**
  *

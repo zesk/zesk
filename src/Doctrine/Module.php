@@ -31,6 +31,7 @@ use zesk\Exception\DirectoryCreate;
 use zesk\Exception\DirectoryNotFound;
 use zesk\Exception\DirectoryPermission;
 use zesk\Exception\NotFoundException;
+use zesk\Exception\SemanticsException;
 use zesk\Exception\UnsupportedException;
 use zesk\FilterMethod;
 use zesk\Module as BaseModule;
@@ -61,7 +62,8 @@ class Module extends BaseModule
 	private array $managers = [];
 
 	private static array $zeskTypes = [
-		Timestamp::TYPE => Timestamp::class, EnumBoolean::TYPE => EnumBoolean::class,
+		Timestamp::TYPE   => Timestamp::class,
+		EnumBoolean::TYPE => EnumBoolean::class,
 	];
 
 	private static bool $added = false;
@@ -118,7 +120,6 @@ class Module extends BaseModule
 	{
 		$this->inheritConfiguration();
 		$paths = Types::toList($this->optionIterable(self::OPTION_SOURCE_PATHS, ['./src']));
-		$paths[] = $this->path('zesk/Doctrine');
 		$paths = array_map($this->application->paths->expand(...), $paths);
 		foreach ($paths as $path) {
 			$this->application->info('ORM Path: {path}', ['path' => $path]);
@@ -142,17 +143,21 @@ class Module extends BaseModule
 					$parts = $parser->parse($dsn);
 				} catch (MalformedDsnException $e) {
 					throw new ConfigurationException([
-						self::class, 'connections', $name,
+						self::class,
+						'connections',
+						$name,
 					], 'Invalid URL {dsn}', ['dsn' => $dsn], $e);
 				}
 			} elseif (is_array($dsn)) {
 				$parts = $dsn;
 			} else {
 				throw new ConfigurationException([
-					self::class, 'connections', $name,
+					self::class,
+					'connections',
+					$name,
 				], 'Bad configuration {type}', ['type' => Types::type($dsn)]);
 			}
-			$connection = DriverManager::getConnection($parts, $this->ormConfig, $this->eventManager);
+			$connection = DriverManager::getConnection($parts, $this->ormConfig);
 			foreach (array_keys(self::$zeskTypes) as $type) {
 				$connection->getDatabasePlatform()->registerDoctrineTypeMapping('db_' . $type, $type);
 			}
@@ -161,12 +166,17 @@ class Module extends BaseModule
 				$this->managers[$name] = new EntityManager($connection, $this->ormConfig, $this->eventManager);
 			} catch (MissingMappingDriverImplementation $e) {
 				throw new ConfigurationException([
-					self::class, 'connections', $name,
+					self::class,
+					'connections',
+					$name,
 				], 'Missing driver {parts}', ['parts' => $parts]);
 			}
 		}
 	}
 
+	/**
+	 * @throws SemanticsException
+	 */
 	private function defaultEntityManager(): string
 	{
 		return $this->optionString('default', 'default');
@@ -180,7 +190,7 @@ class Module extends BaseModule
 	 * @throws DirectoryNotFound
 	 * @throws DirectoryPermission
 	 * @throws Exception
-	 * @throws NotFoundException
+	 * @throws NotFoundException|SemanticsException
 	 */
 	public function entityManager(string $name = ''): EntityManager
 	{
@@ -207,7 +217,7 @@ class Module extends BaseModule
 	 * @throws DirectoryNotFound
 	 * @throws DirectoryPermission
 	 * @throws Exception
-	 * @throws NotFoundException
+	 * @throws NotFoundException|SemanticsException
 	 */
 	public function schemaSynchronizeSQL(array $entities, string $name = ''): array
 	{
@@ -230,7 +240,7 @@ class Module extends BaseModule
 	 * @throws DirectoryNotFound
 	 * @throws DirectoryPermission
 	 * @throws Exception
-	 * @throws NotFoundException
+	 * @throws NotFoundException|SemanticsException
 	 */
 	public function schemaSynchronize(array $entities, string $name = ''): array
 	{
@@ -252,14 +262,16 @@ class Module extends BaseModule
 	 * @throws DirectoryNotFound
 	 * @throws DirectoryPermission
 	 * @throws Exception
-	 * @throws NotFoundException
+	 * @throws NotFoundException|SemanticsException
 	 */
 	public function dependentEntities(string $entityName, string $name = ''): array
 	{
 		$depend = [];
-		foreach ($this->entityManager($name)->getClassMetadata($entityName)->getAssociationMappings() as $key => $mapping) {
-			if (array_key_exists('targetEntity', $mapping)) {
-				$depend[$mapping['targetEntity']] = true;
+		foreach ($this->entityManager($name)->getClassMetadata($entityName)->getAssociationMappings() as $mapping) {
+			if (is_array($mapping)) {
+				if (array_key_exists('targetEntity', $mapping)) {
+					$depend[$mapping['targetEntity']] = true;
+				}
 			}
 		}
 		unset($depend[$entityName]);

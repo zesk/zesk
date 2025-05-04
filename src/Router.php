@@ -14,7 +14,7 @@ use stdClass;
 use zesk\Exception\ClassNotFound;
 use zesk\Exception\KeyNotFound;
 use zesk\Exception\NotFoundException;
-use zesk\Exception\SemanticsException;
+use zesk\Exception\ProtocolException;
 use zesk\Exception\SyntaxException;
 use zesk\Router\Parser;
 
@@ -157,9 +157,12 @@ class Router extends Hookable
 	public function __serialize(): array
 	{
 		return [
-			'applicationClass' => $this->applicationClass, 'reverseRoutes' => $this->reverseRoutes,
-			'routes' => $this->routes, 'prefix' => $this->prefix, 'defaultRoute' => $this->defaultRoute,
-			'aliases' => $this->aliases,
+			'applicationClass' => $this->applicationClass,
+			'reverseRoutes'    => $this->reverseRoutes,
+			'routes'           => $this->routes,
+			'prefix'           => $this->prefix,
+			'defaultRoute'     => $this->defaultRoute,
+			'aliases'          => $this->aliases,
 		] + parent::__serialize();
 	}
 
@@ -273,7 +276,10 @@ class Router extends Hookable
 			return $this->byId[$key];
 		}
 
-		throw new KeyNotFound('Route not found {id} (key: {key})', ['id' => $id, 'key' => $key]);
+		throw new KeyNotFound('Route not found {id} (key: {key})', [
+			'id'  => $id,
+			'key' => $key,
+		]);
 	}
 
 	/**
@@ -356,7 +362,10 @@ class Router extends Hookable
 			}
 		}
 
-		throw new NotFoundException('No match for {path} ({method})', ['method' => $method, 'path' => $path]);
+		throw new NotFoundException('No match for {path} ({method})', [
+			'method' => $method,
+			'path'   => $path,
+		]);
 	}
 
 	/**
@@ -378,7 +387,7 @@ class Router extends Hookable
 	 * @param array $options
 	 * @return Route
 	 * @throws ClassNotFound
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 */
 	public function addRoute(string $path, array $options): Route
 	{
@@ -397,7 +406,7 @@ class Router extends Hookable
 	 *
 	 * @param Route $route
 	 * @return Route
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 */
 	private function _addRouteID(Route $route): Route
 	{
@@ -467,7 +476,8 @@ class Router extends Hookable
 		}
 
 		throw new NotFoundException('Can not find route for {action} {object}', [
-			'action' => $action, 'object' => $object,
+			'action' => $action,
+			'object' => $object,
 		]);
 	}
 
@@ -519,7 +529,10 @@ class Router extends Hookable
 		}
 		if ($object) {
 			$try_classes = $app->classes->hierarchy($object, Model::class);
-			$options += $object->invokeTypedFilters(self::FILTER_ROUTE_OPTIONS, $options, [$this, $action]);
+			$options += $object->invokeTypedFilters(self::FILTER_ROUTE_OPTIONS, $options, [
+				$this,
+				$action,
+			]);
 			$options['derivedClasses'] += $this->derivedClasses($object);
 		} elseif (is_string($object)) {
 			$try_classes = [
@@ -537,7 +550,8 @@ class Router extends Hookable
 		$try_classes[] = '*';
 		foreach ($try_classes as $try_class) {
 			foreach ([
-				$action, '*',
+				$action,
+				'*',
 			] as $try_action) {
 				if ($try_class !== '*') {
 					$try_class = strtolower($app->objects->resolve($try_class));
@@ -555,7 +569,9 @@ class Router extends Hookable
 				try {
 					$url = $this->_findRoute($try_routes, $action, $object, $options);
 					$url = $this->invokeTypedFilters(self::FILTER_GET_ROUTE_ALTER, $url, [
-						$action, $object, $options,
+						$action,
+						$object,
+						$options,
 					]);
 					return $this->prefix . $url;
 				} catch (NotFoundException) {
@@ -564,11 +580,15 @@ class Router extends Hookable
 			}
 		}
 		$url = $this->invokeHooksUntil(self::HOOK_GET_ROUTE, [
-			$action, $object, $options,
+			$action,
+			$object,
+			$options,
 		]);
 		if (empty($url)) {
 			throw new NotFoundException('No reverse route for {classes}->{action} {backtrace}', [
-				'classes' => $try_classes, 'action' => $original_action, 'backtrace' => Kernel::backtrace(),
+				'classes'   => $try_classes,
+				'action'    => $original_action,
+				'backtrace' => Kernel::backtrace(),
 			]);
 		}
 		return URL::queryAppend($this->prefix . $url, $options ['query'] ?? []);

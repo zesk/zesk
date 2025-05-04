@@ -9,13 +9,14 @@ namespace zesk\Doctrine;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Exception\ORMException;
 use zesk\Application;
+use zesk\Model as ModelBase;
 
 /**
  * Base class for entities to inherit from in Zesk
  *
  * Provides utilities
  */
-class Model extends \zesk\Model
+class Model extends ModelBase
 {
 	protected EntityManager $em;
 
@@ -32,14 +33,5 @@ class Model extends \zesk\Model
 	public function delete(): void
 	{
 		$this->em->remove($this);
-	}
-
-	/**
-	 * @param JSONWalker $options
-	 * @return array
-	 */
-	public function json(JSONWalker $options): array
-	{
-		return $options->walk($this);
 	}
 }

@@ -10,7 +10,7 @@ declare(strict_types=1);
 namespace zesk\Net\SMTP;
 
 use zesk\Exception\ConnectionFailed;
-use zesk\Exception_Protocol;
+use zesk\Exception\ProtocolException;
 use zesk\Net\SocketClient;
 use zesk\Types;
 
@@ -95,8 +95,10 @@ class Client extends SocketClient
 		$result = $this->expect('250', $message);
 
 		$this->application->debug('Sent email to {rcpts} {nbytes} bytes via {user}@{host}', [
-			'rcpts' => $rcpts, 'nbytes' => strlen($body), 'user' => $this->urlComponent('user'),
-			'host' => $this->urlComponent('host'),
+			'rcpts'  => $rcpts,
+			'nbytes' => strlen($body),
+			'user'   => $this->urlComponent('user'),
+			'host'   => $this->urlComponent('host'),
 		]);
 		return $result;
 	}
@@ -163,7 +165,7 @@ class Client extends SocketClient
 	 *            Email address
 	 * @return string
 	 * @throws ConnectionFailed
-	 * @throws Exception_Protocol
+	 * @throws ProtocolException
 	 */
 	private function mail(string $from): string
 	{
@@ -177,7 +179,7 @@ class Client extends SocketClient
 	 *            Email address
 	 * @return string
 	 * @throws ConnectionFailed
-	 * @throws Exception_Protocol
+	 * @throws ProtocolException
 	 */
 	private function rcpt(string $to): string
 	{
@@ -189,7 +191,7 @@ class Client extends SocketClient
 	 *
 	 * @return boolean
 	 * @throws ConnectionFailed
-	 * @throws Exception_Protocol
+	 * @throws ProtocolException
 	 */
 	private function data()
 	{
@@ -201,7 +203,7 @@ class Client extends SocketClient
 	 *
 	 * @return string
 	 * @throws ConnectionFailed
-	 * @throws Exception_Protocol
+	 * @throws ProtocolException
 	 */
 	private function rset()
 	{
@@ -213,7 +215,7 @@ class Client extends SocketClient
 	 *
 	 * @return boolean
 	 * @throws ConnectionFailed
-	 * @throws Exception_Protocol
+	 * @throws ProtocolException
 	 */
 	private function quit()
 	{

@@ -17,7 +17,7 @@ use zesk\CacheItem\CacheItemNULL;
 use zesk\Exception\ClassNotFound;
 use zesk\Exception\FileNotFound;
 use zesk\Exception\KeyNotFound;
-use zesk\Exception\SemanticsException;
+use zesk\Exception\ProtocolException;
 use zesk\Exception\Redirect as RedirectException;
 use zesk\Exception\SyntaxException;
 
@@ -99,9 +99,11 @@ class Response extends Hookable
 	 * @var array
 	 */
 	private static array $type_classes = [
-		self::CONTENT_TYPE_HTML => HTMLResponse::class, self::CONTENT_TYPE_JSON => JSONResponse::class,
-		self::CONTENT_TYPE_PLAINTEXT => Text::class, self::CONTENT_TYPE_RAW => Raw::class,
-		self::HANDLER_REDIRECT => RedirectResponse::class,
+		self::CONTENT_TYPE_HTML      => HTMLResponse::class,
+		self::CONTENT_TYPE_JSON      => JSONResponse::class,
+		self::CONTENT_TYPE_PLAINTEXT => Text::class,
+		self::CONTENT_TYPE_RAW       => Raw::class,
+		self::HANDLER_REDIRECT       => RedirectResponse::class,
 	];
 
 	/**
@@ -158,7 +160,8 @@ class Response extends Hookable
 	 */
 	private static array $cache_pattern = [
 		self::CACHE_SCHEME => '{scheme}/{host}_{port}{path}/{query}',
-		self::CACHE_QUERY => 'any/{host}_{port}{path}/{query}', self::CACHE_PATH => 'any/{host}_{port}{path}',
+		self::CACHE_QUERY  => 'any/{host}_{port}{path}/{query}',
+		self::CACHE_PATH   => 'any/{host}_{port}{path}',
 	];
 
 	/**
@@ -262,10 +265,15 @@ class Response extends Hookable
 	public function __serialize(): array
 	{
 		return parent::__serialize() + [
-			'content' => $this->content, 'status_code' => $this->status_code,
-			'status_message' => $this->status_message, 'contentType' => $this->contentType,
-			'output_handler' => $this->output_handler, 'charset' => $this->charset, 'types' => $this->types,
-			'headers' => $this->headers, 'response_data' => $this->response_data,
+			'content'        => $this->content,
+			'status_code'    => $this->status_code,
+			'status_message' => $this->status_message,
+			'contentType'    => $this->contentType,
+			'output_handler' => $this->output_handler,
+			'charset'        => $this->charset,
+			'types'          => $this->types,
+			'headers'        => $this->headers,
+			'response_data'  => $this->response_data,
 		];
 	}
 
@@ -352,6 +360,13 @@ class Response extends Hookable
 	 */
 	public function setStatusMessage(string $error_string): self
 	{
+		if (strpos($error_string, "\n")) {
+			throw new ProtocolException('Newline passed in statusMessage: {message}', [
+				'message' => strtr($error_string, [
+					"\n" => '[NEWLINE]',
+				]),
+			]);
+		}
 		$this->status_message = $error_string;
 		return $this;
 	}
@@ -383,7 +398,7 @@ class Response extends Hookable
 	 * @param array|string|null $value
 	 * @param array $options
 	 * @return self
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 */
 	public function setCookie(string $name, array|string $value = null, array $options = []): self
 	{
@@ -401,7 +416,8 @@ class Response extends Hookable
 			$domain = ltrim($domain, '.');
 			if (!str_ends_with($host, $domain)) {
 				$this->application->warning('Unable to set cookie domain {cookie_domain} on host {host}', [
-					'cookie_domain' => $domain, 'host' => $host,
+					'cookie_domain' => $domain,
+					'host'          => $host,
 				]);
 				$domain = null;
 			}
@@ -410,7 +426,7 @@ class Response extends Hookable
 		$path = $options['path'] ?? $this->option('cookie_path', '/');
 		$expire_time = $n_seconds ? time() + $n_seconds : 0;
 		if (!$this->request->isBrowser()) {
-			throw new SemanticsException('Not a browser');
+			throw new ProtocolException('Not a browser');
 		}
 		setcookie($name, '', 1, $path, ".$domain", $secure);
 		if (!empty($value)) {
@@ -430,6 +446,9 @@ class Response extends Hookable
 		if ($this->cache_settings) {
 			$this->cache_settings['headers'][] = $string;
 		}
+		$traceFile = __FILE__ . '.backtrace';
+		$contents = file_exists("$traceFile") ? file_get_contents("$traceFile") : '';
+		file_put_contents(__FILE__ . '.backtrace', $contents . "\n" . Debug::dump(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS)));
 		header($string);
 	}
 
@@ -439,7 +458,7 @@ class Response extends Hookable
 
 	/**
 	 *
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 */
 	private function responseHeaders(bool $skip_hooks = false): void
 	{
@@ -453,7 +472,7 @@ class Response extends Hookable
 			return;
 		}
 		if ($called) {
-			throw new SemanticsException('Response headers called twice! {previous}', [
+			throw new ProtocolException('Response headers called twice! {previous}', [
 				'previous' => $called,
 			]);
 		} else {
@@ -461,8 +480,9 @@ class Response extends Hookable
 		}
 		$file = $line = null;
 		if (headers_sent($file, $line)) {
-			throw new SemanticsException('Headers already sent on {file}:{line}', [
-				'file' => $file, 'line' => $line,
+			throw new ProtocolException('Headers already sent on {file}:{line}', [
+				'file' => $file,
+				'line' => $line,
 			]);
 		}
 		if ($do_hooks) {
@@ -477,7 +497,8 @@ class Response extends Hookable
 			$content_type = $this->contentType;
 		}
 		if ($this->application->development() && $this->application->configuration->getPath([
-			__CLASS__, 'json_to_html',
+			__CLASS__,
+			'json_to_html',
 		])) {
 			if ($this->contentType == self::CONTENT_TYPE_JSON) {
 				$content_type = 'text/html; charset=' . $this->charset;
@@ -566,7 +587,8 @@ class Response extends Hookable
 	final public function setContentType(string $set): self
 	{
 		$this->application->debug('Set content type to {set} at {where}', [
-			'set' => $set, 'where' => Kernel::callingFunction(),
+			'set'   => $set,
+			'where' => Kernel::callingFunction(),
 		]);
 		$this->contentType = $set;
 		return $this;
@@ -605,7 +627,9 @@ class Response extends Hookable
 	final public function setOutputHandler(string $set): self
 	{
 		$this->application->debug('{method} set to {set} from {calling}', [
-			'method' => __METHOD__, 'set' => $set, 'calling' => Kernel::callingFunction(2),
+			'method'  => __METHOD__,
+			'set'     => $set,
+			'calling' => Kernel::callingFunction(2),
 		]);
 		$this->output_handler = $set;
 		return $this;
@@ -694,7 +718,7 @@ class Response extends Hookable
 	 * Current output handler
 	 *
 	 * @return Type
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 */
 	private function _output_handler(): Type
 	{
@@ -702,7 +726,7 @@ class Response extends Hookable
 		if (!$type) {
 			$type = $this->contentType;
 			if (!$type) {
-				throw new SemanticsException('No content type set in {method}', [
+				throw new ProtocolException('No content type set in {method}', [
 					'method' => __METHOD__,
 				]);
 			}
@@ -715,7 +739,7 @@ class Response extends Hookable
 	 *
 	 * @param array $options
 	 * @return string
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 */
 	final public function render(array $options = []): string
 	{
@@ -733,7 +757,7 @@ class Response extends Hookable
 	 *
 	 * @param array $options
 	 * @return void
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 */
 	public function output(array $options = []): void
 	{
@@ -759,7 +783,7 @@ class Response extends Hookable
 	 * May call zesk\Response\Type::toJSON
 	 *
 	 * @return array
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 */
 	public function toJSON(): array
 	{
@@ -805,7 +829,8 @@ class Response extends Hookable
 	public function setCacheFor(int $seconds, int $level = self::CACHE_SCHEME): self
 	{
 		return $this->setCache([
-			'seconds' => $seconds, 'level' => $level,
+			'seconds' => $seconds,
+			'level'   => $level,
 		]);
 	}
 
@@ -827,8 +852,11 @@ class Response extends Hookable
 			$parts = [];
 		}
 		$parts += [
-			'port' => URL::protocolPort($parts['scheme']), 'scheme' => 'none', 'host' => '_host_', 'query' => '_query_',
-			'path' => '_path_',
+			'port'   => URL::protocolPort($parts['scheme']),
+			'scheme' => 'none',
+			'host'   => '_host_',
+			'query'  => '_query_',
+			'path'   => '_path_',
 		];
 		return $parts;
 	}
@@ -875,7 +903,7 @@ class Response extends Hookable
 	 * @param CacheItemPoolInterface $pool
 	 * @param string $url
 	 * @return boolean
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 */
 	public function cacheSave(CacheItemPoolInterface $pool, string $url): bool
 	{
@@ -912,7 +940,8 @@ class Response extends Hookable
 				$item->expiresAt($expires->datetime());
 			} else {
 				$this->application->error('{method} expires is unhandled type: {type}', [
-					'method' => __METHOD__, 'type' => Types::type($expires),
+					'method' => __METHOD__,
+					'type'   => Types::type($expires),
 				]);
 			}
 		}
@@ -1119,7 +1148,7 @@ class Response extends Hookable
 	 *            (may be ie,
 	 *            ie6, ie7), and cdn (boolean to prefix with cdn path)
 	 * @return self
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 */
 	final public function css(string $path, array $options = []): self
 	{
@@ -1158,7 +1187,7 @@ class Response extends Hookable
 	 *            browsers),
 	 *            cdn (defaults to false)
 	 * @return Response
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 */
 	final public function javascript(string|array $path, array $options = []): Response
 	{
@@ -1171,7 +1200,7 @@ class Response extends Hookable
 	 * @param string $script
 	 * @param array $options
 	 * @return Response
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 */
 	final public function inlineJavaScript(string $script, array $options = []): self
 	{
@@ -1247,7 +1276,7 @@ class Response extends Hookable
 	 * @param string|null $file
 	 * @return string|$this
 	 * @throws FileNotFound
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 */
 	final public function file(string $file = null): string|self
 	{

@@ -17,7 +17,7 @@ use zesk\Exception\DomainLookupFailed;
 use zesk\Exception\FilePermission;
 use zesk\Exception\ParameterException;
 use zesk\Exception\ParseException;
-use zesk\Exception\SemanticsException;
+use zesk\Exception\ProtocolException;
 use zesk\Exception\UnsupportedException;
 use zesk\HookMethod;
 use zesk\HTTP;
@@ -60,7 +60,8 @@ class Module extends BaseModule
 		if ($version) {
 			if (!$this->hasCredentials()) {
 				$logger->warning('{class} is not configured: need options owner, repository, and access_token to generate release for version {version}', [
-					'class' => get_class($this), 'version' => $version,
+					'class'   => get_class($this),
+					'version' => $version,
 				]);
 				return;
 			}
@@ -68,7 +69,8 @@ class Module extends BaseModule
 			try {
 				$result = $this->generateTag("v$version", $commitish);
 				$logger->info('Generated {version} for {owner}/{repository}: {result}', [
-					'version' => $version, 'result' => $result,
+					'version' => $version,
+					'result'  => $result,
 				] + $this->options());
 			} catch (Throwable $t) {
 				$logger->error('Unable to generate a tag for {version}: {throwableClass} {message}', [
@@ -94,12 +96,12 @@ class Module extends BaseModule
 	 * @param string $commitish
 	 * @param string $description
 	 * @return array
-	 * @throws \zesk\Net\HTTP\Client\Exception
+	 * @throws Client\Exception
 	 * @throws DomainLookupFailed
 	 * @throws FilePermission
 	 * @throws ParameterException
 	 * @throws ParseException
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 * @throws UnsupportedException
 	 */
 	public function generateTag(string $name, string $commitish = '', string $description = ''): array
@@ -108,7 +110,11 @@ class Module extends BaseModule
 			$description = "Release of version $name";
 		}
 		$json_struct = [
-			'tag_name' => $name, 'name' => $name, 'body' => $description, 'draft' => false, 'prerelease' => false,
+			'tag_name'               => $name,
+			'name'                   => $name,
+			'body'                   => $description,
+			'draft'                  => false,
+			'prerelease'             => false,
 			'generate_release_notes' => false,
 		];
 		if ($commitish) {
@@ -116,7 +122,9 @@ class Module extends BaseModule
 		}
 		$missing = self::MISSING_TOKEN;
 		$options = $this->options() + [
-			'owner' => $missing, 'repository' => $missing, 'accessToken' => $missing,
+			'owner'       => $missing,
+			'repository'  => $missing,
+			'accessToken' => $missing,
 		];
 		$url = ArrayTools::map(self::API_ENDPOINT_RELEASE, $options);
 		$client = new Client($this->application, $url);
@@ -129,6 +137,6 @@ class Module extends BaseModule
 			return JSON::decode($content);
 		}
 
-		throw new SemanticsException('Error with request: {responseCode} {responseMessage} {responseData}', $client->responseVariables());
+		throw new ProtocolException('Error with request: {responseCode} {responseMessage} {responseData}', $client->responseVariables());
 	}
 }

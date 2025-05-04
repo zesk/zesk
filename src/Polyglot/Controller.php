@@ -6,10 +6,11 @@ declare(strict_types=1);
  * @subpackage Polyglot
  * @copyright &copy; 2023, Market Acumen, Inc.
  */
+
 namespace zesk\Polyglot;
 
 use zesk\Exception\PermissionDenied;
-use zesk\Exception\SemanticsException;
+use zesk\Exception\ProtocolException;
 use zesk\Locale\Locale;
 use zesk\ORM\Controller_Authenticated;
 use zesk\ORM\User;
@@ -55,7 +56,7 @@ class Controller extends Controller_Authenticated
 			/* If we are running a command, then continue all clear */
 			$this->application->command();
 			return;
-		} catch (SemanticsException) {
+		} catch (ProtocolException) {
 		}
 		$action = Module::class . '::translate';
 		if (!$this->user instanceof User || !$this->user->can($action)) {
@@ -66,7 +67,7 @@ class Controller extends Controller_Authenticated
 	/**
 	 *
 	 * @return string
-	 *@throws PermissionDenied|Redirect
+	 * @throws PermissionDenied|Redirect
 	 */
 	public function action_index()
 	{
@@ -92,19 +93,19 @@ class Controller extends Controller_Authenticated
 		$app_locale = $this->application->locale;
 		$__ = [
 			'lang_name' => Language::lang_name($this->application, $locale_string, $app_locale),
-			'locale' => $locale_string,
+			'locale'    => $locale_string,
 		];
 		if ($this->user->can('zesk\\Module_PolyGlot::load', null, [
 			'locale' => $app_locale,
 		])) {
 			return $this->json([
-				'status' => true,
+				'status'  => true,
 				'message' => $app_locale->__('Loaded locale {lang_name}.', $__),
-				'items' => $this->module->loadLocale($locale_string),
+				'items'   => $this->module->loadLocale($locale_string),
 			]);
 		}
 		return $this->json([
-			'status' => false,
+			'status'  => false,
 			'message' => $app_locale->__('You do not have permission to do translations.'),
 		]);
 	}
@@ -120,24 +121,24 @@ class Controller extends Controller_Authenticated
 		$locale_string = Locale::normalize($locale_string);
 		$__ = [
 			'lang_name' => Language::lang_name($this->application, $locale_string),
-			'locale' => $locale_string,
+			'locale'    => $locale_string,
 		];
 		if (!$this->user->can('zesk\\Module_PolyGlot::update', null, [
 			'locale' => $locale_string,
 		])) {
 			return $this->json([
-				'status' => false,
+				'status'  => false,
 				'message' => $locale->__('You do not have permission to update the {lang_name} locale.'),
 			]);
 		}
 		if (Polyglot_Update::registerUpdate($this->application, $locale_string, $this->user)) {
 			return $this->json([
-				'status' => true,
+				'status'  => true,
 				'message' => $locale->__('Locale {lang_name} will be updated in the next few minutes.', $__),
 			]);
 		}
 		return $this->json([
-			'status' => false,
+			'status'  => false,
 			'message' => $locale->__('Locale {lang_name} was not updated.', $__),
 		]);
 	}
@@ -152,26 +153,30 @@ class Controller extends Controller_Authenticated
 	{
 		$__ = [
 			'lang_name' => Language::lang_name($this->application, $locale),
-			'locale' => $locale,
+			'locale'    => $locale,
 		];
 		if (!$this->user->can('zesk\\Module_PolyGlot::translate', null, [
 			'locale' => $locale,
 		])) {
 			return $this->json([
-				'status' => false,
+				'status'  => false,
 				'message' => $this->application->locale->__('No permission to update {lang_name}.', $__),
 			]);
 		}
 		$id = $request->getInt('id');
 		$fields = [];
-		foreach (['original', 'translation', 'status'] as $k) {
+		foreach ([
+			'original',
+			'translation',
+			'status',
+		] as $k) {
 			$fields[$k] = $request->get($k);
 		}
 		$fields['dialect'] = Locale::parseDialect($locale);
 		$fields['language'] = $language = Locale::parseLanguage($locale);
 		if (empty($language)) {
 			return $this->json([
-				'status' => false,
+				'status'  => false,
 				'message' => $this->application->locale->__('No language? {locale} ({language})', compact('locale', 'language')),
 			]);
 		}
@@ -184,14 +189,14 @@ class Controller extends Controller_Authenticated
 		$errors = ($fields['status'] === 'delete') ? [] : $object->validate();
 		if (count($errors)) {
 			return $this->json([
-				'status' => false,
+				'status'  => false,
 				'message' => $errors,
 			]);
 		}
 		$result = $object->store();
 		return $response->json()->setData([
-			'status' => $result,
-			'id' => $object->id(),
+			'status'  => $result,
+			'id'      => $object->id(),
 			'message' => $result ? null : $object->storeErrors(),
 		]);
 	}

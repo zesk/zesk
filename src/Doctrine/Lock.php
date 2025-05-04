@@ -25,7 +25,7 @@ use zesk\Doctrine\Trait\AutoID;
 use zesk\Doctrine\Trait\CodeName;
 use zesk\Exception;
 use zesk\Exception\LockedException;
-use zesk\Exception\SemanticsException;
+use zesk\Exception\ProtocolException;
 use zesk\Exception\TimeoutExpired;
 use zesk\HookMethod;
 use zesk\Kernel;
@@ -204,7 +204,7 @@ class Lock extends Model
 				$application->error($e);
 			}
 			/* @var $lock Lock */
-		} catch (KeyNotFound|SemanticsException) {
+		} catch (KeyNotFound|ProtocolException) {
 		}
 	}
 

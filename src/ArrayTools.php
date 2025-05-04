@@ -12,7 +12,7 @@ declare(strict_types=1);
 namespace zesk;
 
 use Stringable;
-use zesk\Exception\SemanticsException;
+use zesk\Exception\ProtocolException;
 
 /**
  * Array tools for pretty much anything you can think of for arrays.
@@ -163,7 +163,7 @@ class ArrayTools
 				} else {
 					try {
 						$v = JSON::encode($v);
-					} catch (SemanticsException) {
+					} catch (ProtocolException) {
 						$v = null;
 					}
 				}
@@ -258,7 +258,7 @@ class ArrayTools
 			if (!is_scalar($v)) {
 				try {
 					$a[$k] = Types::flatten($v);
-				} catch (SemanticsException) {
+				} catch (ProtocolException) {
 				}
 			}
 		}
@@ -270,7 +270,7 @@ class ArrayTools
 	 *
 	 * @param array $a
 	 * @return array
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 * @see flatten
 	 */
 	public static function simplify(array $a): array
@@ -294,7 +294,11 @@ class ArrayTools
 	 * @param mixed $values_to_remove Value or array of values to remove. Must match explicitly (===)
 	 * @return array
 	 */
-	public static function clean(array $array_to_clean, mixed $values_to_remove = [null, '', false]): array
+	public static function clean(array $array_to_clean, mixed $values_to_remove = [
+		null,
+		'',
+		false,
+	]): array
 	{
 		if (is_array($values_to_remove)) {
 			foreach ($values_to_remove as $v) {
@@ -386,7 +390,9 @@ class ArrayTools
 	 * @return array
 	 */
 	public static function listTrimClean(array $arr, string $character_list = self::TRIM_WHITESPACE, array $values = [
-		null, '', false,
+		null,
+		'',
+		false,
 	]): array
 	{
 		return self::clean(self::trim($arr, $character_list), $values);
@@ -883,7 +889,10 @@ class ArrayTools
 		$result = [];
 		foreach ($array as $k => $item) {
 			if (is_string($item)) {
-				[$key, $value] = StringTools::pair($item, $delim);
+				[
+					$key,
+					$value,
+				] = StringTools::pair($item, $delim);
 				if ($key) {
 					$result[$key] = $value;
 				} else {
@@ -1239,7 +1248,10 @@ class ArrayTools
 		} elseif (is_array($arr[$k])) {
 			$arr[$k][] = $v;
 		} else {
-			$arr[$k] = [$arr[$k], $v, ];
+			$arr[$k] = [
+				$arr[$k],
+				$v,
+			];
 		}
 	}
 
@@ -1285,7 +1297,10 @@ class ArrayTools
 		} elseif (is_array($arr[$k])) {
 			array_unshift($arr[$k], $v);
 		} else {
-			$arr[$k] = [$v, $arr[$k], ];
+			$arr[$k] = [
+				$v,
+				$arr[$k],
+			];
 		}
 	}
 
@@ -1503,7 +1518,10 @@ class ArrayTools
 			}
 			return null;
 		}
-		return str_contains($haystack, $needles) ? [$haystack, $needles] : null;
+		return str_contains($haystack, $needles) ? [
+			$haystack,
+			$needles,
+		] : null;
 	}
 
 	/**
@@ -1535,7 +1553,10 @@ class ArrayTools
 			}
 			return null;
 		}
-		return (stripos($haystack, $needle) !== false) ? [$haystack, $needle] : null;
+		return (stripos($haystack, $needle) !== false) ? [
+			$haystack,
+			$needle,
+		] : null;
 	}
 
 	/**

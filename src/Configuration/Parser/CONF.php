@@ -17,7 +17,7 @@ use zesk\Configuration\Editor\CONFEditor;
 use zesk\Directory;
 use zesk\Exception\KeyNotFound;
 use zesk\Exception\ParseException;
-use zesk\Exception\SemanticsException;
+use zesk\Exception\ProtocolException;
 use zesk\File;
 use zesk\StringTools;
 use zesk\Types;
@@ -64,10 +64,14 @@ class CONF extends Parser
 	public const DEFAULT_UNQUOTE = '\'\'""';
 
 	protected array $parseOptions = [
-		self::OPTION_OVERWRITE => self::DEFAULT_OVERWRITE, self::OPTION_TRIM_KEY => self::DEFAULT_TRIM_KEY,
-		self::OPTION_SEPARATOR => self::DEFAULT_SEPARATOR, self::OPTION_TRIM_VALUE => self::DEFAULT_TRIM_VALUE,
-		self::OPTION_AUTO_TYPE => self::DEFAULT_AUTO_TYPE, self::OPTION_LOWER => self::DEFAULT_LOWER,
-		self::OPTION_MULTILINE => self::DEFAULT_MULTILINE, self::OPTION_UNQUOTE => self::DEFAULT_UNQUOTE,
+		self::OPTION_OVERWRITE => self::DEFAULT_OVERWRITE,
+		self::OPTION_TRIM_KEY => self::DEFAULT_TRIM_KEY,
+		self::OPTION_SEPARATOR => self::DEFAULT_SEPARATOR,
+		self::OPTION_TRIM_VALUE => self::DEFAULT_TRIM_VALUE,
+		self::OPTION_AUTO_TYPE => self::DEFAULT_AUTO_TYPE,
+		self::OPTION_LOWER => self::DEFAULT_LOWER,
+		self::OPTION_MULTILINE => self::DEFAULT_MULTILINE,
+		self::OPTION_UNQUOTE => self::DEFAULT_UNQUOTE,
 	];
 
 	/**
@@ -96,7 +100,7 @@ class CONF extends Parser
 	 *
 	 * @return void
 	 * @throws ParseException
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 * @throws KeyNotFound
 	 */
 	public function process(): void
@@ -122,7 +126,10 @@ class CONF extends Parser
 				continue;
 			}
 			$append = false;
-			[$key, $value] = $parse_result;
+			[
+				$key,
+				$value,
+			] = $parse_result;
 			/**
 			 * Parse and normalize key
 			 */
@@ -132,7 +139,8 @@ class CONF extends Parser
 			}
 			$found_quote = null;
 			$key = strtr($key, [
-				'___' => '\\', '__' => '::',
+				'___' => '\\',
+				'__'  => '::',
 			]);
 			/**
 			 * Parse and normalize value
@@ -203,7 +211,8 @@ class CONF extends Parser
 		$last = 0;
 		foreach ($lines as $line) {
 			if (in_array(substr($line, 0, 1), [
-				"\t", ' ',
+				"\t",
+				' ',
 			])) {
 				$result[$last] .= "\n$line";
 			} else {
@@ -231,7 +240,10 @@ class CONF extends Parser
 		if (preg_match('/^export\s+/', $line, $matches)) {
 			$line = substr($line, strlen($matches[0]));
 		}
-		[$key, $value] = StringTools::pair($line, $separator);
+		[
+			$key,
+			$value,
+		] = StringTools::pair($line, $separator);
 		if (!$key) {
 			return null;
 		}
@@ -245,7 +257,8 @@ class CONF extends Parser
 			$key = strtolower($key);
 		}
 		return [
-			$key, $value,
+			$key,
+			$value,
 		];
 	}
 }

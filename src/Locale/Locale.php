@@ -17,7 +17,7 @@ use zesk\ArrayTools;
 use zesk\Exception\KeyNotFound;
 use zesk\Hookable;
 use zesk\Exception\ParseException;
-use zesk\Exception\SemanticsException;
+use zesk\Exception\ProtocolException;
 use zesk\StringTools;
 use zesk\Temporal;
 use zesk\Timestamp;
@@ -88,7 +88,10 @@ abstract class Locale extends Hookable
 	{
 		parent::__construct($application, $options);
 		$this->locale_string = $locale_string;
-		[$this->language, $this->dialect] = self::parse($locale_string);
+		[
+			$this->language,
+			$this->dialect,
+		] = self::parse($locale_string);
 		$this->inheritConfiguration();
 		$auto = $this->option('auto');
 		if ($auto === true || $auto === $this->language || $auto === $this->locale_string) {
@@ -223,11 +226,15 @@ abstract class Locale extends Hookable
 	public function find(string $phrase): string|null
 	{
 		$parts = explode(':=', $phrase, 2) + [
-			null, $phrase,
+			null,
+			$phrase,
 		];
 		$text = $parts[1];
 		$try_phrases = [
-			$phrase, strtolower($phrase), $text, strtolower($text),
+			$phrase,
+			strtolower($phrase),
+			$text,
+			strtolower($text),
 		];
 		$tt_lang = $this->translation_table;
 		foreach ($try_phrases as $try_phrase) {
@@ -281,7 +288,7 @@ abstract class Locale extends Hookable
 		if (!$this->locale_phrase_context) {
 			try {
 				$this->locale_phrase_context = $this->application->request()->url();
-			} catch (SemanticsException) {
+			} catch (ProtocolException) {
 			}
 		}
 	}
@@ -446,7 +453,9 @@ abstract class Locale extends Hookable
 			$phrase = 'Locale::plural_word:={number} {word}';
 		}
 		return ArrayTools::map($this->__($phrase), [
-			'number' => $number, 'word' => $this->plural($word, $number), 'plural_word' => $this->plural($word),
+			'number'        => $number,
+			'word'          => $this->plural($word, $number),
+			'plural_word'   => $this->plural($word),
 			'singular_word' => $word,
 		]);
 	}
@@ -462,9 +471,16 @@ abstract class Locale extends Hookable
 		$year = (365 * 24 * 3600 * 4 + 1) / 4;
 		$month = $year / 12;
 		return [
-			intval($year * 1000) => 'millennium', intval($year * 100) => 'century', intval($year * 10) => 'decade',
-			intval($year) => 'year', intval($month) => 'month', 604800 => 'week', 86400 => 'day', 3600 => 'hour',
-			60 => 'minute', 1 => 'second',
+			intval($year * 1000) => 'millennium',
+			intval($year * 100)  => 'century',
+			intval($year * 10)   => 'decade',
+			intval($year)        => 'year',
+			intval($month)       => 'month',
+			604800               => 'week',
+			86400                => 'day',
+			3600                 => 'hour',
+			60                   => 'minute',
+			1                    => 'second',
 		];
 	}
 
@@ -515,7 +531,9 @@ abstract class Locale extends Hookable
 			$phrase = 'Locale::now_string:={duration} ago';
 		}
 		return $this->__($phrase, [
-			'duration' => $duration, 'min_unit' => $min_unit, 'zero_string' => $zero_string,
+			'duration'    => $duration,
+			'min_unit'    => $min_unit,
+			'zero_string' => $zero_string,
 		]);
 	}
 
@@ -604,7 +622,9 @@ abstract class Locale extends Hookable
 	{
 		if ($this->auto) {
 			$this->application->invokeHooks(self::HOOK_SHUTDOWN, [
-				$this, $this->locale_phrases, $this->locale_phrase_context,
+				$this,
+				$this->locale_phrases,
+				$this->locale_phrase_context,
 			]);
 		}
 	}
@@ -669,19 +689,28 @@ abstract class Locale extends Hookable
 	public static function parse(string $locale): array
 	{
 		if ($locale === '') {
-			return ['', ''];
+			return [
+				'',
+				'',
+			];
 		}
-		[$lang, $region] = explode('_', $locale, 2) + [
-			$locale, '',
+		[
+			$lang,
+			$region,
+		] = explode('_', $locale, 2) + [
+			$locale,
+			'',
 		];
 		$lang = strtolower(substr($lang, 0, 2));
 		if ($region === '') {
 			return [
-				$lang, '',
+				$lang,
+				'',
 			];
 		}
 		return [
-			$lang, $region,
+			$lang,
+			$region,
 		];
 	}
 
@@ -693,8 +722,12 @@ abstract class Locale extends Hookable
 	 */
 	public static function normalize(string $locale): string
 	{
-		[$lang, $region] = explode('_', $locale, 2) + [
-			$locale, null,
+		[
+			$lang,
+			$region,
+		] = explode('_', $locale, 2) + [
+			$locale,
+			null,
 		];
 		$lang = strtolower(substr($lang, 0, 2));
 		if ($region === null) {

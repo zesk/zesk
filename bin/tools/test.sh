@@ -25,6 +25,11 @@ zeskTest() {
 
   pathConfigure --last "$top/vendor/bin"
 
+  if [ -f "$top/.env" ]; then
+    __catchEnvironment "$usage" environmentFileLoad "$top/.env" || return $?
+    decorate info "Loaded $(decorate file "$top/.env")"
+  fi
+
   local doCoverage=false doStop=false coverage_cache="./.zesk-coverage"
 
   __catchEnvironment "$usage" muzzle pushd "$top" || return $?

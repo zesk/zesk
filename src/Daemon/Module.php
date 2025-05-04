@@ -18,7 +18,7 @@ use zesk\Exception\ConfigurationException;
 use zesk\Exception\DirectoryCreate;
 use zesk\Exception\DirectoryPermission;
 use zesk\Exception\FilePermission;
-use zesk\Exception\SemanticsException;
+use zesk\Exception\ProtocolException;
 use zesk\Exception\SyntaxException;
 use zesk\Exception\UnsupportedException;
 use zesk\File;
@@ -118,7 +118,7 @@ class Module extends \zesk\Module
 	 * @param array $database
 	 * @return void
 	 * @throws FilePermission
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 */
 	public function saveProcessDatabase(array $database): void
 	{
@@ -180,7 +180,7 @@ class Module extends \zesk\Module
 				$this->application->debug('Read database: {data}', [
 					'data' => JSON::encode($database),
 				]);
-			} catch (SemanticsException $e) {
+			} catch (ProtocolException $e) {
 				PHP::log($e);
 			}
 		}

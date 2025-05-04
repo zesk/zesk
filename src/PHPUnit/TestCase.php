@@ -27,7 +27,7 @@ use zesk\Exception\DirectoryPermission;
 use zesk\Exception\FilePermission;
 use zesk\Exception\NotFoundException;
 use zesk\Exception\ParseException;
-use zesk\Exception\SemanticsException;
+use zesk\Exception\ProtocolException;
 use zesk\Exception\UnsupportedException;
 use zesk\File;
 use zesk\JSON;
@@ -86,7 +86,7 @@ class TestCase extends BaseTestCase
 	 * Must *not* call in dataProvider
 	 *
 	 * @return Application
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 */
 	public static function app(): Application
 	{
@@ -99,7 +99,7 @@ class TestCase extends BaseTestCase
 	 * @throws ConfigurationException
 	 * @throws ParseException
 	 * @throws NotFoundException
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 * @throws UnsupportedException
 	 */
 	public function setUp(): void
@@ -127,7 +127,9 @@ class TestCase extends BaseTestCase
 			$options = $this->option->toArray();
 			if (count($options)) {
 				$this->application->debug('{method}: {class} options is {option}', [
-					'method' => __METHOD__, 'class' => get_class($this), 'option' => $options,
+					'method' => __METHOD__,
+					'class'  => get_class($this),
+					'option' => $options,
 				]);
 			}
 		}
@@ -200,8 +202,10 @@ class TestCase extends BaseTestCase
 		$this->assertInstanceOf(Configuration::class, $this->configuration);
 		$this->assertInstanceOf(Application::class, $this->application);
 		file_put_contents($this->lastTestCaseFile(), JSON::encodePretty([
-			'class' => get_class($this), 'hierarchy' => $this->application->classes->hierarchy(get_class($this)),
-			'when' => date('Y-m-d H:i:s'), 'debug' => $this->option->toArray(),
+			'class' => get_class($this),
+			'hierarchy' => $this->application->classes->hierarchy(get_class($this)),
+			'when' => date('Y-m-d H:i:s'),
+			'debug' => $this->option->toArray(),
 		]));
 	}
 
@@ -439,7 +443,10 @@ class TestCase extends BaseTestCase
 	 */
 	final public function option(string $name, mixed $default = null): mixed
 	{
-		return $this->configuration?->getPath([get_class($this), $name], $default);
+		return $this->configuration?->getPath([
+			get_class($this),
+			$name,
+		], $default);
 	}
 
 	public function optionBool(string $name, bool $default = false): bool

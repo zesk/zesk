@@ -23,7 +23,7 @@ use zesk\Exception\KeyNotFound;
 use zesk\Exception\NotFoundException;
 use zesk\Exception\ParameterException;
 use zesk\Exception\ParseException;
-use zesk\Exception\SemanticsException;
+use zesk\Exception\ProtocolException;
 use zesk\Exception\TimeoutExpired;
 use zesk\File;
 use zesk\Locale\Locale;
@@ -52,7 +52,7 @@ class Update extends Model
 	 * @throws KeyNotFound
 	 * @throws ParameterException
 	 * @throws ParseException
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 * @throws ORMDuplicate
 	 * @throws ORMEmpty
 	 * @throws ORMNotFound
@@ -91,7 +91,7 @@ class Update extends Model
 	 * @throws ORMNotFound
 	 * @throws ParameterException
 	 * @throws ParseException
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 * @throws TimeoutExpired
 	 * @throws ORMEmpty
 	 */

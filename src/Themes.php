@@ -13,7 +13,7 @@ use Psr\Log\LoggerInterface;
 use zesk\Exception\DirectoryNotFound;
 use zesk\Exception\NotFoundException;
 use zesk\Exception\Redirect;
-use zesk\Exception\SemanticsException;
+use zesk\Exception\ProtocolException;
 use zesk\Interface\Themeable;
 
 /**
@@ -147,7 +147,8 @@ class Themes implements Themeable
 	private function cleanTemplatePath(string $path): string
 	{
 		return preg_replace('%[^-_./a-zA-Z0-9]%', '_', strtr($path, [
-			'_' => '/', '\\' => '/',
+			'_'  => '/',
+			'\\' => '/',
 		]));
 	}
 
@@ -193,7 +194,8 @@ class Themes implements Themeable
 						$result[] = $path;
 						if (!$all) {
 							return [
-								$result, $tried_path,
+								$result,
+								$tried_path,
 							];
 						}
 					} else {
@@ -203,7 +205,8 @@ class Themes implements Themeable
 			}
 		}
 		return [
-			$result, $tried_path,
+			$result,
+			$tried_path,
 		];
 	}
 
@@ -283,7 +286,8 @@ class Themes implements Themeable
 		}
 		if (!$has_output) {
 			$this->logger?->warning('Theme {types} had no output ({details})', [
-				'types' => $types, 'details' => Kernel::backtrace(),
+				'types'   => $types,
+				'details' => Kernel::backtrace(),
 			]);
 		}
 		return $content;
@@ -324,7 +328,7 @@ class Themes implements Themeable
 
 	/**
 	 * @return Theme
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 */
 	public function popTemplate(): Theme
 	{

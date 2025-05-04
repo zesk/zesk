@@ -14,7 +14,7 @@ use zesk\Exception\ConfigurationException;
 use zesk\Exception\KeyNotFound;
 use zesk\Exception\ParameterException;
 use zesk\Exception\ParseException;
-use zesk\Exception\SemanticsException;
+use zesk\Exception\ProtocolException;
 use zesk\Exception\UnimplementedException;
 use zesk\HookMethod;
 use zesk\Interface\Module\Routes;
@@ -73,7 +73,7 @@ class Module extends BaseModule implements Routes
 	 * @throws KeyNotFound
 	 * @throws ParameterException
 	 * @throws ParseException
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 */
 	private function runDaemon(SystemProcess $process): void
 	{
@@ -109,7 +109,7 @@ class Module extends BaseModule implements Routes
 	 * @throws KeyNotFound
 	 * @throws ParameterException
 	 * @throws ParseException
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 * @throws Throwable
 	 * @see self::daemon()
 	 */

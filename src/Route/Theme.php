@@ -6,7 +6,7 @@ namespace zesk\Route;
 use zesk\ArrayTools;
 use zesk\Exception\DirectoryCreate;
 use zesk\Exception\DirectoryPermission;
-use zesk\Exception\SemanticsException;
+use zesk\Exception\ProtocolException;
 use zesk\HTTP;
 use zesk\Request;
 use zesk\Response;
@@ -75,7 +75,8 @@ class Theme extends Route
 		}
 
 		throw new FileNotFound('No theme {theme} found in {themePaths}', [
-			'theme' => $theme, 'themePaths' => $themes->themePath(),
+			'theme'      => $theme,
+			'themePaths' => $themes->themePath(),
 		]);
 	}
 
@@ -85,7 +86,7 @@ class Theme extends Route
 	 * @throws RedirectException
 	 * @throws DirectoryCreate
 	 * @throws DirectoryPermission
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 */
 	public function internalExecute(Request $request): Response
 	{

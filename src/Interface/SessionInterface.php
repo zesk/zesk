@@ -7,7 +7,7 @@ declare(strict_types=1);
 namespace zesk\Interface;
 
 use zesk\Exception\AuthenticationException;
-use zesk\Exception\SemanticsException;
+use zesk\Exception\ProtocolException;
 use zesk\Request;
 
 /**
@@ -51,7 +51,7 @@ interface SessionInterface extends SettingsInterface
 	 * Relinquish the authentication of the current user. Throws Semantics if not authenticated.
 	 *
 	 * @return void
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 */
 	public function relinquish(): void;
 

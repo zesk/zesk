@@ -16,7 +16,7 @@ namespace zesk\Locale;
 use zesk\Directory;
 use zesk\Exception\FileNotFound;
 use zesk\Exception\FilePermission;
-use zesk\Exception\SemanticsException;
+use zesk\Exception\ProtocolException;
 use zesk\Exception\UnimplementedException;
 use zesk\HookMethod;
 use zesk\Interface\Module\Head;
@@ -54,7 +54,8 @@ class Module extends \zesk\Module implements Head, Routes
 		$path = $this->application->paths->expand($autoPath);
 		if (!is_dir($path)) {
 			$this->application->warning('{class}::autoPath {path} is not a directory', [
-				'path' => $path, 'class' => get_class($this),
+				'path'  => $path,
+				'class' => get_class($this),
 			]);
 			return;
 		}
@@ -77,12 +78,16 @@ class Module extends \zesk\Module implements Head, Routes
 	{
 		try {
 			$response->html()->javascript('/share/Locale/js/locale.js', [
-				'weight' => -20, 'share' => true,
+				'weight' => -20,
+				'share'  => true,
 			]);
 			$response->html()->javascript('/locale/js?ll=' . $this->application->locale->id(), [
-				'weight' => -10, 'is_route' => true, 'route_expire' => 3600, /* once an hour */
+				'weight'       => -10,
+				'is_route'     => true,
+				'route_expire' => 3600,
+				/* once an hour */
 			]);
-		} catch (SemanticsException $e) {
+		} catch (ProtocolException $e) {
 			/* Should never happen - only if options contain 'after' or 'before' */
 			PHP::log($e);
 		}

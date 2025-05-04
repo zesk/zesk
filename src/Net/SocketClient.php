@@ -10,9 +10,8 @@ declare(strict_types=1);
 namespace zesk\Net;
 
 use zesk\Exception\ConnectionFailed;
-use zesk\Exception\SemanticsException;
-use zesk\Exception_Protocol;
-use zesk\TimeoutExpired;
+use zesk\Exception\ProtocolException;
+use zesk\Exception\TimeoutExpired;
 
 class SocketClient extends Client
 {
@@ -125,9 +124,9 @@ class SocketClient extends Client
 
 	/**
 	 * @return string
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 * @throws ConnectionFailed
-	 * @throws Exception_Protocol
+	 * @throws ProtocolException
 	 */
 	public function connectGreeting(): string
 	{
@@ -175,7 +174,7 @@ class SocketClient extends Client
 	 * @param string $command Command to run
 	 * @param string $expect String to expect from the other side as a response
 	 * @return string
-	 * @throws Exception_Protocol
+	 * @throws ProtocolException
 	 * @throws ConnectionFailed
 	 */
 	protected function command(string $command, string $expect = ''): string
@@ -196,7 +195,7 @@ class SocketClient extends Client
 	 *            Debugging command (just logged)
 	 * @return string
 	 * @throws ConnectionFailed
-	 * @throws Exception_Protocol
+	 * @throws ProtocolException
 	 */
 	protected function expect(string $expect, string $command): string
 	{
@@ -207,8 +206,10 @@ class SocketClient extends Client
 		} while (substr($line, 3, 1) === '-');
 		$result = implode("\n", $result);
 		if (!str_starts_with(trim($result), $expect)) {
-			throw new Exception_Protocol('{command} expected {expect}, received {result}', [
-				'command' => $command, 'expect' => $expect, 'result' => $result,
+			throw new ProtocolException('{command} expected {expect}, received {result}', [
+				'command' => $command,
+				'expect'  => $expect,
+				'result'  => $result,
 			]);
 		}
 		return $result;
@@ -248,9 +249,9 @@ class SocketClient extends Client
 	/**
 	 * @param int $milliseconds
 	 * @return string
-	 * @throws Exception_Protocol
-	 * @throws SemanticsException
-	 * @throws TimeoutExpired
+	 * @throws ProtocolException
+	 * @throws ProtocolException
+	 * @throws TimeoutExpired|ConnectionFailed
 	 */
 	public function readWait(int $milliseconds = self::DEFAULT_READ_TIMEOUT_MILLISECONDS): string
 	{
@@ -273,7 +274,7 @@ class SocketClient extends Client
 	 *
 	 * @return string
 	 * @throws ConnectionFailed
-	 * @throws Exception_Protocol
+	 * @throws ProtocolException
 	 */
 	public function read(): string
 	{
@@ -282,7 +283,7 @@ class SocketClient extends Client
 			$this->buffer .= $this->_read($this->optionInt(self::OPTION_READ_BUFFER_SIZE, self::DEFAULT_OPTION_READ_BUFFER_SIZE));
 			$pos = strpos($this->buffer, $this->EOL);
 			if ($pos === false) {
-				throw new Exception_Protocol("Server returned a line not ending in EOL: $this->buffer");
+				throw new ProtocolException("Server returned a line not ending in EOL: $this->buffer");
 			}
 		}
 		$eol_len = strlen($this->EOL);
@@ -294,8 +295,8 @@ class SocketClient extends Client
 	/**
 	 * @param int $length
 	 * @return string
-	 * @throws SemanticsException
-	 * @throws Exception_Protocol
+	 * @throws ProtocolException
+	 * @throws ProtocolException|ConnectionFailed
 	 */
 	public function readData(int $length): string
 	{
@@ -316,18 +317,19 @@ class SocketClient extends Client
 	 *
 	 * @param int $characterCount
 	 * @return string
-	 * @throws Exception_Protocol
+	 * @throws ProtocolException
 	 */
 	protected function _read(int $characterCount): string
 	{
 		$result = fread($this->socket, $characterCount);
 		if ($this->optionBool(self::OPTION_DEBUG_READ)) {
 			$this->_log('->read({count}) = {result}', [
-				'count' => $characterCount, 'result' => $result === false ? 'false' : strlen($result) . ' bytes',
+				'count'  => $characterCount,
+				'result' => $result === false ? 'false' : strlen($result) . ' bytes',
 			]);
 		}
 		if (strlen($result) === 0) {
-			throw new Exception_Protocol("fread returned empty: $result");
+			throw new ProtocolException("fread returned empty: $result");
 		}
 		$this->log("< $result");
 		return $result;

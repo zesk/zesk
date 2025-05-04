@@ -23,7 +23,7 @@ use zesk\Doctrine\Server;
 use zesk\Exception\ClassNotFound;
 use zesk\Exception\ParameterException;
 use zesk\Exception\ParseException;
-use zesk\Exception\SemanticsException;
+use zesk\Exception\ProtocolException;
 use zesk\Exception\TimeoutExpired;
 use zesk\Exception\UnimplementedException;
 use zesk\Hookable;
@@ -159,7 +159,7 @@ class Module extends BaseModule
 	 *
 	 * @return void
 	 * @throws ClassNotFound
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 * @see self::hook_routes()
 	 */
 	#[HookMethod(handles: Application::HOOK_ROUTES, argumentTypes: [Router::class])]
@@ -499,7 +499,7 @@ class Module extends BaseModule
 	 *
 	 * @param Request $request
 	 * @param Response $response
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 */
 	#[HookMethod(Response\HTML::HOOK_HTML_OPEN)]
 	public function page_runner(Request $request, Response $response): void

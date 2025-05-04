@@ -17,7 +17,7 @@ use zesk\Command\SimpleCommand;
 use zesk\Directory;
 use zesk\Exception\ConfigurationException;
 use zesk\Exception\FilePermission;
-use zesk\Exception\SemanticsException;
+use zesk\Exception\ProtocolException;
 use zesk\Exception\SyntaxException;
 use zesk\FileMonitor\FilesMonitor;
 use zesk\Hookable;
@@ -537,7 +537,7 @@ class Daemon extends SimpleCommand implements SystemProcess
 	protected static function instance(): self
 	{
 		if (!self::$instance) {
-			throw new SemanticsException('No instance');
+			throw new ProtocolException('No instance');
 		}
 		return self::$instance;
 	}

@@ -13,7 +13,7 @@ use ReflectionException;
 use zesk\Controller as zeskController;
 use zesk\Exception\AuthenticationException;
 use zesk\Exception\ParameterException;
-use zesk\Exception\SemanticsException;
+use zesk\Exception\ProtocolException;
 use zesk\Exception\UnsupportedException;
 use zesk\HTTP;
 use zesk\Interface\Userlike;
@@ -77,7 +77,10 @@ class Controller extends zeskController
 	 */
 	public function arguments(Request $request, Response $response, array $arguments, string $action): array
 	{
-		return [$request, $response];
+		return [
+			$request,
+			$response,
+		];
 	}
 
 	private function _baseResponseData(): array
@@ -96,7 +99,9 @@ class Controller extends zeskController
 		$session = $this->application->session($request, false);
 		if (!$session) {
 			return $response->json()->setData($responseData + [
-				'authenticated' => false, 'userId' => null, 'session' => $session->variables(),
+				'authenticated' => false,
+				'userId'        => null,
+				'session'       => $session->variables(),
 			]);
 		}
 		$authenticated = $session->isAuthenticated();
@@ -127,7 +132,8 @@ class Controller extends zeskController
 			$response->setStatus(HTTP::STATUS_UNAUTHORIZED, 'Unauthorized');
 			// Done calling hooks
 			return $response->json()->setData([
-				'authenticated' => false, 'message' => $e->getMessage(),
+				'authenticated' => false,
+				'message'       => $e->getMessage(),
 			] + $this->_baseResponseData());
 		}
 		$user = $request->get($this->option('requestIdColumn', 'user'));
@@ -139,14 +145,16 @@ class Controller extends zeskController
 
 			$data = Types::toArray($user->invokeFilters(self::HOOK_LOGIN_SUCCESS, [], [$this]));
 			return $response->json()->appendData([
-				'authenticated' => true, 'user' => $user->id(),
+				'authenticated' => true,
+				'user'          => $user->id(),
 			] + $data + $this->_baseResponseData());
 		} catch (AuthenticationException $e) {
 			$response->setStatus(HTTP::STATUS_UNAUTHORIZED, 'Unauthorized');
 			$data = Types::toArray($user->invokeFilters(self::HOOK_LOGIN_FAILED, [], [$this]));
 
 			return $response->json()->setData([
-				'authenticated' => false, 'message' => 'user-or-password-mismatch',
+				'authenticated' => false,
+				'message'       => 'user-or-password-mismatch',
 			] + $data + $this->_baseResponseData());
 		}
 	}
@@ -155,7 +163,7 @@ class Controller extends zeskController
 	 * @param Request $request
 	 * @param Response $response
 	 * @return Response
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 */
 	public function action_DELETE_index(Request $request, Response $response): Response
 	{

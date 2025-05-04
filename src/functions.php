@@ -21,7 +21,7 @@ use zesk\Debug;
 use zesk\Application;
 use zesk\Directory;
 use zesk\ArrayTools;
-use zesk\Exception\SemanticsException;
+use zesk\Exception\ProtocolException;
 
 /**
  * Key used to separate paths in the globals array
@@ -244,7 +244,7 @@ function toBytes(string|int $mixed, int $default = 0): int
  *
  * @param mixed $mixed
  * @return string|int|float|bool
- * @throws SemanticsException
+ * @throws ProtocolException
  * @deprecated 2023-01
  */
 function flatten(mixed $mixed): string|int|float|bool

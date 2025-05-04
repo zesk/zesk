@@ -11,16 +11,11 @@ declare(strict_types=1);
  * @author kent
  */
 
-namespace zesk\Doctrine;
+namespace zesk;
 
 use Psr\Log\LoggerInterface;
 use ReflectionClass;
 use ReflectionException;
-use zesk\ArrayTools;
-use zesk\RuntimeException;
-use zesk\StringTools;
-use zesk\Timestamp;
-use zesk\Types;
 
 /**
  * Traverse Model objects to convert into various output formats
@@ -109,8 +104,10 @@ class Walker
 	public function variables(): array
 	{
 		return [
-			'include_members' => $this->includeMembers(), 'exclude_members' => $this->excludeMembers(),
-			'resolve_methods' => $this->resolveMethods(), 'members_handler' => array_keys($this->members_handler),
+			'include_members' => $this->includeMembers(),
+			'exclude_members' => $this->excludeMembers(),
+			'resolve_methods' => $this->resolveMethods(),
+			'members_handler' => array_keys($this->members_handler),
 			'resolve_objects' => $this->resolveObjects(),
 		];
 	}
@@ -354,13 +351,15 @@ class Walker
 	{
 		if ($this->preprocess_hook) {
 			$model->invokeHooks($this->preprocess_hook, [
-				$model, $this,
+				$model,
+				$this,
 			]);
 		}
 		$result = $this->_walk($model);
 		if ($this->postprocess_hook) {
 			$result = $model->invokeFilters($this->postprocess_hook, $result, [
-				$result, $this,
+				$result,
+				$this,
 			], 0);
 		}
 		return $result;
@@ -403,7 +402,10 @@ class Walker
 			if (is_array($allow_resolve_objects) && count($allow_resolve_objects) !== 0 && !StringTools::begins($allow_resolve_objects, $member_path)) {
 				$logger->warning('Not allowed to traverse {member_path} as it is not included in {allow_resolve_objects}', compact('allow_resolve_objects', 'member_path'));
 			} else {
-				[$member, $remaining_path] = StringTools::pair($member_path, '.', $member_path);
+				[
+					$member,
+					$remaining_path,
+				] = StringTools::pair($member_path, '.', $member_path);
 				if (!array_key_exists($member, $resolve_object_match)) {
 					$resolve_object_match[$member] = [];
 				}
@@ -427,7 +429,8 @@ class Walker
 	{
 		/* Convert to JSON structure */
 		$class_data = $this->class_info ? [
-			'_class' => get_class($this), '_parent_class' => get_parent_class($this),
+			'_class'        => get_class($this),
+			'_parent_class' => get_parent_class($this),
 		] : [];
 		$reflectionClass = new ReflectionClass($model);
 		if ($this->depth === 0) {
@@ -447,7 +450,8 @@ class Walker
 				return $result + $class_data;
 			} catch (ReflectionException $e) {
 				throw new RuntimeException('Invalid ids: {ids} for {class}', [
-					'ids' => $ids, 'class' => $model,
+					'ids'   => $ids,
+					'class' => $model,
 				], $e->getCode(), $e);
 			}
 		}
@@ -506,7 +510,8 @@ class Walker
 				$value = $reflectionClass->getProperty($member);
 			} catch (ReflectionException $e) {
 				throw new RuntimeException('Invalid member {member} for class {class}', [
-					'member' => $member, 'class' => $model,
+					'member' => $member,
+					'class'  => $model,
 				], $e->getCode(), $e);
 			}
 			$child_options->setResolveObjects($resolve_object_match[$member]);
@@ -547,7 +552,8 @@ class Walker
 				return $resolve_method($object, $member, $value, $child_options);
 			}
 			$logger->warning('Invalid resolve method passed into {class} walker: {type}', [
-				'class' => $object::class, 'type' => Types::type($resolve_method),
+				'class' => $object::class,
+				'type'  => Types::type($resolve_method),
 			]);
 		}
 		return $value->__toString();

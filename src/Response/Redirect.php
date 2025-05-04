@@ -13,7 +13,7 @@ use Throwable;
 use zesk\Exception\KeyNotFound;
 use zesk\Exception\Redirect as RedirectException;
 use zesk\Exception\RedirectTemporary;
-use zesk\Exception\SemanticsException;
+use zesk\Exception\ProtocolException;
 use zesk\Interface\SessionInterface;
 use zesk\Net_HTTP;
 use zesk\Preference\Type;
@@ -29,7 +29,7 @@ class Redirect extends Type
 	/**
 	 *
 	 * @return SessionInterface
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 */
 	private function session(): SessionInterface
 	{
@@ -59,7 +59,7 @@ class Redirect extends Type
 	 * @param string $message
 	 * @param array $attributes
 	 * @return Response
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 * @throws KeyNotFound
 	 * @todo Move this elsewhere. Response addon?
 	 */

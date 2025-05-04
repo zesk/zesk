@@ -15,7 +15,7 @@ use zesk\Exception\DirectoryPermission;
 use zesk\Exception\NotFoundException;
 use zesk\Exception\ParameterException;
 use zesk\Exception\ParseException;
-use zesk\Exception\SemanticsException;
+use zesk\Exception\ProtocolException;
 use zesk\Exception\UnsupportedException;
 use zesk\JSON;
 use zesk\Kernel;
@@ -43,7 +43,7 @@ class TestApplicationUnitTest extends TestCase
 	 * @throws ClassNotFound
 	 * @throws DirectoryNotFound
 	 * @throws ParseException
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 */
 	public function setUp(): void
 	{
@@ -54,13 +54,13 @@ class TestApplicationUnitTest extends TestCase
 
 	/**
 	 * @return TestApplication
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 */
 	public static function testApplication(): TestApplication
 	{
 		$app = Kernel::singleton()->applicationByClass(TestApplication::class);
 		if (!$app) {
-			throw new SemanticsException('No TestApplication');
+			throw new ProtocolException('No TestApplication');
 		}
 		assert($app instanceof TestApplication);
 		return $app;
@@ -84,7 +84,7 @@ class TestApplicationUnitTest extends TestCase
 	 * @throws DirectoryCreate
 	 * @throws DirectoryNotFound
 	 * @throws DirectoryPermission
-	 * @throws NotFoundException|SemanticsException
+	 * @throws NotFoundException|ProtocolException
 	 */
 	private function newApplicationFactory(array $options = []): TestApplication
 	{
@@ -133,7 +133,7 @@ class TestApplicationUnitTest extends TestCase
 	 * @throws ClassNotFound
 	 * @throws ConfigurationException
 	 * @throws ParseException
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 * @throws NotFoundException
 	 * @throws ParameterException
 	 * @throws UnsupportedException

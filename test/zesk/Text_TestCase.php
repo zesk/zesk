@@ -3,8 +3,9 @@ declare(strict_types=1);
 
 namespace test\zesk;
 
-class Text_TestCase extends TestCase
-{
+use zesk\Text;
+
+class Text_TestCase extends TestCase {
 	public static function data_fill(): array
 	{
 		return [
@@ -120,8 +121,6 @@ class Text_TestCase extends TestCase
 		];
 		$prefix = ' ';
 		$space = ' ';
-		$suffix = ': ';
-		$br = "\n";
 		$this->assertEquals(" Name: John\n", Text::formatPairs($map, $prefix, $space, $suffix, $br));
 	}
 
@@ -233,7 +232,7 @@ class Text_TestCase extends TestCase
 		$this->assertEquals($expected, Text::indentString($text, $indentString, $newline));
 	}
 
-	public static function data_leftAlign()
+	public static function data_leftAlign(): array
 	{
 		return [
 			[
@@ -393,6 +392,8 @@ class Text_TestCase extends TestCase
 	 * @param $text
 	 * @param $prefix
 	 * @param $suffix
+	 * @param $first_prefix
+	 * @param $last_suffix
 	 * @return void
 	 * @dataProvider data_lines_wrap
 	 */
@@ -439,7 +440,7 @@ class Text_TestCase extends TestCase
 		$this->assertEquals($expected, Text::parseTable($content, $num_columns, $delimiters, $newline));
 	}
 
-	public static function data_rightAlign()
+	public static function data_rightAlign(): array
 	{
 		return [
 			[
@@ -692,6 +693,9 @@ class Text_TestCase extends TestCase
 	}
 
 	/**
+	 * @param string $expected
+	 * @param string $string
+	 * @param int $wordCount
 	 * @return void
 	 * @dataProvider data_trim_words
 	 */
@@ -757,12 +761,12 @@ class Text_TestCase extends TestCase
 	}
 
 	/**
-	 * @param $expected
-	 * @param $fields
-	 * @param $padding
-	 * @param $prefix
-	 * @param $suffix
-	 * @param $line_end
+	 * @param string $expected
+	 * @param array $fields
+	 * @param string $padding
+	 * @param string $prefix
+	 * @param string $suffix
+	 * @param string $line_end
 	 * @return void
 	 * @dataProvider data_format_array
 	 */
@@ -771,7 +775,7 @@ class Text_TestCase extends TestCase
 		$this->assertEquals($expected, Text::formatArray($fields, $padding, $prefix, $suffix, $line_end));
 	}
 
-	public static function data_provider_parse_columns()
+	public static function data_provider_parse_columns(): array
 	{
 		return [
 			[

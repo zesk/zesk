@@ -66,7 +66,8 @@ class Debug
 	{
 		$args = func_get_args();
 		$result = call_user_func_array([
-			'zesk\\Debug', 'dump',
+			'zesk\\Debug',
+			'dump',
 		], $args);
 		echo $result . "\n";
 	}
@@ -74,7 +75,7 @@ class Debug
 	/**
 	 * Returns what "dump" would print (doesn't echo)
 	 *
-	 * @return A string representation of the value
+	 * @return string representation of the value
 	 * @see print_r, dump
 	 */
 	public static function dump(): string
@@ -129,7 +130,10 @@ class Debug
 				return '(recursion limit ' . self::$indent_limit . ')';
 			}
 		} elseif (is_object($x)) {
-			foreach (['_debugDump', '_debug_dump'] as $method) {
+			foreach ([
+				'_debugDump',
+				'_debug_dump',
+			] as $method) {
 				if (method_exists($x, $method)) {
 					return $x->$method();
 				}

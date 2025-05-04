@@ -26,7 +26,7 @@ use zesk\Exception\NotFoundException;
 use zesk\Exception\ParameterException;
 use zesk\Exception\ParseException;
 use zesk\Exception\Redirect;
-use zesk\Exception\SemanticsException;
+use zesk\Exception\ProtocolException;
 use zesk\Exception\UnsupportedException;
 use zesk\Interface\Promptable;
 
@@ -112,9 +112,14 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 	 * @var array
 	 */
 	public static array $ansi_styles = [
-		LogLevel::EMERGENCY => '31;31m', LogLevel::CRITICAL => '31;31m', LogLevel::ERROR => '31;31m',
-		LogLevel::WARNING => '40;33m', LogLevel::INFO => '33;33m', LogLevel::DEBUG => '37;40m', 'success' => '0;32m',
-		'reset' => '0m',
+		LogLevel::EMERGENCY => '31;31m',
+		LogLevel::CRITICAL  => '31;31m',
+		LogLevel::ERROR     => '31;31m',
+		LogLevel::WARNING   => '40;33m',
+		LogLevel::INFO      => '33;33m',
+		LogLevel::DEBUG     => '37;40m',
+		'success'           => '0;32m',
+		'reset'             => '0m',
 	];
 
 	/**
@@ -122,7 +127,10 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 	 * @var array
 	 */
 	private static array $severityIsError = [
-		LogLevel::EMERGENCY => true, LogLevel::ALERT => true, LogLevel::CRITICAL => true, LogLevel::ERROR => true,
+		LogLevel::EMERGENCY => true,
+		LogLevel::ALERT     => true,
+		LogLevel::CRITICAL  => true,
+		LogLevel::ERROR     => true,
 	];
 
 	/**
@@ -285,21 +293,25 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 
 		try {
 			$this->_parseOptions();
-		} catch (SemanticsException $e) {
+		} catch (ProtocolException $e) {
 			throw new ParameterException('Invalid arguments for {class}: {argv}', [
-				'class' => $this::class, 'argv' => $argv,
+				'class' => $this::class,
+				'argv'  => $argv,
 			], $e->getCode(), $e);
 		}
 
 		if ($this->optionBool(self::OPTION_DEBUG)) {
 			$this->application->debug('{class}({args})', [
-				'class' => get_class($this), 'args' => var_export($argv, true),
+				'class' => get_class($this),
+				'args'  => var_export($argv, true),
 			]);
 		}
 
 		if ($this->hasErrors()) {
 			throw new ParameterException("Invalid arguments for {class}: {argv}\n{errors}", [
-				'class' => $this::class, 'argv' => $argv, 'errors' => $this->errors(),
+				'class'  => $this::class,
+				'argv'   => $argv,
+				'errors' => $this->errors(),
 			]);
 		}
 		return $this;
@@ -316,11 +328,13 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 		/* @var $command_object Command */
 		if (!$this->has_configuration) {
 			$logger->debug('Command {class} does not have configuration, calling {app}->configured()', [
-				'class' => get_class($this), 'app' => $application::class,
+				'class' => get_class($this),
+				'app'   => $application::class,
 			]);
 			if (!$application->configured()) {
 				$logger->debug('Command {class} {app} WAS ALREADY CONFIGURED!!!!', [
-					'class' => get_class($this), 'app' => $application::class,
+					'class' => get_class($this),
+					'app'   => $application::class,
 				]);
 			}
 		} else {
@@ -358,7 +372,8 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 	{
 		$file = File::nameClean($name);
 		$suffixes = [
-			"$file.conf", "$file.json",
+			"$file.conf",
+			"$file.json",
 		];
 		$paths = $this->configurationPaths();
 		$files = [];
@@ -374,7 +389,8 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 			$default = ArrayTools::last($files);
 		}
 		$result = [
-			'files' => $files, 'default' => $default,
+			'files'   => $files,
+			'default' => $default,
 		];
 		if (empty($default)) {
 			$result['default'] = Directory::path(ArrayTools::first($paths), $file);
@@ -398,7 +414,7 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 	 * @throws DirectoryNotFound
 	 * @throws FilePermission
 	 * @throws ParameterException
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 * @throws UnsupportedException|NotFoundException|ParseException
 	 */
 	protected function configure(string $name, bool $create = false): string
@@ -413,7 +429,8 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 		}
 		if (empty($filename)) {
 			throw new ParameterException('No configuration file name for {name}', [
-				'name' => $name, 'create' => $create,
+				'name'   => $name,
+				'create' => $create,
 			]);
 		}
 
@@ -428,7 +445,8 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 		if ($exists || $create) {
 			if ($exists) {
 				$this->verboseLog('Loading {name} configuration from {config}', [
-					'name' => $name, 'config' => $filename,
+					'name'   => $name,
+					'config' => $filename,
 				]);
 			} else {
 				$this->write_default_configuration($name, $filename);
@@ -443,18 +461,20 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 	 * @param string $name
 	 * @param string $filename
 	 * @return void
-	 * @throws SemanticsException|FilePermission
+	 * @throws ProtocolException|FilePermission
 	 */
 	protected function write_default_configuration(string $name, string $filename): void
 	{
 		if (!is_writable(dirname($filename))) {
 			$this->error('Can not write {name} configuration file ({filename}) - directory is not writable', [
-				'name' => $name, 'filename' => $filename,
+				'name'     => $name,
+				'filename' => $filename,
 			]);
 			return;
 		}
 		$this->verboseLog('Creating {name} configuration file ({filename})', [
-			'name' => $name, 'filename' => $filename,
+			'name'     => $name,
+			'filename' => $filename,
 		]);
 		$extension = File::extension($filename);
 		if ($extension === 'conf') {
@@ -463,7 +483,9 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 			File::put($filename, JSON::encode([
 				get_class($this) => [
 					'configuration_file' => [
-						'created' => date('Y-m-d H:i:s'), 'file' => $filename, 'name' => $name,
+						'created' => date('Y-m-d H:i:s'),
+						'file'    => $filename,
+						'name'    => $name,
 					],
 				],
 			]));
@@ -493,7 +515,10 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 	 */
 	protected function parse_argument(string $name, string $type): bool
 	{
-		throw new ParameterException('Unknown parameter {name} of {type}', ['name' => $name, 'type' => $type]);
+		throw new ParameterException('Unknown parameter {name} of {type}', [
+			'name' => $name,
+			'type' => $type,
+		]);
 	}
 
 	/**
@@ -557,9 +582,19 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 	 * @var array|string[]
 	 */
 	private static array $argType = [
-		'dir' => 'dir', 'dir+' => 'dir', 'dir[]' => 'dir', 'string*' => 'string', 'string[]' => 'string',
-		'string' => 'string', 'list' => 'item1;item2;...', 'integer' => 'number', 'real' => 'real-number',
-		'path' => 'path', 'file' => 'file', 'file[]' => 'file', 'boolean' => '',
+		'dir'      => 'dir',
+		'dir+'     => 'dir',
+		'dir[]'    => 'dir',
+		'string*'  => 'string',
+		'string[]' => 'string',
+		'string'   => 'string',
+		'list'     => 'item1;item2;...',
+		'integer'  => 'number',
+		'real'     => 'real-number',
+		'path'     => 'path',
+		'file'     => 'file',
+		'file[]'   => 'file',
+		'boolean'  => '',
 	];
 
 	/**
@@ -727,7 +762,10 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 		if ($this->hasOption('suffix')) {
 			$suffix = ' ' . $this->option('suffix') . $suffix;
 		}
-		[$prefix, $suffix] = $this->ansiAnnotate($prefix, $suffix, $severity);
+		[
+			$prefix,
+			$suffix,
+		] = $this->ansiAnnotate($prefix, $suffix, $severity);
 		$isError = isset(self::$severityIsError[$severity]);
 
 		if ($isError) {
@@ -767,14 +805,16 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 	{
 		if (!$this->isANSI() || !array_key_exists($severity, self::$ansi_styles)) {
 			return [
-				$prefix, $suffix,
+				$prefix,
+				$suffix,
 			];
 		}
 		$prefix = self::ANSI_ESCAPE . self::$ansi_styles[$severity] . $prefix;
 		$suffix = explode("\n", $suffix);
 		$suffix = implode(self::ANSI_ESCAPE . self::$ansi_styles['reset'] . "\n", $suffix);
 		return [
-			$prefix, $suffix,
+			$prefix,
+			$suffix,
 		];
 	}
 
@@ -836,7 +876,7 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 		while ($this->hasArgument($endOfArgumentMarker)) {
 			try {
 				$arguments[] = $this->getArgument(__METHOD__, $endOfArgumentMarker);
-			} catch (SemanticsException) {
+			} catch (ProtocolException) {
 			}
 		}
 		if (!$endOfArgumentMarker && ArrayTools::first($arguments) === self::END_OF_ARGUMENT_MARKER) {
@@ -878,20 +918,20 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 	 * @param string $arg
 	 * @param bool $endOfArgumentMarker
 	 * @return string
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 */
 	protected function getArgument(string $arg = '', bool $endOfArgumentMarker = true): string
 	{
 		if (count($this->argv) === 0) {
 			$this->error("No argument parameter for $arg");
 
-			throw new SemanticsException('No arguments');
+			throw new ProtocolException('No arguments');
 		}
 		if ($endOfArgumentMarker) {
 			if ($this->argv[0] === self::END_OF_ARGUMENT_MARKER) {
 				$this->error("End of arguments marker found for $arg");
 
-				throw new SemanticsException('End of arguments marker found');
+				throw new ProtocolException('End of arguments marker found');
 			}
 		}
 		return array_shift($this->argv);
@@ -899,7 +939,7 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 
 	/**
 	 * Parse command-line options for this command
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 * @throws ParameterException
 	 */
 	private function _parseOptions(): void
@@ -1147,7 +1187,10 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 	{
 		if ($this->hasReadline()) {
 			if ($function === null) {
-				$function = [$this, 'defaultCompletionFunction'];
+				$function = [
+					$this,
+					'defaultCompletionFunction',
+				];
 			}
 			readline_completion_function($function);
 		}
@@ -1194,7 +1237,7 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 	 * @param string|null $default
 	 * @param array|null $completions
 	 * @return string
-	 * @throws StopIteration|SemanticsException
+	 * @throws StopIteration|ProtocolException
 	 */
 	public function prompt(string $message, ?string $default = null, ?array $completions = null): string
 	{
@@ -1204,7 +1247,7 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 					'message' => $message,
 				]);
 
-				throw new SemanticsException('Non-interactive set but input is required for {message}', [
+				throw new ProtocolException('Non-interactive set but input is required for {message}', [
 					'message' => $message,
 				]);
 			}
@@ -1255,11 +1298,14 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 		do {
 			echo rtrim($message) . ' ' . ($default === null ? '(y/n)' : ($default ? '(Y/n)' : '(y/N)')) . ' ';
 			$this->completions = ($default === null ? [
-				'yes', 'no',
+				'yes',
+				'no',
 			] : ($default ? [
-				'yes', 'no',
+				'yes',
+				'no',
 			] : [
-				'no', 'yes',
+				'no',
+				'yes',
 			]));
 			$result = trim(fgets(STDIN));
 			$result = ($result === '') ? $default : Types::toBool($result, null);
@@ -1367,7 +1413,10 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 			$this->error("Exception thrown by command {class} : {exceptionClass} {message}\n{backtrace}", Exception::exceptionVariables($e) + [
 				'class' => get_class($this),
 			]);
-			$this->application->invokeHooks(Application::HOOK_EXCEPTION, [$this->application, $e]);
+			$this->application->invokeHooks(Application::HOOK_EXCEPTION, [
+				$this->application,
+				$e,
+			]);
 			if ($this->optionBool('debug', $this->application->development())) {
 				$this->error($e->getTraceAsString());
 			}
@@ -1476,7 +1525,8 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 		}
 		$parsed = DocComment::instance($comment)->variables();
 		return implode("\n", array_filter([
-			$parsed['desc'] ?? null, $parsed['description'] ?? null,
+			$parsed['desc'] ?? null,
+			$parsed['description'] ?? null,
 		]));
 	}
 

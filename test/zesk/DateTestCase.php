@@ -12,7 +12,7 @@ namespace test\zesk;
 use OutOfBoundsException;
 use zesk\Date;
 use zesk\Exception\ParseException;
-use zesk\Exception\SemanticsException;
+use zesk\Exception\ProtocolException;
 
 /**
  *
@@ -159,7 +159,7 @@ class DateTestCase extends TestCase
 	 * @param int $isYearday
 	 * @param int $setYearday
 	 * @return void
-	 * @throws ParseException|SemanticsException
+	 * @throws ParseException|ProtocolException
 	 * @dataProvider data_yearDay
 	 */
 	public function test_yearDay(string|Date $expected, string|Date $start, int $isYearday, int $setYearday): void
@@ -180,13 +180,13 @@ class DateTestCase extends TestCase
 
 	/**
 	 * @return void
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 */
 	public function test_emptyYearDay(): void
 	{
 		$date = new Date();
 		$this->assertNull($date->yearday());
-		$this->expectException(SemanticsException::class);
+		$this->expectException(ProtocolException::class);
 		$date->setYearday(12);
 	}
 
@@ -197,7 +197,7 @@ class DateTestCase extends TestCase
 		$this->assertNotNull($date->yearday());
 		$date->setEmpty();
 		$this->assertNull($date->yearday());
-		$this->expectException(SemanticsException::class);
+		$this->expectException(ProtocolException::class);
 		$date->setYearday(12);
 	}
 

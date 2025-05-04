@@ -20,7 +20,7 @@ use zesk\Exception\FileNotFound;
 use zesk\Exception\FilePermission;
 use zesk\Exception\NotFoundException;
 use zesk\Exception\ParseException;
-use zesk\Exception\SemanticsException;
+use zesk\Exception\ProtocolException;
 use zesk\File;
 use zesk\Module;
 use zesk\JSON;
@@ -145,7 +145,8 @@ class Modules
 	final public function validModule(string $module): bool
 	{
 		try {
-			return $this->availableConfiguration()["$module"] !== null ?? false;
+			$configuration = $this->availableConfiguration();
+			return boolval($configuration["$module"] ?? false);
 		} catch (Throwable) {
 			return false;
 		}
@@ -177,7 +178,7 @@ class Modules
 	 * @return Module
 	 * @throws ConfigurationException
 	 * @throws NotFoundException
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 */
 	final public function load(string $name): Module
 	{
@@ -204,7 +205,7 @@ class Modules
 	 * @return array
 	 * @throws ConfigurationException
 	 * @throws NotFoundException
-	 * @throws SemanticsException
+	 * @throws ProtocolException
 	 */
 	final public function loadMultiple(array $names): array
 	{
@@ -218,7 +219,7 @@ class Modules
 	/**
 	 * @param string $name
 	 * @return Module
-	 * @throws NotFoundException|ClassNotFound|ConfigurationException|SemanticsException
+	 * @throws NotFoundException|ClassNotFound|ConfigurationException|ProtocolException
 	 */
 	private function _loadModule(string $name): Module
 	{
@@ -227,7 +228,7 @@ class Modules
 		$lowerName = strtolower($name);
 		$module = $this->modules[$lowerName] ?? null;
 		if ($module) {
-			throw new SemanticsException("$module already loaded");
+			throw new ProtocolException("$module already loaded");
 		}
 		if (!$this->validModule($lowerName)) {
 			throw new NotFoundException('{name} not found', ['name' => $name]);
