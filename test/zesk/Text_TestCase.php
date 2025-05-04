@@ -5,7 +5,8 @@ namespace test\zesk;
 
 use zesk\Text;
 
-class Text_TestCase extends TestCase {
+class Text_TestCase extends TestCase
+{
 	public static function data_fill(): array
 	{
 		return [

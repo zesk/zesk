@@ -43,7 +43,7 @@ __preCommit() {
   home=$(__catchEnvironment "$usage" buildHome) || return $?
 
   version=$(hookVersionCurrent) || return $?
-  statusMessage --last bigText "$(printf "%s %s\n" "$(buildEnvironmentGet APPLICATION_NAME)" "$version")" | decorate wrap "$(decorate bold-blue)" "$(decorate reset)"
+  statusMessage --last bigText "$(printf "%s %s\n" "$(buildEnvironmentGet APPLICATION_NAME)" "$version")" | decorate bold-blue
 
   mode=$(_choose "$readOnly" 0440 0640)
   __catchEnvironment "$usage" find "$home" -type f -name '*.php' ! -path '*/bin/*' ! -path '*/.*/*' ! -path '*/vendor/*' -exec chmod "$mode" {} \; || return $?
