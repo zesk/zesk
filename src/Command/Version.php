@@ -35,13 +35,13 @@ use zesk\Version as ZeskVersion;
  * @author   kent
  * @category Management
  */
-class Version extends SimpleCommand {
-	
+class Version extends SimpleCommand
+{
 	/**
 	 * When the version is updated
 	 */
 	public const HOOK_UPDATED = self::class . '::updated';
-	
+
 	/**
 	 * @var array|string[]
 	 */
@@ -49,7 +49,7 @@ class Version extends SimpleCommand {
 		'version',
 		'v',
 	];
-	
+
 	protected array $option_types = [
 		'tag'         => 'string',
 		'zesk'        => 'boolean',
@@ -61,7 +61,7 @@ class Version extends SimpleCommand {
 		'zero'        => 'boolean',
 		'init'        => 'boolean',
 	];
-	
+
 	protected array $option_help = [
 		'tag'         => 'Set tag to this value',
 		'major'       => 'Bump major version (cascades)',
@@ -73,47 +73,47 @@ class Version extends SimpleCommand {
 		'init'        => 'Write default etc/version-schema.json for the application',
 		'zesk'        => 'Ignore all other options and output the version of Zesk (not application version)',
 	];
-	
+
 	/**
 	 * No valid parser to determine version number
 	 *
 	 * @var integer
 	 */
 	public const EXIT_CODE_INVALID_PARSER = 2;
-	
+
 	/**
 	 * Unable to load the version
 	 *
 	 * @var integer
 	 */
 	public const EXIT_CODE_READER_FAILED = 3;
-	
+
 	/**
 	 *
 	 * @var integer
 	 */
 	public const EXIT_CODE_PARSER_FAILED = 4;
-	
+
 	/**
 	 * Unable to write/generate version number in code
 	 *
 	 * @var integer
 	 */
 	public const EXIT_CODE_GENERATOR_FAILED = 5;
-	
+
 	/**
 	 * Updated version but was not reflected as a change upon reparsing
 	 *
 	 * @var integer
 	 */
 	public const EXIT_CODE_VERSION_UPDATE_UNCHANGED = 6;
-	
+
 	/**
 	 *
 	 * @var integer
 	 */
 	public const EXIT_CODE_INIT_EXISTS = 7;
-	
+
 	/**
 	 * Written using functional form as an experiment to see how it feels. Not bad.
 	 *
@@ -132,7 +132,7 @@ class Version extends SimpleCommand {
 			return 0;
 		}
 		$schema_path = $this->versionSchemaPath();
-		
+
 		try {
 			$schema = JSON::decode(File::contents($schema_path));
 		} catch (ParseException) {
@@ -141,7 +141,7 @@ class Version extends SimpleCommand {
 			]);
 			return 1;
 		}
-		
+
 		try {
 			$parser = $this->versionParser($schema['parser'] ?? []);
 		} catch (SemanticsException) {
@@ -149,7 +149,7 @@ class Version extends SimpleCommand {
 			return self::EXIT_CODE_INVALID_PARSER;
 		}
 		$reader = $this->versionReader($schema['reader'] ?? []);
-		
+
 		try {
 			$version_raw = $reader($schema);
 		} catch (Throwable $e) {
@@ -158,7 +158,7 @@ class Version extends SimpleCommand {
 			]);
 			return self::EXIT_CODE_READER_FAILED;
 		}
-		
+
 		try {
 			$version_structure = $parser($version_raw);
 		} catch (Throwable $e) {
@@ -172,7 +172,7 @@ class Version extends SimpleCommand {
 			'map' => '{major}.{minor}.{maintenance}.{patch}{tag}',
 		]));
 		$previousVersion = $generator($version_structure);
-		
+
 		$changed = false;
 		if ($this->hasOption('tag')) {
 			if (strval($version_structure['tag'] ?? null) !== strval($this->option('tag'))) {
@@ -198,13 +198,13 @@ class Version extends SimpleCommand {
 				if ($old_value !== $version_structure[$token]) {
 					$changed = $reset = true;
 				}
-			} else if ($reset) {
+			} elseif ($reset) {
 				$version_structure[$token] = 0;
 			} else {
 				$version_structure[$token] = intval($version_structure[$token] ?? 0);
 			}
 		}
-		
+
 		try {
 			$new_version = $generator($version_structure);
 		} catch (Throwable $e) {
@@ -215,7 +215,7 @@ class Version extends SimpleCommand {
 		}
 		if ($changed) {
 			$writer = $this->versionWriter($schema['writer'] ?? []);
-			
+
 			try {
 				$writer($schema, $new_version);
 			} catch (Throwable $e) {
@@ -246,7 +246,7 @@ class Version extends SimpleCommand {
 		echo $new_version;
 		return 0;
 	}
-	
+
 	/**
 	 *
 	 * @return string
@@ -255,7 +255,7 @@ class Version extends SimpleCommand {
 	{
 		return $this->application->path('etc/version-schema.json');
 	}
-	
+
 	/**
 	 *
 	 *
@@ -274,7 +274,7 @@ class Version extends SimpleCommand {
 			Application::class,
 			Application::OPTION_VERSION,
 		];
-		
+
 		try {
 			File::put($schema_file_path, JSON::encodePretty([
 				'file'   => $version_file_path,
@@ -288,7 +288,7 @@ class Version extends SimpleCommand {
 			$this->info('wrote {schema_file_path}', [
 				'schema_file_path' => $schema_file_path,
 			]);
-			
+
 			$fullPath = $this->application->path($version_file_path);
 			if (file_exists($fullPath)) {
 				$this->info('{fullPath} exists already, not overwriting', ['fullPath' => $fullPath]);
@@ -312,7 +312,7 @@ class Version extends SimpleCommand {
 			return 100;
 		}
 	}
-	
+
 	/**
 	 *
 	 * @param array $__parser
@@ -349,7 +349,7 @@ class Version extends SimpleCommand {
 			return $result;
 		};
 	}
-	
+
 	/**
 	 * @param array $__reader
 	 * @return Closure
@@ -379,7 +379,7 @@ class Version extends SimpleCommand {
 			return File::contents($file);
 		};
 	}
-	
+
 	/**
 	 * @param array $__generator
 	 * @return Closure
@@ -389,14 +389,14 @@ class Version extends SimpleCommand {
 	{
 		$map = $__generator['map'] ?? null;
 		if (is_array($map) || is_string($map)) {
-			return fn(array $version_structure): string|array => ArrayTools::map($map, $version_structure);
+			return fn (array $version_structure): string|array => ArrayTools::map($map, $version_structure);
 		}
-		
+
 		throw new SemanticsException('{schema_path} `generator` must have key `map`', [
 			'schema_path' => $this->versionSchemaPath(),
 		]);
 	}
-	
+
 	/**
 	 * @param array $__writer
 	 * @return Closure

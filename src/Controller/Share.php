@@ -30,15 +30,15 @@ use zesk\HTML;
  * @author kent
  * @see    docs/share.md
  */
-class Share extends Controller {
-	
+class Share extends Controller
+{
 	/**
 	 * Paths to search for shared content
 	 *
 	 * @var string[]
 	 */
 	private array $sharePath = [];
-	
+
 	/**
 	 * Whether to build the share directory as files are requested.
 	 *
@@ -46,28 +46,28 @@ class Share extends Controller {
 	 * serve the file if it exists otherwise.
 	 */
 	public const OPTION_BUILD = 'build';
-	
+
 	public const SHARE_PREFIX_DEFAULT = 'share';
-	
+
 	/**
 	 * Option to override default
 	 *
 	 * @var string
 	 */
 	public const OPTION_SHARE_PREFIX = 'share_prefix';
-	
+
 	protected array $argumentMethods = [
 		'arguments_{METHOD}',
 	];
-	
+
 	protected array $actionMethods = [
 		'action_{METHOD}',
 	];
-	
+
 	protected array $beforeMethods = [];
-	
+
 	protected array $afterMethods = [];
-	
+
 	/**
 	 * @return void
 	 * @throws DirectoryNotFound
@@ -79,7 +79,7 @@ class Share extends Controller {
 		$this->sharePath = [];
 		$this->addSharePath($this->defaultSharePath(), 'zesk');
 	}
-	
+
 	/**
 	 * Add the share path for this application - used to serve
 	 * shared content via Controller_Share as well as populate automatically with files within the
@@ -100,7 +100,7 @@ class Share extends Controller {
 		$this->sharePath[$name] = $add;
 		return $this;
 	}
-	
+
 	/**
 	 * Retrieve the share path for this application, a mapping of prefixes to paths
 	 *
@@ -116,7 +116,7 @@ class Share extends Controller {
 	{
 		return $this->sharePath;
 	}
-	
+
 	/**
 	 *
 	 * @return string
@@ -125,7 +125,7 @@ class Share extends Controller {
 	{
 		return $this->application->zeskHome('share');
 	}
-	
+
 	/**
 	 *
 	 * @return string
@@ -135,7 +135,7 @@ class Share extends Controller {
 	{
 		return $this->optionString(self::OPTION_SHARE_PREFIX, self::SHARE_PREFIX_DEFAULT);
 	}
-	
+
 	/**
 	 * For all share directories, copy files into document root share path to be served directly.
 	 *
@@ -171,7 +171,7 @@ class Share extends Controller {
 			}
 		}
 	}
-	
+
 	/**
 	 *
 	 * @param string $path
@@ -192,7 +192,7 @@ class Share extends Controller {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Invoked by $this->argumentsMethods.
 	 *
@@ -209,7 +209,7 @@ class Share extends Controller {
 			$response,
 		];
 	}
-	
+
 	/**
 	 *
 	 * @see self::arguments_GET()
@@ -229,7 +229,7 @@ class Share extends Controller {
 		if (!$file) {
 			return $this->error_404($response);
 		}
-		
+
 		try {
 			$mod = $request->header('If-Modified-Since');
 		} catch (KeyNotFound) {
@@ -238,7 +238,7 @@ class Share extends Controller {
 		$fmod = filemtime($file);
 		if ($mod && $fmod <= strtotime($mod)) {
 			$response->setStatus(HTTP::STATUS_NOT_MODIFIED);
-			
+
 			try {
 				$response->setContentType(MIME::fromExtension($file));
 			} catch (KeyNotFound) {
@@ -248,7 +248,7 @@ class Share extends Controller {
 			$this->_buildOption($original_uri, $file);
 			return $response;
 		}
-		
+
 		if ($request->get('_ver')) {
 			// Versioned resources are timestamped, expire never
 			$response->setHeaderDate('Expires', strtotime('+1 year'));
@@ -256,7 +256,7 @@ class Share extends Controller {
 		} else {
 			$response->setHeaderDate('Expires', strtotime('+1 hour'));
 		}
-		
+
 		try {
 			$response->raw()->setFile($file);
 		} catch (FileNotFound) {
@@ -265,7 +265,7 @@ class Share extends Controller {
 		$this->_buildOption($original_uri, $file);
 		return $response;
 	}
-	
+
 	/**
 	 * @param string $original_uri
 	 * @param string $file
@@ -281,7 +281,7 @@ class Share extends Controller {
 			}
 		}
 	}
-	
+
 	/**
 	 * Copy file to destination so web server serves it directly next time
 	 *
@@ -301,7 +301,7 @@ class Share extends Controller {
 			'status' => $status ? 'true' : 'false',
 		]);
 	}
-	
+
 	/**
 	 * Output debug information during development
 	 */
@@ -313,7 +313,7 @@ class Share extends Controller {
 		$content .= HTML::tag('h1', 'Shares') . HTML::tag('pre', PHP::dump($this->sharePath()));
 		return $content;
 	}
-	
+
 	/**
 	 *
 	 * @param string $path
@@ -329,10 +329,10 @@ class Share extends Controller {
 		if (array_key_exists($share, $shares)) {
 			return Directory::path($shares[$share], implode('/', $path));
 		}
-		
+
 		throw new KeyNotFound($share);
 	}
-	
+
 	/**
 	 * Clear the share build path upon cache clear
 	 */
@@ -348,7 +348,7 @@ class Share extends Controller {
 				'class'     => __CLASS__,
 				'share_dir' => $share_dir,
 			]);
-			
+
 			try {
 				Directory::delete($share_dir);
 			} catch (DirectoryNotFound) {

@@ -77,26 +77,26 @@ use function str_ends_with;
  * @method SessionInterface sessionFactory()
  * @method SessionModule sessionModule()
  */
-class Application extends Hookable implements ModelFactory, HookSource, LoggerInterface {
-	
+class Application extends Hookable implements ModelFactory, HookSource, LoggerInterface
+{
 	use LoggerTrait;
-	
+
 	public const HOOK_MAIN = __CLASS__ . '::main';
-	
+
 	public const HOOK_SECURITY = __CLASS__ . '::security';
-	
+
 	/**
 	 * Called when setCommand called
 	 */
 	public const HOOK_LOCALE = __CLASS__ . '::setLocale';
-	
+
 	public const HOOK_COMMAND = __CLASS__ . '::command';
-	
+
 	/**
 	 * Called when setCommand called
 	 */
 	public const FILTER_MAINTENANCE = __CLASS__ . '::maintenance';
-	
+
 	/**
 	 * If you want to handle hooks for singleton handling of `zesk\User`, then do
 	 *
@@ -105,38 +105,38 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * To get your hook, called.
 	 */
 	public const HOOK_SINGLETON_PREFIX = __CLASS__ . '::singleton::';
-	
+
 	/**
 	 * Router was created
 	 *
 	 * @var string
 	 */
 	public const HOOK_ROUTER = __CLASS__ . '::router';
-	
+
 	/**
 	 * Add routes to router
 	 *
 	 * @var string
 	 */
 	public const HOOK_ROUTES = __CLASS__ . '::routes';
-	
+
 	/**
 	 * Run after routes are created
 	 *
 	 * @var string
 	 */
 	public const HOOK_ROUTES_POSTPROCESS = __CLASS__ . '::routesPostprocess';
-	
+
 	/**
 	 *
 	 */
 	public const HOOK_ROUTE_NOT_FOUND = self::class . '::routeNotFound';
-	
+
 	/**
 	 *
 	 */
 	public const HOOK_ROUTE_FOUND = self::class . '::routeFound';
-	
+
 	/**
 	 * @desc      Default option to store application version - may be stored differently in overridden classes, use
 	 * @see       self::version()
@@ -145,7 +145,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @package   zesk
 	 */
 	public const OPTION_VERSION = 'version';
-	
+
 	/**
 	 * @desc      Value used to instantiate the primary application
 	 * @see       Kernel::createApplication()
@@ -153,14 +153,14 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @copyright &copy; 2023 Market Acumen, Inc.
 	 */
 	public const OPTION_APPLICATION_CLASS = 'applicationClass';
-	
+
 	/**
 	 * Option value is boolean
 	 *
 	 * Debugging - bool
 	 */
 	public const OPTION_DEBUG = 'debug';
-	
+
 	/**
 	 * Option value is string
 	 *
@@ -174,20 +174,20 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @var string
 	 */
 	public const OPTION_DEPRECATED = 'deprecated';
-	
+
 	/**
 	 * @see self::configuredAssert()
 	 * @var string
 	 */
 	public const OPTION_ASSERT = 'assert';
-	
+
 	/**
 	 * @see self::path()
 	 * @see Paths::application()
 	 * @see Paths::setApplication()
 	 */
 	public const OPTION_PATH = 'path';
-	
+
 	/**
 	 * Command paths are always appended to the path
 	 *
@@ -196,12 +196,12 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @see Paths::addCommand()
 	 */
 	public const OPTION_COMMAND_PATH = 'commandPath';
-	
+
 	/**
 	 *
 	 */
 	public const OPTION_ZESK_COMMAND_PATH = 'zeskCommandPath';
-	
+
 	/**
 	 * Data paths are for persistent data storage that is persistent across application
 	 * processes on all servers.
@@ -211,7 +211,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @see Paths::setData()
 	 */
 	public const OPTION_DATA_PATH = 'dataPath';
-	
+
 	/**
 	 * Home paths is an operating system assigned home directory for the current user.
 	 *
@@ -222,7 +222,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @see Paths::setHome()
 	 */
 	public const OPTION_HOME_PATH = 'homePath';
-	
+
 	/**
 	 * User home paths is a private directory for storing local configuration files.
 	 *
@@ -233,49 +233,49 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @see Paths::setUserHome()
 	 */
 	public const OPTION_USER_HOME_PATH = 'userHomePath';
-	
+
 	/**
 	 * List of files for configureInclude
 	 */
 	public const OPTION_CONFIGURATION_FILES = 'configurationFiles';
-	
+
 	/**
 	 * Contains a list of modules to load for this application;
 	 */
 	public const OPTION_MODULES = 'modules';
-	
+
 	/**
 	 * Contains a list of modules which were loaded for this application
 	 */
 	public const OPTION_MODULES_LOADED = 'modulesLoaded';
-	
+
 	public const OPTION_CACHE_POOL = 'cachePool';
-	
+
 	public const OPTION_DEVELOPMENT = 'development';
-	
+
 	/**
 	 * Value is a path where temporary files can be stored.
 	 */
 	public const OPTION_CACHE_PATH = 'cachePath';
-	
+
 	/**
 	 * "Read-only" option which contains the Zesk Root path.
 	 */
 	public const OPTION_ZESK_ROOT = 'zeskRoot';
-	
+
 	/**
 	 * Path to a small local configuration file which is loaded to set the maintenance values for
 	 * the current application.
 	 */
 	public const OPTION_MAINTENANCE_FILE = 'maintenanceFile';
-	
+
 	/**
 	 * Value is bool.
 	 *
 	 * Cache the router file
 	 */
 	public const OPTION_CACHE_ROUTER = 'cacheRouter';
-	
+
 	/**
 	 * Throw an exception when a deprecated function is called.
 	 * Useful during development only.
@@ -283,7 +283,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @var string
 	 */
 	public const DEPRECATED_EXCEPTION = 'exception';
-	
+
 	/**
 	 * Log all deprecated function calls.
 	 * Useful for development or production environments.
@@ -291,7 +291,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @var string
 	 */
 	public const DEPRECATED_LOG = 'log';
-	
+
 	/**
 	 * Terminate execution and output a backtrace when a deprecated function is called.
 	 * Useful during development only.
@@ -299,7 +299,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @var string
 	 */
 	public const DEPRECATED_BACKTRACE = 'backtrace';
-	
+
 	/**
 	 * Do nothing when deprecated functions are called.
 	 * Production only. Default setting.
@@ -307,14 +307,14 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @var string
 	 */
 	public const DEPRECATED_IGNORE = 'ignore';
-	
+
 	/**
 	 * @see self::configuredAssert()
 	 * @see self::OPTION_ASSERT
 	 * @var string
 	 */
 	public const ASSERT_ACTIVE = 'active';
-	
+
 	/**
 	 * When assert fails, warning
 	 *
@@ -323,7 +323,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @var string
 	 */
 	public const ASSERT_WARNING = 'warning';
-	
+
 	/**
 	 * When assert fails, bail (exit)
 	 *
@@ -332,42 +332,42 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @var string
 	 */
 	public const ASSERT_BAIL = 'bail';
-	
+
 	/**
 	 * Called when $application->cacheClear is called
 	 */
 	public const HOOK_CACHE_CLEAR = 'cacheClear';
-	
+
 	/**
 	 * Called when $application->setCache is called
 	 */
 	public const HOOK_SET_CACHE = 'setCache';
-	
+
 	/**
 	 * Default maintenance file name
 	 *
 	 * @var string
 	 */
 	public const DEFAULT_MAINTENANCE_FILE = './etc/maintenance.json';
-	
+
 	/**
 	 *
 	 */
 	public const REQUEST_OPTION_SESSION = __CLASS__ . '::session';
-	
+
 	/**
 	 *
 	 * @var double
 	 */
 	public float $initializationMicrotime;
-	
+
 	/**
 	 *
 	 * @see self::console()
 	 * @var boolean
 	 */
 	private bool $console;
-	
+
 	/**
 	 * For storing profiling information
 	 *
@@ -375,13 +375,13 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @see self::profileTimer()
 	 */
 	private ?Profiler $profiler = null;
-	
+
 	/**
 	 *
 	 * @var string
 	 */
 	private string $deprecated = 'ignore';
-	
+
 	/**
 	 * Inherited directly from zesk\Kernel.
 	 * Do not edit the value here.
@@ -389,7 +389,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @var Paths
 	 */
 	public Paths $paths;
-	
+
 	/**
 	 * Inherited directly from zesk\Kernel.
 	 * Do not edit.
@@ -397,7 +397,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @var Hooks
 	 */
 	public Hooks $hooks;
-	
+
 	/**
 	 * Inherited directly from zesk\Kernel.
 	 * Do not edit.
@@ -405,7 +405,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @var CacheItemPoolInterface
 	 */
 	protected CacheItemPoolInterface $pool;
-	
+
 	/**
 	 * Inherited directly from zesk\Kernel.
 	 * Do not edit.
@@ -413,13 +413,13 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @var Configuration
 	 */
 	public Configuration $configuration;
-	
+
 	/**
 	 *
 	 * @var Loader
 	 */
 	public Loader $loader;
-	
+
 	/**
 	 * Primary logger for the application.
 	 * If you copy a reference to this, check it before
@@ -428,7 +428,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @var LoggerInterface
 	 */
 	protected LoggerInterface $logger;
-	
+
 	/**
 	 * Inherited directly from zesk\Kernel.
 	 * Do not edit.
@@ -436,7 +436,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @var Classes
 	 */
 	public Classes $classes;
-	
+
 	/**
 	 * Inherited directly from zesk\Kernel.
 	 * Do not edit.
@@ -444,7 +444,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @var Objects
 	 */
 	public Objects $objects;
-	
+
 	/**
 	 * Inherited directly from zesk\Kernel.
 	 * Do not edit.
@@ -452,37 +452,37 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @var Process
 	 */
 	public Process $process;
-	
+
 	/**
 	 *
 	 * @var Locale
 	 */
 	public Locale $locale;
-	
+
 	/**
 	 *
 	 * @var null|Command
 	 */
 	public null|Command $command = null;
-	
+
 	/**
 	 * Modules object interface
 	 *
 	 * @var Modules
 	 */
 	public Modules $modules;
-	
+
 	/**
 	 *
 	 * @var Router
 	 */
 	public Router $router;
-	
+
 	/**
 	 * @var Themes
 	 */
 	public Themes $themes;
-	
+
 	/**
 	 * File where the application class resides.
 	 * Override this in subclasses with
@@ -491,7 +491,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @var string
 	 */
 	public string $file = '';
-	
+
 	/**
 	 * Array of external modules to load
 	 *
@@ -499,7 +499,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @see $this->load_modules
 	 */
 	protected array $load_modules = [];
-	
+
 	/**
 	 * Array of parent => child mappings for model creation/instantiation.
 	 *
@@ -508,85 +508,85 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @var array
 	 */
 	protected array $class_aliases = [];
-	
+
 	/**
 	 * Configuration files to include
 	 *
 	 * @var array of string
 	 */
 	protected array $includes = [];
-	
+
 	/**
 	 *
 	 * @var Locale[]
 	 */
 	private array $locales = [];
-	
+
 	/**
 	 *
 	 * @var Request[]
 	 */
 	private array $requestStack = [];
-	
+
 	/**
 	 * Array of calls to create stuff
 	 *
 	 * @var Closure[]
 	 */
 	private array $callables = [];
-	
+
 	/**
 	 * Zesk Command paths for loading zesk-command.php commands
 	 *
 	 * @var array
 	 */
 	private array $zeskCommandPath = [];
-	
+
 	/**
 	 * Paths to search for locale files
 	 *
 	 * @var string[]
 	 */
 	private array $localePath = [];
-	
+
 	/**
 	 *
 	 * @var string
 	 */
 	private string $cachePath = '';
-	
+
 	/**
 	 *
 	 * @var string
 	 */
 	private string $document = '';
-	
+
 	/**
 	 *
 	 * @var string
 	 */
 	private string $documentPrefix = '';
-	
+
 	/**
 	 * Boolean
 	 *
 	 * @var boolean
 	 */
 	private bool $configuredWasRun = false;
-	
+
 	/**
 	 * Set to true after shutdown
 	 *
 	 * @var bool
 	 */
 	private bool $applicationShutdown = false;
-	
+
 	/**
 	 *
 	 * @var array
 	 */
 	private array $contentRecursion = [];
-	
+
 	/**
 	 *
 	 * @param Configuration          $configuration
@@ -606,7 +606,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 		$this->_initialize_fixme();
 		$this->_loadMaintenance();
 	}
-	
+
 	/**
 	 * To disable deprecated function, call with blank value ""
 	 *
@@ -620,13 +620,13 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	{
 		$old = $this->deprecated;
 		$this->deprecated = [
-								self::DEPRECATED_BACKTRACE => self::DEPRECATED_BACKTRACE,
-								self::DEPRECATED_EXCEPTION => self::DEPRECATED_EXCEPTION,
-								self::DEPRECATED_LOG       => self::DEPRECATED_LOG,
-							][$set] ?? self::DEPRECATED_IGNORE;
+			self::DEPRECATED_BACKTRACE => self::DEPRECATED_BACKTRACE,
+			self::DEPRECATED_EXCEPTION => self::DEPRECATED_EXCEPTION,
+			self::DEPRECATED_LOG       => self::DEPRECATED_LOG,
+		][$set] ?? self::DEPRECATED_IGNORE;
 		return $old;
 	}
-	
+
 	/**
 	 * Enables a method to be tagged as "deprecated"
 	 *
@@ -645,23 +645,23 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 		switch ($this->deprecated) {
 			case self::DEPRECATED_EXCEPTION:
 				throw new Deprecated("{reason} Deprecated: {calling_function}\n{backtrace}", [
-						'reason'           => $reason,
-						'calling_function' => Kernel::callingFunction(),
-						'backtrace'        => Kernel::backtrace(4 + $depth),
-					] + $arguments);
+					'reason'           => $reason,
+					'calling_function' => Kernel::callingFunction(),
+					'backtrace'        => Kernel::backtrace(4 + $depth),
+				] + $arguments);
 			case self::DEPRECATED_LOG:
 				$this->logger->error("{reason} Deprecated: {calling_function}\n{backtrace}", [
-						'reason'           => $reason ?: 'DEPRECATED',
-						'calling_function' => Kernel::callingFunction(),
-						'backtrace'        => Kernel::backtrace(4 + $depth),
-					] + $arguments);
+					'reason'           => $reason ?: 'DEPRECATED',
+					'calling_function' => Kernel::callingFunction(),
+					'backtrace'        => Kernel::backtrace(4 + $depth),
+				] + $arguments);
 				break;
 			case self::DEPRECATED_BACKTRACE:
 				echo Kernel::backtrace();
 				exit(1);
 		}
 	}
-	
+
 	/**
 	 * For cordoning off old, dead code
 	 *
@@ -669,13 +669,13 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 */
 	public function obsolete(): void
 	{
-		$this->logger->alert('Obsolete function called {function}', ['function' => Kernel::callingFunction(2),]);
+		$this->logger->alert('Obsolete function called {function}', ['function' => Kernel::callingFunction(2), ]);
 		if ($this->application->development()) {
 			echo Kernel::backtrace();
 			exit(1);
 		}
 	}
-	
+
 	/**
 	 * Internal call to initialize profiler structure
 	 */
@@ -686,7 +686,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 		}
 		return $this->profiler;
 	}
-	
+
 	/**
 	 * Time a function call
 	 *
@@ -704,7 +704,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 			$profiler->times[$item] = $seconds;
 		}
 	}
-	
+
 	/**
 	 * Internal profiler to determine who is calling what function how often.
 	 * Debugging only
@@ -721,7 +721,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 			$profiler->calls[$functionKey] = 1;
 		}
 	}
-	
+
 	/**
 	 * Returns a list of PHP source code for the application, used to scan for Attributes
 	 *
@@ -737,7 +737,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 		}
 		return $sources;
 	}
-	
+
 	/**
 	 * Setter for console
 	 *
@@ -749,7 +749,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 		$this->console = $set;
 		return $this;
 	}
-	
+
 	/**
 	 * Are we attached to a console?
 	 *
@@ -759,7 +759,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	{
 		return $this->console;
 	}
-	
+
 	/**
 	 * @param Configuration          $configuration
 	 * @param CacheItemPoolInterface $pool
@@ -771,51 +771,51 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	{
 		$this->configuration = $configuration;
 		$this->classes = new Classes();
-		
+
 		$this->inheritConfiguration();
-		
+
 		$this->pool = $pool;
-		
+
 		$this->console = PHP_SAPI === 'cli';
-		
+
 		$this->paths = new Paths($configuration);
-		
+
 		$this->includes = [];
 		if ($this->hasOption(Application::OPTION_CONFIGURATION_FILES)) {
 			$this->configureInclude($this->optionIterable(Application::OPTION_CONFIGURATION_FILES));
 		}
-		
+
 		$this->hooks = new Hooks($this);
 		$this->logger = new NullLogger();
 		$this->objects = new Objects();
 		$this->modules = new Modules($this);
-		
+
 		$this->themes = new Themes();
 		$this->themes->setVariables(['application' => $this]);
 		/*
 		 * Configuration loader
 		 */
 		$this->loader = new Loader([], new SettingsConfiguration($this->configuration));
-		
+
 		/*
 		 * Current process interface. Depends on ->hooks
 		 */
 		$this->process = new Process($this);
-		
+
 		/*
 		 * Locale
 		 */
 		$this->locale = $this->localeFactory();
-		
+
 		/**
 		 * Creates a basic, uninitialized Router object
 		 */
 		$this->router = $this->routerFactory();
-		
+
 		/*
 		 * Where various things can be found
 		 */
-		
+
 		// Find Zesk commands here
 		$this->zeskCommandPath = [];
 		// Where to store temporary files
@@ -824,26 +824,26 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 		$this->document = '';
 		// Web server has a hard-coded prefix
 		$this->documentPrefix = '';
-		
+
 		$this->configuredWasRun = false;
-		
+
 		$this->command = null;
-		
+
 		// $this->load_modules is set in subclasses
 		// $this->class_aliases is set in subclasses
 		// $this->file is set in subclasses
 		// $this->register_hooks is set in subclasses
 		//
-		
-		
+
+
 		foreach ($this->class_aliases as $requested => $resolved) {
 			$this->objects->map($requested, $resolved);
 		}
-		
+
 		// Variable state
 		// Root template
 		// Stack of currently rendering themes
-		
+
 		try {
 			$function = '_initializeDocumentRoot';
 			$this->_initializeDocumentRoot();
@@ -860,7 +860,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 			], $e->getCode(), $e);
 		}
 	}
-	
+
 	/**
 	 * Create a new Locale
 	 *
@@ -874,7 +874,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	{
 		return Reader::factory($this->localePath(), $code, $extensions)->locale($this, $options);
 	}
-	
+
 	/**
 	 *
 	 * @param array $options
@@ -884,7 +884,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	{
 		return new Router($this, $options);
 	}
-	
+
 	/**
 	 * Create a generic object
 	 *
@@ -898,7 +898,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 		$class = array_shift($arguments);
 		return $this->factoryArguments($class, $arguments);
 	}
-	
+
 	/**
 	 * @param LoggerInterface $logger
 	 * @return $this
@@ -908,7 +908,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 		$this->logger = $logger;
 		return $this;
 	}
-	
+
 	/**
 	 * @return LoggerInterface
 	 */
@@ -916,7 +916,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	{
 		return $this->logger;
 	}
-	
+
 	/**
 	 * @param       $level
 	 * @param       $message
@@ -927,7 +927,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	{
 		$this->logger->log($level, $message, $context);
 	}
-	
+
 	/**
 	 * @param string $class
 	 * @param array  $arguments
@@ -938,7 +938,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	{
 		return $this->objects->factoryArguments($class, $arguments);
 	}
-	
+
 	/**
 	 * Retrieve the locale path for this application - used to load locales
 	 *
@@ -951,7 +951,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	{
 		return $this->localePath;
 	}
-	
+
 	/**
 	 * Initialize web root to enable non-rooted web sites.
 	 * This should be called from any script which interacts with
@@ -976,7 +976,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 			$this->setDocumentRoot($http_document_root);
 		}
 	}
-	
+
 	/**
 	 * Your web root is the directory in the file system that contains our application and other
 	 * files.
@@ -1005,7 +1005,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 		}
 		return $this;
 	}
-	
+
 	/**
 	 * @param string $set
 	 * @return $this
@@ -1015,7 +1015,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 		$this->documentPrefix = rtrim($set, '/');
 		return $this;
 	}
-	
+
 	/**
 	 * @param array|string $add A path or array of paths containing zesk command files (PHP files)
 	 * @return self
@@ -1040,7 +1040,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 		}
 		return $this;
 	}
-	
+
 	/**
 	 * @return string
 	 */
@@ -1048,7 +1048,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	{
 		return self::zeskPath('src/Command');
 	}
-	
+
 	/**
 	 * Add a path to be searched before existing paths
 	 * (first in the list).
@@ -1065,12 +1065,12 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 		$this->themes->addThemePath($paths, $prefix);
 		return $this;
 	}
-	
+
 	public static function zeskPath(string|array $suffix = []): string
 	{
 		return Directory::path(rtrim(dirname(__DIR__), '/'), $suffix);
 	}
-	
+
 	/**
 	 *
 	 * @return string
@@ -1079,7 +1079,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	{
 		return self::zeskPath('theme');
 	}
-	
+
 	/**
 	 * Add or retrieve the locale path for this application - used to load locales
 	 *
@@ -1099,7 +1099,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 		$this->localePath[] = $add;
 		return $this;
 	}
-	
+
 	/**
 	 *
 	 * @return string
@@ -1108,7 +1108,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	{
 		return self::zeskPath('etc/language');
 	}
-	
+
 	/**
 	 * Initialize part 2
 	 */
@@ -1120,7 +1120,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 		$this->callables = [];
 		$this->modules = new Modules($this);
 	}
-	
+
 	/**
 	 * Load the maintenance JSON file
 	 *
@@ -1148,12 +1148,12 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 		}
 		$this->setOption(self::OPTION_MAINTENANCE, $result);
 	}
-	
+
 	/**
 	 *
 	 */
 	public const OPTION_MAINTENANCE = 'maintenance';
-	
+
 	/**
 	 * Return file, which when exists, puts the site into maintenance mode.
 	 *
@@ -1165,7 +1165,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	{
 		return $this->paths->expand($this->option(self::OPTION_MAINTENANCE_FILE, self::DEFAULT_MAINTENANCE_FILE));
 	}
-	
+
 	/**
 	 * Return a path relative to the application root
 	 */
@@ -1173,7 +1173,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	{
 		return $this->paths->application($suffix);
 	}
-	
+
 	/**
 	 * The unique ID name for this application, used for cron or identifying multiple instances of a single application on a site.
 	 *
@@ -1183,7 +1183,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	{
 		return get_class($this);
 	}
-	
+
 	/**
 	 * @return void
 	 */
@@ -1205,7 +1205,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 			$this->applicationShutdown = true;
 		}
 	}
-	
+
 	/**
 	 *
 	 * @param Command $set
@@ -1222,7 +1222,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 		$this->invokeHooks(self::HOOK_COMMAND, [$set]);
 		return $this;
 	}
-	
+
 	/**
 	 * Settings are stateful and should persist across process and server boundaries.
 	 *
@@ -1241,7 +1241,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 		assert($result instanceof SettingsInterface);
 		return $result;
 	}
-	
+
 	/**
 	 * @param string $class
 	 * @param array  $arguments
@@ -1266,7 +1266,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 		}
 		return $this->objects->singletonArguments($desiredClass, $arguments);
 	}
-	
+
 	/**
 	 * @param string $class
 	 * @param array  $arguments
@@ -1279,7 +1279,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 		$desiredClass = $this->objects->resolve($class);
 		return $this->objects->singletonArgumentsStatic($desiredClass, $arguments, $staticMethods);
 	}
-	
+
 	/**
 	 * Override this in child classes to manipulate the creation of these objects.
 	 * Create objects which take the application as the first parameter, and handles passing that on.
@@ -1301,7 +1301,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 		assert($result instanceof Model);
 		return $result;
 	}
-	
+
 	/**
 	 * Override in subclasses as needed.
 	 *
@@ -1311,7 +1311,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	{
 		return strval($this->option(self::OPTION_VERSION));
 	}
-	
+
 	/**
 	 * Override in subclasses as needed.
 	 *
@@ -1323,7 +1323,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 		$this->setOption(self::OPTION_VERSION, $set);
 		return $this;
 	}
-	
+
 	/**
 	 * @return array
 	 */
@@ -1331,7 +1331,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	{
 		return array_keys($this->includes);
 	}
-	
+
 	/**
 	 * Configuration files are simple bash-style NAME=VALUE files with a few features or JSON.
 	 *
@@ -1353,7 +1353,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 		$this->initializeRouter();
 		return $this;
 	}
-	
+
 	/**
 	 * Complete configuration process
 	 *
@@ -1367,7 +1367,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 		$this->hooks->registerHook(Hooks::HOOK_EXIT, function () use ($application): void {
 			$application->cacheItemPool()->commit();
 		});
-		
+
 		$this->paths->configure($this->options([
 			self::OPTION_COMMAND_PATH,
 			self::OPTION_CACHE_PATH,
@@ -1375,19 +1375,19 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 			self::OPTION_HOME_PATH,
 			self::OPTION_USER_HOME_PATH,
 		]));
-		
+
 		$this->configureCachePath(); // Initial cache paths are set up
 		$this->beforeConfigure();
 		$this->_configureFiles();
 		$this->configuredFiles();
 		/* Load any settings from configuration for the module load */
 		$this->inheritConfiguration();
-		
+
 		/* Load modules etc. */
 		$this->modules->loadMultiple($this->load_modules);
 		$this->loadOptionModules();
 	}
-	
+
 	/**
 	 * Register a class with the application to make it discoverable and
 	 * to register any hooks.
@@ -1400,7 +1400,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 		$this->classes->register($classes);
 		return $this;
 	}
-	
+
 	/**
 	 * @throws SemanticsException
 	 */
@@ -1410,14 +1410,14 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 			$this->cachePath = $this->paths->expand($this->optionString(self::OPTION_CACHE_PATH, './cache'));
 		}
 	}
-	
+
 	/**
 	 * Run before configuration setup
 	 */
 	protected function beforeConfigure(): void
 	{
 	}
-	
+
 	/**
 	 * Load configuration files
 	 *
@@ -1430,7 +1430,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 		}
 		$this->configureFiles($this->includes());
 	}
-	
+
 	/**
 	 * List files for configuration of the application.
 	 *
@@ -1454,7 +1454,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 		}
 		return $this;
 	}
-	
+
 	/**
 	 * Expand the array of include files
 	 *
@@ -1470,7 +1470,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 		}
 		return $result;
 	}
-	
+
 	/**
 	 * Default list of files to be loaded as part of this application configuration
 	 *
@@ -1483,7 +1483,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 		$files_default[] = $this->path('etc/host/' . strtolower(System::uname()) . '.json');
 		return $files_default;
 	}
-	
+
 	/**
 	 * @param array $files
 	 * @return void
@@ -1495,7 +1495,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 		$this->loader->load();
 		$this->_loadMaintenance();
 	}
-	
+
 	/**
 	 * This loads an include without the $application variable defined, and $this which is also an Application.
 	 * Avoids having an include corrupt the scope of another call with global declarations, etc.
@@ -1509,7 +1509,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 		$application = $this;
 		return include $this->application->paths->expand($__file__);
 	}
-	
+
 	/**
 	 * @return void
 	 */
@@ -1517,7 +1517,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	{
 		/* Function called after files are loaded */
 	}
-	
+
 	/**
 	 * @return void
 	 * @throws ConfigurationException
@@ -1533,7 +1533,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 			$this->setOption(self::OPTION_MODULES_LOADED, array_keys($loaded));
 		}
 	}
-	
+
 	/**
 	 * Run fini
 	 *
@@ -1549,7 +1549,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 		}
 		return false;
 	}
-	
+
 	/**
 	 * @return void
 	 * @throws ConfigurationException|SemanticsException
@@ -1568,7 +1568,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 		$this->afterConfigure();
 		$this->configuredWasRun = true;
 	}
-	
+
 	/**
 	 * Load configuration
 	 *
@@ -1587,7 +1587,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 		foreach ($ass_settings as $what) {
 			assert_options($what, 0);
 		}
-		
+
 		$anyActive = 0;
 		foreach ($this->optionIterable(self::OPTION_ASSERT) as $code) {
 			if (array_key_exists($code, $ass_settings)) {
@@ -1605,27 +1605,27 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 		}
 		assert_options(ASSERT_ACTIVE, $anyActive);
 	}
-	
+
 	/**
 	 */
 	private function configuredHooks(): void
 	{
 		foreach ([
-					 Hooks::HOOK_DATABASE_CONFIGURE,
-					 Hooks::HOOK_CONFIGURED,
-				 ] as $hook) {
+			Hooks::HOOK_DATABASE_CONFIGURE,
+			Hooks::HOOK_CONFIGURED,
+		] as $hook) {
 			$this->invokeHooks($hook, [$this]);
 			$this->modules->addLoadHook($hook);
 		}
 	}
-	
+
 	/**
 	 * Run post-configuration setup
 	 */
 	protected function afterConfigure(): void
 	{
 	}
-	
+
 	/**
 	 *
 	 * @return boolean
@@ -1634,7 +1634,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	{
 		return $this->configuredWasRun;
 	}
-	
+
 	/**
 	 * Runs configuration again
 	 *
@@ -1653,7 +1653,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 		$this->_configured();
 		return $this;
 	}
-	
+
 	/**
 	 *
 	 * @param CacheItemPoolInterface $pool
@@ -1665,7 +1665,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 		$this->invokeHooks(self::HOOK_SET_CACHE);
 		return $this;
 	}
-	
+
 	/**
 	 * @return CacheItemPoolInterface
 	 */
@@ -1673,7 +1673,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	{
 		return $this->pool;
 	}
-	
+
 	/**
 	 * Clear application cache
 	 *
@@ -1710,7 +1710,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 			$method->run([$this]);
 		}
 	}
-	
+
 	/**
 	 * Get the cache path for the application
 	 *
@@ -1721,7 +1721,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	{
 		return Directory::path($this->cachePath, $suffix);
 	}
-	
+
 	/**
 	 * Return all known Controllers for the application.
 	 *
@@ -1742,7 +1742,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * - Execute it
 	 * - Return response
 	 */
-	
+
 	/**
 	 * Load router
 	 *
@@ -1752,7 +1752,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	{
 		return $this->router;
 	}
-	
+
 	/**
 	 * @return void
 	 */
@@ -1762,7 +1762,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 		$this->invokeHooks(self::HOOK_ROUTES, [$this->router]);
 		$this->invokeHooks(self::HOOK_ROUTES_POSTPROCESS, [$this->router]);
 	}
-	
+
 	/**
 	 * @return bool
 	 */
@@ -1773,7 +1773,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 			'enabled',
 		], false));
 	}
-	
+
 	/**
 	 * Set maintenance flag, this generally affects an application's interface
 	 *
@@ -1793,11 +1793,11 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 			}
 		} catch (Throwable $t) {
 			throw new SemanticsException('{applicationClass}::setMaintenance({value}) hook threw {exceptionClass} {message}', [
-					'applicationClass' => get_class($this),
-					'value'            => $set ? 'true' : 'false',
-				] + Exception::phpExceptionVariables($t), 0, $t);
+				'applicationClass' => get_class($this),
+				'value'            => $set ? 'true' : 'false',
+			] + Exception::phpExceptionVariables($t), 0, $t);
 		}
-		
+
 		if ($set) {
 			$this->_maintenanceEnabled($result);
 			$this->setOptionPath([
@@ -1812,17 +1812,17 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 			$this->_disableMaintenance();
 		}
 	}
-	
+
 	private function _maintenanceEnabled(array $context): void
 	{
 		$context['time'] = date('Y-m-d H:i:s');
-		
+
 		try {
 			file_put_contents($this->maintenanceFile(), JSON::encode($context));
 		} catch (SemanticsException) {
 		}
 	}
-	
+
 	private function _disableMaintenance(): void
 	{
 		$maintenance_file = $this->maintenanceFile();
@@ -1831,9 +1831,9 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 			clearstatcache(false, $maintenance_file);
 		}
 	}
-	
+
 	public const HOOK_CONTENT = __CLASS__ . '::content';
-	
+
 	/**
 	 * Utility for index.php file for all public-served content.
 	 *
@@ -1845,16 +1845,16 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 		}
 		$this->contentRecursion[$path] = true;
 		$this->invokeHooks(self::HOOK_CONTENT);
-		
+
 		$url = 'http://localhost/';
-		
+
 		try {
 			$url = rtrim(URL::leftHost($url), '/') . $path;
 		} catch (SyntaxException) {
 		}
-		
+
 		$request = $this->requestFactory();
-		
+
 		try {
 			$request->initializeFromSettings([
 				'url'       => $url,
@@ -1867,7 +1867,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 		}
 		$response = $this->main($request);
 		ob_start();
-		
+
 		try {
 			$response->output([
 				'skip_headers' => true,
@@ -1878,7 +1878,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 		unset($this->contentRecursion[$path]);
 		return $content;
 	}
-	
+
 	/**
 	 * Creates a default request for the application. Useful in self::main
 	 *
@@ -1890,11 +1890,11 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	public function requestFactory(?Request $inherit = null): Request
 	{
 		$request = new Request($this);
-		
+
 		try {
 			if ($inherit) {
 				$request->initializeFromRequest($inherit);
-			} else if ($this->console()) {
+			} elseif ($this->console()) {
 				$request->initializeFromSettings('http://console/');
 			} else {
 				$request->initializeFromGlobals();
@@ -1904,7 +1904,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 		}
 		return $request;
 	}
-	
+
 	/**
 	 * @param Request $request
 	 * @return Response
@@ -1925,7 +1925,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 		$this->popRequest($request);
 		return $response;
 	}
-	
+
 	/**
 	 *
 	 * @param Request $request
@@ -1946,12 +1946,12 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 			'router'      => $router,
 			'request'     => $request,
 		]);
-		
+
 		try {
 			$route = $router->matchRequest($request);
 		} catch (NotFoundException) {
 			$this->routeNotFound($request);
-			
+
 			throw new NotFoundException('The resource does not exist on this server: {url}', $request->urlComponents(), HTTP::STATUS_FILE_NOT_FOUND);
 		}
 		$this->themes->setVariables([
@@ -1959,7 +1959,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 		]);
 		return $this->routeFound($request, $route);
 	}
-	
+
 	/**
 	 * @param Request $request
 	 * @return void
@@ -1968,7 +1968,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	{
 		$this->invokeHooks(self::HOOK_ROUTE_NOT_FOUND, [$request]);
 	}
-	
+
 	/**
 	 * @param Request $request
 	 * @param Route   $route
@@ -1988,7 +1988,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 		]);
 		return $route;
 	}
-	
+
 	/**
 	 * Template or logging variables
 	 *
@@ -2001,7 +2001,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 		// Do not include "request" in here as it may be NULL; and it should NOT override subclass values
 		return $parameters;
 	}
-	
+
 	/**
 	 * @param Request $request
 	 * @return self
@@ -2013,7 +2013,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 		$this->beforeRequest($request);
 		return $this;
 	}
-	
+
 	/**
 	 * Called when a request is pushed.
 	 *
@@ -2023,7 +2023,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	public function beforeRequest(Request $request): void
 	{
 	}
-	
+
 	/**
 	 *
 	 * @param Request    $request
@@ -2033,15 +2033,15 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	private function mainException(Request $request, Throwable $exception): Response
 	{
 		$response = $this->responseFactory($request, Response::CONTENT_TYPE_HTML);
-		
+
 		try {
 			$response->content = $this->themes->theme($this->classes->hierarchy($exception), [
-					'application' => $this,
-					'request'     => $request,
-					'response'    => $response,
-					'exception'   => $exception,
-					'content'     => $exception,
-				] + Exception::exceptionVariables($exception), [
+				'application' => $this,
+				'request'     => $request,
+				'response'    => $response,
+				'exception'   => $exception,
+				'content'     => $exception,
+			] + Exception::exceptionVariables($exception), [
 				'first' => true,
 			]);
 			if (!$exception instanceof Redirect) {
@@ -2056,9 +2056,9 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 		}
 		return $response;
 	}
-	
+
 	public const HOOK_EXCEPTION = __CLASS__ . '::exception';
-	
+
 	/**
 	 *
 	 * @param Request $request
@@ -2071,7 +2071,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 			Response::OPTION_CONTENT_TYPE => $content_type,
 		] : []);
 	}
-	
+
 	/**
 	 * @param Request $request
 	 * @return self
@@ -2102,7 +2102,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 		array_pop($this->requestStack);
 		return $this;
 	}
-	
+
 	/**
 	 * Return the zesk home path, usually used to load built-in themes directly.
 	 *
@@ -2114,7 +2114,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	{
 		return self::zeskPath($suffix);
 	}
-	
+
 	/**
 	 * Utility for index.php file for all public-served content.
 	 *
@@ -2125,7 +2125,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	public function index(): Response
 	{
 		$final_map = [];
-		
+
 		$request = $this->requestFactory();
 		$request = $this->invokeFilters(self::HOOK_REQUEST_PREPROCESS, $request);
 		$options = [];
@@ -2142,9 +2142,9 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 			'{page-render-time}' => sprintf('%.3f', microtime(true) - $this->initializationMicrotime),
 		];
 		if (!$response || $response->isContentType([
-				'text/',
-				'javascript',
-			])) {
+			'text/',
+			'javascript',
+		])) {
 			if ($response->content !== null) {
 				$response->content = strtr($response->content, $final_map);
 			}
@@ -2153,9 +2153,9 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 		$response->output($options);
 		return $response;
 	}
-	
+
 	public const HOOK_REQUEST_PREPROCESS = __CLASS__ . '::requestPreprocess';
-	
+
 	/**
 	 * @param Request  $request
 	 * @param Response $response
@@ -2165,7 +2165,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	{
 		// pass
 	}
-	
+
 	/**
 	 * Setter for locale - calls hook
 	 *
@@ -2181,7 +2181,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 		]);
 		return $this;
 	}
-	
+
 	/**
 	 * Create a `zesk\Locale` if it has not been encountered in this process and cache it as part of the `Application`
 	 *
@@ -2199,7 +2199,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 		}
 		return $this->locales[$code] = $this->localeFactory($code, $extensions, $options);
 	}
-	
+
 	/**
 	 * Add or retrieve the data path for this application
 	 *
@@ -2210,7 +2210,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	{
 		return $this->paths->data($suffix);
 	}
-	
+
 	/**
 	 * Get or set the zesk command path, which is where Zesk searches for commands from the
 	 * command-line tool.
@@ -2229,7 +2229,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	{
 		return $this->zeskCommandPath;
 	}
-	
+
 	/**
 	 * Get or set the command path for the application.
 	 *
@@ -2239,7 +2239,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	{
 		return $this->paths->command();
 	}
-	
+
 	/**
 	 *
 	 * @return Command
@@ -2250,10 +2250,10 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 		if ($this->command) {
 			return $this->command;
 		}
-		
+
 		throw new SemanticsException('No command set');
 	}
-	
+
 	/**
 	 * Add a path
 	 *
@@ -2265,7 +2265,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 		$this->paths->addCommand($path);
 		return $this;
 	}
-	
+
 	/**
 	 * Return the application PHP class
 	 *
@@ -2276,7 +2276,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	{
 		return $this->optionString(self::OPTION_APPLICATION_CLASS);
 	}
-	
+
 	/**
 	 * Your web root is the directory in the file system that contains our application and other
 	 * files.
@@ -2295,7 +2295,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	{
 		return Directory::path($this->document, $suffix);
 	}
-	
+
 	/**
 	 * Your web root may be served from an aliased or shared directory and as such may not appear at
 	 * the web server's root.
@@ -2309,7 +2309,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	{
 		return $this->documentPrefix;
 	}
-	
+
 	/**
 	 * Return the development status of this application
 	 *
@@ -2319,7 +2319,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	{
 		return $this->optionBool(self::OPTION_DEVELOPMENT);
 	}
-	
+
 	/**
 	 * Set the development status of this application
 	 *
@@ -2330,7 +2330,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	{
 		return $this->setOption(self::OPTION_DEVELOPMENT, $set);
 	}
-	
+
 	/**
 	 * Create a model
 	 *
@@ -2350,7 +2350,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 		assert($model instanceof Model);
 		return $model->initializeFromArray($value);
 	}
-	
+
 	/**
 	 *
 	 * @param Request $request
@@ -2361,13 +2361,13 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	{
 		return $require ? $this->requireSession($request) : $this->optionalSession($request);
 	}
-	
+
 	/**
 	 * Create a generic object
 	 *
 	 * @param string $class
 	 */
-	
+
 	/**
 	 * Require a session
 	 *
@@ -2379,7 +2379,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 		$session = $this->requestGetSession($request);
 		return $session ?: $this->sessionRequestFactory($request);
 	}
-	
+
 	/**
 	 * @param Request $request
 	 * @return SessionInterface|null
@@ -2394,7 +2394,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Create a session and attach it to the request
 	 *
@@ -2408,7 +2408,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 		$request->setOption(self::REQUEST_OPTION_SESSION, $session);
 		return $session;
 	}
-	
+
 	/**
 	 * Get a session if it has been created already
 	 *
@@ -2419,7 +2419,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	{
 		return $this->requestGetSession($request);
 	}
-	
+
 	/**
 	 *
 	 * @return float Microseconds initialization time
@@ -2428,7 +2428,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	{
 		return $this->initializationMicrotime;
 	}
-	
+
 	/**
 	 *
 	 * @return string
@@ -2437,7 +2437,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	{
 		return Kernel::copyrightHolder();
 	}
-	
+
 	/**
 	 * Register a factory function.
 	 *
@@ -2449,7 +2449,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	{
 		return $this->_registerCallable($code . 'Factory', $callable);
 	}
-	
+
 	/**
 	 * Register a registry function.
 	 * Returns previous factory registered if you want to use it.
@@ -2462,7 +2462,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	{
 		return $this->_registerCallable($code . 'Registry', $callable);
 	}
-	
+
 	/**
 	 * Register a manager function.
 	 * Returns previous manager registered if you want to use it.
@@ -2476,7 +2476,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	{
 		return $this->_registerCallable($code . 'Manager', $callable);
 	}
-	
+
 	/**
 	 * Add support for generic extension calls
 	 *
@@ -2490,7 +2490,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 		$this->callables[$code] = $callable;
 		return $old_factory;
 	}
-	
+
 	/**
 	 * Support foo_factory and foo_registry calls
 	 *
@@ -2507,21 +2507,21 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 			return call_user_func_array($this->callables[$name], $args);
 		}
 		foreach ([
-					 '_module',
-					 'Module',
-				 ] as $suffix) {
+			'_module',
+			'Module',
+		] as $suffix) {
 			if (str_ends_with($name, $suffix)) {
 				return $this->modules->object(substr($name, 0, -strlen($suffix)));
 			}
 		}
-		
+
 		throw new UnsupportedException("Application call {method} is not supported.\n\n\tCalled from: {calling}\n\nDo you ned to register the module which adds this functionality?\n\nAvailable: {available}", [
 			'method'    => $name,
 			'calling'   => Kernel::callingFunction(),
 			'available' => implode(', ', array_keys($this->callables)),
 		]);
 	}
-	
+
 	/**
 	 * Clone application
 	 */
@@ -2531,7 +2531,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 		$this->loader = new Loader($this->includes(), new SettingsConfiguration($this->configuration));
 		$this->router = clone $this->router;
 	}
-	
+
 	/**
 	 * @param Request $request
 	 * @return Userlike
@@ -2543,7 +2543,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 		assert($user instanceof Userlike);
 		return $user;
 	}
-	
+
 	/**
 	 * Uses current application Request for authentication if not supplied.
 	 *
@@ -2558,7 +2558,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	{
 		return $require ? $this->requireUser($request) : $this->optionalUser($request);
 	}
-	
+
 	/**
 	 * Uses current application Request for authentication if not supplied.
 	 *
@@ -2578,14 +2578,14 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 		} catch (SemanticsException) {
 			return $this->userFactory();
 		}
-		
+
 		try {
 			return $this->sessionUser($request);
 		} catch (AuthenticationException) {
 			return $this->userFactory();
 		}
 	}
-	
+
 	/**
 	 * Returns the current executing request. Maay be null
 	 *
@@ -2600,15 +2600,15 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 		if ($request) {
 			return $request;
 		}
-		
+
 		throw new SemanticsException('No request');
 	}
-	
+
 	/**
 	 * The user class for the application. Should implement `zesk\Interface\Userlike`
 	 */
 	public const OPTION_USER_CLASS = 'userClass';
-	
+
 	/**
 	 * @return Userlike
 	 * @throws ClassNotFound
@@ -2625,7 +2625,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 		assert($user instanceof Userlike);
 		return $user;
 	}
-	
+
 	/**
 	 * Optionally fetch a user if authenticated
 	 *
@@ -2641,7 +2641,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 			return null;
 		}
 		$session = $this->optionalSession($request);
-		
+
 		try {
 			$user = $session?->user();
 			assert($user instanceof Userlike);

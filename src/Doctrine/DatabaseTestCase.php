@@ -16,15 +16,15 @@ use zesk\Types;
  *
  * @author kent
  */
-class DatabaseTestCase extends TestCase {
-	
+class DatabaseTestCase extends TestCase
+{
 	public EntityManager $em;
-	
+
 	public function initialize(): void
 	{
 		$this->application->modules->load('Doctrine');
 		$this->application->setOption('userClass', User::class);
-		
+
 		$password = $_SERVER['DATABASE_ROOT_PASSWORD'] ?? null;
 		if (!$password) {
 			throw new ConfigurationException('DATABASE_ROOT_PASSWORD', 'Database root password is required.');
@@ -42,7 +42,7 @@ class DatabaseTestCase extends TestCase {
 		]);
 		$this->em = $this->application->entityManager();
 	}
-	
+
 	/**
 	 * @return Module
 	 */
@@ -50,7 +50,7 @@ class DatabaseTestCase extends TestCase {
 	{
 		return $this->application->doctrineModule();
 	}
-	
+
 	/**
 	 * @return ObjectRepository
 	 */
@@ -58,7 +58,7 @@ class DatabaseTestCase extends TestCase {
 	{
 		return $this->em->getRepository($name);
 	}
-	
+
 	/**
 	 * @param string $entity
 	 * @return string
@@ -67,7 +67,7 @@ class DatabaseTestCase extends TestCase {
 	{
 		return $this->em->getClassMetadata($entity)->getTableName();
 	}
-	
+
 	/**
 	 * @return EntityManager
 	 * @deprecated 2023-04
@@ -76,7 +76,7 @@ class DatabaseTestCase extends TestCase {
 	{
 		return $this->em;
 	}
-	
+
 	//	/**
 	//	 * @param string $name
 	//	 * @param string $create_sql
@@ -105,7 +105,7 @@ class DatabaseTestCase extends TestCase {
 		$actual = $this->em->getRepository($modelClass)->count([]);
 		$this->assertEquals($expected, $actual, "$modelClass does not have expected $expected rows (has $actual)");
 	}
-	
+
 	/**
 	 */
 	final protected function assertRepositoryMatch(string $modelClass, array $match = []): void
@@ -134,7 +134,7 @@ class DatabaseTestCase extends TestCase {
 		}
 		$this->assertEquals($rows, $databaseRows, "Matching $modelClass to row values");
 	}
-	
+
 	/**
 	 * Synchronize the given classes with the database schema
 	 *
@@ -153,12 +153,12 @@ class DatabaseTestCase extends TestCase {
 		}
 		return $this->application->doctrineModule()->schemaSynchronize(array_keys($collection));
 	}
-	
+
 	final protected function sqlNormalizeTrim(string $sql): string
 	{
 		return preg_replace('/\s+/', ' ', trim($sql));
 	}
-	
+
 	/**
 	 * Compare SQL loosely
 	 *

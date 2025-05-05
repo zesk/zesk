@@ -9,27 +9,28 @@ use zesk\Response;
 use zesk\Route\Controller as ControllerRoute;
 use zesk\StringTools;
 
-class ControllerTest extends TestCase
-{
+class ControllerTest extends TestCase {
+	
 	/**
 	 *
 	 */
 	public function test_Controller(): void
 	{
 		$app = $this->application;
-
+		
 		$app->addThemePath($this->test_sandbox());
 		$themeContent = "--Test--\n";
 		$themeContent .= '<' . "?php\n";
 		$themeContent .= "echo \"\$content\n\";\n";
 		$themeContent .= "echo gettype(\$content) . \"\n\";\n";
 		$themeContent .= "?>\nEOF";
-
+		
 		File::put($this->test_sandbox('test-theme.tpl'), $themeContent);
-
+		
 		$app->setOption('cache_router', false);
 		$router = $app->router();
-
+		$router->clear();
+		
 		$router->addRoute('({first}(/{second}))', [
 			'controller' => TestController::class,
 			'arguments'  => [
@@ -51,21 +52,21 @@ class ControllerTest extends TestCase
 			'action'     => 'array',
 			'weight'     => -1,
 		]);
-
+		
 		$expected = ['init'];
 		foreach ([
-			'',
-			"$testRouteStart",
-			"$testRouteStart/1",
-			"$testRouteStart/Love",
-			"$testRouteStart/One",
-			"$testRouteStart/Heart/...lets-get",
-		] as $suffix) {
+					 '',
+					 "$testRouteStart",
+					 "$testRouteStart/1",
+					 "$testRouteStart/Love",
+					 "$testRouteStart/One",
+					 "$testRouteStart/Heart/...lets-get",
+				 ] as $suffix) {
 			$request = Request::factory($app, 'http://localhost/' . $suffix);
-
+			
 			$route = $router->matchRequest($request);
-			$this->assertInstanceOf(ControllerRoute::class, $route);
-
+			$this->assertInstanceOf(ControllerRoute::class, $route, get_class($route) . " " . $route->getPattern());
+			
 			[
 				$first,
 				$second,
@@ -76,7 +77,7 @@ class ControllerTest extends TestCase
 			$response = $route->execute($request);
 			if (str_starts_with($suffix, $testRouteStart)) {
 				$remain = ltrim(StringTools::removePrefix($suffix, $testRouteStart), '/') . '//';
-
+				
 				$this->assertNull($response->content(), "Testing $suffix content to be null");
 				$middlePart = '';
 			} else {
@@ -90,12 +91,12 @@ class ControllerTest extends TestCase
 			];
 			$this->assertInstanceOf(Response::class, $response);
 			$response->setPageTheme('test-theme');
-
-			$renderedContent = $response->render([Response::OPTION_SKIP_HEADERS => true, ]);
+			
+			$renderedContent = $response->render([Response::OPTION_SKIP_HEADERS => true,]);
 			$this->assertEquals("--Test--\n$middlePart\nstring\nEOF", $renderedContent);
 		}
-
-
+		
+		
 		$this->assertEquals($expected, TestController::getOption($this->application));
 	}
 }

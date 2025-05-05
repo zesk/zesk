@@ -30,20 +30,20 @@ use zesk\Doctrine\Trait\AutoID;
 	'server',
 	'name',
 ])]
-class ServerMeta extends Model {
-	
+class ServerMeta extends Model
+{
 	use AutoID;
-	
+
 	#[ManyToOne(targetEntity: Server::class)]
 	#[JoinColumn(name: 'server')]
 	public Server $server;
-	
+
 	#[Column(type: 'string', nullable: false)]
 	public string $name;
-	
+
 	#[Column(type: 'json', nullable: false)]
 	public mixed $value;
-	
+
 	public function __construct(Application $application, Server $server, string $name, mixed $value, array $options = [])
 	{
 		parent::__construct($application, [
@@ -52,7 +52,7 @@ class ServerMeta extends Model {
 			'value'  => $value,
 		], $options);
 	}
-	
+
 	/**
 	 * Delete all data associated with server
 	 *
@@ -65,7 +65,7 @@ class ServerMeta extends Model {
 		$query = $em->createQueryBuilder()->delete(self::class)->where(['server' => $server])->getQuery();
 		$query->execute();
 	}
-	
+
 	/**
 	 * @param Server $server
 	 * @param string $name

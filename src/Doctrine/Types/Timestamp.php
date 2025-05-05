@@ -12,26 +12,26 @@ use Doctrine\DBAL\Types\Type;
 use zesk\Exception\ParseException;
 use zesk\Timestamp as DateTimestamp;
 
-class Timestamp extends Type {
-	
+class Timestamp extends Type
+{
 	public const TYPE = 'timestamp'; // modify to match your type name
-	
+
 	public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
 	{
 		return $platform->getDateTimeTzTypeDeclarationSQL($column);
 	}
-	
+
 	public function convertToPHPValue($value, AbstractPlatform $platform): DateTimestamp|null
 	{
 		$stamp = DateTimestamp::nowUTC();
-		
+
 		try {
 			return $stamp->parse($value);
 		} catch (ParseException) {
 			return null;
 		}
 	}
-	
+
 	public function convertToDatabaseValue($value, AbstractPlatform $platform): ?string
 	{
 		// This is executed when the value is written to the database. Make your conversions here, optionally using the $platform.
@@ -46,7 +46,7 @@ class Timestamp extends Type {
 		}
 		return $dateTime->format($platform->getDateTimeFormatString());
 	}
-	
+
 	public function getName(): string
 	{
 		return self::TYPE; // modify to match your constant name

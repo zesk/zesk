@@ -210,7 +210,7 @@ class Response extends Hookable {
 	 *
 	 * @var string
 	 */
-	protected string $contentType = self::CONTENT_TYPE_HTML;
+	protected string $contentType = '';
 	
 	/**
 	 * Optional Content-Type to determine output handler. If null, uses $this->content_type
@@ -373,11 +373,12 @@ class Response extends Hookable {
 	
 	/**
 	 * If code is unknown, coverts to 500 automatically
-	 * Also sets status message if not passed in; uses default.
+	 * Sets the status message if not passed in; uses default.
 	 *
 	 * @param int     $error_code
 	 * @param ?string $error_string
 	 * @return $this
+	 * @throws SemanticsException
 	 */
 	public function setStatus(int $error_code, string $error_string = null): self
 	{

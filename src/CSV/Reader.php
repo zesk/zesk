@@ -29,15 +29,15 @@ use zesk\UTF8;
  * @package    zesk
  * @subpackage tools
  */
-class Reader extends Base {
-	
+class Reader extends Base
+{
 	/**
 	 * Buffer to load UTF-16 lines
 	 *
 	 * @var string
 	 */
 	protected string $FileBuffer;
-	
+
 	/**
 	 * @param string $filename
 	 * @param array  $options
@@ -54,7 +54,7 @@ class Reader extends Base {
 			$this->setFilename($filename);
 		}
 	}
-	
+
 	/**
 	 * Create a Reader
 	 *
@@ -70,7 +70,7 @@ class Reader extends Base {
 	{
 		return new self($filename, $options);
 	}
-	
+
 	/**
 	 * Retrieve an iterator for this CSV_Reader
 	 *
@@ -81,7 +81,7 @@ class Reader extends Base {
 	{
 		return new Iterator($this, $options);
 	}
-	
+
 	/**
 	 * Get filename associated with this Reader
 	 *
@@ -91,7 +91,7 @@ class Reader extends Base {
 	{
 		return $this->file;
 	}
-	
+
 	/**
 	 * @param string $filename
 	 * @return self
@@ -106,7 +106,7 @@ class Reader extends Base {
 		$this->determineEncoding();
 		return $this;
 	}
-	
+
 	/**
 	 * Retrieve a structure which saves the state of the CSV Reader file read position and row index
 	 *
@@ -124,7 +124,7 @@ class Reader extends Base {
 			'key'         => $this->_magicNumber(),
 		];
 	}
-	
+
 	/**
 	 * Seek to a previous tell point. Do not try to construct this structure
 	 *
@@ -148,7 +148,7 @@ class Reader extends Base {
 		$this->FileBuffer = $tell['file_buffer'];
 		fseek($this->File, $tell['file_pos']);
 	}
-	
+
 	/**
 	 * Are we at the end of the file?
 	 *
@@ -166,7 +166,7 @@ class Reader extends Base {
 		}
 		return feof($this->File);
 	}
-	
+
 	/**
 	 * Read a single line from the file. Converts from UTF-8 and UTF-16 encodings if needed
 	 *
@@ -210,7 +210,7 @@ class Reader extends Base {
 				return $result;
 		}
 	}
-	
+
 	/**
 	 * Read the headers from the CSV file
 	 *
@@ -230,7 +230,7 @@ class Reader extends Base {
 		}
 		return $this->headers();
 	}
-	
+
 	/**
 	 * Read a row from the CSV file, keys are column positions (0 = first, 1 = second, etc.)
 	 *
@@ -253,14 +253,14 @@ class Reader extends Base {
 		}
 		if ($this->eof()) {
 			$this->row = [];
-			
+
 			throw new StopIteration();
 		}
 		$this->row = $this->read_line();
 		$this->rowIndex = $this->rowIndex + 1;
 		return $this->row;
 	}
-	
+
 	/**
 	 *
 	 * Read a row and map column names using our headers
@@ -278,7 +278,7 @@ class Reader extends Base {
 		foreach ($hh as $k => $v) {
 			if (is_scalar($v)) {
 				$r[$v] = $row[$k] ?? null;
-			} else if (is_array($v)) {
+			} elseif (is_array($v)) {
 				foreach ($v as $vv) {
 					$r[$vv] = $row[$k] ?? null;
 				}
@@ -287,7 +287,7 @@ class Reader extends Base {
 		$r = $this->postProcessRow($r);
 		return $r;
 	}
-	
+
 	/**
 	 * Override in subclasses
 	 *
@@ -298,7 +298,7 @@ class Reader extends Base {
 	{
 		return $row;
 	}
-	
+
 	/**
 	 * Skip one or more reows in the file.
 	 *
@@ -322,7 +322,7 @@ class Reader extends Base {
 			$this->rowIndex++;
 		}
 	}
-	
+
 	/**
 	 * Determine the encoding of the file by peeking at the first 1K bytes
 	 *
@@ -344,11 +344,11 @@ class Reader extends Base {
 			$this->encoding = 'UTF-8';
 			$this->encodingSuffix = '.UTF8';
 			$file_sample = UTF8::toISO8859($file_sample);
-		} else if (StringTools::isUTF16($file_sample, $this->encodingBigEndian)) {
+		} elseif (StringTools::isUTF16($file_sample, $this->encodingBigEndian)) {
 			$this->encoding = 'UTF-16';
 			$this->encodingSuffix = '.UTF16';
 			$file_sample = UTF16::toISO8859($file_sample, $this->encodingBigEndian);
-		} else if (StringTools::isASCII($file_sample)) {
+		} elseif (StringTools::isASCII($file_sample)) {
 			$this->encoding = 'ISO-8859-1';
 			$this->encodingSuffix = '.ISO8859';
 		} else {
@@ -362,7 +362,7 @@ class Reader extends Base {
 		}
 		$this->delimiter = $this->_determineDelimiter($file_sample);
 	}
-	
+
 	/**
 	 * Retrieve a magic number to avoid bogus data in tell/seek
 	 *
@@ -372,7 +372,7 @@ class Reader extends Base {
 	{
 		return md5($this->file . '-' . filesize($this->file));
 	}
-	
+
 	/**
 	 * Determine the delimiter used between CSV cells per line by sampling and counting each in the selected line
 	 *

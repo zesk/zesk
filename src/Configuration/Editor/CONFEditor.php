@@ -20,8 +20,8 @@ use zesk\Text;
  *
  * @see CONF
  */
-class CONFEditor extends Editor {
-	
+class CONFEditor extends Editor
+{
 	/**
 	 * @desc      Save changes to a configuration file
 	 * @param array $edits

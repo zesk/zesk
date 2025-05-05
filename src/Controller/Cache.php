@@ -33,41 +33,46 @@ use zesk\Response;
  * @author kent
  *
  */
-class Cache extends Controller {
-	
-	const OPTION_CACHE_DIRECTORY_MODE = "cacheDirectoryMode";
-	const DEFAULT_CACHE_DIRECTORY_MODE = 0o0770;
-	
-	const OPTION_CACHE_VARIABLE_NAME = "cacheRequestVariable";
-	const DEFAULT_CACHE_VARIABLE_NAME = '__cache';
-	
-	const OPTION_CACHE_KEY_VARIABLE = "cacheKeyVariable";
-	const DEFAULT_CACHE_KEY_VARIABLE = 'key';
-	const OPTION_INCLUDE_PREFIXES = "include";
-	const OPTION_CACHE_ID = "cacheID";
-	const DEFAULT_CACHE_ID = 'files';
-	
+class Cache extends Controller
+{
+	public const OPTION_CACHE_DIRECTORY_MODE = 'cacheDirectoryMode';
+
+	public const DEFAULT_CACHE_DIRECTORY_MODE = 0o0770;
+
+	public const OPTION_CACHE_VARIABLE_NAME = 'cacheRequestVariable';
+
+	public const DEFAULT_CACHE_VARIABLE_NAME = '__cache';
+
+	public const OPTION_CACHE_KEY_VARIABLE = 'cacheKeyVariable';
+
+	public const DEFAULT_CACHE_KEY_VARIABLE = 'key';
+
+	public const OPTION_INCLUDE_PREFIXES = 'include';
+
+	public const OPTION_CACHE_ID = 'cacheID';
+
+	public const DEFAULT_CACHE_ID = 'files';
+
 	public function cacheDirectoryMode(): int
 	{
 		return $this->optionInt(self::OPTION_CACHE_DIRECTORY_MODE, self::DEFAULT_CACHE_DIRECTORY_MODE);
 	}
-	
+
 	public function cacheRequestVariableName(): int
 	{
 		return $this->optionString(self::OPTION_CACHE_VARIABLE_NAME, self::DEFAULT_CACHE_VARIABLE_NAME);
 	}
-	
+
 	public function cacheKeyVariable(): string
 	{
 		return $this->optionString(self::OPTION_CACHE_KEY_VARIABLE, self::DEFAULT_CACHE_KEY_VARIABLE);
 	}
-	
+
 	public function cacheKey(): string
 	{
 		return $this->optionString($this->cacheKeyVariable());
 	}
-	
-	
+
 	private function isIncluded(string $file): bool
 	{
 		if ($this->hasOption(self::OPTION_INCLUDE_PREFIXES)) {
@@ -79,8 +84,7 @@ class Cache extends Controller {
 		}
 		return false;
 	}
-	
-	
+
 	/**
 	 * Convert a request for file stored elsewhere and store it where the web server will then serve it thereafter.
 	 *
@@ -107,11 +111,11 @@ class Cache extends Controller {
 				$message,
 				$args,
 			]);
-			
+
 			throw new FileNotFound($file, 'Path contains invalid components');
 		}
 		$documentRoot = $this->application->documentRoot();
-		
+
 		try {
 			$cacheFile = Directory::removeDots(Directory::path($documentRoot, $file));
 		} catch (SyntaxException) {
@@ -119,7 +123,7 @@ class Cache extends Controller {
 		}
 		if (!str_starts_with($cacheFile, $documentRoot)) {
 			$message = 'User cache file "{cacheFile}" does not match document root "{documentRoot}"';
-			
+
 			$this->application->invokeHooks(Application::HOOK_SECURITY, [
 				$this->application,
 				$message,
@@ -128,13 +132,13 @@ class Cache extends Controller {
 					'documentRoot' => $documentRoot,
 				],
 			]);
-			
+
 			throw new FileNotFound($file, 'Invalid path');
 		}
 		if (!$this->isIncluded($file)) {
 			throw new FileNotFound($file, 'Not included');
 		}
-		
+
 		$cacheEnabled = true;
 		$noCacheVariable = $this->optionString('cacheRequestVariable', '__cache');
 		if ($request->has($noCacheVariable, true)) {
@@ -143,7 +147,7 @@ class Cache extends Controller {
 				$cacheEnabled = false;
 			}
 		}
-		
+
 		if (!$cacheEnabled) {
 			try {
 				$response->setContentType(MIME::fromExtension($cacheFile));
@@ -151,7 +155,7 @@ class Cache extends Controller {
 			}
 			return $response->setHeader(HTTP::HEADER_CONTENT_LENGTH, strval(strlen($contents)))->setContent($contents);
 		}
-		
+
 		try {
 			Directory::depend(dirname($cacheFile), $this->cacheDirectoryMode());
 		} catch (DirectoryPermission|DirectoryCreate $e) {
@@ -164,22 +168,22 @@ class Cache extends Controller {
 		File::put($cacheFile, $contents);
 		return $response->setRawFile($cacheFile);
 	}
-	
+
 	private function controllerCacheFile(): string
 	{
-		return $this->application->cachePath("controllerCache-" . $this->controllerCacheID() . ".log");
+		return $this->application->cachePath('controllerCache-' . $this->controllerCacheID() . '.log');
 	}
-	
-	
+
 	public function controllerCacheID(): string
 	{
 		return $this->optionString(self::OPTION_CACHE_ID, self::DEFAULT_CACHE_ID);
 	}
-	
+
 	#[HookMethod(handles: Application::HOOK_CACHE_CLEAR)]
 	public function cacheControllerClear(Application $application): void
 	{
 		$fileLog = $this->controllerCacheFile();
+
 		try {
 			$iterator = new File\LineIterator($fileLog);
 			foreach ($iterator as $cacheFile) {
@@ -189,7 +193,6 @@ class Cache extends Controller {
 			}
 			File::unlink($fileLog);
 		} catch (FileNotFound) {
-		
 		}
 	}
 }

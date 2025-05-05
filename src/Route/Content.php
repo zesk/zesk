@@ -5,6 +5,7 @@ namespace zesk\Route;
 
 use zesk\ArrayTools;
 use zesk\Exception\NotFoundException;
+use zesk\Exception\SemanticsException;
 use zesk\JSON;
 use zesk\Route;
 
@@ -18,27 +19,31 @@ use zesk\StringTools;
  * @author kent
  *
  */
-class Content extends Route
-{
+class Content extends Route {
+	
 	/**
 	 * @param Request $request
 	 * @return Response
-	 * @throws NotFoundException
+	 * @throws NotFoundException|SemanticsException
 	 */
 	protected function internalExecute(Request $request): Response
 	{
+		$response = $this->responseFactory($request);
 		$file = $this->optionString('file');
 		if ($file) {
 			if (StringTools::cleanTokens($file) !== $file) {
 				$file = $this->_mapVariables($request, $file);
 				if (!is_string($file)) {
-					throw new NotFoundException($request->uri(), ['file' => $file, 'badType' => gettype($file)], 0);
+					throw new NotFoundException($request->uri(), [
+						'file'    => $file,
+						'badType' => gettype($file),
+					], 0);
 				}
 			}
-
+			
 			try {
 				$file = $this->application->paths->expand($file);
-				return $this->application->responseFactory($request)->setRawFile($file);
+				return $response->setRawFile($file);
 			} catch (FileNotFound $f) {
 				throw new NotFoundException($f->getRawMessage(), $f->variables(), 0, $f);
 			}
@@ -54,12 +59,12 @@ class Content extends Route
 		}
 		if (count($map)) {
 			$map = ArrayTools::keysFlatten($map, '.') + array_map(JSON::encodePretty(...), $map);
-			$content =  ArrayTools::map($content, $map);
+			$content = ArrayTools::map($content, $map);
 		}
 		if ($this->option('json')) {
-			return $this->application->responseFactory($request)->json()->setData($content);
+			return $response->json()->setData($content);
 		} else {
-			return $this->application->responseFactory($request)->setContent($content);
+			return $response->setContent($content);
 		}
 	}
 }

@@ -18,8 +18,8 @@ use zesk\Request;
  * @author kent
  *
  */
-class Search extends ThemeController {
-	
+class Search extends ThemeController
+{
 	/**
 	 *
 	 * @param Request $request

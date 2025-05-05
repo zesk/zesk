@@ -17,20 +17,20 @@ use zesk\Model as ModelBase;
  *
  * Provides utilities
  */
-class Model extends ModelBase {
-	
-	protected string $emName = "";
-	
+class Model extends ModelBase
+{
+	protected string $emName = '';
+
 	/**
 	 * @var EntityManager|null
 	 */
 	private ?EntityManager $em = null;
-	
+
 	public function __construct(Application $application, array $options = [])
 	{
 		parent::__construct($application, $options);
 	}
-	
+
 	/**
 	 * @return EntityManager
 	 */
@@ -38,7 +38,7 @@ class Model extends ModelBase {
 	{
 		return $this->em ??= $this->application->entityManager($this->emName);
 	}
-	
+
 	/**
 	 * @return void
 	 * @throws ORMException
@@ -47,12 +47,12 @@ class Model extends ModelBase {
 	{
 		$this->entityManager()->remove($this);
 	}
-	
+
 	public function postLoad(): void
 	{
 		$this->application = Kernel::wakeupApplication();
 	}
-	
+
 	public function reconnect(EntityManager $em): void
 	{
 		$evm = $em->getEventManager();

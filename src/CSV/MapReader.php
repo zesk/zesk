@@ -27,8 +27,8 @@ use zesk\Types;
  * @package    zesk
  * @subpackage tools
  */
-class MapReader extends Reader {
-	
+class MapReader extends Reader
+{
 	/**
 	 * A read map group allows you to read a subset of a row and map the column names into new names. This is useful when
 	 * mapping a CSV row into one or more zesk\ORM subclasses.
@@ -36,14 +36,14 @@ class MapReader extends Reader {
 	 * @var array
 	 */
 	protected array $readMapGroup;
-	
+
 	/**
 	 * The read map group defaults provides default values, per read map, used to populate the result when the value does not exist.
 	 *
 	 * @var array
 	 */
 	protected array $readMapGroupDefaults;
-	
+
 	/**
 	 * The read map group types provides column types, per read map, used to
 	 *
@@ -52,13 +52,13 @@ class MapReader extends Reader {
 	 * @var array
 	 */
 	protected array $readMapGroupTypes;
-	
+
 	/**
 	 *
 	 * @var array
 	 */
 	protected array $translationMap = [];
-	
+
 	/**
 	 *
 	 * @param string $filename
@@ -74,7 +74,7 @@ class MapReader extends Reader {
 		$this->readMapGroupDefaults = [];
 		$this->readMapGroupTypes = [];
 	}
-	
+
 	/**
 	 * Create
 	 *
@@ -89,7 +89,7 @@ class MapReader extends Reader {
 	{
 		return new self($filename, $options);
 	}
-	
+
 	/**
 	 * Set or get a simple mapping for reading objects from a CSV, for example
 	 *
@@ -141,7 +141,7 @@ class MapReader extends Reader {
 		}
 		return $this;
 	}
-	
+
 	/**
 	 * @param string $name
 	 * @return array
@@ -155,7 +155,7 @@ class MapReader extends Reader {
 		}
 		return $this->_getReadMap($name);
 	}
-	
+
 	/**
 	 * Given a source row $data, and a type map
 	 *
@@ -174,17 +174,17 @@ class MapReader extends Reader {
 					switch ($type) {
 						case 'boolean':
 							$row[$k] = Types::toBool($v);
-							
+
 							break;
 						case 'timestamp':
 						case 'datetime':
 							$row[$k] = Timestamp::factory($v);
-							
+
 							break;
 						default:
 							throw new KeyNotFound("Unknown type map $type in CSV::_applyTypes");
 					}
-				} else if (is_array($type)) {
+				} elseif (is_array($type)) {
 					$v = $type[$v] ?? $defaultMap[$k] ?? null;
 					if ($v !== null) {
 						$row[$k] = $v;
@@ -194,7 +194,7 @@ class MapReader extends Reader {
 		}
 		return $row;
 	}
-	
+
 	/**
 	 * Retrieve the read map of name
 	 *
@@ -248,9 +248,9 @@ class MapReader extends Reader {
 		}
 		return $result;
 	}
-	
+
 	public const MAP_BOOLEAN = 'boolean';
-	
+
 	/**
 	 * Set columns to be converted to boolean upon reading
 	 *
@@ -262,7 +262,7 @@ class MapReader extends Reader {
 	{
 		return $this->_addTranslationMapType(Types::toList($columns), self::MAP_BOOLEAN);
 	}
-	
+
 	/**
 	 * Add translation map for a specific type
 	 *
@@ -285,7 +285,7 @@ class MapReader extends Reader {
 		}
 		return $this;
 	}
-	
+
 	/**
 	 *
 	 * @param array $row
@@ -305,7 +305,7 @@ class MapReader extends Reader {
 		}
 		return $row;
 	}
-	
+
 	/**
 	 * Convert data to boolean
 	 */
@@ -313,7 +313,7 @@ class MapReader extends Reader {
 	{
 		return Types::toBool($value);
 	}
-	
+
 	private function _convert_text(mixed $value): string
 	{
 		return strval($value);

@@ -1,0 +1,8 @@
+index
+    content={"message":"Hello, world."}
+    json=true
+robots.txt
+    content="Line1\nLine2\n"
+    contentType="text/plain"
+*
+    content="Welcome to Zesk!"

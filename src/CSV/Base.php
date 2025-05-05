@@ -25,79 +25,79 @@ use zesk\StringTools;
  * @package    zesk
  * @subpackage system
  */
-abstract class Base extends Options {
-	
+abstract class Base extends Options
+{
 	/**
 	 * @var resource
 	 */
 	protected mixed $File;
-	
+
 	/**
 	 * @var string
 	 */
 	protected string $file;
-	
+
 	/**
 	 * @var string
 	 */
 	protected string $delimiter;
-	
+
 	/**
 	 * @var string
 	 */
 	protected string $enclosure;
-	
+
 	/**
 	 * @var string
 	 */
 	protected string $escape;
-	
+
 	/**
 	 * @var string
 	 */
 	protected string $lineDelimiter;
-	
+
 	/**
 	 * @var array
 	 */
 	protected array $headers = [];
-	
+
 	/**
 	 * @var array
 	 */
 	protected array $headersToIndex = [];
-	
+
 	/**
 	 * @var integer
 	 */
 	protected int $rowIndex;
-	
+
 	/**
 	 * The current row being read or written
 	 *
 	 * @var array
 	 */
 	protected array $row;
-	
+
 	/**
 	 * File encoding
 	 *
 	 * @var string
 	 */
 	protected string $encoding = 'UTF-8';
-	
+
 	/**
 	 *
 	 * @var string
 	 */
 	protected string $encodingSuffix = '.UTF8';
-	
+
 	/**
 	 *
 	 * @var bool
 	 */
 	protected bool $encodingBigEndian = true;
-	
+
 	/**
 	 * Create new CSV
 	 *
@@ -106,7 +106,7 @@ abstract class Base extends Options {
 	public function __construct(array $options = [])
 	{
 		parent::__construct($options);
-		
+
 		$this->rowIndex = 0;
 		$this->File = false;
 		$this->delimiter = ',';
@@ -114,7 +114,7 @@ abstract class Base extends Options {
 		$this->escape = '\\';
 		$this->lineDelimiter = "\n";
 	}
-	
+
 	/**
 	 * Set the file associated with this CSV object
 	 *
@@ -135,13 +135,13 @@ abstract class Base extends Options {
 		if (!$this->File) {
 			throw new FilePermission("Can't open $filename with mode $mode");
 		}
-		
+
 		$this->file = $filename;
 		$this->row = [];
 		$this->rowIndex = 0;
 		return $this;
 	}
-	
+
 	/**
 	 * Close the CSV file
 	 *
@@ -154,7 +154,7 @@ abstract class Base extends Options {
 			$this->File = null;
 		}
 	}
-	
+
 	/**
 	 * Add headers to the CSV file
 	 *
@@ -195,7 +195,7 @@ abstract class Base extends Options {
 		}
 		return $this;
 	}
-	
+
 	/**
 	 * @param array $headers
 	 * @param bool  $is_map
@@ -208,7 +208,7 @@ abstract class Base extends Options {
 		$this->headersToIndex = [];
 		return $this->addHeaders($headers, $is_map);
 	}
-	
+
 	/**
 	 * @return array
 	 */
@@ -219,7 +219,7 @@ abstract class Base extends Options {
 		}
 		return $this->headers;
 	}
-	
+
 	/**
 	 * Return the file name associated with this CSV
 	 *
@@ -229,7 +229,7 @@ abstract class Base extends Options {
 	{
 		return $this->file;
 	}
-	
+
 	/**
 	 * Retrieve the current row's column value
 	 *
@@ -245,7 +245,7 @@ abstract class Base extends Options {
 		}
 		return $default;
 	}
-	
+
 	/**
 	 * Return row index
 	 *
@@ -258,7 +258,7 @@ abstract class Base extends Options {
 		}
 		return $this->rowIndex - 1;
 	}
-	
+
 	/**
 	 * Return raw row read from the CSV
 	 *
@@ -268,7 +268,7 @@ abstract class Base extends Options {
 	{
 		return $this->row;
 	}
-	
+
 	/**
 	 * Check to make sure we have a valid file open and ready for operations
 	 *
@@ -280,7 +280,7 @@ abstract class Base extends Options {
 			throw new ProtocolException('Must set a file first.');
 		}
 	}
-	
+
 	/**
 	 * Quote a CSV field correctly. If it contains a quote (`"`) a comma (`,`), or a newline(`\n`), then quote it.
 	 *
@@ -300,7 +300,7 @@ abstract class Base extends Options {
 	{
 		return StringTools::csvQuote($x);
 	}
-	
+
 	/**
 	 * Quote a single CSV row
 	 *
@@ -312,7 +312,7 @@ abstract class Base extends Options {
 	{
 		return StringTools::csvQuoteRow($x);
 	}
-	
+
 	/**
 	 * Quote multiple CSV rows
 	 *

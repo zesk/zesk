@@ -17,26 +17,26 @@ use zesk\Types;
  * @author kent
  *
  */
-class Parser
-{
+class Parser {
+	
 	/**
 	 *
 	 * @var string
 	 */
 	protected string $contents;
-
+	
 	/**
 	 *
 	 * @var string
 	 */
 	protected string $id;
-
+	
 	/**
 	 *
 	 * @param string $contents
 	 *
 	 */
-
+	
 	/**
 	 * Parser constructor
 	 *
@@ -48,7 +48,7 @@ class Parser
 		$this->contents = $contents;
 		$this->id = $id ?: md5($contents);
 	}
-
+	
 	/**
 	 * Parser constructor
 	 *
@@ -60,11 +60,11 @@ class Parser
 	{
 		return new self($contents, $id);
 	}
-
+	
 	/**
 	 *
 	 * @param Router $router
-	 * @param array $add_options
+	 * @param array  $add_options
 	 * @return Route[]
 	 * @throws SyntaxException
 	 */
@@ -72,13 +72,14 @@ class Parser
 	{
 		$app = $router->application;
 		$logger = $app->logger();
-
+		
 		$lines = explode("\n", $this->contents);
 		$paths = [];
 		$options = [];
 		$whites = Types::toList(" ;\t");
 		$tr = [
-			'$zesk_root' => $app->zeskHome(), '$zesk_application_root' => $app->path(),
+			'$zesk_root'             => $app->zeskHome(),
+			'$zesk_application_root' => $app->path(),
 		];
 		$routes = [];
 		foreach ($lines as $lineno => $line) {
@@ -91,33 +92,40 @@ class Parser
 			if (in_array($firstChar, $whites)) {
 				if (count($paths) === 0) {
 					$logger->warning("Line $lineno1 of router has setting without path");
-				} elseif (!str_contains($line, '=')) {
+				} else if (!str_contains($line, '=')) {
 					$logger->warning("Line $lineno1 of router has no value ($line)");
 				} else {
-					[$name, $value] = explode('=', $line, 2);
+					[
+						$name,
+						$value,
+					] = explode('=', $line, 2);
 					$value_trimmed = trim($value);
 					if ($value_trimmed === 'null') {
 						$value = null;
-					} elseif ($value_trimmed === 'true' || $value_trimmed === 'false') {
+					} else if ($value_trimmed === 'true' || $value_trimmed === 'false') {
 						$value = Types::toBool($value_trimmed);
-					} elseif (StringTools::begins($value_trimmed, str_split('"\'{['))) {
+					} else if (StringTools::begins($value_trimmed, str_split('"\'{['))) {
 						try {
 							$decoded = JSON::decode($value);
 							$value = $decoded;
 						} catch (ParseException $e) {
 							$logger->error('Error parsing {id}:{lineno} decoding JSON failed', [
-								'id' => $this->id, 'lineno' => $lineno1,
+								'id'     => $this->id,
+								'lineno' => $lineno1,
 							]);
-							$app->invokeHooks(Application::HOOK_EXCEPTION, [$app, $e]);
+							$app->invokeHooks(Application::HOOK_EXCEPTION, [
+								$app,
+								$e,
+							]);
 						}
 					}
 					if (is_string($value) || is_array($value)) {
 						$value = Types::replaceSubstrings($value, $tr);
 					}
 					if (str_ends_with($name, '[]')) {
-						$options[strtolower(substr($name, 0, -2))][] = $value;
+						$options[substr($name, 0, -2)][] = $value;
 					} else {
-						$options[strtolower($name)] = $value;
+						$options[$name] = $value;
 					}
 				}
 			} else {

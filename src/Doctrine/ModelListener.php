@@ -5,8 +5,8 @@ namespace zesk\Doctrine;
 
 use Doctrine\ORM\Event\PostLoadEventArgs;
 
-class ModelListener {
-	
+class ModelListener
+{
 	public function postLoad(Model $model, PostLoadEventArgs $args): void
 	{
 		$model->reconnect($args->getObjectManager());

@@ -1,9 +1,9 @@
 <?php
 declare(strict_types=1);
 /**
- * @author kent
- * @copyright Copyright &copy; 2025, Market Acumen, Inc.
- * @package zesk
+ * @author     kent
+ * @copyright  Copyright &copy; 2025, Market Acumen, Inc.
+ * @package    zesk
  * @subpackage system
  */
 
@@ -12,149 +12,155 @@ namespace zesk;
 use zesk\Exception\ClassNotFound;
 use zesk\Exception\FileNotFound;
 use zesk\Exception\KeyNotFound;
+use zesk\Exception\ParameterException;
+use zesk\Exception\ParseException;
+use zesk\Exception\SyntaxException;
+use zesk\Exception\UploadException;
 
 /**
  * Abstraction for web requests
  *
- * @package zesk
+ * @package    zesk
  * @subpackage system
- * @see Net_HTTP_Server_Request
+ * @see        Net_HTTP_Server_Request
  */
-class Request extends Hookable
-{
+class Request extends Hookable {
+	
 	use GetTyped;
-
+	
 	/**
 	 * fromSettings
 	 */
 	public const OPTION_METHOD = 'method';
-
+	
 	public const OPTION_HEADERS = 'headers';
-
+	
 	public const OPTION_URI = 'uri';
-
+	
 	public const OPTION_COOKIES = 'cookies';
-
+	
 	public const OPTION_REQUEST_DATA = 'requestData';
-
+	
 	public const OPTION_FILES = 'files';
-
+	
 	public const OPTION_DATA_FILE = 'dataFile';
-
+	
 	public const OPTION_IP = 'ip';
-
+	
 	public const OPTION_REMOTE_IP = 'remoteIP';
-
+	
 	public const OPTION_SERVER_IP = 'serverIP';
-
+	
 	public const OPTION_DATA = 'data';
-
+	
 	public const OPTION_URL = 'url';
-
+	
 	public const OPTION_USER_AGENT = 'userAgent';
-
+	
 	/**
 	 * NOT fromSettings
 	 */
 	public const OPTION_URL_PARTS = 'urlParts';
-
+	
 	/**
 	 * Default URI
 	 */
 	public const DEFAULT_URI = '/';
-
+	
 	public const DEFAULT_IP = '0.0.0.0';
-
+	
 	/**
-	 * Default name of file to read for POST ar PUT content
+	 * Default name of the file to read for POST ar PUT content
 	 *
 	 * @var string
 	 */
 	public const DATA_FILE_DEFAULT = 'php://input';
-
+	
 	/**
-	 * Method of request GET, POST, PUT, POST, DELETE etc.
+	 * Method of request GET, POST, PUT, POST, DELETE, etc.
 	 *
 	 * @var string
 	 */
 	protected string $method = HTTP::METHOD_GET;
-
+	
 	/**
 	 * Requested URI
 	 *
 	 * @var string
 	 */
 	protected string $uri = '/';
-
+	
 	/**
 	 * Request headers (reconstructed)
 	 */
 	protected array $headers = [];
-
+	
 	/**
 	 * Request headers parse cache
 	 */
 	private array $headers_parsed = [];
-
+	
 	/**
 	 * Cookies
 	 */
 	protected array $cookies = [];
-
+	
 	/**
 	 * Processed data converted to internal structure
 	 *
 	 * @var ?array
 	 */
 	protected ?array $data;
-
+	
 	/**
 	 * @var string
 	 */
 	protected string $rawData;
-
+	
 	/**
 	 * Where to retrieve the data from
 	 *
 	 * @var string
 	 */
 	protected string $dataFile = self::DATA_FILE_DEFAULT;
-
+	
 	/**
 	 * Parsed request variables (see $_REQUEST)
 	 *
 	 * @var array
 	 */
 	protected array $requestData = [];
-
+	
 	/**
 	 * Parsed file uploads (see $_FILES)
 	 *
 	 * @var array
 	 */
 	protected array $files = [];
-
+	
 	/**
 	 * Complete URL
 	 *
 	 * @var string
 	 */
 	protected string $url = '';
-
+	
 	/**
 	 *
 	 * @var array
 	 */
 	protected array $urlParts = [
-		'host' => null, 'scheme' => null, 'path' => null,
+		'host'   => null,
+		'scheme' => null,
+		'path'   => null,
 	];
-
+	
 	/**
 	 *
 	 * @var ?UserAgent
 	 */
 	protected ?UserAgent $userAgent = null;
-
+	
 	/**
 	 * Way to mock IP addresses if needed.
 	 * Defaults to $_SERVER variables based on load balancers or reverse proxies.
@@ -162,7 +168,7 @@ class Request extends Hookable
 	 * @var string
 	 */
 	protected string $ip = self::DEFAULT_IP;
-
+	
 	/**
 	 * Server IP address
 	 *
@@ -171,7 +177,7 @@ class Request extends Hookable
 	 * @var string
 	 */
 	protected string $serverIP = self::DEFAULT_IP;
-
+	
 	/**
 	 * Remote IP address
 	 *
@@ -180,27 +186,30 @@ class Request extends Hookable
 	 * @var string
 	 */
 	protected string $remoteIP = self::DEFAULT_IP;
-
+	
 	/**
 	 *
 	 * @var string
 	 */
 	protected string $init = 'class';
-
+	
 	/**
 	 *
-	 * @param Application $application
+	 * @param Application            $application
 	 * @param string|array|self|null $settings If NULL, uses PHP globals to initialize
 	 * @return self
 	 * @throws FileNotFound
-	 * @throws ParameterException|ParseException|ClassNotFound
+	 * @throws ClassNotFound
 	 */
 	public static function factory(Application $application, string|array|self $settings = null): self
 	{
-		$request = $application->factoryArguments(self::class, [$application, $settings]);
+		$request = $application->factoryArguments(self::class, [
+			$application,
+			$settings,
+		]);
 		return $request->initializeFromSettings($settings);
 	}
-
+	
 	/**
 	 * Create a new Request object
 	 *
@@ -213,18 +222,22 @@ class Request extends Hookable
 		$this->inheritConfiguration();
 		$this->init = 'uninitialized';
 	}
-
+	
 	public function __serialize(): array
 	{
 		return parent::__serialize() + $this->variables();
 	}
-
+	
 	public function __unserialize(array $data): void
 	{
 		parent::__unserialize($data);
-		$this->initializeFromSettings($data);
+		try {
+			$this->initializeFromSettings($data);
+		} catch (\Exception $e) {
+			PHP::log($e);
+		}
 	}
-
+	
 	/**
 	 * Create a Request from PHP globals $_SERVER, $_COOKIE, $_GET, $_REQUEST
 	 *
@@ -236,40 +249,40 @@ class Request extends Hookable
 	public function initializeFromGlobals(): self
 	{
 		$this->dataFile = self::DATA_FILE_DEFAULT;
-
+		
 		$this->ip = $this->_findRemoteKey($_SERVER);
 		$this->remoteIP = $_SERVER['REMOTE_ADDR'] ?? self::DEFAULT_IP;
 		$this->serverIP = $_SERVER['SERVER_ADDR'] ?? self::DEFAULT_IP;
-
+		
 		$this->setMethod($_SERVER ['REQUEST_METHOD'] ?? HTTP::METHOD_GET);
 		$this->uri = $_SERVER['REQUEST_URI'] ?? self::DEFAULT_URI;
 		$this->headers = self::httpHeadersFromSERVER($_SERVER);
 		$this->cookies = $_COOKIE;
 		$this->url = $this->urlFromSERVER($_SERVER);
 		$this->files = is_array($_FILES) ? $_FILES : [];
-
+		
 		$this->urlParts = [];
-
+		
 		$this->requestData = $this->defaultRequestData();
-
+		
 		$this->init = 'globals';
-
+		
 		$this->_initializeData();
-
+		
 		$this->invokeHooks(self::HOOK_INITIALIZE, [$this]);
 		$this->invokeHooks(self::HOOK_INITIALIZE_GLOBALS, [$this]);
-
+		
 		return $this;
 	}
-
+	
 	public const HOOK_INITIALIZE = __CLASS__ . '::initialize';
-
+	
 	public const HOOK_INITIALIZE_GLOBALS = __CLASS__ . '::initializeFromGlobals';
-
+	
 	public const HOOK_INITIALIZE_REQUEST = __CLASS__ . '::initializeFromRequest';
-
+	
 	public const HOOK_INITIALIZE_SETTINGS = __CLASS__ . '::initializeFromSettings';
-
+	
 	/**
 	 * Copy from another request
 	 *
@@ -291,15 +304,15 @@ class Request extends Hookable
 		$this->ip = $request->ip;
 		$this->remoteIP = $request->remoteIP;
 		$this->serverIP = $request->serverIP;
-
+		
 		$this->init = 'request';
-
+		
 		$this->invokeHooks(self::HOOK_INITIALIZE, [$this]);
 		$this->invokeHooks(self::HOOK_INITIALIZE_REQUEST, [$this]);
-
+		
 		return $this;
 	}
-
+	
 	/**
 	 * Initialize the object from settings (for mock objects)
 	 *
@@ -314,7 +327,7 @@ class Request extends Hookable
 			$settings = [
 				'url' => $settings,
 			];
-		} elseif ($settings instanceof Request) {
+		} else if ($settings instanceof Request) {
 			return $this->initializeFromRequest($settings);
 		}
 		$this->setMethod($settings[self::OPTION_METHOD] ?? 'GET');
@@ -349,18 +362,18 @@ class Request extends Hookable
 		$this->ip = $settings[self::OPTION_IP] ?? self::DEFAULT_IP;
 		$this->remoteIP = $settings[self::OPTION_REMOTE_IP] ?? self::DEFAULT_IP;
 		$this->serverIP = $settings[self::OPTION_SERVER_IP] ?? self::DEFAULT_IP;
-
+		
 		$this->init = 'settings';
-
+		
 		$this->_initializeData();
 		$this->_validURLParts();
-
+		
 		$this->invokeHooks(self::HOOK_INITIALIZE, [$this]);
 		$this->invokeHooks(self::HOOK_INITIALIZE_SETTINGS, [$this]);
-
+		
 		return $this;
 	}
-
+	
 	/**
 	 * Is this request secure?
 	 *
@@ -371,7 +384,7 @@ class Request extends Hookable
 		$this->_validURLParts();
 		return $this->urlParts['scheme'] === 'https';
 	}
-
+	
 	/**
 	 * Retrieve the content type of the request
 	 *
@@ -383,7 +396,7 @@ class Request extends Hookable
 		$type = explode(';', $this->header(HTTP::REQUEST_CONTENT_TYPE));
 		return strtolower(array_shift($type));
 	}
-
+	
 	/**
 	 * Parse the "Accept:" header and return in priority order
 	 *
@@ -396,7 +409,7 @@ class Request extends Hookable
 		if ($result) {
 			return $result;
 		}
-
+		
 		try {
 			$accept = $this->header($name);
 			$result = $this->_parseAccept($accept);
@@ -405,12 +418,13 @@ class Request extends Hookable
 		} catch (KeyNotFound) {
 			return [
 				'*/*' => [
-					'q' => 1, 'pattern' => '#[^/]+/[^/]+#',
+					'q'       => 1,
+					'pattern' => '#[^/]+/[^/]+#',
 				],
 			];
 		}
 	}
-
+	
 	/**
 	 * @param string $accept
 	 * @return array
@@ -424,20 +438,26 @@ class Request extends Hookable
 			$attr = [];
 			foreach ($item_parts as $item_part) {
 				if (str_contains($item_part, '/')) {
-					[$type, $subtype] = explode('/', $item_part, 2);
+					[
+						$type,
+						$subtype,
+					] = explode('/', $item_part, 2);
 					if (isset($attr['weight'])) {
 						continue;
 					}
 					if ($type === '*') {
 						$weight = 0;
-					} elseif ($subtype === '*') {
+					} else if ($subtype === '*') {
 						$weight = 0;
 					} else {
 						$weight = 1 + ($item_index * 0.01);
 					}
 					$attr['weight'] = $weight;
-				} elseif (strpos($item_part, '=')) {
-					[$name, $value] = explode('=', $item_part, 2);
+				} else if (strpos($item_part, '=')) {
+					[
+						$name,
+						$value,
+					] = explode('=', $item_part, 2);
 					if ($name === 'q') {
 						$value = floatval($value);
 						$attr[$name] = $value;
@@ -449,14 +469,15 @@ class Request extends Hookable
 			}
 			$key = "$type/$subtype";
 			$attr['pattern'] = '#' . strtr($key, [
-				'*' => '[^/]+', '+' => '\\+',
-			]) . '#';
+					'*' => '[^/]+',
+					'+' => '\\+',
+				]) . '#';
 			$result[$key] = $attr;
 		}
 		uasort($result, Types::weightCompare(...));
 		return $result;
 	}
-
+	
 	/**
 	 * Helper to determine the best choice for response given the Accept: header
 	 *
@@ -487,7 +508,7 @@ class Request extends Hookable
 		}
 		return ArrayTools::first(array_keys($result));
 	}
-
+	
 	/**
 	 * Retrieve raw POST or PUT data from this request
 	 *
@@ -504,7 +525,7 @@ class Request extends Hookable
 		if ($rawData === '') {
 			return;
 		}
-
+		
 		try {
 			$content_type = StringTools::left($this->contentType(), ';');
 			switch ($content_type) {
@@ -524,7 +545,7 @@ class Request extends Hookable
 			/* No content type, set to empty */
 		}
 	}
-
+	
 	/**
 	 * Retrieve raw POST or PUT data from this request
 	 *
@@ -534,7 +555,7 @@ class Request extends Hookable
 	{
 		return $this->data;
 	}
-
+	
 	/**
 	 * @return string
 	 */
@@ -542,7 +563,7 @@ class Request extends Hookable
 	{
 		return $this->rawData;
 	}
-
+	
 	/**
 	 * @return array
 	 */
@@ -550,7 +571,7 @@ class Request extends Hookable
 	{
 		return ArrayTools::keysMap($this->headers, HTTP::$request_headers);
 	}
-
+	
 	/**
 	 * Retrieve a header
 	 *
@@ -564,14 +585,14 @@ class Request extends Hookable
 		if (array_key_exists($low_key, $this->headers)) {
 			return $this->headers[$low_key];
 		}
-
+		
 		throw new KeyNotFound($key);
 	}
-
+	
 	/**
 	 * Retrieve a header
 	 *
-	 * @param string $key
+	 * @param string       $key
 	 * @param string|array $value
 	 * @return self
 	 */
@@ -581,7 +602,7 @@ class Request extends Hookable
 		unset($this->headers_parsed[strtolower($key)]);
 		return $this;
 	}
-
+	
 	/**
 	 * Getter/setter for parsed header values
 	 *
@@ -593,11 +614,11 @@ class Request extends Hookable
 		$key = strtolower($key);
 		return $this->headers_parsed[$key] ?? null;
 	}
-
+	
 	/**
 	 * Getter/setter for parsed header values
 	 *
-	 * @param string $key
+	 * @param string       $key
 	 * @param string|array $value Optional value to
 	 * @return void
 	 */
@@ -606,7 +627,7 @@ class Request extends Hookable
 		$key = strtolower($key);
 		$this->headers_parsed[$key] = $value;
 	}
-
+	
 	/**
 	 * Is this a POST?
 	 *
@@ -616,7 +637,7 @@ class Request extends Hookable
 	{
 		return $this->method === HTTP::METHOD_POST;
 	}
-
+	
 	/**
 	 * Get the method for this request
 	 *
@@ -626,7 +647,7 @@ class Request extends Hookable
 	{
 		return $this->method;
 	}
-
+	
 	/**
 	 * Set or get the method for this request
 	 *
@@ -639,19 +660,20 @@ class Request extends Hookable
 		$method = strtoupper($method);
 		if (!array_key_exists($method, HTTP::$methods)) {
 			throw new ParameterException('Unknown method in {method_name}({method}', [
-				'method_name' => __METHOD__, 'method' => $method,
+				'method_name' => __METHOD__,
+				'method'      => $method,
 			]);
 		}
 		$this->method = HTTP::$methods[$method];
 		return $this;
 	}
-
+	
 	/**
 	 * Set a variable associated with this request
 	 *
-	 * @param string $name Value to set
-	 * @param string|array|null $value Value to set
-	 * @param bool $overwrite Overwrite value only if it's not set alrady
+	 * @param string            $name      Value to set
+	 * @param string|array|null $value     Value to set
+	 * @param bool              $overwrite Overwrite value only if it's not set alrady
 	 * @return mixed
 	 */
 	public function set(string $name, string|array $value = null, bool $overwrite = true): self
@@ -662,7 +684,7 @@ class Request extends Hookable
 		$this->__set($name, $value);
 		return $this;
 	}
-
+	
 	/**
 	 * Retrieve a variable value
 	 *
@@ -673,7 +695,7 @@ class Request extends Hookable
 	{
 		return array_key_exists($key, $this->requestData);
 	}
-
+	
 	/**
 	 * Retrieve a variable value
 	 *
@@ -684,7 +706,7 @@ class Request extends Hookable
 	{
 		return $this->requestData[$key] ?? null;
 	}
-
+	
 	/**
 	 * Universal setter
 	 */
@@ -692,7 +714,7 @@ class Request extends Hookable
 	{
 		$this->requestData[$key] = $value;
 	}
-
+	
 	/**
 	 * Returns an array for an uploaded file
 	 * Contains:
@@ -703,7 +725,7 @@ class Request extends Hookable
 	 * - error - The error associated with the upload
 	 *
 	 * @param string $name
-	 * @param int $index
+	 * @param int    $index
 	 * @return array
 	 * @throws KeyNotFound
 	 * @throws UploadException
@@ -716,7 +738,13 @@ class Request extends Hookable
 		$files = $this->files[$name];
 		$error = $files['error'] ?? null;
 		if (is_array($error)) {
-			foreach (['name', 'type', 'tmp_name', 'error', 'size'] as $k) {
+			foreach ([
+						 'name',
+						 'type',
+						 'tmp_name',
+						 'error',
+						 'size',
+					 ] as $k) {
 				$result[$k] = $files[$k][$index] ?? null;
 			}
 			$files = $result;
@@ -733,7 +761,7 @@ class Request extends Hookable
 		}
 		return $files;
 	}
-
+	
 	/**
 	 * Retrieve system variables for this request (method, url, etc.)
 	 *
@@ -742,17 +770,26 @@ class Request extends Hookable
 	public function variables(): array
 	{
 		return [
-			self::OPTION_METHOD => $this->method, self::OPTION_URI => $this->uri,
-			self::OPTION_HEADERS => $this->headers, self::OPTION_COOKIES => $this->cookies,
-			self::OPTION_DATA => $this->data(), self::OPTION_DATA_FILE => $this->dataFile,
-			self::OPTION_REQUEST_DATA => $this->requestData, self::OPTION_FILES => $this->files,
-			self::OPTION_URL => $this->url, self::OPTION_URL_PARTS => $this->urlParts,
-			self::OPTION_USER_AGENT => $this->userAgent?->classify(), self::OPTION_IP => $this->ip,
-			self::OPTION_SERVER_IP => $this->serverIP, self::OPTION_REMOTE_IP => $this->remoteIP,
-			'initialized' => $this->init, 'DEFAULT_URI' => self::DEFAULT_URI, 'DEFAULT_IP' => self::DEFAULT_IP,
+			self::OPTION_METHOD       => $this->method,
+			self::OPTION_URI          => $this->uri,
+			self::OPTION_HEADERS      => $this->headers,
+			self::OPTION_COOKIES      => $this->cookies,
+			self::OPTION_DATA         => $this->data(),
+			self::OPTION_DATA_FILE    => $this->dataFile,
+			self::OPTION_REQUEST_DATA => $this->requestData,
+			self::OPTION_FILES        => $this->files,
+			self::OPTION_URL          => $this->url,
+			self::OPTION_URL_PARTS    => $this->urlParts,
+			self::OPTION_USER_AGENT   => $this->userAgent?->classify(),
+			self::OPTION_IP           => $this->ip,
+			self::OPTION_SERVER_IP    => $this->serverIP,
+			self::OPTION_REMOTE_IP    => $this->remoteIP,
+			'initialized'             => $this->init,
+			'DEFAULT_URI'             => self::DEFAULT_URI,
+			'DEFAULT_IP'              => self::DEFAULT_IP,
 		];
 	}
-
+	
 	/**
 	 * Retrieve all REQUEST variables for this request.
 	 * Does not include object attributes such as URL or others.
@@ -763,7 +800,7 @@ class Request extends Hookable
 	{
 		return $this->requestData;
 	}
-
+	
 	/**
 	 * Get the URL, or set the URL and optionally the path
 	 *
@@ -773,7 +810,7 @@ class Request extends Hookable
 	{
 		return $this->url;
 	}
-
+	
 	/**
 	 * Set the URL and optionally the path
 	 *
@@ -788,7 +825,7 @@ class Request extends Hookable
 		$this->uri = $this->deriveURI();
 		return $this;
 	}
-
+	
 	/**
 	 * Get the path
 	 *
@@ -802,7 +839,7 @@ class Request extends Hookable
 			return '';
 		}
 	}
-
+	
 	/**
 	 * Set the path on the server, updating the URL and parts
 	 *
@@ -817,7 +854,7 @@ class Request extends Hookable
 		$this->uri = $this->deriveURI();
 		return $this;
 	}
-
+	
 	/**
 	 * Return path + query string (if supplied)
 	 *
@@ -827,11 +864,11 @@ class Request extends Hookable
 	{
 		return $this->uri;
 	}
-
+	
 	/**
 	 * Retrieve a segment of the request path
 	 *
-	 * @param int $index
+	 * @param int   $index
 	 * @param mixed $default
 	 * @return string
 	 */
@@ -839,7 +876,7 @@ class Request extends Hookable
 	{
 		return explode('/', $this->path())[$index] ?? $default;
 	}
-
+	
 	/**
 	 * Retrieve the current host
 	 *
@@ -850,7 +887,7 @@ class Request extends Hookable
 		$this->_validURLParts();
 		return $this->urlParts['host'] ?? '';
 	}
-
+	
 	/**
 	 * Retrieve the current port
 	 *
@@ -861,7 +898,7 @@ class Request extends Hookable
 		$this->_validURLParts();
 		return intval($this->urlParts['port'] || URL::protocolPort($this->scheme()));
 	}
-
+	
 	/**
 	 * Retrieve the current scheme
 	 *
@@ -872,7 +909,7 @@ class Request extends Hookable
 		$this->_validURLParts();
 		return $this->urlParts['scheme'] ?? 'http';
 	}
-
+	
 	/**
 	 * Retrieve the current query
 	 *
@@ -883,18 +920,20 @@ class Request extends Hookable
 		$this->_validURLParts();
 		return $this->urlParts['query'] ?? '';
 	}
-
+	
 	/**
 	 * Retrieve the URL component
+	 *
 	 * @return array
 	 */
 	public function urlComponents(): array
 	{
 		return $this->urlParts;
 	}
-
+	
 	/**
 	 * Retrieve the URL component
+	 *
 	 * @param string $component
 	 * @return array|string
 	 * @throws KeyNotFound
@@ -904,15 +943,15 @@ class Request extends Hookable
 		if (array_key_exists($component, $this->urlParts)) {
 			return $this->urlParts[$component];
 		}
-
+		
 		throw new KeyNotFound($component);
 	}
-
+	
 	/**
 	 * Retrieve the URL component
 	 *
 	 * @param ?string $component
-	 * @param mixed $default
+	 * @param mixed   $default
 	 * @return array|string
 	 * @throws KeyNotFound
 	 */
@@ -924,7 +963,7 @@ class Request extends Hookable
 		}
 		return $this->urlComponent($component) ?? $default;
 	}
-
+	
 	/**
 	 * Parse the range value
 	 *
@@ -934,13 +973,13 @@ class Request extends Hookable
 	public function range_parse(): string
 	{
 		$range = $this->header('Range');
-
+		
 		$matches = null;
 		preg_match_all('/(-?[0-9]++(?:-(?![0-9]++))?)(?:-?([0-9]++))?/', $range, $matches, PREG_SET_ORDER);
-
+		
 		return $matches[0];
 	}
-
+	
 	/**
 	 * Is this likely a web browser?
 	 *
@@ -954,9 +993,8 @@ class Request extends Hookable
 			return false;
 		}
 	}
-
+	
 	/**
-	 * Return user agent object
 	 *
 	 * @return UserAgent
 	 */
@@ -972,7 +1010,7 @@ class Request extends Hookable
 		}
 		return $this->userAgent;
 	}
-
+	
 	/**
 	 * Retrieve the IP address of the request, taking proxy server headers into consideration.
 	 *
@@ -982,7 +1020,7 @@ class Request extends Hookable
 	{
 		return $this->ip;
 	}
-
+	
 	/**
 	 * Retrieve the IP address of the request, ignoring any proxy servers
 	 *
@@ -992,7 +1030,7 @@ class Request extends Hookable
 	{
 		return $this->remoteIP;
 	}
-
+	
 	/**
 	 * Retrieve the server IP address
 	 *
@@ -1002,7 +1040,7 @@ class Request extends Hookable
 	{
 		return $this->serverIP;
 	}
-
+	
 	/**
 	 * Retrieve the referrer
 	 *
@@ -1016,7 +1054,7 @@ class Request extends Hookable
 			return '';
 		}
 	}
-
+	
 	/**
 	 * @param string $check
 	 * @return bool
@@ -1025,7 +1063,7 @@ class Request extends Hookable
 	{
 		return $this->userAgent()->is($check);
 	}
-
+	
 	/**
 	 * Output string value which can be passed to new Request($request->__toString())
 	 *
@@ -1035,7 +1073,7 @@ class Request extends Hookable
 	{
 		return PHP::dump($this->variables());
 	}
-
+	
 	/**
 	 *
 	 * @see http://stackoverflow.com/questions/2840755/how-to-determine-the-max-file-upload-limit-in-php
@@ -1044,7 +1082,11 @@ class Request extends Hookable
 	public static function maxUploadSizes(): array
 	{
 		$result = [];
-		foreach (['upload_max_filesize', 'post_max_size', 'memory_limit'] as $iniSetting) {
+		foreach ([
+					 'upload_max_filesize',
+					 'post_max_size',
+					 'memory_limit',
+				 ] as $iniSetting) {
 			$result[$iniSetting] = Types::toBytes(ini_get($iniSetting));
 		}
 		$min_key = $min_value = null;
@@ -1055,10 +1097,10 @@ class Request extends Hookable
 			}
 		}
 		return $result + [
-			'limiting_factor' => $min_key,
-		];
+				'limiting_factor' => $min_key,
+			];
 	}
-
+	
 	/**
 	 * @see http://stackoverflow.com/questions/2840755/how-to-determine-the-max-file-upload-limit-in-php
 	 * @return int
@@ -1068,7 +1110,7 @@ class Request extends Hookable
 		$result = self::maxUploadSizes();
 		return $result[$result['limiting_factor']];
 	}
-
+	
 	/**
 	 * Retrieve a cookie from the request
 	 *
@@ -1081,10 +1123,10 @@ class Request extends Hookable
 		if (array_key_exists($name, $this->cookies)) {
 			return $this->cookies[$name];
 		}
-
+		
 		throw new KeyNotFound($name);
 	}
-
+	
 	/**
 	 * Retrieve a cookie from the request
 	 *
@@ -1094,7 +1136,7 @@ class Request extends Hookable
 	{
 		return $this->cookies;
 	}
-
+	
 	/**
 	 * Ensure that ->urlParts is available to be read
 	 */
@@ -1103,17 +1145,21 @@ class Request extends Hookable
 		if (count($this->urlParts)) {
 			return;
 		}
-
+		
 		try {
 			$parts = URL::parse($this->url);
 		} catch (SyntaxException) {
 			$parts = ['error' => 'syntax'];
 		}
 		$this->urlParts = $parts + [
-			'url' => $this->url, 'scheme' => 'http', 'host' => 'localhost', 'port' => 80, 'path' => '',
-		];
+				'url'    => $this->url,
+				'scheme' => 'http',
+				'host'   => 'localhost',
+				'port'   => 80,
+				'path'   => '',
+			];
 	}
-
+	
 	/**
 	 * Retrieve the default request
 	 *
@@ -1131,7 +1177,7 @@ class Request extends Hookable
 		}
 		return is_array($_REQUEST) ? $_REQUEST : [];
 	}
-
+	
 	/**
 	 * Convert server variables into HTTP headers
 	 *
@@ -1144,8 +1190,9 @@ class Request extends Hookable
 		$headers = [];
 		foreach ($server as $key => $value) {
 			foreach ([
-				'http-' => true, 'content-' => false,
-			] as $prefix => $removePrefix) {
+						 'http-'    => true,
+						 'content-' => false,
+					 ] as $prefix => $removePrefix) {
 				$len = strlen($prefix);
 				if (substr($key, 0, $len) === $prefix) {
 					$headers[$removePrefix ? substr($key, $len) : $key] = $value;
@@ -1154,7 +1201,7 @@ class Request extends Hookable
 		}
 		return $headers;
 	}
-
+	
 	/**
 	 * Format the path + query string into a single string
 	 *
@@ -1164,7 +1211,7 @@ class Request extends Hookable
 	{
 		return $this->query() ? URL::queryFormat($this->path() . $this->query()) : $this->path();
 	}
-
+	
 	/**
 	 * Given a $_SERVER structure, extract the URL parts and generate the complete URL
 	 *
@@ -1179,10 +1226,9 @@ class Request extends Hookable
 		$parts['path'] = $this->currentURI($server);
 		return URL::stringify($parts);
 	}
-
+	
 	/**
-	 * Extract the request scheme, supporting the X-Forwarded-Proto passed in by load balancers which
-	 * represents the original protocol.
+	 * Extract the request scheme, supporting the X-Forwarded-Proto passed in by load balancers.
 	 *
 	 * @param array $server
 	 * @return string
@@ -1196,7 +1242,7 @@ class Request extends Hookable
 			return ($server['HTTPS'] ?? null) === 'on' ? 'https' : 'http';
 		}
 	}
-
+	
 	/**
 	 * @return string
 	 */
@@ -1209,10 +1255,9 @@ class Request extends Hookable
 			return '';
 		}
 	}
-
+	
 	/**
-	 * Extract the request port, supporting the X-Forwarded-Port passed in by load balancers which
-	 * represents the original port.
+	 * Extract the request port, supporting the X-Forwarded-Port passed in by load balancers.
 	 *
 	 * @param array $server
 	 * @return int
@@ -1229,9 +1274,10 @@ class Request extends Hookable
 		}
 		return intval($server['SERVER_PORT'] ?? 80);
 	}
-
+	
 	/**
 	 * Return the Request URI
+	 *
 	 * @param array $server
 	 * @return string
 	 */
@@ -1239,7 +1285,7 @@ class Request extends Hookable
 	{
 		return $server['REQUEST_URI'] ?? '';
 	}
-
+	
 	/**
 	 * Does the current request prefer a JSON response?
 	 *
@@ -1248,10 +1294,11 @@ class Request extends Hookable
 	public function preferJSON(): bool
 	{
 		return $this->acceptPriority([
-			'application/json', 'text/html',
-		]) === 'application/json';
+				'application/json',
+				'text/html',
+			]) === 'application/json';
 	}
-
+	
 	/**
 	 * Helper function for self::remote.
 	 * Searches an array for a valid IP address.
@@ -1262,7 +1309,9 @@ class Request extends Hookable
 	private static function _findRemoteKey(array $server): string
 	{
 		$ks = [
-			'HTTP_CLIENT_IP', 'HTTP_X_FORWARDED_FOR', 'REMOTE_ADDR',
+			'HTTP_CLIENT_IP',
+			'HTTP_X_FORWARDED_FOR',
+			'REMOTE_ADDR',
 		];
 		foreach ($ks as $k) {
 			if (!isset($server[$k])) {

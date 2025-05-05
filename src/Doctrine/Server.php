@@ -41,65 +41,65 @@ use zesk\Timestamp;
  * @see ServerMeta
  */
 #[Entity]
-class Server extends Model implements MetaInterface {
-	
+class Server extends Model implements MetaInterface
+{
 	public const MEMBER_METAS = 'metas';
-	
+
 	public const DEFAULT_OPTION_FREE_DISK_VOLUME = '/';
-	
+
 	/**
 	 *
 	 */
 	public const OPTION_FREE_DISK_VOLUME = 'free_disk_volume';
-	
+
 	/**
 	 * 1 = 1024^0
 	 *
 	 * @var string
 	 */
 	public const DISK_UNITS_BYTES = 'b';
-	
+
 	/**
 	 * 1 = 1024^1
 	 *
 	 * @var string
 	 */
 	public const DISK_UNITS_KILOBYTES = 'k';
-	
+
 	/**
 	 *
 	 * @var string
 	 */
 	public const DISK_UNITS_MEGABYTES = 'm';
-	
+
 	/**
 	 * 1 = 1024^2
 	 *
 	 * @var string
 	 */
 	public const DISK_UNITS_GIGABYTES = 'g';
-	
+
 	/**
 	 * 1 = 1024^3
 	 *
 	 * @var string
 	 */
 	public const DISK_UNITS_TERABYTES = 't';
-	
+
 	/**
 	 * 1 = 1024^4
 	 *
 	 * @var string
 	 */
 	public const DISK_UNITS_PETABYTES = 'p';
-	
+
 	/**
 	 * 1 = 1024^5
 	 *
 	 * @var string
 	 */
 	public const DISK_UNITS_EXABYTES = 'e';
-	
+
 	/**
 	 *
 	 * @var array
@@ -113,69 +113,68 @@ class Server extends Model implements MetaInterface {
 		self::DISK_UNITS_PETABYTES,
 		self::DISK_UNITS_EXABYTES,
 	];
-	
+
 	/**
 	 *
 	 * @var string
 	 */
 	public const OPTION_ALIVE_UPDATE_SECONDS = 'alive_update_seconds';
-	
+
 	/**
 	 * Number of seconds after which the server status should be updated
 	 *
 	 * @var integer
 	 */
 	public const DEFAULT_ALIVE_UPDATE_SECONDS = 30;
-	
+
 	/**
 	 *
 	 * @var string
 	 */
 	public const OPTION_TIMEOUT_SECONDS = 'timeout_seconds';
-	
+
 	/**
 	 *
 	 * @var int
 	 */
 	public const default_timeout_seconds = 180;
-	
-	
+
 	#[Column(type: 'string', length: 64, nullable: false)]
 	public string $nameInternal = '';
-	
+
 	#[Column(type: 'string', length: 64, nullable: false)]
 	public string $nameExternal = '';
-	
+
 	#[Column(type: 'integer', nullable: false, options: ['unsigned' => true])]
 	public int $IP4Internal = 0;
-	
+
 	#[Column(type: 'integer', nullable: false, options: ['unsigned' => true])]
 	public int $IP4External = 0;
-	
+
 	#[Column(type: 'integer', nullable: false)]
 	public int $freeDisk = 0;
-	
+
 	#[Column(type: 'string', length: 1, nullable: false)]
 	public string $freeDiskUnits = self::DISK_UNITS_BYTES;
-	
+
 	#[Column(type: 'float', nullable: false)]
 	public float $loadAverage = 0.0;
-	
+
 	#[Column(type: 'timestamp', nullable: false)]
 	public Timestamp $alive;
-	
+
 	#[OneToMany(mappedBy: 'server', targetEntity: ServerMeta::class, cascade: ['all'], indexBy: 'name')]
 	public Collection $metas;
-	
+
 	use AutoID;
 	use Name;
-	
+
 	public function initialize(): void
 	{
 		$this->alive = Timestamp::nowUTC();
 		$this->metas = new ArrayCollection();
 	}
-	
+
 	/**
 	 * Run once per minute per cluster.
 	 * Delete servers who are not alive after `option_timeout_seconds` old.
@@ -184,14 +183,14 @@ class Server extends Model implements MetaInterface {
 	public static function cronClusterMinute(Application $application): void
 	{
 		$server = new self($application);
-		
+
 		/* @var $server Server */
 		try {
 			$server->buryDeadServers();
 		} catch (TimeoutExpired) {
 		}
 	}
-	
+
 	/**
 	 * Once a minute, update the state
 	 *
@@ -207,7 +206,7 @@ class Server extends Model implements MetaInterface {
 			$application->error("Exception {class} {code} {file}:{line}\n{message}\n{backtrace}", Exception::exceptionVariables($e));
 		}
 	}
-	
+
 	/**
 	 * Run intermittently once per cluster to clean away dead Server records
 	 *
@@ -221,12 +220,12 @@ class Server extends Model implements MetaInterface {
 			throw new TimeoutExpired('Unable to get lock instance {name}', [], 0, $e);
 		}
 		$lock = $lock->acquire();
-		
+
 		$em = $this->application->entityManager();
 		$builder = $em->createQueryBuilder();
-		
+
 		$timeout_seconds = -abs($this->optionInt(self::OPTION_TIMEOUT_SECONDS, self::default_timeout_seconds));
-		
+
 		try {
 			$dead_to_me = Timestamp::now('UTC');
 			$dead_to_me->addUnit($timeout_seconds);
@@ -247,7 +246,7 @@ class Server extends Model implements MetaInterface {
 				return;
 			}
 		}
-		
+
 		try {
 			$em->flush();
 		} catch (OptimisticLockException|ORMException $e) {
@@ -255,7 +254,7 @@ class Server extends Model implements MetaInterface {
 		}
 		$lock->release();
 	}
-	
+
 	/**
 	 * Retrieve the default host name
 	 *
@@ -264,7 +263,7 @@ class Server extends Model implements MetaInterface {
 	{
 		return System::uname();
 	}
-	
+
 	/**
 	 * Create a singleton for this server.
 	 *
@@ -279,7 +278,7 @@ class Server extends Model implements MetaInterface {
 	{
 		return (new self($application))->_findSingleton();
 	}
-	
+
 	/**
 	 * Register and load this
 	 *
@@ -301,9 +300,9 @@ class Server extends Model implements MetaInterface {
 		}
 		return $server;
 	}
-	
+
 	public const HOOK_INITIALIZE_NAME = __CLASS__ . '::initializeNames';
-	
+
 	/**
 	 *
 	 * @return self
@@ -316,7 +315,7 @@ class Server extends Model implements MetaInterface {
 		$this->_initializeNameDefaults();
 		return $this;
 	}
-	
+
 	/**
 	 * Set up some reasonable defaults which define this server relative to other servers
 	 */
@@ -344,7 +343,7 @@ class Server extends Model implements MetaInterface {
 			}
 		}
 	}
-	
+
 	/**
 	 * Update server state
 	 *
@@ -369,7 +368,7 @@ class Server extends Model implements MetaInterface {
 			$this->freeDisk = intval($free);
 			$this->freeDiskUnits = $units[0];
 		}
-		
+
 		try {
 			$this->loadAverage = ArrayTools::first(System::loadAverages());
 		} catch (Throwable) {
@@ -379,7 +378,7 @@ class Server extends Model implements MetaInterface {
 		$this->entityManager()->flush();
 		return $this;
 	}
-	
+
 	/**
 	 * Set or delete the server data object
 	 *
@@ -393,7 +392,7 @@ class Server extends Model implements MetaInterface {
 		ServerMeta::register($this, $name, $value);
 		return $this;
 	}
-	
+
 	/**
 	 * Get server data object
 	 *
@@ -411,7 +410,7 @@ class Server extends Model implements MetaInterface {
 		}
 		return $meta->value;
 	}
-	
+
 	/**
 	 * Retrieve per-server data
 	 *
@@ -423,7 +422,7 @@ class Server extends Model implements MetaInterface {
 	{
 		return $this->_getMeta($name);
 	}
-	
+
 	/**
 	 * Delete a data member of this server.
 	 *
@@ -443,7 +442,7 @@ class Server extends Model implements MetaInterface {
 		}
 		return $this;
 	}
-	
+
 	/**
 	 *
 	 * @return $this
@@ -455,7 +454,7 @@ class Server extends Model implements MetaInterface {
 		$this->entityManager()->getRepository(ServerMeta::class)->clear();
 		return $this;
 	}
-	
+
 	/**
 	 * Delete data members of all servers which match this name.
 	 *
@@ -472,7 +471,7 @@ class Server extends Model implements MetaInterface {
 		$this->entityManager()->remove($metas);
 		return $this;
 	}
-	
+
 	/**
 	 * @param int $within_seconds
 	 * @return array
