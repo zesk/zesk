@@ -1,15 +1,16 @@
 <?php
 declare(strict_types=1);
 /**
- * @package zesk
+ * @package    zesk
  * @subpackage Command
- * @author kent
- * @copyright Copyright &copy; 2025, Market Acumen, Inc.
+ * @author     kent
+ * @copyright  Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Command;
 
 use zesk\Exception;
+use zesk\Exception\SemanticsException;
 
 /**
  * Load a module or list all modules available.
@@ -18,28 +19,38 @@ use zesk\Exception;
  */
 class Module extends SimpleCommand
 {
-	protected array $shortcuts = ['module', 'm'];
+	protected array $shortcuts = [
+		'module',
+		'm',
+	];
 
 	protected array $option_types = [
-		'format' => 'string', 'loaded' => 'boolean', '*' => 'string',
+		'format' => 'string',
+		'loaded' => 'boolean',
+		'*'      => 'string',
 	];
 
 	/**
 	 * @return int
+	 * @throws SemanticsException
 	 */
 	public function run(): int
 	{
 		if ($this->hasArgument()) {
 			return $this->loadArgumentModules();
 		} else {
-			$this->listModules();
-			return 0;
+			try {
+				return $this->listModules();
+			} catch (Exception $e) {
+				$this->error($e->getMessage());
+				return 1;
+			}
 		}
 	}
 
 	/**
 	 * @return int
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	private function loadArgumentModules(): int
 	{
@@ -56,6 +67,9 @@ class Module extends SimpleCommand
 		return 0;
 	}
 
+	/**
+	 * @return int
+	 */
 	public function listModules(): int
 	{
 		$onlyLoaded = $this->optionBool('loaded');

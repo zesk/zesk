@@ -3,21 +3,25 @@ declare(strict_types=1);
 /**
  *
  */
-namespace zesk;
+
+namespace zesk\Command;
 
 use SplFileInfo;
-use zesk\Command\FileIterator;
+use zesk\Directory;
 
 /**
  * Convert file names using a search/replace string
  *
  * @category Tools
- * @author kent
+ * @author   kent
  *
  */
-class Command_File_Rename extends FileIterator
+class FileRename extends FileIterator
 {
-	protected array $shortcuts = ['file-rename', 'mv'];
+	protected array $shortcuts = [
+		'file-rename',
+		'mv',
+	];
 
 	/**
 	 *
@@ -30,8 +34,8 @@ class Command_File_Rename extends FileIterator
 	 * @var array
 	 */
 	protected array $option_types = [
-		'from' => 'string',
-		'to' => 'string',
+		'from'    => 'string',
+		'to'      => 'string',
 		'dry-run' => 'boolean',
 	];
 
@@ -69,11 +73,13 @@ class Command_File_Rename extends FileIterator
 	 */
 	protected function start(): void
 	{
-		if (!$this->hasOption('from')) {
-			$this->setOption('from', $this->prompt(' Search? '));
-		}
-		if (!$this->hasOption('to')) {
-			$this->setOption('to', $this->prompt('Replace? ', ''));
+		if ($this->isInteractive()) {
+			if (!$this->hasOption('from')) {
+				$this->setOption('from', $this->prompt(' Search? '));
+			}
+			if (!$this->hasOption('to')) {
+				$this->setOption('to', $this->prompt('Replace? ', ''));
+			}
 		}
 		$this->from = $this->optionString('from');
 		$this->to = $this->optionString('to');
@@ -85,6 +91,7 @@ class Command_File_Rename extends FileIterator
 	/**
 	 *
 	 * @param SplFileInfo $file
+	 * @return bool
 	 */
 	protected function process_file(SplFileInfo $file): bool
 	{
@@ -94,10 +101,10 @@ class Command_File_Rename extends FileIterator
 		$this->verboseLog(bin2hex($name) . ' => ' . bin2hex($newname));
 		if ($newname !== $name) {
 			$path = $file->getPath();
-			$from = path($path, $name);
-			$to = path($path, $newname);
+			$from = Directory::path($path, $name);
+			$to = Directory::path($path, $newname);
 			if ($this->optionBool('dry-run')) {
-				$this->log('mv "{from}" "{to}"', compact('from', 'to'));
+				$this->info('mv "{from}" "{to}"', compact('from', 'to'));
 				$this->succeed++;
 			} elseif (!rename($from, $to)) {
 				$this->error('Unable to rename {name} to {newname} in {path}', compact('name', 'newname', 'path'));
@@ -116,12 +123,12 @@ class Command_File_Rename extends FileIterator
 	 */
 	protected function finish(): int
 	{
-		$this->log('Completed "{from}" => "{to}": {failed} failed, {succeed} succeeded, {ignored} ignored.', [
-			'failed' => $this->failed,
+		$this->info('Completed "{from}" => "{to}": {failed} failed, {succeed} succeeded, {ignored} ignored.', [
+			'failed'  => $this->failed,
 			'succeed' => $this->succeed,
 			'ignored' => $this->ignored,
-			'from' => $this->from,
-			'to' => $this->to,
+			'from'    => $this->from,
+			'to'      => $this->to,
 		]);
 		return $this->failed === 0 ? 0 : $this->failed;
 	}

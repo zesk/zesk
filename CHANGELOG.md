@@ -624,7 +624,7 @@ Deprecated `zesk\Database_Query::object_cache`, `zesk\Database_Query::object_cla
 ## [v0.20.1][]
 
 - `ARRAY_FILTER_USE_BOTH` not compatible with PHP5, removing references to it
-- Fixed an issue in default `zesk\CacheItemPool_Array` where cache items were not returned on second call.
+- Fixed an issue in default `zesk\MemoryPool` where cache items were not returned on second call.
 - Fixing `zesk\System::ifconfig` caching, allowing configuration setting `zesk\System::ifconfig::expires_after`, defaults to 60 (seconds)
 - Upgraded `$locale->__` usage in `Polyglot` module
 - `zesk\Daemon\Module` fixed a type hint

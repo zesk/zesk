@@ -1,24 +1,31 @@
 <?php
 declare(strict_types=1);
 /**
- * @package zesk
+ * @package    zesk
  * @subpackage bin
- * @category Debugging
- * @author kent
- * @copyright &copy; 2023, Market Acumen, Inc.
+ * @category   Debugging
+ * @author     kent
+ * @copyright  &copy; 2023, Market Acumen, Inc.
  */
 
-namespace zesk;
+namespace zesk\Command;
 
 use SplFileInfo;
-use zesk\Command\FileIterator;
+use zesk\ArrayTools;
+use zesk\Directory;
+use zesk\DocComment;
+use zesk\Exception\NotFoundException;
+use zesk\File;
+use zesk\StringTools;
+use zesk\Text;
+use zesk\Types;
 
 /**
  * Check PHP code, and repair comments.
  *
  * @category Debugging
  */
-class Command_Check extends FileIterator
+class Check extends FileIterator
 {
 	public const CODE_STRICT_TYPES = "declare(strict_types=1);\n";
 
@@ -29,15 +36,21 @@ class Command_Check extends FileIterator
 
 	public const CODE_DOCCOMMENT_OPEN = "/**\n";
 
-	protected array $shortcuts = ['check', 'ck'];
+	protected array $shortcuts = [
+		'check',
+		'ck',
+	];
 
 	/**
 	 *
 	 * @var array
 	 */
 	protected array $extensions = [
-		'php', //		"phpt",
-		'inc', 'tpl', 'module',
+		'php',
+		//		"phpt",
+		'inc',
+		'tpl',
+		'module',
 	];
 
 	/**
@@ -48,7 +61,9 @@ class Command_Check extends FileIterator
 		'php' => [
 			self::CODE_PHP_OPEN_TAG . self::CODE_STRICT_TYPES . self::CODE_DOCCOMMENT_OPEN,
 			"#!{php_bin_path}\n" . self::CODE_PHP_OPEN_TAG . self::CODE_STRICT_TYPES . self::CODE_DOCCOMMENT_OPEN,
-		], 'inc' => self::CODE_PHP_OPEN_TAG . self::CODE_DOCCOMMENT_OPEN, 'tpl' => self::CODE_PHP_OPEN_TAG,
+		],
+		'inc' => self::CODE_PHP_OPEN_TAG . self::CODE_DOCCOMMENT_OPEN,
+		'tpl' => self::CODE_PHP_OPEN_TAG,
 	];
 
 	/**
@@ -58,7 +73,8 @@ class Command_Check extends FileIterator
 	protected array $prefixes_gremlins = [
 		'php' => [
 			self::CODE_PHP_OPEN_TAG,
-			'<?' . "php \n", "#!{php_bin_path}\n" . self::CODE_PHP_OPEN_TAG,
+			'<?' . "php \n",
+			"#!{php_bin_path}\n" . self::CODE_PHP_OPEN_TAG,
 		],
 		'tpl' => self::CODE_PHP_OPEN_TAG,
 		'inc' => [
@@ -148,8 +164,8 @@ class Command_Check extends FileIterator
 
 	protected function start(): void
 	{
-		$this->prefixes = map($this->prefixes, $this->options(['php-bin-path']));
-		$this->prefixes_gremlins = map($this->prefixes_gremlins, $this->options(['php-bin-path']));
+		$this->prefixes = ArrayTools::map($this->prefixes, $this->options(['php-bin-path']));
+		$this->prefixes_gremlins = ArrayTools::map($this->prefixes_gremlins, $this->options(['php-bin-path']));
 		if ($this->optionBool('show-package') || $this->optionBool('show-subpackage') || $this->optionBool('show-author') || $this->optionBool('show-copyright')) {
 			$this->show = true;
 			$this->verboseLog('Show is on.');
@@ -171,7 +187,7 @@ class Command_Check extends FileIterator
 
 	private function lint_php(string $php_code): int
 	{
-		$tmp = path(ZESK_ROOT, '.' . md5($php_code) . '-' . $this->application->process->id() . '.php');
+		$tmp = Directory::path(ZESK_ROOT, '.' . md5($php_code) . '-' . $this->application->process->id() . '.php');
 		file_put_contents($tmp, $php_code);
 		$result = self::lint_file($tmp);
 		unlink($tmp);
@@ -179,8 +195,8 @@ class Command_Check extends FileIterator
 	}
 
 	/**
-	 * @param string $contents
-	 * @param string $term
+	 * @param string   $contents
+	 * @param string   $term
 	 * @param callable $fixFunction
 	 * @param callable $addFunction
 	 * @return bool
@@ -203,16 +219,13 @@ class Command_Check extends FileIterator
 				$new_value = call_user_func($fixFunction, $items[$term], $term);
 				if ($new_value !== $items[$term]) {
 					$items[$term] = $new_value;
-					$translate[$source] = Text::indentString(
-						DocComment::instance($items, $comment_options)->content(),
-						$indent_text
-					);
+					$translate[$source] = Text::indentString(DocComment::instance($items, $comment_options)->content(), $indent_text);
 				}
 			} elseif ($this->isAdd() && $addFunction) {
 				$new_value = call_user_func($addFunction, $items, $term);
 				if (is_array($new_value)) {
 					$translate[$source] = DocComment::instance($new_value, $comment_options)->content();
-					$addFunction = null; /* Just first one */
+					$addFunction = null; /* Just for the first one */
 				}
 			}
 		}
@@ -272,7 +285,7 @@ class Command_Check extends FileIterator
 
 	private function add_copyright(array $doccomment): array
 	{
-		$doccomment['copyright'] = map($this->copyright_pattern(), $this->options());
+		$doccomment['copyright'] = ArrayTools::map($this->copyright_pattern(), $this->options());
 		return $doccomment;
 	}
 
@@ -281,9 +294,10 @@ class Command_Check extends FileIterator
 		$contents = ltrim($contents);
 		$author = $this->application->process->user();
 		$contents = str_replace(self::CODE_STRICT_TYPES, '', $contents);
-		$new_prefix = map(self::CODE_PHP_OPEN_TAG . self::CODE_STRICT_TYPES . "/**\n * @author $author\n * @package {package}\n * @subpackage {subpackage}\n * @copyright " . $this->copyright_pattern() . "\n */\n", $this->options());
+		$new_prefix = ArrayTools::map(self::CODE_PHP_OPEN_TAG . self::CODE_STRICT_TYPES . "/**\n * @author $author\n * @package {package}\n * @subpackage {subpackage}\n * @copyright " . $this->copyright_pattern() . "\n */\n", $this->options());
 		foreach ([
-			'#^(<\?php)#', '#^(<\?)[^=]#',
+			'#^(<\?php)#',
+			'#^(<\?)[^=]#',
 		] as $pattern) {
 			if (preg_match($pattern, $contents, $match)) {
 				$contents = implode($new_prefix, explode($match[1], $contents, 2));
@@ -306,7 +320,7 @@ class Command_Check extends FileIterator
 		return $_SERVER['USER'] ?? $value;
 	}
 
-	private function doccomment_add_author(array $items, string $term)
+	private function doccomment_add_author(array $items, string $term): array
 	{
 		$items[$term] = $this->fix_author('');
 		return $items;
@@ -344,7 +358,7 @@ class Command_Check extends FileIterator
 		return $this->updateComment($contents, 'package', $this->fix_doccomment_option(...), $this->doccomment_add_option(...));
 	}
 
-	private function doccomment_add_option(array $items, string $option)
+	private function doccomment_add_option(array $items, string $option): array
 	{
 		$items[$option] = $this->option($option);
 		return $items;
@@ -356,7 +370,7 @@ class Command_Check extends FileIterator
 		return $this->option($option);
 	}
 
-	private function set_subpackage(&$contents)
+	private function set_subpackage(&$contents): bool
 	{
 		return $this->updateComment($contents, 'subpackage', $this->fix_doccomment_option(...), $this->doccomment_add_option(...));
 	}
@@ -377,7 +391,7 @@ class Command_Check extends FileIterator
 		$changed = false;
 		$prefix = ($this->optionBool('gremlins') ? $this->prefixes_gremlins : $this->prefixes)[$ext] ?? null;
 		if ($prefix !== null) {
-			$prefix = toArray($prefix);
+			$prefix = Types::toArray($prefix);
 			if (!StringTools::begins($contents, $prefix)) {
 				$details = substr($contents, 0, 40);
 				$this->verboseLog("Incorrect prefix: \"{details}\"\n should be one of: {prefix}", compact('details') + [
@@ -433,7 +447,10 @@ class Command_Check extends FileIterator
 		if ($this->show) {
 			$results = [];
 			foreach ([
-				'show-package', 'show-subpackage', 'show-author', 'show-copyright',
+				'show-package',
+				'show-subpackage',
+				'show-author',
+				'show-copyright',
 			] as $option) {
 				if ($this->optionBool($option)) {
 					$results = array_merge($results, $this->showComments($contents, StringTools::removePrefix($option, 'show-', $prefix)));
@@ -450,18 +467,18 @@ class Command_Check extends FileIterator
 			$this->verboseLog('File changed ...');
 			if ($this->lint_php($contents) !== 0) {
 				file_put_contents("$path.failed", $contents);
-				$this->log("Lint failed on modified file, see $path.failed");
+				$this->error("Lint failed on modified file, see $path.failed");
 				$errors['modified-fail-lint'] = true;
 				$this->log[$path] = $errors;
 				return false; // Stop processing
 			}
 			if (!$this->optionBool('no-backup')) {
 				if (file_exists($path . '.old')) {
-					$this->log("$path.old exists, skipping");
+					$this->warning("$path.old exists, skipping");
 					return true;
 				}
 				if (!rename($path, "$path.old")) {
-					$this->log("Can not rename $path to $path.old, skipping");
+					$this->warning("Can not rename $path to $path.old, skipping");
 					return true;
 				}
 			} elseif ($this->optionBool('safe')) {

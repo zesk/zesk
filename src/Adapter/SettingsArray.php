@@ -3,6 +3,7 @@ declare(strict_types=1);
 /**
  *
  */
+
 namespace zesk\Adapter;
 
 use zesk\ArrayTools;
@@ -44,56 +45,56 @@ class SettingsArray implements SettingsInterface
 
 	/**
 	 * Is a value set in this object?
-	 * @param int|string $name
+	 * @param int|string $key
 	 * @return boolean
 	 */
-	public function has(int|string $name): bool
+	public function has(int|string $key): bool
 	{
-		return $this->__isset($name);
+		return $this->__isset($key);
 	}
 
 	/**
 	 * Retrieve a value from the settings
-	 * @param int|string $name A string or key value (integer, float)
+	 * @param int|string $key A string or key value (integer, float)
 	 * @return mixed The value of the session variable, or null if nothing set
 	 */
-	public function __get(int|string $name): mixed
+	public function __get(int|string $key): mixed
 	{
-		return $this->get($name);
+		return $this->get($key);
 	}
 
 	/**
 	 * Retrieve a value from the settings, returning a default value if not set
-	 * @param int|string $name A string or key value (integer, float)
+	 * @param int|string $key A string or key value (integer, float)
 	 * @param mixed|null $default A value to return if the session value is null
 	 * @return mixed The value of the session variable, or $default if nothing set
 	 */
-	public function get(int|string $name, mixed $default = null): mixed
+	public function get(int|string $key, mixed $default = null): mixed
 	{
-		return ArrayTools::path($this->data, self::_keyPath($name), $default);
+		return ArrayTools::path($this->data, self::_keyPath($key), $default);
 	}
 
 	/**
 	 * Store a value to a settings
 	 *
-	 * @param mixed $name A string or key value (integer, float)
+	 * @param mixed $key A string or key value (integer, float)
 	 * @param mixed $value Value to save. As a general rule, best to use scalar types
 	 */
-	public function __set(int|string $name, mixed $value): void
+	public function __set(int|string $key, mixed $value): void
 	{
-		ArrayTools::setPath($this->data, self::_keyPath($name), $value);
+		ArrayTools::setPath($this->data, self::_keyPath($key), $value);
 	}
 
 	/**
 	 * Store a value to a settings
 	 *
-	 * @param int|string $name A string or key value (integer, float)
+	 * @param int|string $key A string or key value (integer, float)
 	 * @param mixed $value Value to save. As a general rule, best to use scalar types
 	 * @return self
 	 */
-	public function set(int|string $name, mixed $value): self
+	public function set(int|string $key, mixed $value): self
 	{
-		$this->__set($name, $value);
+		$this->__set($key, $value);
 		return $this;
 	}
 

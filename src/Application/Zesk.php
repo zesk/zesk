@@ -5,12 +5,12 @@ namespace zesk\Application;
 
 use zesk\Application;
 use zesk\ArrayTools;
+use zesk\Exception\CommandFailed;
 use zesk\Exception\ConfigurationException;
-use zesk\Exception\DirectoryNotFound;
+use zesk\Exception\FilePermission;
 use zesk\Exception\KeyNotFound;
 use zesk\Exception\NotFoundException;
-use zesk\Exception\ParseException;
-use zesk\Exception\UnsupportedException;
+use zesk\Exception\SemanticsException as SemanticsException;
 use zesk\File;
 use zesk\HookMethod;
 use zesk\Logger\FileLogger;
@@ -27,10 +27,7 @@ class Zesk extends Application
 	/**
 	 * @return void
 	 * @throws ConfigurationException
-	 * @throws DirectoryNotFound
-	 * @throws NotFoundException
-	 * @throws ParseException
-	 * @throws UnsupportedException
+	 * @throws NotFoundException|SemanticsException
 	 */
 	protected function beforeConfigure(): void
 	{
@@ -68,6 +65,10 @@ class Zesk extends Application
 		$this->setOption('version', Version::release());
 	}
 
+	/**
+	 * @throws FilePermission
+	 * @throws CommandFailed
+	 */
 	#[HookMethod(\zesk\Command\Version::HOOK_UPDATED)]
 	protected function bumpVersion(array $data): void
 	{

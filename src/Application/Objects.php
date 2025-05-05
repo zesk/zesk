@@ -127,7 +127,7 @@ class Objects
 	}
 
 	/**
-	 * Get singleton of class, by default uses the static `singleton` method.
+	 * Get singleton of class. Default uses the static `singleton` method.
 	 *
 	 * @param string $class
 	 * @return object

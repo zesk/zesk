@@ -47,7 +47,7 @@ class Options
 
 	/**
 	 * An associative array of lower-case strings pointing to mixed values. $options should
-	 * always be serializable so it should only contain primitive scalar types.
+	 * always be serializable, so it should only contain primitive scalar types.
 	 *
 	 * Keys typically use _ for dash or space
 	 *
@@ -117,7 +117,7 @@ class Options
 	 * Does any option exist (and check empty, optionally)?
 	 *
 	 * @param string|iterable $name The name of the option key to check
-	 * @param bool $checkEmpty True if you want to ensure that the value is non-empty (e.g. not null, 0, "0", "", array(), or false)
+	 * @param bool $checkEmpty True if you want to ensure that the value is non-empty (e.g., not null, 0, "0", "", array(), or false)
 	 * @return bool
 	 * @see empty()
 	 */
@@ -135,7 +135,7 @@ class Options
 	 * Checks an option to see if it is set and optionally if it has a non-empty value.
 	 *
 	 * @param string $name The name of the option key to check
-	 * @param bool $checkEmpty True if you want to ensure that the value is non-empty (e.g. not null, 0, "0", "", array(), or false)
+	 * @param bool $checkEmpty True if you want to ensure that the value is non-empty (e.g., not null, 0, "0", "", array(), or false)
 	 * @return bool
 	 * @see empty()
 	 */

@@ -9,6 +9,7 @@ declare(strict_types=1);
 namespace zesk\Command;
 
 use zesk\Directory;
+use zesk\Exception\ParameterException;
 use zesk\File;
 use zesk\Number;
 use zesk\Text;
@@ -24,23 +25,36 @@ class Cannon extends SimpleCommand
 	protected array $shortcuts = ['cannon'];
 
 	protected array $option_types = [
-		'directory' => 'dir', 'dir' => 'dir', 'list' => 'boolean', 'show' => 'boolean', 'dry-run' => 'boolean',
-		'backup' => 'boolean', 'duplicate' => 'boolean', 'config' => 'file', 'extensions' => 'string',
-		'extension' => 'string', 'files' => 'files', 'skip-when-matches' => 'string[]', 'also-match' => 'string[]',
-		'*' => 'string',
+		'directory'         => 'dir',
+		'dir'               => 'dir',
+		'list'              => 'boolean',
+		'show'              => 'boolean',
+		'dry-run'           => 'boolean',
+		'backup'            => 'boolean',
+		'duplicate'         => 'boolean',
+		'config'            => 'file',
+		'extensions'        => 'string',
+		'extension'         => 'string',
+		'files'             => 'files',
+		'skip-when-matches' => 'string[]',
+		'also-match'        => 'string[]',
+		'*'                 => 'string',
 	];
 
 	protected array $option_help = [
-		'directory' => 'Directory to look for files', 'dir' => 'Synonym for --directory',
-		'list' => 'List files which would be scanned', 'show' => 'Output files and matched lines',
-		'dry-run' => 'Show what files would match without changing anything (implies --show)',
-		'backup' => 'Backup files before changing',
-		'duplicate' => 'Create a copy of the file next to the original which has changes',
-		'extensions' => 'List of extensions separated by commas to look for', 'extension' => 'Synonym for --extensions',
-		'files' => 'Just run against this file',
+		'directory'         => 'Directory to look for files',
+		'dir'               => 'Synonym for --directory',
+		'list'              => 'List files which would be scanned',
+		'show'              => 'Output files and matched lines',
+		'dry-run'           => 'Show what files would match without changing anything (implies --show)',
+		'backup'            => 'Backup files before changing',
+		'duplicate'         => 'Create a copy of the file next to the original which has changes',
+		'extensions'        => 'List of extensions separated by commas to look for',
+		'extension'         => 'Synonym for --extensions',
+		'files'             => 'Just run against this file',
 		'skip-when-matches' => 'Skip replacements in files which contain ANY of the string(s) specified.',
-		'also-match' => 'File must also match ANY of the given strings(s) in addition to the search term',
-		'*' => 'Follow by Search string and Replace string',
+		'also-match'        => 'File must also match ANY of the given strings(s) in addition to the search term',
+		'*'                 => 'Follow by Search string and Replace string',
 	];
 
 	protected array $options = [
@@ -66,12 +80,16 @@ class Cannon extends SimpleCommand
 
 	/**
 	 *
+	 * @throws ParameterException
 	 */
 	public function run(): int
 	{
 		$this->configure('cannon');
 
-		$dir = $this->firstOption(['dir', 'directory']);
+		$dir = $this->firstOption([
+			'dir',
+			'directory',
+		]);
 		if ($dir && !is_dir($dir)) {
 			$this->usage("$dir is not a directory");
 		}
@@ -91,10 +109,13 @@ class Cannon extends SimpleCommand
 				$dir = getcwd();
 			}
 			$extensions = $this->firstOption([
-				'extensions', 'extension',
+				'extensions',
+				'extension',
 			], 'php|inc|tpl|html|htm|sql|module|install|conf|md|markdown|css|less|js');
 			$extensions = explode(',', strtr($extensions, [
-				'|' => ',', '.' => '', ';' => ',',
+				'|' => ',',
+				'.' => '',
+				';' => ',',
 			]));
 			$this->verboseLog('Generating file list ...');
 			$files = $this->_listFiles($dir, $extensions);
@@ -149,7 +170,8 @@ class Cannon extends SimpleCommand
 		$this->info(" Search: $search (" . $locale->pluralWord('character', strlen($search)) . ')');
 		$this->info("Replace: $replace (" . $locale->pluralWord('character', strlen($replace)) . ')');
 		$stats = [
-			'files' => 0, 'lines' => 0,
+			'files' => 0,
+			'lines' => 0,
 		];
 		foreach ($files as $file) {
 			$result = $this->_replaceFile($file, $search, $replace);
@@ -169,15 +191,19 @@ class Cannon extends SimpleCommand
 
 	/**
 	 * List files
+	 * @throws ParameterException
 	 */
 	private function _listFiles($dir, array $extensions): array
 	{
 		$options = [];
 		$options[Directory::LIST_RULE_FILE] = [
-			'#\.' . implode('|', $extensions) . '$#' => true, '#.*/\.#' => true, false,
+			'#\.' . implode('|', $extensions) . '$#' => true,
+			'#.*/\.#'                                => true,
+			false,
 		];
 		$options[Directory::LIST_RULE_DIRECTORY_WALK] = [
-			'#.*/\.#' => false, true,
+			'#.*/\.#' => false,
+			true,
 		];
 		$options[Directory::LIST_RULE_DIRECTORY] = [
 			false,
@@ -200,7 +226,8 @@ class Cannon extends SimpleCommand
 			$locale = $this->application->locale;
 			$this->info('Skipping {file} which exceeds {maxFileSize} (file is {size})', [
 				'maxFileSize' => Number::formatBytes($locale, $maxFileSize),
-				'size' => Number::formatBytes($locale, $size), 'file' => $file,
+				'size'        => Number::formatBytes($locale, $size),
+				'file'        => $file,
 			]);
 			return 0;
 		}

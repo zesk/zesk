@@ -3,10 +3,10 @@ declare(strict_types=1);
 /**
  * February 2023 added Doctrine for database and ORM
  *
- * @package zesk
+ * @package    zesk
  * @subpackage Doctrine
- * @author kent
- * @copyright Copyright &copy; 2025, Market Acumen, Inc.
+ * @author     kent
+ * @copyright  Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Doctrine;
@@ -37,37 +37,37 @@ use zesk\FilterMethod;
 use zesk\Module as BaseModule;
 use zesk\Types;
 
-class Module extends BaseModule
-{
+class Module extends BaseModule {
+	
 	/**
 	 * @todo Call this somewhere
 	 */
 	public const HOOK_SCHEMA_UPDATED = self::class . '::schemaUpdated';
-
+	
 	/**
 	 *
 	 */
 	public const OPTION_SOURCE_PATHS = 'paths';
-
+	
 	/**
 	 *
 	 */
 	private Configuration $ormConfig;
-
+	
 	private EventManager $eventManager;
-
+	
 	/**
 	 * @var array<string, EntityManager>
 	 */
 	private array $managers = [];
-
+	
 	private static array $zeskTypes = [
 		Timestamp::TYPE   => Timestamp::class,
 		EnumBoolean::TYPE => EnumBoolean::class,
 	];
-
+	
 	private static bool $added = false;
-
+	
 	/**
 	 * @return void
 	 * @throws ConfigurationException
@@ -83,17 +83,17 @@ class Module extends BaseModule
 			}
 			self::$added = true;
 		}
-		$this->eventManager = new EventManager();
+		$this->eventManager = new EventManager($this->application);
 		$this->application->registerManager('entity', $this->entityManager(...));
 	}
-
+	
 	#[FilterMethod(handles: Info::FILTER_INFO)]
 	public function info(array $info): array
 	{
 		$info['doctrine'] = true;
 		return $info;
 	}
-
+	
 	/**
 	 * @param string $path
 	 * @return $this
@@ -107,7 +107,7 @@ class Module extends BaseModule
 		$this->setOption(self::OPTION_SOURCE_PATHS, $paths);
 		return $this;
 	}
-
+	
 	/**
 	 * @return void
 	 * @throws ConfigurationException
@@ -125,10 +125,11 @@ class Module extends BaseModule
 			$this->application->info('ORM Path: {path}', ['path' => $path]);
 		}
 		$cachePath = Directory::depend($this->application->cachePath('doctrine'));
-		$this->ormConfig = ORMSetup::createAttributeMetadataConfiguration(paths: $paths, isDevMode: $this->application->development(), cache: new FileCacheItemPool($cachePath));
+		$config = $this->ormConfig = ORMSetup::createAttributeMetadataConfiguration(paths: $paths, isDevMode: $this->application->development(), cache: new FileCacheItemPool($cachePath));
+		$config->setEntityListenerResolver(new EntityListenerResolver());
 		$this->_setupConnections();
 	}
-
+	
 	/**
 	 * @throws ConfigurationException
 	 * @throws Exception
@@ -136,44 +137,49 @@ class Module extends BaseModule
 	private function _setupConnections(): void
 	{
 		foreach ($this->optionArray('connections') as $name => $dsn) {
-			if (is_string($dsn)) {
-				$parser = new DsnParser();
-
-				try {
-					$parts = $parser->parse($dsn);
-				} catch (MalformedDsnException $e) {
-					throw new ConfigurationException([
-						self::class,
-						'connections',
-						$name,
-					], 'Invalid URL {dsn}', ['dsn' => $dsn], $e);
-				}
-			} elseif (is_array($dsn)) {
-				$parts = $dsn;
-			} else {
-				throw new ConfigurationException([
-					self::class,
-					'connections',
-					$name,
-				], 'Bad configuration {type}', ['type' => Types::type($dsn)]);
-			}
-			$connection = DriverManager::getConnection($parts, $this->ormConfig);
-			foreach (array_keys(self::$zeskTypes) as $type) {
-				$connection->getDatabasePlatform()->registerDoctrineTypeMapping('db_' . $type, $type);
-			}
-
-			try {
-				$this->managers[$name] = new EntityManager($connection, $this->ormConfig, $this->eventManager);
-			} catch (MissingMappingDriverImplementation $e) {
-				throw new ConfigurationException([
-					self::class,
-					'connections',
-					$name,
-				], 'Missing driver {parts}', ['parts' => $parts]);
-			}
+			$this->_connectDSN($dsn, $name);
 		}
 	}
-
+	
+	private function _connectDSN(mixed $dsn, string $name): void
+	{
+		if (is_string($dsn)) {
+			$parser = new DsnParser();
+			
+			try {
+				$parts = $parser->parse($dsn);
+			} catch (MalformedDsnException $e) {
+				throw new ConfigurationException([
+					self::class,
+					'connections',
+					$name,
+				], 'Invalid URL {dsn}', ['dsn' => $dsn], $e);
+			}
+		} else if (is_array($dsn)) {
+			$parts = $dsn;
+		} else {
+			throw new ConfigurationException([
+				self::class,
+				'connections',
+				$name,
+			], 'Bad configuration {type}', ['type' => Types::type($dsn)]);
+		}
+		$connection = DriverManager::getConnection($parts, $this->ormConfig);
+		foreach (array_keys(self::$zeskTypes) as $type) {
+			$connection->getDatabasePlatform()->registerDoctrineTypeMapping('db_' . $type, $type);
+		}
+		
+		try {
+			$this->managers[$name] = $em = new EntityManager($connection, $this->ormConfig, $this->eventManager);
+		} catch (MissingMappingDriverImplementation $e) {
+			throw new ConfigurationException([
+				self::class,
+				'connections',
+				$name,
+			], 'Missing driver {parts}', ['parts' => $parts]);
+		}
+	}
+	
 	/**
 	 * @throws SemanticsException
 	 */
@@ -181,7 +187,7 @@ class Module extends BaseModule
 	{
 		return $this->optionString('default', 'default');
 	}
-
+	
 	/**
 	 * @param string $name
 	 * @return EntityManager
@@ -204,12 +210,12 @@ class Module extends BaseModule
 		if (array_key_exists($name, $this->managers)) {
 			return $this->managers[$name];
 		}
-
+		
 		throw new NotFoundException('No entityManager with name {name}', ['name' => $name]);
 	}
-
+	
 	/**
-	 * @param array $entities
+	 * @param array  $entities
 	 * @param string $name
 	 * @return array
 	 * @throws ConfigurationException
@@ -230,9 +236,9 @@ class Module extends BaseModule
 		$sql = $tool->getUpdateSchemaSql($classMetadata);
 		return $sql;
 	}
-
+	
 	/**
-	 * @param array $entities
+	 * @param array  $entities
 	 * @param string $name
 	 * @return array
 	 * @throws ConfigurationException
@@ -244,15 +250,15 @@ class Module extends BaseModule
 	 */
 	public function schemaSynchronize(array $entities, string $name = ''): array
 	{
-		$sqls = $this->schemaSynchronizeSQL($entities, $name);
 		$connection = $this->entityManager($name)->getConnection();
+		$sqlList = $this->schemaSynchronizeSQL($entities, $name);
 		$results = [];
-		foreach ($sqls as $sql) {
+		foreach ($sqlList as $sql) {
 			$results[$sql] = $connection->executeQuery($sql);
 		}
 		return $results;
 	}
-
+	
 	/**
 	 * @param string $entityName
 	 * @param string $name

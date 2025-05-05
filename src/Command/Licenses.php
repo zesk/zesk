@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 /**
- * @package zesk
+ * @package    zesk
  * @subpackage Command
- * @author kent
- * @copyright Copyright &copy; 2025, Market Acumen, Inc.
+ * @author     kent
+ * @copyright  Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 
@@ -12,8 +12,6 @@ namespace zesk\Command;
 
 use zesk\ArrayTools;
 use zesk\Exception;
-use zesk\Exception\ParseException;
-use zesk\File;
 use zesk\JSON;
 use zesk\Text;
 

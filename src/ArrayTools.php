@@ -89,7 +89,7 @@ class ArrayTools
 	}
 
 	/**
-	 * Partner of apath - removes an array path and value
+	 * Partner of setPath - removes an array path and value
 	 *
 	 * @param array $array Array to manipulate
 	 * @param array $keys Path to item in the tree
@@ -184,18 +184,18 @@ class ArrayTools
 	}
 
 	/**
-	 * Map array keys and values
+	 * Map array keys and values. The default prefix character is `{`, and the default suffix character is `}`.
 	 *
 	 * @param array $target
 	 *            Array to modify keys AND values
 	 * @param array $map
 	 *            Array of name => value of search => replace
 	 * @param boolean $insensitive
-	 *            Case sensitive search/replace (defaults to true)
+	 *            Case-sensitive search/replace (default to true)
 	 * @param string $prefix_char
-	 *            Prefix character for tokens (defaults to '{')
+	 *            Prefix character for tokens
 	 * @param string $suffix_char
-	 *            Suffix character for tokens (defaults to '}')
+	 *            Suffix character for tokens
 	 * @return array
 	 */
 	public static function mapKeysAndValues(array $target, array $map, bool $insensitive = false, string $prefix_char = '{', string $suffix_char = '}'): array
@@ -204,7 +204,7 @@ class ArrayTools
 	}
 
 	/**
-	 * Map keys instead of values
+	 * Map keys instead of values. The default prefix character is `{`, and the default suffix character is `}`.
 	 *
 	 * @param array $target
 	 *            Array to modify keys
@@ -212,9 +212,9 @@ class ArrayTools
 	 *            Array of name => value of search => replace
 	 * @param bool $insensitive Case-sensitive search/replace (defaults to true)
 	 * @param string $prefix_char
-	 *            Prefix character for tokens (defaults to "{")
-	 * @param string $suffix_char
-	 *            Suffix character for tokens (defaults to "}")
+	 * *            Prefix character for tokens
+	 * * @param string $suffix_char
+	 * *            Suffix character for tokens
 	 * @return array
 	 */
 	public static function mapKeys(array $target, array $map, bool $insensitive = false, string $prefix_char = '{', string $suffix_char = '}'): array
@@ -245,7 +245,7 @@ class ArrayTools
 	}
 
 	/**
-	 * Convert each value of an array to be a scalar value. Values which can not be
+	 * Convert each value of an array to be a scalar value. Values which cannot be
 	 * flattened are skipped.
 	 *
 	 * @param array $a
@@ -988,8 +988,8 @@ class ArrayTools
 	 *
 	 * @param array $array
 	 * @param array|string $values
-	 *            A value, or an array of values to check for. If a string, converted to a list via
-	 *            to_list
+	 *            A value or an array of values to check for. String parameters are converted to a list via
+	 * `Types::toList`
 	 * @return boolean
 	 * @see Types::toList
 	 */
@@ -1009,8 +1009,8 @@ class ArrayTools
 	 * @param array $a
 	 *            Array to search
 	 * @param mixed $default
-	 *            Value to return of no minimum value found in array
-	 * @return mixed Minimum numerical value found in array, or $default if none found.
+	 *            Value to return of no minimum value found in the array
+	 * @return mixed Minimum numerical value found in the array, or $default if none found.
 	 */
 	public static function min(array $a, mixed $default = null): mixed
 	{
@@ -1033,8 +1033,8 @@ class ArrayTools
 	 * @param array $a
 	 *            Array to search
 	 * @param mixed $default
-	 *            Value to return of no maximum value found in array
-	 * @return mixed Maximum numerical value found in array, or $default if none found.
+	 *            Value to return of no maximum value found in the array
+	 * @return mixed Maximum numerical value found in the array, or $default if none found.
 	 */
 	public static function max(array $a, mixed $default = null): mixed
 	{
@@ -1053,7 +1053,7 @@ class ArrayTools
 
 	/**
 	 * Like array_change_key_case, but for values.
-	 * Only converts string values, numbers, booleans and objects are left alone.
+	 * Only converts string values, numbers, booleans, and objects are left alone.
 	 *
 	 * @param array $arr
 	 * @return array with values lowercase
@@ -1103,7 +1103,7 @@ class ArrayTools
 	 * @param array $a
 	 *            An array to retrieve key values from
 	 * @param mixed $prefixes
-	 *            A ;-separated list, or an array of keys of strings which contain prefixes which
+	 *            A ;-separated list, or keys of strings which contain prefixes which
 	 *            should match
 	 * @param boolean $case_insensitive Case-insensitive search when true
 	 * @return array
@@ -1111,13 +1111,7 @@ class ArrayTools
 	public static function filterKeyPrefixes(array $a, array|string $prefixes, bool $case_insensitive = false): array
 	{
 		$prefixes = Types::toList($prefixes);
-		$r = [];
-		foreach ($a as $k => $v) {
-			if (StringTools::begins($k, $prefixes, $case_insensitive)) {
-				$r[$k] = $v;
-			}
-		}
-		return $r;
+		return array_filter($a, fn ($k) => StringTools::begins($k, $prefixes, $case_insensitive), ARRAY_FILTER_USE_KEY);
 	}
 
 	/**
@@ -1418,8 +1412,8 @@ class ArrayTools
 	}
 
 	/**
-	 * inserts values from $arr2 after (or before) $key in $arr1
-	 * if $key is not found, values from $arr2 are appended to the end of $arr1
+	 * Inserts values from $arr2 after (or before) $key in $arr1
+	 * if $key is not found, values from $arr2 are appended to the end of $ arr1.
 	 * This function uses array_merge() so be aware that values from conflicting keys
 	 * will overwrite each other
 	 *
@@ -1530,7 +1524,7 @@ class ArrayTools
 	 *
 	 * @param array|string $haystack
 	 * @param array|string $needle
-	 * @return null|array Returns matching [haystack,needle,haystack-key,needle-key] or [haystack,needle]
+	 * @return null|array Returns matching [haystack, needle, haystack-key,needle-key] or [haystack, needle]
 	 * @see stripos()
 	 */
 	public static function findInsensitive(array|string $haystack, array|string $needle): ?array
@@ -1625,11 +1619,7 @@ class ArrayTools
 		if (is_string($string)) {
 			return preg_quote($string, $delimiter);
 		} else {
-			$result = [];
-			foreach ($string as $k => $str) {
-				$result[$k] = self::preg_quote($str, $delimiter);
-			}
-			return $result;
+			return array_map(fn ($str) => self::preg_quote($str, $delimiter), $string);
 		}
 	}
 
@@ -1707,7 +1697,7 @@ class ArrayTools
 	 *
 	 * @param array $arr
 	 * @param mixed $def
-	 *            If value can not be converted to integer, use this value instead
+	 *            If a value cannot be converted to integer, use this value instead
 	 * @return array
 	 */
 	public static function integer(array $arr, int $def = 0): array
@@ -1756,7 +1746,7 @@ class ArrayTools
 	 * Can be associative or a single value.
 	 *
 	 * @param array $target
-	 * @param int|float|array $scale Int or float or array of key => number pairs.
+	 * @param int|float|array $scale Int or float or array of keys => number pairs.
 	 * @return array With updated values. If scale is invalid type, returns $target.
 	 */
 	public static function scale(array $target, int|float|array $scale): array
@@ -1801,7 +1791,7 @@ class ArrayTools
 
 	/**
 	 * Join an array to a string, and wrap each value with a prefix and suffix.
-	 * Returns the empty string if array is empty.
+	 * Returns the empty string if the array is empty.
 	 *
 	 * @param array $array
 	 * @param string $prefix
@@ -1818,7 +1808,7 @@ class ArrayTools
 
 	/**
 	 * Join an array to a string, and prefix each value
-	 * Returns the empty string if array is empty.
+	 * Returns the empty string if the array is empty.
 	 *
 	 * @param array $array
 	 * @param string $prefix
@@ -1831,7 +1821,7 @@ class ArrayTools
 
 	/**
 	 * Join an array to a string, and adds a suffix to each value
-	 * Returns the empty string if array is empty.
+	 * Returns the empty string if the array is empty.
 	 *
 	 * @param array $array
 	 * @param string $suffix
@@ -1877,13 +1867,7 @@ class ArrayTools
 		if (count($values) === 0) {
 			return $values;
 		}
-		$result = [];
-		foreach ($array as $k => $v) {
-			if (in_array($v, $values, $strict)) {
-				$result[$k] = $v;
-			}
-		}
-		return $result;
+		return array_filter($array, fn ($v) => in_array($v, $values, $strict));
 	}
 
 	/**
@@ -1895,13 +1879,7 @@ class ArrayTools
 	 */
 	public static function includeValuesEndsWith(array $array, string|array $ends): array
 	{
-		$result = [];
-		foreach ($array as $k => $v) {
-			if (StringTools::ends($v, $ends)) {
-				$result[$k] = $v;
-			}
-		}
-		return $result;
+		return array_filter($array, fn ($v) => StringTools::ends($v, $ends));
 	}
 
 	/**
@@ -1960,9 +1938,9 @@ class ArrayTools
 	}
 
 	/**
-	 * Returns the first value in array, or $default if array is zero-length.
+	 * Returns the first value in the array, or $default if the array is zero-length.
 	 *
-	 * Does NOT assume array is a 0-based key list.
+	 * Does NOT assume the array is a 0-based key list.
 	 *
 	 * @param array $a
 	 * @param mixed|null $default
@@ -1974,8 +1952,8 @@ class ArrayTools
 	}
 
 	/**
-	 * Returns the last value in a PHP array, or $default if array is zero-length.
-	 * Does NOT assume array is a 0-based key list
+	 * Returns the last value in a PHP array, or $default if the array is zero-length.
+	 * Does NOT assume the array is a 0-based key list.
 	 *
 	 * @param array $a
 	 * @param mixed|null $default

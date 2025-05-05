@@ -10,5 +10,6 @@
 	"daemon": "zesk\\Daemon\\Module",
 	"git": "zesk\\Git\\Module",
 	"locale": "zesk\\Locale\\Module",
-	"repository": "zesk\\Repository\\Module"
+	"repository": "zesk\\Repository\\Module",
+	"session": "zesk\\Session\\Module"
 }

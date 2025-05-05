@@ -14,6 +14,7 @@ use ReflectionClass;
 use ReflectionException;
 use ReflectionMethod;
 use zesk\Exception\DirectoryNotFound;
+use zesk\Exception\ExitedException;
 use zesk\Exception\ParameterException;
 
 /**

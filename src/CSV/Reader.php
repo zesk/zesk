@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 /**
- * @package zesk
+ * @package    zesk
  * @subpackage tools
- * @author kent
- * @copyright Copyright &copy; 2025, Market Acumen, Inc.
+ * @author     kent
+ * @copyright  Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\CSV;
@@ -26,21 +26,21 @@ use zesk\UTF8;
  *
  * Long description
  *
- * @package zesk
+ * @package    zesk
  * @subpackage tools
  */
-class Reader extends Base
-{
+class Reader extends Base {
+	
 	/**
 	 * Buffer to load UTF-16 lines
 	 *
 	 * @var string
 	 */
 	protected string $FileBuffer;
-
+	
 	/**
 	 * @param string $filename
-	 * @param array $options
+	 * @param array  $options
 	 * @throws FileNotFound
 	 * @throws FilePermission
 	 * @throws ParseException
@@ -54,12 +54,12 @@ class Reader extends Base
 			$this->setFilename($filename);
 		}
 	}
-
+	
 	/**
 	 * Create a Reader
 	 *
 	 * @param string $filename
-	 * @param array $options
+	 * @param array  $options
 	 * @return self
 	 * @throws FileNotFound
 	 * @throws FilePermission
@@ -70,7 +70,7 @@ class Reader extends Base
 	{
 		return new self($filename, $options);
 	}
-
+	
 	/**
 	 * Retrieve an iterator for this CSV_Reader
 	 *
@@ -81,7 +81,7 @@ class Reader extends Base
 	{
 		return new Iterator($this, $options);
 	}
-
+	
 	/**
 	 * Get filename associated with this Reader
 	 *
@@ -89,9 +89,9 @@ class Reader extends Base
 	 */
 	public function filename(): string
 	{
-		return $this->FileName;
+		return $this->file;
 	}
-
+	
 	/**
 	 * @param string $filename
 	 * @return self
@@ -106,7 +106,7 @@ class Reader extends Base
 		$this->determineEncoding();
 		return $this;
 	}
-
+	
 	/**
 	 * Retrieve a structure which saves the state of the CSV Reader file read position and row index
 	 *
@@ -115,16 +115,16 @@ class Reader extends Base
 	public function tell(): array
 	{
 		$offset = ftell($this->File);
-		$line_no = $this->RowIndex;
+		$line_no = $this->rowIndex;
 		return [
 			'file_pos'    => $offset,
 			'file_buffer' => $this->FileBuffer,
 			'row_index'   => $line_no,
-			'row'         => $this->Row,
+			'row'         => $this->row,
 			'key'         => $this->_magicNumber(),
 		];
 	}
-
+	
 	/**
 	 * Seek to a previous tell point. Do not try to construct this structure
 	 *
@@ -135,20 +135,20 @@ class Reader extends Base
 	{
 		if (!array_key_exists('key', $tell)) {
 			throw new ProtocolException('Invalid tell for CSV File {filename}', [
-				'filename' => $this->FileName,
+				'filename' => $this->file,
 			]);
 		}
 		if ($tell['key'] !== $this->_magicNumber()) {
 			throw new ProtocolException('Invalid tell for CSV File, hashes do not match {filename}', [
-				'filename' => $this->FileName,
+				'filename' => $this->file,
 			]);
 		}
-		$this->Row = $tell['row'];
-		$this->RowIndex = $tell['row_index'];
+		$this->row = $tell['row'];
+		$this->rowIndex = $tell['row_index'];
 		$this->FileBuffer = $tell['file_buffer'];
 		fseek($this->File, $tell['file_pos']);
 	}
-
+	
 	/**
 	 * Are we at the end of the file?
 	 *
@@ -156,7 +156,7 @@ class Reader extends Base
 	 */
 	private function eof(): bool
 	{
-		if ($this->Encoding === 'UTF-16') {
+		if ($this->encoding === 'UTF-16') {
 			if (!empty($this->FileBuffer)) {
 				return false;
 			}
@@ -166,7 +166,7 @@ class Reader extends Base
 		}
 		return feof($this->File);
 	}
-
+	
 	/**
 	 * Read a single line from the file. Converts from UTF-8 and UTF-16 encodings if needed
 	 *
@@ -176,9 +176,9 @@ class Reader extends Base
 	 */
 	private function read_line(): array
 	{
-		switch ($this->Encoding) {
+		switch ($this->encoding) {
 			case 'UTF-8':
-				$result = fgetcsv($this->File, 10240, $this->Delimiter, $this->Enclosure);
+				$result = fgetcsv($this->File, 10240, $this->delimiter, $this->enclosure);
 				if (!is_array($result)) {
 					throw new FileParseException($this->File, 'fgetcsv failed');
 				}
@@ -187,30 +187,30 @@ class Reader extends Base
 				}
 				return $result;
 			case 'UTF-16':
-				if (!str_contains($this->FileBuffer, $this->LineDelimiter) && ($n = strlen($this->FileBuffer)) < 10240) {
+				if (!str_contains($this->FileBuffer, $this->lineDelimiter) && ($n = strlen($this->FileBuffer)) < 10240) {
 					if ($n === 0 && feof($this->File)) {
 						throw new StopIteration($this->File);
 					}
 					$read_n = (10240 - $n) * 2;
 					$data = fread($this->File, $read_n);
-					$data = UTF16::toISO8859($data, $this->EncodingBigEndian);
+					$data = UTF16::toISO8859($data, $this->encodingBigEndian);
 					$this->FileBuffer .= $data;
 				}
 				[
 					$line,
 					$this->FileBuffer,
-				] = StringTools::pair($this->FileBuffer, $this->LineDelimiter, $this->FileBuffer);
-				$result = str_getcsv($line, $this->Delimiter, $this->Enclosure, $this->Escape);
+				] = StringTools::pair($this->FileBuffer, $this->lineDelimiter, $this->FileBuffer);
+				$result = str_getcsv($line, $this->delimiter, $this->enclosure, $this->escape);
 				return $result;
 			default:
-				$result = fgetcsv($this->File, 10240, $this->Delimiter, $this->Enclosure);
+				$result = fgetcsv($this->File, 10240, $this->delimiter, $this->enclosure);
 				if (!is_array($result)) {
 					throw new FileParseException($this->File, 'fgetcsv failed');
 				}
 				return $result;
 		}
 	}
-
+	
 	/**
 	 * Read the headers from the CSV file
 	 *
@@ -220,17 +220,17 @@ class Reader extends Base
 	public function read_headers(): array
 	{
 		$this->_check_file();
-		if (!count($this->Headers)) {
+		if (!count($this->headers)) {
 			$headers = $this->read_line();
 			if (!count($headers)) {
 				throw new ProtocolException('No headers');
 			}
-			$this->RowIndex++;
+			$this->rowIndex++;
 			$this->setHeaders($headers, false);
 		}
 		return $this->headers();
 	}
-
+	
 	/**
 	 * Read a row from the CSV file, keys are column positions (0 = first, 1 = second, etc.)
 	 *
@@ -248,19 +248,19 @@ class Reader extends Base
 	public function read_row(): array
 	{
 		$this->_check_file();
-		if (!count($this->Headers)) {
+		if (!count($this->headers)) {
 			$this->read_headers();
 		}
 		if ($this->eof()) {
-			$this->Row = [];
-
+			$this->row = [];
+			
 			throw new StopIteration();
 		}
-		$this->Row = $this->read_line();
-		$this->RowIndex = $this->RowIndex + 1;
-		return $this->Row;
+		$this->row = $this->read_line();
+		$this->rowIndex = $this->rowIndex + 1;
+		return $this->row;
 	}
-
+	
 	/**
 	 *
 	 * Read a row and map column names using our headers
@@ -278,7 +278,7 @@ class Reader extends Base
 		foreach ($hh as $k => $v) {
 			if (is_scalar($v)) {
 				$r[$v] = $row[$k] ?? null;
-			} elseif (is_array($v)) {
+			} else if (is_array($v)) {
 				foreach ($v as $vv) {
 					$r[$vv] = $row[$k] ?? null;
 				}
@@ -287,7 +287,7 @@ class Reader extends Base
 		$r = $this->postProcessRow($r);
 		return $r;
 	}
-
+	
 	/**
 	 * Override in subclasses
 	 *
@@ -298,7 +298,7 @@ class Reader extends Base
 	{
 		return $row;
 	}
-
+	
 	/**
 	 * Skip one or more reows in the file.
 	 *
@@ -319,10 +319,10 @@ class Reader extends Base
 		}
 		while ($offset-- > 0) {
 			$this->read_line();
-			$this->RowIndex++;
+			$this->rowIndex++;
 		}
 	}
-
+	
 	/**
 	 * Determine the encoding of the file by peeking at the first 1K bytes
 	 *
@@ -334,35 +334,35 @@ class Reader extends Base
 	{
 		if (!is_resource($this->File)) {
 			throw new ProtocolException('File is not a resource: {filename}', [
-				'filename' => $this->FileName,
+				'filename' => $this->file,
 			]);
 		}
 		$tell = ftell($this->File);
 		$file_sample = fread($this->File, 1024);
 		fseek($this->File, $tell);
 		if (StringTools::isUTF8($file_sample)) {
-			$this->Encoding = 'UTF-8';
-			$this->EncodingSuffix = '.UTF8';
+			$this->encoding = 'UTF-8';
+			$this->encodingSuffix = '.UTF8';
 			$file_sample = UTF8::toISO8859($file_sample);
-		} elseif (StringTools::isUTF16($file_sample, $this->EncodingBigEndian)) {
-			$this->Encoding = 'UTF-16';
-			$this->EncodingSuffix = '.UTF16';
-			$file_sample = UTF16::toISO8859($file_sample, $this->EncodingBigEndian);
-		} elseif (StringTools::isASCII($file_sample)) {
-			$this->Encoding = 'ISO-8859-1';
-			$this->EncodingSuffix = '.ISO8859';
+		} else if (StringTools::isUTF16($file_sample, $this->encodingBigEndian)) {
+			$this->encoding = 'UTF-16';
+			$this->encodingSuffix = '.UTF16';
+			$file_sample = UTF16::toISO8859($file_sample, $this->encodingBigEndian);
+		} else if (StringTools::isASCII($file_sample)) {
+			$this->encoding = 'ISO-8859-1';
+			$this->encodingSuffix = '.ISO8859';
 		} else {
 			throw new FileParseException($this->File, 'Unknown file encoding');
 		}
-		$old_locale = setlocale(LC_CTYPE, 'en' . $this->EncodingSuffix);
+		$old_locale = setlocale(LC_CTYPE, 'en' . $this->encodingSuffix);
 		if ($old_locale === false) {
-			$this->EncodingSuffix = '';
+			$this->encodingSuffix = '';
 		} else {
 			setlocale(LC_CTYPE, $old_locale);
 		}
-		$this->Delimiter = $this->_determineDelimiter($file_sample);
+		$this->delimiter = $this->_determineDelimiter($file_sample);
 	}
-
+	
 	/**
 	 * Retrieve a magic number to avoid bogus data in tell/seek
 	 *
@@ -370,9 +370,9 @@ class Reader extends Base
 	 */
 	private function _magicNumber(): string
 	{
-		return md5($this->FileName . '-' . filesize($this->FileName));
+		return md5($this->file . '-' . filesize($this->file));
 	}
-
+	
 	/**
 	 * Determine the delimiter used between CSV cells per line by sampling and counting each in the selected line
 	 *

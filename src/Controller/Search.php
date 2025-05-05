@@ -1,15 +1,16 @@
 <?php
 declare(strict_types=1);
 /**
- * @package zesk
+ * @package    zesk
  * @subpackage controller
- * @author kent
- * @copyright &copy; 2023, Market Acumen, Inc.
+ * @author     kent
+ * @copyright  &copy; 2023, Market Acumen, Inc.
  */
 
 namespace zesk\Controller;
 
 use zesk\Exception\ClassNotFound;
+use zesk\Exception\Redirect;
 use zesk\Request;
 
 /**
@@ -17,12 +18,14 @@ use zesk\Request;
  * @author kent
  *
  */
-class Search extends ThemeController
-{
+class Search extends ThemeController {
+	
 	/**
 	 *
+	 * @param Request $request
 	 * @return string
-	 * @throws ClassNotFound|Redirect
+	 * @throws ClassNotFound
+	 * @throws Redirect
 	 */
 	protected function action_index(Request $request): string
 	{
@@ -34,7 +37,8 @@ class Search extends ThemeController
 			$method = 'controllerSearch';
 			if (method_exists($object, $method)) {
 				$result = call_user_func([
-					$object, $method,
+					$object,
+					$method,
 				], $query);
 				if (is_array($result)) {
 					$results[$class] = $result;
@@ -43,13 +47,16 @@ class Search extends ThemeController
 				}
 			} else {
 				$this->application->error('Controller_Search::action_index {class} does not have method {method}', [
-					'class' => $class, 'method' => $method,
+					'class'  => $class,
+					'method' => $method,
 				]);
 			}
 		}
 		return $this->theme($total === 0 ? 'search/no-results' : 'search/results', [
-			'raw_query' => $query, 'query' => htmlspecialchars($query), 'theme_search_form' => 'block/search',
-			'results' => $results,
+			'raw_query'         => $query,
+			'query'             => htmlspecialchars($query),
+			'theme_search_form' => 'block/search',
+			'results'           => $results,
 		]);
 	}
 }

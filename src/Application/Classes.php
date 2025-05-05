@@ -14,7 +14,7 @@ class Classes
 	public const VERSION = 5;
 
 	/**
-	 * Version number of serialized file
+	 * Version number of the serialized file
 	 *
 	 * @var integer
 	 */

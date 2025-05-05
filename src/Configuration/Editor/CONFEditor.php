@@ -2,7 +2,7 @@
 declare(strict_types=1);
 /**
  * @copyright &copy; 2023 Market Acumen, Inc.
- * @package zesk
+ * @package   zesk
  */
 
 namespace zesk\Configuration\Editor;
@@ -10,24 +10,25 @@ namespace zesk\Configuration\Editor;
 use zesk\ArrayTools;
 use zesk\Configuration\Editor;
 use zesk\Configuration\Parser\CONF;
-use zesk\Exception\ProtocolException;
+use zesk\Exception\SemanticsException;
 use zesk\JSON;
 use zesk\Text;
 
 /**
  * Configuration files, somewhat compatible with BASH environment shells
  * Useful for setting options which you want to also access via BASH or compatible shell.
+ *
  * @see CONF
  */
-class CONFEditor extends Editor
-{
+class CONFEditor extends Editor {
+	
 	/**
-	 * @desc Save changes to a configuration file
+	 * @desc      Save changes to a configuration file
 	 * @param array $edits
 	 * @return string
-	 * @throws ProtocolException
+	 * @throws SemanticsException
+	 * @package   zesk
 	 * @copyright &copy; 2023 Market Acumen, Inc.
-	 * @package zesk
 	 */
 	public function edit(array $edits): string
 	{

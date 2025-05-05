@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 /**
- * @package zesk
+ * @package    zesk
  * @subpackage system
- * @author kent
- * @copyright Copyright &copy; 2025, Market Acumen, Inc.
+ * @author     kent
+ * @copyright  Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -15,10 +15,8 @@ use Stringable;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LoggerTrait;
 use Psr\Log\LogLevel;
-use zesk\Exception\ClassNotFound;
 use zesk\Exception\CommandFailed;
 use zesk\Exception\ConfigurationException;
-use zesk\Exception\DirectoryNotFound;
 use zesk\Exception\ExitedException;
 use zesk\Exception\FileNotFound;
 use zesk\Exception\FilePermission;
@@ -26,8 +24,7 @@ use zesk\Exception\NotFoundException;
 use zesk\Exception\ParameterException;
 use zesk\Exception\ParseException;
 use zesk\Exception\Redirect;
-use zesk\Exception\ProtocolException;
-use zesk\Exception\UnsupportedException;
+use zesk\Exception\SemanticsException;
 use zesk\Interface\Promptable;
 
 /**
@@ -55,7 +52,7 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 	public const EXIT_CODE_ENVIRONMENT = 2;
 
 	/**
-	 * When the command can not run due to improper, incomplete, or missing arguments
+	 * When the command cannot run due to improper, incomplete, or missing arguments
 	 */
 	public const EXIT_CODE_ARGUMENTS = 2;
 
@@ -243,7 +240,7 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 	 * Create a new uninitialized command.
 	 *
 	 * @param Application $application
-	 * @param array $options
+	 * @param array       $options
 	 */
 	public function __construct(Application $application, array $options = [])
 	{
@@ -269,7 +266,7 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 	/**
 	 * Parse arguments and set up Command for running.
 	 *
-	 * Command line arguments must be passed in. Use $_SERVER['argv]
+	 * Command line arguments must be passed in. Use `$_SERVER['argv']`
 	 *
 	 * @param array $argv
 	 * @return $this
@@ -293,7 +290,7 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 
 		try {
 			$this->_parseOptions();
-		} catch (ProtocolException $e) {
+		} catch (SemanticsException $e) {
 			throw new ParameterException('Invalid arguments for {class}: {argv}', [
 				'class' => $this::class,
 				'argv'  => $argv,
@@ -319,7 +316,8 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 
 	/**
 	 * Configure the application additionally upon run
-	 * @throws ConfigurationException
+	 *
+	 * @throws ConfigurationException|SemanticsException
 	 */
 	protected function applicationConfigure(): void
 	{
@@ -407,15 +405,12 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 	 *
 	 * @param string $name
 	 *            Configuration file name to use (either /etc/zesk/$name.conf or ~/.zesk/$name.conf)
-	 * @param bool $create
 	 * @return string LAST configuration file path
-	 * @throws ClassNotFound
 	 * @throws ConfigurationException
-	 * @throws DirectoryNotFound
 	 * @throws FilePermission
 	 * @throws ParameterException
-	 * @throws ProtocolException
-	 * @throws UnsupportedException|NotFoundException|ParseException
+	 * @throws NotFoundException|Exception\SystemException
+	 * @throws SemanticsException
 	 */
 	protected function configure(string $name, bool $create = false): string
 	{
@@ -458,10 +453,11 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 
 	/**
 	 * Write the default configuration for this command (as requested with $create = true)
+	 *
 	 * @param string $name
 	 * @param string $filename
 	 * @return void
-	 * @throws ProtocolException|FilePermission
+	 * @throws FilePermission|SemanticsException
 	 */
 	protected function write_default_configuration(string $name, string $filename): void
 	{
@@ -599,8 +595,9 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 
 	/**
 	 * Output the usage information
+	 *
 	 * @param array|string|null $message
-	 * @param array $arguments
+	 * @param array             $arguments
 	 * @return void
 	 */
 	public function usage(array|string|null $message = null, array $arguments = []): void
@@ -707,9 +704,9 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 	 * Log a message to output or stderr.
 	 * Do not do anything if a theme is currently being rendered.
 	 *
-	 * @param $level
+	 * @param                   $level
 	 * @param Stringable|string $message
-	 * @param array $context
+	 * @param array             $context
 	 */
 	public function log($level, Stringable|string $message, array $context = []): void
 	{
@@ -723,22 +720,22 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 	 * Log a message to output or stderr.
 	 * Do not do anything if a theme is currently being rendered.
 	 *
-	 * @param $level
+	 * @param       $level
 	 * @param array $message
 	 * @param array $context
 	 */
 	public function logMany($level, array $message, array $context = []): void
 	{
 		foreach ($message as $m) {
-			$this->logLine($m, $context);
+			$this->logLine($m, ['level' => $level] + $context);
 		}
 	}
 
 	/**
 	 * Log a single line to stderr or stdout
 	 *
-	 * @param string $message
-	 * @param array $context
+	 * @param Stringable|string $message
+	 * @param array             $context
 	 */
 	private function logLine(Stringable|string $message, array $context = []): void
 	{
@@ -831,7 +828,7 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 	 * Debug message, only when debugging is turned on
 	 *
 	 * @param string|array $message
-	 * @param array $arguments
+	 * @param array        $arguments
 	 * @return void
 	 */
 	protected function debugLog(string|array $message, array $arguments = []): void
@@ -845,7 +842,7 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 	 * Log messages to the logger at $level
 	 *
 	 * @param string|array $message
-	 * @param array $arguments
+	 * @param array        $arguments
 	 */
 	public function verboseLog(string|array $message, array $arguments = []): void
 	{
@@ -867,7 +864,7 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 	/**
 	 * Retrieve remaining arguments to be processed, optionally deleting them
 	 *
-	 * @param bool $endOfArgumentMarker When true, return up to and including end of arguments marker
+	 * @param bool $endOfArgumentMarker When true, return up to and including end-of-arguments marker
 	 * @return array
 	 */
 	public function argumentsRemaining(bool $endOfArgumentMarker = true): array
@@ -876,7 +873,7 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 		while ($this->hasArgument($endOfArgumentMarker)) {
 			try {
 				$arguments[] = $this->getArgument(__METHOD__, $endOfArgumentMarker);
-			} catch (ProtocolException) {
+			} catch (SemanticsException) {
 			}
 		}
 		if (!$endOfArgumentMarker && ArrayTools::first($arguments) === self::END_OF_ARGUMENT_MARKER) {
@@ -916,22 +913,22 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 	 * Assumes "hasArgument()" is true
 	 *
 	 * @param string $arg
-	 * @param bool $endOfArgumentMarker
+	 * @param bool   $endOfArgumentMarker
 	 * @return string
-	 * @throws ProtocolException
+	 * @throws SemanticsException
 	 */
 	protected function getArgument(string $arg = '', bool $endOfArgumentMarker = true): string
 	{
 		if (count($this->argv) === 0) {
 			$this->error("No argument parameter for $arg");
 
-			throw new ProtocolException('No arguments');
+			throw new SemanticsException('No arguments');
 		}
 		if ($endOfArgumentMarker) {
 			if ($this->argv[0] === self::END_OF_ARGUMENT_MARKER) {
 				$this->error("End of arguments marker found for $arg");
 
-				throw new ProtocolException('End of arguments marker found');
+				throw new SemanticsException('End of arguments marker found');
 			}
 		}
 		return array_shift($this->argv);
@@ -939,8 +936,8 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 
 	/**
 	 * Parse command-line options for this command
-	 * @throws ProtocolException
-	 * @throws ParameterException
+	 *
+	 * @throws ParameterException|SemanticsException
 	 */
 	private function _parseOptions(): void
 	{
@@ -1136,14 +1133,14 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 	}
 
 	/**
-	 * Handle managing history and history file, initialization of history file
+	 * Handle managing history and the history file, initialization of the history file
 	 *
 	 * @return void
 	 */
 	private function _init_history(): void
 	{
 		if ($this->history_file) {
-			// Have history file and is open for writing
+			// Do we have a history file and is it open for writing?
 			return;
 		}
 		if ($this->history_file_path === '') {
@@ -1233,11 +1230,11 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 	/**
 	 * Prompt for arbitrary input
 	 *
-	 * @param string $message
+	 * @param string      $message
 	 * @param string|null $default
-	 * @param array|null $completions
+	 * @param array|null  $completions
 	 * @return string
-	 * @throws StopIteration|ProtocolException
+	 * @throws StopIteration|SemanticsException
 	 */
 	public function prompt(string $message, ?string $default = null, ?array $completions = null): string
 	{
@@ -1247,7 +1244,7 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 					'message' => $message,
 				]);
 
-				throw new ProtocolException('Non-interactive set but input is required for {message}', [
+				throw new SemanticsException('Non-interactive set but input is required for {message}', [
 					'message' => $message,
 				]);
 			}
@@ -1280,7 +1277,7 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 	/**
 	 * Prompt yes or no
 	 *
-	 * @param string $message
+	 * @param string  $message
 	 * @param boolean $default
 	 * @return boolean
 	 */
@@ -1335,7 +1332,7 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 	 * Run a zesk command using the CLI
 	 *
 	 * @param string $command
-	 * @param array $arguments
+	 * @param array  $arguments
 	 * @return array
 	 * @throws CommandFailed
 	 */
@@ -1373,8 +1370,7 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 	 * @return int
 	 * @throws ConfigurationException
 	 * @throws NotFoundException
-	 * @throws UnsupportedException
-	 * @throws ParseException
+	 * @throws SemanticsException
 	 */
 	final public function go(): int
 	{
@@ -1386,6 +1382,7 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 		try {
 			$this->invokeHooks(self::HOOK_RUN_BEFORE, [$this]);
 		} catch (ExitedException $e) {
+			/* ExitedException OK 2025 KMD */
 			return $e->getCode();
 		}
 
@@ -1467,8 +1464,8 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 	/**
 	 *
 	 * @param string|array $content
-	 * @param string $format
-	 * @param string $default_format
+	 * @param string       $format
+	 * @param string       $default_format
 	 * @return boolean
 	 */
 	public function renderFormat(string|array $content, string $format = '', string $default_format = self::FORMAT_TEXT): bool
@@ -1543,6 +1540,7 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 
 	/**
 	 * Main run code
+	 *
 	 * @throws FileNotFound
 	 * @throws Exception
 	 */

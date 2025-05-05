@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 /**
- * @package zesk
+ * @package    zesk
  * @subpackage system
- * @author kent
- * @copyright Copyright &copy; 2025, Market Acumen, Inc.
+ * @author     kent
+ * @copyright  Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -14,6 +14,8 @@ use Exception;
 use stdClass;
 use zesk\Exception\ParseException;
 use zesk\Exception\ProtocolException;
+use zesk\Exception\SemanticsException;
+use zesk\Exception\SyntaxException;
 
 /**
  *
@@ -71,6 +73,7 @@ class JSON
 
 	/**
 	 * Default methods to use in prepare
+	 *
 	 * @var array
 	 */
 	private static array $default_methods = [
@@ -83,9 +86,9 @@ class JSON
 	/**
 	 * Prepare internal objects to simple JSON-capable structures.
 	 *
-	 * @param mixed $mixed
-	 * @param ?array $methods List of methods to try in objects to convert to JSON form (array)
-	 * @param array $arguments Optional arguments passed to $methods
+	 * @param mixed  $mixed
+	 * @param ?array $methods   List of methods to try in objects to convert to JSON form (array)
+	 * @param array  $arguments Optional arguments passed to $methods
 	 * @return mixed
 	 * @throws ProtocolException
 	 */
@@ -130,13 +133,13 @@ class JSON
 	 * @param mixed $mixed
 	 *            Item to encode using JSON
 	 * @return string JSON string of encoded item
-	 * @throws ProtocolException
+	 * @throws SemanticsException
 	 */
 	public static function encode(mixed $mixed): string
 	{
 		$result = json_encode($mixed, JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_IGNORE);
 		if ($result === false) {
-			throw new ProtocolException('JSON encode failed');
+			throw new SemanticsException('JSON encode failed');
 		}
 		return $result;
 	}
@@ -268,7 +271,7 @@ class JSON
 	 *
 	 * @param string $string
 	 *            A JSON string to decode
-	 * @param bool $assoc
+	 * @param bool   $assoc
 	 * @return mixed the decoded JSON string, or the default value if it fails
 	 * @throws ParseException
 	 */
@@ -328,7 +331,7 @@ class JSON
 	/**
 	 * Like json_decode except use internal parser (slow)
 	 *
-	 * @param string $string
+	 * @param string  $string
 	 * @param boolean $assoc
 	 * @return mixed
 	 */
@@ -356,9 +359,9 @@ class JSON
 	/**
 	 * Decode JSON string starting with white space, then a value
 	 *
-	 * @param string $string
+	 * @param string  $string
 	 *            JSON string optionally beginning with whitespace which will be trimmed
-	 * @param int $offset
+	 * @param int     $offset
 	 *            Current offset in the total string - for debugging only
 	 * @param boolean $assoc
 	 *            Whether arrays should be created as associative arrays, or objects
@@ -386,8 +389,8 @@ class JSON
 	 * assume PHP 5.2 and json will
 	 * be core of PHP in the near future.
 	 *
-	 * @param string $string
-	 * @param int $offset
+	 * @param string  $string
+	 * @param int     $offset
 	 *            Current offset in the total string - for debugging only
 	 * @param boolean $assoc
 	 * @return array
@@ -436,7 +439,7 @@ class JSON
 	 * JSON parse number
 	 *
 	 * @param string $string
-	 * @param int $offset
+	 * @param int    $offset
 	 *            Current offset in the total string - for debugging only
 	 * @return array
 	 * @throws ParseException
@@ -467,8 +470,8 @@ class JSON
 	 * JSON decode array
 	 *
 	 * @param string $string
-	 * @param int $offset Current offset in the total string - for debugging only
-	 * @param bool $assoc
+	 * @param int    $offset Current offset in the total string - for debugging only
+	 * @param bool   $assoc
 	 * @return array
 	 * @throws ParseException
 	 */
@@ -529,9 +532,9 @@ class JSON
 	/**
 	 * JSON decode object
 	 *
-	 * @param bool $assoc
+	 * @param bool   $assoc
 	 * @param string $string
-	 * @param int $offset
+	 * @param int    $offset
 	 *            Current offset in the total string - for debugging only
 	 * @return array
 	 * @throws ParseException
@@ -621,7 +624,7 @@ class JSON
 	 * JSON decode string
 	 *
 	 * @param string $string
-	 * @param int $offset
+	 * @param int    $offset
 	 *            Current offset in the total string - for debugging only
 	 * @return array
 	 * @throws ParseException

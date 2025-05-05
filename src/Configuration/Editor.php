@@ -5,16 +5,16 @@ namespace zesk\Configuration;
 
 use zesk\Options;
 
-abstract class Editor extends Options
-{
+abstract class Editor extends Options {
+	
 	protected string $content;
-
+	
 	public function __construct($content = '', array $options = [])
 	{
 		parent::__construct($options);
 		$this->content = $content;
 	}
-
+	
 	/**
 	 * Setter for content
 	 *
@@ -26,7 +26,7 @@ abstract class Editor extends Options
 		$this->content = $set;
 		return $this;
 	}
-
+	
 	/**
 	 * Getter for content
 	 *
@@ -36,11 +36,11 @@ abstract class Editor extends Options
 	{
 		return $this->content;
 	}
-
+	
 	/**
 	 *
 	 * @param array $edits
-	 * @return string New content of configuration file
+	 * @return string New content of the configuration file
 	 */
 	abstract public function edit(array $edits): string;
 }

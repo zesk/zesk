@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 /**
- * @package zesk
+ * @package    zesk
  * @subpackage tools
- * @author kent
- * @copyright Copyright &copy; 2025, Market Acumen, Inc.
+ * @author     kent
+ * @copyright  Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\CSV;
@@ -22,13 +22,13 @@ use zesk\Types;
  *
  * Read from a CSV file and convert rows into objects easily
  *
- * @todo Refactor so this works on any array input, not just CSVs
+ * @todo       Refactor so this works on any array input, not just CSVs
  *
- * @package zesk
+ * @package    zesk
  * @subpackage tools
  */
-class MapReader extends Reader
-{
+class MapReader extends Reader {
+	
 	/**
 	 * A read map group allows you to read a subset of a row and map the column names into new names. This is useful when
 	 * mapping a CSV row into one or more zesk\ORM subclasses.
@@ -36,32 +36,33 @@ class MapReader extends Reader
 	 * @var array
 	 */
 	protected array $readMapGroup;
-
+	
 	/**
 	 * The read map group defaults provides default values, per read map, used to populate the result when the value does not exist.
 	 *
 	 * @var array
 	 */
 	protected array $readMapGroupDefaults;
-
+	
 	/**
 	 * The read map group types provides column types, per read map, used to
+	 *
 	 * @todo Move ReadMap functionality to another class, doesn't belong with RAW self functionality
 	 *
 	 * @var array
 	 */
 	protected array $readMapGroupTypes;
-
+	
 	/**
 	 *
 	 * @var array
 	 */
 	protected array $translationMap = [];
-
+	
 	/**
 	 *
 	 * @param string $filename
-	 * @param array $options
+	 * @param array  $options
 	 * @throws FileNotFound
 	 * @throws FilePermission
 	 * @throws FileParseException
@@ -73,12 +74,12 @@ class MapReader extends Reader
 		$this->readMapGroupDefaults = [];
 		$this->readMapGroupTypes = [];
 	}
-
+	
 	/**
 	 * Create
 	 *
 	 * @param string $filename
-	 * @param array $options
+	 * @param array  $options
 	 * @return self
 	 * @throws FileNotFound
 	 * @throws FileParseException
@@ -88,7 +89,7 @@ class MapReader extends Reader
 	{
 		return new self($filename, $options);
 	}
-
+	
 	/**
 	 * Set or get a simple mapping for reading objects from a CSV, for example
 	 *
@@ -99,28 +100,28 @@ class MapReader extends Reader
 	 *        `$reader->read_map()` - Returns all read map names associated with this reader (["foo","bar"])
 	 *
 	 * @param string $name Name of this map, case-insensitive
-	 * @param array $map Array of csv_column => new_key - if null then returns named map
-	 * @param array $mapTypes
-	 * @param array $defaultMap
+	 * @param array  $map  Array of csv_column => new_key - if null then returns named map
+	 * @param array  $mapTypes
+	 * @param array  $defaultMap
 	 * @return MapReader
 	 * @throws KeyNotFound
 	 * @throws ProtocolException
 	 */
 	public function addReadMap(string $name, array $map, array $mapTypes = [], array $defaultMap = []): self
 	{
-		if (!count($this->Headers)) {
+		if (!count($this->headers)) {
 			throw new ProtocolException('Must have headers before setting map');
 		}
 		$this->headers();
 		$mapGroup = [];
 		foreach ($map as $column => $objectMember) {
 			$column = strtolower($column);
-			if (!isset($this->HeadersToIndex[$column])) {
+			if (!isset($this->headersToIndex[$column])) {
 				throw new KeyNotFound("CSV::readSetMap($name,...): $column not found in headers {headers_to_index}", [
-					'headers_to_index' => $this->HeadersToIndex,
+					'headers_to_index' => $this->headersToIndex,
 				]);
 			} else {
-				$indexes = $this->HeadersToIndex[$column];
+				$indexes = $this->headersToIndex[$column];
 				if (is_array($indexes)) {
 					foreach ($indexes as $index) {
 						$mapGroup[$index] = $objectMember;
@@ -140,7 +141,7 @@ class MapReader extends Reader
 		}
 		return $this;
 	}
-
+	
 	/**
 	 * @param string $name
 	 * @return array
@@ -149,14 +150,15 @@ class MapReader extends Reader
 	 */
 	public function readMap(string $name): array
 	{
-		if (!count($this->Headers)) {
+		if (!count($this->headers)) {
 			throw new ProtocolException('Must have headers before setting map');
 		}
 		return $this->_getReadMap($name);
 	}
-
+	
 	/**
 	 * Given a source row $data, and a type map
+	 *
 	 * @param array $row
 	 * @param array $typeMap
 	 * @param array $defaultMap
@@ -172,17 +174,17 @@ class MapReader extends Reader
 					switch ($type) {
 						case 'boolean':
 							$row[$k] = Types::toBool($v);
-
+							
 							break;
 						case 'timestamp':
 						case 'datetime':
 							$row[$k] = Timestamp::factory($v);
-
+							
 							break;
 						default:
 							throw new KeyNotFound("Unknown type map $type in CSV::_applyTypes");
 					}
-				} elseif (is_array($type)) {
+				} else if (is_array($type)) {
 					$v = $type[$v] ?? $defaultMap[$k] ?? null;
 					if ($v !== null) {
 						$row[$k] = $v;
@@ -192,7 +194,7 @@ class MapReader extends Reader
 		}
 		return $row;
 	}
-
+	
 	/**
 	 * Retrieve the read map of name
 	 *
@@ -208,7 +210,7 @@ class MapReader extends Reader
 		}
 		$g = $this->readMapGroup[$lowName];
 		$result = [];
-		$r = $this->Row;
+		$r = $this->row;
 		foreach ($g as $index => $cols) {
 			$value = $r[$index];
 			if (!is_array($cols)) {
@@ -246,9 +248,9 @@ class MapReader extends Reader
 		}
 		return $result;
 	}
-
+	
 	public const MAP_BOOLEAN = 'boolean';
-
+	
 	/**
 	 * Set columns to be converted to boolean upon reading
 	 *
@@ -260,11 +262,11 @@ class MapReader extends Reader
 	{
 		return $this->_addTranslationMapType(Types::toList($columns), self::MAP_BOOLEAN);
 	}
-
+	
 	/**
 	 * Add translation map for a specific type
 	 *
-	 * @param array $columns
+	 * @param array  $columns
 	 * @param string $type Class_Base::type_foo type
 	 * @return self
 	 * @throws KeyNotFound
@@ -272,18 +274,18 @@ class MapReader extends Reader
 	private function _addTranslationMapType(array $columns, string $type): self
 	{
 		foreach ($columns as $column) {
-			if (!in_array($column, $this->Headers)) {
+			if (!in_array($column, $this->headers)) {
 				throw new KeyNotFound('Unknown header key {key} in CSV reader for file {file} (type {type})', [
 					'key'  => $column,
 					'type' => $type,
-					'file' => $this->FileName,
+					'file' => $this->file,
 				]);
 			}
 			$this->translationMap[$column] = $type;
 		}
 		return $this;
 	}
-
+	
 	/**
 	 *
 	 * @param array $row
@@ -303,7 +305,7 @@ class MapReader extends Reader
 		}
 		return $row;
 	}
-
+	
 	/**
 	 * Convert data to boolean
 	 */
@@ -311,7 +313,7 @@ class MapReader extends Reader
 	{
 		return Types::toBool($value);
 	}
-
+	
 	private function _convert_text(mixed $value): string
 	{
 		return strval($value);

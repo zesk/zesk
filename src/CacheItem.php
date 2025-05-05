@@ -3,6 +3,7 @@ declare(strict_types=1);
 /**
  *
  */
+
 namespace zesk;
 
 use DateTimeInterface;
@@ -13,7 +14,7 @@ use DateInterval as NativeDateInterval;
  * Generic cache item
  *
  * @author kent
- * @see CacheItemPool_Array
+ * @see MemoryPool
  */
 class CacheItem implements CacheItemInterface
 {
@@ -74,7 +75,7 @@ class CacheItem implements CacheItemInterface
 	 * The value returned must be identical to the value originally stored by set().
 	 *
 	 * If isHit() returns false, this method MUST return null. Note that null
-	 * is a legitimate cached value, so the isHit() method SHOULD be used to
+	 * is a legitimate-cached value, so the isHit() method SHOULD be used to
 	 * differentiate between "null value was found" and "no value was found."
 	 *
 	 * @return mixed
@@ -102,10 +103,6 @@ class CacheItem implements CacheItemInterface
 	/**
 	 * Sets the value represented by this cache item.
 	 *
-	 * The $value argument may be any item that can be serialized by PHP,
-	 * although the method of serialization is left up to the Implementing
-	 * Library.
-	 *
 	 * @param mixed $value
 	 *   The serializable value to be stored.
 	 *
@@ -122,7 +119,7 @@ class CacheItem implements CacheItemInterface
 	/**
 	 * Sets the expiration time for this cache item.
 	 *
-	 * @param DateTimeInterface|null $expiration
+	 * @param DateTimeInterface|Date|Time|Timestamp|null $expiration
 	 *   The point in time after which the item MUST be considered expired.
 	 *   If null is passed explicitly, a default value MAY be used. If none is set,
 	 *   the value should be stored permanently or for as long as the
@@ -131,7 +128,7 @@ class CacheItem implements CacheItemInterface
 	 * @return static
 	 *   The called object.
 	 */
-	public function expiresAt(DateTimeInterface|null $expiration): static
+	public function expiresAt(DateTimeInterface|Date|Time|Timestamp|null $expiration): static
 	{
 		$this->expiration = $expiration ? Timestamp::factory($expiration) : null;
 		return $this;
@@ -149,8 +146,6 @@ class CacheItem implements CacheItemInterface
 	 *
 	 * @return static
 	 *   The called object.
-	 * @throws KeyNotFound
-	 * @throws Semantics
 	 */
 	public function expiresAfter(int|NativeDateInterval|null $time): static
 	{

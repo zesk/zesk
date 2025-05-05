@@ -3,6 +3,7 @@ declare(strict_types=1);
 /**
  * @copyright &copy; 2023, Market Acumen, Inc.
  */
+
 namespace zesk\CacheItemPool;
 
 use Psr\Cache\CacheItemInterface;
@@ -28,7 +29,7 @@ class NULLCacheItemPool implements CacheItemPoolInterface
 	 * @return CacheItemInterface
 	 *   The corresponding Cache Item.
 	 */
-	public function getItem($key): CacheItemInterface
+	public function getItem(string $key): CacheItemInterface
 	{
 		return new CacheItemNULL($key);
 	}
@@ -42,32 +43,24 @@ class NULLCacheItemPool implements CacheItemPoolInterface
 	 * @return array
 	 *   A traversable collection of Cache Items keyed by the cache keys of
 	 *   each item. A Cache item will be returned for each key, even if that
-	 *   key is not found. However, if no keys are specified then an empty
+	 *   key is not found. However, if no keys are specified, then an empty
 	 *   traversable MUST be returned instead.
 	 */
 	public function getItems(array $keys = []): array
 	{
-		$result = [];
-		foreach ($keys as $index => $key) {
-			$result[$index] = $this->getItem($key);
-		}
-		return $result;
+		return array_map(fn ($key) => $this->getItem($key), $keys);
 	}
 
 	/**
 	 * Confirms if the cache contains specified cache item.
 	 *
-	 * Note: This method MAY avoid retrieving the cached value for performance reasons.
-	 * This could result in a race condition with CacheItemInterface::get(). To avoid
-	 * such situation use CacheItemInterface::isHit() instead.
-	 *
 	 * @param string $key
 	 *   The key for which to check existence.
 	 *
 	 * @return bool
-	 *   True if item exists in the cache, false otherwise.
+	 *   True if an item exists in the cache, false otherwise.
 	 */
-	public function hasItem($key): bool
+	public function hasItem(string $key): bool
 	{
 		return false;
 	}
@@ -92,7 +85,7 @@ class NULLCacheItemPool implements CacheItemPoolInterface
 	 * @return bool
 	 *   True if the item was successfully removed. False if there was an error.
 	 */
-	public function deleteItem($key): bool
+	public function deleteItem(string $key): bool
 	{
 		return true;
 	}

@@ -1,23 +1,25 @@
 <?php
 declare(strict_types=1);
 /**
- * @package zesk
+ * @package    zesk
  * @subpackage Command
- * @author kent
- * @copyright Copyright &copy; 2025, Market Acumen, Inc.
+ * @author     kent
+ * @copyright  Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 
 namespace zesk\Command;
 
 use zesk\Application;
+use zesk\Exception\SemanticsException;
 use zesk\Types;
+use zesk\FilterMethod;
 
 /**
  * Turn maintenance on or off, with an optional message.
  *
  * @category Management
- * @author kent
+ * @author   kent
  *
  */
 class Maintenance extends SimpleCommand
@@ -47,7 +49,10 @@ class Maintenance extends SimpleCommand
 		}
 
 		if ($this->application->maintenance()) {
-			$message = $this->application->optionPath([Application::OPTION_MAINTENANCE, 'message']);
+			$message = $this->application->optionPath([
+				Application::OPTION_MAINTENANCE,
+				'message',
+			]);
 			if ($message) {
 				echo "$message\n";
 			}
@@ -62,8 +67,9 @@ class Maintenance extends SimpleCommand
 	 * Note this will only be called if it exists in the application as an object, usually as `->command()`
 	 *
 	 * @param Application $app
-	 * @param array $values
+	 * @param array       $values
 	 * @return array
+	 * @throws SemanticsException
 	 * @see self::maintenanceEnabled()
 	 */
 	#[FilterMethod(handles: Application::FILTER_MAINTENANCE)]

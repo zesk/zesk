@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 /**
- * @package zesk
+ * @package    zesk
  * @subpackage tools
- * @author kent
- * @copyright Copyright &copy; 2025, Market Acumen, Inc.
+ * @author     kent
+ * @copyright  Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\CSV;
@@ -22,18 +22,18 @@ use zesk\Types;
  *
  * Long description
  *
- * @package zesk
+ * @package    zesk
  * @subpackage tools
  */
-class Writer extends Base
-{
+class Writer extends Base {
+	
 	/**
 	 * Whether the headers have been written yet
 	 *
 	 * @var boolean
 	 */
-	protected bool $WroteHeaders;
-
+	protected bool $writeHeaders = false;
+	
 	/**
 	 * An array containing "map_name" => array("input_column" => "header_index", "input_column2" =>
 	 * "header_index2")
@@ -45,8 +45,8 @@ class Writer extends Base
 	 *
 	 * @var array
 	 */
-	protected array $WriteMapGroup;
-
+	protected array $writeMapGroup = [];
+	
 	/**
 	 * Default values for the write maps
 	 * Form is: "map_name" => array("input_column" => "default_value", "input_column2" =>
@@ -54,53 +54,31 @@ class Writer extends Base
 	 *
 	 * @var array
 	 */
-	protected array $WriteMapGroupDefault;
-
+	protected array $writeMapGroupDefaults = [];
+	
 	/**
 	 * Translation tables for output
 	 * Form is: "index" => translation array (old => new)
 	 *
 	 * @var array
 	 */
-	protected array $WriteTranslationMap;
-
+	protected array $writeTranslationMap = [];
+	
 	/**
 	 * Hooks to call on name/value pair row before writing
 	 *
 	 * @var array of callable
 	 */
-	protected array $write_hooks = [];
-
-	/*====================================================================================*\
-	 Instance
-	 \*------------------------------------------------------------------------------------*/
-
-	/**
-	 * Create a new CSV_Writer
-	 *
-	 * @param array $options
-	 */
-	public function __construct(array $options = [])
-	{
-		parent::__construct($options);
-		$this->WroteHeaders = false;
-		$this->WriteMapGroup = [];
-		$this->WriteMapGroupDefault = [];
-		$this->WriteTranslationMap = [];
-	}
-
-	/*====================================================================================*\
-	 CSV
-	 \*------------------------------------------------------------------------------------*/
-
+	protected array $writeHooks = [];
+	
 	/**
 	 * Get the filename to write to
 	 */
 	public function file(): string
 	{
-		return $this->FileName;
+		return $this->file;
 	}
-
+	
 	/**
 	 * @param string $f
 	 * @return self
@@ -111,11 +89,11 @@ class Writer extends Base
 	{
 		return parent::_setFile($f, 'w', true);
 	}
-
+	
 	/*====================================================================================*\
 	 * CSV Writing to current row
 	 \*------------------------------------------------------------------------------------*/
-
+	
 	/**
 	 * New empty row
 	 *
@@ -123,17 +101,17 @@ class Writer extends Base
 	 */
 	private function _writeNewRow(): array
 	{
-		return array_fill(0, count($this->Headers), '');
+		return array_fill(0, count($this->headers), '');
 	}
-
+	
 	/**
 	 * Add a mapping from an object member names to CSV file header names.
 	 *
 	 * The values passed in must exist as headers in the CSV file, otherwise an Exception\KeyNotFound is
 	 * thrown.
 	 *
-	 * @param string $name
-	 * @param array $map
+	 * @param string     $name
+	 * @param array      $map
 	 * @param array|null $defaultMap
 	 * @return self
 	 * @throws KeyNotFound
@@ -141,7 +119,7 @@ class Writer extends Base
 	 */
 	public function add_object_map(string $name, array $map, array $defaultMap = null): self
 	{
-		if (!count($this->HeadersToIndex)) {
+		if (!count($this->headersToIndex)) {
 			throw new ProtocolException("Need to set headers prior to setting a translation map ($name)");
 		}
 		$this->headers();
@@ -151,25 +129,25 @@ class Writer extends Base
 				throw new KeyNotFound('Column {column} is not a string', ['column' => $column]);
 			}
 			$column = strtolower($column);
-			if (!isset($this->HeadersToIndex[strtolower($column)])) {
+			if (!isset($this->headersToIndex[strtolower($column)])) {
 				throw new KeyNotFound('{method}({name},...): {column} not found in headers {headers}', [
 					'method'  => __METHOD__,
 					'name'    => $name,
-					'headers' => JSON::encode($this->HeadersToIndex),
+					'headers' => JSON::encode($this->headersToIndex),
 					'column'  => $column,
 				]);
 			} else {
-				$indexes = $this->HeadersToIndex[$column];
+				$indexes = $this->headersToIndex[$column];
 				$mapGroup[strtolower($member)] = $indexes;
 			}
 		}
-		$this->WriteMapGroup[strtolower($name)] = $mapGroup;
+		$this->writeMapGroup[strtolower($name)] = $mapGroup;
 		if (is_array($defaultMap)) {
-			$this->WriteMapGroupDefault[strtolower($name)] = array_change_key_case($defaultMap);
+			$this->writeMapGroupDefaults[strtolower($name)] = array_change_key_case($defaultMap);
 		}
 		return $this;
 	}
-
+	
 	/**
 	 * Add a translation map for a column which is a boolean value
 	 *
@@ -177,13 +155,13 @@ class Writer extends Base
 	 */
 	public function object_names(): array
 	{
-		return array_keys($this->WriteMapGroup);
+		return array_keys($this->writeMapGroup);
 	}
-
+	
 	/**
 	 * Add an output translation map for boolean values
 	 *
-	 * @param mixed $column_names
+	 * @param mixed  $column_names
 	 *            List of column names
 	 * @param string $no
 	 *            The no string to output
@@ -202,40 +180,40 @@ class Writer extends Base
 		]);
 		return $this;
 	}
-
+	
 	/**
 	 * Set up a mapping of values when writing
 	 *
 	 * @param array|string $column_names List or single column name
-	 * @param array $map
-	 *            A list of values to map to and from upon writing
+	 * @param array        $map
+	 *                                   A list of values to map to and from upon writing
 	 * @return self
 	 * @throws KeyNotFound
 	 * @throws ProtocolException
 	 */
 	public function add_translation_map(array|string $column_names, array $map): self
 	{
-		if (!count($this->HeadersToIndex)) {
+		if (!count($this->headersToIndex)) {
 			throw new ProtocolException("Need to set headers prior to setting a translation map ($column_names)");
 		}
 		$column_names = Types::toList($column_names);
 		foreach ($column_names as $column_name) {
 			$column_name = strtolower($column_name);
-			$index = $this->HeadersToIndex[$column_name] ?? null;
+			$index = $this->headersToIndex[$column_name] ?? null;
 			if ($index === null) {
 				throw new KeyNotFound("CSV_Writer::add_translation_map($column_name, ...) Column not found");
 			}
 			foreach (Types::toList($index) as $index) {
-				$this->WriteTranslationMap[$index] = $map;
+				$this->writeTranslationMap[$index] = $map;
 			}
 		}
 		return $this;
 	}
-
+	
 	/**
 	 *
-	 * @param string $name Name of an existing object map
-	 * @param array $fields ORM to write to row (name/value pairs)
+	 * @param string $name   Name of an existing object map
+	 * @param array  $fields ORM to write to row (name/value pairs)
 	 * @return array Written row
 	 * @throws KeyNotFound
 	 * @see createORMMap
@@ -243,39 +221,39 @@ class Writer extends Base
 	public function setObject(string $name, array $fields): array
 	{
 		$lowName = strtolower($name);
-		if (!isset($this->WriteMapGroup[$lowName])) {
+		if (!isset($this->writeMapGroup[$lowName])) {
 			throw new KeyNotFound("CSV::set_object($name) doesn't exist");
 		}
-
-
+		
+		
 		$fields = array_change_key_case($fields);
-
-		if (is_array($this->WriteMapGroupDefault[$lowName] ?? false)) {
-			foreach ($this->WriteMapGroupDefault[$lowName] as $k => $v) {
+		
+		if (is_array($this->writeMapGroupDefaults[$lowName] ?? false)) {
+			foreach ($this->writeMapGroupDefaults[$lowName] as $k => $v) {
 				$fields[$k] ??= $v;
 			}
 		}
-
-		if (!count($this->Row)) {
-			$this->Row = $this->_writeNewRow();
+		
+		if (!count($this->row)) {
+			$this->row = $this->_writeNewRow();
 		}
-
-		$g = $this->WriteMapGroup[$lowName];
+		
+		$g = $this->writeMapGroup[$lowName];
 		foreach ($fields as $k => $v) {
 			$k = strtolower($k);
 			if (isset($g[$k])) {
 				if (is_array($g[$k])) {
 					foreach ($g[$k] as $i) {
-						$this->Row[$i] = $v;
+						$this->row[$i] = $v;
 					}
 				} else {
-					$this->Row[$g[$k]] = $v;
+					$this->row[$g[$k]] = $v;
 				}
 			}
 		}
-		return $this->Row;
+		return $this->row;
 	}
-
+	
 	/**
 	 * @param array $row
 	 * @return void
@@ -283,32 +261,32 @@ class Writer extends Base
 	public function setRow(array $row): void
 	{
 		if (count($row) === 0) {
-			$this->Row = $row;
+			$this->row = $row;
 			return;
 		}
-		if (count($this->HeadersToIndex)) {
-			foreach ($this->write_hooks as $hook) {
+		if (count($this->headersToIndex)) {
+			foreach ($this->writeHooks as $hook) {
 				$row = call_user_func($hook, $row);
 			}
 			foreach ($row as $k => $v) {
 				$lowKey = strtolower($k);
-				$i = $this->HeadersToIndex[$lowKey] ?? null;
+				$i = $this->headersToIndex[$lowKey] ?? null;
 				if ($i === null) {
 					continue;
 				}
-				$this->Row[$i] = $v;
+				$this->row[$i] = $v;
 			}
-			ksort($this->Row);
+			ksort($this->row);
 		} else {
-			$this->Row = array_values($row);
+			$this->row = array_values($row);
 		}
 	}
-
+	
 	/**
 	 * Set a column value for the current row.
 	 *
 	 * @param string $col
-	 * @param mixed $data
+	 * @param mixed  $data
 	 * @return bool
 	 */
 	public function setColumn(string $col, mixed $data): bool
@@ -316,16 +294,16 @@ class Writer extends Base
 		if (empty($col)) {
 			return false;
 		}
-		$i = $this->HeadersToIndex[strtolower($col)] ?? null;
+		$i = $this->headersToIndex[strtolower($col)] ?? null;
 		if ($i === null) {
 			return false;
 		}
 		foreach (Types::toList($i) as $i) {
-			$this->Row[$i] = $data;
+			$this->row[$i] = $data;
 		}
 		return true;
 	}
-
+	
 	/**
 	 * @return void
 	 * @throws ProtocolException
@@ -333,28 +311,28 @@ class Writer extends Base
 	public function writeRow(): void
 	{
 		$this->_check_file();
-		if (!count($this->Row)) {
+		if (!count($this->row)) {
 			throw new ProtocolException('CSV_Writer:writeRow: Must set row values first');
 		}
 		$headers = $this->headers();
-		if (!$this->WroteHeaders && $this->optionBool('write_header', true)) {
+		if (!$this->writeHeaders && $this->optionBool('write_header', true)) {
 			fwrite($this->File, $this->_formatRow($headers));
-			$this->RowIndex = 0;
-			$this->WroteHeaders = true;
+			$this->rowIndex = 0;
+			$this->writeHeaders = true;
 		}
-		foreach ($this->WriteTranslationMap as $k => $v) {
-			$values = Types::toList($this->Row[$k] ?? '');
+		foreach ($this->writeTranslationMap as $k => $v) {
+			$values = Types::toList($this->row[$k] ?? '');
 			$result = [];
 			foreach ($values as $value) {
 				$result[] = $v[$value] ?? $value;
 			}
-			$this->Row[$k] = implode(', ', $result);
+			$this->row[$k] = implode(', ', $result);
 		}
-		fwrite($this->File, $this->_formatRow($this->Row));
-		$this->RowIndex += 1;
-		$this->Row = [];
+		fwrite($this->File, $this->_formatRow($this->row));
+		$this->rowIndex += 1;
+		$this->row = [];
 	}
-
+	
 	/**
 	 * Enter description here...
 	 *
@@ -363,8 +341,8 @@ class Writer extends Base
 	 */
 	protected function _formatRow(array $row): string
 	{
-		$d = $this->Delimiter;
-		$e = $this->Enclosure;
+		$d = $this->delimiter;
+		$e = $this->enclosure;
 		$rowOut = [];
 		$pattern = '/[' . preg_quote("$e$d") . '\s]/';
 		foreach ($row as $cell) {
@@ -375,7 +353,7 @@ class Writer extends Base
 		}
 		return implode($d, $rowOut) . "\n";
 	}
-
+	
 	/**
 	 *
 	 * @param callable $callable
@@ -384,7 +362,7 @@ class Writer extends Base
 	public function addWriteHook(callable $callable): self
 	{
 		$name = Hooks::callableString($callable);
-		$this->write_hooks[$name] = $callable;
+		$this->writeHooks[$name] = $callable;
 		return $this;
 	}
 }

@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 /**
- * @package zesk
+ * @package    zesk
  * @subpackage ORM
- * @author kent
- * @copyright Copyright &copy; 2025, Market Acumen, Inc.
+ * @author     kent
+ * @copyright  Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Doctrine;
@@ -16,33 +16,43 @@ use Doctrine\ORM\Mapping\JoinColumn;
 use Doctrine\ORM\Mapping\ManyToOne;
 use Doctrine\ORM\Mapping\UniqueConstraint;
 use zesk\Application;
+use zesk\Doctrine\Trait\AutoID;
 
 /**
  * @author kent
- * @property int $id
+ * @property int    $id
  * @property Server $server
  * @property string $name
- * @property mixed $value
+ * @property mixed  $value
  */
 #[Entity]
-#[UniqueConstraint(name: 'serverName', fields: ['server', 'name'])]
-class ServerMeta extends Model
-{
+#[UniqueConstraint(name: 'serverName', fields: [
+	'server',
+	'name',
+])]
+class ServerMeta extends Model {
+	
+	use AutoID;
+	
 	#[ManyToOne(targetEntity: Server::class)]
 	#[JoinColumn(name: 'server')]
 	public Server $server;
-
+	
 	#[Column(type: 'string', nullable: false)]
 	public string $name;
-
+	
 	#[Column(type: 'json', nullable: false)]
 	public mixed $value;
-
+	
 	public function __construct(Application $application, Server $server, string $name, mixed $value, array $options = [])
 	{
-		parent::__construct($application, ['server' => $server, 'name' => $name, 'value' => $value], $options);
+		parent::__construct($application, [
+			'server' => $server,
+			'name'   => $name,
+			'value'  => $value,
+		], $options);
 	}
-
+	
 	/**
 	 * Delete all data associated with server
 	 *
@@ -55,18 +65,21 @@ class ServerMeta extends Model
 		$query = $em->createQueryBuilder()->delete(self::class)->where(['server' => $server])->getQuery();
 		$query->execute();
 	}
-
+	
 	/**
 	 * @param Server $server
 	 * @param string $name
-	 * @param mixed $value
+	 * @param mixed  $value
 	 * @return static
 	 * @throws ORMException
 	 */
 	public static function register(Server $server, string $name, mixed $value): self
 	{
 		$em = $server->em;
-		$meta = $em->getRepository(self::class)->findOneBy(['server' => $server, 'name' => $name]);
+		$meta = $em->getRepository(self::class)->findOneBy([
+			'server' => $server,
+			'name'   => $name,
+		]);
 		if (!$meta) {
 			$meta = new self($server->application, $server, $name, $value);
 		} else {

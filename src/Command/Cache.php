@@ -12,6 +12,7 @@ namespace zesk\Command;
 use zesk\Exception\ClassNotFound;
 use zesk\Exception\DirectoryPermission;
 use zesk\Exception\FilePermission;
+use zesk\Exception\ParameterException;
 
 /**
  * Cache commands. Takes a single argument: "clear" or "print" to print the class in the application.
@@ -43,7 +44,16 @@ class Cache extends SimpleCommand
 
 	protected function run_arg($arg)
 	{
-		$methods = ['clear' => [$this, '_exec_clear'], 'print' => [$this, '_exec_print']];
+		$methods = [
+			'clear' => [
+				$this,
+				'_exec_clear',
+			],
+			'print' => [
+				$this,
+				'_exec_print',
+			],
+		];
 		$method = $methods[$arg] ?? null;
 		if ($method) {
 			return call_user_func($method);
@@ -64,7 +74,7 @@ class Cache extends SimpleCommand
 	 * @return int
 	 * @throws ClassNotFound
 	 * @throws DirectoryPermission
-	 * @throws FilePermission
+	 * @throws FilePermission|ParameterException
 	 */
 	protected function _exec_clear(): int
 	{

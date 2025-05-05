@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 /**
- * @package zesk
+ * @package    zesk
  * @subpackage Command
- * @author kent
- * @copyright Copyright &copy; 2025, Market Acumen, Inc.
+ * @author     kent
+ * @copyright  Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Command;
@@ -13,7 +13,6 @@ use Throwable;
 use zesk\ArrayTools;
 use zesk\Directory;
 use zesk\Exception;
-use zesk\Exception\ClassNotFound;
 use zesk\Exception\CommandFailed;
 use zesk\Exception\ConfigurationException;
 use zesk\Exception\ConnectionFailed;
@@ -21,20 +20,23 @@ use zesk\Exception\DirectoryCreate;
 use zesk\Exception\DirectoryNotFound;
 use zesk\Exception\DirectoryPermission;
 use zesk\Exception\DomainLookupFailed;
-use zesk\Exception\FileNotFound;
 use zesk\Exception\FilePermission;
 use zesk\Exception\NotFoundException;
 use zesk\Exception\ParameterException;
 use zesk\Exception\ParseException;
-use zesk\Exception\ProtocolException;
+use zesk\Configuration;
+use zesk\Exception\SemanticsException;
+use zesk\Exception\SyntaxException;
 use zesk\Exception\SystemException;
 use zesk\Exception\UnsupportedException;
 use zesk\File;
 use zesk\JSON;
 use zesk\Module;
 use zesk\Net\HTTP\Client;
+use zesk\Net\HTTP\Client\Exception as ClientException;
 use zesk\PHP;
 use zesk\Repository\Base as Repository;
+use zesk\RuntimeException;
 use zesk\StringTools;
 use zesk\Types;
 use zesk\URL;
@@ -46,6 +48,12 @@ use zesk\URL;
  */
 class Update extends SimpleCommand
 {
+	protected array $shortcuts = [
+		'update',
+		'u',
+		'up',
+	];
+
 	public const HOOK_UPDATE = __CLASS__ . '::update';
 
 	public const HOOK_UPDATED = __CLASS__ . '::updated';
@@ -121,8 +129,12 @@ class Update extends SimpleCommand
 
 	/**
 	 * @return int
-	 * @throws ClassNotFound
+	 * @throws ConfigurationException
+	 * @throws SemanticsException
+	 * @throws FilePermission
+	 * @throws NotFoundException
 	 * @throws ParameterException
+	 * @throws SystemException
 	 */
 	public function run(): int
 	{
@@ -142,16 +154,19 @@ class Update extends SimpleCommand
 
 		if ($this->hasOption('source-control')) {
 			$vc = $this->option('source-control');
-			$this->repo = Repository::factory($this->application, $vc);
-			if (!$this->repo) {
-				$this->usage('No version-control of type "{type}" available', [
-					'type' => $vc,
-				]);
-				return 1;
-			} else {
+
+			try {
+				$this->repo = Repository::factory($this->application, $vc);
 				$this->verboseLog('Using repository {type}', [
 					'type' => $vc,
 				]);
+			} catch (Exception $e) {
+				$this->usage('No version-control of type "{type}" available: {message}', [
+					'type'      => $vc,
+					'exception' => $e,
+					'message'   => $e->getMessage(),
+				]);
+				return 1;
 			}
 		}
 
@@ -199,37 +214,37 @@ class Update extends SimpleCommand
 	private function modules_from_module_paths(): array
 	{
 		$modules = [];
-		$paths = $this->application->modulePath();
+		$paths = $this->application->paths();
 		if (count($paths) === 0) {
 			$this->verboseLog('No module paths configured');
 		}
 		foreach ($paths as $path) {
 			$globbed = array_merge(glob(Directory::path($path, '*/*.module.conf')), glob(Directory::path($path, '*/*/*.module
 			.conf')), glob(Directory::path($path, '*/*.module.json')), glob(Directory::path($path, '*/*/*.module.json')));
-			if (is_array($globbed)) {
-				$count = count($globbed);
-				$locale = $this->application->locale;
-				$this->verboseLog($locale('Module path {path}: {count} {modules}'), [
-					'path'    => $path,
-					'count'   => $count,
-					'modules' => $locale->plural($locale('module'), $count),
-				]);
-				foreach ($globbed as $glob) {
-					$moduleName = StringTools::removePrefix(dirname($glob), rtrim($path, '/') . 'Update.php/');
-					$moduleObject = $this->application->modules->load($moduleName);
-					if ($moduleObject->moduleConfigurationFile()) {
-						$modules[$moduleName] = $moduleObject;
-						$this->verboseLog('Module {name} loaded configuration {configurationFile}', $moduleObject->moduleData());
-					} else {
-						$this->application->warning('{name} does not have an associated configuration file', [
-							'name' => $moduleName,
-						]);
-					}
-				}
-			} else {
+			$count = count($globbed);
+			if ($count === 0) {
 				$this->verboseLog('Module path {path}: no modules found', [
 					'path' => $path,
 				]);
+				continue;
+			}
+			$locale = $this->application->locale;
+			$this->verboseLog($locale('Module path {path}: {count} {modules}'), [
+				'path'    => $path,
+				'count'   => $count,
+				'modules' => $locale->plural($locale->__('module'), $count),
+			]);
+			foreach ($globbed as $glob) {
+				$moduleName = StringTools::removePrefix(dirname($glob), rtrim($path, '/') . 'Update.php/');
+				$moduleObject = $this->application->modules->load($moduleName);
+				if ($moduleObject->moduleConfigurationFile()) {
+					$modules[$moduleName] = $moduleObject;
+					$this->verboseLog('Module {name} loaded configuration {configurationFile}', $moduleObject->moduleData());
+				} else {
+					$this->application->warning('{name} does not have an associated configuration file', [
+						'name' => $moduleName,
+					]);
+				}
 			}
 		}
 		return $modules;
@@ -331,7 +346,7 @@ class Update extends SimpleCommand
 	 */
 	private function composerHasInstalled(string $dependency): bool
 	{
-		[$package] = StringTools::reversePair($dependency, ':', $dependency, '');
+		[$package] = StringTools::reversePair($dependency, ':', $dependency);
 		return array_key_exists($package, $this->composer_packages);
 	}
 
@@ -349,11 +364,10 @@ class Update extends SimpleCommand
 	 * @return $this
 	 * @throws Exception\FilePermission
 	 */
-	private function updateDatabase(array $set): self
+	private function updateDatabase(array $set): void
 	{
 		$path = $this->application->path('.update.json');
 		File::put($path, JSON::encodePretty($set));
-		return $this;
 	}
 
 	/**
@@ -403,7 +417,7 @@ class Update extends SimpleCommand
 		$force_check = $this->optionBool('force-check');
 		$now = time();
 		$data = $module->moduleConfiguration();
-		if (!ArrayTools::hasAnyKey($data, [
+		if (!$data->getFirst([
 			'url',
 			'urls',
 			'versions',
@@ -417,7 +431,7 @@ class Update extends SimpleCommand
 		}
 		$this->info("Updating $moduleName");
 		$composer_updates = false;
-		if (ArrayTools::has($data, 'composer')) {
+		if ($data->has('composer')) {
 			$composer_updates = $this->composerUpdate($data);
 		}
 		$locale = $this->application->locale;
@@ -434,7 +448,12 @@ class Update extends SimpleCommand
 				}
 			}
 		}
-		$edits = $this->fetch($this->app_data + $state_data + $module->moduleData() + $data);
+
+		try {
+			$edits = $this->fetch($this->app_data + $state_data + $module->moduleData() + $data);
+		} catch (Exception $e) {
+			$edits = $e;
+		}
 		$did_updates = $composer_updates || (is_array($edits) && count($edits) > 0);
 		$this->_runModuleHook($moduleName, $did_updates ? self::HOOK_UPDATED : self::HOOK_UPDATE);
 		if ($did_updates) {
@@ -503,13 +522,13 @@ class Update extends SimpleCommand
 	/**
 	 * Update composer data as part of a module
 	 *
-	 * @param array $data
+	 * @param Configuration $data
 	 * @return bool
 	 * @throws CommandFailed
 	 * @throws ConfigurationException
 	 * @throws Exception\SyntaxException
 	 */
-	private function composerUpdate(array $data)
+	private function composerUpdate(Configuration $data): bool
 	{
 		$name = $data['name'] ?? null;
 		$composer = $data['composer'] ?? null;
@@ -529,7 +548,7 @@ class Update extends SimpleCommand
 		])) {
 			return true;
 		}
-		$composer_version = Types::toArray($application->modules->configuration($name)['composerVersion'] ?? []);
+		$composer_version = $application->modules->configuration($name)->getList('composerVersion');
 		$composer_require = Types::toList($composer['require'] ?? null);
 		$composer_require_dev = Types::toList($composer['require-dev'] ?? null);
 		chdir($application->path());
@@ -543,11 +562,11 @@ class Update extends SimpleCommand
 				if (!is_string($require)) {
 					$logger->error('Module {name} {conf_path} composer.require is not a string? {type}', [
 						'type' => Types::type($require),
-					] + $data);
+					] + $data->toArray());
 
 					continue;
 				}
-				[$component] = StringTools::pair($require, ':', $require, '');
+				[$component] = StringTools::pair($require, ':', $require);
 				if (array_key_exists($component, $composer_version)) {
 					$require = $component . ':' . $composer_version[$component];
 				}
@@ -579,12 +598,14 @@ class Update extends SimpleCommand
 	 *
 	 * @param string $url
 	 * @return string[]
+	 * @throws ClientException
+	 * @throws ConnectionFailed
 	 * @throws DirectoryCreate
 	 * @throws DirectoryPermission
 	 * @throws DomainLookupFailed
+	 * @throws FilePermission
 	 * @throws NotFoundException
 	 * @throws ParameterException
-	 * @throws SystemException
 	 * @throws UnsupportedException
 	 */
 	private function _fetchURL(string $url): array
@@ -595,7 +616,12 @@ class Update extends SimpleCommand
 		$temp_file_name = File::temporary($this->application->paths->temporary());
 		$client->setFollowLocation(true);
 		$client->setUserAgent('Mozilla/5.0 (Macintosh; Intel Mac OS X 10.7; rv:12.0) Gecko/20100101 Firefox/12.0');
-		$client->setDestination($temp_file_name);
+
+		try {
+			$client->setDestination($temp_file_name);
+		} catch (DirectoryNotFound $e) {
+			throw new RuntimeException(__METHOD__ . ': ' . $e->getMessage() . ' File::temporary returned file in directory not found');
+		}
 		$this->verboseLog("Downloading $url ... ");
 		$client->go();
 		$response_code = $client->response_code_type();
@@ -677,14 +703,9 @@ class Update extends SimpleCommand
 	/**
 	 *
 	 * @param array $data
-	 * @return self|null
-	 * @throws DirectoryCreate
-	 * @throws DirectoryNotFound
-	 * @throws DirectoryPermission
-	 * @throws FileNotFound
-	 * @throws ProtocolException
+	 * @return array|null
 	 */
-	private function fetch(array $data): self|null
+	private function fetch(array $data): array|null
 	{
 		$name = $data['name'] ?? null;
 		$hashes = $data['hashes'] ?? null;
@@ -845,7 +866,6 @@ class Update extends SimpleCommand
 	 * @param string $cmd
 	 * @return string
 	 * @throws NotFoundException
-	 * @throws Semantics
 	 */
 	private function _whichCommand(string $cmd): string
 	{
@@ -857,9 +877,8 @@ class Update extends SimpleCommand
 			'command' => $cmd,
 			'path'    => implode(':', $this->application->commandPath()),
 		];
-		$message = $this->application->theme('error/update-command-not-found', $args);
 
-		throw new NotFoundException($message, $args);
+		throw new NotFoundException('{command} not found in path: {path}', $args);
 	}
 
 	/**
@@ -885,11 +904,10 @@ class Update extends SimpleCommand
 
 	/**
 	 * @param array $data
-	 * @return bool|null
+	 * @return bool
 	 * @throws DirectoryCreate
 	 * @throws DirectoryNotFound
 	 * @throws DirectoryPermission
-	 * @throws FileNotFound
 	 * @throws FilePermission
 	 * @throws ParameterException
 	 */
@@ -965,7 +983,7 @@ class Update extends SimpleCommand
 				'name'   => $data['name'],
 			]);
 			Directory::copy($source, $dest, true);
-		} catch (DirectoryCreate|DirectoryNotFound|DirectoryPermission|FileNotFound|FilePermission
+		} catch (DirectoryCreate|DirectoryNotFound|DirectoryPermission|FilePermission
 		$e) {
 			$this->debugLog('failed because of {e} ... rolling back', [
 				'e' => $e,
@@ -985,8 +1003,8 @@ class Update extends SimpleCommand
 	 * paths within the archive.
 	 *
 	 * @param string $temp_directory_name Path of temporary path for work. MUST be a valid directory.
-	 * @param string $final_destination The final destination path. MUST be a valid directory.
-	 * @param mixed $strip_components Number of diretories to strip, or filename patterns to match/remove
+	 * @param string $final_destination   The final destination path. MUST be a valid directory.
+	 * @param mixed  $strip_components    Number of diretories to strip, or filename patterns to match/remove
 	 * @return boolean
 	 * @throws FilePermission
 	 */
@@ -1089,7 +1107,7 @@ class Update extends SimpleCommand
 	}
 
 	/**
-	 * @param array $data
+	 * @param array  $data
 	 * @param string $destination
 	 * @return string
 	 */
@@ -1166,9 +1184,9 @@ class Update extends SimpleCommand
 	/**
 	 * Unpack generic command.
 	 *
-	 * @param array $args
-	 * @param string $destination
-	 * @param string $actual_destination
+	 * @param array      $args
+	 * @param string     $destination
+	 * @param string     $actual_destination
 	 * @param int|string $strip_components
 	 * @return bool
 	 * @throws DirectoryNotFound

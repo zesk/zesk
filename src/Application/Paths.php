@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 /**
- * @package zesk
+ * @package    zesk
  * @subpackage kernel
- * @author kent
- * @copyright &copy; 2023, Market Acumen, Inc.
+ * @author     kent
+ * @copyright  &copy; 2023, Market Acumen, Inc.
  */
 
 namespace zesk\Application;
@@ -32,7 +32,8 @@ class Paths
 	public const ENVIRONMENT_HOME = 'HOME';
 
 	/**
-	 * Value is : or ; separated list of paths
+	 * Value is `:`-separated (*nix) or `;`-separated (MS) list of paths
+	 *
 	 * @see self::command()
 	 * @see self::addCommand()
 	 * @var string
@@ -95,7 +96,7 @@ class Paths
 	private array $which_cache = [];
 
 	/**
-	 * Paths constructor.
+	 * `Paths` constructor.
 	 *
 	 * Modifies $configuration by setting keys in Application::class and self::ENVIRONMENT_HOME
 	 *
@@ -124,11 +125,11 @@ class Paths
 	 */
 	private function _initializeZesk(): array
 	{
-		$zeskRoot = realpath(dirname(__DIR__, 3)) . '/';
+		$zeskRoot = realpath(dirname(__DIR__, 2)) . '/';
 		if (!defined('ZESK_ROOT')) {
 			define('ZESK_ROOT', $zeskRoot);
 		} elseif (ZESK_ROOT !== $zeskRoot) {
-			die('Two versions of zesk: First "' . ZESK_ROOT . "\", then us \"$zeskRoot\"\n");
+			die('Two versions of zesk: First "' . ZESK_ROOT . "\", then as \"$zeskRoot\"\n");
 		}
 		return [Application::OPTION_ZESK_ROOT => $zeskRoot];
 	}
@@ -146,11 +147,11 @@ class Paths
 	public function configure(array $options): array
 	{
 		$setters = [
-			Application::OPTION_PATH => $this->setApplication(...),
-			Application::OPTION_CACHE_PATH => $this->setTemporary(...),
-			Application::OPTION_COMMAND_PATH => $this->addCommand(...),
-			Application::OPTION_DATA_PATH => $this->setData(...),
-			Application::OPTION_HOME_PATH => $this->setHome(...),
+			Application::OPTION_PATH           => $this->setApplication(...),
+			Application::OPTION_CACHE_PATH     => $this->setTemporary(...),
+			Application::OPTION_COMMAND_PATH   => $this->addCommand(...),
+			Application::OPTION_DATA_PATH      => $this->setData(...),
+			Application::OPTION_HOME_PATH      => $this->setHome(...),
 			Application::OPTION_USER_HOME_PATH => $this->setUserHome(...),
 		];
 		foreach ($setters as $key => $setter) {
@@ -187,7 +188,7 @@ class Paths
 
 	/**
 	 * Set the home path for the user. Supports expand paths.
-	 * Stored as expanded path.
+	 * Stored as the expanded path.
 	 *
 	 * @param string $home
 	 * @return $this
@@ -278,7 +279,7 @@ class Paths
 
 	/**
 	 * Get the system command path, usually defined by the system environment variable PATH
-	 * The path is set from $_SERVER['PATH'] and it is assumed that paths are separated with PATH_SEPARATOR token
+	 * The path is set from `$_SERVER['PATH']`, and it is assumed that paths are separated with `PATH_SEPARATOR` token
 	 *
 	 * @return array
 	 * @see self::which
@@ -289,12 +290,13 @@ class Paths
 	}
 
 	/**
-	 * Get the system command path, usually defined by the system environment variable PATH
-	 * The path is set from $_SERVER['PATH'] and it is assumed that paths are separated with PATH_SEPARATOR token
+	 * Add to the system command path, usually defined by the system environment variable PATH
+	 * The path is set from `$_SERVER['PATH']`, and it is assumed that paths are separated with `PATH_SEPARATOR` token
 	 *
 	 * @param string $add
 	 * @return $this
 	 * @see self::which
+	 * @see self::ENVIRONMENT_PATH
 	 */
 	public function addCommand(string $add): self
 	{
@@ -310,7 +312,7 @@ class Paths
 	}
 
 	/**
-	 * Get temporary path, optionally adding a suffix to the path
+	 * Get the temporary path, optionally adding a suffix to the path.
 	 *
 	 * @param string $suffix
 	 * @return string
@@ -338,7 +340,7 @@ class Paths
 	 * If not a directory, or global not set, returns null
 	 *
 	 * @param string $suffix
-	 *            Added file or directory to add to home path
+	 *            Added file or directory to add to the home path
 	 * @return string Path to file within the current user's home path
 	 */
 	public function home(string $suffix = ''): string
@@ -352,7 +354,7 @@ class Paths
 	 *
 	 * Defaults to $HOME/.zesk/
 	 *
-	 * @param string $suffix Append to uid path
+	 * @param string $suffix Append to the user home path.
 	 * @return string
 	 */
 	public function userHome(string $suffix = ''): string
@@ -439,7 +441,8 @@ class Paths
 		}
 
 		throw new NotFoundException('{command} not found in {paths}', [
-			'command' => $command, 'paths' => $this->command(),
+			'command' => $command,
+			'paths'   => $this->command(),
 		]);
 	}
 
@@ -451,8 +454,13 @@ class Paths
 	public function variables(): array
 	{
 		return [
-			'zesk' => ZESK_ROOT, 'application' => $this->application, 'temporary' => $this->temporary,
-			'data' => $this->data, 'home' => $this->home, 'uid' => $this->userHome, 'command' => $this->command(),
+			'zesk'        => ZESK_ROOT,
+			'application' => $this->application,
+			'temporary'   => $this->temporary,
+			'data'        => $this->data,
+			'home'        => $this->home,
+			'uid'         => $this->userHome,
+			'command'     => $this->command(),
 		];
 	}
 }

@@ -50,7 +50,7 @@ class Hooks
 	public const HOOK_EXIT = 'exit';
 
 	/**
-	 * Output a debug log when a class is called with ::hooks but does not implement it
+	 * Output a debug log when a class is called with `::hooks` but does not implement it
 	 *
 	 * @var boolean
 	 */
@@ -86,8 +86,13 @@ class Hooks
 	}
 
 	private static array $fatalErrors = [
-		E_USER_ERROR => 'Fatal Error', E_ERROR => 'Fatal Error', E_PARSE => 'Parse Error', E_CORE_ERROR => 'Core Error',
-		E_CORE_WARNING => 'Core Warning', E_COMPILE_ERROR => 'Compile Error', E_COMPILE_WARNING => 'Compile Warning',
+		E_USER_ERROR      => 'Fatal Error',
+		E_ERROR           => 'Fatal Error',
+		E_PARSE           => 'Parse Error',
+		E_CORE_ERROR      => 'Core Error',
+		E_CORE_WARNING    => 'Core Warning',
+		E_COMPILE_ERROR   => 'Compile Error',
+		E_COMPILE_WARNING => 'Compile Warning',
 	];
 
 	/**
@@ -143,8 +148,9 @@ class Hooks
 		}
 		if (($isType = $this->hooksQueueType[$hookName]) !== $isFilter) {
 			throw new RuntimeException('{hookName} accessed as a {accessedAs} but created as {createdAs}}', [
-				'hookName' => $hookName, 'accessedAs' => $isFilter ? 'filter' : 'hook',
-				'createdAs' => $isType ? 'filter' : 'hook',
+				'hookName'   => $hookName,
+				'accessedAs' => $isFilter ? 'filter' : 'hook',
+				'createdAs'  => $isType ? 'filter' : 'hook',
 			]);
 		}
 	}
@@ -195,7 +201,7 @@ class Hooks
 	}
 
 	/**
-	 * Convert a callable to a string for output/debugging. Blank for anything which
+	 * Convert a callable to a string for output/debugging. Blank for anything that
 	 * is not a unique ID.
 	 *
 	 * @param mixed $callable

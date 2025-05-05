@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace zesk;
 
+use zesk\Exception\KeyNotFound;
 use zesk\Interface\SettingsInterface;
 
 /**
@@ -18,6 +19,9 @@ class bash
 	 */
 	private const UNQUOTE_PAIRS = '\'\'""';
 
+	/**
+	 * @throws KeyNotFound
+	 */
 	public static function substitute($value, SettingsInterface $settings, ?array &$dependencies = null, bool $lower_dependencies = false)
 	{
 		if (!is_array($dependencies)) {
@@ -36,10 +40,14 @@ class bash
 				$variable = $match[1];
 				$default_value = '';
 				foreach ([
-					':-', ':=',
+					':-',
+					':=',
 				] as $sep) {
 					if (str_contains($variable, $sep)) {
-						[$variable, $default_value] = explode($sep, $variable, 2);
+						[
+							$variable,
+							$default_value,
+						] = explode($sep, $variable, 2);
 						$default_value = StringTools::unquote($default_value, self::UNQUOTE_PAIRS);
 						break;
 					}
@@ -55,7 +63,8 @@ class bash
 			return $value;
 		}
 		foreach ([
-			'/\$([A-Za-z0-9_]+)/', '/\$\{([^}]+)\}/',
+			'/\$([A-Za-z0-9_]+)/',
+			'/\$\{([^}]+)\}/',
 		] as $pattern) {
 			// Correctly handle $FOO values within a set value (like sh or bash would support)
 			if (preg_match_all($pattern, $value, $matches, PREG_SET_ORDER)) {

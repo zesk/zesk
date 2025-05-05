@@ -3,10 +3,13 @@ declare(strict_types=1);
 /**
  * @copyright &copy; 2023, Market Acumen, Inc.
  */
-namespace zesk;
+
+namespace zesk\CacheItemPool;
 
 use Psr\Cache\CacheItemInterface;
 use Psr\Cache\CacheItemPoolInterface;
+use zesk\CacheItem;
+use InvalidArgumentException;
 
 /**
  * The most basic of caching, storing everything in PHP memory as an array of keyed values.
@@ -14,13 +17,13 @@ use Psr\Cache\CacheItemPoolInterface;
  * @author kent
  * @see CacheItem
  */
-class CacheItemPool_Array implements CacheItemPoolInterface
+class MemoryPool implements CacheItemPoolInterface
 {
 	/**
 	 *
 	 * @var array
 	 */
-	private $items = [];
+	private array $items = [];
 
 	/**
 	 * Returns a Cache Item representing the specified key.
@@ -31,12 +34,12 @@ class CacheItemPool_Array implements CacheItemPoolInterface
 	 * @param string $key
 	 *   The key for which to return the corresponding Cache Item.
 	 *
-	 * @throws InvalidArgumentException
-	 *   If the $key string is not a legal value a \Psr\Cache\InvalidArgumentException
-	 *   MUST be thrown.
-	 *
 	 * @return CacheItemInterface
 	 *   The corresponding Cache Item.
+	 * @throws InvalidArgumentException
+	 *   If the $key string is not a legal value, a \Psr\Cache\InvalidArgumentException
+	 *   MUST be thrown.
+	 *
 	 */
 	public function getItem(string $key): CacheItemInterface
 	{
@@ -50,43 +53,35 @@ class CacheItemPool_Array implements CacheItemPoolInterface
 	 * Returns a traversable set of cache items.
 	 *
 	 * @param string[] $keys
-	 *   An indexed array of keys of items to retrieve.
+	 *   Keys of items to retrieve.
 	 *
-	 * @throws InvalidArgumentException
-	 *   If any of the keys in $keys are not a legal value a \Psr\Cache\InvalidArgumentException
-	 *   MUST be thrown.
-	 *
-	 * @return array|\Traversable
+	 * @return iterable
 	 *   A traversable collection of Cache Items keyed by the cache keys of
 	 *   each item. A Cache item will be returned for each key, even if that
-	 *   key is not found. However, if no keys are specified then an empty
+	 *   key is not found. However, if no keys are specified, then an empty
 	 *   traversable MUST be returned instead.
+	 * @throws InvalidArgumentException
+	 *   If any of the keys in $keys are not a legal value, a \Psr\Cache\InvalidArgumentException
+	 *   MUST be thrown.
+	 *
 	 */
-	public function getItems(array $keys = []): array
+	public function getItems(array $keys = []): iterable
 	{
-		$result = [];
-		foreach ($keys as $index => $key) {
-			$result[$index] = $this->getItem($key);
-		}
-		return $result;
+		return array_map(fn ($key) => $this->getItem($key), $keys);
 	}
 
 	/**
 	 * Confirms if the cache contains specified cache item.
 	 *
-	 * Note: This method MAY avoid retrieving the cached value for performance reasons.
-	 * This could result in a race condition with CacheItemInterface::get(). To avoid
-	 * such situation use CacheItemInterface::isHit() instead.
-	 *
 	 * @param string $key
 	 *   The key for which to check existence.
 	 *
+	 * @return bool
+	 *   True if the item exists in the cache, false otherwise.
 	 * @throws InvalidArgumentException
-	 *   If the $key string is not a legal value a \Psr\Cache\InvalidArgumentException
+	 *   If the $key string is not a legal value, a \Psr\Cache\InvalidArgumentException
 	 *   MUST be thrown.
 	 *
-	 * @return bool
-	 *   True if item exists in the cache, false otherwise.
 	 */
 	public function hasItem(string $key): bool
 	{

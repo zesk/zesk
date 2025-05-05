@@ -1,9 +1,9 @@
 <?php
 declare(strict_types=1);
 /**
- * @author kent
- * @copyright Copyright &copy; 2025, Market Acumen, Inc.
- * @package zesk
+ * @author     kent
+ * @copyright  Copyright &copy; 2025, Market Acumen, Inc.
+ * @package    zesk
  * @subpackage system
  */
 
@@ -36,7 +36,7 @@ use zesk\Version;
 
 /**
  *
- * @package zesk
+ * @package    zesk
  * @subpackage system
  */
 class Client extends Hookable
@@ -238,8 +238,8 @@ class Client extends Hookable
 	 * Create a new Net_HTTP_Client
 	 *
 	 * @param Application $application
-	 * @param string $url
-	 * @param array $options
+	 * @param string      $url
+	 * @param array       $options
 	 */
 	public function __construct(Application $application, string $url = '', array $options = [])
 	{
@@ -337,6 +337,16 @@ class Client extends Hookable
 		return $this->url;
 	}
 
+	/**
+	 * Get the host of the URL
+	 *
+	 * @return string
+	 */
+	public function host(): string
+	{
+		return $this->urlParts['host'] ?? '';
+	}
+
 	public function setURL(string $set): self
 	{
 		$this->urlParts = URL::parse($set);
@@ -417,7 +427,7 @@ class Client extends Hookable
 	 * Set request cookies
 	 *
 	 * @param array $set
-	 * @param bool $append
+	 * @param bool  $append
 	 * @return $this
 	 */
 	public function setRequestCookies(array $set, bool $append = false): self

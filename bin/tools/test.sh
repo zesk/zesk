@@ -72,9 +72,11 @@ zeskTest() {
   fi
   if $doStop; then
     args+=("--stop-on-defect" "--stop-on-failure")
-    export XDEBUG_MODE=coverage
-    statusMessage decorate info "Enabling XDEBUG_MODE=coverage"
+    export XDEBUG_MODE=debug
+    #    statusMessage decorate info "Enabling XDEBUG_MODE=coverage"
   fi
+
+  __verifyDatabase "$usage" || return $?
 
   local testBinary="vendor/bin/phpunit" testResultPath="$top/test-results"
 
@@ -90,4 +92,30 @@ zeskTest() {
 }
 _zeskTest() {
   usageDocument "${BASH_SOURCE[0]}" "${FUNCNAME[0]#_}" "$@"
+}
+
+__query() {
+  local user
+  export DATABASE_HOST DATABASE DATABASE_ROOT_PASSWORD DATABASE_ROOT_USER
+  user=${DATABASE_ROOT_USER-root}
+  mariadb -u "$user" -p"$DATABASE_ROOT_PASSWORD" -h "$DATABASE_HOST" -N
+}
+
+__verifyDatabase() {
+  local usage="$1" version user
+
+  export DATABASE_HOST DATABASE DATABASE_ROOT_PASSWORD DATABASE_ROOT_USER DATABASE_TEST_NAME
+
+  DATABASE_TEST_NAME=${DATABASE_TEST_NAME-zeskTest}
+  if ! whichExists mariadb; then
+    __throwEnvironment "$usage" "Missing mariadb" || return $?
+  fi
+  user=${DATABASE_ROOT_USER-root}
+  DATABASE_ROOT_USER=$user
+
+  version=$(printf "%s\n" "SELECT VERSION()" | __query 2>/dev/null || :)
+  if [ -z "$version" ]; then
+    __throwEnvironment "$usage" "Unable to connect to $DATABASE_HOST as $user" || return $?
+  fi
+  printf "%s\n" "CREATE DATABASE IF NOT EXISTS $DATABASE_TEST_NAME" | __catchEnvironment "$usage" __query || return $?
 }

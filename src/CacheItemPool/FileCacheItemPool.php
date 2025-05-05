@@ -52,7 +52,7 @@ class FileCacheItemPool implements CacheItemPoolInterface
 	}
 
 	/**
-	 * Path setter/getter. Setting path will write deferred items to new path.
+	 * Path setter/getter. Setting the path will write deferred items to the new path.
 	 *
 	 * @param string $path
 	 * @return self
@@ -89,7 +89,7 @@ class FileCacheItemPool implements CacheItemPoolInterface
 	 * @return CacheItemInterface
 	 *   The corresponding Cache Item.
 	 * @throws InvalidArgumentException
-	 *   If the $key string is not a legal value a \Psr\Cache\InvalidArgumentException
+	 *   If the $key string is not a legal value, a \Psr\Cache\InvalidArgumentException
 	 *   MUST be thrown.
 	 *
 	 */
@@ -97,7 +97,7 @@ class FileCacheItemPool implements CacheItemPoolInterface
 	{
 		$cache_file = $this->cacheFile($key);
 		// Previously did "is_file", then "file_get_contents", but a race condition would create warnings in our logs when files were deleted
-		// So, since file_get_contents is probably doing an is_file check internally anyway, just skip it since handling is identical
+		// So, since file_get_contents is probably doing an is_file check internally anyway, skip it since handling is identical
 		$contents = is_readable($cache_file) ? file_get_contents($cache_file) : null;
 		if (is_string($contents)) {
 			try {
@@ -115,41 +115,33 @@ class FileCacheItemPool implements CacheItemPoolInterface
 	 * Returns a traversable set of cache items.
 	 *
 	 * @param string[] $keys
-	 *   An indexed array of keys of items to retrieve.
+	 *   Keys of items to retrieve.
 	 *
 	 * @return iterable
 	 *   A traversable collection of Cache Items keyed by the cache keys of
 	 *   each item. A Cache item will be returned for each key, even if that
-	 *   key is not found. However, if no keys are specified then an empty
+	 *   key is not found. However, if no keys are specified, then an empty
 	 *   traversable MUST be returned instead.
 	 * @throws InvalidArgumentException
-	 *   If any of the keys in $keys are not a legal value a \Psr\Cache\InvalidArgumentException
+	 *   If any of the keys in $keys are not a legal value, a \Psr\Cache\InvalidArgumentException
 	 *   MUST be thrown.
 	 *
 	 */
 	public function getItems(array $keys = []): iterable
 	{
-		$result = [];
-		foreach ($keys as $index => $key) {
-			$result[$index] = $this->getItem($key);
-		}
-		return $result;
+		return array_map(fn ($key) => $this->getItem($key), $keys);
 	}
 
 	/**
 	 * Confirms if the cache contains specified cache item.
 	 *
-	 * Note: This method MAY avoid retrieving the cached value for performance reasons.
-	 * This could result in a race condition with CacheItemInterface::get(). To avoid
-	 * such situation use CacheItemInterface::isHit() instead.
-	 *
 	 * @param string $key
 	 *   The key for which to check existence.
 	 *
 	 * @return bool
-	 *   True if item exists in the cache, false otherwise.
+	 *   True if the item exists in the cache, false otherwise.
 	 * @throws InvalidArgumentException
-	 *   If the $key string is not a legal value a \Psr\Cache\InvalidArgumentException
+	 *   If the $key string is not a legal value, a \Psr\Cache\InvalidArgumentException
 	 *   MUST be thrown.
 	 *
 	 */
@@ -183,7 +175,7 @@ class FileCacheItemPool implements CacheItemPoolInterface
 	 * 1     * @return bool
 	 *   True if the item was successfully removed. False if there was an error.
 	 * @throws InvalidArgumentException
-	 *   If the $key string is not a legal value a \Psr\Cache\InvalidArgumentException
+	 *   If the $key string is not a legal value, a \Psr\Cache\InvalidArgumentException
 	 *   MUST be thrown.
 	 *
 	 */
@@ -206,7 +198,7 @@ class FileCacheItemPool implements CacheItemPoolInterface
 	 * @return bool
 	 *   True if the items were successfully removed. False if there was an error.
 	 * @throws InvalidArgumentException
-	 *   If any of the keys in $keys are not a legal value a \Psr\Cache\InvalidArgumentException
+	 *   If any of the keys in $keys are not a legal value, a \Psr\Cache\InvalidArgumentException
 	 *   MUST be thrown.
 	 *
 	 */
@@ -275,7 +267,7 @@ class FileCacheItemPool implements CacheItemPoolInterface
 	}
 
 	/**
-	 * Returns filename of cache file
+	 * Returns filename of the cache file
 	 *
 	 * @param string $key
 	 * @return string
@@ -288,7 +280,7 @@ class FileCacheItemPool implements CacheItemPoolInterface
 	}
 
 	/**
-	 * Return full path to cache file
+	 * Return the full path to the cache file
 	 *
 	 * @param string $key
 	 * @return string

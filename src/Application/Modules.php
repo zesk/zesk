@@ -3,7 +3,7 @@ declare(strict_types=1);
 /**
  * Class for module loading, management, and configuration
  *
- * Ideally we should be able to serialize this entire structure and load again from cache so side effects should be
+ * Ideally, we should be able to serialize this entire structure and load again from cache so side effects should be
  * tracked when loading modules (hooks, etc.) or repeated upon __wakeup() in your module itself.
  *
  * @copyright &copy; 2023, Market Acumen, Inc.
@@ -14,21 +14,23 @@ namespace zesk\Application;
 use Throwable;
 use zesk\Application;
 use zesk\CaseArray;
+use zesk\Configuration;
 use zesk\Exception\ClassNotFound;
 use zesk\Exception\ConfigurationException;
 use zesk\Exception\FileNotFound;
 use zesk\Exception\FilePermission;
 use zesk\Exception\NotFoundException;
 use zesk\Exception\ParseException;
-use zesk\Exception\ProtocolException;
+use zesk\Exception\SemanticsException;
 use zesk\File;
 use zesk\Module;
 use zesk\JSON;
+use zesk\PHP;
 
 /**
  * Module loading and management
  *
- * @see Module
+ * @see    Module
  * @author kent
  *
  */
@@ -114,14 +116,14 @@ class Modules
 	 * Return list of available modules (list of names)
 	 *
 	 * @return array
-	 * @return array
-	 * @throws FileNotFound
-	 * @throws FilePermission
-	 * @throws ParseException
 	 */
 	final public function available(): array
 	{
-		return array_keys($this->availableConfiguration());
+		try {
+			return array_keys($this->availableConfiguration());
+		} catch (Throwable) {
+			return [];
+		}
 	}
 
 	/**
@@ -177,8 +179,7 @@ class Modules
 	 * @param string $name Module name
 	 * @return Module
 	 * @throws ConfigurationException
-	 * @throws NotFoundException
-	 * @throws ProtocolException
+	 * @throws NotFoundException|SemanticsException
 	 */
 	final public function load(string $name): Module
 	{
@@ -204,8 +205,7 @@ class Modules
 	 * @return array
 	 * @return array
 	 * @throws ConfigurationException
-	 * @throws NotFoundException
-	 * @throws ProtocolException
+	 * @throws NotFoundException|SemanticsException
 	 */
 	final public function loadMultiple(array $names): array
 	{
@@ -219,7 +219,7 @@ class Modules
 	/**
 	 * @param string $name
 	 * @return Module
-	 * @throws NotFoundException|ClassNotFound|ConfigurationException|ProtocolException
+	 * @throws NotFoundException|ClassNotFound|ConfigurationException|SemanticsException
 	 */
 	private function _loadModule(string $name): Module
 	{
@@ -228,7 +228,7 @@ class Modules
 		$lowerName = strtolower($name);
 		$module = $this->modules[$lowerName] ?? null;
 		if ($module) {
-			throw new ProtocolException("$module already loaded");
+			throw new SemanticsException("$module already loaded");
 		}
 		if (!$this->validModule($lowerName)) {
 			throw new NotFoundException('{name} not found', ['name' => $name]);
@@ -272,7 +272,7 @@ class Modules
 	}
 
 	/**
-	 * @return array
+	 * @return Module[]
 	 */
 	final public function all(): array
 	{
@@ -283,25 +283,12 @@ class Modules
 	 * Retrieve configuration information about a loaded module
 	 *
 	 * @param string $module
-	 * @return array
+	 * @return Configuration
 	 * @throws NotFoundException
 	 */
-	final public function configuration(string $module): array
+	final public function configuration(string $module): Configuration
 	{
 		return $this->module($module)->moduleConfiguration();
-	}
-
-	/**
-	 * Get full path to module
-	 *
-	 * @param string $module
-	 * @param string $append Value to append to path using path()
-	 * @return string
-	 * @throws NotFoundException
-	 */
-	final public function path(string $module, string $append = ''): string
-	{
-		return $this->module($module)->path($append);
 	}
 
 	/**
