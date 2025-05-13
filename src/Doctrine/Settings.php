@@ -30,8 +30,8 @@ use zesk\Types;
  * @author kent
  * @see    Class_Settings
  */
-class Settings extends Hookable implements MetaInterface, SettingsInterface {
-	
+class Settings extends Hookable implements MetaInterface, SettingsInterface
+{
 	/**
 	 * Enable debugging on the Settings save step
 	 *
@@ -40,16 +40,17 @@ class Settings extends Hookable implements MetaInterface, SettingsInterface {
 	 * @var string
 	 */
 	public const HOOK_FILTER = __CLASS__ . '::filter';
-	
+
 	protected EntityManager $em;
-	
-	const OPTION_ENTITY_MANAGER = 'entityManagerName';
-	
+
+	public const OPTION_ENTITY_MANAGER = 'entityManagerName';
+
 	public function __construct(Application $application, array $options = [])
 	{
 		parent::__construct($application, $options);
 		$this->em = $application->entityManager($this->optionString(self::OPTION_ENTITY_MANAGER));
 	}
+
 	/**
 	 * configured Hook
 	 */
@@ -74,7 +75,7 @@ class Settings extends Hookable implements MetaInterface, SettingsInterface {
 			$application->configuration->setPath($path, $value);
 		}
 	}
-	
+
 	/**
 	 * Override get to retrieve from global state
 	 *
@@ -85,7 +86,7 @@ class Settings extends Hookable implements MetaInterface, SettingsInterface {
 	{
 		return $this->application->configuration->getPath($name);
 	}
-	
+
 	/**
 	 * Same as __get with a default
 	 *
@@ -98,7 +99,7 @@ class Settings extends Hookable implements MetaInterface, SettingsInterface {
 	{
 		return $this->application->configuration->getPath($name, $default);
 	}
-	
+
 	/**
 	 * Same as __get with a default
 	 *
@@ -110,7 +111,7 @@ class Settings extends Hookable implements MetaInterface, SettingsInterface {
 	{
 		return $this->application->configuration->has($name, true);
 	}
-	
+
 	/**
 	 * @param int|string $name
 	 * @return bool
@@ -120,7 +121,7 @@ class Settings extends Hookable implements MetaInterface, SettingsInterface {
 	{
 		return $this->application->configuration->pathExists($name);
 	}
-	
+
 	/**
 	 * Global to save
 	 *
@@ -130,7 +131,7 @@ class Settings extends Hookable implements MetaInterface, SettingsInterface {
 	{
 		SettingsValue::register($this->application, $name, $value);
 	}
-	
+
 	/**
 	 * Global to save
 	 *
@@ -144,7 +145,7 @@ class Settings extends Hookable implements MetaInterface, SettingsInterface {
 		$this->__set($name, $value);
 		return $this;
 	}
-	
+
 	/**
 	 *
 	 */
@@ -160,7 +161,7 @@ class Settings extends Hookable implements MetaInterface, SettingsInterface {
 			return null;
 		}
 	}
-	
+
 	/**
 	 *
 	 * @param string $name
@@ -172,12 +173,12 @@ class Settings extends Hookable implements MetaInterface, SettingsInterface {
 		SettingsValue::register($this->application, $this->em, $name, $value);
 		return $this;
 	}
-	
+
 	protected function settingsValueRepository(): EntityRepository
 	{
 		return $this->em->getRepository(SettingsValue::class);
 	}
-	
+
 	/**
 	 *
 	 * @return $this
@@ -190,7 +191,7 @@ class Settings extends Hookable implements MetaInterface, SettingsInterface {
 		$this->em->flush();
 		return $this;
 	}
-	
+
 	public function variables(): array
 	{
 		$result = [];
@@ -200,7 +201,7 @@ class Settings extends Hookable implements MetaInterface, SettingsInterface {
 		}
 		return $result;
 	}
-	
+
 	/**
 	 *
 	 * @param array|string $name
@@ -214,7 +215,7 @@ class Settings extends Hookable implements MetaInterface, SettingsInterface {
 		}
 		return $this;
 	}
-	
+
 	/**
 	 * Call this when you change your setting names
 	 *
@@ -237,7 +238,7 @@ class Settings extends Hookable implements MetaInterface, SettingsInterface {
 		$this->__set($old_setting, null);
 		return $this;
 	}
-	
+
 	/**
 	 *
 	 * @param string $oldPrefix

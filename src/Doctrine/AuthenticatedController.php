@@ -25,22 +25,22 @@ use zesk\Response;
  * @author kent
  *
  */
-class AuthenticatedController extends Controller {
-	
+class AuthenticatedController extends Controller
+{
 	/**
 	 * Current logged in user
 	 *
 	 * @var Userlike|null
 	 */
 	public Userlike|null $user = null;
-	
+
 	/**
 	 * Current session
 	 *
 	 * @var SessionInterface|null
 	 */
 	public SessionInterface|null $session = null;
-	
+
 	/**
 	 * @param string $message
 	 * @return void
@@ -50,7 +50,7 @@ class AuthenticatedController extends Controller {
 	{
 		throw new AuthenticationException($message, [], HTTP::STATUS_UNAUTHORIZED);
 	}
-	
+
 	/**
 	 * @param Request  $request
 	 * @param Response $response
@@ -63,24 +63,24 @@ class AuthenticatedController extends Controller {
 	protected function before(Request $request, Response $response): void
 	{
 		parent::before($request, $response);
-		
+
 		$this->session = $this->application->requireSession($request);
 		if (!$this->session->isAuthenticated()) {
 			$this->throwAuthentication('Session not authorized');
 		}
-		
+
 		try {
 			$this->user = $this->application->requireUser($request);
 		} catch (ClassNotFound $e) {
 			$response->setStatus(HTTP::STATUS_INTERNAL_SERVER_ERROR, 'No class');
-			
+
 			throw $e;
 		}
 		if (!$this->user->can(get_class($this) . '::*')) {
 			$this->throwAuthentication('User does not have permission');
 		}
 	}
-	
+
 	/**
 	 * Variables for a template
 	 *
@@ -89,8 +89,8 @@ class AuthenticatedController extends Controller {
 	public function variables(): array
 	{
 		return [
-				'user'    => $this->user,
-				'session' => $this->session,
-			] + parent::variables();
+			'user'    => $this->user,
+			'session' => $this->session,
+		] + parent::variables();
 	}
 }

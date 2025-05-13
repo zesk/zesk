@@ -39,37 +39,37 @@ use zesk\Kernel;
 use zesk\Module as BaseModule;
 use zesk\Types;
 
-class Module extends BaseModule {
-	
+class Module extends BaseModule
+{
 	/**
 	 * @todo Call this somewhere
 	 */
 	public const HOOK_SCHEMA_UPDATED = self::class . '::schemaUpdated';
-	
+
 	/**
 	 *
 	 */
 	public const OPTION_SOURCE_PATHS = 'paths';
-	
+
 	/**
 	 *
 	 */
 	private Configuration $ormConfig;
-	
+
 	private EventManager $eventManager;
-	
+
 	/**
 	 * @var array<string, EntityManager>
 	 */
 	private array $managers = [];
-	
+
 	private static array $zeskTypes = [
 		Timestamp::TYPE   => Timestamp::class,
 		EnumBoolean::TYPE => EnumBoolean::class,
 	];
-	
+
 	private static bool $added = false;
-	
+
 	/**
 	 * @return void
 	 * @throws ConfigurationException
@@ -88,7 +88,7 @@ class Module extends BaseModule {
 		$this->eventManager = new EventManager($this->application);
 		$this->application->registerManager('entity', $this->entityManager(...));
 	}
-	
+
 	/**
 	 * @param EntityManager $em
 	 * @return BaseApplication
@@ -101,14 +101,14 @@ class Module extends BaseModule {
 		}
 		return Kernel::wakeupApplication();
 	}
-	
+
 	#[FilterMethod(handles: Info::FILTER_INFO)]
 	public function info(array $info): array
 	{
 		$info['doctrine'] = true;
 		return $info;
 	}
-	
+
 	/**
 	 * @param string $path
 	 * @return $this
@@ -122,7 +122,7 @@ class Module extends BaseModule {
 		$this->setOption(self::OPTION_SOURCE_PATHS, $paths);
 		return $this;
 	}
-	
+
 	/**
 	 * @return void
 	 * @throws ConfigurationException
@@ -144,7 +144,7 @@ class Module extends BaseModule {
 		$config->setEntityListenerResolver(new EntityListenerResolver());
 		$this->_setupConnections();
 	}
-	
+
 	/**
 	 * @throws ConfigurationException
 	 * @throws Exception
@@ -155,12 +155,12 @@ class Module extends BaseModule {
 			$this->_connectDSN($dsn, $name);
 		}
 	}
-	
+
 	private function _connectDSN(mixed $dsn, string $name): void
 	{
 		if (is_string($dsn)) {
 			$parser = new DsnParser();
-			
+
 			try {
 				$parts = $parser->parse($dsn);
 			} catch (MalformedDsnException $e) {
@@ -170,7 +170,7 @@ class Module extends BaseModule {
 					$name,
 				], 'Invalid URL {dsn}', ['dsn' => $dsn], $e);
 			}
-		} else if (is_array($dsn)) {
+		} elseif (is_array($dsn)) {
 			$parts = $dsn;
 		} else {
 			throw new ConfigurationException([
@@ -183,7 +183,7 @@ class Module extends BaseModule {
 		foreach (array_keys(self::$zeskTypes) as $type) {
 			$connection->getDatabasePlatform()->registerDoctrineTypeMapping('db_' . $type, $type);
 		}
-		
+
 		try {
 			$this->managers[$name] = $em = new EntityManager($connection, $this->ormConfig, $this->eventManager);
 		} catch (MissingMappingDriverImplementation $e) {
@@ -194,7 +194,7 @@ class Module extends BaseModule {
 			], 'Missing driver {parts}', ['parts' => $parts]);
 		}
 	}
-	
+
 	/**
 	 * @throws SemanticsException
 	 */
@@ -202,7 +202,7 @@ class Module extends BaseModule {
 	{
 		return $this->optionString('default', 'default');
 	}
-	
+
 	/**
 	 * @param string $name
 	 * @return EntityManager
@@ -225,10 +225,10 @@ class Module extends BaseModule {
 		if (array_key_exists($name, $this->managers)) {
 			return $this->managers[$name];
 		}
-		
+
 		throw new NotFoundException('No entityManager with name {name}', ['name' => $name]);
 	}
-	
+
 	/**
 	 * @param array  $entities
 	 * @param string $name
@@ -251,7 +251,7 @@ class Module extends BaseModule {
 		$sql = $tool->getUpdateSchemaSql($classMetadata);
 		return $sql;
 	}
-	
+
 	/**
 	 * @param array  $entities
 	 * @param string $name
@@ -273,7 +273,7 @@ class Module extends BaseModule {
 		}
 		return $results;
 	}
-	
+
 	/**
 	 * @param string $entityName
 	 * @param string $name
