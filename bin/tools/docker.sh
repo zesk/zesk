@@ -61,7 +61,7 @@ if whichExists docker; then
       --env CONTAINER_PORT_WEB=4071
       --env CONTAINER_PORT_DATABASE=4072
       --env XDEBUG_ENABLED=true
-      --env XDEBUG_IDE_KEY="zesk"
+      --env PHP_IDE_KEY="serverName=zesk"
       --env XDEBUG_CLIENT_HOST="host.docker.internal"
       --env DEVELOPMENT=1
     )

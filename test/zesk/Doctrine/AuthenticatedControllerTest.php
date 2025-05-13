@@ -14,6 +14,8 @@ class AuthenticatedControllerTest extends DatabaseTestCase
 		$this->application->modules->load('Session');
 
 		$router = $this->application->router();
+		$router->clear();
+
 		$route = $router->addRoute('login', ['controller' => TestAuthenticatedController::class]);
 		$request = $this->application->requestFactory()->initializeFromSettings('https://localhost/login');
 		$session = $this->application->requireSession($request);
@@ -23,6 +25,7 @@ class AuthenticatedControllerTest extends DatabaseTestCase
 
 		$matchedRoute = $router->matchRequest($request);
 		$this->assertEquals($matchedRoute, $route);
+
 		$response = $route->execute($request);
 
 		$this->assertEquals('Session not authorized', $response->statusMessage());

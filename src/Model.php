@@ -19,22 +19,22 @@ use zesk\Exception\Redirect;
  * @author kent
  *
  */
-class Model extends Hookable {
-	
+class Model extends Hookable
+{
 	public const OPTION_DEFAULT_THEME = 'default_theme';
-	
+
 	/**
 	 *
 	 */
 	public const DEFAULT_OPTION_DEFAULT_THEME = 'view';
-	
+
 	/**
 	 * Option for theme path prefix for themes associated with this model
 	 *
 	 * @var string
 	 */
 	public const OPTION_THEME_PATH_PREFIX = 'themePathPrefix';
-	
+
 	/**
 	 * @param array $value
 	 * @return $this
@@ -48,7 +48,7 @@ class Model extends Hookable {
 		}
 		return $this;
 	}
-	
+
 	/**
 	 * Given a theme name, return the theme paths which are checked.
 	 *
@@ -71,7 +71,7 @@ class Model extends Hookable {
 			$theme_names = [
 				$this->option(self::OPTION_DEFAULT_THEME, self::DEFAULT_OPTION_DEFAULT_THEME),
 			];
-		} else if (is_string($theme_names)) {
+		} elseif (is_string($theme_names)) {
 			if ($theme_names[0] === '/' || $theme_names[0] === '.') {
 				return [
 					$theme_names,
@@ -89,12 +89,12 @@ class Model extends Hookable {
 			$result_prefix = ArrayTools::prefixValues($result, rtrim($this->option(self::OPTION_THEME_PATH_PREFIX), '/') . '/');
 			$result = array_merge($result_prefix, $result);
 		}
-		return array_map(fn($name) => strtr($name, [
+		return array_map(fn ($name) => strtr($name, [
 			'_'  => '/',
 			'\\' => '/',
 		]), $result);
 	}
-	
+
 	/**
 	 * Output this
 	 *
@@ -121,7 +121,7 @@ class Model extends Hookable {
 			'first'   => true,
 		]);
 	}
-	
+
 	/**
 	 * Convert a variable to an ID. IDs may be arrays.
 	 *
@@ -145,13 +145,13 @@ class Model extends Hookable {
 		if (is_string($mixed)) {
 			return $mixed;
 		}
-		
+
 		throw new ParseException('Unable to convert {mixed} ({type}) to ID', [
 			'mixed' => $mixed,
 			'type'  => Types::type($mixed),
 		]);
 	}
-	
+
 	/**
 	 * @param JSONWalker $options
 	 * @return array

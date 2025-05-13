@@ -19,8 +19,8 @@ use zesk\StringTools;
  * @author kent
  *
  */
-class Content extends Route {
-	
+class Content extends Route
+{
 	/**
 	 * @param Request $request
 	 * @return Response
@@ -40,7 +40,7 @@ class Content extends Route {
 					], 0);
 				}
 			}
-			
+
 			try {
 				$file = $this->application->paths->expand($file);
 				return $response->setRawFile($file);

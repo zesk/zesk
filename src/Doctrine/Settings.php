@@ -1,14 +1,16 @@
 <?php
 declare(strict_types=1);
 /**
- * @package zesk
+ * @package    zesk
  * @subpackage system
- * @author kent
- * @copyright Copyright &copy; 2025, Market Acumen, Inc.
+ * @author     kent
+ * @copyright  Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Doctrine;
 
+use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityRepository;
 use zesk\Application;
 use zesk\Application\Hooks;
 use zesk\bash;
@@ -26,10 +28,10 @@ use zesk\Types;
  * Base class for global settings to be retrieved/stored from permanent storage
  *
  * @author kent
- * @see Class_Settings
+ * @see    Class_Settings
  */
-class Settings extends Hookable implements MetaInterface, SettingsInterface
-{
+class Settings extends Hookable implements MetaInterface, SettingsInterface {
+	
 	/**
 	 * Enable debugging on the Settings save step
 	 *
@@ -38,7 +40,16 @@ class Settings extends Hookable implements MetaInterface, SettingsInterface
 	 * @var string
 	 */
 	public const HOOK_FILTER = __CLASS__ . '::filter';
-
+	
+	protected EntityManager $em;
+	
+	const OPTION_ENTITY_MANAGER = 'entityManagerName';
+	
+	public function __construct(Application $application, array $options = [])
+	{
+		parent::__construct($application, $options);
+		$this->em = $application->entityManager($this->optionString(self::OPTION_ENTITY_MANAGER));
+	}
 	/**
 	 * configured Hook
 	 */
@@ -53,14 +64,17 @@ class Settings extends Hookable implements MetaInterface, SettingsInterface
 		$settings = $application->settings();
 		$variables = $settings->variables();
 		$depends = [];
-		$variables = $application->invokeTypedFilters(self::HOOK_FILTER, $variables, [$variables, $application], 0);
+		$variables = $application->invokeTypedFilters(self::HOOK_FILTER, $variables, [
+			$variables,
+			$application,
+		], 0);
 		foreach ($variables as $name => $value) {
 			$value = bash::substitute($value, $settings, $depends);
 			$path = explode(Configuration::key_separator, $name);
 			$application->configuration->setPath($path, $value);
 		}
 	}
-
+	
 	/**
 	 * Override get to retrieve from global state
 	 *
@@ -71,7 +85,7 @@ class Settings extends Hookable implements MetaInterface, SettingsInterface
 	{
 		return $this->application->configuration->getPath($name);
 	}
-
+	
 	/**
 	 * Same as __get with a default
 	 *
@@ -84,7 +98,7 @@ class Settings extends Hookable implements MetaInterface, SettingsInterface
 	{
 		return $this->application->configuration->getPath($name, $default);
 	}
-
+	
 	/**
 	 * Same as __get with a default
 	 *
@@ -96,7 +110,7 @@ class Settings extends Hookable implements MetaInterface, SettingsInterface
 	{
 		return $this->application->configuration->has($name, true);
 	}
-
+	
 	/**
 	 * @param int|string $name
 	 * @return bool
@@ -106,7 +120,7 @@ class Settings extends Hookable implements MetaInterface, SettingsInterface
 	{
 		return $this->application->configuration->pathExists($name);
 	}
-
+	
 	/**
 	 * Global to save
 	 *
@@ -116,7 +130,7 @@ class Settings extends Hookable implements MetaInterface, SettingsInterface
 	{
 		SettingsValue::register($this->application, $name, $value);
 	}
-
+	
 	/**
 	 * Global to save
 	 *
@@ -130,7 +144,7 @@ class Settings extends Hookable implements MetaInterface, SettingsInterface
 		$this->__set($name, $value);
 		return $this;
 	}
-
+	
 	/**
 	 *
 	 */
@@ -146,42 +160,47 @@ class Settings extends Hookable implements MetaInterface, SettingsInterface
 			return null;
 		}
 	}
-
+	
 	/**
 	 *
 	 * @param string $name
-	 * @param mixed $value
+	 * @param mixed  $value
 	 * @return $this
 	 */
 	public function setMeta(string $name, mixed $value): self
 	{
-		SettingsValue::register($this->application, $name, $value);
+		SettingsValue::register($this->application, $this->em, $name, $value);
 		return $this;
 	}
-
+	
+	protected function settingsValueRepository(): EntityRepository
+	{
+		return $this->em->getRepository(SettingsValue::class);
+	}
+	
 	/**
 	 *
 	 * @return $this
 	 */
 	public function clearMeta(): self
 	{
-		foreach ($this->em->getRepository(SettingsValue::class)->findAll() as $value) {
+		foreach ($this->settingsValueRepository()->findAll() as $value) {
 			$this->em->remove($value);
 		}
 		$this->em->flush();
 		return $this;
 	}
-
+	
 	public function variables(): array
 	{
 		$result = [];
-		foreach ($this->em->getRepository(SettingsValue::class)->findAll() as $value) {
+		foreach ($this->settingsValueRepository()->findAll() as $value) {
 			/* @var $value SettingsValue */
 			$result[$value->name] = $value->value;
 		}
 		return $result;
 	}
-
+	
 	/**
 	 *
 	 * @param array|string $name
@@ -195,7 +214,7 @@ class Settings extends Hookable implements MetaInterface, SettingsInterface
 		}
 		return $this;
 	}
-
+	
 	/**
 	 * Call this when you change your setting names
 	 *
@@ -218,7 +237,7 @@ class Settings extends Hookable implements MetaInterface, SettingsInterface
 		$this->__set($old_setting, null);
 		return $this;
 	}
-
+	
 	/**
 	 *
 	 * @param string $oldPrefix
@@ -229,10 +248,16 @@ class Settings extends Hookable implements MetaInterface, SettingsInterface
 	{
 		$em = $this->application->entityManager();
 		$query = $em->createQuery('UPDATE ' . SettingsValue::class . ' SET name=REPLACE(name, :old, :new) WHERE name LIKE :oldPattern)');
-		$rowCount = $query->execute(['old' => $oldPrefix, 'new' => $newPrefix, 'oldPattern' => $oldPrefix . '%']);
+		$rowCount = $query->execute([
+			'old'        => $oldPrefix,
+			'new'        => $newPrefix,
+			'oldPattern' => $oldPrefix . '%',
+		]);
 		if ($rowCount > 0) {
 			$this->application->notice('Updated {rowCount} settings from {old_prefix} to use new prefix {new_prefix}', [
-				'rowCount' => $rowCount, 'old_prefix' => $oldPrefix, 'new_prefix' => $newPrefix,
+				'rowCount'   => $rowCount,
+				'old_prefix' => $oldPrefix,
+				'new_prefix' => $newPrefix,
 			]);
 		}
 		return $rowCount;

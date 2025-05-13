@@ -7,6 +7,7 @@ declare(strict_types=1);
 namespace zesk\Doctrine;
 
 use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Exception\ORMException;
 use zesk\Application;
 use zesk\Kernel;
@@ -48,9 +49,19 @@ class Model extends ModelBase
 		$this->entityManager()->remove($this);
 	}
 
-	public function postLoad(): void
+	/**
+	 * @return $this
+	 * @throws ORMException
+	 */
+	public function store(): static
 	{
-		$this->application = Kernel::wakeupApplication();
+		$this->entityManager()->persist($this);
+		return $this;
+	}
+
+	public function entityRepository(): EntityRepository
+	{
+		return $this->entityManager()->getRepository(self::class);
 	}
 
 	public function reconnect(EntityManager $em): void
