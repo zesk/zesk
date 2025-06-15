@@ -17,22 +17,7 @@ zeskTest() {
   local usage="_${FUNCNAME[0]}"
   local top
 
-  set -eou pipefail
-
-  top=$(__catchEnvironment "$usage" "buildHome") || return $?
-
-  export PATH
-
-  pathConfigure --last "$top/vendor/bin"
-
-  if [ -f "$top/.env" ]; then
-    __catchEnvironment "$usage" environmentFileLoad "$top/.env" || return $?
-    decorate info "Loaded $(decorate file "$top/.env")"
-  fi
-
-  local doCoverage=false doStop=false coverage_cache="./.zesk-coverage"
-
-  __catchEnvironment "$usage" muzzle pushd "$top" || return $?
+  local cleanFlag=false doCoverage=false doStop=false
 
   # _IDENTICAL_ argument-case-header 5
   local __saved=("$@") __count=$#
@@ -44,6 +29,9 @@ zeskTest() {
       --help)
         "$usage" 0
         return $?
+        ;;
+      --clean)
+        cleanFlag=true
         ;;
       --coverage)
         doCoverage=true
@@ -59,12 +47,43 @@ zeskTest() {
     shift
   done
 
+  set -eou pipefail
+
+  top=$(__catchEnvironment "$usage" "buildHome") || return $?
+
+  #  export PATH
+
+  # pathConfigure --last "$top/vendor/bin"
+
+  if [ -f "$top/.env" ]; then
+    __catchEnvironment "$usage" environmentFileLoad "$top/.env" || return $?
+    statusMessage decorate info "Loaded $(decorate file "$top/.env")"
+  fi
+
+  if $cleanFlag; then
+    statusMessage decorate warning "Cleaning all caches (not vendor) ..."
+    for item in "$top/cache/" "$(buildCacheDirectory)" "$top/.fileCache" "$top/test-results/" "$top/test-reports/"; do
+      if [ -e "$item" ]; then
+        local thing=file
+        [ ! -d "$item" ] || thing=directory
+        statusMessage decorate warning "Deleted temporary $thing $(decorate file "$item")"
+        __catchEnvironment "$usage" rm -rf "$item" || return $?
+      fi
+    done
+  fi
+  __catchEnvironment "$usage" muzzle pushd "$top" || return $?
+
   local needPaths=() args=()
   args+=("--disallow-test-output")
   args+=("--display-warnings" "--colors=auto")
   if $doCoverage; then
-    needPaths+=("$coverage_cache")
-    args+=("--coverage-cache" "$coverage_cache")
+    local home
+    home=$(__catchEnvironment "$usage" buildHome) || return $?
+
+    # coverage_cache="./.zesk-coverage"
+    # needPaths+=("$coverage_cache" "$home/test-coverage")
+    needPaths+=("$home/test-coverage")
+    args+=("--coverage-html" "$home/test-coverage")
     export XDEBUG_MODE=coverage
     statusMessage decorate info "Enabling XDEBUG_MODE=coverage"
   else
@@ -75,6 +94,7 @@ zeskTest() {
     export XDEBUG_MODE=debug
     #    statusMessage decorate info "Enabling XDEBUG_MODE=coverage"
   fi
+  args+=("--display-skipped")
 
   __verifyDatabase "$usage" || return $?
 

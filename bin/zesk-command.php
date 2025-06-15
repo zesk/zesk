@@ -6,37 +6,35 @@ declare(strict_types=1);
  * an alternate PHP version and display a ton of shared library errors in the version (Mac OS X/ZendServer). So adding the above
  * hid those errors from output. Probably not a bad practice. -KMD
  *
- * @package zesk
+ * @package    zesk
  * @subpackage bin
- * @author kent
- * @copyright Copyright &copy; 2025, Market Acumen, Inc.
+ * @author     kent
+ * @copyright  Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk;
 
 use Throwable;
 
-class CommandLoaderFactory
-{
+class CommandLoaderFactory {
+	
 	public static function main(): void
 	{
 		$here = dirname(__DIR__) . '/';
 		if (str_contains(__DIR__, 'vendor/bin')) {
 			$here .= 'zesk/zesk/';
 		}
-
+		
 		/* We love debuggers */
 		require_once $here . 'xdebug.php';
 		/* Basic autoloader */
 		require_once $here . 'autoload.php';
-		/* functions for all */
-		require_once $here . 'src/functions.php';
-
+		
 		/**
 		 * Run a zesk command and exit
 		 */
 		$command = CommandLoader::factory();
-
+		
 		try {
 			exit($command->terminate($command->run()));
 		} catch (Throwable $e) {

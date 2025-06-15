@@ -16,45 +16,46 @@ use zesk\Net\Client as Net_Client;
 use zesk\Net\HTTP\Client as Net_HTTP_Client;
 use zesk\Options;
 use zesk\Timestamp;
+use zesk\Types;
 
 /**
  *
  * @author kent
  *
  */
-class Sync extends Options
-{
+class Sync extends Options {
+	
 	/**
 	 *
 	 * @var FileSystem
 	 */
 	protected FileSystem $src;
-
+	
 	/**
 	 *
 	 * @var FileSystem
 	 */
 	protected FileSystem $dst;
-
+	
 	/*
 	 * Synchronization stats
 	 */
 	private array $stats = [];
-
+	
 	/**
 	 * Sync a local file with a destination file, optionally checking checksums
 	 *
 	 * @param Application $application The current application context.
-	 * @param string $url
-	 *            URL of remote file to download
-	 * @param string $path
-	 *            Local file system path of destination, requires a file name to use timestamp
-	 *            checking on local file
-	 * @param array $options
-	 *            Options to configure how this works:
-	 *            - time_to_live - Check remote URL for changes every n seconds (defaults to 1 day)
-	 *            - timeout - Seconds to timeout remote retrieval
-	 *            - user_agent - User agent to use
+	 * @param string      $url
+	 *                                 URL of remote file to download
+	 * @param string      $path
+	 *                                 Local file system path of destination, requires a file name to use timestamp
+	 *                                 checking on local file
+	 * @param array       $options
+	 *                                 Options to configure how this works:
+	 *                                 - time_to_live - Check remote URL for changes every n seconds (defaults to 1 day)
+	 *                                 - timeout - Seconds to timeout remote retrieval
+	 *                                 - user_agent - User agent to use
 	 *
 	 * @return bool|null true if file has changed, false if not, null if time-to-live has not expired
 	 * @throws DirectoryNotFound
@@ -73,8 +74,11 @@ class Sync extends Options
 				return null;
 			}
 		}
-		[$temp, $server_name] = self::_fetch_url($application, $url, $options);
-		$full_path = str_ends_with($path, '/') ? path($path, $server_name) : $path;
+		[
+			$temp,
+			$server_name,
+		] = self::_fetch_url($application, $url, $options);
+		$full_path = str_ends_with($path, '/') ? Directory::path($path, $server_name) : $path;
 		if (!is_file($full_path) || (md5_file($temp) !== md5_file($full_path))) {
 			if (file_exists($full_path)) {
 				unlink($full_path);
@@ -87,18 +91,18 @@ class Sync extends Options
 			return false;
 		}
 	}
-
+	
 	/**
 	 *
 	 * @param string $url
-	 * @param array $options
+	 * @param array  $options
 	 * @return string[]|string[]
 	 */
 	private static function _fetch_url(Application $application, string $url, array $options = []): array
 	{
-		$milliseconds = toInteger($options['timeout'] ?? null);
+		$milliseconds = Types::toInteger($options['timeout'] ?? null);
 		$user_agent = $options['user_agent'] ?? null;
-
+		
 		$client = new Net_HTTP_Client($application, $url);
 		if ($milliseconds) {
 			$client->setTimeout($milliseconds);
@@ -110,21 +114,22 @@ class Sync extends Options
 			$client->setUserAgent($user_agent);
 		}
 		$client->setDestination($temp_file_name);
-
+		
 		$result = $client->go();
-
+		
 		$filename = $client->filename();
 		return [
-			$temp_file_name, $filename,
+			$temp_file_name,
+			$filename,
 		];
 	}
-
+	
 	/**
 	 * Utility function to sync two URLs
 	 *
 	 * @param string $source_url
 	 * @param string $destination_url
-	 * @param array $options
+	 * @param array  $options
 	 * @return array Transfer statistics
 	 */
 	public static function urls(Application $application, $source_url, $destination_url, array $options = [])
@@ -134,13 +139,13 @@ class Sync extends Options
 		$sync = new self($src_client, $dst_client, $options);
 		return $sync->go();
 	}
-
+	
 	/**
 	 * Create sync object
 	 *
 	 * @param FileSystem $source
 	 * @param FileSystem $destination
-	 * @param array $options
+	 * @param array      $options
 	 *            Settings for the sync
 	 */
 	public function __construct(FileSystem $source, FileSystem $destination, array $options = [])
@@ -149,7 +154,7 @@ class Sync extends Options
 		$this->src = $source;
 		$this->dst = $destination;
 	}
-
+	
 	/**
 	 * Internal function to manage filter values properly.
 	 * If it's a boolean (include all, exclude all), store it.
@@ -163,7 +168,7 @@ class Sync extends Options
 		if ($pattern === null) {
 			return $default;
 		}
-		$srcVar = toBool($pattern, null);
+		$srcVar = Types::toBool($pattern, null);
 		if (is_bool($pattern)) {
 			return $pattern;
 		}
@@ -172,27 +177,27 @@ class Sync extends Options
 		}
 		return '/' . preg_quote($pattern) . '/';
 	}
-
+	
 	public function file_filter($include = null, $exclude = null)
 	{
 		$this->option('file_include', $this->_set_filter($include, true));
 		$this->option('file_exclude', $this->_set_filter($exclude, false));
 		return $this;
 	}
-
+	
 	public function directory_filter($include = null, $exclude = null)
 	{
 		$this->option('dir_include', $this->_set_filter($include, true));
 		$this->option('dir_exclude', $this->_set_filter($exclude, false));
 		return $this;
 	}
-
+	
 	/**
 	 * Given a filename, should it be included in this sync?
 	 *
 	 * @param string $filename
-	 * @param mixed $include
-	 * @param mixed $exclude
+	 * @param mixed  $include
+	 * @param mixed  $exclude
 	 * @return boolean
 	 */
 	private function _allow($filename, $include, $exclude)
@@ -214,7 +219,7 @@ class Sync extends Options
 		}
 		return true;
 	}
-
+	
 	/**
 	 * Allow this file to be synced?
 	 *
@@ -225,7 +230,7 @@ class Sync extends Options
 	{
 		return $this->_allow($filename, $this->file_include, $this->file_exclude);
 	}
-
+	
 	/**
 	 * Allow this directory to be synced?
 	 *
@@ -236,12 +241,12 @@ class Sync extends Options
 	{
 		return $this->_allow($filename, $this->dir_include, $this->dir_exclude);
 	}
-
+	
 	/**
 	 * Should this file be synced based on entry values?
 	 *
-	 * @param array $src_entry
-	 * @param array $dst_entry
+	 * @param array   $src_entry
+	 * @param array   $dst_entry
 	 * @param boolean $check_mtime
 	 *            If mod time should be checked.
 	 * @return boolean
@@ -271,7 +276,7 @@ class Sync extends Options
 		}
 		return true;
 	}
-
+	
 	/**
 	 * Synchronize two URLs, recursively.
 	 *
@@ -282,17 +287,17 @@ class Sync extends Options
 	public function go()
 	{
 		$logger = $this->src->application()->logger;
-
+		
 		$src = $this->src;
 		$dst = $this->dst;
-
+		
 		$src_url = $src->url();
 		$src_root = Directory::addSlash($src->urlComponent('path'));
 		$src_root_length = strlen($src_root);
-
+		
 		$dst_url = $dst->url();
 		$dst_root = Directory::addSlash($dst->urlComponent('path'));
-
+		
 		if (!$src->cd($src_root)) {
 			throw new DirectoryNotFound("Source \"$src_url\" directory \"$src_root\" not found");
 		}
@@ -305,7 +310,12 @@ class Sync extends Options
 			$src_root,
 		];
 		$stats = [
-			'dirs' => 0, 'mkdir' => 0, 'files' => 0, 'copy' => 0, 'skip' => 0, 'total' => 0,
+			'dirs'  => 0,
+			'mkdir' => 0,
+			'files' => 0,
+			'copy'  => 0,
+			'skip'  => 0,
+			'total' => 0,
 		];
 		$check_mtime = $dst->has_feature('mtime');
 		while (count($dir_queue) > 0) {
@@ -316,16 +326,16 @@ class Sync extends Options
 				$stats['total']++;
 				$name = $src_entry['name'];
 				$type = $src_entry['type'];
-
-				$full_src_path = path($src_path, $name);
+				
+				$full_src_path = Directory::path($src_path, $name);
 				$rel_path = substr($full_src_path, $src_root_length);
-				$full_dst_path = path($dst_root, $rel_path);
-
+				$full_dst_path = Directory::path($dst_root, $rel_path);
+				
 				$logger->debug("sync $full_src_path");
-
+				
 				$dst_entry = $dst->stat($full_dst_path);
 				$dst_type = $dst_entry['type'] ?? null;
-
+				
 				if ($type === 'dir') {
 					$stats['dirs']++;
 					if ($dst_type === null) {
@@ -341,12 +351,12 @@ class Sync extends Options
 					} else {
 						$stats['skip']++;
 					}
-				} elseif ($type === 'file') {
+				} else if ($type === 'file') {
 					$stats['files']++;
 					if ($this->_should_sync($src_entry, $dst_entry, $check_mtime)) {
 						$temp = File::temporary(dirname($dst_entry));
 						$logger->debug("Temporary file: $temp");
-
+						
 						try {
 							$src->download($full_src_path, $temp);
 							$dst->upload($temp, $full_dst_path, true);
@@ -358,7 +368,7 @@ class Sync extends Options
 							if (is_file($temp)) {
 								unlink($temp);
 							}
-
+							
 							throw $e;
 						}
 						if (is_file($temp)) {
@@ -375,7 +385,7 @@ class Sync extends Options
 		$this->stats = $stats;
 		return $this->stats;
 	}
-
+	
 	/**
 	 * Retrieve the most recent synchronization stats
 	 *

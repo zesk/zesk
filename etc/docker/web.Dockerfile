@@ -9,7 +9,7 @@ ENV BUILD_CODE=web
 ENV USER_HOME=/var/www
 
 ENV APPLICATION_HOME=/var/www/app
-ENV LOG_PATH=/var/www/log
+ENV LOG_HOME=/var/www/log
 ENV APPLICATION_USER=www-data
 ENV APPLICATION_PREFIX=""
 ENV WEB_ROOT=$APPLICATION_HOME/public
@@ -36,10 +36,10 @@ ADD . "$APPLICATION_HOME"
 # ===========================================================================
 # -- Middle part --
 
-RUN /usr/local/sbin/install.sh __installEnvironment /tmp/application.conf "$APPLICATION_CONF" "$APPLICATION_HOME" "$APPLICATION_PREFIX" XDEBUG_IDE_KEY XDEBUG_CLIENT_HOST APPLICATION_USER LOG_PATH
+RUN /usr/local/sbin/install.sh __installEnvironment /tmp/application.conf "$APPLICATION_CONF" "$APPLICATION_HOME" "$APPLICATION_PREFIX" PHP_IDE_CONFIG XDEBUG_CLIENT_HOST APPLICATION_USER LOG_HOME
 RUN chmod 640 "$APPLICATION_CONF" && chown "root:$APPLICATION_USER" "$APPLICATION_CONF"
 
-RUN mkdir -p "$LOG_PATH" && chmod 750 "$LOG_PATH" && chown "root:$APPLICATION_USER" "$LOG_PATH"
+RUN mkdir -p "$LOG_HOME" && chmod 750 "$LOG_HOME" && chown "root:$APPLICATION_USER" "$LOG_HOME"
 
 # PHP
 COPY etc/docker/php.ini /usr/local/etc/php/MAP.php.ini

@@ -23,6 +23,9 @@ class Timestamp extends Type
 
 	public function convertToPHPValue($value, AbstractPlatform $platform): DateTimestamp|null
 	{
+		if (empty($value)) {
+			return null;
+		}
 		$stamp = DateTimestamp::nowUTC();
 
 		try {

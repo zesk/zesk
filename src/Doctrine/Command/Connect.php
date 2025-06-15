@@ -3,7 +3,7 @@ declare(strict_types=1);
 /**
  *
  * @copyright &copy; 2023, Market Acumen, Inc.
- * @author kent
+ * @author    kent
  *
  */
 
@@ -13,6 +13,7 @@ use Doctrine\DBAL\Connection;
 use Throwable;
 use zesk\ArrayTools;
 use zesk\Command\SimpleCommand;
+use zesk\Debug;
 use zesk\Exception\CommandFailed;
 use zesk\Exception\DirectoryCreate;
 use zesk\Exception\DirectoryPermission;
@@ -20,44 +21,57 @@ use zesk\Exception\KeyNotFound;
 use zesk\Exception\NotFoundException;
 use zesk\Exception\UnsupportedException;
 use zesk\PHP;
+use zesk\Types;
 
 /**
  * Connect to the database for this application.
  * Optionally set a non-default database by adding --db-connect=alt_db_name
  *
- * @aliases db-connect connect conn
+ * @aliases  db-connect connect conn
  *
  * @category Database
  * @global boolean debug.db-connect Set this global to true to show command that would be executed
  *         (--set debug.db-connect=1)
  * @global boolean db-connect Set this global to alternate database
  */
-class Connect extends SimpleCommand
-{
+class Connect extends SimpleCommand {
+	
 	protected array $shortcuts = ['connect'];
-
+	
 	/**
 	 *
 	 * @var array
 	 */
-	protected array $option_types = [
-		'name' => 'string', 'format' => 'string', 'echo' => 'boolean', 'debug-connect' => 'boolean',
-		'db-url' => 'boolean', 'show-passwords' => 'boolean', 'force' => 'boolean', 'test' => 'boolean',
-		'db-name' => 'boolean', 'grant' => 'boolean', 'host' => 'string',
+	protected array $argumentTypes = [
+		'name'           => 'string',
+		'format'         => 'string',
+		'echo'           => 'boolean',
+		'debug-connect'  => 'boolean',
+		'db-url'         => 'boolean',
+		'show-passwords' => 'boolean',
+		'force'          => 'boolean',
+		'test'           => 'boolean',
+		'db-name'        => 'boolean',
+		'grant'          => 'boolean',
+		'host'           => 'string',
 	];
-
+	
 	/**
 	 *
 	 * @var array
 	 */
 	protected array $option_help = [
-		'name' => 'Database code name to connect to', 'echo' => 'Output the connection command instead of running it',
-		'debug-connect' => 'Show the connect command', 'db-url' => 'Output the database URL or URLs',
-		'force' => 'Force command execution even on failure', 'test' => 'Test to make sure all connections work',
-		'db-name' => 'Output the database name or names', 'grant' => 'Display grant statements for the database',
-		'host' => 'Host used in grant statement if not otherwise supplied',
+		'name'          => 'Database code name to connect to',
+		'echo'          => 'Output the connection command instead of running it',
+		'debug-connect' => 'Show the connect command',
+		'db-url'        => 'Output the database URL or URLs',
+		'force'         => 'Force command execution even on failure',
+		'test'          => 'Test to make sure all connections work',
+		'db-name'       => 'Output the database name or names',
+		'grant'         => 'Display grant statements for the database',
+		'host'          => 'Host used in grant statement if not otherwise supplied',
 	];
-
+	
 	/**
 	 *
 	 * @return integer
@@ -74,16 +88,19 @@ class Connect extends SimpleCommand
 		if ($this->optionBool('test')) {
 			return $this->handle_test();
 		}
-
+		
 		if ($this->optionBool('grant')) {
 			return $this->handle_grants();
 		}
-
+		
 		$name = $this->optionString('name');
 		$db = $this->application->entityManager()->getConnection();
-
-		[$command, $args] = $this->databaseShellCommand($db);
-
+		
+		[
+			$command,
+			$args,
+		] = $this->databaseShellCommand($db);
+		
 		if ($this->optionBool('debug-connect')) {
 			echo "$command " . implode(' ', $args) . "\n";
 		}
@@ -100,7 +117,7 @@ class Connect extends SimpleCommand
 		}
 		return 0;
 	}
-
+	
 	public function databaseShellCommand(Connection $connection): array
 	{
 		//		$platform = $connection->getDatabasePlatform();
@@ -115,13 +132,13 @@ class Connect extends SimpleCommand
 		//		}
 		return []; // TODO
 	}
-
+	
 	private static array $shell_command_options = [
 		'sql-dump-command' => 'boolean. Generate a command-line SQL dump command instead of a connection command',
-		'tables' => 'string[]. Used in conjunction with sql-dump-command - an array of tables to dump',
-		'non-blocking' => 'boolean. Used in conjunction with sql-dump-command - dump database in a non-blocking manner.',
+		'tables'           => 'string[]. Used in conjunction with sql-dump-command - an array of tables to dump',
+		'non-blocking'     => 'boolean. Used in conjunction with sql-dump-command - dump database in a non-blocking manner.',
 	];
-
+	
 	public function mysqlShellCommand(array $options = []): array
 	{
 		/**
@@ -133,11 +150,13 @@ class Connect extends SimpleCommand
 		foreach ($options as $option_key => $option_value) {
 			if (!array_key_exists($option_key, self::$shell_command_options)) {
 				$this->application->warning('Unknown option passed to {method}: {option_key}={option_value}', [
-					'method' => __METHOD__, 'option_key' => $option_key, 'option_value' => _dump($option_value),
+					'method'       => __METHOD__,
+					'option_key'   => $option_key,
+					'option_value' => Debug::dump($option_value),
 				]);
 			}
 		}
-
+		
 		$parts = $this->url_parts;
 		$host = $parts['host'] ?? null;
 		$user = $parts['user'] ?? null;
@@ -157,28 +176,29 @@ class Connect extends SimpleCommand
 			$args[] = '-h';
 			$args[] = $host;
 		}
-		if (toBool($options['force'] ?? false)) {
+		if (Types::toBool($options['force'] ?? false)) {
 			$args[] = '-f';
 		}
 		$path = substr($path, 1);
 		$args[] = $path;
-
+		
 		$bin = 'mysql';
-		if (toBool($options['sql-dump-command'] ?? false)) {
+		if (Types::toBool($options['sql-dump-command'] ?? false)) {
 			$bin = 'mysqldump';
-			if (isset($options['non-blocking']) && toBool($options['non-blocking'])) {
+			if (isset($options['non-blocking']) && Types::toBool($options['non-blocking'])) {
 				$args = array_merge($args, [
 					'--single-transaction=TRUE',
 				]);
 			}
-			$tables = toList($options['tables'] ?? []);
+			$tables = Types::toList($options['tables'] ?? []);
 			$args = array_merge($args, $tables);
 		}
 		return [
-			$bin, $args,
+			$bin,
+			$args,
 		];
 	}
-
+	
 	/**
 	 *
 	 * @return int
@@ -210,7 +230,7 @@ class Connect extends SimpleCommand
 		$this->renderFormat($dbs);
 		return 0;
 	}
-
+	
 	/**
 	 *
 	 * @return int
@@ -229,7 +249,7 @@ class Connect extends SimpleCommand
 		$this->renderFormat($db);
 		return 0;
 	}
-
+	
 	/**
 	 * TODO
 	 */
@@ -242,12 +262,14 @@ class Connect extends SimpleCommand
 				$object = $module->databaseRegistry($name, [
 					'connect' => false,
 				]);
-
+				
 				try {
 					$grant_statements = $object->sqlDialect()->grant([
-						'user' => $object->urlComponent('user'), 'pass' => $object->urlComponent('pass'),
-						'name' => $object->urlComponent('name'), 'from_host' => $this->option('host'),
-						'tables' => SQLDialect::SQL_GRANT_ALL,
+						'user'      => $object->urlComponent('user'),
+						'pass'      => $object->urlComponent('pass'),
+						'name'      => $object->urlComponent('name'),
+						'from_host' => $this->option('host'),
+						'tables'    => SQLDialect::SQL_GRANT_ALL,
 					]);
 				} catch (UnsupportedException|KeyNotFound) {
 					$grant_statements = null;

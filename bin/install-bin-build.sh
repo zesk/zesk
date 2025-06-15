@@ -146,7 +146,7 @@ __installCheck() {
 #
 # Determines the most recent version using GitHub API unless --url or --local is specified
 #
-# Argument: --local localPackageDirectory - Optional. Directory. Directory of an existing bin/infrastructure installation to mock behavior for testing
+# Argument: --local localPackageDirectory - Optional. Directory. Directory of an existing bin/build installation to mock behavior for testing
 # Argument: --url url - Optional. URL. URL of a tar.gz. file. Download source code from here.
 # Argument: --debug - Optional. Flag. Debugging is on.
 # Argument: --force - Optional. Flag. Force installation even if file is up to date.
@@ -159,7 +159,7 @@ __installPackageConfiguration() {
   _installRemotePackage "$rel" "bin/build" "install-bin-build.sh" --version-function __installBinBuildVersion --url-function __installBinBuildURL --check-function __installBinBuildCheck --name "Zesk Build" "$@"
 }
 
-# IDENTICAL _installRemotePackage 385
+# IDENTICAL _installRemotePackage 400
 
 # Installs {name} in a local project directory if not installed. Also
 # will overwrite {source} with the latest version after installation.
@@ -196,6 +196,11 @@ __installPackageConfiguration() {
 # INTERNAL:
 # DOC TEMPLATE: --help 1
 # Argument: --help - Optional. Flag. Display this help.
+# Argument: relative - Required. RelativePath. Path from this script to our application root. INTERNAL.
+# Argument: defaultPackagePath - Required. RelativePath. Path from application root to where the package should be installed. INTERNAL.
+# Argument: packageInstallerName - Required. ApplicationFile. The new installer file, post installation, relative to the `installationPath`. INTERNAL.
+# Argument: installationPath - Optional. ApplicationDirectory. Path to where the package should be installed instead of the defaultPackagePath.
+# Argument: --help - Optional. Flag. Display this help.
 # Argument: --source source - Optional. String. Source to display for the binary name. INTERNAL.
 # Argument: --name name - Optional. String. Name to display for the remote package name. INTERNAL.
 # Argument: --local localPackageDirectory - Optional. Directory. Directory of an existing installation to mock behavior for testing. INTERNAL.
@@ -211,6 +216,7 @@ __installPackageConfiguration() {
 # Argument: --finalize file - Optional. File. Remove the temporary file and exit 0. INTERNAL.
 # Argument: --debug - Optional. Flag. Debugging is on. INTERNAL.
 # Argument: --force - Optional. Flag. Force installation even if file is up to date.
+# Argument: --skip-self - Optional. Flag. Skip the installation script self-update. (By default it is enabled.)
 # Argument: --diff - Optional. Flag. Show differences between old and new file.
 # Exit Code: 1 - Environment error
 # Exit Code: 2 - Argument error
@@ -218,14 +224,15 @@ __installPackageConfiguration() {
 _installRemotePackage() {
   local usage="_${FUNCNAME[0]}"
 
-  local relative="${1-}" packagePath="${2-}" packageInstallerName="${3-}"
+  local relative="${1-}" defaultPackagePath="${2-}" packageInstallerName="${3-}"
 
   shift 3
 
   case "${BUILD_DEBUG-}" in 1 | true) __installRemotePackageDebug BUILD_DEBUG ;; esac
 
-  local installArgs=() url="" localPath="" forceFlag=false installReason="" urlFunction="" checkFunction="" fetchArguments=()
-  local name="${FUNCNAME[1]}"
+  local source="" name="${FUNCNAME[1]}"
+  local localPath="" fetchArguments=() url="" versionFunction="" urlFunction="" checkFunction="" installers=()
+  local installPath="" installArgs=() forceFlag=false installReason="" skipSelf=false
 
   # _IDENTICAL_ argument-case-header 5
   local __saved=("$@") __count=$#
@@ -251,7 +258,6 @@ _installRemotePackage() {
       shift
       [ -n "${1-}" ] || __throwArgument "$usage" "$argument blank argument #$__index" || return $?
       localPath="$(__catchArgument "$usage" realPath "${1%/}")" || return $?
-      [ -x "$localPath/tools.sh" ] || __throwArgument "$usage" "$argument argument (\"$(decorate code "$localPath")\") must be path to bin/build containing tools.sh" || return $?
       ;;
     --user | --header | --password)
       shift
@@ -317,6 +323,9 @@ _installRemotePackage() {
     --debug)
       __installRemotePackageDebug "$argument"
       ;;
+    --skip-self)
+      skipSelf=true
+      ;;
     --force)
       forceFlag=true
       installReason="--force specified"
@@ -325,21 +334,26 @@ _installRemotePackage() {
       installArgs+=("$argument")
       ;;
     *)
-      __throwArgument "$usage" "unknown argument #$__index: $argument" || return $?
+      installPath=$(usageArgumentString "$usage" "installPath" "$1") || return $?
+      installPath="${installPath%/}"
       ;;
     esac
     # _IDENTICAL_ argument-esac-shift 1
     shift
   done
 
-  local installFlag=false message
-  local myBinary myPath applicationHome installPath
+  local installFlag=false
+  local myBinary myPath applicationHome installPath packagePath
   # Move to starting point
   myBinary=$(__catchEnvironment "$usage" realPath "${BASH_SOURCE[0]}") || return $?
-  myPath="$(__catchEnvironment "$usage" dirname "$myBinary")" || return $?
+  myPath="${myBinary%/*}" || return $?
   applicationHome=$(__catchEnvironment "$usage" realPath "$myPath/$relative") || return $?
-  installPath="$applicationHome/$packagePath"
+  applicationHome="${applicationHome%/}"
+  [ -n "$installPath" ] || installPath="$applicationHome/$defaultPackagePath"
+  packagePath="${installPath#"$applicationHome"}"
+  packagePath="${packagePath#/}"
 
+  __catchEnvironment "$usage" pushd "$applicationHome" || return $?
   if [ -z "$url" ]; then
     if [ -n "$urlFunction" ]; then
       url=$(__catchEnvironment "$usage" "$urlFunction" "$usage") || return $?
@@ -360,7 +374,7 @@ _installRemotePackage() {
     installFlag=true
   elif ! $forceFlag && [ -n "$versionFunction" ]; then
     local newVersion=""
-    if newVersion=$("$versionFunction" "$usage" "$applicationHome" "$installPath"); then
+    if newVersion=$("$versionFunction" "$usage" "$applicationHome" "$packagePath"); then
       printf "%s %s %s\n" "$(decorate value "$name")" "$(decorate info "Newest version installed")" "$newVersion"
       __installRemotePackageGitCheck "$applicationHome" "$packagePath" || :
       return 0
@@ -374,29 +388,28 @@ _installRemotePackage() {
     installFlag=true
   fi
   binName=" ($(decorate bold-blue "$(basename "$myBinary")"))"
+
+  local message suffix
   if $installFlag; then
     local start
     start=$(($(__catchEnvironment "$usage" date +%s) + 0)) || return $?
     __installRemotePackageDirectory "$usage" "$packagePath" "$applicationHome" "$url" "$localPath" "${fetchArguments[@]+"${fetchArguments[@]}"}" || return $?
-    [ -d "$installPath" ] || __throwEnvironment "$usage" "Unable to download and install $packagePath ($installPath not a directory, still)" || return $?
-    messageFile=$(fileTemporaryName "$usage") || return $?
-    if [ -n "$checkFunction" ]; then
-      "$checkFunction" "$usage" "$installPath" >"$messageFile" 2>&1 || return $?
-    else
-      __catchEnvironment "$usage" printf -- "%s\n" "$packagePath" >"$messageFile" || return $?
-    fi
-    message="Installed $(cat "$messageFile") in $(($(date +%s) - start)) seconds$binName"
-    __catchEnvironment "$usage" rm -f "$messageFile" || return $?
+    [ -d "$packagePath" ] || __throwEnvironment "$usage" "Unable to download and install $packagePath (not a directory, still)" || return $?
+    message="Installed "
+    suffix="in $(($(date +%s) - start)) seconds$binName"
   else
-    messageFile=$(fileTemporaryName "$usage") || return $?
-    if [ -n "$checkFunction" ]; then
-      "$checkFunction" "$usage" "$installPath" >"$messageFile" 2>&1 || return $?
-    else
-      __catchEnvironment "$usage" printf -- "%s\n" "$packagePath" >"$messageFile" || return $?
-    fi
-    message="$(cat "$messageFile") already installed"
-    rm -f "$messageFile" || :
+    message=""
+    suffix="already installed"
   fi
+  local messageFile
+  messageFile=$(fileTemporaryName "$usage") || return $?
+  if [ -n "$checkFunction" ]; then
+    "$checkFunction" "$usage" "$packagePath" >"$messageFile" 2>&1 || return $?
+  else
+    __catchEnvironment "$usage" printf -- "%s\n" "$packagePath" >"$messageFile" || return $?
+  fi
+  message="${message}Installed $(cat "$messageFile") $suffix"
+  __catchEnvironment "$usage" rm -f "$messageFile" || return $?
   __installRemotePackageGitCheck "$applicationHome" "$packagePath" || :
   message="$message (local)$binName"
   printf -- "%s\n" "$message"
@@ -444,8 +457,7 @@ _installRemotePackage() {
       return "$exitCode"
     fi
   fi
-
-  __installRemotePackageLocal "$installPath/$packageInstallerName" "$myBinary" "$relative"
+  $skipSelf || __installRemotePackageLocal "$installPath/$packageInstallerName" "$myBinary" "$relative"
 }
 
 # Error handler for _installRemotePackage
@@ -542,7 +554,10 @@ __installRemotePackageLocal() {
     grep -v -e '^__installPackageConfiguration ' <"$source"
     printf "%s %s \"%s\"\n" "__installPackageConfiguration" "$relTop" '$@'
   } >"$myBinary.$$"
-  chmod +x "$myBinary.$$" || _environment "chmod +x failed" || return $?
+  if ! chmod +x "$myBinary.$$"; then
+    rm -rf "$myBinary.$$" || :
+    _environment "chmod +x failed" || return $?
+  fi
   exec "$myBinary.$$" --replace "$myBinary"
 }
 
@@ -947,7 +962,7 @@ _isFunction() {
   usageDocument "${BASH_SOURCE[0]}" "${FUNCNAME[0]#_}" "$@"
 }
 
-# IDENTICAL decorate 218
+# IDENTICAL decorate 236
 
 # Sets the environment variable `BUILD_COLORS` if not set, uses `TERM` to calculate
 #
@@ -1033,7 +1048,7 @@ decorate() {
   local usage="_${FUNCNAME[0]}" text="" what="${1-}" lp dp style
   shift && [ -n "$what" ] || __catchArgument "$usage" "Requires at least one argument: \"$*\"" || return $?
 
-  if ! style=$(_caseStyles "$what"); then
+  if ! style=$(_decorateStyle "$what"); then
     local extend func="${what/-/_}"
     extend="__decorateExtension$(printf "%s" "${func:0:1}" | awk '{print toupper($0)}')${func:1}"
     # When this next line calls `__catchArgument` it results in an infinite loop
@@ -1042,7 +1057,8 @@ decorate() {
     __executeInputSupport "$usage" "$extend" -- "$@" || return $?
     return 0
   fi
-  read -r lp dp text <<<"$style" || :
+  IFS=" " read -r lp dp text <<<"$style" || :
+  [ "$dp" != "-" ] || dp="$lp"
   local p='\033['
 
   __executeInputSupport "$usage" __decorate "$text" "${p}${lp}m" "${p}${dp:-$lp}m" "${p}0m" -- "$@" || return $?
@@ -1052,58 +1068,75 @@ _decorate() {
   usageDocument "${BASH_SOURCE[0]}" "${FUNCNAME[0]#_}" "$@"
 }
 
-# Enables timing
-# Usage: {fn} style
-# Exit Code: 1 - not found
-# Exit Code: 0 - found
-# stdout: 1, 2, or 3 tokens + newline: lightColor darkColor text
-# Requires: printf
-_caseStyles() {
-  case "$1" in
-  reset) lp='0' ;;
-    # styles
-  underline) lp='4' ;;
-  no-underline) lp='24' ;;
-  bold) lp='1' ;;
-  no-bold) lp='21' ;;
-    # colors
-  black) lp='109;7' ;;
-  black-contrast) lp='107;30' ;;
-  blue) lp='94' ;;
-  cyan) lp='36' ;;
-  green) lp='92' ;;
-  magenta) lp='35' ;;
-  orange) lp='33' ;;
-  red) lp='31' ;;
-  white) lp='48;5;0;37' ;;
-  yellow) lp='48;5;16;38;5;11' ;;
-    # bold-colors
-  bold-black) lp='1;109;7' ;;
-  bold-black-contrast) lp='1;107;30' ;;
-  bold-blue) lp='1;94' ;;
-  bold-cyan) lp='1;36' ;;
-  bold-green) lp='92' ;;
-  bold-magenta) lp='1;35' ;;
-  bold-orange) lp='1;33' ;;
-  bold-red) lp='1;31' ;;
-  bold-white) lp='1;48;5;0;37' ;;
-  bold-yellow) lp='1;48;5;16;38;5;11' ;;
-    # semantic-colors
-  code) lp='1;97;44' ;;
-  info) lp='38;5;20' && dp='1;33' && text="Info" ;;
-  notice) lp='46;31' && dp='1;97;44' && text="Notice" ;;
-  success) lp='42;30' && dp='0;32' && text="Success" ;;
-  warning) lp='1;93;41' && text="Warning" ;;
-  error) lp='1;91' && text="ERROR" ;;
-  subtle) lp='1;38;5;252' && dp='1;38;5;240' ;;
-  label) lp='34;103' && dp='1;96' ;;
-  value) lp='1;40;97' && dp='1;97' ;;
-  decoration) lp='45;97' && dp='45;30' ;;
-  *)
-    return 1
-    ;;
-  esac
-  printf "%s %s %s\n" "$lp" "${dp:-$lp}" "$text"
+_decorateInitialize() {
+  export __BUILD_COLORS
+  [ -n "${__BUILD_COLORS-}" ] || __decorateStyles || return $?
+}
+
+# Fetch the requested style as a string: lp dp text
+# dp may be a dash for simpler parsing - dp=lp when dp is blank or dash
+# text is optional, lp is required to be non-blank
+# Requires: isArray __decorateStyles
+_decorateStyle() {
+  local original style pattern=$'\n'"$1="
+
+  _decorateInitialize || return $?
+  original="${__BUILD_COLORS}"
+  style="${__BUILD_COLORS#*"$pattern"}"
+  [ "$style" != "$original" ] || return 1
+  style="${style%%$'\n'*}"
+  printf "%s\n" "$style"
+}
+
+# Default array styles, override if you wish
+if ! isFunction __decorateStyles; then
+  # This sets __BUILD_COLORS to the styles strings
+  __decorateStyles() {
+    __decorateStylesDefault
+  }
+fi
+
+# Default array styles, override if you wish
+__decorateStylesDefault() {
+  local styles="
+reset=0
+underline=4
+no-underline=24
+bold=1
+no-bold=21
+black=109;7
+black-contrast=107;30
+blue=94
+cyan=36
+green=92
+magenta=35
+orange=33
+red=31
+white=48;5;0;37
+yellow=48;5;16;38;5;11
+bold-black=1;109;7
+bold-black-contrast=1;107;30
+bold-blue=1;94
+bold-cyan=1;36
+bold-green=92
+bold-magenta=1;35
+bold-orange=1;33
+bold-red=1;31
+bold-white=1;48;5;0;37
+bold-yellow=1;48;5;16;38;5;11
+code=1;97;44
+info=38;5;20 1;33 Info
+notice=46;31 1;97;44 Notice
+success=42;30 0;32 Success
+warning=1;93;41 - Warning
+error=1;91 - ERROR
+subtle=1;38;5;252 1;38;5;240
+label=34;103 1;96
+value=1;40;97 1;97
+decoration=45;97 45;30
+"
+  export __BUILD_COLORS
+  __BUILD_COLORS="$styles"
 }
 
 # fn: decorate each
@@ -1206,6 +1239,22 @@ __executeInputSupport() {
     fi
     __catchEnvironment "$usage" "${executor[@]}" "$@" || return $?
   fi
+}
+
+# _IDENTICAL_ isArray 14
+
+# Is a variable declared as an array?
+# Argument: variableName - Required. String. Variable to check is an array.
+isArray() {
+  while [ $# -gt 0 ]; do
+    [ -n "${1-}" ] || return 1
+    case "$(declare -p "${1-}" 2>/dev/null)" in
+    *"declare -a"*) ;;
+    *) return 1 ;;
+    esac
+    shift
+  done
+  return 0
 }
 
 # _IDENTICAL_ _exitString 8

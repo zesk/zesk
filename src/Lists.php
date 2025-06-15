@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 /**
- * @package zesk
+ * @package    zesk
  * @subpackage system
- * @author kent
- * @copyright Copyright &copy; 2025, Market Acumen, Inc.
+ * @author     kent
+ * @copyright  Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -24,13 +24,13 @@ namespace zesk;
  *
  * @author kent
  */
-class Lists
-{
+class Lists {
+	
 	/**
 	 * Make a list unique
 	 *
 	 * @param string|array $list
-	 * @param string $sep
+	 * @param string       $sep
 	 * @return string|array
 	 */
 	public static function unique(string|array $list, string $sep = ';'): string|array
@@ -40,20 +40,20 @@ class Lists
 		}
 		return implode($sep, array_unique(explode($sep, $list)));
 	}
-
+	
 	/**
 	 * Remove a specific item from a list, maintaining existing order
 	 *
 	 * @param string|array $list List of tokens
 	 * @param string|array $item Item or items to remove
-	 * @param string $sep List separator, defaults to ";", only relevant if string passed for first parameter
+	 * @param string       $sep  List separator, defaults to ";", only relevant if string passed for first parameter
 	 * @return string|array The new list
 	 */
 	public static function keysRemove(array|string $list, string|array $item, string $sep = ';'): array|string
 	{
 		$is_arr = is_array($list);
 		$a = $is_arr ? $list : explode($sep, $list);
-		$item = toList($item, [], $sep);
+		$item = Types::toList($item, [], $sep);
 		foreach ($a as $k => $i) {
 			if (in_array($i, $item)) {
 				unset($a[$k]);
@@ -61,18 +61,18 @@ class Lists
 		}
 		return !$is_arr ? implode($sep, $a) : $a;
 	}
-
+	
 	/**
 	 * Add an item to a list, maintaining existing order
 	 *
 	 * @param string|array $list List of strings
 	 * @param string|array $item Item or items to add
-	 * @param string $sep List separator, defaults to ";"
+	 * @param string       $sep  List separator, defaults to ";"
 	 * @return string|array The new list
 	 */
 	public static function append(string|array $list, string|array $item, string $sep = ';'): string|array
 	{
-		$items = ArrayTools::clean(toList($item, [''], $sep), null);
+		$items = ArrayTools::clean(Types::toList($item, [''], $sep), null);
 		if (count($items) === 0) {
 			return $list;
 		}
@@ -84,33 +84,33 @@ class Lists
 		}
 		return $list . $sep . implode($sep, $items);
 	}
-
+	
 	/**
 	 * Add an item to a list only if it's not in it already
 	 *
 	 * @param string|array $list List to append - same type is returned
 	 * @param string|array $item Items to add
-	 * @param string $sep List separator
+	 * @param string       $sep  List separator
 	 * @return string|array Result list
 	 */
 	public static function appendUnique(string|array $list, string|array $item, string $sep = ';'): string|array
 	{
-		$items = array_unique(ArrayTools::clean(toList($item, [''], $sep), null));
+		$items = array_unique(ArrayTools::clean(Types::toList($item, [''], $sep), null));
 		if (is_array($list)) {
 			return array_unique(array_merge($list, $items));
-		} elseif ($list === '') {
+		} else if ($list === '') {
 			return implode($sep, $items);
 		} else {
 			return implode($sep, array_unique(array_merge(explode($sep, $list), $items)));
 		}
 	}
-
+	
 	/**
 	 * Does this list contain an item?
 	 *
 	 * @param string|array $list List to check
-	 * @param string $item Item to check if it appears in the list
-	 * @param string $sep List separator, defaults to ";"
+	 * @param string       $item Item to check if it appears in the list
+	 * @param string       $sep  List separator, defaults to ";"
 	 * @return bool
 	 */
 	public static function contains(array|string $list, string $item, string $sep = ';'): bool
@@ -120,13 +120,13 @@ class Lists
 		}
 		return str_contains($sep . $list . $sep, $sep . $item . $sep);
 	}
-
+	
 	/**
 	 * Prepend an item to a list, maintaining existing order
 	 *
-	 * @param array|string $list List of strings
+	 * @param array|string $list  List of strings
 	 * @param array|string $items Item to add
-	 * @param string $sep List separator, defaults to ";"
+	 * @param string       $sep   List separator, defaults to ";"
 	 * @return array|string The new list
 	 */
 	public static function prepend(array|string $list, array|string $items, string $sep = ';'): array|string
@@ -141,12 +141,12 @@ class Lists
 		}
 		return $items . $sep . $list;
 	}
-
+	
 	/**
 	 * Pop an item from a list (similar to a stack)
 	 *
 	 * @param string|array $list
-	 * @param string $sep
+	 * @param string       $sep
 	 * @return string|array List with the last item removed
 	 */
 	public static function pop(string|array $list, string $sep = ';'): array|string

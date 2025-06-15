@@ -1,9 +1,9 @@
 <?php
 declare(strict_types=1);
 /**
- * @package zesk
+ * @package    zesk
  * @subpackage system
- * @author kent
+ * @author     kent
  */
 
 namespace zesk;
@@ -13,7 +13,7 @@ trait GetTyped
 	/**
 	 * Check for a value and check optionally that it is not empty.
 	 *
-	 * @param string $key
+	 * @param string  $key
 	 * @param boolean $check_empty
 	 * @return boolean
 	 */
@@ -33,7 +33,7 @@ trait GetTyped
 	 * Get a variable name, with a default
 	 *
 	 * @param string|int $k
-	 * @param mixed $default
+	 * @param mixed      $default
 	 * @return mixed
 	 */
 	public function get(string|int $k, mixed $default = null): mixed
@@ -45,12 +45,12 @@ trait GetTyped
 	 * Get first key value matching, or default
 	 *
 	 * @param string|array $keys
-	 * @param mixed $default
+	 * @param mixed        $default
 	 * @return mixed
 	 */
 	public function getFirst(string|array $keys, mixed $default = null): mixed
 	{
-		foreach (toList($keys) as $key) {
+		foreach (Types::toList($keys) as $key) {
 			if ($this->__isset($key)) {
 				return $this->__get($key);
 			}
@@ -62,7 +62,7 @@ trait GetTyped
 	 * Retrieve a non-empty value
 	 *
 	 * @param string $key Value to retrieve.
-	 * @param mixed $default
+	 * @param mixed  $default
 	 * @return mixed
 	 */
 	public function getNotEmpty(string $key, mixed $default = null): mixed
@@ -78,19 +78,19 @@ trait GetTyped
 	 * Get a value and convert it to an integer, or return $default
 	 *
 	 * @param string|int $key
-	 * @param int $default
+	 * @param int        $default
 	 * @return integer
 	 */
 	public function getInt(string|int $key, int $default = 0): int
 	{
-		return toInteger($this->__get($key), $default);
+		return Types::toInteger($this->__get($key), $default);
 	}
 
 	/**
 	 * Get a value and convert it to a string, or return $default
 	 *
 	 * @param string|int $key
-	 * @param string $default
+	 * @param string     $default
 	 * @return string
 	 */
 	public function getString(string|int $key, string $default = ''): string
@@ -106,31 +106,31 @@ trait GetTyped
 	 * Retrieve a variable as a double value
 	 *
 	 * @param string $name
-	 * @param float $default
+	 * @param float  $default
 	 * @return float
 	 */
 	public function getFloat(string $name, float $default = 0.0): float
 	{
-		return toFloat($this->get($name), $default);
+		return Types::toFloat($this->get($name), $default);
 	}
 
 	/**
 	 * Get a value and convert it to a boolean value, or return $default
 	 *
 	 * @param string|int $key
-	 * @param mixed $default
+	 * @param mixed      $default
 	 * @return boolean
 	 */
 	public function getBool(string|int $key, bool $default = false): bool
 	{
-		return toBool($this->__get($key), $default);
+		return Types::toBool($this->__get($key), $default);
 	}
 
 	/**
 	 * Get a value if it's an array, or return $default
 	 *
 	 * @param string|int $key
-	 * @param mixed $default
+	 * @param mixed      $default
 	 * @return array
 	 */
 	public function getArray(string|int $key, array $default = []): array
@@ -143,18 +143,18 @@ trait GetTyped
 	}
 
 	/**
-	 * Retrieve a value as an array value
+	 * Retrieve a value as an iterable
 	 *
 	 * @param string $name
-	 * @param mixed $default
+	 * @param mixed  $default
 	 * @param string $sep
 	 *            For string values, split on this character
 	 * @return array
 	 */
-	public function getList(string $name, array $default = [], string $sep = ';'): array
+	public function getIterable(string $name, iterable $default = [], string $sep = ';'): iterable
 	{
 		$x = $this->__get($name);
-		if (is_array($x)) {
+		if (is_iterable($x)) {
 			return $x;
 		}
 		if (!is_string($x)) {

@@ -24,7 +24,7 @@ class Module extends SimpleCommand
 		'm',
 	];
 
-	protected array $option_types = [
+	protected array $argumentTypes = [
 		'format' => 'string',
 		'loaded' => 'boolean',
 		'*'      => 'string',

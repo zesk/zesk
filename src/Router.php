@@ -399,7 +399,6 @@ class Router extends Hookable
 	 * @param array  $options
 	 * @return Route
 	 * @throws ClassNotFound
-	 * @throws ProtocolException
 	 */
 	public function addRoute(string $path, array $options): Route
 	{
@@ -417,7 +416,6 @@ class Router extends Hookable
 	 *
 	 * @param Route $route
 	 * @return Route
-	 * @throws ProtocolException
 	 */
 	private function _addRouteID(Route $route): Route
 	{

@@ -3,10 +3,10 @@ declare(strict_types=1);
 /**
  * Created on Fri Apr 02 21:04:09 EDT 2010 21:04:09
  *
- * @package zesk
+ * @package    zesk
  * @subpackage objects
- * @author kent
- * @copyright Copyright &copy; 2025, Market Acumen, Inc.
+ * @author     kent
+ * @copyright  Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -19,7 +19,6 @@ use Psr\Cache\InvalidArgumentException;
 
 use zesk\Exception\ClassNotFound;
 use zesk\Exception\NotFoundException;
-use zesk\Exception\ParameterException;
 use zesk\Exception\Redirect;
 use zesk\Interface\Themeable;
 
@@ -38,19 +37,23 @@ class Controller extends Hookable implements Themeable
 	protected string $default_content_type = '';
 
 	protected array $argumentMethods = [
-		'arguments_{METHOD}_{action}', 'arguments_{action}',
+		'arguments_{METHOD}_{action}',
+		'arguments_{action}',
 	];
 
 	protected array $actionMethods = [
-		'action_{METHOD}_{action}', 'action_{action}',
+		'action_{METHOD}_{action}',
+		'action_{action}',
 	];
 
 	protected array $beforeMethods = [
-		'before_{METHOD}_{action}', 'before_{action}',
+		'before_{METHOD}_{action}',
+		'before_{action}',
 	];
 
 	protected array $afterMethods = [
-		'after_{METHOD}_{action}', 'after_{action}',
+		'after_{METHOD}_{action}',
+		'after_{action}',
 	];
 
 	/**
@@ -68,8 +71,8 @@ class Controller extends Hookable implements Themeable
 	 * Controller constructor.
 	 *
 	 * @param Application $app
-	 * @param Route $route
-	 * @param array $options
+	 * @param Route       $route
+	 * @param array       $options
 	 */
 	final public function __construct(Application $app, Route $route, array $options = [])
 	{
@@ -94,8 +97,8 @@ class Controller extends Hookable implements Themeable
 	 * Shortcut for subclass methods
 	 *
 	 * @param array|string $types
-	 * @param array $arguments
-	 * @param array $options
+	 * @param array        $arguments
+	 * @param array        $options
 	 * @return string
 	 * @throws Redirect
 	 */
@@ -106,18 +109,6 @@ class Controller extends Hookable implements Themeable
 
 	/**
 	 */
-	public function classActions(): array
-	{
-		return [];
-	}
-
-	/**
-	 */
-	protected function hook_classes(): array
-	{
-		return $this->optionIterable('classes');
-	}
-
 	public const HOOK_BEFORE = self::class . '::before';
 
 	public const HOOK_AFTER = self::class . '::after';
@@ -125,19 +116,25 @@ class Controller extends Hookable implements Themeable
 	/**
 	 * Execute this route
 	 *
-	 * @param Request $request
+	 * @param Request  $request
 	 * @param Response $response
-	 * @param string $action
-	 * @param array $arguments
+	 * @param string   $action
+	 * @param array    $arguments
 	 * @return Response
 	 * @throws NotFoundException
 	 */
 	final public function execute(Request $request, Response $response, string $action = '', array $arguments = []): Response
 	{
-		$wrapperArguments = [$request, $response, $arguments, $action];
+		$wrapperArguments = [
+			$request,
+			$response,
+			$arguments,
+			$action,
+		];
 		$app = $this->application;
 		$requestMap = [
-			'method' => strtolower($request->method()), 'action' => $action ?: 'index',
+			'method' => strtolower($request->method()),
+			'action' => $action ?: 'index',
 			'METHOD' => strtoupper($request->method()),
 		];
 		$beforeMethod = $this->determineMethod($this->beforeMethods, $requestMap, false);
@@ -145,7 +142,8 @@ class Controller extends Hookable implements Themeable
 		$actionMethod = $this->determineMethod($this->actionMethods, $requestMap, true);
 		$afterMethod = $this->determineMethod($this->afterMethods, $requestMap, false);
 		$__ = $requestMap + [
-			'class' => $this::class, 'actionMethod' => $actionMethod,
+			'class'        => $this::class,
+			'actionMethod' => $actionMethod,
 		];
 		$app->debug('Controller {class} running action {method} {action} -> {actionMethod}', $__);
 
@@ -165,8 +163,10 @@ class Controller extends Hookable implements Themeable
 		$result = $this->invokeMethod($actionMethod, $arguments);
 		$contents = ob_get_clean();
 		$__ = [
-			'actionMethod' => $actionMethod, 'bytes' => $contentsLength = strlen($contents), 'contents' => $contents,
-			'class' => get_class($this),
+			'actionMethod' => $actionMethod,
+			'bytes'        => $contentsLength = strlen($contents),
+			'contents'     => $contents,
+			'class'        => get_class($this),
 		];
 		$message = '{actionMethod} output {bytes} bytes: "{contents}"';
 		if ($result instanceof Response) {
@@ -209,7 +209,7 @@ class Controller extends Hookable implements Themeable
 	/**
 	 * Controller call is called before every action
 	 *
-	 * @param Request $request
+	 * @param Request  $request
 	 * @param Response $response
 	 * @return void
 	 */
@@ -220,7 +220,7 @@ class Controller extends Hookable implements Themeable
 	/**
 	 * Controller call is called after every action
 	 *
-	 * @param Request $request
+	 * @param Request  $request
 	 * @param Response $response
 	 * @return Response
 	 */
@@ -235,7 +235,8 @@ class Controller extends Hookable implements Themeable
 	public function variables(): array
 	{
 		return [
-			'application' => $this->application, 'controller' => $this,
+			'application' => $this->application,
+			'controller'  => $this,
 		];
 	}
 
@@ -245,7 +246,7 @@ class Controller extends Hookable implements Themeable
 	 * Update all settings to return a JSON response
 	 *
 	 * @param Response $response
-	 * @param mixed $mixed
+	 * @param mixed    $mixed
 	 * @return Response
 	 */
 	public function responseJSON(Response $response, mixed $mixed = null): Response
@@ -256,10 +257,10 @@ class Controller extends Hookable implements Themeable
 	}
 
 	/**
-	 * Page not found error
+	 * Page is not found
 	 *
 	 * @param Response $response
-	 * @param string $message
+	 * @param string   $message
 	 * @return Response
 	 */
 	public function error_404(Response $response, string $message = ''): Response
@@ -272,8 +273,8 @@ class Controller extends Hookable implements Themeable
 	 * Generic page error
 	 *
 	 * @param Response $response
-	 * @param int $code HTTP::Status_XXX
-	 * @param string $message Message
+	 * @param int      $code    HTTP::Status_XXX
+	 * @param string   $message Message
 	 * @return Response
 	 */
 	public function error(Response $response, int $code, string $message = ''): Response
@@ -287,8 +288,8 @@ class Controller extends Hookable implements Themeable
 	 * Execute an optional method
 	 *
 	 * @param array|string $names
-	 * @param array $arguments
-	 * @param mixed|null $default
+	 * @param array        $arguments
+	 * @param mixed|null   $default
 	 * @return mixed
 	 */
 	final public function optionalMethod(array|string $names, array $arguments, mixed $default = null): mixed
@@ -314,21 +315,22 @@ class Controller extends Hookable implements Themeable
 	/**
 	 *
 	 * @param string $name
-	 * @param array $arguments
+	 * @param array  $arguments
 	 * @return mixed
 	 */
 	final public function invokeMethod(string $name, array $arguments): mixed
 	{
 		return call_user_func_array([
-			$this, $name,
+			$this,
+			$name,
 		], $arguments);
 	}
 
 	/**
 	 *
 	 * @param string $action
-	 * @param mixed $object
-	 * @param array $options
+	 * @param mixed  $object
+	 * @param array  $options
 	 * @return array:
 	 */
 	public function getRouteMap(string $action = '', mixed $object = null, array $options = []): array
@@ -343,9 +345,9 @@ class Controller extends Hookable implements Themeable
 	 */
 
 	/**
-	 * @param string $class Model to create
-	 * @param mixed $mixed Model initialization parameter (id, array, etc.)
-	 * @param array $options Creation options and initial options for model
+	 * @param string $class   Model to create
+	 * @param mixed  $mixed   Model initialization parameter (id, array, etc.)
+	 * @param array  $options Creation options and initial options for the model
 	 * @return Model
 	 * @throws ClassNotFound
 	 */
@@ -358,7 +360,7 @@ class Controller extends Hookable implements Themeable
 	 * Handles an action OPTIONS using introspection.
 	 *
 	 * @param Response $response
-	 * @param string $action
+	 * @param string   $action
 	 * @return Response
 	 */
 	final public function handleOPTIONS(Response $response, string $action): Response
@@ -384,7 +386,7 @@ class Controller extends Hookable implements Themeable
 
 	/**
 	 * Collect a list of all controllers found in this application. This loads all PHP
-	 * within the autoloader paths of the application at time of first invocation.
+	 * within the autoloader paths of the application at the time of first invocation.
 	 *
 	 * Possibly very slow.
 	 *
@@ -393,31 +395,34 @@ class Controller extends Hookable implements Themeable
 	 */
 	final public static function all(Application $application): array
 	{
-		$paths = $application->autoloader->path();
-
 		try {
 			$item = $application->cacheItemPool()->getItem(__CLASS__);
 		} catch (InvalidArgumentException) {
 			$item = null;
 		}
+		[
+			$hash,
+		] = self::classesHash();
 		if ($item && $item->isHit()) {
 			$value = $item->get();
-			if (count($paths) === $value['pathCount']) {
+			if (is_array($value) && $value['hash'] === $hash) {
 				return $value['all'];
 			}
 		}
-		$list_options = [
-			Directory::LIST_RULE_FILE => ['/\.(php)$/' => true, false],
-			Directory::LIST_RULE_DIRECTORY_WALK => ['#/\.#' => false, true], Directory::LIST_RULE_DIRECTORY => false,
-		];
+		$paths = [$application->paths->zesk('src') => []];
 		foreach ($paths as $path => $options) {
-			try {
-				$allIncludes = Directory::listRecursive($path, $list_options);
-			} catch (ParameterException) {
-				$allIncludes = []; // never
-			}
+			$allIncludes = Directory::listRecursive($path, [
+				'#/\.#' => false,
+				true,
+			], [
+				'/\.(php)$/' => true,
+				false,
+			], [false]);
 			foreach ($allIncludes as $controllerInclude) {
-				if (!StringTools::contains($controllerInclude, ['/Controller', 'Controller/'])) {
+				if (!StringTools::contains($controllerInclude, [
+					'/Controller',
+					'Controller/',
+				])) {
 					continue;
 				}
 				$args = ['controllerInclude' => $controllerInclude];
@@ -431,7 +436,13 @@ class Controller extends Hookable implements Themeable
 				}
 			}
 		}
-		$application->classes->register(get_declared_classes());
+
+		[
+			$hash,
+			$classes,
+		] = self::classesHash();
+
+		$application->classes->register($classes);
 		$controllers = $application->classes->register(Controller::class);
 		foreach ($controllers as $controllerClass) {
 			try {
@@ -447,11 +458,22 @@ class Controller extends Hookable implements Themeable
 		sort($found);
 		$value = [];
 		$value['all'] = $found;
-		$value['pathCount'] = count($paths);
+		$value['hash'] = $hash;
 		if ($item) {
 			$application->cacheItemPool()->saveDeferred($item->set($value));
 		}
 		return $found;
+	}
+
+	private static function classesHash(): array
+	{
+		$classes = get_declared_classes();
+		sort($classes);
+		$hash = sha1(json_encode($classes));
+		return [
+			$hash,
+			$classes,
+		];
 	}
 
 	/**
@@ -467,7 +489,7 @@ class Controller extends Hookable implements Themeable
 	/**
 	 * @param array $methods
 	 * @param array $requestMap
-	 * @param bool $require
+	 * @param bool  $require
 	 * @return string
 	 * @throws NotFoundException
 	 */

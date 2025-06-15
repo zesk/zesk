@@ -13,13 +13,13 @@ use zesk\Types;
 /**
  * SettingsInterface adapter
  */
-class SettingsArray implements SettingsInterface
-{
+class SettingsArray implements SettingsInterface {
+	
 	/**
 	 *
 	 */
 	protected array $data;
-
+	
 	/**
 	 *
 	 */
@@ -27,14 +27,17 @@ class SettingsArray implements SettingsInterface
 	{
 		$this->data = &$array;
 	}
-
+	
+	const ZESK_GLOBAL_KEY_SEPARATOR = '::';
+	
 	private function _keyPath(int|string $key): array
 	{
-		return Types::toList(strval($key), [], ZESK_GLOBAL_KEY_SEPARATOR);
+		return Types::toList(strval($key), [], self::ZESK_GLOBAL_KEY_SEPARATOR);
 	}
-
+	
 	/**
 	 * Is a value set in this object?
+	 *
 	 * @param int|string $name
 	 * @return boolean
 	 */
@@ -42,9 +45,10 @@ class SettingsArray implements SettingsInterface
 	{
 		return ArrayTools::path($this->data, self::_keyPath($name)) !== null;
 	}
-
+	
 	/**
 	 * Is a value set in this object?
+	 *
 	 * @param int|string $key
 	 * @return boolean
 	 */
@@ -52,9 +56,10 @@ class SettingsArray implements SettingsInterface
 	{
 		return $this->__isset($key);
 	}
-
+	
 	/**
 	 * Retrieve a value from the settings
+	 *
 	 * @param int|string $key A string or key value (integer, float)
 	 * @return mixed The value of the session variable, or null if nothing set
 	 */
@@ -62,10 +67,11 @@ class SettingsArray implements SettingsInterface
 	{
 		return $this->get($key);
 	}
-
+	
 	/**
 	 * Retrieve a value from the settings, returning a default value if not set
-	 * @param int|string $key A string or key value (integer, float)
+	 *
+	 * @param int|string $key     A string or key value (integer, float)
 	 * @param mixed|null $default A value to return if the session value is null
 	 * @return mixed The value of the session variable, or $default if nothing set
 	 */
@@ -73,23 +79,23 @@ class SettingsArray implements SettingsInterface
 	{
 		return ArrayTools::path($this->data, self::_keyPath($key), $default);
 	}
-
+	
 	/**
 	 * Store a value to a settings
 	 *
-	 * @param mixed $key A string or key value (integer, float)
+	 * @param mixed $key   A string or key value (integer, float)
 	 * @param mixed $value Value to save. As a general rule, best to use scalar types
 	 */
 	public function __set(int|string $key, mixed $value): void
 	{
 		ArrayTools::setPath($this->data, self::_keyPath($key), $value);
 	}
-
+	
 	/**
 	 * Store a value to a settings
 	 *
-	 * @param int|string $key A string or key value (integer, float)
-	 * @param mixed $value Value to save. As a general rule, best to use scalar types
+	 * @param int|string $key   A string or key value (integer, float)
+	 * @param mixed      $value Value to save. As a general rule, best to use scalar types
 	 * @return self
 	 */
 	public function set(int|string $key, mixed $value): self
@@ -97,7 +103,7 @@ class SettingsArray implements SettingsInterface
 		$this->__set($key, $value);
 		return $this;
 	}
-
+	
 	/**
 	 * Retrieve a list of all settings variables as an array
 	 *

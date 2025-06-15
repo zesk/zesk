@@ -31,79 +31,79 @@ use zesk\Interface\Promptable;
  *
  * @author kent
  */
-abstract class Command extends Hookable implements LoggerInterface, Promptable
-{
+abstract class Command extends Hookable implements LoggerInterface, Promptable {
+	
 	use LoggerTrait;
-
+	
 	public const OPTION_ANSI = 'ansi';
-
+	
 	public const OPTION_NO_ANSI = 'no-ansi';
-
+	
 	public const END_OF_ARGUMENT_MARKER = '--';
-
+	
 	/**
 	 * Success
 	 */
 	public const EXIT_CODE_SUCCESS = 0;
-
+	
 	/**
 	 * Environment requirements are not met (including PHP build)
 	 */
 	public const EXIT_CODE_ENVIRONMENT = 2;
-
+	
 	/**
 	 * When the command cannot run due to improper, incomplete, or missing arguments
 	 */
 	public const EXIT_CODE_ARGUMENTS = 2;
-
+	
 	/**
 	 * Where to wrap the help lines
 	 *
 	 * @var integer
 	 */
 	protected int $wordwrap = 120;
-
+	
 	/**
 	 * Set to true in subclasses to skip Application configuration until ->go
 	 *
 	 * @var boolean
 	 */
-	public bool $has_configuration = false;
-
+	public bool $hasConfiguration = false;
+	
 	/**
 	 * The argv[0] which started this
 	 *
 	 * @var string
 	 */
 	private string $program;
-
+	
 	/**
 	 * List of commands this command supports (for the CLI)
 	 *
 	 * @var array
 	 */
 	protected array $shortcuts = [];
-
+	
 	/**
 	 * Original arguments passed to command, unchanged, unedited.
 	 *
 	 * @var array
 	 */
 	private array $arguments;
-
+	
 	/**
 	 * errors encountered during command processing.
 	 *
 	 * @var array
 	 */
 	private array $errors = [];
-
+	
 	/**
 	 *
 	 * @var string
 	 */
 	public const ANSI_ESCAPE = "\033[";
-
+	
 	/**
 	 *
 	 * @var array
@@ -118,7 +118,7 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 		'success'           => '0;32m',
 		'reset'             => '0m',
 	];
-
+	
 	/**
 	 *
 	 * @var array
@@ -129,21 +129,21 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 		LogLevel::CRITICAL  => true,
 		LogLevel::ERROR     => true,
 	];
-
+	
 	/**
 	 * Help string
 	 *
 	 * @var string
 	 */
 	protected string $help = '';
-
+	
 	/**
 	 * Debugging enabled for this command
 	 *
 	 * @var boolean
 	 */
 	protected bool $debug = false;
-
+	
 	/**
 	 * Current state of the argument parsing.
 	 * Should be modified by subclasses when parsing custom arguments
@@ -151,7 +151,7 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 	 * @var array
 	 */
 	protected array $argv;
-
+	
 	/**
 	 * Array of character => option name
 	 *
@@ -160,82 +160,82 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 	 * @var array
 	 */
 	protected array $option_chars = [];
-
+	
 	/**
 	 * Array of option name => option type
 	 *
 	 * @var array
 	 */
-	protected array $option_types = [];
-
+	protected array $argumentTypes = [];
+	
 	/**
 	 * Array of option name => value as passed and parsed on the command line
 	 *
 	 * @var array
 	 */
 	protected array $option_values = [];
-
+	
 	/**
 	 * Array of option name => option help string
 	 *
 	 * @var array
 	 */
 	protected array $option_help = [];
-
+	
 	/**
 	 * File name of the configuration file for this command (if any)
 	 *
 	 * @var string
 	 */
 	protected string $config = '';
-
+	
 	/**
 	 * Configuration for this command (if any)
 	 *
 	 * @var array
 	 */
 	protected array $configuration = [];
-
+	
 	/**
 	 * Running commands (currently)
 	 *
 	 * @var array of Command
 	 */
 	public static array $commands = [];
-
+	
 	/**
 	 * Path for the history file for ->prompt (set in subclasses to keep history)
 	 *
 	 * @var ?string
 	 */
 	protected ?string $history_file_path = null;
-
+	
 	/**
 	 *
 	 * @var resource
 	 */
 	private mixed $history_file = null;
-
+	
 	/**
 	 * Autocomplete possibilities - set before prompt for default behavior
 	 *
 	 * $var array
 	 */
 	protected array $completions = [];
-
+	
 	/**
 	 * Load these modules prior to running command
 	 *
 	 * $var array
 	 */
-	protected array $load_modules = [];
-
+	protected array $loadModules = [];
+	
 	/**
 	 *
 	 * @var array
 	 */
 	protected array $register_classes = [];
-
+	
 	/**
 	 * Create a new uninitialized command.
 	 *
@@ -246,7 +246,7 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 	{
 		parent::__construct($application, $options);
 	}
-
+	
 	/**
 	 * @return array
 	 */
@@ -254,7 +254,7 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 	{
 		return $this->shortcuts;
 	}
-
+	
 	/**
 	 * @return void
 	 */
@@ -262,7 +262,7 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 	{
 		// Hello, world.
 	}
-
+	
 	/**
 	 * Parse arguments and set up Command for running.
 	 *
@@ -275,19 +275,19 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 	public function parseArguments(array $argv): self
 	{
 		$this->initialize();
-
-		$this->setOptions($this->parseOptionDefaults());
-
+		
+		$this->setOptions($this->parseArgumentDefaults());
+		
 		$this->program = array_shift($argv) ?? get_class($this);
 		$this->arguments = $argv;
 		$this->argv = $argv;
-
+		
 		$this->isANSI();
-
+		
 		foreach ($this->register_classes as $class) {
 			$this->application->registerClass($class);
 		}
-
+		
 		try {
 			$this->_parseOptions();
 		} catch (SemanticsException $e) {
@@ -296,14 +296,14 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 				'argv'  => $argv,
 			], $e->getCode(), $e);
 		}
-
+		
 		if ($this->optionBool(self::OPTION_DEBUG)) {
 			$this->application->debug('{class}({args})', [
 				'class' => get_class($this),
 				'args'  => var_export($argv, true),
 			]);
 		}
-
+		
 		if ($this->hasErrors()) {
 			throw new ParameterException("Invalid arguments for {class}: {argv}\n{errors}", [
 				'class'  => $this::class,
@@ -313,35 +313,15 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 		}
 		return $this;
 	}
-
+	
 	/**
 	 * Configure the application additionally upon run
 	 *
-	 * @throws ConfigurationException|SemanticsException
 	 */
 	protected function applicationConfigure(): void
 	{
-		$application = $this->application;
-		$logger = $application->logger();
-		/* @var $command_object Command */
-		if (!$this->has_configuration) {
-			$logger->debug('Command {class} does not have configuration, calling {app}->configured()', [
-				'class' => get_class($this),
-				'app'   => $application::class,
-			]);
-			if (!$application->configured()) {
-				$logger->debug('Command {class} {app} WAS ALREADY CONFIGURED!!!!', [
-					'class' => get_class($this),
-					'app'   => $application::class,
-				]);
-			}
-		} else {
-			$logger->debug('Command {class} has configuration, skipping configured call', [
-				'class' => get_class($this),
-			]);
-		}
 	}
-
+	
 	/**
 	 *
 	 * @return string[]|NULL[]
@@ -359,7 +339,7 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 		}
 		return $paths;
 	}
-
+	
 	/**
 	 * Load command options from a configuration file.
 	 *
@@ -380,7 +360,7 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 				$files[] = Directory::path($path, $suffix);
 			}
 		}
-
+		
 		try {
 			$default = File::findFirst(array_reverse($files));
 		} catch (NotFoundException) {
@@ -395,7 +375,7 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 		}
 		return $result;
 	}
-
+	
 	/**
 	 * Load a configuration file for this command.
 	 *
@@ -428,14 +408,14 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 				'create' => $create,
 			]);
 		}
-
+		
 		// Load global include
 		$app = $this->application;
 		$app->configureInclude($configure_options['files']);
 		$app->reconfigure();
-
+		
 		$this->inheritConfiguration();
-
+		
 		$exists = file_exists($filename);
 		if ($exists || $create) {
 			if ($exists) {
@@ -450,7 +430,7 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 		$app->configured();
 		return $filename;
 	}
-
+	
 	/**
 	 * Write the default configuration for this command (as requested with $create = true)
 	 *
@@ -475,7 +455,7 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 		$extension = File::extension($filename);
 		if ($extension === 'conf') {
 			File::put($filename, "# Created $name on " . date('Y-m-d H:i:s') . " at $filename\n");
-		} elseif ($extension === 'json') {
+		} else if ($extension === 'json') {
 			File::put($filename, JSON::encode([
 				get_class($this) => [
 					'configuration_file' => [
@@ -489,7 +469,7 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 			$this->error('Can not write {name} configuration file ({filename}) - unknown file type {extension}', compact('name', 'filename', 'extension'));
 		}
 	}
-
+	
 	/**
 	 *
 	 * {@inheritdoc}
@@ -502,7 +482,7 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 			$this->program,
 		], $this->arguments));
 	}
-
+	
 	/**
 	 * @param string $name
 	 * @param string $type
@@ -516,7 +496,7 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 			'type' => $type,
 		]);
 	}
-
+	
 	/**
 	 * @param string $arg
 	 * @return Timestamp
@@ -528,11 +508,11 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 			return Timestamp::factory()->parse($arg);
 		} catch (ParseException) {
 			$this->error('Need to format like a date: {arg}', ['arg' => $arg]);
-
+			
 			throw new ParameterException($arg);
 		}
 	}
-
+	
 	/**
 	 * @param string $arg
 	 * @return Date
@@ -544,11 +524,11 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 			return Date::factory()->parse($arg);
 		} catch (ParseException) {
 			$this->error('Need to format like a date: {arg}', ['arg' => $arg]);
-
+			
 			throw new ParameterException($arg);
 		}
 	}
-
+	
 	/**
 	 *
 	 * @param string $type
@@ -573,7 +553,7 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 			default => "Unknown type: $type",
 		};
 	}
-
+	
 	/**
 	 * @var array|string[]
 	 */
@@ -592,7 +572,7 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 		'file[]'   => 'file',
 		'boolean'  => '',
 	];
-
+	
 	/**
 	 * Output the usage information
 	 *
@@ -606,7 +586,7 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 		$types = [];
 		$commands = [];
 		$aliases = ArrayTools::valuesFlipAppend(ArrayTools::prefixKeys($this->option_chars, '-'));
-		foreach ($this->option_types as $k => $type) {
+		foreach ($this->argumentTypes as $k => $type) {
 			$cmd = "--$k" . ArrayTools::joinPrefix($aliases[$k] ?? [], '|');
 			$append = self::$argType[$type] ?? $type;
 			if ($append) {
@@ -635,11 +615,11 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 			$result[] = wordwrap($this->help, $this->wordwrap);
 			$result[] = '';
 		}
-
+		
 		$max_length += 4;
 		$wrap_len = $this->wordwrap - $max_length - 1;
 		foreach ($commands as $k => $cmd) {
-			$help = explode("\n", wordwrap($this->option_help[$k] ?? $this->defaultHelp($this->option_types[$k]), $wrap_len));
+			$help = explode("\n", wordwrap($this->option_help[$k] ?? $this->defaultHelp($this->argumentTypes[$k]), $wrap_len));
 			$help = implode("\n" . str_repeat(' ', $max_length + 1), $help);
 			$result[] = $cmd . str_repeat(' ', $max_length - strlen($cmd) + 1) . $help;
 		}
@@ -653,7 +633,7 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 			exit(($message === null) ? 0 : $arguments['exitCode'] ?? self::EXIT_CODE_ENVIRONMENT);
 		}
 	}
-
+	
 	/**
 	 * Did errors occur?
 	 *
@@ -663,7 +643,7 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 	{
 		return count($this->errors) !== 0;
 	}
-
+	
 	/**
 	 * Return the errors
 	 *
@@ -673,33 +653,32 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 	{
 		return $this->errors;
 	}
-
+	
 	/**
 	 * Parse the option default values
 	 *
 	 * @return array
 	 */
-	private function parseOptionDefaults(): array
+	private function parseArgumentDefaults(): array
 	{
 		$options = [];
-		foreach ($this->option_types as $k => $t) {
-			$newKey = self::_optionKey($k);
+		foreach ($this->argumentTypes as $k => $t) {
 			switch (strtolower($t)) {
 				case 'boolean':
-					$options[$newKey] = $this->optionBool($newKey);
-
+					$options[$k] = $this->optionBool($k);
+					
 					break;
 				default:
-					$v = $this->option($newKey);
+					$v = $this->option($k);
 					if ($v !== null) {
-						$options[$newKey] = $v;
+						$options[$k] = $v;
 					}
 					break;
 			}
 		}
 		return $options;
 	}
-
+	
 	/**
 	 * Log a message to output or stderr.
 	 * Do not do anything if a theme is currently being rendered.
@@ -715,7 +694,7 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 		}
 		$this->logLine($message, Logger::contextualize($level, $message, $context));
 	}
-
+	
 	/**
 	 * Log a message to output or stderr.
 	 * Do not do anything if a theme is currently being rendered.
@@ -730,7 +709,7 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 			$this->logLine($m, ['level' => $level] + $context);
 		}
 	}
-
+	
 	/**
 	 * Log a single line to stderr or stdout
 	 *
@@ -749,7 +728,7 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 		}
 		$prefix = '';
 		$severity = strtolower($context['_severity'] ?? $context['severity'] ?? LogLevel::INFO);
-
+		
 		if ($severity && !$this->isANSI()) {
 			$prefix = strtoupper($severity) . ': ';
 		}
@@ -764,7 +743,7 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 			$suffix,
 		] = $this->ansiAnnotate($prefix, $suffix, $severity);
 		$isError = isset(self::$severityIsError[$severity]);
-
+		
 		if ($isError) {
 			fwrite($this->errorStream(), $prefix . $message . $suffix);
 			$this->errors[] = $message;
@@ -773,7 +752,7 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 			flush();
 		}
 	}
-
+	
 	/**
 	 * Is the terminal an ANSI terminal?
 	 */
@@ -781,14 +760,13 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 	{
 		if ($this->optionBool(self::OPTION_NO_ANSI)) {
 			return false;
-		} elseif ($this->optionBool(self::OPTION_ANSI)) {
+		} else if ($this->optionBool(self::OPTION_ANSI)) {
 			return true;
 		} else {
-			// On Windows, enable ANSI for ANSICON and ConEmu only
-			return is_windows() ? (false !== getenv('ANSICON') || 'ON' === getenv('ConEmuANSI')) : function_exists('posix_isatty') && posix_isatty(1);
+			return function_exists('posix_isatty') && posix_isatty(1);
 		}
 	}
-
+	
 	/**
 	 * Annotate a prefix/suffix using ansi colors based on the message severity
 	 *
@@ -814,7 +792,7 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 			$suffix,
 		];
 	}
-
+	
 	/**
 	 *
 	 * @return resource
@@ -823,7 +801,7 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 	{
 		return $this->optionBool('stdout') ? STDOUT : STDERR;
 	}
-
+	
 	/**
 	 * Debug message, only when debugging is turned on
 	 *
@@ -837,7 +815,7 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 			$this->debug($message, $arguments);
 		}
 	}
-
+	
 	/**
 	 * Log messages to the logger at $level
 	 *
@@ -850,7 +828,7 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 			$this->info($message, $arguments);
 		}
 	}
-
+	
 	/**
 	 * Return original arguments passed to this command (not affected by parsing, etc.)
 	 *
@@ -860,7 +838,7 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 	{
 		return $this->arguments;
 	}
-
+	
 	/**
 	 * Retrieve remaining arguments to be processed, optionally deleting them
 	 *
@@ -881,7 +859,7 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 		}
 		return $arguments;
 	}
-
+	
 	/**
 	 * @param array $arguments
 	 * @return $this
@@ -891,7 +869,7 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 		$this->argv = array_merge($arguments, $this->argv);
 		return $this;
 	}
-
+	
 	/**
 	 * Is there an argument waiting to be processed?
 	 *
@@ -908,7 +886,7 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 		}
 		return true;
 	}
-
+	
 	/**
 	 * Assumes "hasArgument()" is true
 	 *
@@ -921,19 +899,19 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 	{
 		if (count($this->argv) === 0) {
 			$this->error("No argument parameter for $arg");
-
+			
 			throw new SemanticsException('No arguments');
 		}
 		if ($endOfArgumentMarker) {
 			if ($this->argv[0] === self::END_OF_ARGUMENT_MARKER) {
 				$this->error("End of arguments marker found for $arg");
-
+				
 				throw new SemanticsException('End of arguments marker found');
 			}
 		}
 		return array_shift($this->argv);
 	}
-
+	
 	/**
 	 * Parse command-line options for this command
 	 *
@@ -942,9 +920,9 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 	private function _parseOptions(): void
 	{
 		$this->argv = $this->arguments;
-		$optional_arguments = isset($this->option_types['*']);
-		$eatExtras = isset($this->option_types['+']) || $optional_arguments;
-
+		$optional_arguments = isset($this->argumentTypes['*']);
+		$eatExtras = isset($this->argumentTypes['+']) || $optional_arguments;
+		
 		$option_values = [];
 		while (($arg = array_shift($this->argv)) !== null) {
 			if (!is_string($arg)) {
@@ -954,7 +932,7 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 			if (!str_starts_with($arg, '-')) {
 				$this->debugLog("Stopping parsing at $arg (not a switch, shifting back into stack)");
 				array_unshift($this->argv, $arg);
-
+				
 				break;
 			}
 			$saveArg = $arg;
@@ -974,14 +952,14 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 					for ($i = 0; $i < strlen($arg); $i++) {
 						array_unshift($this->argv, '-' . $arg[$i]);
 					}
-
+					
 					continue;
 				} else {
 					// Convert to a named argument
 					$arg = $this->option_chars[$arg] ?? null;
 				}
 			}
-			if (!array_key_exists($arg, $this->option_types)) {
+			if (!array_key_exists($arg, $this->argumentTypes)) {
 				array_unshift($this->argv, $saveArg);
 				if ($optional_arguments) {
 					break;
@@ -989,15 +967,15 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 				$this->usage("Unknown argument: $saveArg");
 				break;
 			}
-
-			$format = $this->option_types[$arg];
+			
+			$format = $this->argumentTypes[$arg];
 			$this->debugLog("Found arg \"$saveArg\" with format \"$format\"");
-			switch (strtolower($this->option_types[$arg])) {
+			switch (strtolower($this->argumentTypes[$arg])) {
 				case 'boolean':
 					$option_values[$arg] = true;
 					$this->setOption($arg, !$this->optionBool($arg));
 					$this->debugLog("Set $arg to " . ($this->optionBool($arg) ? 'ON' : 'off'));
-
+					
 					break;
 				case 'string':
 					$param = $this->getArgument($arg, false);
@@ -1059,7 +1037,7 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 						$this->setOption($arg, $param);
 						$this->debugLog("Set file $arg to file: $param");
 					}
-
+					
 					break;
 				case 'file+':
 				case 'file[]':
@@ -1071,7 +1049,7 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 						$this->optionAppend($arg, $param);
 						$this->debugLog("Added file $arg to list: $param");
 					}
-
+					
 					break;
 				case 'datetime':
 					$param = $this->getArgument($arg, false);
@@ -1079,7 +1057,7 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 					$param = $this->arg_to_DateTime($param);
 					$this->setOption($arg, $param);
 					$this->debugLog("Added datetime $arg: $param");
-
+					
 					break;
 				case 'date':
 					$param = $this->getArgument($arg, false);
@@ -1087,30 +1065,30 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 					$param = $this->arg_to_Date($param);
 					$this->setOption($arg, $param);
 					$this->debugLog("Added date $arg: $param");
-
+					
 					break;
 				default:
-					$this->parse_argument($arg, $this->option_types[$arg]);
+					$this->parse_argument($arg, $this->argumentTypes[$arg]);
 					// Marked as unreachable, but parse_argument is overridden in other classes, wink wink.
 					break;
 			}
 		}
-
+		
 		if ($eatExtras) {
 			if (count($this->argv) === 0) {
 				if (!$optional_arguments) {
 					$this->error('{class} - No arguments supplied', ['class' => get_class($this)]);
 				}
 			}
-		} elseif (count($this->argv) !== 0 && !$optional_arguments) {
+		} else if (count($this->argv) !== 0 && !$optional_arguments) {
 			if ($this->optionBool('error_unhandled_arguments')) {
 				$this->error('Unhandled arguments starting at ' . $this->argv[0]);
 			}
 		}
-
+		
 		$this->option_values = $this->options(array_keys($option_values));
 	}
-
+	
 	/**
 	 * Quote a variable for use in the shell
 	 *
@@ -1121,7 +1099,7 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 	{
 		return '"' . str_replace('"', '\"', $var) . '"';
 	}
-
+	
 	/**
 	 * Does the current PHP installation have the readline utility installed?
 	 *
@@ -1131,7 +1109,7 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 	{
 		return function_exists('readline');
 	}
-
+	
 	/**
 	 * Handle managing history and the history file, initialization of the history file
 	 *
@@ -1156,14 +1134,14 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 				// pass
 			}
 		}
-
+		
 		try {
 			$this->history_file = File::open($this->history_file_path, 'ab');
 		} catch (FilePermission $e) {
 			$this->application->error('{message}', $e->variables());
 		}
 	}
-
+	
 	/**
 	 * Function which may be overridden by subclasses to return a list of possible completions for the current readline request
 	 *
@@ -1174,7 +1152,7 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 	{
 		return ArrayTools::filterKeyPrefixes($this->completions, $command);
 	}
-
+	
 	/**
 	 * Set the readline completion function
 	 *
@@ -1192,7 +1170,7 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 			readline_completion_function($function);
 		}
 	}
-
+	
 	/**
 	 * Read a line from standard in
 	 *
@@ -1226,7 +1204,7 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 		}
 		return $command;
 	}
-
+	
 	/**
 	 * Prompt for arbitrary input
 	 *
@@ -1243,7 +1221,7 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 				$this->error('Non-interactive set but input is required for {message}', [
 					'message' => $message,
 				]);
-
+				
 				throw new SemanticsException('Non-interactive set but input is required for {message}', [
 					'message' => $message,
 				]);
@@ -1259,7 +1237,7 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 			if ($default) {
 				$prompt .= "(default: $default) ";
 			}
-
+			
 			try {
 				$result = $this->readline($prompt);
 				if (is_string($result)) {
@@ -1273,7 +1251,7 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 			}
 		}
 	}
-
+	
 	/**
 	 * Prompt yes or no
 	 *
@@ -1309,7 +1287,7 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 		} while ($result === null);
 		return $result;
 	}
-
+	
 	/**
 	 * Execute a shell command - Danger: security implications.
 	 * Sanitizes input for the shell.
@@ -1327,7 +1305,7 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 		}
 		return $this->application->process->executeArguments($command, $args);
 	}
-
+	
 	/**
 	 * Run a zesk command using the CLI
 	 *
@@ -1341,10 +1319,10 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 		$app = $this->application;
 		$bin = $app->zeskHome('bin/zesk');
 		return $app->process->executeArguments("$bin --search {appRoot} $command", [
-			'appRoot' => $app->path(),
-		] + $arguments);
+				'appRoot' => $app->path(),
+			] + $arguments);
 	}
-
+	
 	/**
 	 * Execute a shell command and output to STDOUT - Danger: security implications.
 	 * Sanitizes input for the shell.
@@ -1359,11 +1337,11 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 		array_shift($args);
 		return $this->application->process->executeArguments($command, $args, true);
 	}
-
+	
 	public const HOOK_RUN_BEFORE = self::class . 'runBefore';
-
+	
 	public const FILTER_RUN_AFTER = self::class . 'runAfter';
-
+	
 	/**
 	 * Main entry point for running a command
 	 *
@@ -1375,29 +1353,31 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 	final public function go(): int
 	{
 		self::$commands[] = $this;
-		$this->application->modules->loadMultiple($this->load_modules);
-		// Moved from Command_Loader
-		$this->applicationConfigure();
-
+		if ($this->loadModules) {
+			$this->application->modules->loadMultiple($this->loadModules);
+			// Moved from Command_Loader
+			$this->applicationConfigure();
+		}
+		
 		try {
 			$this->invokeHooks(self::HOOK_RUN_BEFORE, [$this]);
 		} catch (ExitedException $e) {
 			/* ExitedException OK 2025 KMD */
 			return $e->getCode();
 		}
-
+		
 		if ($this->hasErrors()) {
 			$this->usage();
 		}
-
+		
 		try {
 			$result = $this->run();
 			$result = $this->invokeTypedFilters(self::FILTER_RUN_AFTER, $result, [$this]);
 			if (is_bool($result)) {
 				$result = $result ? self::EXIT_CODE_SUCCESS : -1;
-			} elseif ($result === null) {
+			} else if ($result === null) {
 				$result = self::EXIT_CODE_SUCCESS;
-			} elseif (!is_int($result)) {
+			} else if (!is_int($result)) {
 				$result = -1;
 			}
 			assert(count(self::$commands) > 0);
@@ -1408,8 +1388,8 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 			return self::EXIT_CODE_ENVIRONMENT;
 		} catch (Throwable $e) {
 			$this->error("Exception thrown by command {class} : {exceptionClass} {message}\n{backtrace}", Exception::exceptionVariables($e) + [
-				'class' => get_class($this),
-			]);
+					'class' => get_class($this),
+				]);
 			$this->application->invokeHooks(Application::HOOK_EXCEPTION, [
 				$this->application,
 				$e,
@@ -1421,7 +1401,7 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 			return ($code === self::EXIT_CODE_SUCCESS) ? -1 : $code;
 		}
 	}
-
+	
 	/**
 	 * Is a command running? (Any command, not just this one)
 	 *
@@ -1431,36 +1411,36 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 	{
 		return ArrayTools::last(self::$commands);
 	}
-
+	
 	public const OPTION_FORMAT = 'format';
-
+	
 	/**
 	 * --format html
 	 */
 	public const FORMAT_HTML = 'html';
-
+	
 	/**
 	 * --format text
 	 */
 	public const FORMAT_TEXT = 'text';
-
+	
 	/**
 	 * --format json
 	 */
 	public const FORMAT_JSON = 'json';
-
+	
 	/**
 	 * --format serialize
 	 */
 	public const FORMAT_SERIALIZE = 'serialize';
-
+	
 	/**
 	 * Output as parsable PHP
 	 *
 	 * --format php
 	 */
 	public const FORMAT_PHP = 'php';
-
+	
 	/**
 	 *
 	 * @param string|array $content
@@ -1483,15 +1463,15 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 				break;
 			case self::FORMAT_PHP:
 				echo PHP::dump($content);
-
+				
 				break;
 			case self::FORMAT_SERIALIZE:
 				echo serialize($content);
-
+				
 				break;
 			case self::FORMAT_JSON:
 				echo JSON::encodePretty($content);
-
+				
 				break;
 			case self::FORMAT_TEXT:
 				if (count($content) > 0) {
@@ -1506,7 +1486,7 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 		}
 		return true;
 	}
-
+	
 	/**
 	 * Add help from the docComment.
 	 * One place for docs is preferred.
@@ -1526,7 +1506,7 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 			$parsed['description'] ?? null,
 		]));
 	}
-
+	
 	/**
 	 * Validate a file parameter
 	 *
@@ -1537,7 +1517,7 @@ abstract class Command extends Hookable implements LoggerInterface, Promptable
 	{
 		return is_file($file) || is_link($file);
 	}
-
+	
 	/**
 	 * Main run code
 	 *

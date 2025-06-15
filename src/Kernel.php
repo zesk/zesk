@@ -2,10 +2,10 @@
 declare(strict_types=1);
 /**
  *
- * @package zesk
+ * @package    zesk
  * @subpackage kernel
- * @author kent
- * @copyright Copyright &copy; 2025, Market Acumen, Inc.
+ * @author     kent
+ * @copyright  Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -15,20 +15,16 @@ use ReflectionException;
 use Throwable;
 use zesk\CacheItemPool\NULLCacheItemPool;
 use zesk\Exception\ClassNotFound;
-
-/**
- * Stuff that should probably just be part of PHP, but isn't.
- */
-require_once(__DIR__ . '/functions.php');
+use zesk\Exception\SemanticsException;
 
 /**
  *
- * @todo self::reset is NOT production ready
+ * @todo   self::reset is NOT production ready
  * @author kent
  *
  */
-class Kernel
-{
+class Kernel {
+	
 	/**
 	 *
 	 * @var array
@@ -38,39 +34,47 @@ class Kernel
 			'applicationClass' => Application::class,
 		],
 	];
-
+	
 	/**
 	 *
 	 * @var Application
 	 */
 	private Application $application;
-
+	
 	/**
-	 * @var Application[]
+	 * @var array[]
 	 */
 	private array $applications = [];
-
+	
 	public static null|self $singleton = null;
-
+	
 	private function __construct(Application $initial)
 	{
 		Compatibility::check();
 		$this->application = $initial;
-		$this->applications[$initial::class] = $initial;
+		$this->applications[$initial::class] = [$initial->id() => $initial];
 		register_shutdown_function($this->shutdown(...));
 	}
-
+	
 	public function shutdown(): void
 	{
-		foreach ($this->applications as $application) {
-			try {
-				$application->shutdown();
-			} catch (Throwable $t) {
-				PHP::log($t);
+		foreach ($this->applications as $className => $applications) {
+			foreach ($applications as $id => $application) {
+				try {
+					$application->shutdown();
+				} catch (Throwable $t) {
+					PHP::log('Failed shutting down application {className} {id} with exception {class} (app is also {appClass})', [
+						'className' => $className,
+						'id'        => $id,
+						'appClass'  => $application::class,
+						'class'     => $t::class,
+					]);
+					PHP::log($t);
+				}
 			}
 		}
 	}
-
+	
 	/**
 	 * Fetch the kernel singleton. Avoid this call whenever possible.
 	 *
@@ -79,11 +83,11 @@ class Kernel
 	public static function singleton(): self
 	{
 		if (!self::$singleton) {
-			throw new RuntimeException('Need to create singleton with {class}::factory first', ['class' => __CLASS__, ]);
+			throw new RuntimeException('Need to create singleton with {class}::factory first', ['class' => __CLASS__,]);
 		}
 		return self::$singleton;
 	}
-
+	
 	/**
 	 * @return Application
 	 */
@@ -91,39 +95,43 @@ class Kernel
 	{
 		return $this->application;
 	}
-
+	
 	/**
 	 * Find app by class
 	 *
 	 * @param string $class
-	 * @return Application|null
+	 * @return array
 	 */
-	public function applicationByClass(string $class): null|Application
+	public function applicationByClass(string $class): array
 	{
-		return $this->applications[$class] ?? null;
+		return $this->applications[$class] ?? [];
 	}
-
+	
 	/**
 	 * @param Application $app
 	 * @return void
 	 */
 	public function add(Application $app): void
 	{
-		$this->applications[$app::class] = $app;
+		$this->applications[$app::class] ??= [] + [$app->id() => $app];
 	}
-
+	
 	private static function _stackFrameNormalize(array $stackFrame): array
 	{
 		return $stackFrame + [
-			'file' => '', 'class' => '', 'type' => '', 'function' => '', 'line' => '',
-		];
+				'file'     => '',
+				'class'    => '',
+				'type'     => '',
+				'function' => '',
+				'line'     => '',
+			];
 	}
-
+	
 	/**
 	 * Return information about the calling function. Increase depth to look back in the stack frame.
 	 *
 	 * Pass -1 to test and get the information about this function. Not super useful.
-	 * Pass 0 to get the immediately calling function (e.g. where you are before you called this)
+	 * Pass 0 to get the immediately calling function (e.g., where you are before you called this)
 	 * Pass 1 to get what called you (most useful)
 	 *
 	 * @param int $depth Depth 0 means the immediately calling function
@@ -133,7 +141,7 @@ class Kernel
 	{
 		$bt = debug_backtrace();
 		$last = [];
-		/* Skip current frame by default - depth zero always means calling function */
+		/* Skip the current frame by default - depth zero always means calling function */
 		$depth++;
 		if ($depth > 0) {
 			while ($depth-- !== 0) {
@@ -142,10 +150,13 @@ class Kernel
 		}
 		$last = self::_stackFrameNormalize($last);
 		$top = self::_stackFrameNormalize(array_shift($bt) ?? [
-			'file' => "-no calling function $depth deep-", 'line' => -1, 'class' => '',
-			'function' => '-no calling function $depth deep-', 'type' => '',
+			'file'     => "-no calling function $depth deep-",
+			'line'     => -1,
+			'class'    => '',
+			'function' => '-no calling function $depth deep-',
+			'type'     => '',
 		]);
-
+		
 		$top['callingLine'] = $top['line'];
 		$top['callingFile'] = $top['file'];
 		$top['line'] = $last['line'];
@@ -157,15 +168,15 @@ class Kernel
 		$top['fileMethodLine'] = $top['file'] . ' ' . $top['method'] . $top['lineSuffix'];
 		return $top;
 	}
-
+	
 	/**
 	 * Returns the name of the function or class/method which called the current code.
 	 * Useful for debugging.
 	 *
-	 * Moved from Debug:: class to assist in profiling bootstrap functions (for example)
+	 * Moved from Debug:: class to help in profiling bootstrap functions (for example)
 	 * which don't have the autoloader set yet.
 	 *
-	 * @param int $depth
+	 * @param int  $depth
 	 * @param bool $include_line
 	 * @return string
 	 * @see debug_backtrace()
@@ -176,7 +187,7 @@ class Kernel
 		$top = self::caller($depth + 1);
 		return $top[$include_line ? 'fileMethodLine' : 'fileMethod'];
 	}
-
+	
 	/**
 	 * Return a backtrace of the stack
 	 *
@@ -202,7 +213,7 @@ class Kernel
 				foreach ($args as $index => $arg) {
 					if (is_object($arg)) {
 						$arg_dump[$index] = $arg::class;
-					} elseif (is_scalar($arg)) {
+					} else if (is_scalar($arg)) {
 						$arg_dump[$index] = PHP::dump($arg);
 					} else {
 						$arg_dump[$index] = Types::type($arg);
@@ -219,30 +230,52 @@ class Kernel
 		}
 		return implode("\n", $result);
 	}
-
+	
+	private static function getApplicationClass(Configuration $configuration): string
+	{
+		return $configuration->getFirstPath([
+			[
+				Application::class,
+				Application::OPTION_APPLICATION_CLASS,
+			],
+			[
+				self::class,
+				Application::OPTION_APPLICATION_CLASS,
+			],
+		], Application::class);
+	}
+	
 	/**
 	 * Create an application
 	 *
 	 * @param array $options
 	 * @return Application
 	 * @throws ClassNotFound
+	 * @throws SemanticsException
 	 */
 	public static function createApplication(array $options = []): Application
 	{
-		$options['application.php'] = self::caller()['file'];
-		$baseApplicationClass = Application::class;
+		$initialized = $options['init'] ?? microtime(true);
+		$options['main'] ??= Kernel::caller()['file'];
 		$cacheItemPool = $options[Application::OPTION_CACHE_POOL] ?? new NULLCacheItemPool();
 		unset($options[Application::OPTION_CACHE_POOL]);
-
-		$configuration = Configuration::factory(self::$configurationDefaults)->merge(Configuration::factory()->setPath($baseApplicationClass, $options));
-		$applicationClass = $configuration->getFirstPath([
-			[$baseApplicationClass, Application::OPTION_APPLICATION_CLASS],
-			[__CLASS__, Application::OPTION_APPLICATION_CLASS], [__CLASS__, 'application_class', ],
-		], Application::class);
-
+		
+		$configuration = Configuration::factory(self::$configurationDefaults)->setPath(self::class, $options + [
+				'init'        => $initialized,
+				'environment' => $_SERVER,
+			]);
+		$kernelConfiguration = $configuration->path(self::class);
+		$configuration->setPath(Application::class, $kernelConfiguration->toArray());
+		
+		$applicationClass = self::getApplicationClass($configuration);
+		$kernelConfiguration->setReadOnly(true);
+		
 		try {
 			$reflectionClass = new ReflectionClass($applicationClass);
-			$app = $reflectionClass->newInstanceArgs([$configuration, $cacheItemPool]);
+			$app = $reflectionClass->newInstanceArgs([
+				$configuration,
+				$cacheItemPool,
+			]);
 		} catch (ReflectionException $e) {
 			throw new ClassNotFound($applicationClass, $e->getMessage(), Exception::exceptionVariables($e));
 		}
@@ -254,7 +287,7 @@ class Kernel
 		}
 		return $app;
 	}
-
+	
 	/**
 	 * Who owns the copyright on the Zesk Application Framework for PHP
 	 *
@@ -264,7 +297,7 @@ class Kernel
 	{
 		return 'Market Acumen, Inc.';
 	}
-
+	
 	/**
 	 * @return Application
 	 */

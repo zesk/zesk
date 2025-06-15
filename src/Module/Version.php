@@ -10,9 +10,10 @@ use zesk\Exception\SyntaxException;
 use zesk\File;
 use zesk\JSON;
 use zesk\PHP;
+use zesk\Types;
 
-class Version
-{
+class Version {
+	
 	/**
 	 * @param array $configuration
 	 * @return string
@@ -30,7 +31,9 @@ class Version
 		}
 		$version_data = $configuration['version_data'];
 		if (!is_array($version_data)) {
-			throw new NotFoundException('Version data is not an object: {type}', ['type' => type($version_data)]);
+			throw new NotFoundException('Version data is not an object: {type}', [
+				'type' => Types::type($version_data),
+			]);
 		}
 		$file = strval($version_data['file'] ?? null);
 		$pattern = $version_data['pattern'] ?? null;
@@ -48,7 +51,9 @@ class Version
 				return strval($matches[1] ?? $matches[0]);
 			} else {
 				throw new NotFoundException('Pattern "{pattern}" not found in {bytes} byte file {file}', [
-					'pattern' => $pattern, 'bytes' => strlen($contents), 'file' => $file,
+					'pattern' => $pattern,
+					'bytes'   => strlen($contents),
+					'file'    => $file,
 				]);
 			}
 		}
@@ -61,35 +66,44 @@ class Version
 					$data = PHP::unserialize($contents);
 				} catch (SyntaxException) {
 					throw new NotFoundException('Unable to decode PHP serialized file {file} ({key})', [
-						'key' => $pattern, 'file' => $file,
+						'key'  => $pattern,
+						'file' => $file,
 					]);
 				}
-
+				
 				break;
 			case 'json':
 				try {
 					$data = JSON::decode($contents, true);
 				} catch (ParseException) {
 					throw new NotFoundException('Unable to decode JSON file {file} ({key})', [
-						'key' => $pattern, 'file' => $file,
+						'key'  => $pattern,
+						'file' => $file,
 					]);
 				}
-
+				
 				break;
 			default:
 				throw new NotFoundException('Pattern "{pattern}" not found in {bytes} byte file {file}', [
-					'pattern' => $pattern, 'bytes' => strlen($contents), 'file' => $file,
+					'pattern' => $pattern,
+					'bytes'   => strlen($contents),
+					'file'    => $file,
 				]);
 		}
 		if (!is_array($data)) {
 			throw new NotFoundException('Loaded structure in {bytes} byte file {file} is not an array', [
-				'pattern' => $pattern, 'bytes' => strlen($contents), 'file' => $file,
+				'pattern' => $pattern,
+				'bytes'   => strlen($contents),
+				'file'    => $file,
 			]);
 		}
 		$version = ArrayTools::path($data, $key);
 		if (!$version) {
 			throw new NotFoundException('Path "{key}" not found in file {file} (root keys {keys})', [
-				'pattern' => $pattern, 'bytes' => strlen($contents), 'file' => $file, 'keys' => array_keys($data),
+				'pattern' => $pattern,
+				'bytes'   => strlen($contents),
+				'file'    => $file,
+				'keys'    => array_keys($data),
 			]);
 		}
 		return $version;

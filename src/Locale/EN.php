@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 /**
- * @package zesk
+ * @package    zesk
  * @subpackage Locale
- * @author kent
- * @copyright Copyright &copy; 2025, Market Acumen, Inc.
+ * @author     kent
+ * @copyright  Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Locale;
@@ -15,9 +15,9 @@ class EN extends Locale
 {
 	/**
 	 * @desc {@inheritDoc}
-	 * @see Locale::formatDate()
+	 * @see       Locale::formatDate()
 	 * @copyright &copy; 2023 Market Acumen, Inc.
-	 * @package zesk
+	 * @package   zesk
 	 */
 	public function formatDate(): string
 	{
@@ -41,7 +41,7 @@ class EN extends Locale
 	 */
 	public function formatTime(bool $include_seconds = false): string
 	{
-		return $include_seconds ? '{12h}:{mm}:{ss} {ampm}' : '{12h}:{mm} {AMPM}';
+		return $include_seconds ? '{12h}:{mm}:{ss} {AMPM}' : '{12h}:{mm} {AMPM}';
 	}
 
 	/**
@@ -67,8 +67,15 @@ class EN extends Locale
 	private function plural_en_exception(string $s): string|null
 	{
 		$exceptions = [
-			'company' => 'companies', 'day' => 'days', 'staff' => 'staff', 'sheep' => 'sheep', 'octopus' => 'octopi',
-			'news' => 'news', 'person' => 'people', 'woman' => 'women', 'man' => 'men',
+			'company' => 'companies',
+			'day'     => 'days',
+			'staff'   => 'staff',
+			'sheep'   => 'sheep',
+			'octopus' => 'octopi',
+			'news'    => 'news',
+			'person'  => 'people',
+			'woman'   => 'women',
+			'man'     => 'men',
 		];
 		$ss = $exceptions[strtolower($s)] ?? null;
 		if ($ss) {
@@ -147,14 +154,16 @@ class EN extends Locale
 	 * @var string[]
 	 */
 	public static array $enOrdinalSuffixes = [
-		1 => 'st', 2 => 'nd', 3 => 'rd',
+		1 => 'st',
+		2 => 'nd',
+		3 => 'rd',
 	];
 
 	/**
 	 * @todo Probably should remove this 2018-01
 	 *
 	 * {@inheritDoc}
-	 * @see Locale::negateWord()
+	 * @see  Locale::negateWord()
 	 */
 	public function negateWord(string $word, string $preferred_prefix = ''): string
 	{
@@ -163,7 +172,12 @@ class EN extends Locale
 		}
 		$word = trim($word);
 		$negative_prefixes = [
-			'not-', 'non-', 'un-', 'not', 'non', 'un',
+			'not-',
+			'non-',
+			'un-',
+			'not',
+			'non',
+			'un',
 		];
 		foreach ($negative_prefixes as $prefix) {
 			if (str_starts_with(strtolower($word), $prefix)) {

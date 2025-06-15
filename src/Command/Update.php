@@ -60,7 +60,7 @@ class Update extends SimpleCommand
 
 	protected array $app_data;
 
-	protected array $option_types = [
+	protected array $argumentTypes = [
 		'share-path'      => 'path',
 		'source-control'  => 'string',
 		'dry-run'         => 'boolean',
@@ -88,12 +88,16 @@ class Update extends SimpleCommand
 		'*'               => 'A list of modules to download and update',
 	];
 
-	protected array $options = [
-		'composer-update' => false,
-		'timeout'         => 120000,
-	];
+	protected function initialize(): void
+	{
+		$this->setOptions([
+			'composer-update' => false,
+			'timeout'         => 120000,
+		], false);
+		parent::initialize();
+	}
 
-	protected array $load_modules = [
+	protected array $loadModules = [
 		'Repository',
 	];
 
@@ -102,7 +106,7 @@ class Update extends SimpleCommand
 	 *
 	 * @var boolean
 	 */
-	public bool $has_configuration = false;
+	public bool $hasConfiguration = false;
 
 	/**
 	 *
@@ -548,7 +552,7 @@ class Update extends SimpleCommand
 		])) {
 			return true;
 		}
-		$composer_version = $application->modules->configuration($name)->getList('composerVersion');
+		$composer_version = $application->modules->configuration($name)->getIterable('composerVersion');
 		$composer_require = Types::toList($composer['require'] ?? null);
 		$composer_require_dev = Types::toList($composer['require-dev'] ?? null);
 		chdir($application->path());
@@ -624,7 +628,7 @@ class Update extends SimpleCommand
 		}
 		$this->verboseLog("Downloading $url ... ");
 		$client->go();
-		$response_code = $client->response_code_type();
+		$response_code = $client->responseCodeType();
 		if ($response_code === 2) {
 			$filename = $client->filename();
 			return [

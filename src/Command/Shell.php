@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 /**
- * @package zesk
+ * @package    zesk
  * @subpackage Command
- * @author kent
- * @copyright Copyright &copy; 2025, Market Acumen, Inc.
+ * @author     kent
+ * @copyright  Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Command;
@@ -12,9 +12,11 @@ namespace zesk\Command;
 use Exception;
 use Throwable;
 use zesk\Application;
+use zesk\Debug;
 use zesk\Exception\FilePermission;
 use zesk\Exception\ProtocolException;
 use zesk\Exception\ParameterException;
+use zesk\Exception\SemanticsException;
 use zesk\PHP;
 use zesk\StopIteration;
 use zesk\StringTools;
@@ -39,22 +41,22 @@ use function str_starts_with;
  *
  * @category Management
  */
-class Shell extends SimpleCommand
-{
+class Shell extends SimpleCommand {
+	
 	protected array $shortcuts = [
 		'shell',
 		'eval',
 		'evaluate',
 	];
-
-	protected array $option_types = [
+	
+	protected array $argumentTypes = [
 		'skip-configure' => 'boolean',
 		'json'           => 'boolean',
 		'interactive'    => 'boolean',
 		'debug-state'    => 'boolean',
 		'*'              => 'string',
 	];
-
+	
 	protected array $option_help = [
 		'skip-configure' => 'Skip application configuration',
 		'json'           => 'Output results as JSON instead of PHP',
@@ -62,26 +64,26 @@ class Shell extends SimpleCommand
 		'debug-state'    => 'Debug interactive state management',
 		'*'              => 'string',
 	];
-
+	
 	protected array $option_chars = [
 		'i' => 'interactive',
 		's' => 'skip-configure',
 	];
-
+	
 	/**
 	 * Variables saved before eval is run
 	 *
 	 * @var array
 	 */
 	private array $before_vars = [];
-
+	
 	/**
 	 * Variables preserved between eval lines
 	 *
 	 * @var array
 	 */
 	private array $saved_vars = [];
-
+	
 	/**
 	 * Run our eval command
 	 *
@@ -95,7 +97,7 @@ class Shell extends SimpleCommand
 		if (!$this->optionBool('skip-configure')) {
 			$this->configure('shell');
 		}
-		$this->handle_base_options();
+		$this->handleBasicArguments();
 		$this->saved_vars = [];
 		while ($this->hasArgument()) {
 			$arg = $this->getArgument('eval');
@@ -112,11 +114,11 @@ class Shell extends SimpleCommand
 		}
 		return 0;
 	}
-
+	
 	/**
 	 * Optionally output the result of the last evaluated code
 	 *
-	 * @param mixed $__result
+	 * @param mixed  $__result
 	 * @param string $content
 	 * @return void
 	 */
@@ -129,12 +131,12 @@ class Shell extends SimpleCommand
 			echo $content . "\n";
 		}
 	}
-
+	
 	/**
 	 * Interactive evaluation of commands
 	 *
 	 * @return int
-	 * @throws ProtocolException
+	 * @throws SemanticsException
 	 */
 	public function interactive(): int
 	{
@@ -152,7 +154,7 @@ class Shell extends SimpleCommand
 				return $last_exit_code;
 			}
 			ob_start();
-
+			
 			try {
 				$__result = $this->_eval($command);
 				$last_exit_code = 0;
@@ -175,7 +177,7 @@ class Shell extends SimpleCommand
 			$this->output_result($__result, $content);
 		}
 	}
-
+	
 	/**
 	 * Before evaluate, save global context variables
 	 */
@@ -184,9 +186,10 @@ class Shell extends SimpleCommand
 		$this->before_vars = $vars;
 		return $this->saved_vars;
 	}
-
+	
 	/**
 	 * After evaluate, determine if any new variables are present
+	 *
 	 * @param array $vars
 	 */
 	private function _after_evaluate(array $vars): void
@@ -199,17 +202,17 @@ class Shell extends SimpleCommand
 		}
 		$this->saved_vars = $diff + $this->saved_vars;
 		$this->before_vars = $vars;
-
+		
 		if ($this->optionBool('debug-state')) {
 			if (count($diff) > 0) {
 				echo 'New variables defined in state: ' . implode(', ', array_keys($diff)) . "\n";
 			} else {
-				echo "No new variables defined.\n" . _dump(array_keys($vars));
+				echo "No new variables defined.\n" . Debug::dump(array_keys($vars));
 			}
 		}
 	}
-
-	private function _prefix_commmand(string $string): string
+	
+	private function _prefix_command(string $string): string
 	{
 		$string = trim($string, " \n\r\t;");
 		$string = preg_replace('/^return\s/', '', $string);
@@ -219,14 +222,14 @@ class Shell extends SimpleCommand
 		}
 		$prefix = 'return';
 		if (StringTools::begins($string, [
-			'echo ',
-			'print ',
-		]) || str_contains($string, ';')) {
+				'echo ',
+				'print ',
+			]) || str_contains($string, ';')) {
 			$prefix = '';
 		}
 		return $prefix . ' ' . $string;
 	}
-
+	
 	/**
 	 * Evaluate a PHP string and execute it in the application context
 	 *
@@ -239,8 +242,8 @@ class Shell extends SimpleCommand
 	 */
 	private function _eval(string $__string): mixed
 	{
-		$__eval = $this->_prefix_commmand($__string);
-
+		$__eval = $this->_prefix_command($__string);
+		
 		try {
 			$command = $_ = $this;
 			$application = $app = $this->application;

@@ -15,10 +15,12 @@ use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Exception\MalformedDsnException;
 use Doctrine\DBAL\Tools\DsnParser;
+use Doctrine\DBAL\Types\Exception\TypesAlreadyExists;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\Configuration;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Exception\MissingMappingDriverImplementation;
+use Doctrine\ORM\Mapping\AssociationMapping;
 use Doctrine\ORM\ORMSetup;
 use Doctrine\ORM\Tools\SchemaTool;
 use zesk\Application as BaseApplication;
@@ -49,7 +51,7 @@ class Module extends BaseModule
 	/**
 	 *
 	 */
-	public const OPTION_SOURCE_PATHS = 'paths';
+	public const OPTION_SOURCE_HOMES = 'paths';
 
 	/**
 	 *
@@ -68,8 +70,6 @@ class Module extends BaseModule
 		EnumBoolean::TYPE => EnumBoolean::class,
 	];
 
-	private static bool $added = false;
-
 	/**
 	 * @return void
 	 * @throws ConfigurationException
@@ -79,11 +79,11 @@ class Module extends BaseModule
 	public function initialize(): void
 	{
 		parent::initialize();
-		if (!self::$added) {
-			foreach (self::$zeskTypes as $type => $class) {
+		foreach (self::$zeskTypes as $type => $class) {
+			try {
 				Type::addType($type, $class);
+			} catch (TypesAlreadyExists) {
 			}
-			self::$added = true;
 		}
 		$this->eventManager = new EventManager($this->application);
 		$this->application->registerManager('entity', $this->entityManager(...));
@@ -115,11 +115,11 @@ class Module extends BaseModule
 	 */
 	public function addPath(string $path): self
 	{
-		$paths = $this->optionArray(self::OPTION_SOURCE_PATHS);
+		$paths = $this->optionArray(self::OPTION_SOURCE_HOMES);
 		if (!in_array($path, $paths)) {
 			$paths[] = $path;
 		}
-		$this->setOption(self::OPTION_SOURCE_PATHS, $paths);
+		$this->setOption(self::OPTION_SOURCE_HOMES, $paths);
 		return $this;
 	}
 
@@ -134,11 +134,8 @@ class Module extends BaseModule
 	public function configureORM(): void
 	{
 		$this->inheritConfiguration();
-		$paths = Types::toList($this->optionIterable(self::OPTION_SOURCE_PATHS, ['./src']));
+		$paths = Types::toList($this->optionIterable(self::OPTION_SOURCE_HOMES, ['./src']));
 		$paths = array_map($this->application->paths->expand(...), $paths);
-		foreach ($paths as $path) {
-			$this->application->info('ORM Path: {path}', ['path' => $path]);
-		}
 		$cachePath = Directory::depend($this->application->cachePath('doctrine'));
 		$config = $this->ormConfig = ORMSetup::createAttributeMetadataConfiguration(paths: $paths, isDevMode: $this->application->development(), cache: new FileCacheItemPool($cachePath));
 		$config->setEntityListenerResolver(new EntityListenerResolver());
@@ -289,10 +286,13 @@ class Module extends BaseModule
 	{
 		$depend = [];
 		foreach ($this->entityManager($name)->getClassMetadata($entityName)->getAssociationMappings() as $mapping) {
-			if (is_array($mapping)) {
-				if (array_key_exists('targetEntity', $mapping)) {
-					$depend[$mapping['targetEntity']] = true;
+			if ($mapping instanceof AssociationMapping) {
+				$entity = $mapping->targetEntity;
+				if ($entity) {
+					$depend[$entity] = true;
 				}
+			} elseif (is_string($mapping)) {
+				$depend[$mapping] = true;
 			}
 		}
 		unset($depend[$entityName]);

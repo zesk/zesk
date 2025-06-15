@@ -1,9 +1,9 @@
 <?php
 declare(strict_types=1);
 /**
- * @package zesk
+ * @package    zesk
  * @subpackage Command
- * @copyright @copy; 2023 Market Acumen, Inc.
+ * @copyright  @copy; 2023 Market Acumen, Inc.
  */
 
 namespace zesk\Command;
@@ -24,7 +24,7 @@ class Cannon extends SimpleCommand
 {
 	protected array $shortcuts = ['cannon'];
 
-	protected array $option_types = [
+	protected array $argumentTypes = [
 		'directory'         => 'dir',
 		'dir'               => 'dir',
 		'list'              => 'boolean',
@@ -57,16 +57,20 @@ class Cannon extends SimpleCommand
 		'*'                 => 'Follow by Search string and Replace string',
 	];
 
-	protected array $options = [
-		'max_file_size' => 8388608,
-	];
+	protected function initialize(): void
+	{
+		$this->setOptions([
+			'max_file_size' => 8388608,
+		], false);
+		parent::initialize();
+	}
 
 	/**
 	 * Set to true in subclasses to skip Application configuration until ->go
 	 *
 	 * @var boolean
 	 */
-	public bool $has_configuration = true;
+	public bool $hasConfiguration = true;
 
 	/**
 	 * @var ?array
@@ -191,26 +195,17 @@ class Cannon extends SimpleCommand
 
 	/**
 	 * List files
-	 * @throws ParameterException
 	 */
 	private function _listFiles($dir, array $extensions): array
 	{
-		$options = [];
-		$options[Directory::LIST_RULE_FILE] = [
+		return Directory::listRecursive($dir, [
+			'#.*/\.#' => false,
+			true,
+		], [
 			'#\.' . implode('|', $extensions) . '$#' => true,
 			'#.*/\.#'                                => true,
 			false,
-		];
-		$options[Directory::LIST_RULE_DIRECTORY_WALK] = [
-			'#.*/\.#' => false,
-			true,
-		];
-		$options[Directory::LIST_RULE_DIRECTORY] = [
-			false,
-		];
-		$options[Directory::LIST_ADD_PATH] = true;
-
-		return Directory::listRecursive($dir, $options);
+		], [false], [Directory::LIST_ADD_PATH => true]);
 	}
 
 	/**

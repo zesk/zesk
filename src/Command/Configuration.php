@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 /**
- * @package zesk
+ * @package    zesk
  * @subpackage core
- * @author kent
- * @copyright Copyright &copy; 2025, Market Acumen, Inc.
+ * @author     kent
+ * @copyright  Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Command;
@@ -28,24 +28,32 @@ use zesk\Configuration\Loader;
  * typically are environment values.
  *
  * @category Debugging
- * @author kent
+ * @author   kent
  *
  */
 class Configuration extends SimpleCommand
 {
-	protected array $shortcuts = ['conf', 'config', 'configuration'];
+	protected array $shortcuts = [
+		'conf',
+		'config',
+		'configuration',
+	];
 
-	protected array $option_types = [
-		'loaded' => 'boolean', 'not-loaded' => 'boolean', 'skipped' => 'boolean', 'externals' => 'boolean',
-		'missing-classes' => 'boolean', 'top-level-scalar' => 'boolean',
+	protected array $argumentTypes = [
+		'loaded'           => 'boolean',
+		'not-loaded'       => 'boolean',
+		'skipped'          => 'boolean',
+		'externals'        => 'boolean',
+		'missing-classes'  => 'boolean',
+		'top-level-scalar' => 'boolean',
 	];
 
 	protected array $option_help = [
-		'loaded' => 'Show loaded configuration files',
-		'not-loaded' => 'Show configuration files which would be loaded but were not because they did not exist',
-		'skipped' => 'Show configuration files which are skipped for any reason',
-		'externals' => 'Show external variables which affect the configuration',
-		'missing-classes' => 'Show missing classes in the configuration root',
+		'loaded'           => 'Show loaded configuration files',
+		'not-loaded'       => 'Show configuration files which would be loaded but were not because they did not exist',
+		'skipped'          => 'Show configuration files which are skipped for any reason',
+		'externals'        => 'Show external variables which affect the configuration',
+		'missing-classes'  => 'Show missing classes in the configuration root',
 		'top-level-scalar' => 'Show top-level configuration settings which are scalars (globals or environment variables)',
 	];
 
@@ -56,21 +64,43 @@ class Configuration extends SimpleCommand
 	public function run(): int
 	{
 		$app = $this->application;
-		$variables = $app->loader->variables();
+		$variables = $app->loaderVariables();
 
-		[$missingClasses, $warning_top_levels] = $this->collectMisnamedClassConfigurations();
+		[
+			$missingClasses,
+			$warning_top_levels,
+		] = $this->collectMisnamedClassConfigurations();
 		$variables['-missing-classes-'] = $missingClasses;
 		$variables['-warning-top-'] = $warning_top_levels;
 
-		$flags = $this->show_flags();
+		$flags = $this->showFlags();
 
 		$result = [];
 		foreach ([
-			'show_loaded' => ['Loaded', Loader::PROCESSED], 'show_not_loaded' => ['Missing', Loader::MISSING],
-			'show_skipped' => ['Skipped', Loader::SKIPPED],
-			'show_externals' => ['External variables', Loader::EXTERNALS],
-			'show_missing_classes' => ['Missing classes', '-missing-classes-'],
-			'show_top_level_scalar' => ['Top-level variables which are scalar', '-warning-top-'],
+			'loaded'           => [
+				'Loaded',
+				Loader::PROCESSED,
+			],
+			'not-loaded'       => [
+				'Missing',
+				Loader::MISSING,
+			],
+			'skipped'          => [
+				'Skipped',
+				Loader::SKIPPED,
+			],
+			'externals'        => [
+				'External variables',
+				Loader::EXTERNALS,
+			],
+			'missing-classes'  => [
+				'Missing classes',
+				'-missing-classes-',
+			],
+			'top-level-scalar' => [
+				'Top-level variables which are scalar',
+				'-warning-top-',
+			],
 		] as $flag => [$key, $variablesKey]) {
 			$list = $variables[$variablesKey];
 			if ($flags[$flag] && count($list)) {
@@ -84,20 +114,16 @@ class Configuration extends SimpleCommand
 	/**
 	 * @return array
 	 */
-	private function show_flags(): array
+	private function showFlags(): array
 	{
-		$flags = [
-			'loaded' => true, 'not_loaded' => true, 'skipped' => true, 'externals' => false, 'missing_classes' => false,
-			'top_level_scalar' => false,
-		];
-		foreach ($flags as $flag => $default) {
-			if ($this->optionBool($flag)) {
-				// if any value is true, return the actual values
-				return ArrayTools::prefixKeys($this->options($flags), 'show_');
-			}
-		}
-		// Show all
-		return ArrayTools::prefixKeys($flags, 'show_');
+		return $this->options([
+			'loaded'           => true,
+			'not-loaded'       => true,
+			'skipped'          => true,
+			'externals'        => true,
+			'missing-classes'  => true,
+			'top-level-scalar' => true,
+		]);
 	}
 
 	/**
@@ -122,7 +148,8 @@ class Configuration extends SimpleCommand
 			}
 		}
 		return [
-			$missing, $warning,
+			$missing,
+			$warning,
 		];
 	}
 

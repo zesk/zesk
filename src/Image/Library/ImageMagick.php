@@ -20,20 +20,20 @@ use zesk\Exception\UnimplementedException;
 use zesk\File;
 use zesk\Image\Library;
 
-class ImageMagick extends Library
-{
+class ImageMagick extends Library {
+	
 	/**
 	 *
 	 * @var string
 	 */
 	public const command_default = 'convert';
-
+	
 	/**
 	 *
 	 * @var string
 	 */
 	public const command_scale = '{command} -antialias -matte -geometry "{width}x{height}" {source} {destination}';
-
+	
 	/**
 	 *
 	 * @return string
@@ -42,11 +42,12 @@ class ImageMagick extends Library
 	private function shellCommand(): string
 	{
 		$command = $this->application->configuration->getPath([
-			__CLASS__, 'command',
+			__CLASS__,
+			'command',
 		], self::command_default);
 		return $this->application->paths->which($command);
 	}
-
+	
 	/**
 	 *
 	 * @return string
@@ -56,13 +57,14 @@ class ImageMagick extends Library
 	{
 		$command = $this->shellCommand();
 		$pattern = $this->application->configuration->getPath([
-			__CLASS__, 'command_scale',
+			__CLASS__,
+			'command_scale',
 		], self::command_scale);
-		return map($pattern, [
+		return ArrayTools::map($pattern, [
 			'command' => $command,
 		]);
 	}
-
+	
 	/**
 	 *
 	 * @return boolean
@@ -76,10 +78,10 @@ class ImageMagick extends Library
 			return false;
 		}
 	}
-
+	
 	/**
 	 * @param string $data
-	 * @param array $options
+	 * @param array  $options
 	 * @return string
 	 * @throws CommandFailed
 	 * @throws DirectoryCreate
@@ -103,11 +105,11 @@ class ImageMagick extends Library
 		unlink($dest);
 		return $result;
 	}
-
+	
 	/**
 	 * @param string $source
 	 * @param string $dest
-	 * @param array $options
+	 * @param array  $options
 	 * @return bool
 	 * @throws CommandFailed
 	 * @throws DirectoryNotFound
@@ -119,18 +121,23 @@ class ImageMagick extends Library
 	{
 		File::depends($source);
 		Directory::must(dirname($dest));
-		[$actual_width, $actual_height] = getimagesize($source);
+		[
+			$actual_width,
+			$actual_height,
+		] = getimagesize($source);
 		$width = $options['width'] ?? $actual_width;
 		$height = $options['height'] ?? $actual_height;
-
+		
 		$map = [
-			'source' => escapeshellarg($source), 'destination' => escapeshellarg($dest), 'width' => $width,
+			'source' => escapeshellarg($source),
+			'destination' => escapeshellarg($dest),
+			'width' => $width,
 			'height' => $height,
 		];
-
+		
 		$cmd = $this->shellCommandScale();
 		$cmd = ArrayTools::map($cmd, $map);
-
+		
 		try {
 			$this->application->process->executeArguments($cmd);
 			if (file_exists($dest)) {
@@ -140,16 +147,16 @@ class ImageMagick extends Library
 			return false;
 		} catch (Exception $e) {
 			File::unlink($dest);
-
+			
 			throw $e;
 		}
 	}
-
+	
 	/**
 	 * @param string $source
 	 * @param string $destination
-	 * @param float $degrees
-	 * @param array $options
+	 * @param float  $degrees
+	 * @param array  $options
 	 * @return bool
 	 * @throws UnimplementedException
 	 */

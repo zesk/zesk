@@ -19,34 +19,34 @@ use zesk\StringTools;
  * @author kent
  *
  */
-class Validate extends Hookable
-{
+class Validate extends Hookable {
+	
 	/**
 	 * @see self::checkTranslationTokenNames()
 	 */
 	public const METHOD_TOKEN_NAMES = 'tokenNames';
-
+	
 	/**
 	 * @see self::checkTranslationBraces()
 	 */
 	public const METHOD_BRACES = 'braces';
-
+	
 	/**
 	 * @see self::checkTranslationTokenCount()
 	 */
 	public const METHOD_TOKEN_COUNT = 'tokenCount';
-
+	
 	/**
 	 *
 	 * @param Application $application
-	 * @param array $options
+	 * @param array       $options
 	 */
 	public function __construct(Application $application, array $options = [])
 	{
 		parent::__construct($application, $options);
 		$this->inheritConfiguration();
 	}
-
+	
 	private function defaultMethodsToClosures(): array
 	{
 		return [
@@ -55,7 +55,7 @@ class Validate extends Hookable
 			self::METHOD_TOKEN_COUNT => $this->checkTranslationTokenCount(...),
 		];
 	}
-
+	
 	/**
 	 * @param array $methodNames
 	 * @return array
@@ -73,7 +73,7 @@ class Validate extends Hookable
 		}
 		return $results;
 	}
-
+	
 	/**
 	 * Verifies if the source variables exist in the translation
 	 *
@@ -96,7 +96,7 @@ class Validate extends Hookable
 	 */
 	public function checkTranslation(string $source, string $translation): array
 	{
-		[$group] = pair($source, ':=', '', $source);
+		[$group] = StringTools::pair($source, ':=', '', $source);
 		$methods = $this->defaultMethodsToClosures();
 		if ($group !== '') {
 			/*
@@ -124,7 +124,7 @@ class Validate extends Hookable
 		}
 		return $errors;
 	}
-
+	
 	/**
 	 *
 	 * @param string $string
@@ -138,7 +138,7 @@ class Validate extends Hookable
 		sort($matches);
 		return $matches;
 	}
-
+	
 	/**
 	 * Match braces in a string and return all matches
 	 *
@@ -151,7 +151,7 @@ class Validate extends Hookable
 		preg_match_all('/[\[\]]/', $string, $matches, PREG_PATTERN_ORDER);
 		return $matches[0];
 	}
-
+	
 	/**
 	 * Check the token count in the source and translation are the same
 	 *
@@ -171,14 +171,14 @@ class Validate extends Hookable
 			$errors[] = $locale->__('Missing {n_tokens} in translation', [
 				'n_tokens' => $locale->pluralWord('token', $n),
 			]);
-		} elseif ($n < 0) {
+		} else if ($n < 0) {
 			$errors[] = $locale->__('You have an additional {n_tokens} in your translation', [
 				'n_tokens' => $locale->pluralWord('token', -$n),
 			]);
 		}
 		return $errors;
 	}
-
+	
 	/**
 	 * Check that the token names match between source and translation
 	 *
@@ -209,7 +209,7 @@ class Validate extends Hookable
 		}
 		return $errors;
 	}
-
+	
 	/**
 	 * Check that the braces in the pattern ar balanced and match between source and translation
 	 *
@@ -239,9 +239,9 @@ class Validate extends Hookable
 			$translation_bracket = $translation_matches[$index];
 			if ($translation_bracket !== $bracket) {
 				$errors[] = $locale->__('The {nth} brace in the translation ({translation_bracket}) does not match the source string bracket ({bracket})', [
-					'nth'   => $locale->ordinal($index + 1),
-					'debug' => JSON::encode($source_matches) . ' ' . JSON::encode($translation_matches),
-				] + compact('translation_bracket', 'bracket'));
+						'nth'   => $locale->ordinal($index + 1),
+						'debug' => JSON::encode($source_matches) . ' ' . JSON::encode($translation_matches),
+					] + compact('translation_bracket', 'bracket'));
 				return $errors;
 			}
 		}

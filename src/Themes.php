@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 /**
- * @package zesk
+ * @package    zesk
  * @subpackage core
- * @author kent
- * @copyright Copyright &copy; 2025, Market Acumen, Inc.
+ * @author     kent
+ * @copyright  Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -39,7 +39,7 @@ class Themes implements Themeable
 	 * @see Theme::__construct
 	 * @var ThemeStack
 	 */
-	public ThemeStack $template_stack;
+	public ThemeStack $templateStack;
 
 	/**
 	 * Paths to search for themes
@@ -52,17 +52,17 @@ class Themes implements Themeable
 	 *
 	 * @var string[]
 	 */
-	private array $theme_stack;
+	private array $themeStack;
 
 	public function __construct()
 	{
 		$this->themePath = [];
-		$this->theme_stack = [];
+		$this->themeStack = [];
 
 		$this->template = new Theme($this);
-		$this->template_stack = new ThemeStack();
+		$this->templateStack = new ThemeStack();
 
-		$this->template_stack->push($this->template);
+		$this->templateStack->push($this->template);
 	}
 
 	/**
@@ -70,8 +70,8 @@ class Themes implements Themeable
 	 */
 	protected function __clone()
 	{
-		$this->template_stack = clone $this->template_stack;
-		$this->template = $this->template_stack->bottom();
+		$this->templateStack = clone $this->templateStack;
+		$this->template = $this->templateStack->bottom();
 	}
 
 	/**
@@ -80,7 +80,7 @@ class Themes implements Themeable
 	 *
 	 * @param array|string $paths
 	 *            Path to add to the theme path. Pass in null to do nothing.
-	 * @param string $prefix
+	 * @param string       $prefix
 	 *            (Optional) Handle theme requests which begin with this prefix. Saves having deep
 	 *            directories.
 	 * @return self
@@ -120,21 +120,21 @@ class Themes implements Themeable
 	/**
 	 * Invoke a single theme type
 	 *
-	 * @param string $type
-	 * @param array $args
+	 * @param string  $type
+	 * @param array   $args
 	 * @param ?string $content Default content
-	 * @param string $extension
+	 * @param string  $extension
 	 * @return ?string
 	 * @throws Redirect
 	 */
 	private function _themeArguments(string $type, array $args, ?string $content = null, string $extension = '.tpl'): ?string
 	{
-		$this->theme_stack[] = $type;
+		$this->themeStack[] = $type;
 		$t = new Theme($this, $this->cleanTemplatePath($type) . $extension, $args);
 		if ($t->exists()) {
 			$content = $t->render();
 		}
-		array_pop($this->theme_stack);
+		array_pop($this->themeStack);
 		return $content;
 	}
 
@@ -153,7 +153,7 @@ class Themes implements Themeable
 	}
 
 	/**
-	 * @param $theme
+	 * @param       $theme
 	 * @param array $options
 	 * @return string
 	 * @throws NotFoundException
@@ -171,7 +171,7 @@ class Themes implements Themeable
 	/**
 	 * Search the theme paths for a target file
 	 *
-	 * @param $theme
+	 * @param       $theme
 	 * @param array $options
 	 * @return array[]
 	 */
@@ -226,8 +226,8 @@ class Themes implements Themeable
 	 * theme an element
 	 *
 	 * @param string|array $types
-	 * @param array $arguments
-	 * @param array $options
+	 * @param array        $arguments
+	 * @param array        $options
 	 * @return string|null
 	 * @throws Redirect
 	 */
@@ -299,7 +299,7 @@ class Themes implements Themeable
 	 */
 	final public function themeCurrent(): ?string
 	{
-		return ArrayTools::last($this->theme_stack);
+		return ArrayTools::last($this->themeStack);
 	}
 
 	/**
@@ -308,13 +308,13 @@ class Themes implements Themeable
 	 */
 	public function pushTemplate(Theme $t): Theme
 	{
-		$top = $this->template_stack->top();
+		$top = $this->templateStack->top();
 		if ($this->debug) {
 			$this->logger?->debug('Push {path}', [
 				'path' => $t->path(),
 			]);
 		}
-		$this->template_stack->push($t);
+		$this->templateStack->push($t);
 		return $top;
 	}
 
@@ -323,7 +323,7 @@ class Themes implements Themeable
 	 */
 	public function topTemplate(): Theme
 	{
-		return $this->template_stack->top();
+		return $this->templateStack->top();
 	}
 
 	/**
@@ -332,7 +332,7 @@ class Themes implements Themeable
 	 */
 	public function popTemplate(): Theme
 	{
-		$top = $this->template_stack->pop();
+		$top = $this->templateStack->pop();
 		if ($this->debug) {
 			$this->logger?->debug('Pop {path}', [
 				'path' => $top->path(),
@@ -348,29 +348,30 @@ class Themes implements Themeable
 	 */
 	final public function themeVariables(): array
 	{
-		return $this->template_stack->top()->variables();
+		return $this->templateStack->top()->variables();
 	}
 
 	/**
 	 * Getter/setter for top theme variable
+	 *
 	 * @param string $name
 	 * @return mixed
 	 */
 	final public function themeVariable(string $name): mixed
 	{
-		return $this->template_stack->top()->get($name);
+		return $this->templateStack->top()->get($name);
 	}
 
 	/**
 	 * Setter for top theme variable
 	 *
 	 * @param array|string|int|Theme $key
-	 * @param mixed|null $value
+	 * @param mixed|null             $value
 	 * @return $this
 	 */
 	final public function setThemeVariable(array|string|int|Theme $key, mixed $value = null): self
 	{
-		$this->template_stack->top()->set($key, $value);
+		$this->templateStack->top()->set($key, $value);
 		return $this;
 	}
 

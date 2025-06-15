@@ -16,8 +16,8 @@ use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Entity;
 use Doctrine\ORM\Mapping\EntityListeners;
-use Doctrine\ORM\Mapping\HasLifecycleCallbacks;
 use Doctrine\ORM\Mapping\OneToMany;
+use Doctrine\ORM\Mapping\UniqueConstraint;
 use Doctrine\ORM\OptimisticLockException;
 use zesk\Cron\Attributes\Cron;
 use Throwable;
@@ -27,9 +27,11 @@ use zesk\Doctrine\Trait\AutoID;
 use zesk\Doctrine\Trait\Name;
 use zesk\Exception\KeyNotFound;
 use zesk\Exception\ProtocolException;
+use zesk\Exception\SemanticsException;
 use zesk\Exception\TimeoutExpired;
 use zesk\Interface\MetaInterface;
 use zesk\IPv4;
+use zesk\PHP;
 use zesk\System;
 use zesk\Timestamp;
 
@@ -41,16 +43,18 @@ use zesk\Timestamp;
  * @see ServerMeta
  */
 #[Entity]
+#[EntityListeners([ModelListener::class])]
+#[UniqueConstraint('name', ['name'])]
 class Server extends Model implements MetaInterface
 {
 	public const MEMBER_METAS = 'metas';
 
-	public const DEFAULT_OPTION_FREE_DISK_VOLUME = '/';
+	public const DEFAULT_OPTION_FREE_VOLUME_NAME = '/';
 
 	/**
 	 *
 	 */
-	public const OPTION_FREE_DISK_VOLUME = 'free_disk_volume';
+	public const OPTION_FREE_VOLUME_NAME = 'freeVolumeName';
 
 	/**
 	 * 1 = 1024^0
@@ -118,7 +122,7 @@ class Server extends Model implements MetaInterface
 	 *
 	 * @var string
 	 */
-	public const OPTION_ALIVE_UPDATE_SECONDS = 'alive_update_seconds';
+	public const OPTION_ALIVE_UPDATE_SECONDS = 'aliveUpdateSeconds';
 
 	/**
 	 * Number of seconds after which the server status should be updated
@@ -131,16 +135,18 @@ class Server extends Model implements MetaInterface
 	 *
 	 * @var string
 	 */
-	public const OPTION_TIMEOUT_SECONDS = 'timeout_seconds';
+	public const OPTION_TIMEOUT_SECONDS = 'timeoutSeconds';
 
 	/**
 	 *
 	 * @var int
 	 */
-	public const default_timeout_seconds = 180;
+	public const DEFAULT_TIMEOUT_SECONDS = 180;
+
+	use AutoID;
 
 	#[Column(type: 'string', length: 64, nullable: false)]
-	public string $nameInternal = '';
+	public string $name = '';
 
 	#[Column(type: 'string', length: 64, nullable: false)]
 	public string $nameExternal = '';
@@ -163,11 +169,8 @@ class Server extends Model implements MetaInterface
 	#[Column(type: 'timestamp', nullable: false)]
 	public Timestamp $alive;
 
-	#[OneToMany(mappedBy: 'server', targetEntity: ServerMeta::class, cascade: ['all'], indexBy: 'name')]
+	#[OneToMany(targetEntity: ServerMeta::class, mappedBy: 'server', cascade: ['all'], indexBy: 'name')]
 	public Collection $metas;
-
-	use AutoID;
-	use Name;
 
 	public function initialize(): void
 	{
@@ -224,7 +227,7 @@ class Server extends Model implements MetaInterface
 		$em = $this->application->entityManager();
 		$builder = $em->createQueryBuilder();
 
-		$timeout_seconds = -abs($this->optionInt(self::OPTION_TIMEOUT_SECONDS, self::default_timeout_seconds));
+		$timeout_seconds = -abs($this->optionInt(self::OPTION_TIMEOUT_SECONDS, self::DEFAULT_TIMEOUT_SECONDS));
 
 		try {
 			$dead_to_me = Timestamp::now('UTC');
@@ -273,6 +276,7 @@ class Server extends Model implements MetaInterface
 	 *
 	 * @param Application $application
 	 * @return Server
+	 * @throws ORMException
 	 */
 	public static function singleton(Application $application): self
 	{
@@ -284,6 +288,7 @@ class Server extends Model implements MetaInterface
 	 *
 	 * @return $this
 	 * @throws ORMException
+	 * @throws SemanticsException
 	 */
 	protected function _findSingleton(): self
 	{
@@ -294,8 +299,10 @@ class Server extends Model implements MetaInterface
 			return $this->registerDefaultServer()->updateState();
 		}
 		assert($server instanceof self);
+		$server->hydrate($this->application);
 		$delta = Timestamp::now()->difference($server->alive);
 		if ($delta > $this->option(self::OPTION_ALIVE_UPDATE_SECONDS, self::DEFAULT_ALIVE_UPDATE_SECONDS)) {
+			$this->_initializeNameDefaults();
 			return $server->updateState();
 		}
 		return $server;
@@ -306,6 +313,7 @@ class Server extends Model implements MetaInterface
 	/**
 	 *
 	 * @return self
+	 * @throws SemanticsException
 	 */
 	private function registerDefaultServer(): self
 	{
@@ -323,9 +331,9 @@ class Server extends Model implements MetaInterface
 	{
 		if (!$this->name) {
 			$this->name = self::hostDefault();
-		}
-		if (!$this->nameInternal) {
-			$this->nameInternal = self::hostDefault();
+			if (!$this->name) {
+				throw new SemanticsException('Need default server name');
+			}
 		}
 		if (!$this->nameExternal) {
 			// 2018-08-06 No longer inherits $host value, null by default
@@ -347,17 +355,19 @@ class Server extends Model implements MetaInterface
 	/**
 	 * Update server state
 	 *
-	 * @param string $path
+	 * @param string $volumeName Servers will store the free disk units available on this storage volume
+	 *                           Otherwise set Server::
 	 * @return self
 	 * @throws ORMException
+	 * @throws SemanticsException
 	 */
-	public function updateState(string $path = ''): self
+	public function updateState(string $volumeName = ''): self
 	{
-		if ($path === '') {
-			$path = $this->optionString(self::OPTION_FREE_DISK_VOLUME, self::DEFAULT_OPTION_FREE_DISK_VOLUME);
+		if ($volumeName === '') {
+			$volumeName = $this->optionString(self::OPTION_FREE_VOLUME_NAME, self::DEFAULT_OPTION_FREE_VOLUME_NAME);
 		}
 		$volume_info = System::volumeInfo();
-		$info = $volume_info[$path] ?? null;
+		$info = $volume_info[$volumeName] ?? null;
 		if ($info) {
 			$units = self::$disk_units_list;
 			$free = $info['free'];
@@ -450,8 +460,14 @@ class Server extends Model implements MetaInterface
 	 */
 	public function clearMeta(): self
 	{
-		$this->entityManager()->createQuery('DELETE FROM ' . ServerMeta::class . ' WHERE server=:id')->execute(['id' => $this->id]);
-		$this->entityManager()->getRepository(ServerMeta::class)->clear();
+		$em = $this->entityManager();
+		$builder = $em->createQueryBuilder();
+		$expr = $em->getExpressionBuilder();
+		$query = $builder->delete(ServerMeta::class, 'm')->where($expr->eq('m.server', ':server'))->setParameter('server', $this)->getQuery();
+		PHP::log($query->getDQL());
+		$query->execute();
+		$em->flush();
+		$em->refresh($this);
 		return $this;
 	}
 

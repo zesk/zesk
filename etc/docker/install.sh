@@ -42,7 +42,7 @@ __phpExtensionDependency() {
       printf -- "%s\n" "libzip-dev"
       ;;
     mysqli)
-      printf -- "%s\n" "mariadb-client php-mysql"
+      printf -- "%s\n" "mariadb-client"
       ;;
   esac
 }

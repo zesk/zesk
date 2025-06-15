@@ -361,7 +361,7 @@ class Response extends Hookable
 	public function setStatusMessage(string $error_string): self
 	{
 		if (strpos($error_string, "\n")) {
-			throw new SemanticsException('Newline passed in statusMessage: {message}', [
+			throw new RuntimeException('Newline passed in statusMessage: {message}', [
 				'message' => strtr($error_string, [
 					"\n" => '[NEWLINE]',
 				]),
@@ -378,7 +378,6 @@ class Response extends Hookable
 	 * @param int     $error_code
 	 * @param ?string $error_string
 	 * @return $this
-	 * @throws SemanticsException
 	 */
 	public function setStatus(int $error_code, string $error_string = null): self
 	{
@@ -904,7 +903,6 @@ class Response extends Hookable
 	 * @param CacheItemPoolInterface $pool
 	 * @param string                 $url
 	 * @return boolean
-	 * @throws SemanticsException
 	 */
 	public function cacheSave(CacheItemPoolInterface $pool, string $url): bool
 	{
@@ -1149,7 +1147,6 @@ class Response extends Hookable
 	 *            (may be ie,
 	 *            ie6, ie7), and cdn (boolean to prefix with cdn path)
 	 * @return self
-	 * @throws SemanticsException
 	 */
 	final public function css(string $path, array $options = []): self
 	{
@@ -1188,7 +1185,6 @@ class Response extends Hookable
 	 *            browsers),
 	 *            cdn (defaults to false)
 	 * @return Response
-	 * @throws SemanticsException
 	 */
 	final public function javascript(string|array $path, array $options = []): Response
 	{
@@ -1201,7 +1197,6 @@ class Response extends Hookable
 	 * @param string $script
 	 * @param array  $options
 	 * @return Response
-	 * @throws SemanticsException
 	 */
 	final public function inlineJavaScript(string $script, array $options = []): self
 	{

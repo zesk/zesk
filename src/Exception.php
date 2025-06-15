@@ -3,10 +3,10 @@ declare(strict_types=1);
 /**
  * Base class for all exceptions in Zesk.
  *
- * @package zesk
+ * @package    zesk
  * @subpackage Exception
- * @author kent
- * @copyright Copyright &copy; 2025, Market Acumen, Inc.
+ * @author     kent
+ * @copyright  Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -18,10 +18,10 @@ use Throwable;
 /**
  *
  */
-abstract class Exception extends BaseException
-{
+abstract class Exception extends BaseException {
+	
 	use Exceptional;
-
+	
 	/**
 	 * @param BaseException $e
 	 * @return array
@@ -30,20 +30,25 @@ abstract class Exception extends BaseException
 	{
 		return method_exists($e, 'variables') ? $e->variables() : ($e instanceof Error ? self::phpExceptionVariables($e, 'error') : self::phpExceptionVariables($e));
 	}
-
+	
 	/**
 	 * @param Throwable $e
-	 * @param string $prefix
+	 * @param string    $prefix
 	 * @return array
 	 */
 	public static function phpExceptionVariables(Throwable $e, string $prefix = 'exception'): array
 	{
 		return [
-			'throwableClass' => $e::class, "{$prefix}Class" => $e::class, 'throwableCode' => $e->getCode(),
-			"{$prefix}Code" => $e->getCode(), 'message' => $e->getMessage(), 'rawMessage' => $e->getMessage(),
-			'file' => $e->getFile(), 'line' => $e->getLine(), 'trace' => $e->getTrace(),
-			'backtrace' => $e->getTraceAsString(), /* 2022-12 Deprecated - overlaps */ 'class' => $e::class,
-			'code' => $e->getCode(),
+			'throwableClass' => $e::class,
+			"{$prefix}Class" => $e::class,
+			'throwableCode'  => $e->getCode(),
+			"{$prefix}Code"  => $e->getCode(),
+			'message'        => $e->getMessage(),
+			'rawMessage'     => $e->getMessage(),
+			'file'           => $e->getFile(),
+			'line'           => $e->getLine(),
+			'trace'          => $e->getTrace(),
+			'backtrace'      => $e->getTraceAsString(),
 		];
 	}
 }

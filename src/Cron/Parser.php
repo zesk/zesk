@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 /**
- * @package zesk
+ * @package    zesk
  * @subpackage objects
  */
 
@@ -9,6 +9,7 @@ namespace zesk\Cron;
 
 use zesk\ArrayTools;
 use zesk\Date;
+use zesk\Debug;
 use zesk\Exception\ParseException;
 use zesk\Exception\ProtocolException;
 use zesk\HTML;
@@ -23,66 +24,67 @@ use zesk\Timestamp;
  * @author kent
  *
  */
-class Parser
-{
+class Parser {
+	
 	/**
 	 *
 	 * @var boolean
 	 */
 	private $debug = false;
-
+	
 	/**
 	 *
 	 * @var Locale
 	 */
 	private $locale;
-
+	
 	/**
 	 * String formatted
+	 *
 	 * @var string
 	 */
 	private $cron_codes;
-
+	
 	/**
 	 *
 	 * @var string
 	 */
 	private string $phrase;
-
+	
 	/**
 	 *
 	 * @var integer
 	 */
 	public const CRON_MINUTE = 0;
-
+	
 	/**
 	 *
 	 * @var integer
 	 */
 	public const CRON_HOUR = 1;
-
+	
 	/**
 	 *
 	 * @var integer
 	 */
 	public const CRON_MONTHDAY = 2;
-
+	
 	/**
 	 *
 	 * @var integer
 	 */
 	public const CRON_MONTH = 3;
-
+	
 	/**
 	 *
 	 * @var integer
 	 */
 	public const CRON_WEEKDAY = 4;
-
+	
 	/**
 	 * Parse a string and convert it into a schedule
 	 *
-	 * @param string $text Some text in the locale's language
+	 * @param string $text   Some text in the locale's language
 	 * @param string $locale The locale. If null, uses the current global locale.
 	 */
 	public function __construct(string $phrase, Locale $locale)
@@ -92,10 +94,10 @@ class Parser
 		$this->cron_codes = array_fill(0, self::CRON_WEEKDAY + 1, null);
 		$this->parse_language_en($phrase);
 	}
-
+	
 	/**
 	 *
-	 * @param int $index
+	 * @param int   $index
 	 * @param mixed $add
 	 * @return self
 	 */
@@ -108,27 +110,27 @@ class Parser
 			$low,
 			$high,
 		] = [
-			[
-				0,
-				60,
-			],
-			[
-				0,
-				23,
-			],
-			[
-				1,
-				31,
-			],
-			[
-				1,
-				12,
-			],
-			[
-				0,
-				6,
-			],
-		][$index] ?? [
+				[
+					0,
+					60,
+				],
+				[
+					0,
+					23,
+				],
+				[
+					1,
+					31,
+				],
+				[
+					1,
+					12,
+				],
+				[
+					0,
+					6,
+				],
+			][$index] ?? [
 			null,
 			null,
 		];
@@ -150,7 +152,7 @@ class Parser
 		$this->cron_codes[$index] = implode(',', $old);
 		return $this;
 	}
-
+	
 	/**
 	 *
 	 * @param Timestamp $now
@@ -214,7 +216,7 @@ class Parser
 		];
 		$match = $default_match;
 		$loops = 0;
-
+		
 		$debug = false;
 		while (implode('', $match) !== '11111') {
 			$loops++;
@@ -230,7 +232,7 @@ class Parser
 				if ($match[$cindex] === '0') {
 					if ($cron_value === '*') {
 						$match[$cindex] = '1';
-					} elseif (($interval = $this->is_time_repeat($cron_value)) !== false) {
+					} else if (($interval = $this->is_time_repeat($cron_value)) !== false) {
 						assert($unit !== 'weekday');
 						if ($divisor < 0) {
 							$next_value = $next->month() + ($next->year() * 12);
@@ -247,7 +249,7 @@ class Parser
 							$next->addUnit($$interval - $mod, $unit);
 							$match = $default_match;
 							$match[$cindex] = '1';
-
+							
 							break;
 						}
 					} else {
@@ -259,9 +261,9 @@ class Parser
 						foreach ($cron_values as $cron_value) {
 							if ($cron_value == $next_value) {
 								$match[$cindex] = '1';
-
+								
 								break;
-							} elseif ($cron_value > $next_value) {
+							} else if ($cron_value > $next_value) {
 								$next->setUnit($unit, intval($cron_value));
 								foreach ($lower_units as $cindex_tmp => $lower_unit) {
 									$next->setUnit($lower_unit, ($lower_unit == 'day' || $lower_unit == 'month') ? 1 : 0);
@@ -271,7 +273,7 @@ class Parser
 									echo "Setting unit $unit to $cron_value => " . $next->__toString() . '<br />';
 								}
 								$match[$cindex] = '1';
-
+								
 								break;
 							}
 						}
@@ -281,7 +283,7 @@ class Parser
 								$next->addUnit(1, $next_unit);
 							}
 							$match = $default_match;
-
+							
 							break;
 						}
 					}
@@ -297,11 +299,11 @@ class Parser
 		}
 		return $next;
 	}
-
+	
 	/**
 	 * Parse a string and convert it into a schedule
 	 *
-	 * @param string $text Some text in the locale's language
+	 * @param string $text   Some text in the locale's language
 	 * @param string $locale The locale. If null, uses the current global locale.
 	 */
 	private function parse_language_en($text)
@@ -348,7 +350,7 @@ class Parser
 			'short-dow'    => '(' . implode('|', $short_dow) . ')',
 			'years'        => '([0-9]{4})',
 		];
-
+		
 		$debug = false;
 		if ($debug) {
 			echo HTML::tag('h1', [], "$text");
@@ -359,7 +361,7 @@ class Parser
 			if (preg_match_all("/$pattern/i", $text, $matches, PREG_SET_ORDER)) {
 				if ($debug) {
 					echo "<h2>$item</h2>";
-					dump($matches);
+					Debug::output($matches);
 				}
 				$result[$item] = $matches;
 				foreach ($matches as $match) {
@@ -383,15 +385,15 @@ class Parser
 			switch ($item) {
 				case 'am-hint':
 					$tod_hint = 'am';
-
+					
 					break;
 				case 'pm-hint':
 					$tod_hint = 'pm';
-
+					
 					break;
 				case 'ampm-hint':
 					$tod_hint = null;
-
+					
 					break;
 				case 'time':
 					foreach ($matches as $match) {
@@ -404,7 +406,7 @@ class Parser
 						if ($hh <= 12) {
 							if (str_starts_with($ampm, 'p')) {
 								$hh += 12;
-							} elseif ($ampm === null) {
+							} else if ($ampm === null) {
 								// 12-hour time
 								if ($hh < 6) {
 									$hh += 12;
@@ -414,7 +416,7 @@ class Parser
 						$cron = $this->cron_add(self::CRON_HOUR, "$hh.$mm");
 						$have_time = true;
 					}
-
+					
 					break;
 				case 'time-word':
 					foreach ($matches as $match) {
@@ -422,31 +424,31 @@ class Parser
 							$hh,
 							$mm,
 						] = [
-							'midnight' => [
-								0,
-								0,
-							],
-							'noon'     => [
-								12,
-								0,
-							],
-							'dusk'     => [
-								19,
-								0,
-							],
-							'dawn'     => [
-								7,
-								0,
-							],
-							'sunrise'  => [
-								7,
-								0,
-							],
-							'sunset'   => [
-								19,
-								0,
-							],
-						][$match[1]] ?? [
+								'midnight' => [
+									0,
+									0,
+								],
+								'noon'     => [
+									12,
+									0,
+								],
+								'dusk'     => [
+									19,
+									0,
+								],
+								'dawn'     => [
+									7,
+									0,
+								],
+								'sunrise'  => [
+									7,
+									0,
+								],
+								'sunset'   => [
+									19,
+									0,
+								],
+							][$match[1]] ?? [
 							null,
 							null,
 						];
@@ -456,7 +458,7 @@ class Parser
 							$have_time = true;
 						}
 					}
-
+					
 					break;
 				case 'dow':
 				case 'short-dow':
@@ -467,18 +469,18 @@ class Parser
 							$need_time = true;
 						}
 					}
-
+					
 					break;
 				case 'weekday':
 					for ($i = 1; $i <= 5; $i++) {
 						$this->cron_add(self::CRON_WEEKDAY, $i);
 					}
-
+					
 					break;
 				case 'weekend':
 					$this->cron_add(self::CRON_WEEKDAY, 0);
 					$this->cron_add(self::CRON_WEEKDAY, 6);
-
+					
 					break;
 				case 'months':
 				case 'short-months':
@@ -489,7 +491,7 @@ class Parser
 							$need_time = true;
 						}
 					}
-
+					
 					break;
 				case 'years':
 					// Skip years for now
@@ -499,7 +501,7 @@ class Parser
 						$this->cron_add(self::CRON_MONTHDAY, $match[1]);
 						$have_dayofmonth = true;
 					}
-
+					
 					break;
 				case 'units':
 				case 'units-opt':
@@ -517,59 +519,59 @@ class Parser
 								case 'min':
 									$this->cron_add(self::CRON_MINUTE, "*/$n");
 									$have_time = true;
-
+									
 									break;
 								case 'hr':
 								case 'hour':
 									$this->cron_add(self::CRON_HOUR, "*/$n");
 									$have_time = true;
-
+									
 									break;
 								case 'day':
 									$this->cron_add(self::CRON_MONTHDAY, "*/$n");
 									$need_time = true;
-
+									
 									break;
 								case 'week':
 									$this->cron_add(self::CRON_MONTHDAY, '*/' . ($n * 7));
 									$need_time = true;
-
+									
 									break;
 								case 'month':
 									$this->cron_add(self::CRON_MONTH, "*/$n");
 									$need_time = true;
-
+									
 									break;
 							}
 						}
 					}
-
+					
 					break;
 				case 'unitsly':
 					foreach ($matches as $match) {
 						switch ($match[1]) {
 							case 'hourly':
 								$this->cron_add(self::CRON_MINUTE, 0);
-
+								
 								break;
 							case 'weekly':
 								$this->cron_add(self::CRON_WEEKDAY, 0);
 								$need_time = true;
-
+								
 								break;
 							case 'monthly':
 								$this->cron_add(self::CRON_MONTHDAY, 1);
 								$need_time = true;
-
+								
 								break;
 							case 'daily':
 								$this->cron_add(self::CRON_HOUR, 0);
 								$this->cron_add(self::CRON_MINUTE, 0);
-
+								
 								break;
 						}
 					}
-
+					
 					break;
 				default:
 					throw new ParseException("Unknown pattern in schedule: $item");
@@ -593,11 +595,11 @@ class Parser
 		}
 		$result = 'cron:' . implode(' ', $cron);
 		if ($debug) {
-			dump($result);
+			Debug::output($result);
 		}
 		return $result;
 	}
-
+	
 	private function days_to_language($code)
 	{
 		$items = explode(',', $code);
@@ -609,7 +611,7 @@ class Parser
 		}
 		return $this->locale->conjunction($result, $this->locale->__('and'));
 	}
-
+	
 	private function months_to_language($code)
 	{
 		$items = explode(',', $code);
@@ -622,7 +624,7 @@ class Parser
 		}
 		return $this->locale->conjunction($result, $this->locale->__('and'));
 	}
-
+	
 	private function dow_to_language($code, $locale, $plural = false)
 	{
 		if ($code === '1,2,3,4,5') {
@@ -648,19 +650,19 @@ class Parser
 		}
 		return $this->locale->conjunction($result, $this->locale->__('and', $locale));
 	}
-
+	
 	private function time_repeat_to_language($item, $unit, $locale)
 	{
 		if (($number = $this->is_time_repeat($item)) !== false) {
 			$translate = ($this->locale)($number === 1 ? 'Schedule:=Every {1}' : 'Schedule:=Every {0} {1}', $locale);
-			return map($translate, [
+			return ArrayTools::map($translate, [
 				$number,
 				$this->locale->plural($unit, $number),
 			]);
 		}
 		return false;
 	}
-
+	
 	private function is_time_repeat($item)
 	{
 		$matches = false;
@@ -669,7 +671,7 @@ class Parser
 		}
 		return false;
 	}
-
+	
 	private function time_to_language($min, $hour)
 	{
 		$min = explode(',', $min);
@@ -679,7 +681,7 @@ class Parser
 			foreach ($min as $m) {
 				if ($m == 0 && $h == 0) {
 					$times[] = $this->locale->__('midnight');
-				} elseif ($m == 0 && $h == 12) {
+				} else if ($m == 0 && $h == 12) {
 					$times[] = $this->locale->__('noon');
 				} else {
 					$t = new Time();
@@ -696,7 +698,7 @@ class Parser
 		}
 		return $this->locale->conjunction($times, $this->locale->__('and'));
 	}
-
+	
 	/**
 	 *
 	 * @param Locale $locale
@@ -718,7 +720,7 @@ class Parser
 		$plural_dow = false;
 		if (($time_language = $this->time_repeat_to_language($min, 'minute', $locale)) !== false) {
 			$time_every = true;
-		} elseif (($time_language = $this->time_repeat_to_language($hour, 'hour', $locale)) !== false) {
+		} else if (($time_language = $this->time_repeat_to_language($hour, 'hour', $locale)) !== false) {
 			$time_every = true;
 		}
 		if (($day_language = $this->time_repeat_to_language($day, 'day', $locale)) !== false) {
@@ -727,38 +729,38 @@ class Parser
 		switch (($day === '*' ? '*' : ' ') . ($month === '*' ? '*' : ' ') . ($dow === '*' ? '*' : ' ')) {
 			case '***':
 				$translate_string = $time_every ? '{time}' : 'Schedule:=Every day at {time}';
-
+				
 				break;
 			case '** ':
 				$translate_string = $time_every ? '{time} on {weekday}' : __CLASS__ . ':=Every {weekday} at {time}';
-
+				
 				break;
 			case '* *':
 				$translate_string = __CLASS__ . ':=Every day in {month} at {time}';
-
+				
 				break;
 			case '*  ':
 				$plural_dow = true;
 				$translate_string = $time_every ? __CLASS__ . ':={time} on {weekday} in {month}' : __CLASS__ . ':=At {time} on {weekday} in {month}';
-
+				
 				break;
 			case ' **':
 				$translate_string = $day_every ? __CLASS__ . ':={day} at {time}' : __CLASS__ . ':=Every month on the {day} at {time}';
-
+				
 				break;
 			case ' * ':
 				$translate_string = __CLASS__ . ':=Every month on the {day} at {time}, only on {weekday}';
 				$plural_dow = true;
-
+				
 				break;
 			case '  *':
 				$translate_string = $day_every ? __CLASS__ . ':={day} in {month} at {time}' : __CLASS__ . ':={month} {day} at {time}';
-
+				
 				break;
 			case '   ':
 				$translate_string = __CLASS__ . ':={day} in {month}, on {weekday}, at {time}';
 				$plural_dow = true;
-
+				
 				break;
 		}
 		if (!$time_language) {
@@ -774,14 +776,14 @@ class Parser
 			$dow_language = $this->dow_to_language($dow, $plural_dow);
 		}
 		$phrase = $this->locale->__($translate_string);
-		return map($phrase, [
+		return ArrayTools::map($phrase, [
 			'time'    => $time_language,
 			'day'     => $day_language,
 			'month'   => $month_language,
 			'weekday' => $dow_language,
 		]);
 	}
-
+	
 	// Format similar to crontab scheduling
 	//
 	// minute hour day-of-month month day-of-week
@@ -790,7 +792,7 @@ class Parser
 	{
 		return $this->code_to_language_cron($this->locale);
 	}
-
+	
 	public function variables(): array
 	{
 		return [

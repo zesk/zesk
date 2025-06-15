@@ -34,8 +34,8 @@ class ServerMeta extends Model
 {
 	use AutoID;
 
-	#[ManyToOne(targetEntity: Server::class)]
-	#[JoinColumn(name: 'server')]
+	#[ManyToOne(targetEntity: Server::class, inversedBy: 'metas')]
+	#[JoinColumn(name: 'server', referencedColumnName: 'id')]
 	public Server $server;
 
 	#[Column(type: 'string', nullable: false)]
@@ -46,11 +46,10 @@ class ServerMeta extends Model
 
 	public function __construct(Application $application, Server $server, string $name, mixed $value, array $options = [])
 	{
-		parent::__construct($application, [
-			'server' => $server,
-			'name'   => $name,
-			'value'  => $value,
-		], $options);
+		parent::__construct($application, $options);
+		$this->server = $server;
+		$this->name = $name;
+		$this->value = $value;
 	}
 
 	/**
@@ -75,7 +74,7 @@ class ServerMeta extends Model
 	 */
 	public static function register(Server $server, string $name, mixed $value): self
 	{
-		$em = $server->em;
+		$em = $server->entityManager();
 		$meta = $em->getRepository(self::class)->findOneBy([
 			'server' => $server,
 			'name'   => $name,

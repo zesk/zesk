@@ -3,6 +3,7 @@ declare(strict_types=1);
 /**
  * @copyright &copy; 2022, Market Acumen, Inc.
  */
+
 namespace zesk;
 
 use zesk\Locale\Locale;
@@ -14,13 +15,13 @@ use zesk\Locale\Locale;
 $locale = $application->locale;
 ?># zesk Management
 
-Usage: zesk [configuration-opts] [ command command-args command1 command1-args ... ]
+    Usage: zesk [configuration-opts] [ command command-args command1 command1-args ... ]
 
-Zesk command-line management interface. Execute commands within an application context.
+    Zesk command-line management interface. Execute commands within an application context.
 
-These options are used to configure the environment BEFORE the application context is loaded (typically a file which matches *.application.php) found in any directory above the current command when run.
+    These options are used to configure the environment BEFORE the application context is loaded (typically a file which matches *.application.php) found in any directory above the current command when run.
 
-configuration-opts:
+    configuration-opts:
 
     --set name=value   Set the global to value (use :: to specify paths)
     --name=value       Set the global to value
@@ -29,23 +30,23 @@ configuration-opts:
     --search dir       If supplied, search here for application files, may be supplied more than once to search multiple places in order. Otherwise, uses the current directory. (see --cd)
     --config file      Load a configuration file as globals
 
-command may be:
+    command may be:
 
     - A file (starting with a dot or slash) to include directly (no additional arguments)
     - a command shortcut to invoke which may take one or more additional arguments
 
-Commands are processed until the first non-zero exit code (or unhandled Exception or Error) at which point execution terminates and the process exits.
+    Commands are processed until the first non-zero exit code (or unhandled Exception or Error) at which point execution terminates and the process exits.
 
-Commands which take a variable number of arguments can be chained by using `--` to stop processing of arguments
-
-<?php
+    Commands which take a variable number of arguments can be chained by using `--` to stop processing of arguments
+	
+	<?php
 $tab = '    ';
 foreach ($this->getArray('categories') as $category => $commands) {
 	echo "== $category " . str_repeat('=', 80 - strlen($category)) . "\n";
 	foreach ($commands as $command => $info) {
 		$extras = '';
 		if (array_key_exists('shortcuts', $info)) {
-			$extras = ' (' . implode(', ', toArray($info['shortcuts'])) . ')';
+			$extras = ' (' . implode(', ', Types::toArray($info['shortcuts'])) . ')';
 		}
 		echo "$command$extras\n";
 		$desc = $info['desc'] ?? $locale('No description provided.');

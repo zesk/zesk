@@ -1,78 +1,82 @@
 <?php
 declare(strict_types=1);
 /**
- * @author kent
- * @package zesk/modules
+ * @author     kent
+ * @package    zesk/modules
  * @subpackage Polyglot
- * @copyright &copy; 2023, Market Acumen, Inc.
+ * @copyright  &copy; 2023, Market Acumen, Inc.
  */
 
 namespace zesk\Polyglot;
 
+use Doctrine\Common\Collections\Criteria;
+use Doctrine\ORM\Exception\ORMException;
+use Doctrine\ORM\Mapping\Column;
+use Doctrine\ORM\Mapping\JoinColumn;
+use Doctrine\ORM\Mapping\ManyToOne;
 use Throwable;
 use zesk\Application;
+use zesk\Cron\Attributes\Cron;
 use zesk\Directory;
+use zesk\Doctrine\Lock;
 use zesk\Doctrine\Model;
-use zesk\Exception\ClassNotFound;
-use zesk\Exception\ConfigurationException;
+use zesk\Doctrine\Server;
+use zesk\Doctrine\User;
+use zesk\Exception;
 use zesk\Exception\FileLocked;
 use zesk\Exception\FileNotFound;
 use zesk\Exception\FilePermission;
 use zesk\Exception\FileSystemException;
 use zesk\Exception\KeyNotFound;
-use zesk\Exception\NotFoundException;
+use zesk\Exception\LockedException;
 use zesk\Exception\ParameterException;
 use zesk\Exception\ParseException;
-use zesk\Exception\ProtocolException;
+use zesk\Exception\SemanticsException;
 use zesk\Exception\TimeoutExpired;
 use zesk\File;
 use zesk\Locale\Locale;
 use zesk\PHP;
-use zesk\Polyglot\Class\Class_Update;
 use zesk\Timestamp;
 
 /**
  *
- * @see Class_Update
+ * @see    Class_Update
  * @author kent
- * @property User $user
+ * @property User      $user
  * @property Timestamp $updated
  */
 class Update extends Model
 {
-	/**
-	 * @param Application $application
-	 * @param string $locale
-	 * @param User|null $user
-	 * @return self
-	 * @throws SQLException
-	 * @throws ClassNotFound
-	 * @throws ConfigurationException
-	 * @throws ParseException
-	 * @throws KeyNotFound
-	 * @throws ParameterException
-	 * @throws ParseException
-	 * @throws ProtocolException
-	 * @throws ORMDuplicate
-	 * @throws ORMEmpty
-	 * @throws ORMNotFound
-	 * @throws StoreException
-	 */
-	public static function registerUpdate(Application $application, string $locale, User $user = null): self
+	public function __construct(Application $application, string $locale, User $user, array $options = [])
 	{
-		$object = $application->ormFactory(__CLASS__, [
-			'locale' => Locale::normalize($locale),
-		]);
-		assert($object instanceof self);
-
-		try {
-			$object->fetch();
-		} catch (ORMNotFound) {
-			$object->user = $user;
-		}
-		$object->updated = 'now';
-		return $object->store();
+		parent::__construct($application, $options);
+		$this->locale = $locale;
+		$this->user = $user;
+		$this->updated = new Timestamp();
 	}
+
+	public static function factory(Application $application, string $locale, User $user, array $options = []): self
+	{
+		return new self($application, $locale, $user, $options);
+	}
+
+	/**
+	 * Locale string to update (`en_US`)
+	 */
+	#[Column(type: 'string', length: 5, nullable: false)]
+	protected string $locale;
+
+	/**
+	 * User who requested this
+	 *
+	 * @var User
+	 */
+	#[ManyToOne]
+	#[JoinColumn(name: 'user', nullable: false)]
+	protected User $user;
+
+	#[Column(type: 'timestamp', nullable: false)]
+	public Timestamp $updated;
 
 	/**
 	 *
@@ -82,26 +86,20 @@ class Update extends Model
 	/**
 	 *
 	 * @param Application $application
-	 * @throws SQLException
-	 * @throws ClassNotFound
-	 * @throws ConfigurationException
-	 * @throws ParseException
-	 * @throws KeyNotFound
-	 * @throws NotFoundException
-	 * @throws ORMNotFound
-	 * @throws ParameterException
-	 * @throws ParseException
-	 * @throws ProtocolException
-	 * @throws TimeoutExpired
-	 * @throws ORMEmpty
+	 * @throws ORMException
 	 */
-	public static function cron_minute(Application $application): void
+	#[Cron(schedule: '* * * * *', scope: Cron::SCOPE_CLUSTER)]
+	public static function cronClusterMinute(Application $application): void
 	{
-		$server = Server::singleton($application);
-		$path = $application->configuration->getPath([
-			Module::class,
-			'update_path',
-		], $application->path('etc/language'));
+		try {
+			$server = Server::singleton($application);
+		} catch (Throwable $e) {
+			$application->error('Unable to run {method} and fetch Server singleton ({message})', [
+				'method' => __METHOD__,
+			] + Exception::exceptionVariables($e));
+			return;
+		}
+		$path = $application->polyglotModule()->updatePath();
 		if (!is_dir($path)) {
 			$application->warning(Module::class . '::update_path is not a directory ({path}) on {server}', [
 				'path'   => $path,
@@ -109,64 +107,91 @@ class Update extends Model
 			]);
 			return;
 		}
-		$lock = Lock::instance($application, __METHOD__ . ':' . $server->id());
 
 		try {
+			$lock = Lock::instance($application, __METHOD__ . ':' . $server->id);
 			$lock->acquire();
-		} catch (TimeoutExpired) {
+		} catch (TimeoutExpired|LockedException) {
+			return;
+		} catch (SemanticsException|ORMException|ParameterException $e) {
+			PHP::log($e);
 			return;
 		}
-		$server_variable_name = __CLASS__ . '::last_update';
-		$update_requested = $application->ormRegistry(__CLASS__)->querySelect()->addWhat('*updated', 'MAX(updated)')->timestamp('updated');
-		$server_updated = $server->meta($server_variable_name);
-		$update_locales = [];
-		if ($server_updated) {
-			$server_updated = Timestamp::factory($server_updated);
-			if ($server_updated->before($update_requested)) {
-				$update_locales = $application->ormRegistry(__CLASS__)->querySelect()->addWhat('locale', 'locale')->addWhere('updated|>=', $server_updated)->toArray(null, 'locale');
+		$em = $application->entityManager();
+		$qb = $em->createQueryBuilder();
+		$ex = Criteria::expr();
+
+		$update_requested = new Timestamp(0);
+		$server_updated = new Timestamp(0);
+
+		$result = $qb->select('MAX(u.updated)')->from(Update::class, 'u')->getQuery()->getOneOrNullResult();
+		if ($result) {
+			try {
+				$update_requested->parse($result);
+			} catch (ParseException $e) {
+				$application->debug('Parsing database result {result} {message}', [
+					'result' => $result,
+					$e->getMessage(),
+				]);
 			}
-		} else {
-			$update_locales = $application->ormRegistry(__CLASS__)->querySelect()->addWhat('locale', 'locale')->toArray(null, 'locale');
 		}
-		if (count($update_locales) === 0) {
+		$server_variable_name = __CLASS__ . '::lastUpdate';
+		$criteria = Criteria::create();
+
+		try {
+			$server_updated_text = $server->meta($server_variable_name);
+			if ($server_updated_text) {
+				try {
+					$server_updated = $server_updated->parse($server_updated_text);
+				} catch (ParseException $e) {
+					$application->logger()->debug("Parsing timestamp $server_updated_text error: {$e->getMessage()}");
+					$server->setMeta($server_variable_name, null);
+				}
+				if ($server_updated->before($update_requested)) {
+					$criteria = Criteria::create()->where($ex->gte('updated', $server_updated));
+				}
+			}
+		} catch (KeyNotFound) {
+		}
+		$updateLocales = $qb->select('u.locale')->from(Update::class, 'u')->addCriteria($criteria)->orderBy('u.updated ASC')->getQuery()->getArrayResult();
+		if (count($updateLocales) === 0) {
 			$application->debug('No locale updates needed on {server}', [
 				'server' => $server->name,
 			]);
-			$lock->release();
+
+			try {
+				$lock->release();
+			} catch (SemanticsException $e) {
+				PHP::log($e);
+			}
 			return;
 		}
-		$additional_locales = [];
-		foreach ($update_locales as $update_locale) {
-			$dialect = Locale::parseDialect($update_locale);
+		$additionalLocales = [];
+		foreach ($updateLocales as $updateLocale) {
+			$dialect = Locale::parseDialect($updateLocale);
 			if (!$dialect) {
-				$expanded_locales = $application->ormRegistry(Token::class)->querySelect()->setDistinct()->addWhat('*locale', 'CONCAT(language,\'_\',dialect)')->appendWhere([
-					'language' => $update_locale,
-					[
-						'dialect|!=' => [
-							null,
-							'',
-						],
-					],
-				])->toArray(null, 'locale');
-				$additional_locales = array_merge($additional_locales, $expanded_locales);
+				$expr = $qb->expr();
+				$expandedLocales = $qb->select(['CONCAT(t.language,"_",t.dialect)'])->from(Token::class, 't')->where($expr->eq('t.language', ':language'))->andWhere($expr->neq('t.dialect', ''))->getQuery()->getArrayResult();
+				$additionalLocales = array_merge($additionalLocales, $expandedLocales);
 			}
 		}
-		$update_locales = array_merge($update_locales, $additional_locales);
-		$update_locales = array_unique($update_locales);
+		$updateLocales = array_merge($updateLocales, $additionalLocales);
+		$updateLocales = array_unique($updateLocales);
 		$application->warning('Updating locales {locales} on {server}', [
-			'locales' => $update_locales,
+			'locales' => $updateLocales,
 			'server'  => $server->name,
 		]);
 		$success = true;
-		foreach ($update_locales as $update_locale) {
-			$update_locale = Locale::normalize($update_locale);
+		foreach ($updateLocales as $updateLocale) {
+			$updateLocale = Locale::normalize($updateLocale);
 
 			try {
-				self::updateLocale($application, $path, $update_locale);
-				$application->ormRegistry(__CLASS__)->queryUpdate()->value('updated', Timestamp::now())->addWhere('locale', $update_locale)->execute();
+				self::updateLocale($application, $path, $updateLocale);
+
+				$qb->update(Update::class, 'u')->set('updated', $qb->createNamedParameter(Timestamp::now(), 'timestamp'))->addCriteria(Criteria::create()->where($ex->eq('locale', $updateLocale)))->getQuery()->execute();
 			} catch (Throwable $e) {
 				$application->error('Updating locale {locale} on {server} FAILED due to {message}', [
-					'locales' => $update_locales,
+					'locales' => $updateLocales,
 					'server'  => $server->name,
 					'message' => $e->getMessage(),
 				]);
@@ -183,9 +208,9 @@ class Update extends Model
 	/**
 	 *
 	 * @param resource $f
-	 * @param string $filename
-	 * @param string $original
-	 * @param string $translation
+	 * @param string   $filename
+	 * @param string   $original
+	 * @param string   $translation
 	 * @throws FileSystemException
 	 */
 	private static function writeTranslationLine(mixed $f, string $filename, string $original, string $translation): void
@@ -198,14 +223,13 @@ class Update extends Model
 	/**
 	 *
 	 * @param Application $application
-	 * @param string $path
-	 * @param string $locale
+	 * @param string      $path
+	 * @param string      $locale
 	 * @return void
 	 * @throws FileSystemException
 	 * @throws FileLocked
 	 * @throws FileNotFound
 	 * @throws FilePermission
-	 * @throws ORMNotFound
 	 */
 	public static function updateLocale(Application $application, string $path, string $locale): void
 	{

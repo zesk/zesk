@@ -7,6 +7,7 @@ declare(strict_types=1);
 namespace zesk\Adapter;
 
 use zesk\Configuration;
+use zesk\Exception\SemanticsException;
 use zesk\Interface\SettingsInterface;
 
 /**
@@ -29,6 +30,7 @@ class SettingsConfiguration implements SettingsInterface
 
 	/**
 	 * Is a value set in this object?
+	 *
 	 * @param int|string $key
 	 * @return boolean
 	 */
@@ -39,6 +41,7 @@ class SettingsConfiguration implements SettingsInterface
 
 	/**
 	 * Is a value set in this object?
+	 *
 	 * @param int|string $key
 	 * @return boolean
 	 */
@@ -49,6 +52,7 @@ class SettingsConfiguration implements SettingsInterface
 
 	/**
 	 * Retrieve a value from the settings
+	 *
 	 * @param mixed $key A string or key value (integer, float)
 	 * @return mixed The value of the session variable, or null if nothing set
 	 */
@@ -59,7 +63,8 @@ class SettingsConfiguration implements SettingsInterface
 
 	/**
 	 * Retrieve a value from the settings, returning a default value if not set
-	 * @param mixed $key A string or key value (integer, float)
+	 *
+	 * @param mixed $key     A string or key value (integer, float)
 	 * @param mixed $default A value to return if the session value is null
 	 * @return mixed The value of the session variable, or $default if nothing set
 	 */
@@ -71,7 +76,7 @@ class SettingsConfiguration implements SettingsInterface
 	/**
 	 * Store a value to a settings
 	 *
-	 * @param mixed $key A string or key value (integer, float)
+	 * @param mixed $key   A string or key value (integer, float)
 	 * @param mixed $value Value to save. As a general rule, best to use scalar types
 	 */
 	public function __set(int|string $key, mixed $value): void
@@ -82,12 +87,17 @@ class SettingsConfiguration implements SettingsInterface
 	/**
 	 * Store a value to a settings
 	 *
-	 * @param mixed $key A string or key value (integer, float)
+	 * @param mixed $key   A string or key value (integer, float)
 	 * @param mixed $value Value to save. As a general rule, best to use scalar types
 	 * @return self
+	 * @throws SemanticsException
 	 */
 	public function set(int|string $key, mixed $value = null): self
 	{
+		$parent = $this->configuration->parentPath($key);
+		if ($parent->isReadOnly()) {
+			return $this;
+		}
 		$this->configuration->setPath($key, $value);
 		return $this;
 	}

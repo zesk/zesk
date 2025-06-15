@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+
 namespace zesk\Net;
 
 use zesk\ConnectionFailed;
@@ -7,7 +8,7 @@ use zesk\Net\Whois\Net_Whois_Servers;
 use zesk\NotFoundException;
 use zesk\StringTools;
 
-class Net_Whois
+class Whois
 {
 	private static function clean_domain($domain)
 	{

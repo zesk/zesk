@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 /**
- * @package zesk
+ * @package    zesk
  * @subpackage Command
- * @author kent
- * @copyright Copyright &copy; 2025, Market Acumen, Inc.
+ * @author     kent
+ * @copyright  Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Command;
@@ -26,7 +26,7 @@ class Help extends SimpleCommand
 {
 	protected array $shortcuts = ['help'];
 
-	protected array $option_types = [
+	protected array $argumentTypes = [
 		'no-core' => 'boolean',
 	];
 
@@ -52,7 +52,8 @@ class Help extends SimpleCommand
 		$commands = $loader->collectCommands();
 		$this->collectHelp($commands);
 		echo $this->application->themes->theme(Directory::path(__CLASS__, 'content'), [
-			'categories' => $this->categories, 'aliases' => $this->aliases,
+			'categories' => $this->categories,
+			'aliases'    => $this->aliases,
 		]);
 		return 0;
 	}

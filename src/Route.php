@@ -13,7 +13,6 @@ use zesk\Exception\ParseException;
 use zesk\Exception\PermissionDenied;
 use zesk\Exception\Redirect;
 use zesk\Exception\ProtocolException;
-use zesk\Exception\SemanticsException;
 use zesk\Exception\SyntaxException;
 use zesk\Route\Command as CommandRoute;
 use zesk\Route\Content as ContentRoute;
@@ -180,6 +179,13 @@ abstract class Route extends Hookable
 	protected array $args = [];
 
 	/**
+	 * Arguments to function/method call - mapped using current Request
+	 *
+	 * @var array
+	 */
+	protected array $argsMapped = [];
+
+	/**
 	 * @var bool
 	 */
 	protected bool $argsValid = false;
@@ -310,6 +316,7 @@ abstract class Route extends Hookable
 			'pattern'         => $this->pattern,
 			'methods'         => array_keys($this->methods),
 			'types'           => $this->types,
+			'args'            => $this->args,
 			'urlParts'        => $this->urlParts,
 			'named'           => $this->named,
 			'byClass'         => $this->byClass,
@@ -627,6 +634,7 @@ abstract class Route extends Hookable
 		/* Convert the arguments into any types specified */
 		$this->urlParts = explode('/', $url) + array_fill(0, count($this->types), null);
 		$this->args = [];
+		$this->argsMapped = [];
 		$this->argsValid = false;
 		return true;
 	}
@@ -700,6 +708,7 @@ abstract class Route extends Hookable
 		}
 		$this->argsValid = true;
 		$this->args = [];
+		$this->argsMapped = [];
 		$this->named = [];
 		foreach ($this->types as $index => $type_name) {
 			if ($type_name === true) {
@@ -707,8 +716,8 @@ abstract class Route extends Hookable
 			}
 			$this->_handleArgument($index, $type_name);
 		}
-		$arguments = $this->optionIterable(self::OPTION_ARGUMENTS, null);
-		if (is_array($arguments)) {
+		$arguments = $this->optionIterable(self::OPTION_ARGUMENTS);
+		if ($arguments) {
 			foreach ($arguments as $arg) {
 				$this->args[] = is_numeric($arg) ? ($this->urlParts[$arg] ?? '') : $arg;
 			}
@@ -822,7 +831,6 @@ abstract class Route extends Hookable
 
 	/**
 	 * @return string
-	 * @throws SemanticsException
 	 */
 	public function contentType(): string
 	{
@@ -883,7 +891,7 @@ abstract class Route extends Hookable
 	protected function _before(Request $request): void
 	{
 		$this->_processArguments();
-		$this->args = $this->_mapVariables($request, $this->args);
+		$this->argsMapped = $this->_mapVariables($request, $this->args);
 	}
 
 	/**
@@ -1123,7 +1131,6 @@ abstract class Route extends Hookable
 	/**
 	 * @param Router $router
 	 * @return $this
-	 * @throws ProtocolException
 	 */
 	public function wasAdded(Router $router): self
 	{
@@ -1133,11 +1140,12 @@ abstract class Route extends Hookable
 		$defaultAlias = $this->optionString(self::OPTION_ALIAS_TARGET, $this->getPattern());
 		foreach ($this->optionArray(self::OPTION_ALIASES) as $alias => $aliasId) {
 			if (!is_string($aliasId)) {
-				throw new ProtocolException('{option} in route must be an object with string keys and values {alias} and {id} provided', [
+				$this->application->warning('{option} in route must be an object with string keys and values {alias} and {id} provided', [
 					'option' => self::OPTION_ALIASES,
 					'alias'  => gettype($alias),
 					'id'     => gettype($aliasId),
 				]);
+				continue;
 			}
 			if (is_numeric($alias)) {
 				$alias = $aliasId;

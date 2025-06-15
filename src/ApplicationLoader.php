@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 /**
- * @package zesk
+ * @package    zesk
  * @subpackage core
- * @author kent
- * @copyright Copyright &copy; 2025, Market Acumen, Inc.
+ * @author     kent
+ * @copyright  Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -28,6 +28,7 @@ class ApplicationLoader
 	public static function application(array $options = []): Application
 	{
 		try {
+			$options['main'] ??= Kernel::caller()['file'];
 			$application = Kernel::createApplication($options);
 		} catch (Exception $e) {
 			PHP::log($e);

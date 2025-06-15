@@ -33,7 +33,7 @@ class FileRename extends FileIterator
 	 *
 	 * @var array
 	 */
-	protected array $option_types = [
+	protected array $argumentTypes = [
 		'from'    => 'string',
 		'to'      => 'string',
 		'dry-run' => 'boolean',

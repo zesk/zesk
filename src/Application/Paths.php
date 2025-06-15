@@ -12,7 +12,9 @@ namespace zesk\Application;
 use zesk\Application;
 use zesk\Configuration;
 use zesk\Directory;
+use zesk\Exception\DirectoryCreate;
 use zesk\Exception\DirectoryNotFound;
+use zesk\Exception\DirectoryPermission;
 use zesk\Exception\NotFoundException;
 use zesk\Types;
 
@@ -24,12 +26,29 @@ use zesk\Types;
 class Paths
 {
 	/**
-	 * @see self::__construct()
-	 * @see self::setHome()
-	 * @see self::_updateConfiguration()
 	 * @var string
 	 */
 	public const ENVIRONMENT_HOME = 'HOME';
+
+	/**
+	 * Directory to store temporary files
+	 */
+	public const ENVIRONMENT_XDG_CACHE_HOME = 'XDG_CACHE_HOME';
+
+	/**
+	 * Directory to store data
+	 */
+	public const ENVIRONMENT_XDG_DATA_HOME = 'XDG_DATA_HOME';
+
+	/**
+	 * List of data directory paths separated by `:`
+	 */
+	public const ENVIRONMENT_XDG_DATA_DIRS = 'XDG_DATA_DIRS';
+
+	/**
+	 * List of configuration paths separated by `:`
+	 */
+	public const ENVIRONMENT_XDG_CONFIG_DIRS = 'XDG_CONFIG_DIRS';
 
 	/**
 	 * Value is `:`-separated (*nix) or `;`-separated (MS) list of paths
@@ -66,14 +85,14 @@ class Paths
 	 *
 	 * @var string
 	 */
-	protected string $temporary = './cache/temp';
+	protected string $temporary = '';
 
 	/**
-	 * Data files directory
+	 * Data files directories
 	 *
-	 * @var string
+	 * @var string[]
 	 */
-	protected string $data = './data';
+	protected array $data = [];
 
 	/**
 	 * Current user home directory. Set based on $_SERVER['HOME']
@@ -95,6 +114,13 @@ class Paths
 	 */
 	private array $which_cache = [];
 
+	protected int $directoryMode;
+
+	/**
+	 * @var bool
+	 */
+	protected bool $configured;
+
 	/**
 	 * `Paths` constructor.
 	 *
@@ -102,20 +128,47 @@ class Paths
 	 *
 	 * Adds a configured hook
 	 *
-	 * @param Configuration $configuration Root configuration
-	 * @see self::ENVIRONMENT_HOME
-	 * @see Application::OPTION_HOME_PATH
 	 */
-	public function __construct(Configuration $configuration)
+	public function __construct()
 	{
-		$env = [];
-		if (array_key_exists(self::ENVIRONMENT_HOME, $_SERVER)) {
-			$env += [Application::OPTION_HOME_PATH => $_SERVER[self::ENVIRONMENT_HOME]];
+		$this->configured = false;
+	}
+
+	/**
+	 * @param Configuration $configuration
+	 * @param array         $server
+	 * @return void
+	 * @throws DirectoryNotFound
+	 */
+	public function inheritEnvironment(Configuration $configuration, array $server): void
+	{
+		$serverVariables = [
+			self::ENVIRONMENT_HOME           => Application::OPTION_USER_HOME,
+			self::ENVIRONMENT_XDG_CACHE_HOME => Application::OPTION_CACHE_HOME,
+			self::ENVIRONMENT_XDG_DATA_HOME  => Application::OPTION_DATA_HOME,
+		];
+		foreach ($serverVariables as $environmentName => $optionName) {
+			$value = $server[$environmentName] ?? null;
+			if ($value !== null) {
+				$configuration->set($optionName, $value);
+			}
 		}
-		$appConfiguration = $configuration->path(Application::class);
-		$result = $this->_initializeZesk() + $this->configure($appConfiguration->toArray(0) + $env);
-		$appConfiguration->set($result);
-		$configuration->set(self::ENVIRONMENT_HOME, $this->home());
+		$serverListVariables = [
+			self::ENVIRONMENT_XDG_DATA_DIRS   => Application::OPTION_DATA_DIRECTORY_LIST,
+			self::ENVIRONMENT_XDG_CONFIG_DIRS => Application::OPTION_CONFIGURATION_DIRECTORY_LIST,
+		];
+		foreach ($serverListVariables as $environmentName => $optionName) {
+			$value = $server[$environmentName] ?? null;
+			if ($value !== null) {
+				$paths = [];
+				foreach (Types::toList($value, [], ':') as $directory) {
+					$expanded = $this->expand($directory);
+					Directory::must($expanded);
+					$paths[] = $directory;
+				}
+				$configuration->set($optionName, $paths);
+			}
+		}
 	}
 
 	/**
@@ -134,32 +187,77 @@ class Paths
 		return [Application::OPTION_ZESK_ROOT => $zeskRoot];
 	}
 
+	/**
+	 * @throws DirectoryCreate
+	 */
+	private function fetchFirstDefault(array|string $paths, string $defaultPath): string
+	{
+		foreach ($paths as $path) {
+			$path = $this->expand($path);
+			if (is_dir($path)) {
+				return $path;
+			}
+		}
+		if ($defaultPath) {
+			$defaultPath = $this->expand($defaultPath);
+			Directory::create($defaultPath, $this->directoryMode);
+		}
+		return $defaultPath;
+	}
 
 	/**
+	 * @throws DirectoryCreate
 	 */
+	private function dataDirectory(): string
+	{
+		$appHomeData = Directory::path($this->application, '.data');
+		return $this->fetchFirstDefault($this->data, $appHomeData);
+	}
+
+	public function setConfigured(bool $configured): void
+	{
+		$this->configured = $configured;
+	}
+
+	/**
+	 *
+	 */
+	public function configured(): bool
+	{
+		return $this->configured;
+	}
 
 	/**
 	 * configure
 	 *
-	 * @param array $options
-	 * @return array
+	 * @param Configuration $options
+	 * @return void
+	 * @throws DirectoryCreate
+	 * @throws DirectoryPermission
 	 */
-	public function configure(array $options): array
+	public function configure(Configuration $options): void
 	{
 		$setters = [
-			Application::OPTION_PATH           => $this->setApplication(...),
-			Application::OPTION_CACHE_PATH     => $this->setTemporary(...),
-			Application::OPTION_COMMAND_PATH   => $this->addCommand(...),
-			Application::OPTION_DATA_PATH      => $this->setData(...),
-			Application::OPTION_HOME_PATH      => $this->setHome(...),
-			Application::OPTION_USER_HOME_PATH => $this->setUserHome(...),
+			Application::OPTION_PATH                => $this->setApplication(...),
+			Application::OPTION_CACHE_HOME          => $this->setTemporary(...),
+			Application::OPTION_COMMAND_HOME        => $this->addCommand(...),
+			Application::OPTION_DATA_HOME           => $this->setData(...),
+			Application::OPTION_DATA_DIRECTORY_LIST => $this->setDataList(...),
+			Application::OPTION_USER_HOME           => $this->setHome(...),
+			Application::OPTION_USER_CONFIGURE_HOME => $this->setUserHome(...),
 		];
 		foreach ($setters as $key => $setter) {
-			if (array_key_exists($key, $options)) {
-				$setter(strval($options[$key]));
+			$path = $options->get($key);
+			if ($path) {
+				$setter(strval($path));
 			}
 		}
-		return $this->_updateConfiguration();
+		$this->directoryMode = $options->getInt(Application::OPTION_DIRECTORY_CREATE_MODE, Application::MODE_DIRECTORY_CREATE);
+		$options->set($this->_initializeZesk() + $this->_updateConfiguration());
+		if (!$this->temporary) {
+			$this->temporary = Directory::depend($this->home('.cache'));
+		}
+		$this->configured = true;
 	}
 
 	/**
@@ -251,7 +349,28 @@ class Paths
 		if (!is_dir($this->expand($path))) {
 			throw new DirectoryNotFound($path);
 		}
-		$this->data = $path;
+		if (in_array($path, $this->data)) {
+			return $this;
+		}
+		$this->data = array_merge([$path], $this->data);
+		return $this;
+	}
+
+	/**
+	 * Set the data directories
+	 *
+	 * @param array $paths
+	 * @return $this
+	 * @throws DirectoryNotFound
+	 */
+	public function setDataList(array $paths): self
+	{
+		foreach ($paths as $path) {
+			if (!is_dir($this->expand($path))) {
+				throw new DirectoryNotFound($path);
+			}
+		}
+		$this->data = $paths;
 		return $this;
 	}
 
@@ -327,10 +446,11 @@ class Paths
 	 *
 	 * @param string $suffix
 	 * @return string
+	 * @throws DirectoryCreate
 	 */
 	public function data(string $suffix = ''): string
 	{
-		return Directory::path($this->expand($this->data), $suffix);
+		return Directory::path($this->expand($this->dataDirectory()), $suffix);
 	}
 
 	/**
@@ -363,16 +483,6 @@ class Paths
 	}
 
 	/**
-	 * created hook
-	 *
-	 * @param Application $application
-	 */
-	public function created(Application $application): void
-	{
-		$application->configuration->merge(new Configuration($this->_updateConfiguration()));
-	}
-
-	/**
 	 * Return an update to the global configuration object
 	 *
 	 * @return array
@@ -380,7 +490,10 @@ class Paths
 	private function _updateConfiguration(): array
 	{
 		$_SERVER[self::ENVIRONMENT_HOME] = $this->home();
-		return [Application::OPTION_HOME_PATH => $this->home()];
+		return [
+			Application::OPTION_USER_HOME           => $this->home(),
+			Application::OPTION_USER_CONFIGURE_HOME => $this->userHome(),
+		];
 	}
 
 	/**

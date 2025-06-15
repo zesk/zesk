@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 /**
- * @package zesk
+ * @package    zesk
  * @subpackage GitHub
- * @author kent
- * @copyright Copyright &copy; 2025, Market Acumen, Inc.
+ * @author     kent
+ * @copyright  Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\GitHub;
@@ -35,8 +35,11 @@ class Command extends SimpleCommand
 	 *
 	 * @var array
 	 */
-	protected array $option_types = [
-		'tag' => 'boolean', 'description-file' => 'file', self::OPTION_DESCRIPTION => 'string', 'commitish' => 'string',
+	protected array $argumentTypes = [
+		'tag'                    => 'boolean',
+		'description-file'       => 'file',
+		self::OPTION_DESCRIPTION => 'string',
+		'commitish'              => 'string',
 	];
 
 	/**
@@ -44,7 +47,8 @@ class Command extends SimpleCommand
 	 * @var array
 	 */
 	protected array $options = [
-		'description' => 'Release of version {version}.', 'commitish' => 'master',
+		'description' => 'Release of version {version}.',
+		'commitish'   => 'master',
 	];
 
 	/**

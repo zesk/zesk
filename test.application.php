@@ -1,16 +1,16 @@
 <?php
 declare(strict_types=1);
 /**
- * @package zesk
+ * @package    zesk
  * @subpackage test
- * @author kent
- * @copyright Copyright &copy; 2025, Market Acumen, Inc.
+ * @author     kent
+ * @copyright  Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk;
 
+use testZesk\TestApplication;
 use Throwable;
-use zesk\Application\Zesk;
 use zesk\CacheItemPool\FileCacheItemPool;
 
 require_once __DIR__ . '/xdebug.php';
@@ -29,7 +29,7 @@ class TestApplicationFactory
 			$pool = new FileCacheItemPool($fileCache);
 
 			$application = ApplicationLoader::application([
-				Application::OPTION_APPLICATION_CLASS => Zesk::class,
+				Application::OPTION_APPLICATION_CLASS => TestApplication::class,
 				Application::OPTION_PATH              => __DIR__,
 				Application::OPTION_CACHE_POOL        => $pool,
 				Application::OPTION_DEPRECATED        => Application::DEPRECATED_EXCEPTION,

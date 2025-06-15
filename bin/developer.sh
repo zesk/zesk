@@ -32,9 +32,15 @@ if source "${BASH_SOURCE[0]%/*}/tools.sh"; then
     reloadChanges --stop --quiet
     reloadChanges --name "Zesk PHP Tools" bin/tools.sh bin/tools/
     developerAnnounce < <(__applicationToolsList)
+
+    pathConfigure --last "$home/bin" "$home/vendor/bin"
   }
 
   __zeskPHPDeveloperContextUndo() {
+    local home
+
+    home=$(__environment buildHome) || return $?
+    pathRemove "$home/bin" "$home/vendor/bin"
     developerUndo < <(__applicationToolsList)
   }
 

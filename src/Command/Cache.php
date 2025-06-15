@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 /**
- * @package zesk
+ * @package    zesk
  * @subpackage core
- * @author kent
- * @copyright Copyright &copy; 2025, Market Acumen, Inc.
+ * @author     kent
+ * @copyright  Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Command;
@@ -18,14 +18,14 @@ use zesk\Exception\ParameterException;
  * Cache commands. Takes a single argument: "clear" or "print" to print the class in the application.
  *
  * @category Management
- * @author kent
+ * @author   kent
  *
  */
 class Cache extends SimpleCommand
 {
 	protected array $shortcuts = ['cache'];
 
-	protected array $option_types = [
+	protected array $argumentTypes = [
 		'*' => 'string',
 	];
 

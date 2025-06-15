@@ -20,7 +20,7 @@ class Latest extends SimpleCommand
 {
 	protected array $shortcuts = ['latest'];
 
-	protected array $load_modules = [
+	protected array $loadModules = [
 		'Git',
 	];
 

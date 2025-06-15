@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 /**
- * @package zesk
+ * @package    zesk
  * @subpackage Daemon
- * @author kent
- * @copyright Copyright &copy; 2025, Market Acumen, Inc.
+ * @author     kent
+ * @copyright  Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Daemon\Command;
@@ -35,7 +35,7 @@ use zesk\Timestamp;
  * Runs a continual process for each daemon hook encountered, and restarts daemons
  * as needed when they fail.
  *
- * @author kent
+ * @author   kent
  * @category Management
  */
 class Daemon extends SimpleCommand implements SystemProcess
@@ -60,7 +60,7 @@ class Daemon extends SimpleCommand implements SystemProcess
 	 *
 	 * @var array
 	 */
-	protected array $option_types = [
+	protected array $argumentTypes = [
 		'debug-log'          => 'boolean',
 		self::OPTION_NO_FORK => 'boolean',
 		'nohup'              => 'boolean',
@@ -161,7 +161,7 @@ class Daemon extends SimpleCommand implements SystemProcess
 	 *
 	 * @var boolean
 	 */
-	public bool $has_configuration = true;
+	public bool $hasConfiguration = true;
 
 	/**
 	 * Signal names to strings
@@ -428,10 +428,10 @@ class Daemon extends SimpleCommand implements SystemProcess
 	/**
 	 * Change state of a daemon process
 	 *
-	 * @param array $database
-	 * @param string $name Daemon name
-	 * @param array $settings Current settings
-	 * @param string $want Desired state
+	 * @param array  $database
+	 * @param string $name     Daemon name
+	 * @param array  $settings Current settings
+	 * @param string $want     Desired state
 	 * @param string $newState
 	 * @return number
 	 */
@@ -1254,7 +1254,7 @@ class Daemon extends SimpleCommand implements SystemProcess
 	 * Logging tool for processes
 	 *
 	 * @param string $message
-	 * @param array $args
+	 * @param array  $args
 	 * @param string $level
 	 */
 	public function warning(string $message, array $args = []): void

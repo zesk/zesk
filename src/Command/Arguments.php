@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 /**
- * @package zesk
+ * @package    zesk
  * @subpackage Command
- * @author kent
- * @copyright Copyright &copy; 2025, Market Acumen, Inc.
+ * @author     kent
+ * @copyright  Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Command;
@@ -20,7 +20,7 @@ class Arguments extends Command
 {
 	protected array $shortcuts = ['arguments'];
 
-	public array $option_types = [
+	public array $argumentTypes = [
 		'*' => 'string',
 	];
 

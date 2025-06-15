@@ -17,27 +17,18 @@ abstract class Translate extends Service
 	abstract public function translate(string $phrase): string;
 
 	/**
-	 *
 	 * @param Application $application
-	 * @param string $target_language
-	 * @param string $source_language
-	 * @param array $options
-	 * @return Translate
-	 */
-	/**
-	 * @param Application $application
-	 * @param string $target_language
-	 * @param string|null $source_language
-	 * @param array $options
+	 * @param string      $targetLanguage
+	 * @param string|null $sourceLanguage
+	 * @param array       $options
 	 * @return self
 	 * @throws ClassNotFound
 	 */
-	public static function translateFactory(Application $application, string $target_language, string $source_language =
-	null, array                                         $options = []): self
+	public static function translateFactory(Application $application, string $targetLanguage, string $sourceLanguage = null, array $options = []): self
 	{
 		$result = self::factory($application, 'translate', [
-			'target' => $target_language,
-			'source' => $source_language,
+			'target' => $targetLanguage,
+			'source' => $sourceLanguage,
 		] + $options);
 		assert($result instanceof self);
 		return $result;

@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 /**
- * @package zesk
+ * @package    zesk
  * @subpackage core
- * @author kent
- * @copyright Copyright &copy; 2025, Market Acumen, Inc.
+ * @author     kent
+ * @copyright  Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Command;
@@ -21,7 +21,7 @@ use zesk\Exception\FilePermission;
  * Convert a .conf file to a .json configuration file
  *
  * @category Tools
- * @author kent
+ * @author   kent
  *
  */
 class CONF2JSON extends FileIterator
@@ -34,11 +34,13 @@ class CONF2JSON extends FileIterator
 
 	public function initialize(): void
 	{
-		$this->option_types += [
-			'dry-run' => 'boolean', 'noclobber' => 'boolean',
+		$this->argumentTypes += [
+			'dry-run'   => 'boolean',
+			'noclobber' => 'boolean',
 		];
 		$this->option_help += [
-			'dry-run' => 'Don\'t modify the file system', 'noclobber' => 'Do not overwrite existing files',
+			'dry-run'   => 'Don\'t modify the file system',
+			'noclobber' => 'Do not overwrite existing files',
 		];
 		parent::initialize();
 	}
@@ -71,8 +73,10 @@ class CONF2JSON extends FileIterator
 				$message = 'Would write {target_name} with {n} {entries}';
 			}
 			$this->info($message, [
-				'source_name' => $source_name, 'target_name' => $target_name, 'n' => $n,
-				'entries' => $this->application->locale->plural('entry', $n),
+				'source_name' => $source_name,
+				'target_name' => $target_name,
+				'n'           => $n,
+				'entries'     => $this->application->locale->plural('entry', $n),
 			]);
 			return true;
 		}

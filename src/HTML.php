@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 /**
- * @package zesk
+ * @package    zesk
  * @subpackage core
- * @author kent
- * @copyright Copyright &copy; 2025, Market Acumen, Inc.
+ * @author     kent
+ * @copyright  Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 
@@ -16,17 +16,17 @@ use zesk\Exception\ProtocolException;
 /**
  * Abstraction of HTML markup language, with tools for generating and parsing HTML
  */
-class HTML
-{
+class HTML {
+	
 	private const RE_TAG_NAME_START_CHAR = ":A-Za-z_\xC0-\xD6\xD8-\xF6";
-
+	
 	/**
 	 * Tag character class (additional characters)
 	 *
 	 * @var string
 	 */
 	private const RE_TAG_NAME_CHAR = '-' . self::RE_TAG_NAME_START_CHAR . ".0-9\xB7";
-
+	
 	/**
 	 * Tag name pattern without delimiters.
 	 * Start char, then rest of chars. Minimum one char.
@@ -34,7 +34,7 @@ class HTML
 	 * @var string
 	 */
 	private const RE_TAG_NAME = '[' . self::RE_TAG_NAME_START_CHAR . ']' . '[' . self::RE_TAG_NAME_CHAR . ']*';
-
+	
 	/**
 	 * Global HTML attributes allowed on any HTML tag
 	 *
@@ -58,7 +58,7 @@ class HTML
 		'title',
 		'translate',
 	];
-
+	
 	/**
 	 * Allowed tag attributes via HTML::tag_attributes
 	 *
@@ -105,7 +105,7 @@ class HTML
 			'value',
 		],
 		'select' => 'input',
-		'li'     => ['value', ],
+		'li'     => ['value',],
 		'link'   => [
 			'charset',
 			'crossorigin',
@@ -117,49 +117,49 @@ class HTML
 			'type',
 		],
 	];
-
+	
 	/**
 	 *
 	 * @see self::$tag_attributes
 	 * @var array
 	 */
 	private static array $tag_attributes_cache = [];
-
+	
 	/**
 	 * List of tags which will have a hook called to alter the attributes before output
 	 *
 	 * @var array
 	 */
 	private static array $attributes_alter = [];
-
+	
 	/**
 	 * Loose definition of HTML attributes (for parsing bad code)
 	 *
 	 * @var string
 	 */
 	public const RE_ATTRIBUTES_LOOSE = '(?:[\\^"\'>]|"[^"]*"|\'[^\']*\')*'; // Loose definition
-
+	
 	/**
 	 * Wicked loose definition, assumes no bad quoted > in tags
 	 *
 	 * @var string
 	 */
 	public const RE_ATTRIBUTES_REALLY_LOOSE = '[^>]*'; // Super Loose definition
-
+	
 	/**
 	 * RE_ATTRIBUTES_LOOSE started breaking with PHP8 and not sure why
 	 *
 	 * @var string
 	 */
 	public const RE_ATTRIBUTES = self::RE_ATTRIBUTES_REALLY_LOOSE;
-
+	
 	/**
 	 * Replacement character for start tags (for nesting)
 	 *
 	 * @var string
 	 */
 	private static string $RE_TAG_START_CHAR = "\xFE";
-
+	
 	/**
 	 * Replacement character for end tags (for nesting)
 	 *
@@ -170,12 +170,12 @@ class HTML
 	 * @var string
 	 */
 	private static string $RE_TAG_END_CHAR = "\xFD";
-
+	
 	/**
 	 *
 	 * @param string $src
 	 * @param string $text
-	 * @param array $attrs
+	 * @param array  $attrs
 	 * @param string $full_path
 	 * @return string
 	 */
@@ -200,15 +200,15 @@ class HTML
 		$attrs['border'] ??= 0;
 		return self::tag('img', $attrs);
 	}
-
+	
 	/**
 	 *
 	 * @param Application $app
-	 * @param string $src
-	 * @param int|null $w
-	 * @param int|null $h
-	 * @param string $text
-	 * @param array $attrs
+	 * @param string      $src
+	 * @param int|null    $w
+	 * @param int|null    $h
+	 * @param string      $text
+	 * @param array       $attrs
 	 * @return string
 	 */
 	public static function img_compat(Application $app, string $src, int $w = null, int $h = null, string $text = '', array $attrs = []): string
@@ -217,14 +217,14 @@ class HTML
 		$attrs['height'] = $h ?? $attrs['height'] ?? null;
 		return self::img($app, $src, $text, $attrs);
 	}
-
+	
 	/**
 	 * Add document_root_prefix to href if needed
 	 *
 	 * Uses Application global
 	 *
 	 * @param Application $application
-	 * @param string $src
+	 * @param string      $src
 	 * @return string
 	 */
 	public static function href(Application $application, string $src): string
@@ -238,28 +238,28 @@ class HTML
 		}
 		return $src;
 	}
-
+	
 	/**
 	 * Consider adding Application as a parameter, add logic for document_root
 	 *
 	 * @param Application $app
-	 * @param string $src
-	 * @param string $text
-	 * @param array $attrs
+	 * @param string      $src
+	 * @param string      $text
+	 * @param array       $attrs
 	 * @return string
 	 */
 	public static function img(Application $app, string $src, string $text = '', array $attrs = []): string
 	{
 		return self::_img(self::href($app, $src), $text, $attrs, Directory::path($app->documentRoot(), $src));
 	}
-
+	
 	/**
 	 * Output an `<a>` tag
 	 *
-	 * @param string $href
-	 *            HREF to link to
-	 * @param mixed $attributes an array of attributes, or a class or ID description (".class1 .class2", or "#idoflink")
-	 * @param null|string $text the text for the link
+	 * @param string      $href
+	 *                                HREF to link to
+	 * @param mixed       $attributes an array of attributes, or a class or ID description (".class1 .class2", or "#idoflink")
+	 * @param null|string $text       the text for the link
 	 * @return string
 	 */
 	public static function a(string $href, array|string $attributes, string $text = null): string
@@ -268,7 +268,7 @@ class HTML
 		$attributes['href'] = $href;
 		return self::tag('a', $attributes, $text);
 	}
-
+	
 	/**
 	 * @param string|array $mixed
 	 * @return array
@@ -278,14 +278,14 @@ class HTML
 		if (is_array($mixed)) {
 			return $mixed;
 		}
-
+		
 		$mixed = Types::toList($mixed, [], ' ');
 		$result = [];
 		foreach ($mixed as $term) {
 			$char = substr($term, 0, 1);
 			if ($char === '#') {
 				$result['id'] = substr($term, 1);
-			} elseif ($char === '.') {
+			} else if ($char === '.') {
 				$result['class'] = CSS::addClass($result['class'] ?? '', substr($term, 1));
 			} else {
 				$result['class'] = CSS::addClass($result['class'] ?? '', $term);
@@ -293,31 +293,31 @@ class HTML
 		}
 		return $result;
 	}
-
+	
 	/**
 	 * @param string|array $attributes
-	 * @param ?string $content
+	 * @param ?string      $content
 	 * @return string
 	 */
 	public static function div(string|array $attributes, string $content = null): string
 	{
 		return self::tag('div', self::toAttributes($attributes), $content);
 	}
-
+	
 	/**
 	 * @param string|array $attributes
-	 * @param ?string $content
+	 * @param ?string      $content
 	 * @return string
 	 */
 	public static function span(string|array $attributes = [], string $content = null): string
 	{
 		return self::tag('span', self::toAttributes($attributes), $content);
 	}
-
+	
 	/**
-	 * @param string $name
+	 * @param string       $name
 	 * @param string|array $attributes
-	 * @param string $content
+	 * @param string       $content
 	 * @return string
 	 */
 	public static function etag(string $name, string|array $attributes, string $content = ''): string
@@ -328,12 +328,12 @@ class HTML
 		}
 		return self::tag($name, $attributes, $content);
 	}
-
+	
 	public static function cleanTagName(string $tag): string
 	{
 		return strtolower(preg_replace('#[^' . self::RE_TAG_NAME_CHAR . ']#', '', $tag));
 	}
-
+	
 	/**
 	 * For speed, you must register your tag hook here in addition to $application->hooks->add
 	 * Use the name returned as the hook name
@@ -347,13 +347,13 @@ class HTML
 		self::$attributes_alter[$name] = true;
 		return __CLASS__ . "::tag::$name";
 	}
-
+	
 	/**
 	 * Output an open tag or a single tag ($content === null)
 	 *
-	 * @param string $name
+	 * @param string       $name
 	 * @param array|string $attributes attributes
-	 * @param ?string $content Pass a third value as content makes 2nd parameter attributes
+	 * @param ?string      $content    Pass a third value as content makes 2nd parameter attributes
 	 * @return string
 	 */
 	public static function tag(string $name, array|string $attributes = [], string $content = null): string
@@ -367,14 +367,14 @@ class HTML
 		}
 		return "<$name" . self::attributes(self::toAttributes($attributes)) . ($content === null ? ' />' : ">$content</$name>");
 	}
-
+	
 	/**
 	 * self::tags('li', array('class' => 'highlight'), array('first item', 'second item'))
 	 *
-	 * @param string $name
+	 * @param string       $name
 	 * @param string|array $attributes
-	 * @param array $items
-	 * @param string $separator
+	 * @param array        $items
+	 * @param string       $separator
 	 * @return string
 	 */
 	public static function tags(string $name, string|array $attributes, array $items, string $separator = "\n"): string
@@ -386,7 +386,7 @@ class HTML
 		}
 		return implode($separator, $result) . $separator;
 	}
-
+	
 	/**
 	 *
 	 * @param array $types
@@ -452,7 +452,7 @@ class HTML
 		}
 		return $attr_list;
 	}
-
+	
 	/**
 	 * @param array|string $mixed
 	 * @return array|string
@@ -467,7 +467,7 @@ class HTML
 		}
 		return htmlspecialchars($mixed);
 	}
-
+	
 	/**
 	 * Preserve html entities e.g.
 	 * foreign languages in strings,
@@ -484,7 +484,7 @@ class HTML
 		}
 		return $result;
 	}
-
+	
 	/**
 	 * Preserve html entities e.g.
 	 * foreign languages in strings,
@@ -510,15 +510,7 @@ class HTML
 		// Leave this here for debugging
 		return $string;
 	}
-
-	public static function tagClass(string $class, string|array $add = [], string|array $remove = []): string
-	{
-		$class = Types::toList($class, [], ' ');
-		$add = Types::toList($add);
-		$remove = Types::toList($remove);
-		return implode(' ', ArrayTools::include_exclude($class, $add, $remove));
-	}
-
+	
 	/**
 	 * Extract Data attributes, supporting data_id formats (converted to data-id)
 	 *
@@ -529,12 +521,12 @@ class HTML
 	{
 		return ArrayTools::flatten(ArrayTools::filterKeyPrefixes(ArrayTools::keysReplace(array_change_key_case($attributes), '_', '-'), 'data-', true));
 	}
-
+	
 	/**
 	 * Includes standard HTML tags and data- tags.
 	 *
 	 * @param string $tag
-	 * @param array $attributes
+	 * @param array  $attributes
 	 * @return array
 	 */
 	public static function tagAttributes(string $tag, array $attributes): array
@@ -551,7 +543,7 @@ class HTML
 		}
 		return ArrayTools::filter($attributes, $allowed) + self::dataAttributes($attributes);
 	}
-
+	
 	/**
 	 * Add a class to an array of attributes
 	 *
@@ -564,11 +556,11 @@ class HTML
 		$attributes['class'] = CSS::addClass($attributes['class'] ?? '', $class);
 		return $attributes;
 	}
-
+	
 	/**
 	 * Remove a class from an attributes "class" field
 	 *
-	 * @param array $attributes
+	 * @param array  $attributes
 	 * @param string $class
 	 * @return array
 	 */
@@ -577,7 +569,7 @@ class HTML
 		$attributes['class'] = CSS::removeClass($attributes['class'] ?? '', $class);
 		return $attributes;
 	}
-
+	
 	/**
 	 * Convert attributes into a string easily appended after a tag
 	 *
@@ -606,7 +598,7 @@ class HTML
 		}
 		return ' ' . implode(' ', $result);
 	}
-
+	
 	/**
 	 * @return string[]
 	 */
@@ -614,29 +606,29 @@ class HTML
 	{
 		/* After replaced, how to match a tag */
 		$RE_TAG_START_CHAR_DEF = '<' . self::$RE_TAG_START_CHAR . '(' . self::RE_ATTRIBUTES . ')\s*>';
-
+		
 		/* match a single, properly closed tag in the source */
 		$RE_HTML_TAG_SINGLE = '/<' . self::$RE_TAG_START_CHAR . '(' . self::RE_ATTRIBUTES . ')\s*\/\s*>/si';
-
+		
 		/* match a start tag in the source */
 		$RE_HTML_TAG_START = '/' . $RE_TAG_START_CHAR_DEF . '/si';
-
+		
 		/* match a start/end tag in the source */
 		$RE_HTML_TAG_DOUBLE = '/' . $RE_TAG_START_CHAR_DEF . '([^' . self::$RE_TAG_START_CHAR . self::$RE_TAG_END_CHAR . ']*)' . self::$RE_TAG_END_CHAR . '/si';
-
+		
 		return [
 			$RE_HTML_TAG_SINGLE,
 			$RE_HTML_TAG_DOUBLE,
 			$RE_HTML_TAG_START,
 		];
 	}
-
+	
 	/**
 	 * Extract HTMLTags from some content.
 	 * Tags are returned in the order they are found in a document.
 	 *
-	 * @param string $tag
-	 * @param mixed $mixed
+	 * @param string  $tag
+	 * @param mixed   $mixed
 	 *            A string, HTMLTag, object with toString function, or array
 	 * @param boolean $recursive
 	 *            Whether to recurse within the HTML tag to find tags within tags (e.g. div inside another div)
@@ -649,11 +641,11 @@ class HTML
 		if (empty($contents)) {
 			return [];
 		}
-
+		
 		$tag = strtolower($tag);
 		$endTag = "</$tag>";
 		$endTagPattern = '#</\s*' . $tag . '\s*>#si';
-
+		
 		$results = [];
 		$reverse_search = [
 			self::$RE_TAG_START_CHAR,
@@ -663,21 +655,21 @@ class HTML
 			$tag,
 			$endTag,
 		];
-
+		
 		$search = [];
 		$replace = [];
-
+		
 		$search[] = '/<\s*' . $tag . '(\s+' . self::RE_ATTRIBUTES . ')>/si';
 		$replace[] = '<' . self::$RE_TAG_START_CHAR . '$1>';
-
+		
 		$search[] = '/<\s*' . $tag . '\s*>/si';
 		$replace[] = '<' . self::$RE_TAG_START_CHAR . '$1>';
-
+		
 		$search[] = $endTagPattern;
 		$replace[] = self::$RE_TAG_END_CHAR;
-
+		
 		$contents = preg_replace($search, $replace, $contents);
-
+		
 		/*
 		 * Match patterns in order of probably valid order. This handles, in order: <tag /> <tag> ... </tag> <tag> (no
 		 * end tag)
@@ -694,27 +686,27 @@ class HTML
 						$matched_offset,
 					] = array_shift($match);
 					[$attrs] = array_shift($match);
-
+					
 					$options = self::parseAttributes($attrs);
-
+					
 					if (count($match) !== 0) {
 						[$tag_contents] = array_shift($match);
 					} else {
 						$tag_contents = false;
 					}
-
+					
 					$results[] = new HTMLTag($tag, $options, $tag_contents, str_replace($reverse_search, $reverse_replace, $matched), $matched_offset);
-
+					
 					$token = '#@' . count($results) . '@#';
-
+					
 					$search[] = $matched;
 					$replace[] = $token;
-
+					
 					$reverse_search[] = $token;
 					$reverse_replace[] = $matched;
 				}
 				$contents = str_replace($search, $replace, $contents);
-
+				
 				if (!$recursive) {
 					break;
 				}
@@ -734,16 +726,16 @@ class HTML
 			$result->setInnerHTML($inner_html);
 			$result->setOuterHTML($outer_html);
 		}
-
+		
 		return $results;
 	}
-
+	
 	private static array $tag_stack = [];
-
+	
 	/**
 	 * Open a tag
 	 *
-	 * @param string $name
+	 * @param string       $name
 	 * @param string|array $attributes
 	 * @return string
 	 */
@@ -755,7 +747,7 @@ class HTML
 		self::$tag_stack[] = $name;
 		return '<' . strtolower($name) . self::attributes(self::toAttributes($attributes)) . '>';
 	}
-
+	
 	/**
 	 * Close a tag.
 	 * Must balance tag_open calls or an error is thrown.
@@ -775,7 +767,7 @@ class HTML
 		}
 		return '</' . $top_name . '>';
 	}
-
+	
 	/**
 	 * Common tag_open case
 	 *
@@ -786,7 +778,7 @@ class HTML
 	{
 		return self::tag_open('div', $attributes);
 	}
-
+	
 	/**
 	 * Common tag_open case
 	 *
@@ -797,7 +789,7 @@ class HTML
 	{
 		return self::tag_open('span', $attributes);
 	}
-
+	
 	/**
 	 * Like etag but for divs
 	 *
@@ -806,13 +798,13 @@ class HTML
 	 */
 	public static function ediv(string|array $attributes = []): string
 	{
-		$args = array_merge(['div', ], func_get_args());
+		$args = array_merge(['div',], func_get_args());
 		return call_user_func_array([
 			__CLASS__,
 			'etag',
 		], $args);
 	}
-
+	
 	/**
 	 * Like etag but for divs
 	 *
@@ -821,13 +813,13 @@ class HTML
 	 */
 	public static function espan(string|array $attributes = []): string
 	{
-		$args = array_merge(['span', ], func_get_args());
+		$args = array_merge(['span',], func_get_args());
 		return call_user_func_array([
 			__CLASS__,
 			'etag',
 		], $args);
 	}
-
+	
 	/**
 	 * Common tag_close case
 	 *
@@ -838,7 +830,7 @@ class HTML
 	{
 		return self::tag_close('div');
 	}
-
+	
 	/**
 	 * Common tag_close case
 	 *
@@ -849,13 +841,13 @@ class HTML
 	{
 		return self::tag_close('span');
 	}
-
+	
 	/**
 	 * Extract the first tag contents of given type from HTML
 	 *
 	 * @param string $tag
 	 *            Tag to extract (e.g. "title")
-	 * @param mixed $mixed
+	 * @param mixed  $mixed
 	 *            HTML string, HTMLTag object, or an object which can be converted
 	 * @return string Contents of the tag
 	 * @throws NotFoundException
@@ -865,12 +857,12 @@ class HTML
 		$result = self::extractTag($tag, $mixed);
 		return $result->innerHTML();
 	}
-
+	
 	/**
 	 * Extract the first tag object of given type from HTML
 	 *
-	 * @param string $tag Tag to extract (e.g. "title")
-	 * @param mixed $mixed HTML string, HTMLTag object, or an object which can be converted
+	 * @param string $tag   Tag to extract (e.g. "title")
+	 * @param mixed  $mixed HTML string, HTMLTag object, or an object which can be converted
 	 * @return HTMLTag Found tag, or null
 	 * @throws NotFoundException
 	 */
@@ -883,7 +875,7 @@ class HTML
 		$htmlTag = array_shift($result);
 		return $htmlTag;
 	}
-
+	
 	/**
 	 * Given a string like:
 	 *
@@ -935,11 +927,11 @@ class HTML
 		}
 		return $attr;
 	}
-
+	
 	/**
-	 * @param string $html_content HTML to cut off
-	 * @param int $cutoff_length Substring length to use
-	 * @param string $dot_dot_dot Append suffix IFF string is cut off
+	 * @param string $html_content  HTML to cut off
+	 * @param int    $cutoff_length Substring length to use
+	 * @param string $dot_dot_dot   Append suffix IFF string is cut off
 	 * @return string Revised string or original string if no cutoff is needed
 	 */
 	public static function ellipsis(string $html_content, int $cutoff_length = 20, string $dot_dot_dot = ' ...'): string
@@ -949,7 +941,7 @@ class HTML
 		}
 		return self::strlen($html_content) > $cutoff_length ? self::substr($html_content, 0, $cutoff_length) . $dot_dot_dot : $html_content;
 	}
-
+	
 	/**
 	 * String length of HTML minus the HTML
 	 *
@@ -960,15 +952,15 @@ class HTML
 	{
 		return strlen(self::strip($html_content));
 	}
-
+	
 	/**
 	 * Retrieve a substring of HTML while keeping the HTML valid.
 	 *
 	 * @param string $html
 	 *            String to parse
-	 * @param int $offset
+	 * @param int    $offset
 	 *            TODO this is broken, and is ignored and should be zero always
-	 * @param ?int $length
+	 * @param ?int   $length
 	 *            How much content you want to include, in non-HTML characters.
 	 * @return string
 	 */
@@ -1009,7 +1001,7 @@ class HTML
 					if ($stack_top === $end_tag) {
 						$result .= $tag;
 						$tag = false;
-
+						
 						break;
 					} else {
 						$result .= "<$end_tag><!-- Inserted missing start tag --></$end_tag>";
@@ -1032,7 +1024,7 @@ class HTML
 		}
 		return $result;
 	}
-
+	
 	/**
 	 * @param string $string
 	 * @return array
@@ -1045,7 +1037,7 @@ class HTML
 		}
 		return $matches;
 	}
-
+	
 	/**
 	 * @param string $string
 	 * @return array
@@ -1059,7 +1051,7 @@ class HTML
 		}
 		return $result;
 	}
-
+	
 	/**
 	 * Remove any HTML tags from a string
 	 *
@@ -1070,22 +1062,22 @@ class HTML
 	{
 		return preg_replace('/ +/', ' ', trim(preg_replace('/<[^>]+>/', ' ', $x)));
 	}
-
+	
 	/**
-	 * @param array $attr
+	 * @param array      $attr
 	 * @param array|null $allowed
-	 * @param array $disallowed
+	 * @param array      $disallowed
 	 * @return array
 	 */
 	public static function styleClean(array $attr, array $allowed = null, array $disallowed = []): array
 	{
 		return ArrayTools::filterKeys($attr, $allowed, $disallowed, true);
 	}
-
+	
 	/**
 	 * Remove any solo tags which do not have attributes in them; useless tags etc.
 	 *
-	 * @param array $tags
+	 * @param array  $tags
 	 * @param string $html
 	 * @return string
 	 */
@@ -1094,13 +1086,13 @@ class HTML
 		$empty_tags = implode('|', ArrayTools::preg_quote($tags, '|'));
 		return preg_replace('|<(' . $empty_tags . ')>([^<>]*)</\1>|i', '$2', $html);
 	}
-
+	
 	/**
 	 * Replace tag attributes in an HTML string
 	 *
-	 * @param string $string
+	 * @param string     $string
 	 * @param array|null $include
-	 * @param array $exclude
+	 * @param array      $exclude
 	 * @return string
 	 */
 	public static function cleanTagsAttributes(string $string, array $include = null, array $exclude = []): string
@@ -1109,7 +1101,7 @@ class HTML
 		if (!$matches) {
 			return $string;
 		}
-
+		
 		$search = [];
 		$replace = [];
 		foreach ($matches as $match) {
@@ -1142,14 +1134,14 @@ class HTML
 		}
 		return str_replace($search, $replace, $string);
 	}
-
+	
 	public static function cleanStyleAttributes(string $string, array $include = null, array $exclude = []): string
 	{
 		$matches = self::matchTags($string);
 		if (!$matches) {
 			return $string;
 		}
-
+		
 		$search = [];
 		$replace = [];
 		foreach ($matches as $match) {
@@ -1180,13 +1172,13 @@ class HTML
 		}
 		return str_replace($search, $replace, $string);
 	}
-
+	
 	/**
 	 * Remove certain tags from an HTML string
 	 *
-	 * @param $string String containing HTML
+	 * @param            $string       String containing HTML
 	 * @param array|null $allowed_tags List of allowed tags or null to allow all tags
-	 * @param array $remove_tags List of tags to explicitly remove
+	 * @param array      $remove_tags  List of tags to explicitly remove
 	 * @return string
 	 */
 	public static function cleanTags(string $string, array $allowed_tags = null, array $remove_tags = []): string
@@ -1204,13 +1196,13 @@ class HTML
 			$k = strtolower($k);
 			if (is_array($allowed_tags) && !in_array($k, $allowed_tags)) {
 				$string = self::removeTags($k, $string, false);
-			} elseif (in_array($k, $remove_tags)) {
+			} else if (in_array($k, $remove_tags)) {
 				$string = self::removeTags($k, $string, false);
 			}
 		}
 		return $string;
 	}
-
+	
 	/**
 	 * Is this an end tag?
 	 *
@@ -1226,7 +1218,7 @@ class HTML
 		}
 		return false;
 	}
-
+	
 	public static function extractLinks(string $content): array
 	{
 		$matches = false;
@@ -1236,7 +1228,7 @@ class HTML
 		}
 		return [];
 	}
-
+	
 	/**
 	 * @param string $content
 	 * @return array
@@ -1250,7 +1242,7 @@ class HTML
 		}
 		return [];
 	}
-
+	
 	/**
 	 * @param mixed $mixed
 	 * @return string
@@ -1259,13 +1251,13 @@ class HTML
 	{
 		if ($mixed === null) {
 			return '';
-		} elseif (is_string($mixed)) {
+		} else if (is_string($mixed)) {
 			return $mixed;
-		} elseif ($mixed instanceof HTMLTag) {
+		} else if ($mixed instanceof HTMLTag) {
 			return $mixed->innerHTML();
-		} elseif (is_object($mixed) && method_exists($mixed, '__toString')) {
+		} else if (is_object($mixed) && method_exists($mixed, '__toString')) {
 			return $mixed->__toString();
-		} elseif (is_array($mixed)) {
+		} else if (is_array($mixed)) {
 			foreach ($mixed as $k => $v) {
 				$mixed[$k] = self::mixedToString($v);
 			}
@@ -1274,7 +1266,7 @@ class HTML
 			return '';
 		}
 	}
-
+	
 	/**
 	 * Count the number of end tags found in this string which match the tag supplied
 	 *
@@ -1290,11 +1282,11 @@ class HTML
 		}
 		return 0;
 	}
-
+	
 	/**
 	 * @param string $tag
 	 * @param string $contents
-	 * @param bool $delete
+	 * @param bool   $delete
 	 * @return string
 	 */
 	public static function removeTags(string $tag, string $contents, bool $delete = true): string
@@ -1302,21 +1294,21 @@ class HTML
 		if (empty($contents)) {
 			return '';
 		}
-
+		
 		$tag = strtolower($tag);
 		$endTagPattern = '/<\/\s*' . $tag . '\s*>/si';
-
+		
 		$search = [];
 		$replace = [];
-
+		
 		$search[] = '/<\s*' . $tag . '(' . self::RE_ATTRIBUTES . ')\s*>/si';
 		$replace[] = '<' . self::$RE_TAG_START_CHAR . '\1>';
-
+		
 		$search[] = $endTagPattern;
 		$replace[] = self::$RE_TAG_END_CHAR;
-
+		
 		$contents = preg_replace($search, $replace, $contents);
-
+		
 		/*
 		 * Match patterns in order of probably valid order. This handles, in order: <tag /> <tag> ... </tag> <tag> (no
 		 * end tag)
@@ -1336,7 +1328,7 @@ class HTML
 		}
 		return $contents;
 	}
-
+	
 	public static function style_units($item, $default_unit = 'px'): string|null
 	{
 		$matches = [];
@@ -1347,7 +1339,7 @@ class HTML
 		}
 		return null;
 	}
-
+	
 	public static function parse_styles(string $style_string): array
 	{
 		$style_string = trim($style_string);
@@ -1364,7 +1356,7 @@ class HTML
 		}
 		return $styles;
 	}
-
+	
 	public static function styles(array $styles, string $delim = ' '): string
 	{
 		$r = [];
@@ -1373,18 +1365,18 @@ class HTML
 		}
 		return implode($delim, $r);
 	}
-
+	
 	/**
 	 * Count the offset until the tag indicated
 	 *
 	 * @param string $string
 	 * @param string $tagName
 	 *            (Returned) Just the tag name captured
-	 * @param int $nWords
+	 * @param int    $nWords
 	 *            (Returned) The number of words found until the captured tag
 	 * @return integer The offset until the end of the tag capture
 	 * @deprecated 2022-10
-	 * @see self::countUntilTag
+	 * @see        self::countUntilTag
 	 */
 	public static function count_until_tag(string $string, string &$tagName, int &$nWords): int
 	{
@@ -1393,7 +1385,7 @@ class HTML
 		$nWords = $result['words'];
 		return $result['offset'] + $result['tagMatchLength'];
 	}
-
+	
 	/**
 	 * Count the offset until the tag indicated. Returns the following attributes:
 	 * int offset - number of characters until the tag
@@ -1412,7 +1404,7 @@ class HTML
 		if (!preg_match('/<(\/?' . self::RE_TAG_NAME . ')' . self::RE_ATTRIBUTES . '(\/?)>/', $string, $matches, PREG_OFFSET_CAPTURE)) {
 			return [];
 		}
-
+		
 		//		dump($matches);
 		[
 			$tagMatch,
@@ -1420,9 +1412,9 @@ class HTML
 		] = array_shift($matches);
 		[$tagName] = array_shift($matches);
 		[$tagClose] = array_shift($matches);
-
+		
 		$tagContents = $tagName . $tagClose;
-
+		
 		$nWords = Text::countWords(substr($string, 0, $offset));
 		$tagMatchLength = strlen($tagMatch);
 		return [
@@ -1435,11 +1427,11 @@ class HTML
 			'tagName'        => $tagName,
 		];
 	}
-
+	
 	/**
 	 * @param string $string
-	 * @param int $wordCount
-	 * @param bool $mark
+	 * @param int    $wordCount
+	 * @param bool   $mark
 	 * @return string
 	 */
 	public static function trimWords(string $string, int $wordCount, bool $mark = false): string
@@ -1451,7 +1443,7 @@ class HTML
 			if (count($nextTag) === 0) {
 				// No tags, treat as text
 				$result .= Text::trimWords($string, $wordCount);
-
+				
 				break;
 			}
 			$offset = $nextTag['offset'];
@@ -1459,7 +1451,7 @@ class HTML
 			if ($nWords >= $wordCount) {
 				// May contain HTML tags, but they are guaranteed to be beyond what this extracts, always
 				$result .= Text::trimWords(substr($string, 0, $offset), $wordCount);
-
+				
 				break;
 			}
 			$wordCount -= $nWords;
@@ -1504,7 +1496,7 @@ class HTML
 		}
 		return $result;
 	}
-
+	
 	public static function trim_white_space(string $html): string
 	{
 		$matches = false;
@@ -1528,7 +1520,7 @@ class HTML
 		}
 		return trim($html);
 	}
-
+	
 	/**
 	 * @param string $html
 	 * @param string $insert_html
@@ -1542,23 +1534,23 @@ class HTML
 		}
 		return $html . $insert_html;
 	}
-
+	
 	/**
 	 * @param string $name Input hidden name
-	 * @param mixed $value
-	 * @param array $attributes
+	 * @param mixed  $value
+	 * @param array  $attributes
 	 * @return string HTML
 	 */
 	public static function hidden(string $name, string $value = null, array $attributes = []): string
 	{
 		return self::input_hidden($name, $value, $attributes);
 	}
-
+	
 	/**
 	 * @param string $name
 	 * @param string $value
-	 * @param array $options Selection item options
-	 * @param array $attributes
+	 * @param array  $options Selection item options
+	 * @param array  $attributes
 	 * @return string HTML
 	 */
 	public static function select(string $name, string $value, array $options, array $attributes = []): string
@@ -1579,9 +1571,9 @@ class HTML
 			}
 			$options_html[] = self::tag('option', $option_attrs, $label);
 		}
-		return self::tag('select', ['name' => $name, ] + $attributes + ['id' => $name, ], implode('', $options_html));
+		return self::tag('select', ['name' => $name,] + $attributes + ['id' => $name,], implode('', $options_html));
 	}
-
+	
 	public static function input_submit(string $name, string $value, array|string $attributes = []): string
 	{
 		$attributes = self::toAttributes($attributes);
@@ -1591,7 +1583,7 @@ class HTML
 		$attributes['id'] ??= $name;
 		return self::tag('input', $attributes, null);
 	}
-
+	
 	public static function input_button(string $name, string $value, array|string $attributes = []): string
 	{
 		$attributes = self::toAttributes($attributes);
@@ -1601,7 +1593,7 @@ class HTML
 		$attributes['id'] ??= $name;
 		return self::tag('input', $attributes, null);
 	}
-
+	
 	public static function input_hidden(string $name, string|array $value, array|string $attributes = []): string
 	{
 		if (is_array($value)) {
@@ -1616,7 +1608,7 @@ class HTML
 		}
 		return self::input('hidden', $name, $value, $attributes);
 	}
-
+	
 	public static function input(string $type, string $name, string $value, array|string $attributes = []): string
 	{
 		$attributes = self::toAttributes($attributes);
@@ -1630,12 +1622,12 @@ class HTML
 		}
 		return self::tag('input', $attributes, null);
 	}
-
+	
 	/**
 	 * Convert plain text into HTML which has links
 	 *
 	 * @param string $text
-	 * @param array $attributes
+	 * @param array  $attributes
 	 * @return string
 	 */
 	public static function urlify(string $text, array $attributes = []): string
@@ -1651,7 +1643,7 @@ class HTML
 		}
 		return strtr($text, $map);
 	}
-
+	
 	/**
 	 * Simplistic tool to make URLs absolute in HTML.
 	 * Useful for formatting emails.
@@ -1665,24 +1657,24 @@ class HTML
 		$domain_prefix = rtrim($domain_prefix, '/');
 		$map = [];
 		foreach ([
-			'href',
-			'src',
-		] as $attr) {
+					 'href',
+					 'src',
+				 ] as $attr) {
 			foreach ([
-				'"',
-				'\'',
-			] as $quote) {
+						 '"',
+						 '\'',
+					 ] as $quote) {
 				foreach ([
-					'/' => '',
-					'.' => '/',
-				] as $prefix => $append) {
+							 '/' => '',
+							 '.' => '/',
+						 ] as $prefix => $append) {
 					$map[$attr . '=' . $quote . $prefix] = $attr . '=' . $quote . $domain_prefix . $append . $prefix;
 				}
 			}
 		}
 		return strtr($content, $map);
 	}
-
+	
 	/**
 	 * Handles conversion of HTML entities into text
 	 *
@@ -1699,7 +1691,7 @@ class HTML
 		]);
 		return html_entity_decode($html);
 	}
-
+	
 	/**
 	 * Wrapping mapping function (_W)
 	 *
@@ -1766,7 +1758,7 @@ class HTML
 			}
 			$phrase = substr($phrase, 0, $match_off) . $replace_value . substr($phrase, $match_off + $match_len);
 		}
-
+		
 		if (count($skip_s) === 0) {
 			return $phrase;
 		}

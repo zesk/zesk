@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 /**
- * @package zesk
+ * @package    zesk
  * @subpackage GitHub
- * @author kent
- * @copyright Copyright &copy; 2025, Market Acumen, Inc.
+ * @author     kent
+ * @copyright  Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\GitHub;
@@ -133,7 +133,7 @@ class Module extends BaseModule
 		$client->setData(JSON::encode($json_struct));
 		$client->setRequestHeader(HTTP::REQUEST_CONTENT_TYPE, MIME::TYPE_APPLICATION_JSON);
 		$content = $client->go();
-		if ($client->response_code_type() === 2) {
+		if ($client->responseCodeType() === 2) {
 			return JSON::decode($content);
 		}
 

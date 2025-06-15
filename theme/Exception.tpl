@@ -19,14 +19,18 @@ $exception = $this->exception;
 $class = get_class($this->exception);
 
 $application->error("Exception: {exception_class}\nMessage: {message}\nServer:\n{server}\nRequest:\n{request}\nException: {exception_class}\nBacktrace:\n{backtrace}\n{exception}", [
-	'server' => Text::formatPairs($_SERVER), 'request' => Text::formatPairs($_REQUEST), 'exception_class' => $class,
-	'exception' => $exception, 'message' => $exception->getMessage(), 'backtrace' => $exception->getTraceAsString(),
+	'server'          => Text::formatPairs($_SERVER),
+	'request'         => Text::formatPairs($_REQUEST),
+	'exception_class' => $class,
+	'exception'       => $exception,
+	'message'         => $exception->getMessage(),
+	'backtrace'       => $exception->getTraceAsString(),
 ]);
 
 echo HTML::tag_open('div', '.exception');
 
 if (!$exception instanceof Exception) {
-	$message = 'Not an exception: ' . type($exception);
+	$message = 'Not an exception: ' . Types::type($exception);
 	$trace = debug_backtrace();
 } else {
 	$message = $exception->getMessage();
@@ -39,22 +43,22 @@ $dev = $application->development();
 			echo $dev ? $class : strtr($class, '_', ' ') ?>
             <!--  <?php
 			echo $class;
-?> -->
+			?> -->
         </h1>
         <p>The computer error given was:</p>
 		<?php
 		echo HTML::tag('code', $message);
-if ($dev) {
-	?><p>The call stack is:</p><?php
-	echo $this->theme('Exception/Trace', [
-		'content' => $trace,
-	]); ?>
+		if ($dev) {
+			?><p>The call stack is:</p><?php
+			echo $this->theme('Exception/Trace', [
+				'content' => $trace,
+			]); ?>
 			<?php
-}
-if ($this->suffix) {
-	echo HTML::tag('p', $this->suffix);
-}
-?>
+		}
+		if ($this->suffix) {
+			echo HTML::tag('p', $this->suffix);
+		}
+		?>
     </div>
 	<?php
 echo HTML::tag_close('div');

@@ -1,45 +1,90 @@
 <?php
 declare(strict_types=1);
 /**
- * @author kent
- * @package zesk/modules
+ * @author     kent
+ * @package    zesk/modules
  * @subpackage Polyglot
- * @copyright &copy; 2023, Market Acumen, Inc.
+ * @copyright  &copy; 2023, Market Acumen, Inc.
  */
 
 namespace zesk\Polyglot;
 
+use Doctrine\Common\Collections\Criteria;
+use Doctrine\ORM\Event\PrePersistEventArgs;
+use Doctrine\ORM\Exception\ORMException;
+use Doctrine\ORM\Mapping\Column;
+use Doctrine\ORM\Mapping\Entity;
+use Doctrine\ORM\Mapping\EntityListeners;
+use Doctrine\ORM\Mapping\Index;
+use Doctrine\ORM\Mapping\JoinColumn;
+use Doctrine\ORM\Mapping\ManyToOne;
+use Doctrine\ORM\QueryBuilder;
+use Throwable;
 use zesk\Application;
+use zesk\ArrayTools;
+use zesk\Doctrine\Event\PrePersist;
+use zesk\Doctrine\Model;
+use zesk\Doctrine\ModelListener;
+use zesk\Doctrine\Trait\AutoID;
+use zesk\Doctrine\User;
 use zesk\Exception\ConfigurationException;
-use zesk\Exception\KeyNotFound;
-use zesk\Exception\ProtocolException;
 use zesk\Locale\Locale;
 use zesk\Locale\Validate;
-use zesk\ORM\Exception\ORMNotFound;
-use zesk\ORM\JSONWalker;
-use zesk\ORM\ORMBase;
-use zesk\ORM\User;
-use zesk\Polyglot\Class\Class_Token;
 use zesk\Timestamp;
+use zesk\JSONWalker;
 
-/**
- *
- * @author kent
- *
- * @see Class_Token
- * @property int $id
- * @property string $language
- * @property string $dialect
- * @property string $md5
- * @property string $original
- * @property string $translation
- * @property string $context
- * @property User $user
- * @property string $status
- * @property Timestamp $updated
- */
-class Token extends ORMBase
+#[Entity]
+#[EntityListeners([ModelListener::class])]
+#[Index('languageAndDialect', [
+	'language',
+	'dialect',
+	'hash',
+	'user',
+	'context',
+])]
+#[Index('user', [
+	'context',
+	'user',
+])]
+#[Index('indexOriginal', ['original'])]
+#[Index('indexTranslation', ['translation'])]
+class Token extends Model implements PrePersist
 {
+	use AutoID;
+
+	#[Column(type: 'string', length: 2, nullable: false)]
+	public string $language;
+
+	#[Column(type: 'string', length: 2, nullable: false)]
+	public string $dialect;
+
+	#[Column(type: 'string', length: 32, nullable: false)]
+	public string $hash;
+
+	#[Column(type: 'text', nullable: false)]
+	public string $original;
+
+	#[Column(type: 'text', nullable: false)]
+	public string $translation;
+
+	#[Column(type: 'string', length: 64, nullable: false)]
+	public string $context = '';
+
+	/**
+	 * User who translated this
+	 *
+	 * @var User|null
+	 */
+	#[ManyToOne]
+	#[JoinColumn(name: 'user', nullable: true)]
+	protected null|User $user = null;
+
+	#[Column(type: 'string', length: 16, nullable: false)]
+	public string $status;
+
+	#[Column(type: 'timestamp', nullable: false)]
+	public Timestamp $updated;
+
 	/**
 	 *
 	 * @var Validate
@@ -88,75 +133,57 @@ class Token extends ORMBase
 	 */
 	public const STATUS_DELETE = 'delete';
 
-	/**
-	 * @return void
-	 */
-	protected function constructed(): void
+	public function __construct(Application $application, string $language, string $dialect, string $original, string $translation, string $status = '', array $options = [])
 	{
-		parent::constructed();
+		parent::__construct($application, $options);
+		$this->language = $language;
+		$this->dialect = $dialect;
+		$this->original = $original;
+		$this->translation = $translation;
+		$this->status = ($status === '') ? self::STATUS_TODO : $status;
 		$this->validator = new Validate($this->application);
 	}
 
+	public const HOOK_CONTEXT_DEFAULT = __CLASS__ . '::contextDefault';
+
 	/**
-	 *
-	 * {@inheritdoc}
-	 *
-	 * @see ORMBase::store()
+	 * @see ModelListener
 	 */
-	public function store(): self
+	public function prePersist(PrePersistEventArgs $args): void
 	{
-		$this->md5 = md5($this->original);
-		if ($this->memberIsEmpty('user')) {
+		$this->hash = md5($this->original);
+		$this->user = $this->application->invokeFilters(Application::HOOK_USER, null, [$this->application]);
+		if (!$this->user) {
 			try {
 				$request = $this->application->request();
 				$this->user = $this->application->user($request);
-			} catch (ProtocolException) {
+			} catch (Throwable) {
 			}
 		}
-		if ($this->memberIsEmpty('context')) {
-			$this->context = $this->callHook('contextDefault');
+		if (!$this->context) {
+			$this->context = $this->invokeFilters(self::HOOK_CONTEXT_DEFAULT, '', [$this]);
 		}
-		if ($this->memberIsEmpty('status')) {
+		if (!$this->status) {
 			$this->status = self::STATUS_TODO;
 		}
 		if ($this->status === self::STATUS_DELETE) {
-			$this->dialect = null;
-			$this->language = null;
+			$this->dialect = '';
+			$this->language = '';
 		}
-		$result = parent::store();
-		if ($this->status === self::STATUS_DELETE) {
-			$this->queryDelete()->appendWhere([
-				'*md5'        => "UNHEX('$this->md5')",
-				'language|!=' => [
-					null,
-					'',
-				],
-			])->execute();
-		}
-		return $result;
 	}
 
-	public static function create(Application $app, string $language, string $dialect, string $original, string $translation, string $status = '')
+	public static function factory(Application $app, string $language, string $dialect, string $original, string $translation, string $status = ''): self
 	{
-		$token = $app->ormFactory(__CLASS__, [
-			'language'    => $language,
-			'dialect'     => $dialect,
-			'original'    => $original,
-			'translation' => $translation,
-		]);
-		assert($token instanceof self);
-		$token->status = ($status === '') ? self::STATUS_TODO : $status;
-		return $token;
+		return new self($app, $language, $dialect, $original, $translation, $status);
 	}
 
 	/**
 	 * Fetch all locale strings for the dialect/language
 	 *
 	 * @param Application $app
-	 * @param string $language
-	 * @param string $dialect
+	 * @param string      $language
+	 * @param string      $dialect
 	 * @return array
-	 * @throws ORMNotFound
 	 */
 	public static function fetchAll(Application $app, string $language, string $dialect = ''): array
 	{
@@ -164,23 +191,15 @@ class Token extends ORMBase
 			'language' => $language,
 			'dialect'  => $dialect === '' ? null : $dialect,
 		];
-		$query = $app->ormRegistry(__CLASS__)->querySelect();
-		$where = [
-			[
-				$where,
-				[
-					'status' => self::STATUS_DELETE,
-				],
-			],
-		];
-		$query->appendWhere($where);
-		$query->setDistinct();
-		$query->ormWhat();
-		$query->setOrderBy([
-			'updated ASC',
-			'original',
+		$em = $app->entityManager();
+		$query = $em->getRepository(self::class)->findBy($where, [
+			'updated'  => 'ASC',
+			'original' => 'ASC',
 		]);
-		$result = $query->ormIterator()->toArray('original');
+		$result = [];
+		foreach ($query as $entity) {
+			$result[$entity->original] = $entity;
+		}
 		if ($dialect === '') {
 			return $result;
 		}
@@ -189,7 +208,7 @@ class Token extends ORMBase
 
 	public function json(JSONWalker $options): array
 	{
-		$members = $this->members([
+		$members = ArrayTools::filter($this->members(), [
 			'id',
 			'language',
 			'dialect',
@@ -197,23 +216,23 @@ class Token extends ORMBase
 			'translation',
 			'status',
 		]);
-		$members['user'] = $this->memberInteger('user');
+		$members['user'] = $this->user->id;
 		return $members;
 	}
 
 	/**
 	 *
 	 * @param Application $application
-	 * @param string $locale
-	 * @return Database_Query_Select
-	 * @throws ORMNotFound
+	 * @param string      $locale
+	 * @return QueryBuilder
 	 */
-	public static function localeQuery(Application $application, string $locale): Database_Query_Select
+	public static function localeQuery(Application $application, string $locale): QueryBuilder
 	{
-		return $application->ormRegistry(__CLASS__)->querySelect()->ormWhat()->appendWhere([
-			'dialect'  => Locale::parseDialect($locale),
-			'language' => Locale::parseLanguage($locale),
-		]);
+		$ex = Criteria::expr();
+		$qb = $application->entityManager()->getRepository(self::class)->createQueryBuilder('q');
+		$qb->select('q.*')->where($ex->eq('q.language', $qb->createNamedParameter(Locale::parseLanguage($locale))));
+		$qb->andWhere($ex->eq('q.dialect', $qb->createNamedParameter(Locale::parseDialect($locale))));
+		return $qb;
 	}
 
 	/**
@@ -232,33 +251,30 @@ class Token extends ORMBase
 	}
 
 	/**
-	 * Used to convert HTML entities in translations to encoded entities. Not sure why this was used but let's
-	 * leave it here for now in case it's relevant in the future.
+	 * Used to convert HTML entities in translations to encoded entities.
+	 * Leave it here for now in case it's relevant in the future.
 	 *
 	 * @param Application $app
-	 * @throws ProtocolException
-	 * @throws Database\Exception\Duplicate
-	 * @throws Database\Exception\NoResults
-	 * @throws Database\Exception\TableNotFound
-	 * @throws KeyNotFound
+	 * @throws ORMException
 	 */
-	public static function htmlentities_all(Application $app): void
+	public static function fixTranslations(Application $app): void
 	{
-		$iterator = $app->ormRegistry(__CLASS__)->querySelect()->appendWhat([
-			'id'          => 'id',
-			'translation' => 'translation',
-		])->iterator('id', 'translation');
-		foreach ($iterator as $id => $translation) {
+		$em = $app->entityManager();
+		foreach ($em->getRepository(self::class)->findAll() as $token) {
+			/* @var $token self */
+			$translation = $token->translation;
 			$entities = htmlentities($translation);
 			if ($entities !== $translation) {
-				$app->ormRegistry(__CLASS__)->queryUpdate()->value('translation', $entities)->addWhere('id', $id)->execute();
-				$app->debug('Updated #{id} {translation} to {entities}', [
-					'id'          => $id,
-					'translation' => $translation,
-					'entities'    => $entities,
-				]);
+				$token->translation = $entities;
+				$em->persist($token);
 			}
+			$app->debug('Updated #{id} {translation} to {entities}', [
+				'id'          => $token->id,
+				'translation' => $translation,
+				'entities'    => $entities,
+			]);
 		}
+		$em->flush();
 	}
 
 	/**

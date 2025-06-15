@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 /**
- * @package zesk
+ * @package    zesk
  * @subpackage kernel
- * @author kent
- * @copyright &copy; 2023, Market Acumen, Inc.
+ * @author     kent
+ * @copyright  &copy; 2023, Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -13,13 +13,11 @@ use Closure;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionMethod;
-use zesk\Exception\DirectoryNotFound;
-use zesk\Exception\ExitedException;
 use zesk\Exception\ParameterException;
 
 /**
  *
- * @todo When we're in a PHP version which is trait compatible, make this a trait
+ * @todo   When we're in a PHP version which is trait compatible, make this a trait
  *
  * @author kent
  */
@@ -29,10 +27,10 @@ class Hookable extends Options
 
 	/**
 	 *
-	 * @param Application $application
-	 * @param array $options
+	 * @param Application         $application
+	 * @param array|Configuration $options
 	 */
-	public function __construct(Application $application, array $options = [])
+	public function __construct(Application $application, array|Configuration $options = [])
 	{
 		$this->application = $application;
 		parent::__construct($options);
@@ -47,7 +45,7 @@ class Hookable extends Options
 	 * *** Globally within the application ***
 	 *
 	 * @param Hookable $hookable
-	 * @param string $attributeClassName
+	 * @param string   $attributeClassName
 	 * @return array:HookableAttribute
 	 */
 	public static function staticAttributeMethods(Hookable $hookable, string $attributeClassName): array
@@ -90,21 +88,24 @@ class Hookable extends Options
 	 *            ...
 	 *        }
 	 *
-	 * @param string $attributeClassName
+	 * @param string|array $attributeClassNames
 	 * @return array:HookableAttribute
 	 */
-	public function attributeMethods(string $attributeClassName): array
+	public function attributeMethods(string|array $attributeClassNames): array
 	{
 		$reflection = new ReflectionClass($this);
 		$flags = ReflectionMethod::IS_PROTECTED | ReflectionMethod::IS_PUBLIC;
 		$attributes = [];
+		$attributeClassNames = Types::toList($attributeClassNames);
 		foreach ($reflection->getMethods($flags) as $method) {
 			$declaringClass = $method->getDeclaringClass()->getName();
-			foreach ($method->getAttributes($attributeClassName) as $reflectionAttribute) {
-				$attribute = $reflectionAttribute->newInstance();
-				assert($attribute instanceof HookableAttribute);
-				$attribute->setMethod($method);
-				$attributes[$declaringClass . '::' . $method->getName()] = $attribute;
+			foreach ($attributeClassNames as $attributeClassName) {
+				foreach ($method->getAttributes($attributeClassName) as $reflectionAttribute) {
+					$attribute = $reflectionAttribute->newInstance();
+					assert($attribute instanceof HookableAttribute);
+					$attribute->setMethod($method, $this);
+					$attributes[$declaringClass . '::' . $method->getName()] = $attribute;
+				}
 			}
 		}
 		return $attributes;
@@ -114,11 +115,15 @@ class Hookable extends Options
 	 * Find methods in this object with a HookMethod attached with the name $hookName
 	 *
 	 * @param string $hookName
+	 * @param bool   $isFilter
 	 * @return array:HookMethod
 	 */
-	public function hookMethods(string $hookName): array
+	public function hookMethods(string $hookName, bool $isFilter = false): array
 	{
-		return array_filter($this->attributeMethods(HookMethod::class), fn (HookMethod $method) => $method->handlesHook($hookName));
+		return array_filter($this->attributeMethods([
+			FilterMethod::class,
+			HookMethod::class,
+		]), fn (HookMethod $method) => $method->handlesHook($hookName) && $method->isFilter() === $isFilter);
 	}
 
 	/**
@@ -136,7 +141,7 @@ class Hookable extends Options
 	 * Do object hooks exist for this object? (related to `$this`)
 	 *
 	 * @param string $hookName
-	 * @param bool $isFilter
+	 * @param bool   $isFilter
 	 * @return bool
 	 */
 	public function hasObjectHooks(string $hookName, bool $isFilter = false): bool
@@ -159,7 +164,7 @@ class Hookable extends Options
 	 * List of hooks found
 	 *
 	 * @param string $hookName
-	 * @param bool $isFilter
+	 * @param bool   $isFilter
 	 * @return array
 	 */
 	protected function _hooksFor(string $hookName, bool $isFilter = false): array
@@ -171,7 +176,7 @@ class Hookable extends Options
 	 * Run static hooks and object hooks
 	 *
 	 * @param string $hookName
-	 * @param array $arguments
+	 * @param array  $arguments
 	 * @return void
 	 */
 	public function invokeHooks(string $hookName, array $arguments = []): void
@@ -186,7 +191,7 @@ class Hookable extends Options
 	 * Run static hooks and object hooks until a non-null result is returned
 	 *
 	 * @param string $hookName
-	 * @param array $arguments
+	 * @param array  $arguments
 	 * @return mixed
 	 */
 	public function invokeHooksUntil(string $hookName, array $arguments = []): mixed
@@ -205,8 +210,8 @@ class Hookable extends Options
 	 * Run static hooks and object hooks
 	 *
 	 * @param string $hookName
-	 * @param array $arguments
-	 * @param bool $isFilter
+	 * @param array  $arguments
+	 * @param bool   $isFilter
 	 * @return void
 	 * @throws ParameterException
 	 */
@@ -220,11 +225,10 @@ class Hookable extends Options
 
 	/**
 	 * @param HookMethod[] $hookMethods
-	 * @param mixed $mixed
-	 * @param array $arguments
-	 * @param int $filterArgumentIndex
+	 * @param mixed        $mixed
+	 * @param array        $arguments
+	 * @param int          $filterArgumentIndex
 	 * @return mixed
-	 * @throws ParameterException
 	 */
 	private static function _invokeFilters(array $hookMethods, mixed $mixed, array $arguments = [], int $filterArgumentIndex = -1): mixed
 	{
@@ -242,14 +246,13 @@ class Hookable extends Options
 	/**
 	 * Invokes a filter and ensures that $mixed remains the same type throughout
 	 *
-	 * @param string $hookName
-	 * @param array $hookMethods
-	 * @param mixed $mixed
+	 * @param string       $hookName
+	 * @param array        $hookMethods
+	 * @param mixed        $mixed
 	 * @param Closure|null $loopEndTest
-	 * @param array $arguments
-	 * @param int $filterArgumentIndex
+	 * @param array        $arguments
+	 * @param int          $filterArgumentIndex
 	 * @return mixed
-	 * @throws ParameterException
 	 */
 	private function _invokeTypedFilters(string $hookName, array $hookMethods, mixed $mixed, Closure|null $loopEndTest, array $arguments = [], int $filterArgumentIndex = -1): mixed
 	{
@@ -282,11 +285,10 @@ class Hookable extends Options
 	 * returned by each hook. Type is not enforced.
 	 *
 	 * @param string $hookName
-	 * @param mixed $mixed
-	 * @param array $arguments
-	 * @param int $filterArgumentIndex
+	 * @param mixed  $mixed
+	 * @param array  $arguments
+	 * @param int    $filterArgumentIndex
 	 * @return mixed
-	 * @throws ParameterException
 	 */
 	public function invokeFilters(string $hookName, mixed $mixed, array $arguments = [], int $filterArgumentIndex = -1): mixed
 	{
@@ -299,11 +301,10 @@ class Hookable extends Options
 	 * returned by each hook. Enforce the return type to match upon each function call.
 	 *
 	 * @param string $hookName
-	 * @param mixed $mixed
-	 * @param array $arguments
-	 * @param int $filterArgumentIndex
+	 * @param mixed  $mixed
+	 * @param array  $arguments
+	 * @param int    $filterArgumentIndex
 	 * @return mixed
-	 * @throws ParameterException
 	 */
 	public function invokeTypedFilters(string $hookName, mixed $mixed, array $arguments = [], int $filterArgumentIndex = -1): mixed
 	{
@@ -315,13 +316,12 @@ class Hookable extends Options
 	 * Run static and application objects hooks and run a filter function on an argument which is
 	 * returned by each hook. Enforce the return type to match upon each function call.
 	 *
-	 * @param string $hookName
-	 * @param mixed $mixed
+	 * @param string                       $hookName
+	 * @param mixed                        $mixed
 	 * @param Closure|bool|int|string|null $untilValue
-	 * @param array $arguments
-	 * @param int $filterArgumentIndex
+	 * @param array                        $arguments
+	 * @param int                          $filterArgumentIndex
 	 * @return mixed
-	 * @throws ParameterException
 	 */
 	public function invokeTypedFiltersUntil(string $hookName, mixed $mixed, Closure|null|bool|int|string $untilValue, array $arguments = [], int $filterArgumentIndex = -1): mixed
 	{
@@ -338,11 +338,10 @@ class Hookable extends Options
 	 * Run just hooks on this object
 	 *
 	 * @param string $hookName
-	 * @param mixed $mixed
-	 * @param array $arguments
-	 * @param int $filterArgumentIndex
+	 * @param mixed  $mixed
+	 * @param array  $arguments
+	 * @param int    $filterArgumentIndex
 	 * @return mixed
-	 * @throws ParameterException
 	 */
 	public function invokeObjectFilters(string $hookName, mixed $mixed, array $arguments = [], int $filterArgumentIndex = -1): mixed
 	{
@@ -355,20 +354,15 @@ class Hookable extends Options
 	 * hookName method.
 	 *
 	 * @param Hookable[] $hookables
-	 * @param string $hookName
-	 * @param bool $isFilter
+	 * @param string     $hookName
+	 * @param bool       $isFilter
 	 * @return array
 	 */
 	public static function objectHookMethods(array $hookables, string $hookName, bool $isFilter = false): array
 	{
 		$hookMethods = [];
 		foreach ($hookables as $hookable) {
-			foreach ($hookable->hookMethods($hookName) as $name => $hookMethod) {
-				/* @var $hookMethod HookMethod */
-				if ($hookMethod->isFilter() !== $isFilter) {
-					continue;
-				}
-				$hookMethod->setObject($hookable);
+			foreach ($hookable->hookMethods($hookName, $isFilter) as $name => $hookMethod) {
 				$hookMethods[$name] = $hookMethod;
 			}
 		}
@@ -377,9 +371,9 @@ class Hookable extends Options
 
 	/**
 	 * @param Hookable $hookable
-	 * @param string $hookName
-	 * @param array $hookables
-	 * @param bool $isFilter
+	 * @param string   $hookName
+	 * @param array    $hookables
+	 * @param bool     $isFilter
 	 * @return HookMethod[]
 	 */
 	public static function applicationHookMethods(Hookable $hookable, string $hookName, array $hookables = [], bool $isFilter = false): array
@@ -411,8 +405,8 @@ class Hookable extends Options
 	 * Retrieves a list of all static methods tagged with the HookMethod attribute which are not filters (plain hooks)
 	 *
 	 * @param Hookable $hookable
-	 * @param string $name
-	 * @param bool $isFilter
+	 * @param string   $name
+	 * @param bool     $isFilter
 	 * @return array:HookMethod
 	 * @see HookMethod
 	 */
@@ -425,8 +419,8 @@ class Hookable extends Options
 	 * Retrieves a list of all static methods tagged with the HookMethod attribute
 	 *
 	 * @param Hookable $hookable
-	 * @param string $name
-	 * @param bool $isFilter
+	 * @param string   $name
+	 * @param bool     $isFilter
 	 * @return array
 	 */
 	public static function _staticHookMethodsFor(Hookable $hookable, string $name, bool $isFilter): array

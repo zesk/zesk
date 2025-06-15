@@ -131,8 +131,12 @@ __zesk() {
       "--[a-z]+=*")
         aa+=("$argument")
         ;;
-      *)
+      -*)
         aa+=("$argument")
+        ;;
+      *)
+        aa+=("$@")
+        break
         ;;
     esac
     # _IDENTICAL_ argument-esac-shift 1

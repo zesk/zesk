@@ -3,16 +3,21 @@ declare(strict_types=1);
 
 namespace zesk\Configuration;
 
-use zesk\Exception\ClassNotFound;
 use zesk\Exception\FileParseException;
-use zesk\Exception\ParseException;
-use zesk\Exception\SystemException;
 use zesk\File;
-use zesk\Interface\SettingsInterface;
 use zesk\Types;
+use zesk\Exception\ClassNotFound;
+use zesk\Exception\ParseException;
+use zesk\Exception\SemanticsException;
+use zesk\Interface\SettingsInterface;
 
 class Loader
 {
+	/**
+	 * Sets an option in global configuration to fetch variables after destroyed
+	 */
+	public const OPTION_VARIABLES = 'variables';
+
 	/**
 	 *
 	 * @var string
@@ -125,14 +130,17 @@ class Loader
 	/**
 	 *
 	 * @return void
-	 * @throws SystemException
+	 * @throws SemanticsException|FileParseException
 	 */
 	public function load(): void
 	{
 		while (count($this->files) > 0) {
 			$file = array_shift($this->files);
+			if (empty($file)) {
+				continue;
+			}
 			if (!is_string($file)) {
-				throw new SystemException('File is not a string {type} {file}', [
+				throw new SemanticsException('File is not a string {type} {file}', [
 					'type' => Types::type($file),
 					'file' => strval($file),
 				]);
@@ -141,8 +149,11 @@ class Loader
 			try {
 				$this->current = $file;
 				$this->loadFile($file);
+			} catch (FileParseException $e) {
+				throw $e;
 			} catch (ParseException) {
 				// Logged to $this->>skippedFiles
+				$this->skippedFiles[] = $file;
 			}
 			$this->current = '';
 		}
@@ -165,7 +176,7 @@ class Loader
 	 * @param string $file    Path to file to load
 	 * @param string $handler Extension to use to load class (CONF, SH, JSON)
 	 * @return self
-	 * @throws ParseException
+	 * @throws ParseException|FileParseException
 	 */
 	public function loadFile(string $file, string $handler = ''): self
 	{
@@ -191,7 +202,7 @@ class Loader
 	 * @param string $handler Extension to use to load class (CONF, SH, JSON)
 	 * @param string $file_name
 	 * @return self
-	 * @throws FileParseException
+	 * @throws ParseException
 	 */
 	public function loadContent(string $content, string $handler = '', string $file_name = ''): self
 	{

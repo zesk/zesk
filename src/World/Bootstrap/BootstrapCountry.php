@@ -2,16 +2,17 @@
 declare(strict_types=1);
 
 /**
- * @package zesk
+ * @package    zesk
  * @subpackage World
- * @author kent
- * @copyright Copyright &copy; 2025, Market Acumen, Inc.
+ * @author     kent
+ * @copyright  Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\World\Bootstrap;
 
 use zesk\Application;
 use zesk\ArrayTools;
+use zesk\Directory;
 use zesk\Exception\DirectoryNotFound;
 use zesk\Exception\FilePermission;
 use zesk\Exception\NotFoundException;
@@ -25,32 +26,32 @@ use zesk\World\Country;
  * @author kent
  *
  */
-class BootstrapCountry extends Hookable
-{
+class BootstrapCountry extends Hookable {
+	
 	/**
 	 * Source http://download.geonames.org/export/dump/countryInfo.txt
 	 *
 	 * Country database (TXT file)
 	 */
 	public const url_geonames_country_file = 'https://download.geonames.org/export/dump/countryInfo.txt';
-
+	
 	/**
 	 *
 	 * @var array
 	 */
 	private array $include_country;
-
+	
 	/**
 	 *
 	 * @param Application $application
-	 * @param array $options
+	 * @param array       $options
 	 * @return self
 	 */
 	public static function factory(Application $application, array $options = []): self
 	{
 		return new self($application, $options);
 	}
-
+	
 	/**
 	 *
 	 * @param mixed $options
@@ -64,7 +65,7 @@ class BootstrapCountry extends Hookable
 		$include_country = $this->optionIterable('include_country');
 		$this->include_country = array_change_key_case(ArrayTools::keysFromValues(Types::toList($include_country), true));
 	}
-
+	
 	public function bootstrap(): void
 	{
 		$application = $this->application;
@@ -79,7 +80,7 @@ class BootstrapCountry extends Hookable
 		}
 		$em->flush();
 	}
-
+	
 	private function is_included(Country $country)
 	{
 		if ($this->include_country) {
@@ -87,7 +88,7 @@ class BootstrapCountry extends Hookable
 		}
 		return true;
 	}
-
+	
 	/**
 	 * Fetch and synchronize country source files
 	 *
@@ -100,7 +101,7 @@ class BootstrapCountry extends Hookable
 	private function load_countryinfo(Application $application): array
 	{
 		$world_path = $application->modules->path('world');
-		$file = $this->option('geonames_country_cache_file', path($world_path, 'bootstrap-data/countryinfo.txt'));
+		$file = $this->option('geonames_country_cache_file', Directory::path($world_path, 'bootstrap-data/countryinfo.txt'));
 		Sync::urlToFile($application, self::url_geonames_country_file, $file, [
 			'time_to_live' => $this->option('geonames_time_to_live', 86400 * 30),
 		]);
@@ -111,7 +112,7 @@ class BootstrapCountry extends Hookable
 				if (in_array('#ISO', $row)) {
 					$headers = ArrayTools::changeValueCase(ArrayTools::valuesRemovePrefix($row, '#'));
 				}
-
+				
 				continue;
 			} else {
 				$row = ArrayTools::rekey($headers, $row);

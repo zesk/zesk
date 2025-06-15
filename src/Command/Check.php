@@ -98,33 +98,33 @@ class Check extends FileIterator
 	{
 		parent::initialize();
 
-		$this->option_types['prefix'] = 'string';
-		$this->option_types['suffix'] = 'string';
+		$this->argumentTypes['prefix'] = 'string';
+		$this->argumentTypes['suffix'] = 'string';
 
-		$this->option_types['lint'] = 'boolean';
-		$this->option_types['php-bin-path'] = 'string';
+		$this->argumentTypes['lint'] = 'boolean';
+		$this->argumentTypes['php-bin-path'] = 'string';
 
-		$this->option_types['copyright'] = 'boolean';
-		$this->option_types['company'] = 'string';
-		$this->option_types['copyright-suffix'] = 'string';
+		$this->argumentTypes['copyright'] = 'boolean';
+		$this->argumentTypes['company'] = 'string';
+		$this->argumentTypes['copyright-suffix'] = 'string';
 
-		$this->option_types['author'] = 'boolean';
-		$this->option_types['package'] = 'string';
-		$this->option_types['subpackage'] = 'string';
+		$this->argumentTypes['author'] = 'boolean';
+		$this->argumentTypes['package'] = 'string';
+		$this->argumentTypes['subpackage'] = 'string';
 
-		$this->option_types['year'] = 'string';
+		$this->argumentTypes['year'] = 'string';
 
-		$this->option_types['show-package'] = 'boolean';
-		$this->option_types['show-subpackage'] = 'boolean';
-		$this->option_types['show-author'] = 'boolean';
-		$this->option_types['show-copyright'] = 'boolean';
+		$this->argumentTypes['show-package'] = 'boolean';
+		$this->argumentTypes['show-subpackage'] = 'boolean';
+		$this->argumentTypes['show-author'] = 'boolean';
+		$this->argumentTypes['show-copyright'] = 'boolean';
 
-		$this->option_types['update-only'] = 'boolean';
-		$this->option_types['gremlins'] = 'boolean';
-		$this->option_types['fix'] = 'boolean';
-		$this->option_types['safe'] = 'boolean';
-		$this->option_types['no-backup'] = 'boolean';
-		$this->option_types['ignore'] = 'string';
+		$this->argumentTypes['update-only'] = 'boolean';
+		$this->argumentTypes['gremlins'] = 'boolean';
+		$this->argumentTypes['fix'] = 'boolean';
+		$this->argumentTypes['safe'] = 'boolean';
+		$this->argumentTypes['no-backup'] = 'boolean';
+		$this->argumentTypes['ignore'] = 'string';
 
 		$this->setOption('copyright-suffix', '');
 		$this->setOption('company', '');

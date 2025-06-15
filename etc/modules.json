@@ -7,9 +7,11 @@
 	"mail": "zesk\\Mail\\Module",
 	"net": "zesk\\Net\\Module",
 	"phpunit": "zesk\\PHPUnit\\Module",
+	"polyglot": "zesk\\Polyglot\\Module",
 	"daemon": "zesk\\Daemon\\Module",
 	"git": "zesk\\Git\\Module",
 	"locale": "zesk\\Locale\\Module",
 	"repository": "zesk\\Repository\\Module",
-	"session": "zesk\\Session\\Module"
+	"session": "zesk\\Session\\Module",
+	"world": "zesk\\World\\Module"
 }

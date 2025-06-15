@@ -11,31 +11,29 @@ use zesk\HTTP;
 use zesk\JavaScript;
 use zesk\Request;
 use zesk\Response;
+use zesk\Types;
 
 /**
- * @see Locale
+ * @see    Locale
  * @author kent
  *
  */
-class Controller extends \zesk\Controller
-{
-	protected array $argumentMethods = [
-	];
-
+class Controller extends \zesk\Controller {
+	
+	protected array $argumentMethods = [];
+	
 	protected array $actionMethods = [
 		'action_{METHOD}_js',
 	];
-
-	protected array $beforeMethods = [
-	];
-
-	protected array $afterMethods = [
-	];
-
+	
+	protected array $beforeMethods = [];
+	
+	protected array $afterMethods = [];
+	
 	/**
 	 * Allow API usage
 	 *
-	 * @param Request $request
+	 * @param Request  $request
 	 * @param Response $response
 	 * @return Response
 	 */
@@ -44,7 +42,7 @@ class Controller extends \zesk\Controller
 		assert($request->method() === HTTP::METHOD_OPTIONS);
 		return $this->handleOPTIONS($response, 'js');
 	}
-
+	
 	/**
 	 *
 	 */
@@ -59,7 +57,7 @@ class Controller extends \zesk\Controller
 			];
 			$code = $app->locale->id();
 		} else {
-			$codes = array_unique(toList($code));
+			$codes = array_unique(Types::toList($code));
 			foreach ($codes as $code) {
 				try {
 					$locales[$code] = Reader::factory($app->localePath(), $code)->locale($app);
@@ -68,7 +66,7 @@ class Controller extends \zesk\Controller
 				}
 			}
 		}
-
+		
 		$translations = [];
 		foreach ($locales as $id => $locale) {
 			/* @var $locale Locale */
@@ -84,11 +82,11 @@ class Controller extends \zesk\Controller
 		}
 		$response->setContentType('text/javascript');
 		$load_lines[] = 'exports.Locale.locale(' . JavaScript::arguments($app->locale->id()) . ');';
-
+		
 		$load_lines = implode("\n\t", $load_lines);
 		$content = "/* elapsed: {page-render-time}, is_cached: {page-is-cached} */\n";
 		$content .= "(function (exports) {\n\t$load_lines\n}(this));\n";
-
+		
 		$response->setCacheFor($this->optionInt('cache_seconds', 600));
 		$response->content = $content;
 		return $response;

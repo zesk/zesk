@@ -13,14 +13,14 @@ use zesk\World\Bootstrap\BootstrapProvince;
  * Register default Country, Currency, Language, and Province data in the database.
  *
  * @category ORM Module
- * @author kent
+ * @author   kent
  *
  */
 class Bootstrap extends SimpleCommand
 {
 	protected array $shortcuts = ['world-bootstrap'];
 
-	protected array $option_types = [
+	protected array $argumentTypes = [
 		'drop'     => 'boolean',
 		'all'      => 'boolean',
 		'country'  => 'boolean',

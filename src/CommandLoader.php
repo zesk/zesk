@@ -152,6 +152,7 @@ class CommandLoader
 	/**
 	 * Run the command.
 	 * Main entry point into this class after initialization, normally.
+	 *
 	 * @return int
 	 * @throws ConfigurationException
 	 * @throws ExitedException
@@ -265,7 +266,7 @@ class CommandLoader
 
 	/**
 	 * @param string $arg
-	 * @param array $args
+	 * @param array  $args
 	 * @return array
 	 * @throws ParseException
 	 * @throws DirectoryNotFound
@@ -372,17 +373,12 @@ class CommandLoader
 			} elseif (is_dir($path)) {
 				try {
 					$commands = Directory::listRecursive($path, [
-						Directory::LIST_RULE_FILE           => [
-							"#\.php$#" => true,
-							false,
-						],
-						Directory::LIST_RULE_DIRECTORY_WALK => [
-							"#/\.#" => false,
-							true,
-						],
-						Directory::LIST_RULE_DIRECTORY      => false,
-						Directory::LIST_ADD_PATH            => true,
-					]);
+						"#/\.#" => false,
+						true,
+					], [
+						"#\.php$#" => true,
+						false,
+					], [false], [Directory::LIST_ADD_PATH => true]);
 					foreach ($commands as $commandInclude) {
 						try {
 							include_once($commandInclude);
@@ -455,7 +451,7 @@ class CommandLoader
 	 * Run a command
 	 *
 	 * @param string $shortcut
-	 * @param array $args
+	 * @param array  $args
 	 * @return array
 	 * @throws NotFoundException
 	 */
@@ -514,7 +510,7 @@ class CommandLoader
 	 * Show usage
 	 *
 	 * @param string $error
-	 * @param int $exitCode
+	 * @param int    $exitCode
 	 * @return int
 	 */
 	private function usage(string $error = '', int $exitCode = 2): int
@@ -852,7 +848,7 @@ class CommandLoader
 	 * Output a debug message
 	 *
 	 * @param string $message
-	 * @param array $context
+	 * @param array  $context
 	 * @return void
 	 */
 	private function debug(string $message, array $context = []): void

@@ -15,6 +15,7 @@ use zesk\Exception\KeyNotFound;
 use zesk\Exception\ParseException;
 use zesk\File;
 use zesk\JSON as JSONTools;
+use zesk\PHP;
 use zesk\Types;
 
 /**
@@ -25,7 +26,9 @@ use zesk\Types;
 class JSON extends Parser
 {
 	protected array $parseOptions = [
-		'overwrite' => true, 'lower' => false, 'interpolate' => true,
+		'overwrite'   => true,
+		'lower'       => false,
+		'interpolate' => true,
 	];
 
 	/**
@@ -60,9 +63,10 @@ class JSON extends Parser
 		if (!is_array($result)) {
 			$message = '{method} JSON::decode returned non-array {type}';
 			$__ = [
-				'method' => __METHOD__, 'type' => Types::type($result),
+				'method' => __METHOD__,
+				'type'   => Types::type($result),
 			];
-			error_log(ArrayTools::map($message, $__));
+			PHP::log(ArrayTools::map($message, $__));
 
 			throw new ParseException($message, $__);
 		}
@@ -70,34 +74,39 @@ class JSON extends Parser
 			$result = array_change_key_case($result);
 		}
 		$include = null;
-		if (array_key_exists('include', $result) && $this->loader) {
-			$include = $result['include'];
-			unset($result['include']);
+		if (array_key_exists('$include', $result) && $this->loader) {
+			$include = $result['$include'];
+			unset($result['$include']);
 		}
 		$this->mergeResults($result, [], $interpolate);
 		if ($include) {
-			$this->handle_include($include, $this->option('context'));
+			$this->handleInclude($include, $this->optionString('context'));
 		}
 	}
 
 	/**
-	 * Handle include files specially
+	 * Handle JSON include files specially
 	 *
-	 * @param string $file Name of additional include file
+	 * @param string|array $items Files to load
+	 * @param string|null  $context
 	 */
-	private function handle_include(string $file, string $context = null): void
+	private function handleInclude(string|array $items, string $context = null): void
 	{
-		if (File::isAbsolute($file)) {
-			$this->loader->appendFiles([
-				$file,
-			]);
-		} elseif ($context && is_dir($context) && File::pathCheck($file)) {
-			$full = Directory::path($context, $file);
-			$this->loader->appendFiles([$full]);
-		} else {
-			error_log(ArrayTools::map('{method} {file} context {context} was a no-op', [
-				'method' => __METHOD__, 'file' => $file, 'context' => $context,
-			]));
+		foreach (Types::toList($items) as $item) {
+			if (File::isAbsolute($item)) {
+				$this->loader->appendFiles([
+					$item,
+				]);
+			} elseif ($context && is_dir($context) && File::pathCheck($item)) {
+				$full = Directory::path($context, $item);
+				$this->loader->appendFiles([$full]);
+			} else {
+				error_log(ArrayTools::map('{method} {file} context {context} was a no-op', [
+					'method'  => __METHOD__,
+					'file'    => $item,
+					'context' => $context,
+				]));
+			}
 		}
 	}
 
@@ -105,7 +114,7 @@ class JSON extends Parser
 	 *
 	 * @param array $results
 	 * @param array $path
-	 * @param bool $interpolate
+	 * @param bool  $interpolate
 	 * @return void
 	 */
 	private function mergeResults(array $results, array $path = [], bool $interpolate = false): void
@@ -123,7 +132,10 @@ class JSON extends Parser
 				$dependencies = [];
 				$map = [];
 				foreach ($matches as $match) {
-					[$token, $variable] = $match;
+					[
+						$token,
+						$variable,
+					] = $match;
 
 					try {
 						$map[$token] = strval($settings->get($variable));

@@ -1,14 +1,17 @@
 <?php
 declare(strict_types=1);
 /**
- * @package zesk
+ * @package    zesk
  * @subpackage net
- * @author kent
- * @copyright &copy; 2023, Market Acumen, Inc.
+ * @author     kent
+ * @copyright  &copy; 2023, Market Acumen, Inc.
  */
+
 namespace zesk\Net\SSL;
 
 use zesk\Application;
+use zesk\Directory;
+use zesk\Net\Sync;
 use zesk\Net_Sync;
 
 /**
@@ -16,20 +19,20 @@ use zesk\Net_Sync;
  *
  * @author kent
  */
-class Net_SSL_Certificate
-{
+class Net_SSL_Certificate {
+	
 	/**
 	 *
 	 * @var string
 	 */
 	public const CACERT_FILENAME = 'cacert.pem';
-
+	
 	/**
 	 *
 	 * @var string
 	 */
 	public const CACERT_TRUSTED_URL = 'http://curl.haxx.se/ca/' . self::CACERT_FILENAME;
-
+	
 	/**
 	 *
 	 * @param array $try_paths
@@ -44,7 +47,7 @@ class Net_SSL_Certificate
 		}
 		$first_valid_dir = null;
 		foreach ($try_paths as $path) {
-			$file = path($path, self::CACERT_FILENAME);
+			$file = Directory::path($path, self::CACERT_FILENAME);
 			if (is_file($file)) {
 				return $path;
 			}
@@ -55,15 +58,15 @@ class Net_SSL_Certificate
 		if (!$first_valid_dir) {
 			return null;
 		}
-		return path($first_valid_dir, self::CACERT_FILENAME);
+		return Directory::path($first_valid_dir, self::CACERT_FILENAME);
 	}
-
+	
 	/**
 	 *
 	 * @param Application $application
 	 */
 	public static function sync_cafile(Application $application, $local_path): void
 	{
-		Net_Sync::url_to_file($application, self::CACERT_TRUSTED_URL, $local_path);
+		Sync::urlToFile($application, self::CACERT_TRUSTED_URL, $local_path);
 	}
 }

@@ -5,6 +5,7 @@ namespace zesk\Application;
 
 use zesk\Application;
 use zesk\ArrayTools;
+use zesk\Doctrine\User;
 use zesk\Exception\CommandFailed;
 use zesk\Exception\ConfigurationException;
 use zesk\Exception\FilePermission;
@@ -13,7 +14,10 @@ use zesk\Exception\NotFoundException;
 use zesk\Exception\SemanticsException as SemanticsException;
 use zesk\File;
 use zesk\HookMethod;
+use zesk\FilterMethod;
 use zesk\Logger\FileLogger;
+use zesk\Model;
+use zesk\Module;
 use zesk\RuntimeException;
 use zesk\Types;
 use zesk\Version;

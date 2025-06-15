@@ -324,6 +324,7 @@ class User extends Model implements Userlike
 
 			try {
 				$result = $this->invokeFilters(self::HOOK_CAN, $result, [
+					$this,
 					$action,
 					$context,
 					$options,

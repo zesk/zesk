@@ -24,7 +24,7 @@ class Licenses extends SimpleCommand
 {
 	protected array $shortcuts = ['licenses'];
 
-	protected array $option_types = [
+	protected array $argumentTypes = [
 		'all'  => 'boolean',
 		'json' => 'boolean',
 	];

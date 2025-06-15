@@ -7,5 +7,5 @@ namespace zesk;
 /* @var $application Application */
 
 echo $this->theme('Exception', [
-	'suffix' => HTML::tag('pre', _dump($application->autoloader->path())),
+	'suffix' => HTML::tag('pre', Debug::dump($application->autoloader->path())),
 ]);

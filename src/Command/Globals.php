@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 /**
- * @package zesk
+ * @package    zesk
  * @subpackage Command
- * @author kent
- * @copyright Copyright &copy; 2025, Market Acumen, Inc.
+ * @author     kent
+ * @copyright  Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Command;
@@ -15,18 +15,23 @@ use zesk\PHP;
 
 /**
  * Output all globals
+ *
  * @category Debugging
  */
 class Globals extends SimpleCommand
 {
-	protected array $shortcuts = ['globals', 'g'];
+	protected array $shortcuts = [
+		'globals',
+		'g',
+	];
 
 	/**
 	 *
 	 * @var array
 	 */
-	protected array $option_types = [
-		'format' => 'string', '*' => 'string',
+	protected array $argumentTypes = [
+		'format' => 'string',
+		'*'      => 'string',
 	];
 
 	/**
@@ -34,7 +39,8 @@ class Globals extends SimpleCommand
 	 * @var array
 	 */
 	protected array $option_help = [
-		'format' => 'Output format: html, php, json, text, serialize', '*' => 'globals to output',
+		'format' => 'Output format: html, php, json, text, serialize',
+		'*'      => 'globals to output',
 	];
 
 	/**
@@ -45,6 +51,8 @@ class Globals extends SimpleCommand
 	public function run(): int
 	{
 		PHP::dump_settings_one();
+		$this->application->setOption('includes', $this->application->includes());
+		$this->application->setOption('loaderVariables', $this->application->loaderVariables());
 		$globals = $this->application->configuration->toArray();
 		ksort($globals);
 		$args = $this->argumentsRemaining();

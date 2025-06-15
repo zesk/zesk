@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 /**
- * @package zesk
+ * @package    zesk
  * @subpackage Doctrine
- * @author kent
- * @copyright Copyright &copy; 2025, Market Acumen, Inc.
+ * @author     kent
+ * @copyright  Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Doctrine\Command;
@@ -17,7 +17,7 @@ class Doctrine extends BaseCommand
 {
 	protected array $shortcuts = ['doctrine'];
 
-	protected array $option_types = ['*' => 'string'];
+	protected array $argumentTypes = ['*' => 'string'];
 
 	public function run(): int
 	{

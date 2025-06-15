@@ -6,6 +6,7 @@ namespace zesk\Cron\Attributes;
 use Attribute;
 use ReflectionException;
 use ReflectionMethod;
+use zesk\Hookable;
 use zesk\HookableAttribute;
 
 #[Attribute(Attribute::TARGET_METHOD)]
@@ -27,8 +28,8 @@ class Cron implements HookableAttribute
 	public const SCOPE_CLUSTER = 'cluster';
 
 	/**
-	 * @param string $schedule
-	 * @param string $scope
+	 * @param string                                           $schedule
+	 * @param string                                           $scope
 	 * @psalm-param self::SCOPE_SERVER|self::SCOPE_APPLICATION $scope
 	 */
 	public function __construct(string $schedule = '*', string $scope = self::SCOPE_APPLICATION)
@@ -52,13 +53,17 @@ class Cron implements HookableAttribute
 	 */
 	protected ReflectionMethod $method;
 
+	protected Hookable|null $object = null;
+
 	/**
 	 * @param ReflectionMethod $method
+	 * @param Hookable|null    $object
 	 * @return $this
 	 */
-	public function setMethod(ReflectionMethod $method): self
+	public function setMethod(ReflectionMethod $method, Hookable|null $object = null): self
 	{
 		$this->method = $method;
+		$this->object = $object;
 		return $this;
 	}
 
@@ -69,6 +74,6 @@ class Cron implements HookableAttribute
 	 */
 	public function run(array $arguments = []): mixed
 	{
-		return $this->method->invokeArgs(null, $arguments);
+		return $this->method->invokeArgs($this->object, $arguments);
 	}
 }

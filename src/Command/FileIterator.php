@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 /**
- * @package zesk
+ * @package    zesk
  * @subpackage Command
- * @author kent
- * @copyright Copyright &copy; 2025, Market Acumen, Inc.
+ * @author     kent
+ * @copyright  Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Command;
@@ -27,7 +27,13 @@ abstract class FileIterator extends SimpleCommand
 	 * @var array
 	 */
 	protected array $extensions = [
-		'php', 'phpt', 'inc', 'tpl', 'php4', 'php5', 'php7',
+		'php',
+		'phpt',
+		'inc',
+		'tpl',
+		'php4',
+		'php5',
+		'php7',
 	];
 
 	/**
@@ -55,9 +61,12 @@ abstract class FileIterator extends SimpleCommand
 	 */
 	public function initialize(): void
 	{
-		$this->option_types += [
-			'no-recurse' => 'boolean', 'directory' => 'dir', 'include-hidden' => 'boolean', 'show-skipped' => 'boolean',
-			'*' => 'string',
+		$this->argumentTypes += [
+			'no-recurse'     => 'boolean',
+			'directory'      => 'dir',
+			'include-hidden' => 'boolean',
+			'show-skipped'   => 'boolean',
+			'*'              => 'string',
 		];
 		parent::initialize();
 	}

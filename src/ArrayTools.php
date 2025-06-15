@@ -3,10 +3,10 @@ declare(strict_types=1);
 /**
  * Array tools
  *
- * @package zesk
+ * @package    zesk
  * @subpackage system
- * @author kent
- * @copyright Copyright &copy; 2025, Market Acumen, Inc.
+ * @author     kent
+ * @copyright  Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -19,15 +19,15 @@ use zesk\Exception\ProtocolException;
  *
  * @see ArrayTools_Test
  */
-class ArrayTools
-{
+class ArrayTools {
+	
 	/**
 	 * Default whitespace trimming characters
 	 *
 	 * @var string
 	 */
 	public const TRIM_WHITESPACE = " \t\r\n\0\x0B";
-
+	
 	/**
 	 * Traverse into an array using a key path
 	 *
@@ -36,7 +36,7 @@ class ArrayTools
 	 * $value = ArrayTools::path($array, ['foo','bar']);
 	 *
 	 * @param array $array
-	 * @param array $path string path or array
+	 * @param array $path    string path or array
 	 * @param mixed $default value to return if value is not found
 	 * @return mixed
 	 */
@@ -57,12 +57,12 @@ class ArrayTools
 		}
 		return $default;
 	}
-
+	
 	/**
 	 * Partner of path - sets an array path to a specific value
 	 *
 	 * @param array $array
-	 * @param array $path A path into the array separated by $separator (e.g. ["document","title"])
+	 * @param array $path  A path into the array separated by $separator (e.g. ["document","title"])
 	 * @param mixed $value Value to set the path in the tree.
 	 * @return mixed
 	 * @see self::path()
@@ -87,12 +87,12 @@ class ArrayTools
 		$current[$key] = $value;
 		return $current[$key];
 	}
-
+	
 	/**
 	 * Partner of setPath - removes an array path and value
 	 *
 	 * @param array $array Array to manipulate
-	 * @param array $keys Path to item in the tree
+	 * @param array $keys  Path to item in the tree
 	 * @return bool Value was found and unset.
 	 */
 	public static function unsetPath(array &$array, array $keys): bool
@@ -117,7 +117,7 @@ class ArrayTools
 		unset($current[$key]);
 		return true;
 	}
-
+	
 	/**
 	 * Convert tokens in a string to other things.
 	 * Anything not a string or array is returned as-is.
@@ -135,19 +135,19 @@ class ArrayTools
 				$mixed[$key] = self::replaceSubstrings($value, $map);
 			}
 			return $mixed;
-		} elseif (is_string($mixed)) {
+		} else if (is_string($mixed)) {
 			return strtr($mixed, $map);
 		} else {
 			return $mixed;
 		}
 	}
-
+	
 	/**
 	 * @param Stringable|array|string $mixed
-	 * @param array $map
-	 * @param bool $insensitive
-	 * @param string $prefixChar
-	 * @param string $suffixChar
+	 * @param array                   $map
+	 * @param bool                    $insensitive
+	 * @param string                  $prefixChar
+	 * @param string                  $suffixChar
 	 * @return Stringable|array|string
 	 */
 	public static function map(Stringable|array|string $mixed, array $map, bool $insensitive = false, string $prefixChar = '{', string $suffixChar = '}'): array|string|Stringable
@@ -167,7 +167,7 @@ class ArrayTools
 						$v = null;
 					}
 				}
-			} elseif (is_object($v)) {
+			} else if (is_object($v)) {
 				if (method_exists($v, '__toString')) {
 					$v = strval($v);
 				} else {
@@ -177,24 +177,24 @@ class ArrayTools
 			$s[$prefixChar . $k . $suffixChar] = $v;
 		}
 		if ($insensitive) {
-			$mixed = preg::replaceCallback('#' . preg_quote($prefixChar, '/') . '([-:_ =,./\'"A-Za-z0-9]+)' . preg_quote($suffixChar, '/') . '#i', fn ($matches) => strtolower($matches[0]), $mixed);
+			$mixed = preg::replaceCallback('#' . preg_quote($prefixChar, '/') . '([-:_ =,./\'"A-Za-z0-9]+)' . preg_quote($suffixChar, '/') . '#i', fn($matches) => strtolower($matches[0]), $mixed);
 		}
 		// tr("{a}", array("{a} => null)) = "null"
 		return Types::replaceSubstrings($mixed, $s);
 	}
-
+	
 	/**
 	 * Map array keys and values. The default prefix character is `{`, and the default suffix character is `}`.
 	 *
-	 * @param array $target
+	 * @param array   $target
 	 *            Array to modify keys AND values
-	 * @param array $map
+	 * @param array   $map
 	 *            Array of name => value of search => replace
 	 * @param boolean $insensitive
 	 *            Case-sensitive search/replace (default to true)
-	 * @param string $prefix_char
+	 * @param string  $prefix_char
 	 *            Prefix character for tokens
-	 * @param string $suffix_char
+	 * @param string  $suffix_char
 	 *            Suffix character for tokens
 	 * @return array
 	 */
@@ -202,19 +202,19 @@ class ArrayTools
 	{
 		return self::map(self::mapKeys($target, $map, $insensitive, $prefix_char, $suffix_char), $map, $insensitive, $prefix_char, $suffix_char);
 	}
-
+	
 	/**
 	 * Map keys instead of values. The default prefix character is `{`, and the default suffix character is `}`.
 	 *
-	 * @param array $target
-	 *            Array to modify keys
-	 * @param array $map
-	 *            Array of name => value of search => replace
-	 * @param bool $insensitive Case-sensitive search/replace (defaults to true)
+	 * @param array  $target
+	 *                            Array to modify keys
+	 * @param array  $map
+	 *                            Array of name => value of search => replace
+	 * @param bool   $insensitive Case-sensitive search/replace (defaults to true)
 	 * @param string $prefix_char
-	 * *            Prefix character for tokens
-	 * * @param string $suffix_char
-	 * *            Suffix character for tokens
+	 *                            *            Prefix character for tokens
+	 *                            * @param string $suffix_char
+	 *                            *            Suffix character for tokens
 	 * @return array
 	 */
 	public static function mapKeys(array $target, array $map, bool $insensitive = false, string $prefix_char = '{', string $suffix_char = '}'): array
@@ -225,7 +225,7 @@ class ArrayTools
 		}
 		return $new_mixed;
 	}
-
+	
 	/**
 	 * Capitalize all values in an array
 	 *
@@ -237,13 +237,13 @@ class ArrayTools
 		foreach ($array as $k => $v) {
 			if (is_array($v)) {
 				$array[$k] = self::capitalize($v);
-			} elseif (is_string($v)) {
+			} else if (is_string($v)) {
 				$array[$k] = StringTools::capitalize($v);
 			}
 		}
 		return $array;
 	}
-
+	
 	/**
 	 * Convert each value of an array to be a scalar value. Values which cannot be
 	 * flattened are skipped.
@@ -264,7 +264,7 @@ class ArrayTools
 		}
 		return $a;
 	}
-
+	
 	/**
 	 * Convert each value of an array to be a scalar value or array value (no objects)
 	 *
@@ -278,7 +278,7 @@ class ArrayTools
 		foreach ($a as $k => $v) {
 			if (is_object($v)) {
 				$a[$k] = method_exists($v, '__toString') ? strval($v) : self::simplify(get_object_vars($v));
-			} elseif (is_array($v)) {
+			} else if (is_array($v)) {
 				$a[$k] = self::simplify($v);
 			} else {
 				$a[$k] = Types::flatten($v);
@@ -286,11 +286,11 @@ class ArrayTools
 		}
 		return $a;
 	}
-
+	
 	/**
 	 * Deletes array values which match value passed
 	 *
-	 * @param array $array_to_clean Array to clean
+	 * @param array $array_to_clean   Array to clean
 	 * @param mixed $values_to_remove Value or array of values to remove. Must match explicitly (===)
 	 * @return array
 	 */
@@ -313,13 +313,13 @@ class ArrayTools
 		}
 		return $array_to_clean;
 	}
-
+	
 	/**
 	 * Calls PHP trim() on each element of an array.
 	 *
 	 * @param string $character_list List of characters to trim
-	 * @param mixed $a
-	 *            Array to trim
+	 * @param mixed  $a
+	 *                               Array to trim
 	 * @return array
 	 * @see trim()
 	 */
@@ -330,11 +330,11 @@ class ArrayTools
 		}
 		return $a;
 	}
-
+	
 	/**
 	 * Removes items from the beginning or end of the list which are empty.
 	 *
-	 * @param array $a
+	 * @param array  $a
 	 * @param string $character_list
 	 * @return array
 	 */
@@ -342,9 +342,9 @@ class ArrayTools
 	{
 		return self::listTrimTail(self::listTrimHead($a, $character_list), $character_list);
 	}
-
+	
 	/**
-	 * @param array $a
+	 * @param array  $a
 	 * @param string $character_list
 	 * @return array
 	 */
@@ -360,11 +360,11 @@ class ArrayTools
 		}
 		return $a;
 	}
-
+	
 	/**
 	 * Removes items from the end of the list which are empty.
 	 *
-	 * @param array $a
+	 * @param array  $a
 	 * @param string $character_list
 	 * @return array
 	 */
@@ -380,13 +380,13 @@ class ArrayTools
 		}
 		return $a;
 	}
-
+	
 	/**
 	 * Trim array values, then remove ones which match the empty string.
 	 *
-	 * @param array $arr
+	 * @param array  $arr
 	 * @param string $character_list List of characters to trim
-	 * @param array $values
+	 * @param array  $values
 	 * @return array
 	 */
 	public static function listTrimClean(array $arr, string $character_list = self::TRIM_WHITESPACE, array $values = [
@@ -397,13 +397,13 @@ class ArrayTools
 	{
 		return self::clean(self::trim($arr, $character_list), $values);
 	}
-
+	
 	/**
 	 * Calls PHP rtrim() on each element of an array.
 	 * If $a is not an array, returns rtrim($a)
 	 *
-	 * @param mixed $array_to_trim
-	 *            Array to trim
+	 * @param mixed  $array_to_trim
+	 *                               Array to trim
 	 * @param string $character_list String containing characters to remove
 	 * @return array
 	 * @see trim()
@@ -415,12 +415,12 @@ class ArrayTools
 		}
 		return $array_to_trim;
 	}
-
+	
 	/**
 	 * Calls PHP ltrim() on each element of an array.
 	 * If $a is not an array, returns ltrim($a)
 	 *
-	 * @param array $array_to_trim
+	 * @param array  $array_to_trim
 	 * @param string $character_list String containing characters to remove
 	 * @return array
 	 * @see trim()
@@ -432,14 +432,14 @@ class ArrayTools
 		}
 		return $array_to_trim;
 	}
-
+	
 	/**
 	 * Calls PHP ltrim() on each key of an array.
 	 * If $a is not an array, returns ltrim($a)
 	 *
 	 * @param string $character_list String containing characters to remove
-	 * @param mixed $array_keys_to_trim
-	 *            Array to rtrim
+	 * @param mixed  $array_keys_to_trim
+	 *                               Array to rtrim
 	 * @return array
 	 * @see ltrim()
 	 */
@@ -451,13 +451,13 @@ class ArrayTools
 		}
 		return $b;
 	}
-
+	
 	/**
 	 * Calls PHP trim() on each key of an array.
 	 * If $a is not an array, returns trim($a)
 	 *
-	 * @param array $array_keys_to_trim Array to trim keys
-	 * @param string $character_list String containing characters to remove
+	 * @param array  $array_keys_to_trim Array to trim keys
+	 * @param string $character_list     String containing characters to remove
 	 * @return array
 	 * @see ltrim()
 	 */
@@ -469,11 +469,11 @@ class ArrayTools
 		}
 		return $b;
 	}
-
+	
 	/**
 	 * Prefix each value in an array with a string
 	 *
-	 * @param array $array_values_to_prefix
+	 * @param array  $array_values_to_prefix
 	 * @param string $str
 	 * @return array
 	 */
@@ -484,11 +484,11 @@ class ArrayTools
 		}
 		return $array_values_to_prefix;
 	}
-
+	
 	/**
 	 * Suffix each value in an array with a string
 	 *
-	 * @param array $arr
+	 * @param array  $arr
 	 * @param string $str
 	 * @return array
 	 */
@@ -499,11 +499,11 @@ class ArrayTools
 		}
 		return $arr;
 	}
-
+	
 	/**
 	 * Wrap each value in an array with a string (prefix and suffix)
 	 *
-	 * @param array $arr
+	 * @param array  $arr
 	 * @param string $prefix
 	 * @param string $suffix
 	 * @return array
@@ -515,11 +515,11 @@ class ArrayTools
 		}
 		return $arr;
 	}
-
+	
 	/**
 	 * Prefix each key in an array with a string
 	 *
-	 * @param array $arr
+	 * @param array  $arr
 	 * @param string $str
 	 * @return array
 	 */
@@ -531,11 +531,11 @@ class ArrayTools
 		}
 		return $result;
 	}
-
+	
 	/**
 	 * Suffix each key in an array with a string
 	 *
-	 * @param array $arr
+	 * @param array  $arr
 	 * @param string $str
 	 * @return array
 	 */
@@ -547,11 +547,11 @@ class ArrayTools
 		}
 		return $result;
 	}
-
+	
 	/**
 	 * Wrap each key in an array with a string (prefix and suffix)
 	 *
-	 * @param array $arr
+	 * @param array  $arr
 	 * @param string $prefix
 	 * @param string $suffix
 	 * @return array
@@ -564,14 +564,14 @@ class ArrayTools
 		}
 		return $result;
 	}
-
+	
 	/**
 	 * Remove a string prefix from each value in an array.
 	 * Works recursively on arrays in arrays.
 	 *
-	 * @param array $arr
+	 * @param array        $arr
 	 * @param array|string $prefixes
-	 * @param boolean $remove
+	 * @param boolean      $remove
 	 *            Remove unmatched entries
 	 * @return array
 	 */
@@ -583,23 +583,23 @@ class ArrayTools
 				if (is_string($v)) {
 					if (str_starts_with($v, $prefix)) {
 						$arr[$k] = substr($v, $n);
-					} elseif ($remove) {
+					} else if ($remove) {
 						unset($arr[$k]);
 					}
-				} elseif (is_array($v)) {
+				} else if (is_array($v)) {
 					$arr[$k] = self::valuesRemovePrefix($v, $prefix, $remove);
 				}
 			}
 		}
 		return $arr;
 	}
-
+	
 	/**
 	 * Remove a string suffix from each value in an array.
 	 * Works recursively on arrays in arrays.
 	 *
-	 * @param array $arr
-	 * @param string $str
+	 * @param array   $arr
+	 * @param string  $str
 	 * @param boolean $remove
 	 *            Remove unmatched entries
 	 * @return array
@@ -611,23 +611,23 @@ class ArrayTools
 			if (is_string($v)) {
 				if (str_ends_with($v, $str)) {
 					$arr[$k] = substr($v, 0, -$n);
-				} elseif ($remove) {
+				} else if ($remove) {
 					unset($arr[$k]);
 				}
-			} elseif (is_array($v)) {
+			} else if (is_array($v)) {
 				$arr[$k] = self::valuesRemoveSuffix($v, $str, $remove);
 			}
 		}
 		return $arr;
 	}
-
+	
 	/**
 	 * Remove a string prefix and suffix from each value in an array.
 	 * Works recursively on arrays in arrays.
 	 *
-	 * @param array $arr
-	 * @param string $prefix
-	 * @param string $suffix
+	 * @param array   $arr
+	 * @param string  $prefix
+	 * @param string  $suffix
 	 * @param boolean $remove
 	 *            Remove unmatched entries
 	 * @return array
@@ -640,21 +640,21 @@ class ArrayTools
 			if (is_string($v)) {
 				if (str_starts_with($v, $prefix) && str_ends_with($v, $suffix)) {
 					$arr[$k] = substr($v, $n_prefix, -$n_suffix);
-				} elseif ($remove) {
+				} else if ($remove) {
 					unset($arr[$k]);
 				}
-			} elseif (is_array($v)) {
+			} else if (is_array($v)) {
 				$arr[$k] = ArrayTools::$n_suffix($v, $prefix, $suffix, $remove);
 			}
 		}
 		return $arr;
 	}
-
+	
 	/**
 	 * Remove a string prefix from each key in an array
 	 *
-	 * @param array $arr
-	 * @param string $str
+	 * @param array   $arr
+	 * @param string  $str
 	 * @param boolean $remove
 	 *            Remove unmatched entries
 	 * @return array
@@ -666,18 +666,18 @@ class ArrayTools
 		foreach ($arr as $k => $v) {
 			if (substr($k, 0, $n) === $str) {
 				$result[substr($k, $n)] = $v;
-			} elseif (!$remove) {
+			} else if (!$remove) {
 				$result[$k] = $v;
 			}
 		}
 		return $result;
 	}
-
+	
 	/**
 	 * Remove a string suffix from each key in an array
 	 *
-	 * @param array $arr
-	 * @param string $str
+	 * @param array   $arr
+	 * @param string  $str
 	 * @param boolean $remove
 	 *            Remove unmatched entries
 	 * @return array
@@ -689,13 +689,13 @@ class ArrayTools
 		foreach ($arr as $k => $v) {
 			if (substr($k, -$n) === $str) {
 				$result[substr($k, 0, -$n)] = $v;
-			} elseif (!$remove) {
+			} else if (!$remove) {
 				$result[$k] = $v;
 			}
 		}
 		return $result;
 	}
-
+	
 	/**
 	 * Remove keys from an array
 	 *
@@ -711,7 +711,7 @@ class ArrayTools
 		}
 		return $arr;
 	}
-
+	
 	/**
 	 * Remove values from an array
 	 *
@@ -729,7 +729,7 @@ class ArrayTools
 		}
 		return $arr;
 	}
-
+	
 	/**
 	 * Merges one or more arrays recursively and preserves all keys.
 	 * Note that this does not work the same the PHP function array_merge_recursive()!
@@ -746,7 +746,7 @@ class ArrayTools
 					if (is_array($val)) {
 						// Arrays are merged recursively
 						$result[$key] = self::merge($result[$key], $val);
-					} elseif (is_int($key)) {
+					} else if (is_int($key)) {
 						// Indexed arrays are appended
 						$result[] = $val;
 					} else {
@@ -761,14 +761,14 @@ class ArrayTools
 		}
 		return $result;
 	}
-
+	
 	/**
 	 * Take a list of arrays and create a new array using values found in it.
 	 *
-	 * @param array $arrays
+	 * @param array           $arrays
 	 * @param string|int|null $key_key
 	 * @param string|int|null $value_key
-	 * @param mixed $default_value
+	 * @param mixed           $default_value
 	 * @return array
 	 */
 	public static function extract(array $arrays, string|int|null $key_key = null, string|int|null $value_key = null, mixed $default_value = null): array
@@ -782,7 +782,7 @@ class ArrayTools
 			foreach ($arrays as $key => $array) {
 				$result[$key] = $array[$value_key] ?? $default_value;
 			}
-		} elseif ($value_key == null) {
+		} else if ($value_key == null) {
 			foreach ($arrays as $array) {
 				if (array_key_exists($key_key, $array)) {
 					$result[$array[$key_key]] = $array;
@@ -800,7 +800,7 @@ class ArrayTools
 		}
 		return $result;
 	}
-
+	
 	/**
 	 * Convert array("col1","col2","col3"), array("zero", 1, false)) to
 	 * array("col1" => "zero", "col2" => 1, "col3" => false);
@@ -825,7 +825,7 @@ class ArrayTools
 		}
 		return $result;
 	}
-
+	
 	/**
 	 * Convert key names in this array to new key names
 	 *
@@ -845,18 +845,18 @@ class ArrayTools
 			$new_key = $key_map[$k] ?? $k;
 			if ($new_key !== $k) {
 				$skip[$new_key] = true;
-			} elseif (array_key_exists($k, $skip)) {
+			} else if (array_key_exists($k, $skip)) {
 				continue;
 			}
 			$new_array[$new_key] = $v;
 		}
 		return $new_array;
 	}
-
+	
 	/**
 	 * Convert values in this array to new values
 	 *
-	 * @param array $array Array to convert
+	 * @param array $array     Array to convert
 	 * @param array $value_map Array of old_value => new_value to convert
 	 * @return array The converted array
 	 */
@@ -872,13 +872,13 @@ class ArrayTools
 		}
 		return $array;
 	}
-
+	
 	/**
 	 * Convert a list of strings to a set of key pairs by dividing them along a delimiter
 	 *
 	 * @inline_test ArrayTools::pairValues(["dog bark", "cat meow", "child coo"]) === ["dog" => "bark", "cat" => "meow", "child" => "coo"];
 	 *
-	 * @param array $array
+	 * @param array  $array
 	 *            Array of strings
 	 * @param string $delim
 	 *            Delimiter to split on
@@ -904,7 +904,7 @@ class ArrayTools
 		}
 		return $result;
 	}
-
+	
 	/**
 	 * Returns whether an array is an associative array (true) or a simple list (false).
 	 * Anything not an array is considered false.
@@ -926,7 +926,7 @@ class ArrayTools
 		}
 		return false;
 	}
-
+	
 	/**
 	 * Returns whether an array is an associative array (false) or a simple list (true).
 	 * Anything not an array is considered false.
@@ -941,7 +941,7 @@ class ArrayTools
 		}
 		return !self::isAssoc($mixed);
 	}
-
+	
 	/**
 	 * Return true if an array has all keys specified
 	 *
@@ -962,7 +962,7 @@ class ArrayTools
 		}
 		return true;
 	}
-
+	
 	/**
 	 * Return true if an array has any keys specified
 	 *
@@ -982,14 +982,14 @@ class ArrayTools
 		}
 		return false;
 	}
-
+	
 	/**
 	 * Return true if an array has any keys specified
 	 *
-	 * @param array $array
+	 * @param array        $array
 	 * @param array|string $values
 	 *            A value or an array of values to check for. String parameters are converted to a list via
-	 * `Types::toList`
+	 *            `Types::toList`
 	 * @return boolean
 	 * @see Types::toList
 	 */
@@ -1002,7 +1002,7 @@ class ArrayTools
 		}
 		return false;
 	}
-
+	
 	/**
 	 * Finds the minimum numerical value in an array.
 	 *
@@ -1018,15 +1018,15 @@ class ArrayTools
 		foreach ($a as $i) {
 			if (!is_numeric($i)) {
 				continue;
-			} elseif ($min === null) {
+			} else if ($min === null) {
 				$min = $i;
-			} elseif ($i < $min) {
+			} else if ($i < $min) {
 				$min = $i;
 			}
 		}
 		return ($min === null) ? $default : $min;
 	}
-
+	
 	/**
 	 * Finds the maximum numerical value in an array.
 	 *
@@ -1042,15 +1042,15 @@ class ArrayTools
 		foreach ($a as $i) {
 			if (!is_numeric($i)) {
 				continue;
-			} elseif ($max === null) {
+			} else if ($max === null) {
 				$max = $i;
-			} elseif ($i > $max) {
+			} else if ($i > $max) {
 				$max = $i;
 			}
 		}
 		return ($max === null) ? $default : $max;
 	}
-
+	
 	/**
 	 * Like array_change_key_case, but for values.
 	 * Only converts string values, numbers, booleans, and objects are left alone.
@@ -1070,11 +1070,11 @@ class ArrayTools
 		}
 		return $r;
 	}
-
+	
 	/**
 	 * Include only certain entries in an array
 	 *
-	 * @param array $arr
+	 * @param array        $arr
 	 *            The array to filter
 	 * @param array|string $keys
 	 *            A list of keys to include either as a string "k1;k2;k3", or array('k1','k2','k3'),
@@ -1096,78 +1096,34 @@ class ArrayTools
 		}
 		return $r;
 	}
-
+	
 	/**
 	 * Extract certain key values which have a certain prefix from one array into a new array
 	 *
-	 * @param array $a
-	 *            An array to retrieve key values from
-	 * @param mixed $prefixes
-	 *            A ;-separated list, or keys of strings which contain prefixes which
-	 *            should match
+	 * @param array   $a
+	 *                                  An array to retrieve key values from
+	 * @param mixed   $prefixes
+	 *                                  A ;-separated list, or keys of strings which contain prefixes which
+	 *                                  should match
 	 * @param boolean $case_insensitive Case-insensitive search when true
 	 * @return array
 	 */
 	public static function filterKeyPrefixes(array $a, array|string $prefixes, bool $case_insensitive = false): array
 	{
 		$prefixes = Types::toList($prefixes);
-		return array_filter($a, fn ($k) => StringTools::begins($k, $prefixes, $case_insensitive), ARRAY_FILTER_USE_KEY);
+		return array_filter($a, fn($k) => StringTools::begins($k, $prefixes, $case_insensitive), ARRAY_FILTER_USE_KEY);
 	}
-
-	/**
-	 * Includes or excludes array values from an array.
-	 *
-	 * @param array $a
-	 *            A reference to an array to filter
-	 * @param string|array $include
-	 *            A list of array values to explicitly include, or false to include all items
-	 * @param string|array $exclude
-	 *            A list of array values to explicitly exclude, or false to exclude no items
-	 * @param bool $lower
-	 *            Whether the array values are case-sensitive or not. 2015-06-23 Lower is by
-	 *            default false (no changes to input).
-	 * @return array Filtered by include/exclude criteria
-	 */
-	public static function include_exclude(array $a, string|array $include = [], string|array $exclude = [], bool $lower = false): array
-	{
-		$new_array = $lower ? self::changeValueCase($a) : $a;
-		$include = Types::toList($include);
-		if (count($include) > 0) {
-			if ($lower) {
-				$include = array_keys(array_change_key_case(array_flip($include)));
-			}
-			$new_array = array_intersect($new_array, $include);
-		}
-
-		$exclude = Types::toList($exclude);
-		if (count($exclude) > 0) {
-			$exclude = array_flip($exclude);
-			if ($lower) {
-				$exclude = array_change_key_case($exclude);
-			}
-			foreach ($new_array as $item_key => $item) {
-				if (!is_scalar($item)) {
-					error_log(__METHOD__ . ' ' . Types::type($item) . ' ' . Kernel::backtrace(), E_USER_ERROR);
-				}
-				$item = strval($item);
-				if (array_key_exists($item, $exclude)) {
-					unset($new_array[$item_key]);
-				}
-			}
-		}
-		return $new_array;
-	}
-
+	
 	/**
 	 * Includes or excludes array keys from an array.
 	 *
-	 * @param array $array_to_filter
+	 * @param array  $array_to_filter
 	 *            A reference to an array to filter
 	 * @param ?array $include
 	 *            A list of array keys to explicitly include, or null to include all items
-	 * @param array $exclude
+	 * @param array  $exclude
 	 *            A list of array keys to explicitly exclude, or empty to exclude no items
-	 * @param bool $lower
+	 * @param bool   $lower
 	 *            Whether the array keys are case-sensitive or not
 	 * @return array The filtered array
 	 */
@@ -1199,7 +1155,7 @@ class ArrayTools
 		}
 		return $array_to_filter;
 	}
-
+	
 	/**
 	 * Modifies an array value in the following manner, when adding a key multiple times:
 	 * <ol>
@@ -1226,11 +1182,11 @@ class ArrayTools
 	 * </pre>
 	 * Useful for cleaning up code which handles this type of structure.
 	 *
-	 * @param array $arr
+	 * @param array      $arr
 	 *            A reference to an array to append
 	 * @param int|string $k
 	 *            A key value for the array
-	 * @param mixed $v
+	 * @param mixed      $v
 	 *            The value to store in the array
 	 * @return void
 	 * @see ArrayTools::prepend
@@ -1239,7 +1195,7 @@ class ArrayTools
 	{
 		if (!isset($arr[$k])) {
 			$arr[$k] = $v;
-		} elseif (is_array($arr[$k])) {
+		} else if (is_array($arr[$k])) {
 			$arr[$k][] = $v;
 		} else {
 			$arr[$k] = [
@@ -1248,7 +1204,7 @@ class ArrayTools
 			];
 		}
 	}
-
+	
 	/**
 	 * Modifies an array value in the following manner, when adding a key multiple times:
 	 * <ol>
@@ -1275,11 +1231,11 @@ class ArrayTools
 	 * </pre>
 	 * Useful for cleaning up code which handles this type of structure.
 	 *
-	 * @param array $arr
+	 * @param array  $arr
 	 *            A reference to an array to append
 	 * @param string $k
 	 *            A key value for the array
-	 * @param mixed $v
+	 * @param mixed  $v
 	 *            The value to store in the array
 	 * @return void
 	 * @see ArrayTools::append
@@ -1288,7 +1244,7 @@ class ArrayTools
 	{
 		if (!isset($arr[$k])) {
 			$arr[$k] = $v;
-		} elseif (is_array($arr[$k])) {
+		} else if (is_array($arr[$k])) {
 			array_unshift($arr[$k], $v);
 		} else {
 			$arr[$k] = [
@@ -1297,7 +1253,7 @@ class ArrayTools
 			];
 		}
 	}
-
+	
 	/**
 	 * Given an array with just values, converts it to an associative array with the keys and the
 	 * values identical (or
@@ -1326,7 +1282,7 @@ class ArrayTools
 		}
 		return $result;
 	}
-
+	
 	/**
 	 * Flips array but when identical keys exist, keeps all duplicate values, so:
 	 *
@@ -1350,12 +1306,12 @@ class ArrayTools
 			if (array_key_exists($v, $result)) {
 				$result[$v][] = $k;
 			} else {
-				$result[$v] = [$k, ];
+				$result[$v] = [$k,];
 			}
 		}
 		return $result;
 	}
-
+	
 	/**
 	 * Given an array with just values, converts it to an associative array using values as keys,
 	 * and
@@ -1385,7 +1341,7 @@ class ArrayTools
 		}
 		return $result;
 	}
-
+	
 	/**
 	 * Find a series of keys in an array and return the first found key.
 	 * If the found value is empty, return the default value.
@@ -1410,16 +1366,16 @@ class ArrayTools
 		}
 		return false;
 	}
-
+	
 	/**
 	 * Inserts values from $arr2 after (or before) $key in $arr1
 	 * if $key is not found, values from $arr2 are appended to the end of $ arr1.
 	 * This function uses array_merge() so be aware that values from conflicting keys
 	 * will overwrite each other
 	 *
-	 * @param array $arr1 array to insert into
-	 * @param string $key key of $arr1 to insert after (or before)
-	 * @param array $arr2 array whose values should be inserted
+	 * @param array   $arr1   array to insert into
+	 * @param string  $key    key of $arr1 to insert after (or before)
+	 * @param array   $arr2   array whose values should be inserted
 	 * @param boolean $before insert before the given key. defaults to inserting after
 	 * @return array merged
 	 */
@@ -1444,12 +1400,12 @@ class ArrayTools
 		}
 		return $result;
 	}
-
+	
 	/**
 	 * Tests for a key in an array, if not available, sets to 1, otherwise increments
 	 *
-	 * @param array $array An array to create a counter in
-	 * @param string $k Key to increment
+	 * @param array     $array  An array to create a counter in
+	 * @param string    $k      Key to increment
 	 * @param int|float $amount Amount to increment
 	 * @return int|float
 	 */
@@ -1460,7 +1416,7 @@ class ArrayTools
 		}
 		return $array[$k] = $amount;
 	}
-
+	
 	/**
 	 * Given a string and an array of strings, find if string $needles exists in $haystack.
 	 * <em>Performs a
@@ -1468,7 +1424,7 @@ class ArrayTools
 	 *
 	 * @param string $haystack
 	 *            String to search
-	 * @param array $needles
+	 * @param array  $needles
 	 *            Array of strings to find in $haystack
 	 * @return null|string|int Integer or string key of found needle in $needles
 	 * @see stristr()
@@ -1482,7 +1438,7 @@ class ArrayTools
 		}
 		return null;
 	}
-
+	
 	/**
 	 * Given arrays and string inputs, find if any needles appear in haystack.
 	 * <em>Case sensitive.</em>
@@ -1517,7 +1473,7 @@ class ArrayTools
 			$needles,
 		] : null;
 	}
-
+	
 	/**
 	 * Given arrays and string inputs, find if any needles appear in haystack.
 	 * <em>Case insensitive.</em>
@@ -1552,12 +1508,12 @@ class ArrayTools
 			$needle,
 		] : null;
 	}
-
+	
 	/**
 	 * Given arrays and string inputs, find if any needles appear in haystack.
 	 * <em>Case sensitive.</em>
 	 *
-	 * @param array $haystack
+	 * @param array        $haystack
 	 * @param array|string $needles
 	 * @return array Array of values which match
 	 * @see strstr()
@@ -1578,12 +1534,12 @@ class ArrayTools
 		}
 		return $result;
 	}
-
+	
 	/**
 	 * Given arrays and string inputs, find if any needles appear in haystack.
 	 * <em>Case insensitive.</em>
 	 *
-	 * @param array $haystack
+	 * @param array        $haystack
 	 * @param array|string $needles
 	 * @return array Array of values which match
 	 * @see strstr()
@@ -1604,13 +1560,13 @@ class ArrayTools
 		}
 		return $result;
 	}
-
+	
 	/**
 	 * Run preg_quote on an array of values
 	 *
 	 * @param string|array $string
 	 *            Array or string to preg_quote
-	 * @param ?string $delimiter
+	 * @param ?string      $delimiter
 	 *            Delimiter passed to preg_quote
 	 * @return string|array
 	 */
@@ -1619,10 +1575,10 @@ class ArrayTools
 		if (is_string($string)) {
 			return preg_quote($string, $delimiter);
 		} else {
-			return array_map(fn ($str) => self::preg_quote($str, $delimiter), $string);
+			return array_map(fn($str) => self::preg_quote($str, $delimiter), $string);
 		}
 	}
-
+	
 	/**
 	 * Convert an AxB array into a BxA array
 	 *
@@ -1643,7 +1599,7 @@ class ArrayTools
 		}
 		return $new;
 	}
-
+	
 	/**
 	 * Return the topmost element
 	 *
@@ -1658,7 +1614,7 @@ class ArrayTools
 		}
 		return $array[count($array) - 1];
 	}
-
+	
 	/**
 	 * Collapse a keyed array containing arrays
 	 * e.g.
@@ -1678,10 +1634,10 @@ class ArrayTools
 	 * ArrayTools::collapse($array, 'dude') === array(null,null)
 	 * Not sure if this is the best name for this.
 	 *
-	 * @param array $array
+	 * @param array  $array
 	 * @param string $key
 	 *            Key to pull from the values of the array
-	 * @param mixed $default
+	 * @param mixed  $default
 	 * @return array
 	 */
 	public static function collapse(array $array, string $key, mixed $default = null): array
@@ -1691,7 +1647,7 @@ class ArrayTools
 		}
 		return $array;
 	}
-
+	
 	/**
 	 * Convert all values in an array to integers
 	 *
@@ -1707,11 +1663,11 @@ class ArrayTools
 		}
 		return $arr;
 	}
-
+	
 	/**
 	 * Replace string with another string in keys for this array
 	 *
-	 * @param array $arr
+	 * @param array  $arr
 	 * @param string $find
 	 * @param string $replace
 	 * @return array
@@ -1720,11 +1676,11 @@ class ArrayTools
 	{
 		$new = [];
 		foreach ($arr as $k => $v) {
-			$new[strtr($k, [$find => $replace, ])] = $v;
+			$new[strtr($k, [$find => $replace,])] = $v;
 		}
 		return $new;
 	}
-
+	
 	/**
 	 * Add up two vectors
 	 *
@@ -1740,12 +1696,12 @@ class ArrayTools
 		$term += $add;
 		return $term;
 	}
-
+	
 	/**
 	 * Scale an array of numbers by a value.
 	 * Can be associative or a single value.
 	 *
-	 * @param array $target
+	 * @param array           $target
 	 * @param int|float|array $scale Int or float or array of keys => number pairs.
 	 * @return array With updated values. If scale is invalid type, returns $target.
 	 */
@@ -1764,12 +1720,12 @@ class ArrayTools
 		}
 		return $target;
 	}
-
+	
 	/**
 	 * Add an array of numbers by a value.
 	 * Can be associative or a single value.
 	 *
-	 * @param array $target
+	 * @param array           $target
 	 * @param array|float|int $add Double or array of key => number pairs.
 	 * @return array
 	 */
@@ -1788,12 +1744,12 @@ class ArrayTools
 		}
 		return $target;
 	}
-
+	
 	/**
 	 * Join an array to a string, and wrap each value with a prefix and suffix.
 	 * Returns the empty string if the array is empty.
 	 *
-	 * @param array $array
+	 * @param array  $array
 	 * @param string $prefix
 	 * @param string $suffix
 	 * @return string
@@ -1805,12 +1761,12 @@ class ArrayTools
 		}
 		return $prefix . implode($suffix . $prefix, $array) . $suffix;
 	}
-
+	
 	/**
 	 * Join an array to a string, and prefix each value
 	 * Returns the empty string if the array is empty.
 	 *
-	 * @param array $array
+	 * @param array  $array
 	 * @param string $prefix
 	 * @return string
 	 */
@@ -1818,12 +1774,12 @@ class ArrayTools
 	{
 		return self::joinWrap($array, $prefix);
 	}
-
+	
 	/**
 	 * Join an array to a string, and adds a suffix to each value
 	 * Returns the empty string if the array is empty.
 	 *
-	 * @param array $array
+	 * @param array  $array
 	 * @param string $suffix
 	 * @return string
 	 */
@@ -1831,7 +1787,7 @@ class ArrayTools
 	{
 		return self::joinWrap($array, '', $suffix);
 	}
-
+	
 	/**
 	 * Convert all values within an array to scalar values
 	 *
@@ -1843,45 +1799,45 @@ class ArrayTools
 		foreach ($array as $k => $v) {
 			if (is_array($v)) {
 				$array[$k] = ArrayTools::scalars($v);
-			} elseif ($v !== null && !is_scalar($v)) {
+			} else if ($v !== null && !is_scalar($v)) {
 				$array[$k] = strval($v);
 			}
 		}
 		return $array;
 	}
-
+	
 	/**
 	 * Filter an array by one or more values
 	 *
-	 * @param array $array
-	 * @param mixed $values
+	 * @param array   $array
+	 * @param mixed   $values
 	 * @param boolean $strict
 	 * @return mixed
 	 */
 	public static function includeValues(array $array, int|string|array $values, bool $strict = true): array
 	{
 		if (is_scalar($values)) {
-			$values = [$values, ];
+			$values = [$values,];
 		}
 		$values = Types::toArray($values);
 		if (count($values) === 0) {
 			return $values;
 		}
-		return array_filter($array, fn ($v) => in_array($v, $values, $strict));
+		return array_filter($array, fn($v) => in_array($v, $values, $strict));
 	}
-
+	
 	/**
 	 * Select values in an array which end with a specific string (case-sensitive)
 	 *
-	 * @param array $array
+	 * @param array        $array
 	 * @param string|array $ends
 	 * @return array
 	 */
 	public static function includeValuesEndsWith(array $array, string|array $ends): array
 	{
-		return array_filter($array, fn ($v) => StringTools::ends($v, $ends));
+		return array_filter($array, fn($v) => StringTools::ends($v, $ends));
 	}
-
+	
 	/**
 	 * Retrieve the maximum string length of all keys in the array
 	 *
@@ -1896,7 +1852,7 @@ class ArrayTools
 		}
 		return $len;
 	}
-
+	
 	/**
 	 * Retrieve the minimum length of all keys in the array
 	 *
@@ -1911,14 +1867,14 @@ class ArrayTools
 		}
 		return $len;
 	}
-
+	
 	/**
 	 * Convert multi-dimensional arrays to a single-dimension array, using separator to separate
 	 * entities
 	 *
-	 * @param array $array
+	 * @param array  $array
 	 * @param string $separator
-	 * @param bool $flattenLists Flatten lists
+	 * @param bool   $flattenLists Flatten lists
 	 * @return array
 	 */
 	public static function keysFlatten(array $array, string $separator, bool $flattenLists = false): array
@@ -1936,13 +1892,13 @@ class ArrayTools
 		}
 		return $result;
 	}
-
+	
 	/**
 	 * Returns the first value in the array, or $default if the array is zero-length.
 	 *
 	 * Does NOT assume the array is a 0-based key list.
 	 *
-	 * @param array $a
+	 * @param array      $a
 	 * @param mixed|null $default
 	 * @return mixed
 	 */
@@ -1950,12 +1906,12 @@ class ArrayTools
 	{
 		return count($a) !== 0 ? $a[key($a)] : $default;
 	}
-
+	
 	/**
 	 * Returns the last value in a PHP array, or $default if the array is zero-length.
 	 * Does NOT assume the array is a 0-based key list.
 	 *
-	 * @param array $a
+	 * @param array      $a
 	 * @param mixed|null $default
 	 * @return mixed
 	 */

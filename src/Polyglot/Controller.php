@@ -1,29 +1,33 @@
 <?php
 declare(strict_types=1);
 /**
- * @author kent
- * @package zesk/modules
+ * @author     kent
+ * @package    zesk/modules
  * @subpackage Polyglot
- * @copyright &copy; 2023, Market Acumen, Inc.
+ * @copyright  &copy; 2023, Market Acumen, Inc.
  */
 
 namespace zesk\Polyglot;
 
+use zesk\Doctrine\AuthenticatedController;
+use zesk\Exception\AuthenticationException;
+use zesk\Exception\ClassNotFound;
+use zesk\Exception\KeyNotFound;
 use zesk\Exception\PermissionDenied;
-use zesk\Exception\ProtocolException;
+use zesk\Exception\Redirect;
+use zesk\Exception\SemanticsException;
 use zesk\Locale\Locale;
-use zesk\ORM\Controller_Authenticated;
-use zesk\ORM\User;
-use zesk\Redirect;
+use zesk\Doctrine\User;
 use zesk\Request;
 use zesk\Response;
+use zesk\World\Language;
 
 /**
  *
  * @author kent
  *
  */
-class Controller extends Controller_Authenticated
+class Controller extends AuthenticatedController
 {
 	/**
 	 *
@@ -38,15 +42,23 @@ class Controller extends Controller_Authenticated
 	 */
 	public function initialize(): void
 	{
-		$module = $this->application->modules->object('Polyglot');
-		assert($module instanceof Module);
-		$this->module = $module;
+		$this->module = $this->application->polyglotModule();
 		parent::initialize();
 	}
 
 	/**
 	 *
 	 * @see Controller_Authenticated::before()
+	 */
+	/**
+	 * @param Request  $request
+	 * @param Response $response
+	 * @return void
+	 * @throws PermissionDenied
+	 * @throws SemanticsException
+	 * @throws AuthenticationException
+	 * @throws ClassNotFound
+	 * @throws KeyNotFound
 	 */
 	public function before(Request $request, Response $response): void
 	{
@@ -56,7 +68,7 @@ class Controller extends Controller_Authenticated
 			/* If we are running a command, then continue all clear */
 			$this->application->command();
 			return;
-		} catch (ProtocolException) {
+		} catch (SemanticsException) {
 		}
 		$action = Module::class . '::translate';
 		if (!$this->user instanceof User || !$this->user->can($action)) {
@@ -123,7 +135,7 @@ class Controller extends Controller_Authenticated
 			'lang_name' => Language::lang_name($this->application, $locale_string),
 			'locale'    => $locale_string,
 		];
-		if (!$this->user->can('zesk\\Module_PolyGlot::update', null, [
+		if (!$this->user->can($this->module::class . 'update', null, [
 			'locale' => $locale_string,
 		])) {
 			return $this->json([
@@ -131,7 +143,7 @@ class Controller extends Controller_Authenticated
 				'message' => $locale->__('You do not have permission to update the {lang_name} locale.'),
 			]);
 		}
-		if (Polyglot_Update::registerUpdate($this->application, $locale_string, $this->user)) {
+		if (Update::factory($this->application, $locale_string, $this->user)) {
 			return $this->json([
 				'status'  => true,
 				'message' => $locale->__('Locale {lang_name} will be updated in the next few minutes.', $__),

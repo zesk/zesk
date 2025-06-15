@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 /**
- * @package zesk
+ * @package    zesk
  * @subpackage core
- * @author kent
- * @copyright Copyright &copy; 2025, Market Acumen, Inc.
+ * @author     kent
+ * @copyright  Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Command;
@@ -18,12 +18,13 @@ use zesk\File;
 
 /**
  * Abstract class for iterating on a series of files and converting them from one syntax to another
+ *
  * @author kent
  * @api
  *
  */
-abstract class FileConverter extends SimpleCommand
-{
+abstract class FileConverter extends SimpleCommand {
+	
 	/**
 	 * Scan for files matching this extension pattern (no delimiters), use vertical bar only
 	 *
@@ -32,27 +33,27 @@ abstract class FileConverter extends SimpleCommand
 	 * @var string
 	 */
 	protected string $source_extension_pattern = '';
-
+	
 	/**
 	 *
 	 * @var string
 	 */
 	protected string $destination_extension = '';
-
+	
 	/**
 	 * Overwrite files (when true, implies destination_extension is null)
 	 *
 	 * @var boolean
 	 */
 	protected bool $overwrite = false;
-
+	
 	/**
 	 * Override in subclasses to modify the configuration file loaded by this command.
 	 *
 	 * @var string
 	 */
 	protected string $configuration_file = 'file-convert';
-
+	
 	/**
 	 *
 	 * {@inheritDoc}
@@ -60,25 +61,33 @@ abstract class FileConverter extends SimpleCommand
 	 */
 	public function initialize(): void
 	{
-		$this->option_types += [
-			'nomtime' => 'boolean', 'noclobber' => 'boolean', 'extension' => 'string', 'dry-run' => 'boolean',
-			'force' => 'boolean', 'target-path' => 'string', 'mkdir-target' => 'boolean', '*' => 'files',
+		$this->argumentTypes += [
+			'nomtime'      => 'boolean',
+			'noclobber'    => 'boolean',
+			'extension'    => 'string',
+			'dry-run'      => 'boolean',
+			'force'        => 'boolean',
+			'target-path'  => 'string',
+			'mkdir-target' => 'boolean',
+			'*'            => 'files',
 		];
 		$this->setOptions([
-			'extension' => $this->destination_extension, 'target-path' => './',
+			'extension'   => $this->destination_extension,
+			'target-path' => './',
 		], false);
 		$this->option_help += [
-			'nomtime' => 'Ignore destination file modification time when determining whether to generate',
-			'noclobber' => 'Do not overwrite existing files',
-			'extension' => 'Use this extenstion for the generated files instead of the default',
-			'dry-run' => 'Don\'t make any changes, just show what would happen.', 'force' => 'Always write files',
-			'target-path' => 'When converting files, create targets here (e.g. `../compiled-js/`)',
+			'nomtime'      => 'Ignore destination file modification time when determining whether to generate',
+			'noclobber'    => 'Do not overwrite existing files',
+			'extension'    => 'Use this extenstion for the generated files instead of the default',
+			'dry-run'      => 'Don\'t make any changes, just show what would happen.',
+			'force'        => 'Always write files',
+			'target-path'  => 'When converting files, create targets here (e.g. `../compiled-js/`)',
 			'mkdir-target' => 'Create target directory if does not exist, then convert`)',
-			'*' => 'A list of files to process',
+			'*'            => 'A list of files to process',
 		];
 		parent::initialize();
 	}
-
+	
 	/**
 	 * @throws SyntaxException
 	 */
@@ -87,10 +96,10 @@ abstract class FileConverter extends SimpleCommand
 		$extension = trim($this->option('extension', $this->destination_extension), '.');
 		$target_prefix = $this->option('target-path');
 		$new_file = $this->overwrite ? $file : File::setExtension($file, ".$extension");
-		$new_file = path(dirname($new_file), $target_prefix, basename($new_file));
+		$new_file = Directory::path(dirname($new_file), $target_prefix, basename($new_file));
 		return Directory::removeDots($new_file);
 	}
-
+	
 	/**
 	 *
 	 */
@@ -102,7 +111,9 @@ abstract class FileConverter extends SimpleCommand
 		$app->setConsole(true);
 		$request = $app->requestFactory();
 		$app->template->set([
-			'request' => $request, 'response' => $app->responseFactory($request), 'stylesheets_inline' => true,
+			'request'            => $request,
+			'response'           => $app->responseFactory($request),
+			'stylesheets_inline' => true,
 		]);
 		if ($this->overwrite && $this->optionBool('no-clobber')) {
 			$this->error('The --no-clobber option is not compatible with this command, it can only overwrite existing files.');
@@ -122,12 +133,12 @@ abstract class FileConverter extends SimpleCommand
 				$cwd = getcwd();
 				$this->verboseLog('Listing {cwd}', compact('cwd'));
 				$files = Directory::listRecursive($cwd, [
-					Directory::LIST_RULE_FILE => [
-						'/\.(' . $this->source_extension_pattern . ')$/' => true, false,
-					], Directory::LIST_RULE_DIRECTORY_WALK => [
-						'#/\.#' => false, true,
-					], Directory::LIST_RULE_DIRECTORY => false, Directory::LIST_ADD_PATH => true,
-				]);
+					'#/\.#' => false,
+					true,
+				], [
+					'/\.(' . $this->source_extension_pattern . ')$/' => true,
+					false,
+				], [false], [Directory::LIST_ADD_PATH => true]);
 			}
 			$overwrite = $this->overwrite;
 			$force = $this->optionBool('force') || $overwrite;
@@ -144,7 +155,7 @@ abstract class FileConverter extends SimpleCommand
 				if (!$force && is_file($new_file) && filesize($new_file) > 0) {
 					if ($noclobber) {
 						$this->application->debug("noclobber: Will not overwrite: $new_file");
-
+						
 						continue;
 					}
 					if (!$nomtime) {
@@ -152,14 +163,14 @@ abstract class FileConverter extends SimpleCommand
 						$mtime = filemtime($file);
 						if ($new_mtime > $mtime) {
 							$this->application->debug("Modification time, skipping: $new_file");
-
+							
 							continue;
 						}
 					}
 				}
 				if ($dry_run) {
 					$this->application->notice("Would write $new_file");
-
+					
 					continue;
 				}
 				if (!is_dir($new_path) && $mkdir_target) {
@@ -167,13 +178,14 @@ abstract class FileConverter extends SimpleCommand
 				} else {
 					$this->application->debug('Skipping convert {file} because {new_path} does not exist', compact('file', 'new_path'));
 				}
-
+				
 				try {
 					$this->convert_file($file, $new_file);
 				} catch (Throwable $t) {
 					$this->application->error('unable to convert from {file} to {new_file}: {throwableClass} {throwableMessage}', [
-						'file' => $file, 'newFile' => $new_file,
-					] + Exception::exceptionVariables($t));
+							'file'    => $file,
+							'newFile' => $new_file,
+						] + Exception::exceptionVariables($t));
 				}
 			}
 		} else {
@@ -181,7 +193,7 @@ abstract class FileConverter extends SimpleCommand
 		}
 		return 0;
 	}
-
+	
 	/**
 	 * Default implementation of "convert_fp" which loads the file until feof($fp) and does the conversion in memory.
 	 *
@@ -196,7 +208,7 @@ abstract class FileConverter extends SimpleCommand
 		}
 		return $this->convert_raw($content);
 	}
-
+	
 	/**
 	 * Convert $file into $new_file
 	 *
@@ -205,7 +217,7 @@ abstract class FileConverter extends SimpleCommand
 	 * @api
 	 */
 	abstract protected function convert_file(string $file, string $new_file): void;
-
+	
 	/**
 	 * Convert in memory and return converted entity
 	 *
@@ -213,7 +225,7 @@ abstract class FileConverter extends SimpleCommand
 	 * @api
 	 */
 	abstract protected function convert_raw(string $content): string;
-
+	
 	/**
 	 * @param string $file
 	 * @param string $new_file
@@ -225,7 +237,7 @@ abstract class FileConverter extends SimpleCommand
 		$this->application->notice('Writing {new_file}', compact('new_file'));
 		File::put($new_file, $this->convert_raw(file_get_contents($file)));
 	}
-
+	
 	/**
 	 *
 	 * @param unknown $content
@@ -244,7 +256,7 @@ abstract class FileConverter extends SimpleCommand
 			@unlink($src);
 			return $contents;
 		}
-
+		
 		throw new SyntaxException('Unable to convert file - ambigious');
 	}
 }

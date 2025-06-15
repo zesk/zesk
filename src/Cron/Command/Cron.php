@@ -17,7 +17,7 @@ use zesk\Timestamp;
  * Run zesk cron hooks
  *
  * @category Management
- * @author kent
+ * @author   kent
  */
 class Cron extends SimpleCommand
 {
@@ -25,7 +25,7 @@ class Cron extends SimpleCommand
 
 	protected string $help = 'Run zesk cron hooks';
 
-	protected array $option_types = [
+	protected array $argumentTypes = [
 		'list'  => 'boolean',
 		'last'  => 'boolean',
 		'reset' => 'boolean',

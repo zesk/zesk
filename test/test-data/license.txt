@@ -1,8 +1,0 @@
-=== diff ===
-Description: Diff tools
-License URL: ./etc/diff.c.txt
-Licenses   : MIT
-=== phpunit ===
-License URL: https://raw.githubusercontent.com/sebastianbergmann/phpunit/main/LICENSE
-Project URL: https://phpunit.de/
-Licenses   : BSD3

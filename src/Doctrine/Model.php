@@ -9,7 +9,9 @@ namespace zesk\Doctrine;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Exception\ORMException;
+use Throwable;
 use zesk\Application;
+use zesk\Configuration;
 use zesk\Kernel;
 use zesk\Model as ModelBase;
 
@@ -38,6 +40,33 @@ class Model extends ModelBase
 	public function entityManager(): EntityManager
 	{
 		return $this->em ??= $this->application->entityManager($this->emName);
+	}
+
+	public function hydrate(Application $application): void
+	{
+		$this->application = $application;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function members(): array
+	{
+		$meta = $this->entityManager()->getClassMetadata(get_class($this));
+		$members = [];
+		foreach ($meta->getFieldNames() as $name) {
+			$members[$name] = $this->$name;
+		}
+		foreach ($meta->getAssociationMappings() as $name => $mapping) {
+			$fieldName = $mapping->fieldName;
+			if ($mapping->targetEntity) {
+				$value = $this->$fieldName?->id;
+			} else {
+				$value = strval($mapping->$fieldName);
+			}
+			$members[$fieldName] = $value;
+		}
+		return $members;
 	}
 
 	/**
@@ -73,5 +102,11 @@ class Model extends ModelBase
 			$this->application = Kernel::wakeupApplication();
 		}
 		$this->em = $em;
+
+		try {
+			$this->options = clone $this->application->configuration->path(get_class($this));
+		} catch (Throwable) {
+			$this->options = new Configuration();
+		}
 	}
 }

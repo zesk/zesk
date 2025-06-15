@@ -105,7 +105,7 @@ class Directory extends Hookable
 	 *
 	 * @thanks
 	 *
-	 * @param mixed $path
+	 * @param mixed   $path
 	 *            Path or resource to check
 	 * @param ?string $section
 	 *            Section to retrieve, or null for all sections
@@ -130,7 +130,8 @@ class Directory extends Hookable
 
 	/**
 	 * If a directory does not exist, create it. If an error occurs
-	 * @param string $path
+	 *
+	 * @param string   $path
 	 * @param int|null $mode
 	 * @return string
 	 * @throws DirectoryPermission
@@ -164,7 +165,7 @@ class Directory extends Hookable
 	 * Change directory mode (iff directory exists)
 	 *
 	 * @param string $directory
-	 * @param int $mode
+	 * @param int    $mode
 	 * @return void
 	 * @throws DirectoryNotFound
 	 * @throws DirectoryPermission
@@ -221,8 +222,9 @@ class Directory extends Hookable
 
 	/**
 	 * Create a directory if it does not exist
+	 *
 	 * @param string $path Path to create
-	 * @param int $mode Default mode of directory (UNIX permissions)
+	 * @param int    $mode Default mode of directory (UNIX permissions)
 	 * @return string $path of directory if created, null if not
 	 * @throws DirectoryCreate
 	 */
@@ -244,9 +246,9 @@ class Directory extends Hookable
 
 	/**
 	 *
-	 * @param string $source
-	 * @param string $destination
-	 * @param boolean $recursive
+	 * @param string    $source
+	 * @param string    $destination
+	 * @param boolean   $recursive
 	 * @param ?callable $file_copy_function
 	 * @return string
 	 * @throws DirectoryNotFound
@@ -378,7 +380,7 @@ class Directory extends Hookable
 
 	/**
 	 * @param string $absolute_root A known valid path in the file system
-	 * @param string $mixed An elements to append to convert to an absolute path at the given root
+	 * @param string $mixed         An elements to append to convert to an absolute path at the given root
 	 * @return string
 	 * @throws DirectoryNotFound
 	 */
@@ -406,62 +408,6 @@ class Directory extends Hookable
 	}
 
 	/**
-	 * Covert old-style options into new
-	 *
-	 * @param array $options
-	 * @param string $prefix
-	 * @param bool $default
-	 * @return array
-	 */
-	private static function _legacyParseOptions(array $options, string $prefix, bool $default): array
-	{
-		$options = ArrayTools::keysRemovePrefix($options, $prefix . '_', true);
-		$include_pattern = $options['include_pattern'] ?? null;
-		$exclude_pattern = $options['exclude_pattern'] ?? null;
-		$default = $options['default'] ?? $default;
-		if ($include_pattern === false) {
-			return [
-				false,
-			];
-		}
-		if ($exclude_pattern === true) {
-			return [
-				false,
-			];
-		}
-		if ($exclude_pattern !== null) {
-			$result[$exclude_pattern] = false;
-		}
-		if ($include_pattern !== null) {
-			$result[$include_pattern] = true;
-		}
-		$result[] = Types::toBool($default);
-		return $result;
-	}
-
-	/**
-	 * @throws ParameterException
-	 */
-	private static function _listRecursiveRules(array $options, string $name, bool $default): array
-	{
-		$k = self::RULE_PREFIX . $name;
-		if (array_key_exists($k, $options)) {
-			if (is_bool($options[$k])) {
-				return [
-					$options[$k],
-				];
-			}
-			if (!is_array($options[$k])) {
-				throw new ParameterException('Recursive rules {key} must be boolean or an array, {type} passed', [
-					'key' => $k, 'type' => Types::type($options[$k]),
-				]);
-			}
-			return $options[$k];
-		}
-		return self::_legacyParseOptions($options, $name, $default);
-	}
-
-	/**
 	 * List a directory recursively
 	 *
 	 * Options work as follows:
@@ -476,19 +422,16 @@ class Directory extends Hookable
 	 * It uses StringTools::filter to check a path against the patterns. All patterns/defaults are true.
 	 *
 	 * @param string $path
-	 * @param array $options
+	 * @param array  $walk
+	 * @param array  $files
+	 * @param array  $directory
+	 * @param array  $options
 	 * @return array
-	 * @throws ParameterException
 	 */
-	public static function listRecursive(string $path, array $options = []): array
+	public static function listRecursive(string $path, array $walk = [], array $files = [], array $directory = [], array $options = []): array
 	{
-		$options = !is_array($options) ? [] : $options;
-		$options = array_change_key_case($options);
 		$progress = $options[self::LIST_PROGRESS] ?? null;
 		/* @var $progress LoggerInterface */
-		$rules_file = self::_listRecursiveRules($options, self::RULE_SUFFIX_FILE, false);
-		$rules_dir = self::_listRecursiveRules($options, self::RULE_SUFFIX_DIRECTORY, false);
-		$rules_dir_walk = self::_listRecursiveRules($options, self::RULE_SUFFIX_DIRECTORY_WALK, true);
 
 		$max_results = $options[self::LIST_MAXIMUM_RESULTS] ?? -1;
 		$addPath = Types::toBool($options[self::LIST_ADD_PATH] ?? false);
@@ -508,10 +451,10 @@ class Directory extends Hookable
 			$full_path = self::path($path, $x);
 			if (is_dir($full_path)) {
 				$full_path .= '/';
-				if (StringTools::filter($full_path, $rules_dir)) {
+				if (StringTools::filter($full_path, $directory, true)) {
 					$r[] = ($addPath) ? "$prefix$x/" : "$x/";
 				}
-				if (!StringTools::filter($full_path, $rules_dir_walk)) {
+				if (!StringTools::filter($full_path, $walk, true)) {
 					continue;
 				}
 				if ($progress instanceof LoggerInterface) {
@@ -519,11 +462,11 @@ class Directory extends Hookable
 						'full_path' => $full_path,
 					]);
 				}
-				$result = self::listRecursive($full_path, $options);
+				$result = self::listRecursive($full_path, $walk, $files, $directory, $options);
 				$result = ArrayTools::prefixValues($result, "$prefix$x/");
 				$r = array_merge($r, $result);
 			} else {
-				if (!StringTools::filter($full_path, $rules_file)) {
+				if (!StringTools::filter($full_path, $files, true)) {
 					continue;
 				}
 				$r[] = ($addPath) ? "$prefix$x" : "$x";
@@ -539,6 +482,7 @@ class Directory extends Hookable
 	/**
 	 * Removes extraneous .
 	 * ./ and ../ from a path
+	 *
 	 * @param string $p path to clean up
 	 * @return string path with removed dots
 	 * @throws SyntaxException
@@ -593,7 +537,7 @@ class Directory extends Hookable
 	 *
 	 */
 	/**
-	 * @param string $source
+	 * @param string                $source
 	 * @param callable|Closure|null $directory_function
 	 * @param callable|Closure|null $file_function
 	 * @return void
@@ -641,9 +585,9 @@ class Directory extends Hookable
 	 *
 	 * To strip the / and return only directories, for example.
 	 *
-	 * @param string $path The directory to list
-	 * @param null|string $filter A pattern to match against files in the directory. Use null for all matches.
-	 * @param boolean $cat_path Whether to concatenate the path to each resulting file name
+	 * @param string      $path     The directory to list
+	 * @param null|string $filter   A pattern to match against files in the directory. Use null for all matches.
+	 * @param boolean     $cat_path Whether to concatenate the path to each resulting file name
 	 * @return array The directory list
 	 * @throws DirectoryNotFound
 	 * @throws DirectoryPermission
@@ -654,13 +598,15 @@ class Directory extends Hookable
 		$r = [];
 		if (!is_dir($path)) {
 			throw new DirectoryNotFound($path, '{method}: {path} is not a directory', [
-				'method' => __METHOD__, 'path' => $path,
+				'method' => __METHOD__,
+				'path'   => $path,
 			]);
 		}
 		$d = opendir($path);
 		if (!is_resource($d)) {
 			throw new DirectoryPermission($path, '{method}: {path} is not readable', [
-				'method' => __METHOD__, 'path' => $path,
+				'method' => __METHOD__,
+				'path'   => $path,
 			]);
 		}
 		$path = rtrim($path, '/');
@@ -681,7 +627,7 @@ class Directory extends Hookable
 	/**
 	 * @param string $source
 	 * @param string $dest
-	 * @param bool $create
+	 * @param bool   $create
 	 * @return void
 	 * @throws DirectoryCreate
 	 * @throws DirectoryNotFound
@@ -749,9 +695,9 @@ class Directory extends Hookable
 	 *   Will delete file names which sort at the top of the list
 	 *
 	 * @param string $directory The directory
-	 * @param int $total The number of files to allow in this directory
-	 * @param string $order_by "name" or "date" are allowed
-	 * @param bool $ascending
+	 * @param int    $total     The number of files to allow in this directory
+	 * @param string $order_by  "name" or "date" are allowed
+	 * @param bool   $ascending
 	 * @return array List of files deleted
 	 * @throws DirectoryNotFound
 	 * @throws DirectoryPermission
@@ -794,7 +740,7 @@ class Directory extends Hookable
 	/**
 	 * Given a list of paths and a directory name, find the first occurrence of the named directory.
 	 *
-	 * @param array $paths List of strings representing file system paths
+	 * @param array             $paths     List of strings representing file system paths
 	 * @param array|string|null $directory Directory to search for, or list of directories suffixes to search for
 	 * @return string
 	 * @throws NotFoundException
@@ -821,7 +767,8 @@ class Directory extends Hookable
 		}
 
 		throw new NotFoundException('No directory exists {paths}, {directory}', [
-			'paths' => $paths, 'directory' => $directory,
+			'paths'     => $paths,
+			'directory' => $directory,
 		]);
 	}
 

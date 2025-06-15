@@ -33,7 +33,7 @@ class Model extends Hookable
 	 *
 	 * @var string
 	 */
-	public const OPTION_THEME_PATH_PREFIX = 'themePathPrefix';
+	public const OPTION_THEME_HOME_PREFIX = 'themePathPrefix';
 
 	/**
 	 * @param array $value
@@ -85,8 +85,8 @@ class Model extends Hookable
 		foreach ($this->application->classes->hierarchy(get_class($this), __CLASS__) as $class) {
 			$result = array_merge($result, ArrayTools::prefixValues($theme_names, $class . '/'));
 		}
-		if ($this->hasOption(self::OPTION_THEME_PATH_PREFIX)) {
-			$result_prefix = ArrayTools::prefixValues($result, rtrim($this->option(self::OPTION_THEME_PATH_PREFIX), '/') . '/');
+		if ($this->hasOption(self::OPTION_THEME_HOME_PREFIX)) {
+			$result_prefix = ArrayTools::prefixValues($result, rtrim($this->option(self::OPTION_THEME_HOME_PREFIX), '/') . '/');
 			$result = array_merge($result_prefix, $result);
 		}
 		return array_map(fn ($name) => strtr($name, [

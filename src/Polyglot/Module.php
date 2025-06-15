@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 /**
- * @author kent
- * @package zesk/modules
+ * @author     kent
+ * @package    zesk/modules
  * @subpackage Polyglot
- * @copyright &copy; 2023, Market Acumen, Inc.
+ * @copyright  &copy; 2023, Market Acumen, Inc.
  */
 
 namespace zesk\Polyglot;
@@ -13,13 +13,13 @@ namespace zesk\Polyglot;
  *
  */
 
+use Doctrine\Common\Collections\Criteria;
 use zesk\Exception\FileNotFound;
 use zesk\Exception\FileParseException;
 use zesk\Interface\Module\Routes;
 use zesk\Locale\Locale;
 use zesk\Locale\Reader;
 use zesk\Module as BaseModule;
-use zesk\ORM\Exception\ORMNotFound;
 use zesk\Router;
 use zesk\World\Language;
 
@@ -30,6 +30,12 @@ use zesk\World\Language;
  */
 class Module extends BaseModule implements Routes
 {
+	public const DEFAULT_UPDATE_PATH = './etc/language';
+
+	public const TYPE_UPDATE_PATH = 'directory';
+
+	public const OPTION_UPDATE_PATH = 'updatePath';
+
 	/**
 	 *
 	 * @var array
@@ -44,36 +50,43 @@ class Module extends BaseModule implements Routes
 	public const HOOK_LOCALE_OPTIONS = self::class . '::localeOptions';
 
 	/**
+	 * @return string
+	 */
+	public function updatePath(): string
+	{
+		return $this->optionString(self::OPTION_UPDATE_PATH, self::DEFAULT_UPDATE_PATH);
+	}
+
+	/**
 	 *
 	 * @return array
 	 */
 	public function localeOptions(): array
 	{
 		$list = $this->invokeTypedFilters(self::HOOK_LOCALE_OPTIONS, $this->optionArray(self::OPTION_LOCALE_OPTIONS_DEFAULT));
-		$where = [];
+
+		$em = $this->application->entityManager();
+		$qb = $em->createQueryBuilder();
+		$ex = Criteria::expr();
+		$qb->select([
+			'g.code',
+			'g.dialect',
+			'g.name',
+		])->from(Language::class, 'g');
 		foreach ($list as $locale) {
 			$language = Locale::parseLanguage($locale);
 			$dialect = Locale::parseDialect($locale);
-			$w = [
-				'code' => $language,
-			];
+			$criteria = Criteria::create()->where($ex->eq('g.code', $qb->createNamedParameter($language)));
 			if ($dialect) {
-				$w['dialect'] = $dialect;
+				$criteria->andWhere($ex->eq('g.dialect', $qb->createNamedParameter($dialect)));
 			}
-			$where[] = $w;
+			$qb->orWhere($criteria);
 		}
-		$query = $this->application->ormRegistry(Language::class)->querySelect()->appendWhat([
-			'code'    => 'code',
-			'dialect' => 'dialect',
-			'name'    => 'name',
-		])->appendWhere($where ? [
-			$where,
-		] : []);
-		$locales = $query->toArray();
 		$results = [];
-		foreach ($locales as $locale) {
-			$code = $dialect = $name = null;
-			extract($locale, EXTR_IF_EXISTS);
+		foreach ($qb->getQuery()->getArrayResult() as $row) {
+			$code = $row['code'] ?? '';
+			$dialect = $row['dialect'] ?? '';
+			$name = $row['name'] ?? '';
 			if ($dialect) {
 				$code .= "_$dialect";
 			}
@@ -116,8 +129,7 @@ class Module extends BaseModule implements Routes
 	 *
 	 * @param string $locale
 	 * @return Token[]
-	 * @throws FileParseException
-	 * @throws FileNotFound|ORMNotFound
+	 * @throws FileParseException|FileNotFound
 	 */
 	public function loadLocale(string $locale = ''): array
 	{

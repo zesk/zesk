@@ -1,14 +1,15 @@
 <?php
 declare(strict_types=1);
 /**
- * @package zesk
+ * @package    zesk
  * @subpackage Response
- * @author kent
- * @copyright &copy; 2023, Market Acumen, Inc.
+ * @author     kent
+ * @copyright  &copy; 2023, Market Acumen, Inc.
  */
 
 namespace zesk\Response;
 
+use Throwable;
 use zesk\ArrayTools;
 use zesk\Directory;
 use zesk\Exception\DirectoryCreate;
@@ -23,6 +24,7 @@ use zesk\JSON as JSONTools;
 use zesk\Kernel;
 use zesk\MIME;
 use zesk\Response;
+use zesk\RuntimeException;
 use zesk\StringTools;
 use zesk\Types;
 use zesk\URL;
@@ -221,7 +223,7 @@ class HTML extends Type
 	 * Set HTML attributes
 	 *
 	 * @param array $attributes
-	 * @param bool $merge
+	 * @param bool  $merge
 	 * @return Response
 	 */
 	public function setAttributes(array $attributes, bool $merge = false): Response
@@ -310,7 +312,7 @@ class HTML extends Type
 	/**
 	 * Get/set meta tags
 	 *
-	 * @param string $name
+	 * @param string       $name
 	 * @param string|array $content
 	 * @return Response
 	 */
@@ -371,9 +373,8 @@ class HTML extends Type
 	 *            Link rel=""
 	 * @param string $path
 	 * @param string $type
-	 * @param array $attrs
+	 * @param array  $attrs
 	 * @return Response
-	 * @throws ProtocolException
 	 */
 	public function setLink(string $rel, string $path, string $type = '', array $attrs = []): Response
 	{
@@ -389,7 +390,7 @@ class HTML extends Type
 		}
 		$share = $attrs['share'] ?? false;
 		if (!$share && $this->parent->optionBool('require_root_dir') && !array_key_exists('root_dir', $attrs)) {
-			throw new ProtocolException('{path} requires a root_dir specified', compact('rel', 'path'));
+			throw new RuntimeException('{path} requires a root_dir specified', compact('rel', 'path'));
 		}
 		ArrayTools::append($this->linksByRel, $rel, $path);
 		$this->links[$path] = $arr + $attrs;
@@ -400,10 +401,10 @@ class HTML extends Type
 	/**
 	 * Add a css to the page
 	 *
-	 * @param string $path
-	 *            Path to css file
+	 * @param string       $path
+	 *                Path to css file
 	 * @param array|string $options
-	 *            Optional options:
+	 *                Optional options:
 	 *                media (defaults to all)
 	 *                type (defaults to text/css)
 	 *                browser (may be ie, ie6, ie7)
@@ -411,7 +412,6 @@ class HTML extends Type
 	 *                share bool for share files
 	 *
 	 * @return Response
-	 * @throws ProtocolException
 	 */
 	public function css(string $path, array|string $options = []): Response
 	{
@@ -430,10 +430,10 @@ class HTML extends Type
 	/**
 	 * Add a css to the page
 	 *
-	 * @param string $styles CSS code
+	 * @param string       $styles  CSS code
 	 * @param array|string $options Media type or tag options
-	 *            Optional options: media (defaults to screen), type (defaults to text/css), browser
-	 *            (may be ie, ie6, ie7), and cdn (boolean to prefix with cdn path)
+	 *                              Optional options: media (defaults to screen), type (defaults to text/css), browser
+	 *                              (may be ie, ie6, ie7), and cdn (boolean to prefix with cdn path)
 	 * @return Response
 	 */
 	public function cssInline(string $styles, array|string $options = []): Response
@@ -702,7 +702,7 @@ class HTML extends Type
 	/**
 	 *
 	 * @param string $resource_path
-	 * @param int $route_expire
+	 * @param int    $route_expire
 	 * @return string
 	 * @throws DirectoryCreate
 	 * @throws DirectoryPermission
@@ -727,7 +727,7 @@ class HTML extends Type
 		try {
 			$content = $this->application->content($resource_path);
 			file_put_contents($path, $content);
-		} catch (ProtocolException) {
+		} catch (Throwable) {
 			return '';
 		}
 		return $path;
@@ -737,7 +737,7 @@ class HTML extends Type
 	 * Given a path, retrieve the actual resource path with a timestamp for cache busting
 	 *
 	 * @param string $_path
-	 * @param array $attributes
+	 * @param array  $attributes
 	 * @return string Empty string if something is awry
 	 * @throws DirectoryCreate
 	 * @throws DirectoryPermission
@@ -776,7 +776,7 @@ class HTML extends Type
 	 * Utility function to determine the date of a file
 	 *
 	 * @param string $path
-	 * @param array $attributes
+	 * @param array  $attributes
 	 *            Passed to resource_path
 	 * @return array First item is the URI, 2nd is the full path to the file
 	 * @throws DirectoryCreate
@@ -914,6 +914,7 @@ class HTML extends Type
 
 	/**
 	 * Cache files in the resource paths tend to grow, particularly
+	 *
 	 * @param string $extension
 	 * @return array
 	 * @todo does this depend on a certain structure which is enforced by this?
@@ -922,13 +923,10 @@ class HTML extends Type
 	{
 		$path = $this->resourceCachePath($extension);
 		$files = Directory::listRecursive($path, [
-			'rules_directory_walk' => [
-				'#/cache/js#'  => true,
-				'#/cache/css#' => true,
-				false,
-			],
-			'add_path'             => true,
-		]);
+			'#/cache/js#'  => true,
+			'#/cache/css#' => true,
+			false,
+		], [true], [true], [Directory::LIST_ADD_PATH => true]);
 		$expire_seconds = $this->parent->resourceExpireSeconds();
 		$now = time();
 		$modified_after = $now - $expire_seconds;
@@ -984,7 +982,7 @@ class HTML extends Type
 	/**
 	 * Run JavaScript/CSS concatenation
 	 *
-	 * @param array $cached
+	 * @param array  $cached
 	 * @param string $extension
 	 * @param string $hook
 	 * @param string $debug
@@ -1038,7 +1036,7 @@ class HTML extends Type
 	/**
 	 * Run CSS caching
 	 *
-	 * @param array $cached
+	 * @param array  $cached
 	 * @param string $media
 	 * @return array
 	 * @throws DirectoryCreate
@@ -1198,7 +1196,7 @@ class HTML extends Type
 	}
 
 	/**
-	 * @param string $pattern
+	 * @param string   $pattern
 	 * @param callable $method
 	 * @return float|null
 	 */
@@ -1218,9 +1216,8 @@ class HTML extends Type
 	 * Internal function to add script tag
 	 *
 	 * @param string $path
-	 * @param array $options
+	 * @param array  $options
 	 * @return Response
-	 * @throws ProtocolException
 	 */
 	private function scriptAdd(string $path, array $options): Response
 	{
@@ -1238,7 +1235,7 @@ class HTML extends Type
 				if (($after = $this->findWeight($options['after'], 'max')) !== null) {
 					if ($before !== null) {
 						if ($after <= $before) {
-							throw new ProtocolException('{path} has a computed {before} weight which is greater than the after weight {after}', [
+							throw new RuntimeException('{path} has a computed {before} weight which is greater than the after weight {after}', [
 								'path'   => $path,
 								'before' => $before,
 								'after'  => $after,
@@ -1261,7 +1258,7 @@ class HTML extends Type
 		$is_route = $options['is_route'] ?? false;
 		$callback = array_key_exists('callback', $options);
 		if (!$is_route && !$callback && !$content && !$share && !$nocache && $this->parent->optionBool('require_root_dir') && !array_key_exists('root_dir', $options)) {
-			throw new ProtocolException('{path} requires a root_dir specified', compact('path'));
+			throw new RuntimeException('{path} requires a root_dir specified', compact('path'));
 		}
 		$this->scripts[$path] = $options;
 		$this->scriptsAreSorted = false;
@@ -1293,13 +1290,12 @@ class HTML extends Type
 	/**
 	 * Register a javascript to be put on the page
 	 *
-	 * @param string|array $paths File path(s) to serve for the javascript
-	 * @param array $options Optional settings:
-	 * - type: defaults to text/javascript)
-	 * - browser: defaults to all browsers
-	 * - cdn: defaults to false
+	 * @param string|array $paths   File path(s) to serve for the javascript
+	 * @param array        $options Optional settings:
+	 *                              - type: defaults to text/javascript)
+	 *                              - browser: defaults to all browsers
+	 *                              - cdn: defaults to false
 	 * @return Response
-	 * @throws ProtocolException
 	 */
 	public function javascript(string|array $paths, array $options = []): Response
 	{
@@ -1317,7 +1313,7 @@ class HTML extends Type
 	 * Include JavaScript to be included inline in the page
 	 *
 	 * @param string $script
-	 * @param array $options
+	 * @param array  $options
 	 * @return Response
 	 * @throws ProtocolException
 	 */

@@ -50,7 +50,7 @@ class Version extends SimpleCommand
 		'v',
 	];
 
-	protected array $option_types = [
+	protected array $argumentTypes = [
 		'tag'         => 'string',
 		'zesk'        => 'boolean',
 		'major'       => 'boolean',

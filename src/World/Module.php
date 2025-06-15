@@ -1,9 +1,9 @@
 <?php
 /**
- * @package zesk
+ * @package    zesk
  * @subpackage world
- * @author kent
- * @copyright Copyright &copy; 2025, Market Acumen, Inc.*
+ * @author     kent
+ * @copyright  Copyright &copy; 2025, Market Acumen, Inc.*
  */
 declare(strict_types=1);
 
@@ -45,8 +45,8 @@ class Module extends BaseModule
 
 	public function initialize(): void
 	{
+		$this->application->modules->load('doctrine');
 		parent::initialize();
-		$this->application->doctrineModule()->addPath($this->path('zesk/World'));
 	}
 
 	/**

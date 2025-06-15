@@ -26,7 +26,7 @@ class Maintenance extends SimpleCommand
 {
 	protected array $shortcuts = ['maintenance'];
 
-	protected array $option_types = [
+	protected array $argumentTypes = [
 		'*' => 'string',
 	];
 
