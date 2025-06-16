@@ -127,7 +127,7 @@ zeskPipelineSetup() {
   #
   statusMessage decorate info "Loading schema ... "
   start=$(__catchEnvironment "$usage" timingStart) || return $?
-  __catchEnvironment "$usage" mariadb "${databaseArguments[@]}" <./docker/mariadb/schema.sql >>"$quietLog" || buildFailed "$quietLog" || return $?
+  mapEnvironment <./etc/docker/schema.sql | __catchEnvironment "$usage" mariadb "${databaseArguments[@]}" >>"$quietLog" || buildFailed "$quietLog" || return $?
   statusMessage timingReport "$start" "Schema load completed in"
 
   #==========================================================================================
