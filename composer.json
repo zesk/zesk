@@ -1,60 +1,61 @@
 {
-  "name": "zesk/zesk",
-  "description": "The Zesk Application Framework",
-  "require": {
-    "php": ">=8.1",
-    "psr/log": "^3.0.2",
-    "components/jquery": "^3.7.1",
-    "psr/cache": "^3",
-    "ext-calendar": "*",
-    "ext-json": "*",
-    "ext-posix": "*",
-    "ext-pcntl": "*",
-    "ext-intl": "*",
-    "doctrine/orm": "^3.3.3"
-  },
-  "suggest": {
-    "ext-xdebug": "*",
-    "ext-curl": "*",
-    "ext-imap": "*",
-    "ext-readline": "*"
-  },
-  "require-dev": {
-    "phpunit/phpunit": ">=10",
-    "phpunit/php-invoker": ">=4",
-    "friendsofphp/php-cs-fixer": ">=3.75",
-    "ext-ftp": "*",
-    "phpunit/php-code-coverage": "^10.1"
-  },
-  "authors": [
-    {
-      "name": "Kent Davidson",
-      "email": "projects@marketacumen.com"
-    }
-  ],
-  "scripts": {},
-  "keywords": [
-    "zesk",
-    "application",
-    "framework"
-  ],
-  "autoload": {
-    "psr-4": {
-      "zesk\\": "src"
-    }
-  },
-  "autoload-dev": {
-    "psr-4": {
-      "testZesk\\": "tests/testZesk"
-    }
-  },
-  "bin": [
-    "bin/zesk.sh",
-    "bin/zesk-command.php",
-    "bin/zesk"
-  ],
-  "type": "library",
-  "license": "MIT",
-  "homepage": "https://php.zesk.com",
-  "version": "0.32.0"
+	"name": "zesk/zesk",
+	"description": "The Zesk Application Framework",
+	"require": {
+		"php": ">=8.1",
+		"psr/log": "^3.0.2",
+		"components/jquery": "^3.7.1",
+		"psr/cache": "^3",
+		"ext-calendar": "*",
+		"ext-json": "*",
+		"ext-posix": "*",
+		"ext-pcntl": "*",
+		"ext-intl": "*",
+		"ext-readline": "*",
+		"ext-mysqli": "*",
+		"doctrine/orm": "^3.3.3"
+	},
+	"suggest": {
+		"ext-xdebug": "*",
+		"ext-curl": "*",
+		"ext-imap": "*"
+	},
+	"require-dev": {
+		"phpunit/phpunit": ">=10",
+		"phpunit/php-invoker": ">=4",
+		"friendsofphp/php-cs-fixer": ">=3.75",
+		"ext-ftp": "*",
+		"phpunit/php-code-coverage": "^10.1"
+	},
+	"authors": [
+		{
+			"name": "Kent Davidson",
+			"email": "projects@marketacumen.com"
+		}
+	],
+	"scripts": {},
+	"keywords": [
+		"zesk",
+		"application",
+		"framework"
+	],
+	"autoload": {
+		"psr-4": {
+			"zesk\\": "src"
+		}
+	},
+	"autoload-dev": {
+		"psr-4": {
+			"testZesk\\": "tests/testZesk"
+		}
+	},
+	"bin": [
+		"bin/zesk.sh",
+		"bin/zesk-command.php",
+		"bin/zesk"
+	],
+	"type": "library",
+	"license": "MIT",
+	"homepage": "https://php.zesk.com",
+	"version": "0.32.0"
 }

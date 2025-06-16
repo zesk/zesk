@@ -92,6 +92,7 @@ zeskPipelineSetup() {
   #
   local home
   __catchEnvironment "$usage" packageInstall || return $?
+  __catchEnvironment "$usage" phpInstall || return $?
   __catchEnvironment "$usage" mariadbInstall || return $?
   home=$(__catchEnvironment "$usage" buildHome) || return $?
 
