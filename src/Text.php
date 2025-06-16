@@ -14,8 +14,8 @@ namespace zesk;
  * The text class deals with manipulation of text, specifically for output to a console or
  * fixed-width font output, or email.
  */
-class Text {
-	
+class Text
+{
 	/**
 	 * Indent plain text
 	 *
@@ -38,7 +38,7 @@ class Text {
 		}
 		return implode($newline, $lines) . $newline;
 	}
-	
+
 	/**
 	 * Indent text using a string, and strip existing content of matching whitespace.
 	 *
@@ -72,7 +72,7 @@ class Text {
 		}
 		return implode($newline, ArrayTools::prefixValues($lines, $indentString));
 	}
-	
+
 	/**
 	 * Universally modify line break characters in a string to be a certain line break string.
 	 *
@@ -94,7 +94,7 @@ class Text {
 		$string = str_replace("\n", $temp_char, $string);
 		return str_replace($temp_char, $br, $string);
 	}
-	
+
 	/**
 	 * Format an array with labels and values
 	 *
@@ -134,7 +134,7 @@ class Text {
 		}
 		return $result;
 	}
-	
+
 	public static function wrapLines(string $text, string $prefix = '', string $suffix = '', string $first_prefix = null, string $last_suffix = null): string
 	{
 		if ($first_prefix === null) {
@@ -145,12 +145,12 @@ class Text {
 		}
 		return $first_prefix . implode("$suffix\n$prefix", explode("\n", $text)) . $last_suffix;
 	}
-	
+
 	public static function fill(int $n, string $pad = ' '): string
 	{
 		return substr(str_repeat($pad, $n), 0, $n);
 	}
-	
+
 	/**
 	 * Generate a fill string to support rightAlign and leftAlign, and modify text
 	 *
@@ -182,7 +182,7 @@ class Text {
 		$fill = self::fill($length - $textLength, $pad);
 		return $text;
 	}
-	
+
 	/**
 	 * Right align a string in a block of characters returned.
 	 *
@@ -200,7 +200,7 @@ class Text {
 		$text = self::_alignHelper($text, $length, $pad, $fill, $chop_text);
 		return $fill . $text;
 	}
-	
+
 	/**
 	 * Left align a string in a block of characters returned.
 	 *
@@ -217,7 +217,7 @@ class Text {
 		$text = self::_alignHelper($text, $length, $pad, $fill, $chop_text);
 		return $text . $fill;
 	}
-	
+
 	/**
 	 * Delete the line comments in a string
 	 *
@@ -247,7 +247,7 @@ class Text {
 		}
 		return implode("\n", $new_data);
 	}
-	
+
 	/**
 	 * Remove C/Java/PHP/etc-style range comments
 	 *
@@ -262,7 +262,7 @@ class Text {
 	{
 		return preg_replace('#' . preg_quote($begin_comment) . '.*?' . preg_quote($end_comment) . '#s', '', $text);
 	}
-	
+
 	public static function fill_pattern(string $pattern, int $char_length): string
 	{
 		$pattern_length = strlen($pattern);
@@ -271,7 +271,7 @@ class Text {
 		}
 		return substr($pattern, 0, $char_length);
 	}
-	
+
 	/**
 	 * Output an array as name/value pairs
 	 *
@@ -285,17 +285,17 @@ class Text {
 	 */
 	public static function formatPairs(array $map, string $prefix = '', string $suffix = ':', string $pad = ' ', string $delimiter = ' ', string $br = PHP_EOL): string
 	{
-		$n = array_reduce(array_keys($map), fn($n, $k) => max(strlen(strval($k)), $n), 0);
+		$n = array_reduce(array_keys($map), fn ($n, $k) => max(strlen(strval($k)), $n), 0);
 		$r = [];
 		foreach ($map as $k => $value) {
 			$k = strval($k);
 			$stringValue = (is_scalar($value) && !is_bool($value)) ? strval($value) : JSON::encodePretty($value);
 			$r[] = $prefix . $k . $suffix . ($pad === '' ? '' : self::fill_pattern($pad, $n - strlen($k))) . $delimiter . $stringValue;
 		}
-		
+
 		return implode($br, $r) . $br;
 	}
-	
+
 	/**
 	 * @param string $string
 	 * @param int    $length
@@ -314,7 +314,7 @@ class Text {
 				if ($index === 0) {
 					return substr($word, 0, $remain);
 				}
-				
+
 				break;
 			}
 			$result[] = $word;
@@ -322,7 +322,7 @@ class Text {
 		}
 		return implode($delimiter, $result);
 	}
-	
+
 	/**
 	 * @param string $string
 	 * @param int    $wordCount
@@ -341,7 +341,7 @@ class Text {
 		$words = array_slice($words, 0, $wordCount * 2);
 		return implode('', $words);
 	}
-	
+
 	/**
 	 * @param string $string
 	 * @return int
@@ -350,7 +350,7 @@ class Text {
 	{
 		return count(preg_split('/(\s+)/', $string, -1, PREG_SPLIT_NO_EMPTY));
 	}
-	
+
 	/**
 	 * Generates a table like this:
 	 *
@@ -417,7 +417,7 @@ class Text {
 		}
 		$divLine = '+-' . implode('-+-', $line) . '-+';
 		$result[] = $divLine;
-		
+
 		$line = [];
 		foreach ($hs as $i => $h) {
 			$line[] = str_pad($h, $ws[$i]);
@@ -434,7 +434,7 @@ class Text {
 		$result[] = $divLine;
 		return $prefix . implode("\n$prefix", $result) . "\n";
 	}
-	
+
 	/**
 	 * Split a line where multiple characters may serve as a delimiter.
 	 *
@@ -453,7 +453,7 @@ class Text {
 	{
 		return explode($delimiters[0], preg_replace('/[' . preg_quote($delimiters) . ']+/', $delimiters[0], $line), $num_columns);
 	}
-	
+
 	/**
 	 * Parse a table output by many common UNIX and DOS commands.
 	 *
@@ -481,7 +481,7 @@ class Text {
 			$line = trim($line);
 			if (!empty($line)) {
 				$hh = $line;
-				
+
 				break;
 			}
 		}
@@ -509,7 +509,7 @@ class Text {
 		}
 		return $results;
 	}
-	
+
 	/**
 	 * Returns the number of words delimited by spaces found in string.
 	 *
@@ -527,7 +527,7 @@ class Text {
 		}
 		return count(preg_split('/\s+/', $words, $limit));
 	}
-	
+
 	/**
 	 * Similar to shell command "head" returns first $count lines from $string
 	 *
@@ -540,7 +540,7 @@ class Text {
 	{
 		return implode($newline, array_slice(explode($newline, $string), 0, $count));
 	}
-	
+
 	/**
 	 * Similar to shell command "tail" returns first $count lines from $string
 	 *
@@ -553,7 +553,7 @@ class Text {
 	{
 		return implode($newline, array_slice(explode($newline, $string), -$count, $count));
 	}
-	
+
 	/**
 	 * Parse text output which may have spaces in file names.
 	 *
@@ -619,13 +619,13 @@ class Text {
 				$was_space = $space;
 			}
 		}
-		
+
 		$first = true;
 		$rows = [];
 		foreach ($lines as $line) {
 			if ($first) {
 				$first = false;
-				
+
 				continue;
 			}
 			$record = [];

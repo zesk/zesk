@@ -18,8 +18,8 @@ use zesk\Types;
  * @uses   ArrayTools
  * @see    ArrayToolsTest
  */
-abstract class ArrayToolsData {
-	
+abstract class ArrayToolsData
+{
 	public static function map(): array
 	{
 		return [
@@ -57,7 +57,7 @@ abstract class ArrayToolsData {
 			],
 		];
 	}
-	
+
 	public static function simplify(): array
 	{
 		return [
@@ -85,8 +85,7 @@ abstract class ArrayToolsData {
 			],
 		];
 	}
-	
-	
+
 	public static function replaceSubstrings(): array
 	{
 		return [
@@ -108,7 +107,7 @@ abstract class ArrayToolsData {
 			],
 		];
 	}
-	
+
 	public static function findInsensitive(): array
 	{
 		$needles = [
@@ -161,7 +160,7 @@ abstract class ArrayToolsData {
 			],
 		];
 	}
-	
+
 	public static function changeValueCase(): array
 	{
 		return [
@@ -193,7 +192,7 @@ abstract class ArrayToolsData {
 			],
 		];
 	}
-	
+
 	public static function valuesFlipCopy(): array
 	{
 		// ordering is backwards - [input, expected]
@@ -264,7 +263,7 @@ abstract class ArrayToolsData {
 			],
 		];
 	}
-	
+
 	public static function suffixValues(): array
 	{
 		return [
@@ -304,15 +303,13 @@ abstract class ArrayToolsData {
 			],
 		];
 	}
-	
+
 	/**
 	 * @return array[]
 	 * @see ArrayToolsTest::test_include_exclude()
 	 */
-	
 	public static function insert(): array
 	{
-		
 		$arr1 = [
 			'x' => 'x',
 			'a' => 'a',
@@ -325,7 +322,7 @@ abstract class ArrayToolsData {
 			'p' => 'p',
 			'q' => 'q',
 		];
-		
+
 		return [
 			[
 				[
@@ -379,7 +376,7 @@ abstract class ArrayToolsData {
 			],
 		];
 	}
-	
+
 	public static function wrapKeys(): array
 	{
 		return [
@@ -399,7 +396,7 @@ abstract class ArrayToolsData {
 			],
 		];
 	}
-	
+
 	public static function keysRemove(): array
 	{
 		return [
@@ -443,7 +440,7 @@ abstract class ArrayToolsData {
 			],
 		];
 	}
-	
+
 	public static function prefixValues(): array
 	{
 		return [
@@ -481,7 +478,7 @@ abstract class ArrayToolsData {
 			],
 		];
 	}
-	
+
 	public static function keysRemovePrefix(): array
 	{
 		return [
@@ -500,7 +497,7 @@ abstract class ArrayToolsData {
 			],
 		];
 	}
-	
+
 	public static function find(): array
 	{
 		$files = [
@@ -521,7 +518,7 @@ abstract class ArrayToolsData {
 			'/setup/landings-generate.php',
 		];
 	}
-	
+
 	public static function keysRemoveSuffix(): array
 	{
 		return [
@@ -554,9 +551,8 @@ abstract class ArrayToolsData {
 				'User',
 			],
 		];
-		
 	}
-	
+
 	public static function valuesRemovePrefix(): array
 	{
 		return [
@@ -592,7 +588,7 @@ abstract class ArrayToolsData {
 			],
 		];
 	}
-	
+
 	public static function valuesRemoveSuffix(): array
 	{
 		return [
@@ -632,7 +628,7 @@ abstract class ArrayToolsData {
 			],
 		];
 	}
-	
+
 	public static function filterKeyPrefixes(): array
 	{
 		$a = [
@@ -708,7 +704,7 @@ abstract class ArrayToolsData {
 			],
 		];
 	}
-	
+
 	public static function filter(): array
 	{
 		$arr = [
@@ -722,7 +718,7 @@ abstract class ArrayToolsData {
 			'C' => 'another',
 			3   => 'dogs',
 		];
-		
+
 		return [
 			[
 				[
@@ -792,7 +788,7 @@ abstract class ArrayToolsData {
 			],
 		];
 	}
-	
+
 	public static function trim(): array
 	{
 		return [
@@ -808,7 +804,7 @@ abstract class ArrayToolsData {
 			],
 		];
 	}
-	
+
 	public static function has(): array
 	{
 		$array = [
@@ -816,7 +812,7 @@ abstract class ArrayToolsData {
 			3       => 'dude',
 			'kitty' => 'cat',
 		];
-		
+
 		return [
 			[
 				$array,
@@ -850,7 +846,7 @@ abstract class ArrayToolsData {
 			],
 		];
 	}
-	
+
 	public static function merge(): array
 	{
 		$a1 = [
@@ -902,7 +898,7 @@ abstract class ArrayToolsData {
 			],
 		];
 	}
-	
+
 	public static function dataTranspose(): array
 	{
 		$arr = [
@@ -981,9 +977,8 @@ abstract class ArrayToolsData {
 		];
 		return $tests;
 	}
-	
-	
-	static public function dataIsList(): array
+
+	public static function dataIsList(): array
 	{
 		return [
 			[
@@ -1077,7 +1072,7 @@ abstract class ArrayToolsData {
 			],
 		];
 	}
-	
+
 	public static function wrap(): array
 	{
 		return [
@@ -1111,7 +1106,7 @@ abstract class ArrayToolsData {
 				[
 					'a' => 'abbb',
 				],
-				['a' => 'b',],
+				['a' => 'b', ],
 				'a',
 				'bb',
 			],
@@ -1145,8 +1140,7 @@ abstract class ArrayToolsData {
 			],
 		];
 	}
-	
-	
+
 	public static function prefixKeys(): array
 	{
 		return [
@@ -1167,8 +1161,7 @@ abstract class ArrayToolsData {
 			],
 		];
 	}
-	
-	
+
 	public static function hasAnyValues(): array
 	{
 		return [
@@ -1294,8 +1287,7 @@ abstract class ArrayToolsData {
 			],
 		];
 	}
-	
-	
+
 	public static function hasAnyKey(): array
 	{
 		return [
@@ -1622,7 +1614,7 @@ abstract class ArrayToolsData {
 			],
 		];
 	}
-	
+
 	public static function keysMap(): array
 	{
 		return [
@@ -1691,7 +1683,7 @@ abstract class ArrayToolsData {
 			],
 		];
 	}
-	
+
 	public static function pairValues(): array
 	{
 		return [
@@ -1725,7 +1717,7 @@ abstract class ArrayToolsData {
 			],
 		];
 	}
-	
+
 	public static function valuesMap(): array
 	{
 		return [
@@ -1765,7 +1757,7 @@ abstract class ArrayToolsData {
 			],
 		];
 	}
-	
+
 	public static function keysFind(): array
 	{
 		return [
@@ -1795,7 +1787,7 @@ abstract class ArrayToolsData {
 			],
 		];
 	}
-	
+
 	public static function max(): array
 	{
 		return [
@@ -1847,7 +1839,7 @@ abstract class ArrayToolsData {
 			],
 		];
 	}
-	
+
 	public static function min(): array
 	{
 		return [
@@ -1905,7 +1897,7 @@ abstract class ArrayToolsData {
 			],
 		];
 	}
-	
+
 	public static function append(): array
 	{
 		return [
@@ -1962,7 +1954,7 @@ abstract class ArrayToolsData {
 			],
 		];
 	}
-	
+
 	public static function filterKeys(): array
 	{
 		return [
@@ -2004,8 +1996,7 @@ abstract class ArrayToolsData {
 			],
 		];
 	}
-	
-	
+
 	public static function preg_quote(): array
 	{
 		return [
@@ -2026,8 +2017,7 @@ abstract class ArrayToolsData {
 			],
 		];
 	}
-	
-	
+
 	public static function prepend(): array
 	{
 		return [
@@ -2067,8 +2057,7 @@ abstract class ArrayToolsData {
 			],
 		];
 	}
-	
-	
+
 	public static function listTrim(): array
 	{
 		return [
@@ -2104,5 +2093,4 @@ abstract class ArrayToolsData {
 			],
 		];
 	}
-	
 }

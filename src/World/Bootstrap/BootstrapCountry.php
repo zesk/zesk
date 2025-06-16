@@ -26,21 +26,21 @@ use zesk\World\Country;
  * @author kent
  *
  */
-class BootstrapCountry extends Hookable {
-	
+class BootstrapCountry extends Hookable
+{
 	/**
 	 * Source http://download.geonames.org/export/dump/countryInfo.txt
 	 *
 	 * Country database (TXT file)
 	 */
 	public const url_geonames_country_file = 'https://download.geonames.org/export/dump/countryInfo.txt';
-	
+
 	/**
 	 *
 	 * @var array
 	 */
 	private array $include_country;
-	
+
 	/**
 	 *
 	 * @param Application $application
@@ -51,7 +51,7 @@ class BootstrapCountry extends Hookable {
 	{
 		return new self($application, $options);
 	}
-	
+
 	/**
 	 *
 	 * @param mixed $options
@@ -65,7 +65,7 @@ class BootstrapCountry extends Hookable {
 		$include_country = $this->optionIterable('include_country');
 		$this->include_country = array_change_key_case(ArrayTools::keysFromValues(Types::toList($include_country), true));
 	}
-	
+
 	public function bootstrap(): void
 	{
 		$application = $this->application;
@@ -80,7 +80,7 @@ class BootstrapCountry extends Hookable {
 		}
 		$em->flush();
 	}
-	
+
 	private function is_included(Country $country)
 	{
 		if ($this->include_country) {
@@ -88,7 +88,7 @@ class BootstrapCountry extends Hookable {
 		}
 		return true;
 	}
-	
+
 	/**
 	 * Fetch and synchronize country source files
 	 *
@@ -112,7 +112,7 @@ class BootstrapCountry extends Hookable {
 				if (in_array('#ISO', $row)) {
 					$headers = ArrayTools::changeValueCase(ArrayTools::valuesRemovePrefix($row, '#'));
 				}
-				
+
 				continue;
 			} else {
 				$row = ArrayTools::rekey($headers, $row);

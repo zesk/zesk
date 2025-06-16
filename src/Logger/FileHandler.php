@@ -12,20 +12,20 @@ namespace zesk\Logger;
 
 use zesk\ArrayTools;
 
-class FileHandler implements Handler {
-	
+class FileHandler implements Handler
+{
 	/**
 	 * File
 	 *
 	 * @var mixed $resource
 	 */
 	public mixed $resource;
-	
+
 	public function __construct(string $name)
 	{
 		$this->resource = fopen($name, 'ab');
 	}
-	
+
 	public function log(string $message, array $context = []): void
 	{
 		$prefix = $context['_levelString'] ?? '';
@@ -39,7 +39,7 @@ class FileHandler implements Handler {
 		fwrite($this->resource, $string);
 		fflush($this->resource);
 	}
-	
+
 	public function __destruct()
 	{
 		fclose($this->resource);

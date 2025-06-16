@@ -38,48 +38,48 @@ use zesk\Types;
 use zesk\URL;
 use function random_int;
 
-class TestCase extends BaseTestCase {
-	
+class TestCase extends BaseTestCase
+{
 	/**
 	 * @var bool
 	 */
 	protected bool $configureApplication = false;
-	
+
 	/**
 	 *
 	 * @var ?Application
 	 */
 	protected ?Application $application = null;
-	
+
 	/**
 	 *
 	 * @var array
 	 */
 	protected array $loadModules = [];
-	
+
 	/**
 	 *
 	 * @var ?Configuration
 	 */
 	protected ?Configuration $configuration = null;
-	
+
 	/**
 	 * Current object's configuration (better version than using Options superclass)
 	 *
 	 * @var ?Configuration
 	 */
 	protected ?Configuration $option = null;
-	
+
 	/**
 	 * @var string
 	 */
 	protected string $cacheHome = '';
-	
+
 	/**
 	 * @var bool
 	 */
 	private bool $initialized = false;
-	
+
 	/**
 	 * Must *not* call in dataProvider
 	 *
@@ -89,7 +89,7 @@ class TestCase extends BaseTestCase {
 	{
 		return Kernel::singleton()->application();
 	}
-	
+
 	/**
 	 * Ensures our zesk variables above are properly populated
 	 *
@@ -136,7 +136,7 @@ class TestCase extends BaseTestCase {
 			$this->application->configure();
 		}
 	}
-	
+
 	private function subclassInitialize(): void
 	{
 		if (!$this->initialized) {
@@ -146,7 +146,7 @@ class TestCase extends BaseTestCase {
 			$this->initialized = true;
 		}
 	}
-	
+
 	private function subclassShutdown(): void
 	{
 		if ($this->initialized) {
@@ -156,13 +156,13 @@ class TestCase extends BaseTestCase {
 			$this->initialized = false;
 		}
 	}
-	
+
 	public function checkMemoryUsage(): void
 	{
 		$usage = memory_get_usage(true);
 		$this->application->info('Memory usage: ' . Number::formatBytes($this->application->locale, $usage));
 		$maxFile = $this->application->path('.memory_get_usage');
-		
+
 		try {
 			$item = intval(File::contents($maxFile));
 		} catch (Exception) {
@@ -176,7 +176,7 @@ class TestCase extends BaseTestCase {
 			}
 		}
 	}
-	
+
 	/**
 	 * Easy way to defer setup until data is needed. Use this on input parameters to convert
 	 * any closures to values which depend on setUp.
@@ -197,7 +197,7 @@ class TestCase extends BaseTestCase {
 		}
 		return $mixed;
 	}
-	
+
 	public function tearDown(): void
 	{
 		$this->subclassShutdown();
@@ -208,7 +208,7 @@ class TestCase extends BaseTestCase {
 		unset($this->option);
 		$this->_test_sandbox_shutdown();
 	}
-	
+
 	public function assertPreConditions(): void
 	{
 		$this->assertInstanceOf(Configuration::class, $this->configuration);
@@ -220,7 +220,7 @@ class TestCase extends BaseTestCase {
 			'debug'     => $this->option->toArray(),
 		]));
 	}
-	
+
 	public function assertPostConditions(): void
 	{
 		try {
@@ -228,12 +228,12 @@ class TestCase extends BaseTestCase {
 		} catch (FilePermission) {
 		}
 	}
-	
+
 	private function lastTestCaseFile(): string
 	{
 		return $this->application->path('.phpunit-testcase-last');
 	}
-	
+
 	/**
 	 *
 	 * @param string $string
@@ -244,7 +244,7 @@ class TestCase extends BaseTestCase {
 	{
 		$this->assertTrue(URL::valid($string), $message ?: "$string is not a URL");
 	}
-	
+
 	/**
 	 * @param string|array $keys
 	 * @param array        $array
@@ -258,7 +258,7 @@ class TestCase extends BaseTestCase {
 			$this->assertArrayHasKey($key, $array, $message);
 		}
 	}
-	
+
 	/**
 	 * Generate a list of absolute paths
 	 *
@@ -274,7 +274,7 @@ class TestCase extends BaseTestCase {
 		}
 		return $result;
 	}
-	
+
 	/**
 	 * All the passed in directories MUST exist to succeed
 	 *
@@ -291,7 +291,7 @@ class TestCase extends BaseTestCase {
 			$this->assertDirectoryExists($path, "$index: $path $message");
 		}
 	}
-	
+
 	/**
 	 * All the passed in directories MUST exist to succeed
 	 *
@@ -308,7 +308,7 @@ class TestCase extends BaseTestCase {
 			$this->assertDirectoryDoesNotExist($path, "$index: $path $message");
 		}
 	}
-	
+
 	/**
 	 * Assert that the expected value is an integer
 	 *
@@ -319,7 +319,7 @@ class TestCase extends BaseTestCase {
 	{
 		$this->assertTrue(is_int($expected), $message ?: 'Item expected to be an integer but is a ' . Types::type($expected));
 	}
-	
+
 	/**
 	 * PHPUnit "echo" and "print" are captured, so we use fprintf(STDERR) to output test debugging stuff
 	 *
@@ -336,7 +336,7 @@ class TestCase extends BaseTestCase {
 		$contents = trim($contents, "\n");
 		fprintf(STDERR, "\n$contents\n");
 	}
-	
+
 	/**
 	 * @param int $count
 	 * @return string
@@ -347,7 +347,7 @@ class TestCase extends BaseTestCase {
 			return random_bytes($count);
 		} catch (\Exception) {
 		}
-		
+
 		try {
 			$result = '';
 			do {
@@ -362,7 +362,7 @@ class TestCase extends BaseTestCase {
 		} while (strlen($result) < $count);
 		return $result;
 	}
-	
+
 	/**
 	 * @param int $min
 	 * @param int $max
@@ -376,7 +376,7 @@ class TestCase extends BaseTestCase {
 			return -1;
 		}
 	}
-	
+
 	/**
 	 * @param int $characters
 	 * @return string
@@ -389,7 +389,7 @@ class TestCase extends BaseTestCase {
 		} while (strlen($result) < $characters);
 		return substr($result, 0, $characters);
 	}
-	
+
 	/**
 	 * Create a sandbox folder to test with
 	 *
@@ -402,7 +402,7 @@ class TestCase extends BaseTestCase {
 	{
 		return $this->sandbox($file, $auto_delete);
 	}
-	
+
 	/**
 	 */
 	final public function sandbox(string $file = '', bool $auto_delete = true): string
@@ -420,7 +420,7 @@ class TestCase extends BaseTestCase {
 		}
 		return Directory::path($cache_dir, $file);
 	}
-	
+
 	/**
 	 * Delete cache dir after test runs
 	 *
@@ -442,13 +442,13 @@ class TestCase extends BaseTestCase {
 			}
 		}
 	}
-	
+
 	public function streamCapture(mixed $stream): void
 	{
 		stream_filter_register('testIntercept', StreamIntercept::class);
 		stream_filter_append($stream, 'testIntercept');
 	}
-	
+
 	/**
 	 * @param string     $name
 	 * @param mixed|null $default
@@ -461,12 +461,12 @@ class TestCase extends BaseTestCase {
 			$name,
 		], $default);
 	}
-	
+
 	public function optionBool(string $name, bool $default = false): bool
 	{
 		return Types::toBool($this->option($name, $default), null) ?? $default;
 	}
-	
+
 	public function awaitFile(string $filename, float $timeout = 5.0): void
 	{
 		$timer = new Timer();
@@ -475,7 +475,7 @@ class TestCase extends BaseTestCase {
 			$this->assertLessThan($timeout, $timer->elapsed(), "Timer elapsed beyond $timeout seconds awaiting $filename");
 		}
 	}
-	
+
 	/**
 	 * @param string $includeFile
 	 * @return string[]
@@ -484,7 +484,7 @@ class TestCase extends BaseTestCase {
 	{
 		return [$includeFile];
 	}
-	
+
 	protected function zeskBin(): string
 	{
 		$zeskBin = $this->application->zeskHome('bin/zesk');
@@ -493,7 +493,7 @@ class TestCase extends BaseTestCase {
 		// 2>&1 Captures stderr to capture output with $captureFail
 		return "XDEBUG_ENABLED=0 $zeskBin {*} 2>&1";
 	}
-	
+
 	/**
 	 * @param array $args
 	 * @param bool  $captureFail
@@ -508,11 +508,11 @@ class TestCase extends BaseTestCase {
 			if ($captureFail) {
 				return $e->getOutput();
 			}
-			
+
 			throw $e;
 		}
 	}
-	
+
 	/**
 	 * Run a PHP include file and return lines of output as an array.
 	 *
@@ -524,7 +524,7 @@ class TestCase extends BaseTestCase {
 	{
 		return $this->application->process->executeArguments($this->zeskBin(), $this->zeskBinIncludeArgs($includeFile));
 	}
-	
+
 	/**
 	 * Run a PHP include file in the background and return the PID of the process.
 	 *
@@ -537,7 +537,7 @@ class TestCase extends BaseTestCase {
 		$output = $this->test_sandbox(basename($includeFile) . '.log');
 		return $this->application->process->executeBackground($this->zeskBin(), $this->zeskBinIncludeArgs($includeFile), $output, $output);
 	}
-	
+
 	/**
 	 * @param       $message
 	 * @param array $args
@@ -547,7 +547,7 @@ class TestCase extends BaseTestCase {
 	{
 		$this->application->debug($message, $args);
 	}
-	
+
 	/**
 	 * Assert an object or class implements an interface
 	 *
@@ -561,7 +561,7 @@ class TestCase extends BaseTestCase {
 		$interfaces = class_implements($instanceof);
 		$this->assertInArray($interface_class, $interfaces, $message);
 	}
-	
+
 	/**
 	 * @param mixed  $mixed
 	 * @param array  $array
@@ -576,7 +576,7 @@ class TestCase extends BaseTestCase {
 		$message .= "Array does not contain value \"$mixed\" (values: " . implode(', ', array_values($array)) . ')';
 		$this->assertTrue(in_array($mixed, $array), $message);
 	}
-	
+
 	/**
 	 * @param mixed  $mixed
 	 * @param array  $array
@@ -591,7 +591,7 @@ class TestCase extends BaseTestCase {
 		$message .= "Array contains value and should not \"$mixed\" (values: " . implode(', ', array_values($array)) . ')';
 		$this->assertFalse(in_array($mixed, $array), $message);
 	}
-	
+
 	/**
 	 * Central place to dump variables to output.
 	 * Use PHP output to facilitate generating tests whose output can be copied for first writing
@@ -604,7 +604,7 @@ class TestCase extends BaseTestCase {
 	{
 		return PHP::singleton()->settingsOneLine()->render($value);
 	}
-	
+
 	/**
 	 * Given a class and a method, make the available method not-private to do blackbox testing
 	 *

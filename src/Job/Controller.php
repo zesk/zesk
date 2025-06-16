@@ -10,26 +10,26 @@ use zesk\Exception\NotFoundException;
 use zesk\Request;
 use zesk\Response;
 
-class Controller extends BaseController {
-	
+class Controller extends BaseController
+{
 	public const OPTION_REQUIRE_USER = 'requireUser';
-	
+
 	public const OPTION_USER_PERMISSION = 'userPermission';
-	
+
 	public const DEFAULT_USER_PERMISSION = 'view';
-	
+
 	protected array $argumentMethods = [
 		'arguments_{METHOD}_{action}',
 	];
-	
+
 	protected array $actionMethods = [
 		'action_{METHOD}_{action}',
 	];
-	
+
 	protected array $beforeMethods = [];
-	
+
 	protected array $afterMethods = [];
-	
+
 	/**
 	 * @param Request  $request
 	 * @param Response $response
@@ -43,7 +43,7 @@ class Controller extends BaseController {
 		$id = $arguments[0];
 		if ($id instanceof Job) {
 			$job = $id;
-		} else if (is_int($id) || is_string($id)) {
+		} elseif (is_int($id) || is_string($id)) {
 			try {
 				$job = Job::find($this->application, $id);
 			} catch (Throwable $t) {
@@ -71,7 +71,7 @@ class Controller extends BaseController {
 			$response,
 		];
 	}
-	
+
 	/**
 	 * @param Job      $job
 	 * @param Response $response
@@ -93,7 +93,7 @@ class Controller extends BaseController {
 		} else {
 			$result['progress'] = 100;
 			$result['completed'] = $job->completed;
-			
+
 			try {
 				if ($job->hasData('content')) {
 					$result['content'] = $job->data('content');

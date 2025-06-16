@@ -22,20 +22,20 @@ use zesk\Types;
  * @author kent
  *
  */
-class Translate extends SimpleCommand {
-	
+class Translate extends SimpleCommand
+{
 	/**
 	 *
 	 * @var integer
 	 */
 	public const ERROR_ARGS = 1;
-	
+
 	/**
 	 *
 	 * @var integer
 	 */
 	public const ERROR_FILE_FORMAT = 3;
-	
+
 	/**
 	 *
 	 * @var array
@@ -48,7 +48,7 @@ class Translate extends SimpleCommand {
 		'destination'   => 'dir',
 		'language-file' => 'file',
 	];
-	
+
 	/**
 	 *
 	 * @var array
@@ -59,13 +59,13 @@ class Translate extends SimpleCommand {
 		'interactive' => 'boolean',
 		'list'        => 'boolean',
 	];
-	
+
 	/**
 	 *
 	 * @var Translate
 	 */
 	protected TranslateService $service;
-	
+
 	/**
 	 *
 	 * {@inheritdoc}
@@ -100,12 +100,12 @@ class Translate extends SimpleCommand {
 			return self::ERROR_ARGS;
 		}
 		$source_language = $this->option('source', $app->locale->language());
-		
+
 		$target_language = strtolower($target_language);
 		$source_language = strtolower($source_language);
-		
+
 		$default_class = ArrayTools::first($classes);
-		
+
 		try {
 			$service_object = $this->service = TranslateService::translateFactory($app, $target_language, $source_language);
 		} catch (Exception $e) {
@@ -116,7 +116,7 @@ class Translate extends SimpleCommand {
 			'class' => $service_object::class,
 		]);
 		$target_file = Directory::path($destination, "$target_language.inc");
-		
+
 		if (!is_file($target_file)) {
 			$target_file = file_put_contents($target_file, ArrayTools::map('<' . "?php\n// Generated file by {class}, editing OK\n\$tt = array();\n\nreturn \$tt;\n", ['class' => $default_class]));
 		}
@@ -134,7 +134,7 @@ class Translate extends SimpleCommand {
 			$this->error('translation file {translation_file} is empty', compact('translation_file'));
 			return self::ERROR_FILE_FORMAT;
 		}
-		
+
 		$tt = [];
 		foreach ($translation_file as $key => $phrase) {
 			[
@@ -143,7 +143,7 @@ class Translate extends SimpleCommand {
 			] = $this->preprocessPhrase($phrase);
 			$translation = $service_object->translate($phrase);
 			$translation = $this->postprocessPhrase($translation, $context);
-			
+
 			$tt[$key] = $translation;
 		}
 		if ($this->optionBool('verbose')) {
@@ -151,7 +151,7 @@ class Translate extends SimpleCommand {
 		}
 		return 0;
 	}
-	
+
 	/**
 	 * Remove tokens from the phrase so they are not automatically translated (and left alone by
 	 * remote service)
@@ -174,7 +174,7 @@ class Translate extends SimpleCommand {
 			array_flip($map),
 		];
 	}
-	
+
 	/**
 	 * Replace mapped tokens with originals
 	 *

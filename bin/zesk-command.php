@@ -16,25 +16,25 @@ namespace zesk;
 
 use Throwable;
 
-class CommandLoaderFactory {
-	
+class CommandLoaderFactory
+{
 	public static function main(): void
 	{
 		$here = dirname(__DIR__) . '/';
 		if (str_contains(__DIR__, 'vendor/bin')) {
 			$here .= 'zesk/zesk/';
 		}
-		
+
 		/* We love debuggers */
 		require_once $here . 'xdebug.php';
 		/* Basic autoloader */
 		require_once $here . 'autoload.php';
-		
+
 		/**
 		 * Run a zesk command and exit
 		 */
 		$command = CommandLoader::factory();
-		
+
 		try {
 			exit($command->terminate($command->run()));
 		} catch (Throwable $e) {

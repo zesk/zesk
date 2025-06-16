@@ -7,8 +7,8 @@ use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\GeneratedValue;
 use Doctrine\ORM\Mapping\Id as MappingId;
 
-trait AutoID {
-	
-	#[MappingId, Column(type: 'integer', options: ["unsigned" => true]), GeneratedValue]
+trait AutoID
+{
+	#[MappingId, Column(type: 'integer', options: ['unsigned' => true]), GeneratedValue]
 	public null|int $id = null;
 }

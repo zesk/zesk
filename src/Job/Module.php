@@ -28,13 +28,13 @@ use zesk\Module as BaseModule;
  *
  * @author kent
  */
-class Module extends BaseModule implements Routes {
-	
+class Module extends BaseModule implements Routes
+{
 	/**
 	 * Call a method to wait for a job to be delivered instead of polling the database (default) every n seconds.
 	 */
 	public const HOOK_WAIT_FOR_JOB = __CLASS__ . '::waitForJob';
-	
+
 	/**
 	 *
 	 * @var array
@@ -42,7 +42,7 @@ class Module extends BaseModule implements Routes {
 	protected array $modelClasses = [
 		Job::class,
 	];
-	
+
 	/**
 	 * For testing, call this statically from zesk eval, a web request, or a debugger
 	 */
@@ -50,7 +50,7 @@ class Module extends BaseModule implements Routes {
 	{
 		$application = $this->application;
 		$quit_after = $application->configuration->getPath(__CLASS__ . '::fake_daemon_quit_after', 5000);
-		
+
 		try {
 			PHP::setFeature(PHP::FEATURE_TIME_LIMIT, $quit_after);
 		} catch (UnimplementedException $e) {
@@ -61,7 +61,7 @@ class Module extends BaseModule implements Routes {
 		]);
 		Job::executeJobs($process);
 	}
-	
+
 	/**
 	 * Run daemon
 	 *
@@ -79,7 +79,7 @@ class Module extends BaseModule implements Routes {
 		if (!$hasHooks) {
 			$app->debug('No hook exists for wait_for_job, sleeping interval is {seconds} seconds', compact('seconds'));
 		}
-		
+
 		declare(ticks=1) {
 			while (!$process->done()) {
 				Job::executeJobs($process);
@@ -95,7 +95,7 @@ class Module extends BaseModule implements Routes {
 			}
 		}
 	}
-	
+
 	/**
 	 * Daemon hook
 	 *
@@ -113,7 +113,7 @@ class Module extends BaseModule implements Routes {
 		$module = $application->jobModule();
 		$module->runDaemon($process);
 	}
-	
+
 	/**
 	 * Add routes to Router
 	 *
@@ -136,10 +136,10 @@ class Module extends BaseModule implements Routes {
 			]);
 		}
 	}
-	
+
 	/**
 	 * Hides `job-execute` in routes added
 	 * Type: bool
 	 */
-	const OPTION_HIDE_DEVELOPMENT = 'hideDevelopment';
+	public const OPTION_HIDE_DEVELOPMENT = 'hideDevelopment';
 }

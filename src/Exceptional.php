@@ -5,8 +5,8 @@ namespace zesk;
 
 use Throwable;
 
-trait Exceptional {
-	
+trait Exceptional
+{
 	/**
 	 * Raw message without variables substituted.
 	 * Allows logging of messages before substitutions.
@@ -14,7 +14,7 @@ trait Exceptional {
 	 * @var string
 	 */
 	public string $raw_message = '';
-	
+
 	/**
 	 * Arguments for message.
 	 * Uses map()
@@ -22,7 +22,7 @@ trait Exceptional {
 	 * @var array
 	 */
 	public array $arguments = [];
-	
+
 	/**
 	 * Construct a new exception
 	 *
@@ -42,7 +42,7 @@ trait Exceptional {
 		$map_message = strval(ArrayTools::map($this->raw_message, $this->arguments));
 		parent::__construct($map_message, $code, $previous);
 	}
-	
+
 	/**
 	 * @return string
 	 */
@@ -53,7 +53,7 @@ trait Exceptional {
 			'Exception',
 		]);
 	}
-	
+
 	/**
 	 * @return string
 	 */
@@ -61,7 +61,7 @@ trait Exceptional {
 	{
 		return $this->raw_message;
 	}
-	
+
 	/**
 	 * Retrieve variables for a Template
 	 *
@@ -70,12 +70,12 @@ trait Exceptional {
 	public function variables(): array
 	{
 		return $this->arguments + [
-				'rawMessage' => $this->raw_message,
-				'arguments'  => $this->arguments,
-				'codeName'   => $this->codeName(),
-			] + Exception::phpExceptionVariables($this);
+			'rawMessage' => $this->raw_message,
+			'arguments'  => $this->arguments,
+			'codeName'   => $this->codeName(),
+		] + Exception::phpExceptionVariables($this);
 	}
-	
+
 	/**
 	 * Used by zesk\Logger::log
 	 *
@@ -86,7 +86,7 @@ trait Exceptional {
 	{
 		return $this->variables();
 	}
-	
+
 	/**
 	 * Used by zesk\Logger::log
 	 *

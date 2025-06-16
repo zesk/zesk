@@ -19,20 +19,20 @@ use zesk\Net_Sync;
  *
  * @author kent
  */
-class Net_SSL_Certificate {
-	
+class Net_SSL_Certificate
+{
 	/**
 	 *
 	 * @var string
 	 */
 	public const CACERT_FILENAME = 'cacert.pem';
-	
+
 	/**
 	 *
 	 * @var string
 	 */
 	public const CACERT_TRUSTED_URL = 'http://curl.haxx.se/ca/' . self::CACERT_FILENAME;
-	
+
 	/**
 	 *
 	 * @param array $try_paths
@@ -60,7 +60,7 @@ class Net_SSL_Certificate {
 		}
 		return Directory::path($first_valid_dir, self::CACERT_FILENAME);
 	}
-	
+
 	/**
 	 *
 	 * @param Application $application

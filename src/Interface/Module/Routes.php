@@ -13,8 +13,8 @@ use zesk\Router;
 /**
  * Add this to modules to enforce the correct hook syntax for Application::HOOK_ROUTER
  */
-interface Routes {
-	
+interface Routes
+{
 	#[HookMethod(handles: Application::HOOK_ROUTER)]
 	public function addRoutes(Router $router): void;
 }

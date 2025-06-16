@@ -13,13 +13,13 @@ use zesk\Types;
 /**
  * SettingsInterface adapter
  */
-class SettingsArray implements SettingsInterface {
-	
+class SettingsArray implements SettingsInterface
+{
 	/**
 	 *
 	 */
 	protected array $data;
-	
+
 	/**
 	 *
 	 */
@@ -27,14 +27,14 @@ class SettingsArray implements SettingsInterface {
 	{
 		$this->data = &$array;
 	}
-	
-	const ZESK_GLOBAL_KEY_SEPARATOR = '::';
-	
+
+	public const ZESK_GLOBAL_KEY_SEPARATOR = '::';
+
 	private function _keyPath(int|string $key): array
 	{
 		return Types::toList(strval($key), [], self::ZESK_GLOBAL_KEY_SEPARATOR);
 	}
-	
+
 	/**
 	 * Is a value set in this object?
 	 *
@@ -45,7 +45,7 @@ class SettingsArray implements SettingsInterface {
 	{
 		return ArrayTools::path($this->data, self::_keyPath($name)) !== null;
 	}
-	
+
 	/**
 	 * Is a value set in this object?
 	 *
@@ -56,7 +56,7 @@ class SettingsArray implements SettingsInterface {
 	{
 		return $this->__isset($key);
 	}
-	
+
 	/**
 	 * Retrieve a value from the settings
 	 *
@@ -67,7 +67,7 @@ class SettingsArray implements SettingsInterface {
 	{
 		return $this->get($key);
 	}
-	
+
 	/**
 	 * Retrieve a value from the settings, returning a default value if not set
 	 *
@@ -79,7 +79,7 @@ class SettingsArray implements SettingsInterface {
 	{
 		return ArrayTools::path($this->data, self::_keyPath($key), $default);
 	}
-	
+
 	/**
 	 * Store a value to a settings
 	 *
@@ -90,7 +90,7 @@ class SettingsArray implements SettingsInterface {
 	{
 		ArrayTools::setPath($this->data, self::_keyPath($key), $value);
 	}
-	
+
 	/**
 	 * Store a value to a settings
 	 *
@@ -103,7 +103,7 @@ class SettingsArray implements SettingsInterface {
 		$this->__set($key, $value);
 		return $this;
 	}
-	
+
 	/**
 	 * Retrieve a list of all settings variables as an array
 	 *

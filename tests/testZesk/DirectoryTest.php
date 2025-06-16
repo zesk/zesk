@@ -22,24 +22,24 @@ use zesk\StringTools;
  * @author kent
  *
  */
-class testdir {
-	
+class testdir
+{
 	public static array $dirs = [];
-	
+
 	public static array $files = [];
-	
+
 	public static function collect_dirs($name): void
 	{
 		echo "DIR: $name\n";
 		self::$dirs[] = $name;
 	}
-	
+
 	public static function collect_files($name): void
 	{
 		echo "FILE: $name\n";
 		self::$files[] = $name;
 	}
-	
+
 	public static function dump(): array
 	{
 		return [
@@ -54,8 +54,8 @@ class testdir {
  * @author kent
  *
  */
-class DirectoryTest extends TestCase {
-	
+class DirectoryTest extends TestCase
+{
 	public static function data_path(): array
 	{
 		return [
@@ -145,7 +145,7 @@ class DirectoryTest extends TestCase {
 			],
 		];
 	}
-	
+
 	/**
 	 * @param string $result
 	 * @param array  $args
@@ -158,7 +158,7 @@ class DirectoryTest extends TestCase {
 		$this->assertEquals($result, call_user_func_array(Directory::path(...), $args));
 		$this->assertEquals($result, (Directory::path($args)));
 	}
-	
+
 	public static function data_isAbsolute(): array
 	{
 		return [
@@ -188,7 +188,7 @@ class DirectoryTest extends TestCase {
 			],
 		];
 	}
-	
+
 	/**
 	 * @param bool   $expected
 	 * @param string $path
@@ -200,7 +200,7 @@ class DirectoryTest extends TestCase {
 	{
 		$this->assertEquals($expected, Directory::isAbsolute($path));
 	}
-	
+
 	/**
 	 * @return void
 	 * @throws DirectoryNotFound
@@ -220,7 +220,7 @@ class DirectoryTest extends TestCase {
 		Directory::delete($path);
 		$this->assertFalse(is_dir($path));
 	}
-	
+
 	/**
 	 * @return void
 	 * @throws DirectoryNotFound
@@ -235,7 +235,7 @@ class DirectoryTest extends TestCase {
 		$this->expectException(DirectoryNotFound::class);
 		Directory::delete($path);
 	}
-	
+
 	/**
 	 * @return void
 	 * @throws DirectoryNotFound
@@ -258,7 +258,7 @@ class DirectoryTest extends TestCase {
 		$this->assertTrue(Directory::isEmpty($path));
 		Directory::delete($path);
 	}
-	
+
 	public static function data_undot_examples(): array
 	{
 		return [
@@ -276,7 +276,7 @@ class DirectoryTest extends TestCase {
 			],
 		];
 	}
-	
+
 	/**
 	 * @dataProvider data_undot_examples
 	 * @covers       \zesk\Directory::removeDots
@@ -290,7 +290,7 @@ class DirectoryTest extends TestCase {
 			$this->assertEquals($expect, Directory::removeDots($name));
 		}
 	}
-	
+
 	/**
 	 * @return void
 	 * @covers \zesk\Directory::listRecursive
@@ -307,7 +307,7 @@ class DirectoryTest extends TestCase {
 		$fileStub = StringTools::removePrefix(__FILE__, $this->application->zeskHome());
 		$this->assertInArray($fileStub, $results);
 	}
-	
+
 	public static function data_stripSlash(): array
 	{
 		return [
@@ -329,7 +329,7 @@ class DirectoryTest extends TestCase {
 			],
 		];
 	}
-	
+
 	/**
 	 * @param string $string
 	 * @param string $expected
@@ -341,7 +341,7 @@ class DirectoryTest extends TestCase {
 	{
 		$this->assertEquals($expected, Directory::stripSlash($string));
 	}
-	
+
 	/**
 	 * @return void
 	 * @throws DirectoryNotFound
@@ -353,7 +353,7 @@ class DirectoryTest extends TestCase {
 		$path = $this->sandbox('testdir');
 		$filter = '/.*/';
 		$success = false;
-		
+
 		try {
 			$this->assertFalse(Directory::ls($path, $filter, false));
 		} catch (DirectoryNotFound $e) {
@@ -363,7 +363,7 @@ class DirectoryTest extends TestCase {
 		$this->assertTrue(mkdir($path, 0o777));
 		$this->assertEquals([], Directory::ls($path, $filter, false));
 	}
-	
+
 	/**
 	 * @throws DirectoryNotFound
 	 * @covers \zesk\Directory::iterate
@@ -374,7 +374,7 @@ class DirectoryTest extends TestCase {
 		$directory_function = null;
 		$file_function = null;
 		Directory::iterate($source, $directory_function, $file_function);
-		
+
 		$source = Application::zeskPath();
 		ob_start();
 		Directory::iterate($source, [
@@ -385,7 +385,7 @@ class DirectoryTest extends TestCase {
 			'collect_files',
 		]);
 		$iterate_dump = ob_get_clean();
-		
+
 		$root = Application::zeskPath();
 		$this->assertStringContainsString($root . 'autoload.php', $iterate_dump);
 		[
@@ -393,11 +393,11 @@ class DirectoryTest extends TestCase {
 			$files,
 		] = testdir::dump();
 		//		Debug::dump($files);
-		
+
 		$this->assertInArray($root . 'autoload.php', $files);
 		$this->assertInArray($root . 'LICENSE.md', $files);
 		$this->assertNotInArray($root . 'LICENSE.md', $dirs);
-		
+
 		$this->assertInArray($root . 'src/Exception', $dirs);
 		$this->assertNotInArray($root . '.', $dirs);
 		$this->assertNotInArray($root . '..', $dirs);
@@ -405,7 +405,7 @@ class DirectoryTest extends TestCase {
 		$this->assertNotInArray($root . '..', $files);
 		$this->assertInArray(__FILE__, $files);
 	}
-	
+
 	/**
 	 * @return void
 	 * @throws DirectoryNotFound
@@ -419,7 +419,7 @@ class DirectoryTest extends TestCase {
 		$this->expectException(DirectoryNotFound::class);
 		$this->assertTrue(Directory::isEmpty($path));
 	}
-	
+
 	/**
 	 * @return void
 	 * @throws DirectoryNotFound
@@ -431,7 +431,7 @@ class DirectoryTest extends TestCase {
 		$path = $this->sandbox(__FUNCTION__);
 		$this->assertTrue(!is_dir($path));
 		mkdir($path, 511 /* 0o777 */);
-		
+
 		$this->assertTrue(Directory::isEmpty($path));
 		$filepath = $path . '/foo.txt';
 		file_put_contents($filepath, 'hello?');
@@ -439,7 +439,7 @@ class DirectoryTest extends TestCase {
 		unlink($filepath);
 		$this->assertTrue(Directory::isEmpty($path));
 	}
-	
+
 	/**
 	 * @return void
 	 * @covers \zesk\Directory::duplicate
@@ -456,7 +456,7 @@ class DirectoryTest extends TestCase {
 		$rando = $this->randomHex(8);
 		$source = $root . 'cache/test-' . $rando;
 		$destination = $root . 'cache/test1-' . $rando;
-		
+
 		$this->assertFalse(is_dir($source));
 		$this->assertTrue(mkdir($source, 0o777 /* 0o777 */));
 		$fileCount = 8;
@@ -466,21 +466,21 @@ class DirectoryTest extends TestCase {
 			file_put_contents($name, $content);
 		}
 		$this->assertFalse(is_dir($destination));
-		
+
 		$recursive = true;
 		$file_copy_function = null;
 		Directory::duplicate($source, $destination, $recursive, $file_copy_function);
-		
+
 		$this->assertTrue(is_dir($destination));
 		$this->assertFalse(Directory::isEmpty($destination));
-		
+
 		Directory::deleteContents($destination);
 		$this->assertTrue(is_dir($destination));
 		$this->assertTrue(Directory::isEmpty($destination));
 		Directory::delete($destination);
 		$this->assertFalse(is_dir($destination));
 	}
-	
+
 	/**
 	 * @throws DirectoryCreate
 	 * @covers \zesk\Directory::create
@@ -491,7 +491,7 @@ class DirectoryTest extends TestCase {
 		$mode = 504;
 		Directory::create($path, $mode);
 	}
-	
+
 	/**
 	 * @param string $expected
 	 * @param string $test
@@ -503,7 +503,7 @@ class DirectoryTest extends TestCase {
 	{
 		$this->assertEquals($expected, Directory::addSlash($test));
 	}
-	
+
 	public static function data_add_slash(): array
 	{
 		return [

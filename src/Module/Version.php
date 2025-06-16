@@ -12,8 +12,8 @@ use zesk\JSON;
 use zesk\PHP;
 use zesk\Types;
 
-class Version {
-	
+class Version
+{
 	/**
 	 * @param array $configuration
 	 * @return string
@@ -70,7 +70,7 @@ class Version {
 						'file' => $file,
 					]);
 				}
-				
+
 				break;
 			case 'json':
 				try {
@@ -81,7 +81,7 @@ class Version {
 						'file' => $file,
 					]);
 				}
-				
+
 				break;
 			default:
 				throw new NotFoundException('Pattern "{pattern}" not found in {bytes} byte file {file}', [

@@ -16,8 +16,8 @@ namespace zesk;
  * @author kent
  *
  */
-class DocComment extends Options {
-	
+class DocComment extends Options
+{
 	/**
 	 * For patterns which are keyed by the first token in the DocComment
 	 *
@@ -31,7 +31,7 @@ class DocComment extends Options {
 	 * @var string
 	 */
 	public const OPTION_MULTI_KEYS = 'multi_keys'; // List of keys which
-	
+
 	/**
 	 * For patterns which are keyed by the second token in the DocComment
 	 *
@@ -48,7 +48,7 @@ class DocComment extends Options {
 	 * @var string
 	 */
 	public const OPTION_PARAM_KEYS = 'param_keys';
-	
+
 	/**
 	 * For patterns which are lists of items and
 	 *
@@ -64,7 +64,7 @@ class DocComment extends Options {
 	 * @var string
 	 */
 	public const OPTION_LIST_KEYS = 'list_keys';
-	
+
 	/**
 	 * For output, move @desc tags to the top of the DocComment and place a space between it and other content.
 	 *
@@ -85,26 +85,26 @@ class DocComment extends Options {
 	 * @var string
 	 */
 	public const OPTION_DESC_NO_TAG = 'desc_no_tag';
-	
+
 	/**
 	 *
 	 * @var string
 	 */
 	private string $content = '';
-	
+
 	/**
 	 * We are formatting
 	 *
 	 * @var bool
 	 */
 	private bool $format_mode;
-	
+
 	/**
 	 *
 	 * @var array
 	 */
 	private array $variables = [];
-	
+
 	/**
 	 * String is parsed, array is unparsed
 	 *
@@ -122,7 +122,7 @@ class DocComment extends Options {
 			$this->format_mode = false;
 		}
 	}
-	
+
 	/**
 	 * Retrieve all DocComment blocks in content as strings. Resulting strings are ready to be consumed.
 	 *
@@ -148,7 +148,7 @@ class DocComment extends Options {
 		}
 		return $result;
 	}
-	
+
 	/**
 	 *
 	 * @param array|string $content
@@ -159,7 +159,7 @@ class DocComment extends Options {
 	{
 		return new self($content, $options);
 	}
-	
+
 	/**
 	 * Removes stars from beginning and end of DocComments
 	 *
@@ -186,7 +186,7 @@ class DocComment extends Options {
 		// blank lines are kept intact
 		return implode("\n", $string);
 	}
-	
+
 	/**
 	 * Set the variables for this DocComment
 	 *
@@ -199,7 +199,7 @@ class DocComment extends Options {
 		$this->format_mode = true;
 		return $this;
 	}
-	
+
 	/**
 	 * Retrieve the variables for the DocComment
 	 *
@@ -212,7 +212,7 @@ class DocComment extends Options {
 		}
 		return $this->parse($this->content);
 	}
-	
+
 	/**
 	 * @param string $set
 	 * @return $this
@@ -222,7 +222,7 @@ class DocComment extends Options {
 		$this->content = $set;
 		return $this;
 	}
-	
+
 	/**
 	 * @return string
 	 */
@@ -230,7 +230,7 @@ class DocComment extends Options {
 	{
 		return $this->format_mode ? $this->format($this->variables) : $this->content;
 	}
-	
+
 	/**
 	 * @return string
 	 */
@@ -238,7 +238,7 @@ class DocComment extends Options {
 	{
 		return $this->content();
 	}
-	
+
 	/**
 	 *
 	 * @return array
@@ -248,7 +248,7 @@ class DocComment extends Options {
 		$keys = $this->optionIterable(self::OPTION_MULTI_KEYS);
 		return array_unique($keys);
 	}
-	
+
 	/**
 	 *
 	 *
@@ -259,7 +259,7 @@ class DocComment extends Options {
 	{
 		return ArrayTools::pairValues(ArrayTools::clean(explode("\n", $lines)), ' ');
 	}
-	
+
 	private function formatMultiKey($values, $key): array
 	{
 		if (!is_array($values)) {
@@ -273,7 +273,7 @@ class DocComment extends Options {
 		}
 		return $result;
 	}
-	
+
 	/**
 	 * Format is @foo
 	 *
@@ -287,14 +287,14 @@ class DocComment extends Options {
 		$keys[] = 'global'; // Dunno. Are there any other doccomments like this?
 		return array_unique($keys);
 	}
-	
+
 	private function listKeys(): array
 	{
 		$keys = $this->optionIterable(self::OPTION_LIST_KEYS);
 		$keys[] = 'see';
 		return array_unique($keys);
 	}
-	
+
 	/**
 	 * @param string $value
 	 * @return array
@@ -312,7 +312,7 @@ class DocComment extends Options {
 		}
 		return ArrayTools::rekey($keys, $values);
 	}
-	
+
 	/**
 	 *
 	 * @param array  $value
@@ -327,7 +327,7 @@ class DocComment extends Options {
 		}
 		return $result;
 	}
-	
+
 	/**
 	 * Handle items which may have more than one entry and is a simple list
 	 *
@@ -338,7 +338,7 @@ class DocComment extends Options {
 	{
 		return ArrayTools::listTrimClean(explode("\n", $value));
 	}
-	
+
 	private function formatListKey($value, $key): string
 	{
 		if (!is_array($value)) {
@@ -347,7 +347,7 @@ class DocComment extends Options {
 		$prefix = "@$key ";
 		return $prefix . implode("\n$prefix", $value);
 	}
-	
+
 	/**
 	 *
 	 * @param string $string
@@ -396,7 +396,7 @@ class DocComment extends Options {
 		}
 		return ArrayTools::trim($result);
 	}
-	
+
 	/**
 	 * Add spaces after newlines to maintain indentation for multi-line
 	 *
@@ -410,7 +410,7 @@ class DocComment extends Options {
 		$join = "\n$spaces";
 		return "@$key " . (is_array($value) ? implode($join, $value) : implode($join, explode("\n", $value)));
 	}
-	
+
 	/**
 	 *
 	 * @param array $items
@@ -421,7 +421,7 @@ class DocComment extends Options {
 		$multi_keys = ArrayTools::keysFromValues($this->multiKeys(), true);
 		$param_keys = ArrayTools::keysFromValues($this->parameterKeys(), true);
 		$list_keys = ArrayTools::keysFromValues($this->listKeys(), true);
-		
+
 		$result = [];
 		if ($this->optionBool(self::OPTION_DESC_NO_TAG) && isset($items['desc'])) {
 			$value = Types::toList(trim($items['desc']), [], "\n");
@@ -432,16 +432,16 @@ class DocComment extends Options {
 		foreach ($items as $key => $value) {
 			if (isset($multi_keys[$key])) {
 				$unparsed = $this->formatMultiKey($value, $key);
-			} else if (isset($param_keys[$key])) {
+			} elseif (isset($param_keys[$key])) {
 				$unparsed = $this->formatParameterKey($value, $key);
-			} else if (isset($list_keys[$key])) {
+			} elseif (isset($list_keys[$key])) {
 				$unparsed = $this->formatListKey($value, $key);
 			} else {
 				$unparsed = $this->formatDefault($value, $key);
 			}
 			if (is_string($unparsed)) {
 				$result[] = $unparsed;
-			} else if (is_array($unparsed)) {
+			} elseif (is_array($unparsed)) {
 				$result[] = implode("\n", $unparsed);
 			}
 		}

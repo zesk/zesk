@@ -34,10 +34,10 @@ use zesk\Types;
  *         (--set debug.db-connect=1)
  * @global boolean db-connect Set this global to alternate database
  */
-class Connect extends SimpleCommand {
-	
+class Connect extends SimpleCommand
+{
 	protected array $shortcuts = ['connect'];
-	
+
 	/**
 	 *
 	 * @var array
@@ -55,7 +55,7 @@ class Connect extends SimpleCommand {
 		'grant'          => 'boolean',
 		'host'           => 'string',
 	];
-	
+
 	/**
 	 *
 	 * @var array
@@ -71,7 +71,7 @@ class Connect extends SimpleCommand {
 		'grant'         => 'Display grant statements for the database',
 		'host'          => 'Host used in grant statement if not otherwise supplied',
 	];
-	
+
 	/**
 	 *
 	 * @return integer
@@ -88,19 +88,19 @@ class Connect extends SimpleCommand {
 		if ($this->optionBool('test')) {
 			return $this->handle_test();
 		}
-		
+
 		if ($this->optionBool('grant')) {
 			return $this->handle_grants();
 		}
-		
+
 		$name = $this->optionString('name');
 		$db = $this->application->entityManager()->getConnection();
-		
+
 		[
 			$command,
 			$args,
 		] = $this->databaseShellCommand($db);
-		
+
 		if ($this->optionBool('debug-connect')) {
 			echo "$command " . implode(' ', $args) . "\n";
 		}
@@ -117,7 +117,7 @@ class Connect extends SimpleCommand {
 		}
 		return 0;
 	}
-	
+
 	public function databaseShellCommand(Connection $connection): array
 	{
 		//		$platform = $connection->getDatabasePlatform();
@@ -132,13 +132,13 @@ class Connect extends SimpleCommand {
 		//		}
 		return []; // TODO
 	}
-	
+
 	private static array $shell_command_options = [
 		'sql-dump-command' => 'boolean. Generate a command-line SQL dump command instead of a connection command',
 		'tables'           => 'string[]. Used in conjunction with sql-dump-command - an array of tables to dump',
 		'non-blocking'     => 'boolean. Used in conjunction with sql-dump-command - dump database in a non-blocking manner.',
 	];
-	
+
 	public function mysqlShellCommand(array $options = []): array
 	{
 		/**
@@ -156,7 +156,7 @@ class Connect extends SimpleCommand {
 				]);
 			}
 		}
-		
+
 		$parts = $this->url_parts;
 		$host = $parts['host'] ?? null;
 		$user = $parts['user'] ?? null;
@@ -181,7 +181,7 @@ class Connect extends SimpleCommand {
 		}
 		$path = substr($path, 1);
 		$args[] = $path;
-		
+
 		$bin = 'mysql';
 		if (Types::toBool($options['sql-dump-command'] ?? false)) {
 			$bin = 'mysqldump';
@@ -198,7 +198,7 @@ class Connect extends SimpleCommand {
 			$args,
 		];
 	}
-	
+
 	/**
 	 *
 	 * @return int
@@ -230,7 +230,7 @@ class Connect extends SimpleCommand {
 		$this->renderFormat($dbs);
 		return 0;
 	}
-	
+
 	/**
 	 *
 	 * @return int
@@ -249,7 +249,7 @@ class Connect extends SimpleCommand {
 		$this->renderFormat($db);
 		return 0;
 	}
-	
+
 	/**
 	 * TODO
 	 */
@@ -262,7 +262,7 @@ class Connect extends SimpleCommand {
 				$object = $module->databaseRegistry($name, [
 					'connect' => false,
 				]);
-				
+
 				try {
 					$grant_statements = $object->sqlDialect()->grant([
 						'user'      => $object->urlComponent('user'),

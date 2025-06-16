@@ -1,9 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace testZesk;
 
-class DummyObject {
-	
+class DummyObject
+{
 	public function __set($n, $v): void
 	{
 		$this->$n = $v;

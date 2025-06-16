@@ -20,15 +20,15 @@ use zesk\Timestamp;
  * @author kent
  *
  */
-class Client extends NetClient implements FileSystem {
-	
+class Client extends NetClient implements FileSystem
+{
 	/**
 	 * Are we "connected"? Simply for semantic integrity between clients.
 	 *
 	 * @var boolean
 	 */
 	private $connected = false;
-	
+
 	/**
 	 * Connect to the remote host
 	 *
@@ -42,7 +42,7 @@ class Client extends NetClient implements FileSystem {
 		$this->connected = true;
 		return $this;
 	}
-	
+
 	/**
 	 * Are we connected?
 	 *
@@ -53,7 +53,7 @@ class Client extends NetClient implements FileSystem {
 	{
 		return $this->connected;
 	}
-	
+
 	/**
 	 * Disconnect if connected
 	 *
@@ -66,7 +66,7 @@ class Client extends NetClient implements FileSystem {
 		$this->connected = false;
 		return $old_connected;
 	}
-	
+
 	public function ls($path = null)
 	{
 		if ($path === null) {
@@ -91,27 +91,27 @@ class Client extends NetClient implements FileSystem {
 		}
 		return $entries;
 	}
-	
+
 	public function mkdir($path)
 	{
 		return mkdir($path);
 	}
-	
+
 	public function rmdir($path)
 	{
 		return rmdir($path);
 	}
-	
+
 	public function unlink($path)
 	{
 		return unlink($path);
 	}
-	
+
 	public function download($remote_path, $local_path)
 	{
 		return copy($remote_path, $local_path);
 	}
-	
+
 	public function upload($local_path, $remote_path, $temporary = false)
 	{
 		if ($temporary) {
@@ -135,33 +135,33 @@ class Client extends NetClient implements FileSystem {
 			return copy($local_path, $remote_path);
 		}
 	}
-	
+
 	public function pwd()
 	{
 		return getcwd();
 	}
-	
+
 	public function cd($path)
 	{
 		return chdir($path);
 	}
-	
+
 	public function chmod($path, int $mode = 0o770)
 	{
 		return chmod($path, $mode);
 	}
-	
+
 	public function stat($path)
 	{
 		$entry = [];
 		$entry['name'] = basename($path);
-		
+
 		try {
 			$stats = File::stat($path);
 		} catch (FileNotFound $e) {
 			return $entry + [
-					'type' => null,
-				];
+				'type' => null,
+			];
 		}
 		$entry['mode'] = $stats['perms']['string'];
 		$entry['type'] = $stats['filetype']['type'];
@@ -172,12 +172,12 @@ class Client extends NetClient implements FileSystem {
 		$entry['mtime_granularity'] = 'second';
 		return $entry;
 	}
-	
+
 	public function mtime($path, Timestamp $ts)
 	{
 		return touch($path, $ts->unixTimestamp());
 	}
-	
+
 	public function has_feature($feature)
 	{
 		switch ($feature) {

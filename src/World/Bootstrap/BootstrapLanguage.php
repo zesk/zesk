@@ -16,20 +16,20 @@ use zesk\StringTools;
 use zesk\Types;
 use zesk\World\Module;
 
-class BootstrapLanguage extends Hookable {
-	
+class BootstrapLanguage extends Hookable
+{
 	/**
 	 *
 	 * @var array
 	 */
 	private $include_country = null;
-	
+
 	/**
 	 *
 	 * @var array
 	 */
 	private $include_language = null;
-	
+
 	/**
 	 *
 	 * @param Application $application
@@ -40,7 +40,7 @@ class BootstrapLanguage extends Hookable {
 	{
 		return new self($application, $options);
 	}
-	
+
 	/**
 	 * @param Application $application
 	 * @param array       $options
@@ -54,7 +54,7 @@ class BootstrapLanguage extends Hookable {
 			$this->include_language = array_change_key_case(ArrayTools::keysFromValues(Types::toList($include_language), true));
 		}
 	}
-	
+
 	private function is_included(BootstrapLanguage $language)
 	{
 		if ($this->include_language) {
@@ -63,7 +63,7 @@ class BootstrapLanguage extends Hookable {
 		}
 		return true;
 	}
-	
+
 	public function bootstrap(): void
 	{
 		$application = $this->application;
@@ -84,7 +84,7 @@ class BootstrapLanguage extends Hookable {
 			}
 		}
 	}
-	
+
 	private static function _language_codes_en()
 	{
 		return [

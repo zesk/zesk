@@ -41,14 +41,14 @@ use function str_starts_with;
  *
  * @category Management
  */
-class Shell extends SimpleCommand {
-	
+class Shell extends SimpleCommand
+{
 	protected array $shortcuts = [
 		'shell',
 		'eval',
 		'evaluate',
 	];
-	
+
 	protected array $argumentTypes = [
 		'skip-configure' => 'boolean',
 		'json'           => 'boolean',
@@ -56,7 +56,7 @@ class Shell extends SimpleCommand {
 		'debug-state'    => 'boolean',
 		'*'              => 'string',
 	];
-	
+
 	protected array $option_help = [
 		'skip-configure' => 'Skip application configuration',
 		'json'           => 'Output results as JSON instead of PHP',
@@ -64,26 +64,26 @@ class Shell extends SimpleCommand {
 		'debug-state'    => 'Debug interactive state management',
 		'*'              => 'string',
 	];
-	
+
 	protected array $option_chars = [
 		'i' => 'interactive',
 		's' => 'skip-configure',
 	];
-	
+
 	/**
 	 * Variables saved before eval is run
 	 *
 	 * @var array
 	 */
 	private array $before_vars = [];
-	
+
 	/**
 	 * Variables preserved between eval lines
 	 *
 	 * @var array
 	 */
 	private array $saved_vars = [];
-	
+
 	/**
 	 * Run our eval command
 	 *
@@ -114,7 +114,7 @@ class Shell extends SimpleCommand {
 		}
 		return 0;
 	}
-	
+
 	/**
 	 * Optionally output the result of the last evaluated code
 	 *
@@ -131,7 +131,7 @@ class Shell extends SimpleCommand {
 			echo $content . "\n";
 		}
 	}
-	
+
 	/**
 	 * Interactive evaluation of commands
 	 *
@@ -154,7 +154,7 @@ class Shell extends SimpleCommand {
 				return $last_exit_code;
 			}
 			ob_start();
-			
+
 			try {
 				$__result = $this->_eval($command);
 				$last_exit_code = 0;
@@ -177,7 +177,7 @@ class Shell extends SimpleCommand {
 			$this->output_result($__result, $content);
 		}
 	}
-	
+
 	/**
 	 * Before evaluate, save global context variables
 	 */
@@ -186,7 +186,7 @@ class Shell extends SimpleCommand {
 		$this->before_vars = $vars;
 		return $this->saved_vars;
 	}
-	
+
 	/**
 	 * After evaluate, determine if any new variables are present
 	 *
@@ -202,7 +202,7 @@ class Shell extends SimpleCommand {
 		}
 		$this->saved_vars = $diff + $this->saved_vars;
 		$this->before_vars = $vars;
-		
+
 		if ($this->optionBool('debug-state')) {
 			if (count($diff) > 0) {
 				echo 'New variables defined in state: ' . implode(', ', array_keys($diff)) . "\n";
@@ -211,7 +211,7 @@ class Shell extends SimpleCommand {
 			}
 		}
 	}
-	
+
 	private function _prefix_command(string $string): string
 	{
 		$string = trim($string, " \n\r\t;");
@@ -222,14 +222,14 @@ class Shell extends SimpleCommand {
 		}
 		$prefix = 'return';
 		if (StringTools::begins($string, [
-				'echo ',
-				'print ',
-			]) || str_contains($string, ';')) {
+			'echo ',
+			'print ',
+		]) || str_contains($string, ';')) {
 			$prefix = '';
 		}
 		return $prefix . ' ' . $string;
 	}
-	
+
 	/**
 	 * Evaluate a PHP string and execute it in the application context
 	 *
@@ -243,7 +243,7 @@ class Shell extends SimpleCommand {
 	private function _eval(string $__string): mixed
 	{
 		$__eval = $this->_prefix_command($__string);
-		
+
 		try {
 			$command = $_ = $this;
 			$application = $app = $this->application;

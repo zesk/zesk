@@ -11,14 +11,14 @@ use zesk\Interface\SettingsInterface;
 
 use zesk\Configuration;
 
-class SettingsTest extends TestCase {
-	
+class SettingsTest extends TestCase
+{
 	public static array $arrayTarget = [];
-	
+
 	public static array $arrayNoCaseTarget = [];
-	
+
 	public static Configuration $testConfiguration;
-	
+
 	public static function data_settings_types(): array
 	{
 		self::$testConfiguration = new Configuration();
@@ -28,7 +28,7 @@ class SettingsTest extends TestCase {
 			[new SettingsArrayNoCase(self::$arrayNoCaseTarget)],
 		];
 	}
-	
+
 	/**
 	 * @param SettingsInterface $settings
 	 * @return void

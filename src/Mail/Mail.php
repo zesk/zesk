@@ -36,91 +36,91 @@ use zesk\Version;
  * @author kent
  *
  */
-class Mail extends Hookable {
-	
+class Mail extends Hookable
+{
 	/**
 	 * Set to enable debugging behavior
 	 */
 	public const OPTION_DEBUG = 'debug';
-	
+
 	/**
 	 * If you change one of these, please check the other for fixes as well
 	 *
 	 * @const Pattern to match RFC 2047 charset encodings in mail headers
 	 */
 	public const RFC2047HEADER = '/=\?([^ ?]+)\?([BQbq])\?([^ ?]+)\?=/';
-	
+
 	/**
 	 *
 	 * @const Pattern to match RFC 2047 charset encodings in mail headers with whitespace
 	 */
 	public const RFC2047HEADER_SPACES = '/(=\?[^ ?]+\?[BQbq]\?[^ ?]+\?=)\s+(=\?[^ ?]+\?[BQbq]\?[^ ?]+\?=)/';
-	
+
 	/**
 	 *
 	 * @var string
 	 */
 	public const HEADER_CONTENT_TYPE = 'Content-Type';
-	
+
 	/**
 	 *
 	 * @var string
 	 */
 	public const HEADER_MESSAGE_ID = 'Message-ID';
-	
+
 	/**
 	 *
 	 * @var string
 	 */
 	public const HEADER_TO = 'To';
-	
+
 	/**
 	 *
 	 * @var string
 	 */
 	public const HEADER_FROM = 'From';
-	
+
 	/**
 	 *
 	 * @var string
 	 */
 	public const HEADER_SUBJECT = 'Subject';
-	
+
 	/**
 	 *
 	 */
 	public array $headers = [];
-	
+
 	/**
 	 *
 	 */
 	public string $body = '';
-	
+
 	/**
 	 *
 	 */
 	public int $sent = 0;
-	
+
 	/**
 	 *
 	 */
 	public string $method = '';
-	
+
 	/**
 	 *
 	 */
 	private static string $log = '';
-	
+
 	/**
 	 *
 	 */
 	private static mixed $fp = null;
-	
+
 	/**
 	 *
 	 */
 	private static bool $disabled = false;
-	
+
 	/**
 	 * Create a Mail object
 	 *
@@ -137,7 +137,7 @@ class Mail extends Hookable {
 		$this->body = $body;
 		$this->sent = 0;
 	}
-	
+
 	/**
 	 * Create a Mail object
 	 *
@@ -151,7 +151,7 @@ class Mail extends Hookable {
 	{
 		return new self($application, $headers, $body, $options);
 	}
-	
+
 	/**
 	 * Get a header
 	 *
@@ -162,7 +162,7 @@ class Mail extends Hookable {
 	{
 		return $this->headers[$name] ?? '';
 	}
-	
+
 	/**
 	 * @param string       $name
 	 * @param array|string $set
@@ -173,7 +173,7 @@ class Mail extends Hookable {
 		$this->headers[$name] = $set;
 		return $this;
 	}
-	
+
 	/**
 	 *
 	 * @param Application $application
@@ -182,7 +182,7 @@ class Mail extends Hookable {
 	public static function configured(Application $application): void
 	{
 		$config = $application->configuration;
-		
+
 		/*
 		 * Load globals
 		 */
@@ -196,9 +196,9 @@ class Mail extends Hookable {
 			'disabled',
 		]));
 	}
-	
+
 	public const HOOK_SEND = __CLASS__ . '::send';
-	
+
 	/**
 	 * Send a Mail object
 	 *
@@ -233,7 +233,7 @@ class Mail extends Hookable {
 		}
 		return $this->_sendPHPMail();
 	}
-	
+
 	/**
 	 * Internal function to send by echo
 	 *
@@ -246,7 +246,7 @@ class Mail extends Hookable {
 		$this->method = 'echo';
 		return $this;
 	}
-	
+
 	/**
 	 * Returns a debugging Mail for HTML
 	 *
@@ -263,7 +263,7 @@ class Mail extends Hookable {
 		$lines[] = '</pre>';
 		return implode('', $lines);
 	}
-	
+
 	/**
 	 * Send using SMTP_URL and SMTP_OPTIONS which is, oddly, formatted as HTML attributes optionally
 	 *
@@ -283,10 +283,10 @@ class Mail extends Hookable {
 			$this->sent = time();
 			return $this;
 		}
-		
+
 		throw new ConnectionFailed('SMTP failed');
 	}
-	
+
 	/**
 	 *
 	 * @return self
@@ -324,16 +324,16 @@ class Mail extends Hookable {
 		}
 		return $this;
 	}
-	
+
 	/**
 	 * @return string
 	 */
 	private static function mailEOL(): string
 	{
-		# Is windows?
+		// Is windows?
 		return PATH_SEPARATOR === '\\' ? "\r\n" : "\n";
 	}
-	
+
 	/**
 	 * Get mail debugging status
 	 *
@@ -343,7 +343,7 @@ class Mail extends Hookable {
 	{
 		return $this->optionBool('debug');
 	}
-	
+
 	/**
 	 * Set mail debugging
 	 *
@@ -354,7 +354,7 @@ class Mail extends Hookable {
 	{
 		return $this->setOption('debug', $set);
 	}
-	
+
 	/**
 	 * @param string $line
 	 * @return string
@@ -369,7 +369,7 @@ class Mail extends Hookable {
 			'',
 		], $line));
 	}
-	
+
 	/**
 	 * Parse an email address in various form
 	 *
@@ -418,13 +418,13 @@ class Mail extends Hookable {
 				return $result;
 			}
 		}
-		
+
 		throw new SyntaxException('Invalid {method} email: {email}', [
 			'email'  => $email,
 			'method' => __METHOD__,
 		]);
 	}
-	
+
 	/**
 	 * Identical to sendmail, but truncates the entire message to be 140 characters
 	 * Determined length based on iPhone/AT&T.
@@ -446,7 +446,7 @@ class Mail extends Hookable {
 		// FRM:name\n
 		// SUBJ:$subject\n
 		// MSG:...
-		
+
 		$len = 0;
 		if ($from_part) {
 			$len = strlen("FRM:$from_part\n");
@@ -455,15 +455,15 @@ class Mail extends Hookable {
 			$len += strlen("SUBJ:$subject\n");
 		}
 		$len += strlen('MSG:');
-		
+
 		$remain = Types::toInteger($application->configuration->getPath([
-				__CLASS__,
-				'sms_max_characters',
-			]), 140) - $len;
-		
+			__CLASS__,
+			'sms_max_characters',
+		]), 140) - $len;
+
 		return self::sendmail($application, $to, $from, $subject, substr($body, 0, $remain), $cc, $bcc, $headers);
 	}
-	
+
 	/**
 	 * Email someone.
 	 *
@@ -505,7 +505,7 @@ class Mail extends Hookable {
 		$new_headers['To'] = $toParts['text'];
 		$new_headers['Subject'] = self::trimMailLine($subject);
 		$new_headers['Date'] = gmdate('D, d M Y H:i:s \G\M\T', time());
-		
+
 		foreach ($headers as $header) {
 			[
 				$name,
@@ -517,7 +517,7 @@ class Mail extends Hookable {
 		}
 		return self::mailer($application, $new_headers, $body, $options);
 	}
-	
+
 	private function _log($headers, $body): void
 	{
 		if (!self::$log) {
@@ -526,14 +526,14 @@ class Mail extends Hookable {
 		if (!self::$fp) {
 			self::$fp = fopen(self::$log, 'ab');
 			if (!self::$fp) {
-				$this->application->error('Unable to open mail log {log} - mail logging disabled', ['log' => self::$log,]);
+				$this->application->error('Unable to open mail log {log} - mail logging disabled', ['log' => self::$log, ]);
 				self::$log = '';
 				return;
 			}
 		}
 		fwrite(self::$fp, Text::formatPairs($headers) . "\n" . $body . "\n\n");
 	}
-	
+
 	/**
 	 * @param array $headers
 	 * @return string
@@ -547,7 +547,7 @@ class Mail extends Hookable {
 		}
 		return $raw_headers;
 	}
-	
+
 	/**
 	 * @param Application $application
 	 * @param array       $headers
@@ -559,7 +559,7 @@ class Mail extends Hookable {
 	{
 		return new Mail($application, $headers, $body, $options);
 	}
-	
+
 	/**
 	 * @param Application $application
 	 * @param string      $to
@@ -576,7 +576,7 @@ class Mail extends Hookable {
 		$content = Text::formatPairs($array);
 		return self::sendmail($application, $to, $from, $subject, $prefix . $content . $suffix);
 	}
-	
+
 	/**
 	 * @param Application $application
 	 * @param string      $to
@@ -608,7 +608,7 @@ class Mail extends Hookable {
 		$contents = str_replace("\r", '', $contents);
 		return self::sendmail($application, $to, $from, $subject, $contents, $cc, $bcc);
 	}
-	
+
 	/*
 	 * How to detect a bounce email
 	 *
@@ -624,7 +624,7 @@ class Mail extends Hookable {
 	 * 4. your php script will then be able to process the incoming email in whatever way you like, including to detect bounce mail message (use regexp search).
 	 *
 	 */
-	
+
 	/**
 	 * Send a text or HTML email, with optional attachments
 	 *
@@ -640,10 +640,10 @@ class Mail extends Hookable {
 	{
 		$eol = self::mailEOL();
 		$mime_boundary = md5(microtime());
-		
+
 		$charset = $mail_options['charset'] ?? 'UTF-8';
 		unset($mail_options['charset']);
-		
+
 		// Common Headers
 		$headers = ArrayTools::filter($mail_options, [
 			'From',
@@ -671,9 +671,9 @@ class Mail extends Hookable {
 		//	 "Return-Receipt-To"
 		// From below as it should be handled enough by Return-Path for bounces
 		foreach ([
-					 'Reply-To',
-					 'Return-Path',
-				 ] as $k) {
+			'Reply-To',
+			'Return-Path',
+		] as $k) {
 			if (!array_key_exists($k, $headers)) {
 				$headers[$k] = $headers['From'];
 			}
@@ -688,15 +688,15 @@ class Mail extends Hookable {
 		$headers['X-Mailer'] = 'zesk v' . Version::release() . '/PHP v' . phpversion();
 		$headers['MIME-Version'] = '1.0';
 		$headers[self::HEADER_CONTENT_TYPE] = 'multipart/related; boundary="' . $mime_boundary . '"';
-		
+
 		$m = '';
-		
+
 		// Setup for text OR HTML
 		$m .= '--' . $mime_boundary . $eol;
 		// A different MIME boundary for this section for the alternative
 		$htmlMIMEBoundary = md5($mime_boundary . '_alt_html');
 		$m .= 'Content-Type: multipart/alternative; boundary="' . $htmlMIMEBoundary . '"' . $eol . $eol;
-		
+
 		if (array_key_exists('body_text', $mail_options)) {
 			// Text Version
 			$m .= '--' . $htmlMIMEBoundary . $eol;
@@ -704,7 +704,7 @@ class Mail extends Hookable {
 			$m .= 'Content-Transfer-Encoding: quoted-printable' . $eol . $eol;
 			$m .= quoted_printable_encode($mail_options['body_text']) . $eol . $eol;
 		}
-		
+
 		if (array_key_exists('body_html', $mail_options)) {
 			// HTML Version
 			$m .= '--' . $htmlMIMEBoundary . $eol;
@@ -712,11 +712,11 @@ class Mail extends Hookable {
 			$m .= 'Content-Transfer-Encoding: quoted-printable' . $eol . $eol;
 			$m .= quoted_printable_encode($mail_options['body_html']) . $eol . $eol;
 		}
-		
+
 		//close the html/plain text alternate portion
 		$m .= '--' . $htmlMIMEBoundary . '--' . $eol . $eol;
-		
-		
+
+
 		// Attachments
 		foreach ($attachments as $attachment) {
 			if (is_string($attachment)) {
@@ -742,7 +742,7 @@ class Mail extends Hookable {
 				$f_contents = strval($attachment['content']);
 				$content_type = $attachment['type'] ?? 'application/octet-stream';
 			}
-			
+
 			// Attachment
 			$m .= '--' . $mime_boundary . $eol;
 			$m .= "Content-Type: $content_type; name=\"" . $file_name . '"' . $eol;
@@ -752,14 +752,14 @@ class Mail extends Hookable {
 			$f_contents = chunk_split(base64_encode($f_contents)); //Encode The Data For Transition using base64_encode();
 			$m .= $f_contents . $eol . $eol;
 		}
-		
-		
+
+
 		// Finished
 		$m .= '--' . $mime_boundary . '--' . $eol . $eol;
-		
+
 		return self::mailer($application, $headers, $m);
 	}
-	
+
 	/**
 	 * @param string $filename
 	 * @return array
@@ -770,7 +770,7 @@ class Mail extends Hookable {
 	{
 		return self::load(File::contents($filename));
 	}
-	
+
 	/**
 	 * Render an email using a theme
 	 *
@@ -786,7 +786,7 @@ class Mail extends Hookable {
 		$variables['application'] = $application;
 		return self::load(ArrayTools::map($application->themes->theme($theme, $variables), $variables));
 	}
-	
+
 	/**
 	 * Load and parse mail from a string
 	 *
@@ -805,7 +805,7 @@ class Mail extends Hookable {
 				switch ($content_type) {
 					case 'html':
 						$result['body_html'] = $content;
-						
+
 						break;
 					case 'both':
 						$ff_sep = $result['File-Format-Separator'] ?? '--HTML--';
@@ -815,15 +815,15 @@ class Mail extends Hookable {
 						] = explode($ff_sep, $content, 2);
 						$result['body_text'] = rtrim($text);
 						$result['body_html'] = trim($html);
-						
+
 						break;
 					case 'text':
 					default:
 						$result['body_text'] = $content;
-						
+
 						break;
 				}
-				
+
 				break;
 			} else {
 				[
@@ -835,7 +835,7 @@ class Mail extends Hookable {
 		}
 		return $result;
 	}
-	
+
 	/**
 	 * http://www.rfc-archive.org/getrfc.php?rfc=2047
 	 *
@@ -850,7 +850,7 @@ class Mail extends Hookable {
 		// e.g. =?utf-8?q?WordPress=20Plugin?=
 		return preg_match(self::RFC2047HEADER, $header) !== 0;
 	}
-	
+
 	/**
 	 *
 	 * @param string $header
@@ -864,7 +864,7 @@ class Mail extends Hookable {
 		}
 		return array_map(strtoupper(...), $matches[1]);
 	}
-	
+
 	/**
 	 * Given a header with RFC2047 encoding of binary/UTF-8 data, convert it into UTF8 string
 	 *
@@ -875,10 +875,10 @@ class Mail extends Hookable {
 	public static function decodeHeader(string $header): string
 	{
 		$matches = null;
-		
+
 		/* Repair instances where two encodings are together and separated by a space (strip the spaces) */
 		$header = preg_replace(self::RFC2047HEADER_SPACES, '$1$2', $header);
-		
+
 		/* Now see if any encodings exist and match them */
 		if (!preg_match_all(self::RFC2047HEADER, $header, $matches, PREG_SET_ORDER)) {
 			return $header;
@@ -896,7 +896,7 @@ class Mail extends Hookable {
 				'Q' => quoted_printable_decode(str_replace('_', ' ', $data)),
 				default => throw new SyntaxException("preg_match_all is busted: didn't find B or Q in encoding $header"),
 			};
-			
+
 			try {
 				$data = UTF8::fromCharacterSet($data, $charset);
 			} catch (ParseException $e) {
@@ -906,7 +906,7 @@ class Mail extends Hookable {
 		}
 		return $header;
 	}
-	
+
 	/**
 	 * Given an email, parse out the headers from the top.
 	 *
@@ -960,7 +960,7 @@ class Mail extends Hookable {
 		}
 		return $headers;
 	}
-	
+
 	/**
 	 * Dump a Mail object
 	 */

@@ -15,8 +15,8 @@ use zesk\Types;
 /**
  * Generic test class
  */
-class Generic_TestCase extends TestCase {
-	
+class Generic_TestCase extends TestCase
+{
 	public static function data_something(): array
 	{
 		$true_ish = [
@@ -50,7 +50,7 @@ class Generic_TestCase extends TestCase {
 		}
 		return $arguments_list;
 	}
-	
+
 	/**
 	 * Silly test to make sure PHP true-ish and false-ish are correct by double-boolean
 	 *

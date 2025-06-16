@@ -20,8 +20,8 @@ use zesk\Types;
  * @uses   ArrayTools
  * @coversDefaultClass ArrayTools
  */
-class ArrayToolsTest extends TestCase {
-	
+class ArrayToolsTest extends TestCase
+{
 	/**
 	 * @return void
 	 * @covers ::map
@@ -33,8 +33,7 @@ class ArrayToolsTest extends TestCase {
 		$this->assertEquals('{what}', ArrayTools::map('{what}', ['What' => 'brackets']));
 		$this->assertEquals('bracketsNoCase', ArrayTools::map('{what}', ['What' => 'bracketsNoCase'], true));
 	}
-	
-	
+
 	/**
 	 * @param string|array $expected
 	 * @param string|array $test
@@ -50,8 +49,7 @@ class ArrayToolsTest extends TestCase {
 	{
 		$this->assertEquals($expected, ArrayTools::map($test, $map, $case, $prefix, $suffix));
 	}
-	
-	
+
 	/**
 	 * @dataProvider ArrayToolsData::simplify
 	 * @param array $expected
@@ -64,7 +62,7 @@ class ArrayToolsTest extends TestCase {
 	{
 		$this->assertEquals($expected, ArrayTools::simplify($array));
 	}
-	
+
 	/**
 	 * @param mixed $expected
 	 * @param mixed $mixed
@@ -77,7 +75,7 @@ class ArrayToolsTest extends TestCase {
 	{
 		$this->assertEquals($expected, ArrayTools::replaceSubstrings($mixed, $map));
 	}
-	
+
 	/**
 	 * @param array $array
 	 * @param array $expected
@@ -89,7 +87,7 @@ class ArrayToolsTest extends TestCase {
 	{
 		$this->assertEquals($expected, ArrayTools::changeValueCase($array));
 	}
-	
+
 	/**
 	 * @param array $array
 	 * @param array $expected
@@ -101,7 +99,7 @@ class ArrayToolsTest extends TestCase {
 	{
 		$this->assertEquals($expected, ArrayTools::valuesFlipCopy($array));
 	}
-	
+
 	/**
 	 * @param array  $expected
 	 * @param array  $array
@@ -115,7 +113,7 @@ class ArrayToolsTest extends TestCase {
 	{
 		$this->assertEquals($expected, ArrayTools::wrapValues($array, $prefix, $suffix));
 	}
-	
+
 	/**
 	 * @param array  $expected
 	 * @param array  $array
@@ -128,8 +126,7 @@ class ArrayToolsTest extends TestCase {
 	{
 		$this->assertEquals($expected, ArrayTools::prefixKeys($array, $prefix));
 	}
-	
-	
+
 	/**
 	 * @dataProvider ArrayToolsData::suffixValues
 	 * @covers       ::suffixValues
@@ -142,7 +139,7 @@ class ArrayToolsTest extends TestCase {
 	{
 		$this->assertEquals($expected, ArrayTools::suffixValues($test, $suffix));
 	}
-	
+
 	/**
 	 * @covers ::keysRemove
 	 * @covers       ArrayToolsData::keysRemove
@@ -155,8 +152,7 @@ class ArrayToolsTest extends TestCase {
 	{
 		$this->assertEquals($expected, ArrayTools::keysRemove($test, $remove));
 	}
-	
-	
+
 	/**
 	 * @param bool         $expected
 	 * @param array        $array
@@ -169,8 +165,7 @@ class ArrayToolsTest extends TestCase {
 	{
 		$this->assertEquals($expected, ArrayTools::hasAnyValue($array, $values));
 	}
-	
-	
+
 	/**
 	 * @param bool             $expected
 	 * @param array            $array
@@ -183,8 +178,7 @@ class ArrayToolsTest extends TestCase {
 	{
 		$this->assertEquals($expected, ArrayTools::hasAnyKey($array, $keys));
 	}
-	
-	
+
 	/**
 	 * @return void
 	 * @covers ::increment
@@ -217,7 +211,7 @@ class ArrayToolsTest extends TestCase {
 		// 			"decimal" => 5.3
 		// 		));
 	}
-	
+
 	/**
 	 * @param array      $expected
 	 * @param array      $test
@@ -232,7 +226,7 @@ class ArrayToolsTest extends TestCase {
 	{
 		$this->assertEquals($expected, ArrayTools::insert($test, $key, $other, $before));
 	}
-	
+
 	/**
 	 * @param array  $expected
 	 * @param array  $test
@@ -247,7 +241,7 @@ class ArrayToolsTest extends TestCase {
 	{
 		$this->assertEquals($expected, ArrayTools::wrapKeys($test, $prefix, $suffix));
 	}
-	
+
 	/**
 	 * @param array  $expected
 	 * @param array  $test
@@ -261,7 +255,7 @@ class ArrayToolsTest extends TestCase {
 	{
 		$this->assertEquals($expected, ArrayTools::keysRemovePrefix($test, $prefix));
 	}
-	
+
 	/**
 	 * @param array  $expected
 	 * @param array  $test
@@ -274,7 +268,7 @@ class ArrayToolsTest extends TestCase {
 	{
 		$this->assertEquals($expected, ArrayTools::keysRemoveSuffix($test, $suffix));
 	}
-	
+
 	/**
 	 * @param array $array
 	 * @param array $key_map
@@ -287,8 +281,7 @@ class ArrayToolsTest extends TestCase {
 	{
 		$this->assertEquals($expected, ArrayTools::keysMap($array, $key_map));
 	}
-	
-	
+
 	/**
 	 * @param array  $array
 	 * @param string $delim
@@ -301,8 +294,7 @@ class ArrayToolsTest extends TestCase {
 	{
 		$this->assertEquals($expected, ArrayTools::pairValues($array, $delim));
 	}
-	
-	
+
 	/**
 	 * @param $array
 	 * @param $value_map
@@ -315,7 +307,7 @@ class ArrayToolsTest extends TestCase {
 		$result = ArrayTools::valuesMap($array, $value_map);
 		$this->assertEquals($expected, $result);
 	}
-	
+
 	/**
 	 * @param array $expected
 	 * @param array $a1
@@ -327,7 +319,7 @@ class ArrayToolsTest extends TestCase {
 	{
 		$this->assertEquals($expected, ArrayTools::merge($a1, $a2));
 	}
-	
+
 	/**
 	 * @param array  $expected
 	 * @param array  $source
@@ -339,11 +331,10 @@ class ArrayToolsTest extends TestCase {
 	public function test_prefixValues(array $expected, array $source, string $prefix): void
 	{
 		$result = ArrayTools::prefixValues($source, $prefix);
-		
+
 		$this->assertEquals($expected, $result);
-		
 	}
-	
+
 	/**
 	 * @param array  $expected
 	 * @param array  $source
@@ -357,7 +348,7 @@ class ArrayToolsTest extends TestCase {
 		$result = ArrayTools::valuesRemovePrefix($source, $prefix);
 		$this->assertEquals($expected, $result);
 	}
-	
+
 	/**
 	 * @param array  $expected
 	 * @param array  $source
@@ -371,7 +362,7 @@ class ArrayToolsTest extends TestCase {
 		$result = ArrayTools::valuesRemoveSuffix($source, $suffix);
 		$this->assertEquals($expected, $result);
 	}
-	
+
 	/**
 	 * @dataProvider ArrayToolsData::trim()
 	 * @covers ::trim
@@ -384,7 +375,7 @@ class ArrayToolsTest extends TestCase {
 		$result = ArrayTools::trim($test);
 		$this->assertEquals($expected, $result);
 	}
-	
+
 	/**
 	 * @covers ::transpose
 	 * @dataProvider ArrayToolsData::dataTranspose
@@ -396,11 +387,11 @@ class ArrayToolsTest extends TestCase {
 	{
 		$result = ArrayTools::transpose($test);
 		$this->assertEquals($expected, $result);
-		
+
 		$andBack = ArrayTools::transpose($result);
 		$this->assertEquals($test, $andBack);
 	}
-	
+
 	/**
 	 * @param array  $expected
 	 * @param array  $test
@@ -414,7 +405,7 @@ class ArrayToolsTest extends TestCase {
 	{
 		$this->assertEquals($expected, ArrayTools::filterKeyPrefixes($test, $prefix, $caseInsensitive));
 	}
-	
+
 	/**
 	 * @param array        $expected
 	 * @param array        $test
@@ -427,7 +418,7 @@ class ArrayToolsTest extends TestCase {
 		$result = ArrayTools::filter($test, $include);
 		$this->assertEquals($expected, $result);
 	}
-	
+
 	/**
 	 * @param array        $expected
 	 * @param array|string $test
@@ -440,7 +431,7 @@ class ArrayToolsTest extends TestCase {
 	{
 		$this->assertEquals($expected, ArrayTools::find($test, $needles));
 	}
-	
+
 	/**
 	 * @dataProvider ArrayToolsData::has
 	 * @param bool  $expected
@@ -451,9 +442,9 @@ class ArrayToolsTest extends TestCase {
 	 */
 	public function test_has(bool $expected, array $test, mixed $has): void
 	{
-		$this->assertEquals($expected, ArrayTools::has($test, $has), "ArrayTools::has(" . PHP::dump($test) . ", " . PHP::dump($has) . ")");
+		$this->assertEquals($expected, ArrayTools::has($test, $has), 'ArrayTools::has(' . PHP::dump($test) . ', ' . PHP::dump($has) . ')');
 	}
-	
+
 	/**
 	 * @return void
 	 * @covers ::isAssoc
@@ -473,7 +464,7 @@ class ArrayToolsTest extends TestCase {
 		$this->assertFalse(ArrayTools::isAssoc($array));
 		$array[-1] = '';
 		$this->assertTrue(ArrayTools::isAssoc($array));
-		
+
 		$this->assertFalse(ArrayTools::isAssoc(null));
 		$this->assertFalse(ArrayTools::isAssoc(false));
 		$this->assertFalse(ArrayTools::isAssoc(true));
@@ -525,8 +516,7 @@ class ArrayToolsTest extends TestCase {
 		$faker->__set('1', 'one');
 		$this->assertFalse(ArrayTools::isAssoc($faker));
 	}
-	
-	
+
 	/**
 	 * @param bool  $expected
 	 * @param mixed $test
@@ -536,9 +526,9 @@ class ArrayToolsTest extends TestCase {
 	 */
 	public function test_isList(bool $expected, mixed $test): void
 	{
-		$this->assertEquals($expected, ArrayTools::isList($test), "Expected ArrayTools::isList failed for " . Types::type($test));
+		$this->assertEquals($expected, ArrayTools::isList($test), 'Expected ArrayTools::isList failed for ' . Types::type($test));
 	}
-	
+
 	/**
 	 * @param mixed $expected
 	 * @param array $source
@@ -552,8 +542,7 @@ class ArrayToolsTest extends TestCase {
 	{
 		$this->assertEquals($expected, ArrayTools::keysFind($source, $source_keys, $default));
 	}
-	
-	
+
 	/**
 	 * @param mixed $expected
 	 * @param array $array
@@ -565,8 +554,7 @@ class ArrayToolsTest extends TestCase {
 	{
 		$this->assertEquals($expected, ArrayTools::max($array, $default));
 	}
-	
-	
+
 	/**
 	 * @param array $array
 	 * @param mixed $default
@@ -579,7 +567,7 @@ class ArrayToolsTest extends TestCase {
 	{
 		$this->assertEquals($expected, ArrayTools::min($array, $default));
 	}
-	
+
 	/**
 	 * @return void
 	 * @covers ::path
@@ -609,7 +597,7 @@ class ArrayToolsTest extends TestCase {
 		$path = Types::toList($path, [], '.');
 		$this->assertEquals('uh-uh', ArrayTools::path($array, $path, 'uh-uh'));
 	}
-	
+
 	/**
 	 * @param string|null $expected
 	 * @param string      $haystack
@@ -622,7 +610,7 @@ class ArrayToolsTest extends TestCase {
 	{
 		$this->assertEquals($expected, ArrayTools::findInsensitive($haystack, $needles));
 	}
-	
+
 	/**
 	 * @return void
 	 * @covers ::contains
@@ -635,24 +623,23 @@ class ArrayToolsTest extends TestCase {
 			'lonGs',
 			'sentance',
 		];
-		
+
 		$haystack = 'A rather long sentence';
 		$this->assertFalse(StringTools::contains($haystack, $needles));
-		
+
 		$haystack = 'A rather long senaatence';
 		$this->assertFalse(StringTools::contains($haystack, $needles));
-		
+
 		$haystack = 'A rather long sentence rathI';
 		$this->assertEquals(1, StringTools::contains($haystack, $needles));
-		
+
 		$haystack = 'lonGSA rather long sentence';
 		$this->assertFalse(StringTools::contains($haystack, $needles));
-		
+
 		$haystack = 'A rather long sentance';
 		$this->assertEquals(3, StringTools::contains($haystack, $needles));
 	}
-	
-	
+
 	/**
 	 * @param array  $expected
 	 * @param array  $actual
@@ -666,7 +653,7 @@ class ArrayToolsTest extends TestCase {
 		ArrayTools::append($actual, $key, $value);
 		$this->assertEquals($expected, $actual);
 	}
-	
+
 	/**
 	 * @return void
 	 * @covers ::rtrim
@@ -685,7 +672,7 @@ class ArrayToolsTest extends TestCase {
 			'abcde',
 		], ArrayTools::rtrim($a, $characterList));
 	}
-	
+
 	/**
 	 * @return void
 	 * @covers ::clean
@@ -702,8 +689,7 @@ class ArrayToolsTest extends TestCase {
 			null,
 		], ['']));
 	}
-	
-	
+
 	/**
 	 * @param $expected
 	 * @param $array_to_filter
@@ -718,7 +704,7 @@ class ArrayToolsTest extends TestCase {
 	{
 		$this->assertEquals($expected, ArrayTools::filterKeys($array_to_filter, $include, $exclude, $lower));
 	}
-	
+
 	/**
 	 * @return void
 	 * @covers ::keysLeftTrim
@@ -736,7 +722,7 @@ class ArrayToolsTest extends TestCase {
 			'baaaa' => 'baaaa',
 		], $characterList));
 	}
-	
+
 	/**
 	 * @return void
 	 * @covers ::suffixKeys
@@ -755,7 +741,7 @@ class ArrayToolsTest extends TestCase {
 			'threeduck' => 3,
 		], ArrayTools::suffixKeys($arr, $str));
 	}
-	
+
 	/**
 	 * @return void
 	 * @covers ::valuesLeftTrim
@@ -773,8 +759,7 @@ class ArrayToolsTest extends TestCase {
 			'baaaa' => 'baaaa',
 		], $characterList));
 	}
-	
-	
+
 	/**
 	 * @param string $string
 	 * @param string $delimiter
@@ -787,8 +772,7 @@ class ArrayToolsTest extends TestCase {
 	{
 		$this->assertEquals($expected, ArrayTools::preg_quote($string, $delimiter));
 	}
-	
-	
+
 	/**
 	 * @param array  $actual
 	 * @param string $key
@@ -804,7 +788,7 @@ class ArrayToolsTest extends TestCase {
 		ArrayTools::prepend($actual, $key, $value);
 		$this->assertEquals($expected, $actual);
 	}
-	
+
 	/**
 	 * @return void
 	 * @covers ::listTrimClean
@@ -826,8 +810,7 @@ class ArrayToolsTest extends TestCase {
 			2 => 'world',
 		], $result);
 	}
-	
-	
+
 	/**
 	 * @param array $test
 	 * @param array $expected
@@ -839,7 +822,7 @@ class ArrayToolsTest extends TestCase {
 	{
 		$this->assertEquals($expected, ArrayTools::listTrim($test));
 	}
-	
+
 	/**
 	 * @return void
 	 * @covers ::map ::prefixKeys
@@ -847,14 +830,14 @@ class ArrayToolsTest extends TestCase {
 	public function testMapAgain(): void
 	{
 		$test = file_get_contents(Application::zeskPath('tests/test-data/mapData.txt'));
-		
+
 		$foo = ArrayTools::map($test, []);
-		
+
 		//$sandbox = $this->test_sandbox();
 		// file_put_contents("$sandbox /function.map.0 . txt", $foo);
 		// file_put_contents("$sandbox /function.map.1 . txt", $test);
 		$this->assertEquals($foo, $test);
-		
+
 		$prefix = 'dude';
 		$a = [
 			'a' => 'b',

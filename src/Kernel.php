@@ -23,8 +23,8 @@ use zesk\Exception\SemanticsException;
  * @author kent
  *
  */
-class Kernel {
-	
+class Kernel
+{
 	/**
 	 *
 	 * @var array
@@ -34,20 +34,20 @@ class Kernel {
 			'applicationClass' => Application::class,
 		],
 	];
-	
+
 	/**
 	 *
 	 * @var Application
 	 */
 	private Application $application;
-	
+
 	/**
 	 * @var array[]
 	 */
 	private array $applications = [];
-	
+
 	public static null|self $singleton = null;
-	
+
 	private function __construct(Application $initial)
 	{
 		Compatibility::check();
@@ -55,7 +55,7 @@ class Kernel {
 		$this->applications[$initial::class] = [$initial->id() => $initial];
 		register_shutdown_function($this->shutdown(...));
 	}
-	
+
 	public function shutdown(): void
 	{
 		foreach ($this->applications as $className => $applications) {
@@ -74,7 +74,7 @@ class Kernel {
 			}
 		}
 	}
-	
+
 	/**
 	 * Fetch the kernel singleton. Avoid this call whenever possible.
 	 *
@@ -83,11 +83,11 @@ class Kernel {
 	public static function singleton(): self
 	{
 		if (!self::$singleton) {
-			throw new RuntimeException('Need to create singleton with {class}::factory first', ['class' => __CLASS__,]);
+			throw new RuntimeException('Need to create singleton with {class}::factory first', ['class' => __CLASS__, ]);
 		}
 		return self::$singleton;
 	}
-	
+
 	/**
 	 * @return Application
 	 */
@@ -95,7 +95,7 @@ class Kernel {
 	{
 		return $this->application;
 	}
-	
+
 	/**
 	 * Find app by class
 	 *
@@ -106,7 +106,7 @@ class Kernel {
 	{
 		return $this->applications[$class] ?? [];
 	}
-	
+
 	/**
 	 * @param Application $app
 	 * @return void
@@ -115,18 +115,18 @@ class Kernel {
 	{
 		$this->applications[$app::class] ??= [] + [$app->id() => $app];
 	}
-	
+
 	private static function _stackFrameNormalize(array $stackFrame): array
 	{
 		return $stackFrame + [
-				'file'     => '',
-				'class'    => '',
-				'type'     => '',
-				'function' => '',
-				'line'     => '',
-			];
+			'file'     => '',
+			'class'    => '',
+			'type'     => '',
+			'function' => '',
+			'line'     => '',
+		];
 	}
-	
+
 	/**
 	 * Return information about the calling function. Increase depth to look back in the stack frame.
 	 *
@@ -156,7 +156,7 @@ class Kernel {
 			'function' => '-no calling function $depth deep-',
 			'type'     => '',
 		]);
-		
+
 		$top['callingLine'] = $top['line'];
 		$top['callingFile'] = $top['file'];
 		$top['line'] = $last['line'];
@@ -168,7 +168,7 @@ class Kernel {
 		$top['fileMethodLine'] = $top['file'] . ' ' . $top['method'] . $top['lineSuffix'];
 		return $top;
 	}
-	
+
 	/**
 	 * Returns the name of the function or class/method which called the current code.
 	 * Useful for debugging.
@@ -187,7 +187,7 @@ class Kernel {
 		$top = self::caller($depth + 1);
 		return $top[$include_line ? 'fileMethodLine' : 'fileMethod'];
 	}
-	
+
 	/**
 	 * Return a backtrace of the stack
 	 *
@@ -213,7 +213,7 @@ class Kernel {
 				foreach ($args as $index => $arg) {
 					if (is_object($arg)) {
 						$arg_dump[$index] = $arg::class;
-					} else if (is_scalar($arg)) {
+					} elseif (is_scalar($arg)) {
 						$arg_dump[$index] = PHP::dump($arg);
 					} else {
 						$arg_dump[$index] = Types::type($arg);
@@ -230,7 +230,7 @@ class Kernel {
 		}
 		return implode("\n", $result);
 	}
-	
+
 	private static function getApplicationClass(Configuration $configuration): string
 	{
 		return $configuration->getFirstPath([
@@ -244,7 +244,7 @@ class Kernel {
 			],
 		], Application::class);
 	}
-	
+
 	/**
 	 * Create an application
 	 *
@@ -259,17 +259,17 @@ class Kernel {
 		$options['main'] ??= Kernel::caller()['file'];
 		$cacheItemPool = $options[Application::OPTION_CACHE_POOL] ?? new NULLCacheItemPool();
 		unset($options[Application::OPTION_CACHE_POOL]);
-		
+
 		$configuration = Configuration::factory(self::$configurationDefaults)->setPath(self::class, $options + [
-				'init'        => $initialized,
-				'environment' => $_SERVER,
-			]);
+			'init'        => $initialized,
+			'environment' => $_SERVER,
+		]);
 		$kernelConfiguration = $configuration->path(self::class);
 		$configuration->setPath(Application::class, $kernelConfiguration->toArray());
-		
+
 		$applicationClass = self::getApplicationClass($configuration);
 		$kernelConfiguration->setReadOnly(true);
-		
+
 		try {
 			$reflectionClass = new ReflectionClass($applicationClass);
 			$app = $reflectionClass->newInstanceArgs([
@@ -287,7 +287,7 @@ class Kernel {
 		}
 		return $app;
 	}
-	
+
 	/**
 	 * Who owns the copyright on the Zesk Application Framework for PHP
 	 *
@@ -297,7 +297,7 @@ class Kernel {
 	{
 		return 'Market Acumen, Inc.';
 	}
-	
+
 	/**
 	 * @return Application
 	 */

@@ -18,10 +18,10 @@ use Throwable;
 /**
  *
  */
-abstract class Exception extends BaseException {
-	
+abstract class Exception extends BaseException
+{
 	use Exceptional;
-	
+
 	/**
 	 * @param BaseException $e
 	 * @return array
@@ -30,7 +30,7 @@ abstract class Exception extends BaseException {
 	{
 		return method_exists($e, 'variables') ? $e->variables() : ($e instanceof Error ? self::phpExceptionVariables($e, 'error') : self::phpExceptionVariables($e));
 	}
-	
+
 	/**
 	 * @param Throwable $e
 	 * @param string    $prefix

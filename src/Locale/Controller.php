@@ -18,18 +18,18 @@ use zesk\Types;
  * @author kent
  *
  */
-class Controller extends \zesk\Controller {
-	
+class Controller extends \zesk\Controller
+{
 	protected array $argumentMethods = [];
-	
+
 	protected array $actionMethods = [
 		'action_{METHOD}_js',
 	];
-	
+
 	protected array $beforeMethods = [];
-	
+
 	protected array $afterMethods = [];
-	
+
 	/**
 	 * Allow API usage
 	 *
@@ -42,7 +42,7 @@ class Controller extends \zesk\Controller {
 		assert($request->method() === HTTP::METHOD_OPTIONS);
 		return $this->handleOPTIONS($response, 'js');
 	}
-	
+
 	/**
 	 *
 	 */
@@ -66,7 +66,7 @@ class Controller extends \zesk\Controller {
 				}
 			}
 		}
-		
+
 		$translations = [];
 		foreach ($locales as $id => $locale) {
 			/* @var $locale Locale */
@@ -82,11 +82,11 @@ class Controller extends \zesk\Controller {
 		}
 		$response->setContentType('text/javascript');
 		$load_lines[] = 'exports.Locale.locale(' . JavaScript::arguments($app->locale->id()) . ');';
-		
+
 		$load_lines = implode("\n\t", $load_lines);
 		$content = "/* elapsed: {page-render-time}, is_cached: {page-is-cached} */\n";
 		$content .= "(function (exports) {\n\t$load_lines\n}(this));\n";
-		
+
 		$response->setCacheFor($this->optionInt('cache_seconds', 600));
 		$response->content = $content;
 		return $response;
