@@ -42,8 +42,8 @@ __preCommit() {
 
   home=$(__catchEnvironment "$usage" buildHome) || return $?
 
-  version=$(__catchEnvironment "$usage" docker run -q -v "$home:/zesk" -w /zesk php:8 /zesk/bin/zesk version) || return $?
-  statusMessage --last bigText "$(printf "%s v%s\n" "$(buildEnvironmentGet APPLICATION_NAME)" "$version")" | wrapLines "$(decorate bold-blue)" "$(decorate reset)"
+  version=$(hookVersionCurrent) || return $?
+  statusMessage --last bigText "$(printf "%s %s\n" "$(buildEnvironmentGet APPLICATION_NAME)" "$version")" | decorate bold-blue
 
   mode=$(_choose "$readOnly" 0440 0640)
   __catchEnvironment "$usage" find "$home" -type f -name '*.php' ! -path '*/bin/*' ! -path '*/.*/*' ! -path '*/vendor/*' -exec chmod "$mode" {} \; || return $?
@@ -67,7 +67,7 @@ __preCommit() {
   statusMessage decorate info "Converted mode for $(decorate code "${ee[@]}")"
 }
 ___preCommit() {
-  # IDENTICAL usageDocument 1
+  # _IDENTICAL_ usageDocument 1
   usageDocument "${BASH_SOURCE[0]}" "${FUNCNAME[0]#_}" "$@"
 }
 

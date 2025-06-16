@@ -1,69 +1,60 @@
 #!/usr/bin/env bash
 #
-# Copyright &copy; 2025 Market Acumen, Inc.
+# Zesk Build application tools extension
+#
+# Copyright &copy; 2025, Market Acumen, Inc.
 #
 
+# _IDENTICAL_ application.sh 132
+
 #
-# Usage: {fn} databaseHost [ dockerBuildArgs ... ]
-# Argument: databaseHost - String. Required. Database host.
-# Argument: dockerBuildArgs - Any additional arguments are passed directly to `docker build`
+# This file generically loads all application tools in `./bin/tools` and allows for extensions
+# to Zesk Build within an application with little effort.
 #
-zeskContainerLatest() {
-  local usage="_${FUNCNAME[0]}"
-  local host quietLog start
+# Copy this file into your application project at `./bin/` next to `install-bin-build.sh`
+#
+# To do `developerTrack` define `DEVELOPER_TRACK` prior to sourcing this file to get
+# access to functions created via `__applicationToolsList`.
+#
+# Environment: DEVELOPER_TRACK
+#
 
-  quietLog=$(__catchEnvironment "$usage" buildQuietLog "$usage") || return $?
-  start=$(__catchEnvironment "$usage" timingStart) || return $?
+# IDENTICAL __source 21
 
-  # _IDENTICAL_ argument-case-header 5
-  local __saved=("$@") __count=$#
-  while [ $# -gt 0 ]; do
-    local argument="$1" __index=$((__count - $# + 1))
-    [ -n "$argument" ] || __throwArgument "$usage" "blank #$__index/$__count ($(decorate each quote "${__saved[@]}"))" || return $?
-    case "$argument" in
-      # _IDENTICAL_ --help 4
-      --help)
-        "$usage" 0
-        return $?
-        ;;
-      *)
-        [ -z "$host" ] || __throwArgument "$usage" "Host already specified" || return $?
-        host="$argument"
-        ;;
-    esac
-    # _IDENTICAL_ argument-esac-shift 1
-    shift
-  done
-
-  [ -z "$host" ] || __throwArgument "$usage" "host requires" || return $?
-
-  local name=zesk
-
-  statusMessage decorate info -n "Build container $(decorate code "$name:latest") ... "
-  figlet "Build container" >>"$quietLog"
-  __catchEnvironment "$usage" docker build "$@" --build-arg "DATABASE_HOST=$host" -f ./docker/php.Dockerfile --tag "$name:latest" . >>"$quietLog" || buildFailed "$quietLog" || return $?
-  statusMessage --last timingReport "$start" "Zesk latest container built in"
-}
-_zeskContainerLatest() {
-  # IDENTICAL usageDocument 1
-  usageDocument "${BASH_SOURCE[0]}" "${FUNCNAME[0]#_}" "$@"
+# Load a source file and run a command
+# Argument: source - Required. File. Path to source relative to application root..
+# Argument: relativeHome - Optional. Directory. Path to application root. Defaults to `..`
+# Argument: command ... - Optional. Callable. A command to run and optional arguments.
+# Requires: _return
+# Security: source
+# Exit Code: 253 - source failed to load (internal error)
+# Exit Code: 0 - source loaded (and command succeeded)
+# Exit Code: ? - All other codes are returned by the command itself
+__source() {
+  local here="${BASH_SOURCE[0]%/*}" e=253
+  local source="$here/${2:-".."}/${1-}" && shift 2 || _return $e "missing source" || return $?
+  [ -d "${source%/*}" ] || _return $e "${source%/*} is not a directory" || return $?
+  [ -f "$source" ] && [ -x "$source" ] || _return $e "$source not an executable file" "$@" || return $?
+  local a=("$@") && set --
+  # shellcheck source=/dev/null
+  source "$source" || _return $e source "$source" "$@" || return $?
+  [ ${#a[@]} -gt 0 ] || return 0
+  "${a[@]}" || return $?
 }
 
-__zeskTools() {
-  local usage="_${FUNCNAME[0]}"
-  __catchEnvironment "$usage" bashSourcePath "${BASH_SOURCE[0]%/*}/tools/" || return $?
-  if [ $# -gt 0 ]; then
-    __catchEnvironment "$usage" "$@" || return $?
-  fi
-}
-___zeskTools() {
-  # IDENTICAL usageDocument 1
-  usageDocument "${BASH_SOURCE[0]}" "${FUNCNAME[0]#_}" "$@"
+# IDENTICAL __tools 8
+
+# Load build tools and run command
+# Argument: relativeHome - Required. Directory. Path to application root.
+# Argument: command ... - Optional. Callable. A command to run and optional arguments.
+# Requires: __source
+__tools() {
+  __source bin/build/tools.sh "$@"
 }
 
 # IDENTICAL __install 25
 
-# Load build tools (installing if needed) and run command
+# Load a bash script (installing if needed) and run an optional command
 # Argument: installer - Required. File. Installation binary.
 # Argument: source - Required. File. Include file which should exist after installation.
 # Argument: relativeHome - Optional. Directory. Path to application home. Default is `..`.
@@ -72,7 +63,7 @@ ___zeskTools() {
 # Requires: _return __execute
 __install() {
   local installer="${1-}" source="${2-}" relativeHome="${3:-".."}" me="${BASH_SOURCE[0]}"
-  local here="${me%/*}" e=253 arguments=()
+  local here="${me%/*}" e=253 a
   local install="$here/$relativeHome/$installer" tools="$here/$relativeHome/$source"
   [ -n "$installer" ] || _return $e "blank installer" || return $?
   [ -n "$source" ] || _return $e "blank source" || return $?
@@ -81,18 +72,18 @@ __install() {
     [ -d "${tools%/*}" ] || _return $e "$install failed to create directory ${tools%/*}" || return $?
   fi
   [ -x "$tools" ] || _return $e "$install failed to create $tools" "$@" || return $?
-  shift && shift && shift && while [ $# -gt 0 ]; do arguments+=("$1") && shift; done
+  shift 3 && a=("$@") && set --
   # shellcheck source=/dev/null
-  source "$tools" || _return $e source "$tools" || return $?
-  [ ${#arguments[@]} -gt 0 ] || return 0
-  __execute "${arguments[@]}" || return $?
+  source "$tools" || _return "$e" source "$tools" || return $?
+  [ ${#a[@]} -gt 0 ] || return 0
+  __execute "${a[@]}" || return $?
 }
 
 # IDENTICAL __build 11
 
-# Load build tools (installing if needed) and run command
-# Argument: installerPath - Optional. Directory. Path to `install-bin-build.sh` binary.
-# Argument: relativeHome - Required. Directory. Path to application home.
+# Load build tools (installing if needed) and runs a command
+# Argument: relativeHome - Optional. Directory. Path to application home.
+# Argument: installerPath - Optional. Directory. Path to `install-bin-build.sh` binary. Defaults to `bin`
 # Argument: command ... - Optional. Callable. A command to run and optional arguments.
 # Requires: __install
 # Example:     __build ../../.. functionToCall "$@"
@@ -101,17 +92,18 @@ __build() {
   __install "$installerPath/install-bin-build.sh" "bin/build/tools.sh" "$relative" "$@" || return $?
 }
 
-# IDENTICAL _return 26
+# IDENTICAL _return 27
 
-# Usage: {fn} [ exitCode [ message ... ] ]
-# Argument: exitCode - Required. Integer. Exit code to return. Default is 1.
-# Argument: message ... - Optional. String. Message to output to stderr.
+# Return passed in integer return code and output message to `stderr` (non-zero) or `stdout` (zero)
+# Argument: exitCode - Required. UnsignedInteger. Exit code to return. Default is 1.
+# Argument: message ... - Optional. String. Message to output
 # Exit Code: exitCode
 # Requires: isUnsignedInteger printf _return
 _return() {
-  local r="${1-:1}" && shift 2>/dev/null
-  isUnsignedInteger "$r" || _return 2 "${FUNCNAME[1]-none}:${BASH_LINENO[1]-} -> ${FUNCNAME[0]} non-integer $r" "$@" || return $?
-  printf -- "[%d] ❌ %s\n" "$r" "${*-§}" 1>&2 || : && return "$r"
+  local code="${1:-1}" && shift 2>/dev/null
+  isUnsignedInteger "$code" || _return 2 "${FUNCNAME[1]-none}:${BASH_LINENO[1]-} -> ${FUNCNAME[0]} non-integer \"$code\"" "$@" || return $?
+  [ "$code" -eq 0 ] && printf -- "✅ %s\n" "${*-§}" && return 0 || printf -- "❌ [%d] %s\n" "$code" "${*-§}" 1>&2
+  return "$code"
 }
 
 # Test if an argument is an unsigned integer
@@ -129,4 +121,20 @@ isUnsignedInteger() {
 
 # <-- END of IDENTICAL _return
 
-__build .. bin __zeskTools "$@"
+__applicationTools() {
+  local source="${BASH_SOURCE[0]}"
+  local here="${source%/*}" __saved=("$@")
+
+  set --
+  __build .. bin >/dev/null || return $?
+
+  bashSourcePath "$(realPath "$here/tools/")" || return $?
+
+  __execute "${__saved[@]+"${__saved[@]}"}" || return $?
+}
+
+if [ "$(basename "${0##-}")" = "$(basename "${BASH_SOURCE[0]}")" ] && [ $# -gt 0 ]; then
+  __applicationTools "$@"
+else
+  __applicationTools :
+fi

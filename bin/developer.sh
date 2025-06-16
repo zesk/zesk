@@ -6,50 +6,45 @@
 #
 # Zesk PHP Developer scripts
 
+#
 # source this file to get additional tools within your Bash environment
-__zeskPHPAnnounce() {
-  decorate info "Added aliases $(decorate each code z zeskBash suZeskBash)"
-  decorate info "Available functions $(decorate each code zeskPHPIdenticalRepair)"
-}
+#
 
-zeskPHPIdenticalRepair() {
-  local home name start
+# shellcheck source=/dev/null
+if source "${BASH_SOURCE[0]%/*}/tools.sh"; then
 
-  home=$(__environment buildHome) || return $?
-  start=$(__environment timingStart) || return $?
-  __environment "$home/bin/build/identical-repair.sh" "$@" --exclude '*/bin/build/tools/*' --exclude '*/bin/build/hooks/*' --ignore-singles || return $?
-  name=$(buildEnvironmentGet APPLICATION_NAME)
-  hookRun notify "$(decorate bold-blue "$name") $(timingReport "$start" "Identical repair completed in")"
-}
+  __zeskPHPDeveloperContext() {
+    local home
 
-__zeskPHPAliases() {
-  local home
+    home=$(__environment buildHome) || return $?
 
-  home=$(__environment buildHome) || return $?
+    # shellcheck disable=SC2139
+    alias z="$home/bin/zesk.sh"
+    alias IdenticalRepair="zeskPHPIdenticalRepair"
 
-  # shellcheck disable=SC2139
-  alias z="$home/bin/zesk.sh"
-  alias IdenticalRepair="zeskPHPIdenticalRepair"
+    if whichExists docker; then
+      # shellcheck disable=SC2139
+      alias zeskBash="__dockerPHPExec \"$home\" www-data bash"
+      # shellcheck disable=SC2139
+      alias suZeskBash="__dockerPHPExec \"$home\" root bash"
+    fi
 
-  # shellcheck disable=SC2139
-  alias zeskBash="__dockerPHPExec \"$home\" www-data bash"
-  # shellcheck disable=SC2139
-  alias suZeskBash='__dockerPHPExec \"$home\" root bash'
-}
-__zeskPHPAliasesUndo() {
-  unalias z 2>/dev/null
-  unalias IdenticalRepair 2>/dev/null
-  unalias zeskBash 2>/dev/null
-  unalias suZeskBash 2>/dev/null
-}
+    reloadChanges --stop --quiet
+    reloadChanges --name "Zesk PHP Tools" bin/tools.sh bin/tools/
+    developerAnnounce < <(__applicationToolsList)
 
-__zeskPHPAliases
-__zeskPHPAnnounce
+    pathConfigure --last "$home/bin" "$home/vendor/bin"
+  }
 
-unset __zeskPHPAliases __zeskPHPAnnounce
+  __zeskPHPDeveloperContextUndo() {
+    local home
 
-__dockerPHPExec() {
-  local home="$1" user="$2" ttyArg=() && shift 2
-  [ -t 0 ] || ttyArg+=(-T)
-  docker compose -f "$home/docker-compose.yml" exec "${ttyArg[@]}" -u "${user}" php "$@"
-}
+    home=$(__environment buildHome) || return $?
+    pathRemove "$home/bin" "$home/vendor/bin"
+    developerUndo < <(__applicationToolsList)
+  }
+
+  __zeskPHPDeveloperContext
+
+  unset __zeskPHPDeveloperContext
+fi

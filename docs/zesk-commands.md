@@ -50,7 +50,7 @@ When specified prior to the first command, this argument will set a zesk global 
 
 Similarly, you can specify a value for the global as value
 
-	zesk --LOG_PATH=$HOME/log update
+	zesk --LOG_HOME=$HOME/log update
 
 ## --define [variable]=[value]  &middot; *Set arbitrary global to string value*
 

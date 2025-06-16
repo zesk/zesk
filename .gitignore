@@ -1,5 +1,5 @@
 # Build related
-*.log
+/*.log
 /*-min.js
 /*.codekit
 /*.codekit3
@@ -9,8 +9,7 @@
 /.buildpath
 /.composer/
 /.composer/
-/.cvsignore
-/.env*
+/*.env
 /.github.conf
 /.history/
 /.history/
@@ -18,9 +17,11 @@
 /.idea/*.xml
 /.idea/*/
 /.memory_get_usage
+/.php-cs-fixer.cache
 /.php-cs-fixer.cache/
 /.phpunit-cache/
 /.phpunit-testcase-last
+/.phpunit.result.cache
 /.phpunit.result.cache/
 /.pipeline-key*
 /.project
@@ -31,8 +32,8 @@
 /.vscode/
 /.zesk-coverage/
 /bin/build/
+/bin/build
 /bin/zesk
-/cache/
 /cache/
 /CHANGELOG.md.backup
 /composer.lock
@@ -44,7 +45,6 @@
 /test-reports/
 /test-results/
 /test.log
-/test/test-data/conf2json/conf2json.json
+/tests/test-data/conf2json/conf2json.json
 /vendor/
-/.php-cs-fixer.cache
-/.phpunit.result.cache
+/.code-ATTIC/

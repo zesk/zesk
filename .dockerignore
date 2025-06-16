@@ -5,7 +5,6 @@
 /.build/
 /.buildpath
 /.composer/
-/.env*
 /.github.conf
 /.history/
 /.history/
@@ -35,6 +34,6 @@
 /test-reports/
 /test-results/
 /test.log
-/test/test-data/conf2json/conf2json.json
+/tests/test-data/conf2json/conf2json.json
 /.php-cs-fixer.cache/
 /.phpunit.result.cache/

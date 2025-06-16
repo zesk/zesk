@@ -14,7 +14,9 @@ namespace zesk;
 if (!is_file(__DIR__ . '/vendor/autoload.php')) {
 	spl_autoload_register(function ($class) {
 		if (str_starts_with($class, __NAMESPACE__ . '\\')) {
-			$file = __DIR__ . '/src/' . strtr($class, ['_' => '/', '\\' => '/']) . '.php';
+			$file = __DIR__ . '/zesk/' . strtr($class, ['_'  => '/',
+				'\\' => '/',
+			]) . '.php';
 			if (is_file($file)) {
 				require_once($file);
 				return true;
