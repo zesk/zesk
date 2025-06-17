@@ -54,7 +54,7 @@ echo $success; ?>>
 			} else {
 				echo HTML::div('.message dead col-sm-12', '');
 			}
-			?>
+?>
         </div>
     </div>
 </div>

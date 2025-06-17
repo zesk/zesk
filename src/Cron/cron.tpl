@@ -23,12 +23,12 @@ $service = $application->settings_registry();
 $now = Timestamp::now('UTC');
 
 foreach ([
-			 Timestamp::UNIT_MINUTE => $locale->__('Last minute run'),
-			 Timestamp::UNIT_HOUR   => $locale->__('Last hour run'),
-			 Timestamp::UNIT_WEEK   => $locale->__('Last week run'),
-			 Timestamp::UNIT_MONTH  => $locale->__('Last month run'),
-			 Timestamp::UNIT_YEAR   => $locale->__('Last year run'),
-		 ] as $unit => $label) {
+	Timestamp::UNIT_MINUTE => $locale->__('Last minute run'),
+	Timestamp::UNIT_HOUR   => $locale->__('Last hour run'),
+	Timestamp::UNIT_WEEK   => $locale->__('Last week run'),
+	Timestamp::UNIT_MONTH  => $locale->__('Last month run'),
+	Timestamp::UNIT_YEAR   => $locale->__('Last year run'),
+] as $unit => $label) {
 	$suffix = "_$unit";
 	$runtime = $service->get($module_class . '::last' . $suffix);
 	$attributes = [];
