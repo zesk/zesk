@@ -18,7 +18,8 @@ use zesk\PHPUnit\TestCase;
 use zesk\StringTools;
 
 /**
- *
+ * @coversDefaultClass \zesk\Directory
+ * @uses Directory
  * @author kent
  *
  */
@@ -115,11 +116,23 @@ class DirectoryTest extends TestCase
 	}
 
 	/**
+	 * @return void
+	 * @covers ::findAll
+	 */
+	public function test_find_directory(): void
+	{
+		$this->assertEquals(['/etc/apt'], Directory::findAll([
+			'/',
+			'/etc',
+		], 'apt'));
+	}
+
+	/**
 	 * @param string $result
 	 * @param array $args
 	 * @return void
 	 * @dataProvider data_path
-	 * @covers       \zesk\Directory::path
+	 * @covers       ::path
 	 */
 	public function test_path(string $result, array $args): void
 	{
@@ -162,7 +175,7 @@ class DirectoryTest extends TestCase
 	 * @param string $path
 	 * @return void
 	 * @dataProvider data_isAbsolute
-	 * @covers       \zesk\Directory::isAbsolute
+	 * @covers       Directory::isAbsolute
 	 */
 	public function test_isAbsolute(bool $expected, string $path): void
 	{
@@ -174,7 +187,7 @@ class DirectoryTest extends TestCase
 	 * @throws DirectoryNotFound
 	 * @throws DirectoryPermission
 	 * @throws FilePermission
-	 * @covers       \zesk\Directory::delete
+	 * @covers       Directory::delete
 	 */
 	public function test_delete(): void
 	{
@@ -194,7 +207,7 @@ class DirectoryTest extends TestCase
 	 * @throws DirectoryNotFound
 	 * @throws DirectoryPermission
 	 * @throws FilePermission
-	 * @covers       \zesk\Directory::delete
+	 * @covers       Directory::delete
 	 */
 	public function test_delete_not(): void
 	{
@@ -209,7 +222,7 @@ class DirectoryTest extends TestCase
 	 * @throws DirectoryNotFound
 	 * @throws DirectoryPermission
 	 * @throws FilePermission
-	 * @covers       \zesk\Directory::deleteContents
+	 * @covers       Directory::deleteContents
 	 */
 	public function test_deleteContents(): void
 	{
@@ -247,7 +260,7 @@ class DirectoryTest extends TestCase
 
 	/**
 	 * @dataProvider data_undot_examples
-	 * @covers       \zesk\Directory::removeDots
+	 * @covers       Directory::removeDots
 	 */
 	public function test_undot(?string $expect, string $name): void
 	{
@@ -261,7 +274,7 @@ class DirectoryTest extends TestCase
 
 	/**
 	 * @return void
-	 * @covers \zesk\Directory::listRecursive
+	 * @covers Directory::listRecursive
 	 */
 	public function test_list_recursive(): void
 	{
@@ -303,7 +316,7 @@ class DirectoryTest extends TestCase
 	 * @param string $expected
 	 * @return void
 	 * @dataProvider data_stripSlash
-	 * @covers       \zesk\Directory::stripSlash
+	 * @covers       Directory::stripSlash
 	 */
 	public function test_strip_slash(string $string, string $expected): void
 	{
@@ -314,7 +327,7 @@ class DirectoryTest extends TestCase
 	 * @return void
 	 * @throws DirectoryNotFound
 	 * @throws DirectoryPermission
-	 * @covers \zesk\Directory::ls
+	 * @covers Directory::ls
 	 */
 	public function test_ls(): void
 	{
@@ -334,7 +347,7 @@ class DirectoryTest extends TestCase
 
 	/**
 	 * @throws DirectoryNotFound
-	 * @covers \zesk\Directory::iterate
+	 * @covers Directory::iterate
 	 */
 	public function test_iterate(): void
 	{
@@ -378,7 +391,7 @@ class DirectoryTest extends TestCase
 	 * @return void
 	 * @throws DirectoryNotFound
 	 * @throws DirectoryPermission
-	 * @covers \zesk\Directory::isEmpty
+	 * @covers Directory::isEmpty
 	 */
 	public function test_isEmpty(): void
 	{
@@ -392,7 +405,7 @@ class DirectoryTest extends TestCase
 	 * @return void
 	 * @throws DirectoryNotFound
 	 * @throws DirectoryPermission
-	 * @covers \zesk\Directory::isEmpty
+	 * @covers Directory::isEmpty
 	 */
 	public function test_isEmpty2(): void
 	{
@@ -410,9 +423,9 @@ class DirectoryTest extends TestCase
 
 	/**
 	 * @return void
-	 * @covers \zesk\Directory::duplicate
-	 * @covers \zesk\Directory::deleteContents
-	 * @covers \zesk\Directory::isEmpty
+	 * @covers Directory::duplicate
+	 * @covers Directory::deleteContents
+	 * @covers Directory::isEmpty
 	 * @throws DirectoryNotFound
 	 * @throws DirectoryPermission
 	 * @throws FilePermission
@@ -451,7 +464,7 @@ class DirectoryTest extends TestCase
 
 	/**
 	 * @throws DirectoryCreate
-	 * @covers \zesk\Directory::create
+	 * @covers Directory::create
 	 */
 	public function test_create(): void
 	{
@@ -465,7 +478,7 @@ class DirectoryTest extends TestCase
 	 * @param string $test
 	 * @return void
 	 * @dataProvider data_add_slash
-	 * @covers       \zesk\Directory::addSlash
+	 * @covers       Directory::addSlash
 	 */
 	public function test_add_slash(string $expected, string $test): void
 	{

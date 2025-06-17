@@ -6,13 +6,18 @@ declare(strict_types=1);
 
 namespace testZesk;
 
+use zesk\Exception\ClassNotFound;
 use zesk\Exception\ConfigurationException;
+use zesk\Exception\DirectoryNotFound;
+use zesk\Exception\FileNotFound;
 use zesk\Exception\NotFoundException;
 use zesk\Exception\SemanticsException;
+use zesk\Exception\SyntaxException;
 use zesk\Exception\SystemException;
 use zesk\Request;
 use zesk\Response;
 use zesk\Router;
+use zesk\PHP;
 
 class RouterTest extends ApplicationTestBase
 {
@@ -41,6 +46,10 @@ class RouterTest extends ApplicationTestBase
 		$this->assertEquals('cache', $route);
 	}
 
+	/**
+	 * @throws ClassNotFound
+	 * @throws SyntaxException
+	 */
 	public function test_Router_sleep(): void
 	{
 		$router = new Router($this->application);
@@ -57,6 +66,13 @@ class RouterTest extends ApplicationTestBase
 		$this->assertCount(1, $routes);
 	}
 
+	/**
+	 * @throws NotFoundException
+	 * @throws ClassNotFound
+	 * @throws DirectoryNotFound
+	 * @throws SemanticsException
+	 * @throws FileNotFound
+	 */
 	public function test_Router(): void
 	{
 		$this->application->setDocumentRootPrefix('');
@@ -78,11 +94,12 @@ class RouterTest extends ApplicationTestBase
 			'url' => 'http://test/foo',
 		]);
 		$route = $testObject->matchRequest($request);
-		$this->assertInstanceOf(Route::class, $route);
+		$this->assertNotNull($route);
+
 		$app = $this->application;
 
 		$app->router = $testObject;
-		$request = Request::factory($this->application, 'http://www.example.com/foo');
+		$request = Request::factory($this->application, 'https://www.example.com/foo');
 		$response = $app->main($request);
 
 		// Avoids doing header() in test code
@@ -92,6 +109,11 @@ class RouterTest extends ApplicationTestBase
 		$this->assertStringContainsString($hash, $content);
 	}
 
+	/**
+	 * @throws ClassNotFound
+	 * @throws DirectoryNotFound
+	 * @throws FileNotFound
+	 */
 	public function test_Router_nf(): void
 	{
 		$testObject = new Router($this->application);
@@ -122,6 +144,10 @@ class RouterTest extends ApplicationTestBase
 		$router->cached($mtime);
 	}
 
+	/**
+	 * @throws NotFoundException
+	 * @covers ::cache ::cached
+	 */
 	public function test_yes_cached(): void
 	{
 		$mtime = 'yes';

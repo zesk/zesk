@@ -12,7 +12,7 @@ use zesk\Request;
 
 /**
  * @uses IPv4
- * @coversDefaultClass IPv4
+ * @coversDefaultClass \zesk\IPv4
  */
 class IPv4Test extends TestCase
 {
@@ -311,7 +311,7 @@ class IPv4Test extends TestCase
 		}
 	}
 
-	public function data_maskToString(): array
+	public static function data_maskToString(): array
 	{
 		$ip = 0.0;
 		$ip_bits = 32;

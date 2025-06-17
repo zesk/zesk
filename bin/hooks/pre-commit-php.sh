@@ -56,7 +56,7 @@ __hookPreCommitPHP() {
   local year
   year="$(__catchEnvironment "$usage" date +%Y)" || return $?
   files=()
-  if fileNotMatches "@copyright" "&copy; $year" "$company" -- "${copyrightExceptions[@]+"${copyrightExceptions[@]}"}" -- - >"$matches" < <(gitPreCommitListExtension php); then
+  if fileNotMatches 'declare(strict_types=1);' "@copyright" "&copy; $year" "$company" -- "${copyrightExceptions[@]+"${copyrightExceptions[@]}"}" -- - >"$matches" < <(gitPreCommitListExtension php); then
     while IFS=":" read -r file pattern; do
       printf "%s: %s missing from %s\n" "$(decorate error "No pattern used")" "$(decorate value "$pattern")" "$(decorate code "$file")"
       files+=("$file")

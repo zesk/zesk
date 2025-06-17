@@ -7,6 +7,7 @@ declare(strict_types=1);
 namespace testZesk;
 
 use Exception;
+use zesk\Exception\NotFoundException;
 use zesk\File;
 
 use zesk\Exception\DirectoryCreate;
@@ -16,9 +17,23 @@ use zesk\Exception\FilePermission;
 
 /**
  * @coversDefaultClass \zesk\File
+ * @uses File
  */
 class FileTest extends TestCase
 {
+	/**
+	 * @return void
+	 * @throws NotFoundException
+	 * @covers ::findFirst
+	 */
+	public function test_find_file(): void
+	{
+		$this->assertEquals('/etc/group', File::findFirst([
+			'/',
+			'/etc',
+		], 'group'));
+	}
+
 	private function _test_atomic_increment(string $path, $start): void
 	{
 		$this->assertTrue(File::atomicPut($path, "$start"), 'Creating initial file');

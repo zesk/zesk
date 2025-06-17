@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace testZesk;
 
+use zesk\Exception\NotFoundException;
 use zesk\Number;
 
 /**
@@ -30,7 +31,8 @@ class OverheadTest extends TestCase
 		$stop = $start + $test_limit;
 		// echo "Start=$start, Stop=$stop\n";
 		do {
-			$servers[] = new TestModel();
+			$servers[] = new TestModel($this->application, ['id' => count($servers),
+			]);
 			$current = memory_get_usage();
 			// echo "Current=$current\n";
 			// $delta = $current - $start;
@@ -46,6 +48,7 @@ class OverheadTest extends TestCase
 	}
 
 	/**
+	 * @throws NotFoundException
 	 */
 	private function run_php_sandbox($sandbox): bool|string
 	{

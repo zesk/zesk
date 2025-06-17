@@ -26,6 +26,16 @@ class VersionTest extends TestCase
 {
 	/**
 	 * @return void
+	 * @covers ::release
+	 */
+	public function test_version(): void
+	{
+		$version = Version::release();
+		$this->assertIsString($version);
+	}
+
+	/**
+	 * @return void
 	 * @throws ParseException
 	 * @see Version
 	 * @covers ::release ::date ::string ::variables

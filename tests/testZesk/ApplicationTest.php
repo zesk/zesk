@@ -10,6 +10,7 @@ use zesk\Application;
 use zesk\ArrayTools;
 use zesk\Directory;
 use zesk\Exception\Deprecated;
+use zesk\Exception\FileParseException;
 use zesk\Exception\SemanticsException;
 use zesk\Exception\SystemException;
 use zesk\File;
@@ -41,6 +42,96 @@ use zesk\Exception\UnsupportedException;
  */
 class ApplicationTest extends ApplicationTestBase
 {
+	public static function data_document_root_prefix(): array
+	{
+		return [
+			[
+				'/foobar',
+				'/foobar',
+			],
+			[
+				'foobar',
+				'foobar',
+			],
+			[
+				'',
+				'',
+			],
+			[
+				'antidis',
+				'antidis/',
+			],
+			[
+				'antidis',
+				'antidis////',
+			],
+		];
+	}
+
+	/**
+	 * @param $expected
+	 * @param $set
+	 * @return void
+	 * @dataProvider data_document_root_prefix
+	 * @covers ::setDocumentRootPrefix ::documentRootPrefix
+	 */
+	public function test_document_root_prefix($expected, $set): void
+	{
+		$this->application->setDocumentRootPrefix($set);
+		$this->assertEquals($expected, $this->application->documentRootPrefix());
+	}
+
+	/**
+	 * @return void
+	 * @covers ::documentRoot ::setDocumentRoot
+	 */
+	public function test_site_root(): void
+	{
+		$box = $this->test_sandbox();
+		$this->application->setDocumentRoot($box);
+		$this->assertEquals($box, $this->application->documentRoot());
+	}
+
+	/**
+	 * @return void
+	 * @throws FileParseException
+	 * @throws SemanticsException
+	 * @throws SystemException
+	 * @covers ::configureFiles
+	 */
+	public function test_load_globals(): void
+	{
+		$paths = [
+			$this->test_sandbox(),
+		];
+		$file = $this->test_sandbox('test.conf');
+		$this->application->configuration->DUDE = 'smooth';
+		file_put_contents($file, "TEST_VAR=\"\$DUDE move\"\nVAR_2=\"Ha ha! \${TEST_VAR} ex-lax\"\nVAR_3=\"\${DUDE:-default value}\"\nVAR_4=\"\${DOOD:-default value}\"");
+		$overwrite = false;
+		$this->application->configureFiles([$file]);
+
+		$globals = [
+			'TEST_VAR' => 'smooth move',
+			'VAR_2' => 'Ha ha! smooth move ex-lax',
+			'VAR_3' => 'smooth',
+			'VAR_4' => 'default value',
+		];
+
+		foreach ($globals as $v => $result) {
+			$g = $this->application->configuration->$v;
+			$this->assertEquals($g, $result);
+		}
+	}
+
+	/**
+	 * @return void
+	 * @covers ::maintenance
+	 */
+	public function test_maintenance(): void
+	{
+		$this->application->maintenance();
+	}
+
 	/**
 	 * @return void
 	 * @throws DirectoryNotFound
