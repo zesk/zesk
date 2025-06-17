@@ -7,14 +7,9 @@ declare(strict_types=1);
 namespace testZesk;
 
 use stdClass;
-use zesk\Application;
-use zesk\ArrayTools;
 use zesk\Date;
 use zesk\Debug;
 use zesk\Exception\ParseException;
-use zesk\Exception\Redirect;
-use zesk\Kernel;
-use zesk\Number;
 use zesk\Types;
 
 /**
@@ -22,8 +17,8 @@ use zesk\Types;
  * @author kent
  * @coversDefaultClass \zesk\Types
  */
-class TypesTestCase extends TestCase
-{
+class TypesTestCase extends TestCase {
+	
 	/**
 	 * @param      $expected
 	 * @param      $mixed
@@ -40,7 +35,7 @@ class TypesTestCase extends TestCase
 		}
 		$this->assertEquals($expected, Types::autoType($mixed, $throw));
 	}
-
+	
 	public static function data_autoType(): array
 	{
 		$stdClass = new stdClass();
@@ -113,7 +108,7 @@ class TypesTestCase extends TestCase
 			],
 		];
 	}
-
+	
 	/**
 	 * @return void
 	 */
@@ -138,7 +133,7 @@ class TypesTestCase extends TestCase
 			$this->assertFalse(preg_match('/^' . Types::PREG_PATTERN_IP4_DIGIT1 . '$/', strval($i)) !== 0);
 		}
 	}
-
+	
 	public function test_dump(): void
 	{
 		$x = null;
@@ -148,7 +143,7 @@ class TypesTestCase extends TestCase
 		$dumped = ob_get_clean();
 		$this->assertEquals("(null)\n(boolean) true\n", $dumped);
 	}
-
+	
 	public static function data_bad_dates(): array
 	{
 		return [
@@ -156,7 +151,7 @@ class TypesTestCase extends TestCase
 			[-1],
 		];
 	}
-
+	
 	public static function data_good_dates(): array
 	{
 		return [
@@ -167,7 +162,7 @@ class TypesTestCase extends TestCase
 			['October 15th, 2012'],
 		];
 	}
-
+	
 	/**
 	 * @dataProvider data_good_dates
 	 * @covers ::isDate
@@ -176,7 +171,7 @@ class TypesTestCase extends TestCase
 	{
 		$this->assertTrue(Types::isDate($good_date));
 	}
-
+	
 	/**
 	 * @dataProvider data_bad_dates
 	 * @covers ::isDate
@@ -185,7 +180,7 @@ class TypesTestCase extends TestCase
 	{
 		$this->assertFalse(Types::isDate($bad_date));
 	}
-
+	
 	/**
 	 * @dataProvider data_isEmail
 	 * @covers ::isEmail
@@ -194,7 +189,7 @@ class TypesTestCase extends TestCase
 	{
 		$this->assertTrue(Types::isEmail($email), "is_email($email)");
 	}
-
+	
 	public static function data_isEmail(): array
 	{
 		return [
@@ -215,7 +210,7 @@ class TypesTestCase extends TestCase
 			],
 		];
 	}
-
+	
 	/**
 	 * @dataProvider data_not_is_email
 	 * @covers ::isEmail
@@ -224,7 +219,7 @@ class TypesTestCase extends TestCase
 	{
 		$this->assertFalse(Types::isEmail($email), "is_email($email)");
 	}
-
+	
 	public static function data_not_is_email(): array
 	{
 		return [
@@ -239,7 +234,7 @@ class TypesTestCase extends TestCase
 			],
 		];
 	}
-
+	
 	/**
 	 * @param bool   $expected
 	 * @param string $phone
@@ -251,7 +246,7 @@ class TypesTestCase extends TestCase
 	{
 		$this->assertEquals($expected, Types::isPhone($phone), "is_phone(\"$phone\")");
 	}
-
+	
 	public static function data_isPhone(): array
 	{
 		return [
@@ -285,7 +280,7 @@ class TypesTestCase extends TestCase
 			],
 		];
 	}
-
+	
 	/**
 	 * @param string $expected
 	 * @param mixed  $mixed
@@ -296,7 +291,7 @@ class TypesTestCase extends TestCase
 	{
 		$this->assertEquals($expected, Types::type($mixed));
 	}
-
+	
 	public static function data_vartype(): array
 	{
 		return [
@@ -338,7 +333,7 @@ class TypesTestCase extends TestCase
 			],
 		];
 	}
-
+	
 	public static function data_toList(): array
 	{
 		return [
@@ -354,7 +349,7 @@ class TypesTestCase extends TestCase
 			],
 		];
 	}
-
+	
 	/**
 	 * @param mixed  $mixed
 	 * @param array  $default
@@ -368,7 +363,7 @@ class TypesTestCase extends TestCase
 	{
 		$this->assertEquals($expected, Types::toList($mixed, $default, $delimiter));
 	}
-
+	
 	/**
 	 * @param mixed $mixed
 	 * @param int   $expected
@@ -380,7 +375,7 @@ class TypesTestCase extends TestCase
 	{
 		$this->assertEquals($expected, Types::toInteger($mixed));
 	}
-
+	
 	public static function data_to_integer(): array
 	{
 		return [
@@ -426,7 +421,7 @@ class TypesTestCase extends TestCase
 			],
 		];
 	}
-
+	
 	/**
 	 * @param mixed $float_test
 	 * @param float $expected
@@ -438,7 +433,7 @@ class TypesTestCase extends TestCase
 	{
 		$this->assertEquals($expected, Types::toFloat($float_test));
 	}
-
+	
 	public static function data_toFloat(): array
 	{
 		return [
@@ -458,7 +453,7 @@ class TypesTestCase extends TestCase
 				'-1',
 				-1.0,
 			],
-
+			
 			[
 				'e10000',
 				0.0,
@@ -469,7 +464,7 @@ class TypesTestCase extends TestCase
 			],
 		];
 	}
-
+	
 	/**
 	 * @param mixed     $test
 	 * @param bool|null $expected
@@ -481,7 +476,7 @@ class TypesTestCase extends TestCase
 	{
 		$this->assertEquals($expected, Types::toBool($test));
 	}
-
+	
 	public static function data_toBool(): array
 	{
 		return [
@@ -545,7 +540,7 @@ class TypesTestCase extends TestCase
 				'true',
 				true,
 			],
-
+			
 			[
 				0,
 				false,
@@ -624,7 +619,7 @@ class TypesTestCase extends TestCase
 			],
 		];
 	}
-
+	
 	public static function to_bool_strpos($value, $default = false)
 	{
 		if (is_bool($value)) {
@@ -642,7 +637,7 @@ class TypesTestCase extends TestCase
 		}
 		return $default;
 	}
-
+	
 	public static function to_bool_in_array($value, $default = false)
 	{
 		static $tarray = [
@@ -679,7 +674,7 @@ class TypesTestCase extends TestCase
 		}
 		return $default;
 	}
-
+	
 	/**
 	 * @return void
 	 * @covers ::toArray
@@ -714,7 +709,7 @@ class TypesTestCase extends TestCase
 			'1',
 		], Types::toArray('1'));
 	}
-
+	
 	public static function data_is_email(): array
 	{
 		return [
@@ -724,7 +719,7 @@ class TypesTestCase extends TestCase
 			['test@[IPv4::1]'],
 		];
 	}
-
+	
 	/**
 	 * @param $email
 	 * @return void

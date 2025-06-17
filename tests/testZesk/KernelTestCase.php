@@ -9,10 +9,6 @@ declare(strict_types=1);
 
 namespace testZesk;
 
-use zesk\Exception\ClassNotFound;
-use zesk\Exception\Deprecated;
-use zesk\Exception\FileNotFound;
-use zesk\Exception\FilePermission;
 use zesk\Exception\NotFoundException;
 use zesk\PHPUnit\TestCase;
 
@@ -22,62 +18,60 @@ use zesk\Configuration;
 use zesk\Directory;
 use zesk\File;
 use zesk\Kernel;
-use zesk\Model;
 use zesk\Options;
-use zesk\PHP;
 use zesk\Types;
 use zesk\Version;
 
 /**
  * @coversDefaultClass \zesk\Kernel
  */
-class KernelTestCase extends TestCase
-{
+class KernelTestCase extends TestCase {
+	
 	/**
 	 * @var bool
 	 */
 	protected bool $configureApplication = true;
-
+	
 	/**
 	 * @var int
 	 */
 	public int $order = 0;
-
+	
 	/**
 	 * @var bool
 	 */
 	public bool $_hook_was_called = false;
-
+	
 	public static function _test_hook_order_1st(KernelTestCase $test): void
 	{
 		$test->assertEquals(0, $test->order);
 		$test->order++;
 	}
-
+	
 	public static function _test_hook_order_2nd(KernelTestCase $test): void
 	{
 		$test->assertEquals(1, $test->order);
 		$test->order++;
 	}
-
+	
 	public function add_hook_was_called($arg): void
 	{
 		$this->assertEquals(2, $arg);
 		$this->assertInstanceOf(Application::class, $this->application);
 		$this->application->setOption('hook_was_called', true);
 	}
-
+	
 	public function hook_was_called(): bool
 	{
 		return $this->application->optionBool('hook_was_called');
 	}
-
+	
 	public function _backtraceLines(int $n): int
 	{
 		$content = Kernel::backtrace($n);
 		return count(explode("\n", $content));
 	}
-
+	
 	/**
 	 * @return void
 	 * @covers ::backtrace
@@ -89,7 +83,7 @@ class KernelTestCase extends TestCase
 		$this->assertEquals(1, $this->_backtraceLines(1));
 		$this->assertEquals(2, $this->_backtraceLines(2));
 	}
-
+	
 	public function test_find_directory(): void
 	{
 		$this->assertEquals(['/etc/apt'], Directory::findAll([
@@ -97,7 +91,7 @@ class KernelTestCase extends TestCase
 			'/etc',
 		], 'apt'));
 	}
-
+	
 	public function test_find_file(): void
 	{
 		$this->assertEquals('/etc/group', File::findFirst([
@@ -105,7 +99,7 @@ class KernelTestCase extends TestCase
 			'/etc',
 		], 'group'));
 	}
-
+	
 	public function test_get(): void
 	{
 		$configuration = new Configuration();
@@ -113,7 +107,7 @@ class KernelTestCase extends TestCase
 		$result = $configuration->toArray();
 		$this->assertEquals('b', $result['a']);
 	}
-
+	
 	/**
 	 *
 	 */
@@ -164,7 +158,7 @@ class KernelTestCase extends TestCase
 			],
 		];
 	}
-
+	
 	/**
 	 * @param $expected
 	 * @param $key
@@ -175,7 +169,7 @@ class KernelTestCase extends TestCase
 	{
 		$this->assertEquals($expected, $this->application->configuration->pathExists($key), implode('::', Types::toList($key)));
 	}
-
+	
 	public function test_load_globals(): void
 	{
 		$paths = [
@@ -186,48 +180,48 @@ class KernelTestCase extends TestCase
 		file_put_contents($file, "TEST_VAR=\"\$DUDE move\"\nVAR_2=\"Ha ha! \${TEST_VAR} ex-lax\"\nVAR_3=\"\${DUDE:-default value}\"\nVAR_4=\"\${DOOD:-default value}\"");
 		$overwrite = false;
 		$this->application->configureFiles([$file]);
-
+		
 		$globals = [
 			'TEST_VAR' => 'smooth move',
 			'VAR_2'    => 'Ha ha! smooth move ex-lax',
 			'VAR_3'    => 'smooth',
 			'VAR_4'    => 'default value',
 		];
-
+		
 		foreach ($globals as $v => $result) {
 			$g = $this->application->configuration->$v;
 			$this->assertEquals($g, $result);
 		}
 	}
-
+	
 	public function test_maintenance(): void
 	{
 		$this->application->maintenance();
 	}
-
+	
 	public function test_set(): void
 	{
 		$this->assertEquals(null, $this->application->configuration->getPath('a::b::c'));
 		$this->application->configuration->setPath('a::b::c', 9876);
 		$this->assertEquals(9876, $this->application->configuration->getPath('a::b::c'));
 	}
-
+	
 	public function test_site_root(): void
 	{
 		$this->application->documentRoot($this->test_sandbox());
 	}
-
+	
 	public function test_version(): void
 	{
 		$version = Version::release();
 		$this->assertIsString($version);
 	}
-
+	
 	public function test_documentRoot(): void
 	{
 		$this->application->documentRoot();
 	}
-
+	
 	public static function data_document_root_prefix(): array
 	{
 		return [
@@ -253,7 +247,7 @@ class KernelTestCase extends TestCase
 			],
 		];
 	}
-
+	
 	/**
 	 * @param $expected
 	 * @param $set
@@ -265,20 +259,20 @@ class KernelTestCase extends TestCase
 		$this->application->setDocumentRootPrefix($set);
 		$this->assertEquals($expected, $this->application->documentRootPrefix());
 	}
-
+	
 	public function test_which(): void
 	{
 		$command = 'ls';
 		$this->assertFileExists($this->application->paths->which($command));
 	}
-
+	
 	public function test_which_fail(): void
 	{
 		$command = 'notacommandtofind';
 		$this->expectException(NotFoundException::class);
 		$this->application->paths->which($command);
 	}
-
+	
 	/**
 	 * @return void
 	 * @covers ::singleton
@@ -288,7 +282,7 @@ class KernelTestCase extends TestCase
 		$kernel = Kernel::singleton();
 		$this->assertInstanceOf(Kernel::class, $kernel);
 	}
-
+	
 	/**
 	 * @return void
 	 * @covers ::caller ::callingFunction
@@ -313,13 +307,13 @@ class KernelTestCase extends TestCase
 			'callingLine',
 			'callingFile',
 		]));
-
+		
 		for ($i = 0; $i < 4; $i++) {
 			$this->assertEquals(Kernel::callingFunction($i, true), Kernel::caller($i)['fileMethodLine']);
 			$this->assertEquals(Kernel::callingFunction($i, false), Kernel::caller($i)['fileMethod']);
 		}
 	}
-
+	
 	/**
 	 * @return void
 	 * @covers \zesk\Kernel::callingFunction

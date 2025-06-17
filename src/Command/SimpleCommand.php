@@ -13,7 +13,6 @@ use Psr\Log\NullLogger;
 use Stringable;
 use Psr\Log\LogLevel;
 use Throwable;
-use zesk\Application;
 use zesk\Application\Hooks;
 use zesk\Command;
 use zesk\Exception;
@@ -32,14 +31,14 @@ use const STDOUT;
  * @author kent
  *
  */
-abstract class SimpleCommand extends Command
-{
+abstract class SimpleCommand extends Command {
+	
 	/**
 	 *
 	 * @var boolean
 	 */
 	protected bool $quiet = false;
-
+	
 	/**
 	 *
 	 * @var array
@@ -49,7 +48,7 @@ abstract class SimpleCommand extends Command
 		'notice' => true,
 		'debug'  => true,
 	];
-
+	
 	/**
 	 * Log a message to output or stderr.
 	 * Do not do anything if a theme is currently being rendered.
@@ -68,7 +67,7 @@ abstract class SimpleCommand extends Command
 		}
 		parent::log($level, $message, $context);
 	}
-
+	
 	/**
 	 * Pre-flight, and add standard options
 	 *
@@ -87,7 +86,7 @@ abstract class SimpleCommand extends Command
 		$this->argumentTypes['no-ansi'] = 'boolean';
 		$this->argumentTypes['quiet'] = 'boolean';
 		$this->argumentTypes['help'] = 'boolean';
-
+		
 		$this->option_help['log'] = 'Name of the log file to output log messages to (default is stdout, use - to use stdout)';
 		$this->option_help['severity'] = 'Maximum log severity to output';
 		$this->option_help['debug'] = 'Debugging logging enabled (implies --severity debug)';
@@ -98,13 +97,13 @@ abstract class SimpleCommand extends Command
 		$this->option_help['no-ansi'] = 'Disable ANSI colors in output (overrides any automatic detection)';
 		$this->option_help['quiet'] = 'Suppress all log messages to stdout overriding --verbose and --debug.';
 		$this->option_help['help'] = 'This help.';
-
+		
 		if (isset($this->argumentTypes['format']) && !isset($this->option_help['format'])) {
 			$this->option_help['format'] = 'Output format: JSON, Text, Serialize, PHP';
 		}
 		parent::initialize();
 	}
-
+	
 	public function stdout()
 	{
 		if (defined('STDOUT')) {
@@ -116,7 +115,7 @@ abstract class SimpleCommand extends Command
 		}
 		return $stdout = fopen('php://stdout', 'wb');
 	}
-
+	
 	/**
 	 */
 	protected function configureLogger(): void
@@ -124,7 +123,7 @@ abstract class SimpleCommand extends Command
 		if ($this->optionBool('quiet')) {
 			$this->quiet = true;
 			$logger = new NullLogger();
-		} elseif (($filename = $this->option('log')) !== null) {
+		} else if (($filename = $this->option('log')) !== null) {
 			if ($filename === '-') {
 				$logger = new InterfaceAdapter($this);
 			} else {
@@ -135,7 +134,7 @@ abstract class SimpleCommand extends Command
 					LogLevel::NOTICE => true,
 					LogLevel::DEBUG  => $debug,
 				];
-
+				
 				try {
 					$logger->setLevels($levels);
 				} catch (KeyNotFound $e) {
@@ -150,7 +149,7 @@ abstract class SimpleCommand extends Command
 		}
 		$this->application->setLogger($logger); //->setChild($this->application->logger);
 	}
-
+	
 	/**
 	 * @return void
 	 * @throws ExitedException
@@ -162,14 +161,14 @@ abstract class SimpleCommand extends Command
 		$this->configureLogger();
 		if ($this->optionBool('help')) {
 			$this->usage();
-
+			
 			throw new ExitedException();
 		}
 		if ($this->optionBool('debug-config')) {
 			$this->application->hooks->registerHook(Hooks::HOOK_CONFIGURED, $this->debugConfiguration(...));
 		}
 	}
-
+	
 	protected function handleBasicArguments(): int
 	{
 		if ($this->optionBool('debug-config')) {
@@ -182,7 +181,7 @@ abstract class SimpleCommand extends Command
 		}
 		return 0;
 	}
-
+	
 	/**
 	 */
 	/**

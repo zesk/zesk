@@ -6,8 +6,10 @@ declare(strict_types=1);
 
 namespace testZesk;
 
-class TrieTestCase extends TestCase
-{
+use zesk\Trie;
+
+class TrieTestCase extends TestCase {
+	
 	public static function data_trie(): array
 	{
 		$aa_json = [
@@ -131,14 +133,14 @@ class TrieTestCase extends TestCase
 			],
 		];
 	}
-
+	
 	public array $saved = [];
-
+	
 	public function save_words($word): void
 	{
 		$this->saved[] = $word;
 	}
-
+	
 	public function get_words(Trie $x): array
 	{
 		$this->saved = [];
@@ -149,7 +151,7 @@ class TrieTestCase extends TestCase
 		sort($this->saved);
 		return $this->saved;
 	}
-
+	
 	/**
 	 * @param array $words
 	 * @param array $expected
@@ -160,7 +162,7 @@ class TrieTestCase extends TestCase
 	{
 		$x = new Trie(['lower' => true]);
 		sort($words);
-
+		
 		$wordsDesc = implode(',', array_slice($words, 0, 5)) . ' (' . count($words) . ')';
 		$added = [];
 		$previous = '';
@@ -177,13 +179,13 @@ class TrieTestCase extends TestCase
 		sort($finalWords);
 		$this->assertEquals($words, $finalWords, "$wordsDesc: final words");
 		$this->assertEquals($words, $this->get_words($x));
-
+		
 		$x->optimize();
-
+		
 		$optimizedWords = $x->words();
 		sort($optimizedWords);
 		$this->assertEquals($words, $optimizedWords, "$wordsDesc: optimized words");
-
+		
 		$json = $x->toJSON();
 		//		echo "\nEXPECTED:\n" . PHP::dump($expected) . "\n\n";
 		//		echo "\nACTUAL:\n" . PHP::dump($json) . "\n\n";

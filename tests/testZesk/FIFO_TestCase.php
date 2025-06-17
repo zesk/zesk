@@ -5,53 +5,56 @@ namespace testZesk;
 
 use zesk\ArrayTools;
 use zesk\Directory;
+use zesk\Exception\CommandFailed;
 use zesk\Exception\DirectoryNotFound;
+use zesk\Exception\FileNotFound;
 use zesk\Exception\FilePermission;
+use zesk\Exception\SyntaxException;
 use zesk\FIFO;
 use zesk\PHP;
 use zesk\Process;
 
-class FIFO_TestCase extends TestCase
-{
+class FIFO_TestCase extends TestCase {
+	
 	public function test_fifo_create_false(): void
 	{
 		$fifo = new FIFO('does not matter whatever if create is false', false);
 		$this->assertInstanceOf(FIFO::class, $fifo);
 	}
-
+	
 	public function test_fifo_dnf(): void
 	{
 		$dir = $this->test_sandbox();
-
+		
 		$badFile = Directory::path($dir, 'notpath/notfind.pipe');
-
+		
 		$this->expectException(DirectoryNotFound::class);
 		$fifo = new FIFO($badFile, true);
 		$this->assertInstanceOf(FIFO::class, $fifo);
 	}
-
+	
 	public function test_fifo_permissions(): void
 	{
 		$this->expectException(FilePermission::class);
 		$fifo = new FIFO('/proc/sys/fail', true);
 		$this->assertInstanceOf(FIFO::class, $fifo);
 	}
-
+	
 	public function test_fifo_permissions2(): void
 	{
 		$dir = $this->test_sandbox();
-
+		
 		$parentDir = Directory::path($dir, 'foo');
 		Directory::depend($parentDir, 0o700);
 		$badFile = Directory::path($parentDir, 'badperm.pipe');
 		Directory::depend($badFile, 0o700);
-
+		
 		$this->expectException(FilePermission::class);
 		/* posix_mkfifo on a directory will fail I believe */
 		$fifo = new FIFO($badFile, true);
 		$this->assertInstanceOf(FIFO::class, $fifo);
 	}
-
+	
 	public static function data_fifo_dataSet(): array
 	{
 		return [
@@ -72,24 +75,27 @@ class FIFO_TestCase extends TestCase
 			],
 		];
 	}
-
+	
 	/**
 	 * @param array $expected
 	 * @return void
+	 * @dataProvider data_fifo_dataSet
+	 * @return void
 	 * @throws DirectoryNotFound
 	 * @throws FilePermission
+	 * @throws CommandFailed
+	 * @throws FileNotFound
 	 * @throws SyntaxException
-	 * @dataProvider data_fifo_dataSet
 	 */
 	public function test_fifo_reader(array $expected): void
 	{
 		$dir = $this->test_sandbox();
-
+		
 		$fifo_path = Directory::path($dir, 'reader.fifo');
 		$fifo = new FIFO($fifo_path, true);
-
+		
 		$termToken = $this->randomHex(20);
-
+		
 		$map = ['path' => PHP::dump($fifo_path)];
 		$writerCode = ['<?php'];
 		$writerCode[] = '$f = new zesk\FIFO({path}, false);';
@@ -102,7 +108,7 @@ class FIFO_TestCase extends TestCase
 		$writerScriptPath = Directory::path($dir, 'writer.php');
 		file_put_contents($writerScriptPath, $writerScript);
 		$this->zeskEvalFileProcess($writerScriptPath);
-
+		
 		$results = [];
 		do {
 			$item = $fifo->read(100);
@@ -113,7 +119,7 @@ class FIFO_TestCase extends TestCase
 		} while (true);
 		$this->assertEquals($expected, $results);
 	}
-
+	
 	/**
 	 * @param array $expected
 	 * @return void
@@ -125,19 +131,19 @@ class FIFO_TestCase extends TestCase
 	public function test_fifo_writer(array $expected): void
 	{
 		$dir = $this->test_sandbox();
-
+		
 		$writer_path = Directory::path($dir, 'writer.fifo');
 		$reader_path = Directory::path($dir, 'reader.fifo');
 		$writer = new FIFO($writer_path, false);
 		$reader = new FIFO($reader_path, true);
-
+		
 		$termToken = $this->randomHex(20);
-
+		
 		$map = [
 			'writer_path' => PHP::dump($writer_path),
 			'reader_path' => PHP::dump($reader_path),
 		];
-
+		
 		// Our process reads from the writer and writes to the reader
 		$echoCode = ['<?php'];
 		// $echoCode[] = 'echo "echo server started" . PHP_EOL;';
@@ -161,7 +167,7 @@ class FIFO_TestCase extends TestCase
 		$this->assertTrue(Process::alive($pid));
 		$this->awaitFile($writer_path, 10);
 		$this->awaitFile($reader_path, 10);
-
+		
 		foreach ($expected as $item) {
 			$writer->write($item);
 			$readItem = $reader->read(10);

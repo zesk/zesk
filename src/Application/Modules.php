@@ -25,7 +25,6 @@ use zesk\Exception\SemanticsException;
 use zesk\File;
 use zesk\Module;
 use zesk\JSON;
-use zesk\PHP;
 
 /**
  * Module loading and management
@@ -34,36 +33,36 @@ use zesk\PHP;
  * @author kent
  *
  */
-class Modules
-{
+class Modules {
+	
 	private array $moduleClasses = [];
-
+	
 	private bool $moduleClassesLoaded = false;
-
+	
 	/**
 	 *
 	 * @var boolean
 	 */
 	private bool $debug = false;
-
+	
 	/**
 	 *
 	 * @var Application
 	 */
 	private Application $application;
-
+	
 	/**
 	 * Loaded modules in the system
 	 */
 	private CaseArray $modules;
-
+	
 	/**
 	 * Hooks to call for modules when loaded
 	 *
 	 * @var array
 	 */
 	private array $loadHooks = [];
-
+	
 	/**
 	 * Create the Modules
 	 *
@@ -78,7 +77,7 @@ class Modules
 			'debug',
 		], $this->debug);
 	}
-
+	
 	public function shutdown(): void
 	{
 		if ($this->debug) {
@@ -89,7 +88,7 @@ class Modules
 		}
 		$this->modules = new CaseArray();
 	}
-
+	
 	/**
 	 * Current list of loaded modules in the system
 	 *
@@ -99,7 +98,7 @@ class Modules
 	{
 		return $this->modules->keys();
 	}
-
+	
 	/**
 	 * Dynamically determine the module version
 	 *
@@ -111,7 +110,7 @@ class Modules
 	{
 		return $this->module($module)->version();
 	}
-
+	
 	/**
 	 * Return list of available modules (list of names)
 	 *
@@ -125,7 +124,7 @@ class Modules
 			return [];
 		}
 	}
-
+	
 	/**
 	 * @return array
 	 * @throws ParseException
@@ -139,7 +138,7 @@ class Modules
 		}
 		return $this->moduleClasses = JSON::decode(File::contents('./etc/modules.json'));
 	}
-
+	
 	/**
 	 * @param string $module
 	 * @return bool
@@ -153,7 +152,7 @@ class Modules
 			return false;
 		}
 	}
-
+	
 	/**
 	 * Is a module loaded?
 	 *
@@ -164,7 +163,7 @@ class Modules
 	{
 		return $this->modules->offsetExists($name);
 	}
-
+	
 	/**
 	 * Load one or more modules
 	 * Module load array is an array with the following keys:
@@ -187,7 +186,7 @@ class Modules
 		if ($this->modules->offsetExists($name)) {
 			return $this->modules[$name];
 		}
-
+		
 		try {
 			return $this->modules[$name] = $this->_loadModule($name);
 		} catch (ClassNotFound $e) {
@@ -199,7 +198,7 @@ class Modules
 			throw new NotFoundException('Unable to load {name} {exceptionClass} {message}', ['name' => $name] + $e->variables(), 0, $e);
 		}
 	}
-
+	
 	/**
 	 * @param array $names
 	 * @return array
@@ -215,7 +214,7 @@ class Modules
 		}
 		return $result;
 	}
-
+	
 	/**
 	 * @param string $name
 	 * @return Module
@@ -224,7 +223,7 @@ class Modules
 	private function _loadModule(string $name): Module
 	{
 		assert(!str_contains($name, '\\'));
-
+		
 		$lowerName = strtolower($name);
 		$module = $this->modules[$lowerName] ?? null;
 		if ($module) {
@@ -236,7 +235,7 @@ class Modules
 		$module = $this->application->factory($this->moduleClasses[$lowerName], $this->application);
 		$module->checkDependencies();
 		$module->initialize();
-
+		
 		$this->modules[$lowerName] = $module;
 		if (count($this->loadHooks)) {
 			foreach (array_keys($this->loadHooks) as $hookName) {
@@ -246,7 +245,7 @@ class Modules
 		}
 		return $module;
 	}
-
+	
 	/**
 	 * @param string $string
 	 * @return void
@@ -255,7 +254,7 @@ class Modules
 	{
 		$this->loadHooks[$string] = true;
 	}
-
+	
 	/**
 	 * Can a module be loaded?
 	 *
@@ -270,7 +269,7 @@ class Modules
 			return false;
 		}
 	}
-
+	
 	/**
 	 * @return Module[]
 	 */
@@ -278,7 +277,7 @@ class Modules
 	{
 		return $this->modules->getArrayCopy();
 	}
-
+	
 	/**
 	 * Retrieve configuration information about a loaded module
 	 *
@@ -290,7 +289,7 @@ class Modules
 	{
 		return $this->module($module)->moduleConfiguration();
 	}
-
+	
 	/**
 	 * Get Module
 	 *
@@ -304,10 +303,10 @@ class Modules
 		if ($this->modules->offsetExists($module)) {
 			return $this->modules[$module];
 		}
-
+		
 		throw new NotFoundException('No module object for {module} found', ['module' => $module]);
 	}
-
+	
 	/**
 	 * @param string $module
 	 * @return Module
@@ -317,7 +316,7 @@ class Modules
 	{
 		return $this->object($module);
 	}
-
+	
 	/**
 	 * @param string $module
 	 * @return Module
@@ -327,7 +326,7 @@ class Modules
 	{
 		return $this->object($module);
 	}
-
+	
 	/**
 	 * Clean a module name
 	 *
@@ -344,7 +343,7 @@ class Modules
 		}
 		return $modules;
 	}
-
+	
 	/**
 	 * @return void
 	 */

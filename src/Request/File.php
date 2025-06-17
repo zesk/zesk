@@ -12,37 +12,31 @@ use zesk\Exception\FilePermission;
 use zesk\Exception\ParameterException;
 use zesk\File as zeskFile;
 
-class File
-{
-	/**
-	 *
-	 * @var string
-	 */
-	private string $tmp_name;
-
+class File {
+	
 	/**
 	 *
 	 * @var string
 	 */
 	private string $name;
-
+	
 	/**
 	 *
 	 * @var string
 	 */
 	private string $tmp_path;
-
+	
 	/**
 	 * @var string
 	 */
 	private string $ext;
-
+	
 	/**
 	 *
 	 * @var array
 	 */
 	private array $upload_array = [];
-
+	
 	/**
 	 *
 	 * @param array $upload_array
@@ -53,7 +47,8 @@ class File
 	{
 		if (!isset($upload_array['tmp_name'])) {
 			throw new ParameterException('{method} must have keys tmp_name (keys passed: {keys})', [
-				'method' => __METHOD__, 'keys' => array_keys($upload_array),
+				'method' => __METHOD__,
+				'keys'   => array_keys($upload_array),
 			]);
 		}
 		$this->upload_array = $upload_array;
@@ -64,7 +59,7 @@ class File
 		$this->name = $upload_array['name'] ?? basename($this->tmp_path);
 		$this->ext = zeskFile::extension($this->name);
 	}
-
+	
 	/**
 	 * @return array
 	 */
@@ -72,7 +67,7 @@ class File
 	{
 		return $this->upload_array;
 	}
-
+	
 	/**
 	 * Create a new instance
 	 *
@@ -85,12 +80,12 @@ class File
 	{
 		return new self($upload_array);
 	}
-
+	
 	/**
 	 * Process upload files before anyone else
 	 */
 	public const FILTER_UPLOAD = self::class . '::upload';
-
+	
 	/**
 	 * Sample options are:
 	 *
@@ -102,14 +97,14 @@ class File
 	 *     )
 	 *
 	 * @param string $dest_path
-	 * @param array $options
+	 * @param array  $options
 	 * @return string
 	 * @throws ParameterException
 	 */
 	/**
 	 * @param Application $application
-	 * @param string $dest_path
-	 * @param array $options
+	 * @param string      $dest_path
+	 * @param array       $options
 	 * @return string
 	 * @throws ParameterException
 	 * @throws DirectoryCreate
@@ -123,11 +118,11 @@ class File
 				'dest_path' => $dest_path,
 			]);
 		}
-
+		
 		$dest_dir = is_dir($dest_path) ? $dest_path : dirname($dest_path);
-
+		
 		Directory::depend($dest_dir, $options['dir_mode'] ?? 0o700);
-
+		
 		if ($options['hash'] ?? false) {
 			$x = md5_file($this->tmp_path);
 			$dest_path = Directory::path($dest_dir, "$x." . $this->ext);

@@ -12,6 +12,7 @@ namespace zesk\Doctrine;
 
 use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Entity;
+use Doctrine\ORM\Mapping\EntityListeners;
 use Throwable;
 use zesk\Doctrine\Trait\AutoID;
 use zesk\Exception;
@@ -34,23 +35,24 @@ use zesk\Types;
  * @author kent
  */
 #[Entity]
-class User extends Model implements Userlike
-{
+#[EntityListeners([ModelListener::class])]
+class User extends Model implements Userlike {
+	
 	/**
 	 *
 	 */
 	public const HOOK_PERMISSION_ALLOWED = __CLASS__ . '::permissionAllowed';
-
+	
 	/**
 	 *
 	 */
 	public const HOOK_PERMISSION_DENIED = __CLASS__ . '::permissionDenied';
-
+	
 	/**
 	 *
 	 */
 	public const HOOK_CAN = __CLASS__ . '::can';
-
+	
 	/**
 	 *
 	 */
@@ -58,24 +60,24 @@ class User extends Model implements Userlike
 	/**
 	 *
 	 */
-
+	
 	/**
 	 *
 	 */
 	public const HOOK_LOGOUT = __CLASS__ . '::logout';
-
+	
 	/**
 	 * Boolean value to enable debugging of permissions
 	 *
 	 * @var string
 	 */
 	public const OPTION_DEBUG_PERMISSION = 'debugPermission';
-
+	
 	/**
 	 * Boolean value to run a hook after the permission is allowed or denied
 	 */
 	public const OPTION_HOOK_AFTER_PERMISSION = 'hookAfterPermission';
-
+	
 	public static array $allowedMethods = [
 		'md5',
 		'sha1',
@@ -85,42 +87,42 @@ class User extends Model implements Userlike
 		'ripemd160',
 		'ripemd320',
 	];
-
+	
 	use AutoID;
-
+	
 	#[Column(type: 'string', length: 128, nullable: false)]
 	public string $email;
-
+	
 	#[Column(type: 'string', length: 16, nullable: false)]
 	public string $passwordMethod;
-
+	
 	#[Column(type: 'string', length: 128, nullable: false)]
 	public string $passwordData;
-
+	
 	#[Column(type: 'string', length: 64, nullable: false)]
 	public string $nameFirst;
-
+	
 	#[Column(type: 'string', length: 64, nullable: false)]
 	public string $nameLast;
-
+	
 	#[Column(type: 'smallint', nullable: false)]
 	public bool $isActive;
-
+	
 	#[Column(type: 'timestamp', nullable: true)]
 	public Timestamp $lastLogin;
-
+	
 	#[Column(type: 'timestamp', nullable: true)]
 	public Timestamp $validated;
-
+	
 	#[Column(type: 'timestamp', nullable: true)]
 	public Timestamp $agreed;
-
+	
 	#[Column(type: 'timestamp', nullable: true)]
 	public Timestamp $created;
-
+	
 	#[Column(type: 'timestamp', nullable: true)]
 	public Timestamp $modified;
-
+	
 	/**
 	 * @return int|string|array
 	 * @see SessionInterface::id()
@@ -129,7 +131,7 @@ class User extends Model implements Userlike
 	{
 		return $this->id;
 	}
-
+	
 	/**
 	 */
 	public function authenticationData(): array
@@ -142,7 +144,7 @@ class User extends Model implements Userlike
 			'validated' => $this->validated,
 		];
 	}
-
+	
 	public function fetchById(int|string|array $id): Userlike
 	{
 		try {
@@ -151,7 +153,7 @@ class User extends Model implements Userlike
 			throw new Exception\NotFoundException($e->getMessage());
 		}
 	}
-
+	
 	/**
 	 * Session user ID
 	 *
@@ -163,7 +165,7 @@ class User extends Model implements Userlike
 	{
 		return $this->application->session($request)->userId();
 	}
-
+	
 	/**
 	 * Set the password field
 	 *
@@ -179,10 +181,10 @@ class User extends Model implements Userlike
 		}
 		$this->passwordMethod = $method;
 		$this->passwordData = $this->_generateHash($set);
-
+		
 		return $this;
 	}
-
+	
 	/**
 	 *
 	 * @param string $string
@@ -193,7 +195,7 @@ class User extends Model implements Userlike
 	{
 		return hash($this->passwordMethod, $string, $binary);
 	}
-
+	
 	/**
 	 * Check a username and password.
 	 * Will not authenticate user until ->authenticated($request, $response) is called.
@@ -207,10 +209,10 @@ class User extends Model implements Userlike
 		if (strcasecmp($this->_generateHash($password), $this->passwordData) === 0) {
 			return $this;
 		}
-
+		
 		throw new AuthenticationException($this->email);
 	}
-
+	
 	/**
 	 * Get/set authentication status
 	 *
@@ -242,9 +244,9 @@ class User extends Model implements Userlike
 		]);
 		return $this;
 	}
-
+	
 	public const HOOK_AUTHENTICATED = __CLASS__ . '::authenticated';
-
+	
 	/**
 	 * Similar to $user->can(...) but instead throws an PermissionDenied on failure
 	 *
@@ -262,7 +264,7 @@ class User extends Model implements Userlike
 			throw new PermissionDenied($this, $actions, $context, $options);
 		}
 	}
-
+	
 	final public static function clean_permission($string): string
 	{
 		return strtolower(strtr($string, [
@@ -272,7 +274,7 @@ class User extends Model implements Userlike
 			'__' => '::',
 		]));
 	}
-
+	
 	/**
 	 * The core of the permissions system
 	 *
@@ -321,7 +323,7 @@ class User extends Model implements Userlike
 		foreach ($actions as $action) {
 			$action = self::clean_permission($action);
 			$skipLog = false;
-
+			
 			try {
 				$result = $this->invokeFilters(self::HOOK_CAN, $result, [
 					$this,
@@ -333,10 +335,10 @@ class User extends Model implements Userlike
 				$result = false;
 				$skipLog = true;
 				$this->application->error("User::can({action},{context}) = {result} (Roles {roles}): Exception {throwableClass} {message}\n{backtrace}", [
-					'action'  => $action,
-					'context' => $context,
-					'result'  => false,
-				] + Exception::exceptionVariables($e));
+						'action'  => $action,
+						'context' => $context,
+						'result'  => false,
+					] + Exception::exceptionVariables($e));
 			}
 			if ($this->optionBool(self::OPTION_DEBUG_PERMISSION) && !$skipLog) {
 				$this->application->debug('User::can({action},{context}) = {result} (Roles {roles}) ({extra})', [
@@ -366,10 +368,10 @@ class User extends Model implements Userlike
 				$options,
 			]);
 		}
-
-		return (bool) $result;
+		
+		return (bool)$result;
 	}
-
+	
 	/**
 	 * Check if a user can edit an object
 	 *
@@ -380,7 +382,7 @@ class User extends Model implements Userlike
 	{
 		return $this->can('edit', $object);
 	}
-
+	
 	/**
 	 * Check if a user can view an object
 	 *
@@ -391,7 +393,7 @@ class User extends Model implements Userlike
 	{
 		return $this->can('view', $object);
 	}
-
+	
 	/**
 	 *
 	 *
@@ -401,7 +403,7 @@ class User extends Model implements Userlike
 	{
 		return $this->email;
 	}
-
+	
 	/**
 	 * Check if a user can delete an object
 	 *
@@ -412,7 +414,7 @@ class User extends Model implements Userlike
 	{
 		return $this->can('delete', $object);
 	}
-
+	
 	/**
 	 * Takes an array which can be formatted with $application->theme("actions") and filters based on permissions.
 	 * Use the key "permission" in value to specify a permission to check. It can be a string, or an
@@ -445,7 +447,7 @@ class User extends Model implements Userlike
 					if ($this->can($a_permission, $a_context, $a_options)) {
 						$actions_passed[$href] = $attributes;
 					}
-				} elseif ($this->can($permission, $context, $options)) {
+				} else if ($this->can($permission, $context, $options)) {
 					$actions_passed[$href] = $attributes;
 				}
 			} else {

@@ -7,17 +7,13 @@ declare(strict_types=1);
 namespace testZesk;
 
 use zesk\ArrayTools;
-use zesk\CommandLoader;
 use zesk\Directory;
-use zesk\Application;
 
 use zesk\Exception\ClassNotFound;
 use zesk\Exception\ConfigurationException;
 use zesk\Exception\DirectoryCreate;
-use zesk\Exception\DirectoryNotFound;
 use zesk\Exception\DirectoryPermission;
 use zesk\Exception\FileNotFound;
-use zesk\Exception\FilePermission;
 use zesk\Exception\KeyNotFound;
 use zesk\Exception\NotFoundException;
 use zesk\Exception\ParameterException;
@@ -25,13 +21,10 @@ use zesk\Exception\ParseException;
 use zesk\Exception\ProtocolException;
 use zesk\Exception\SemanticsException;
 use zesk\Exception\SystemException;
-use zesk\File;
 use zesk\HTML;
 use zesk\HTTP;
-use zesk\PHP;
 use zesk\Request;
 use zesk\Response;
-use zesk\StringTools;
 
 /**
  *
@@ -40,10 +33,10 @@ use zesk\StringTools;
  * @see    TestRequest
  * @coversDefaultClass \zesk\Response
  */
-class ResponseTestBase extends TestApplicationTestBase
-{
+class ResponseTestBase extends TestApplicationTestBase {
+	
 	private Request $request;
-
+	
 	public function initialize(): void
 	{
 		parent::initialize();
@@ -53,7 +46,7 @@ class ResponseTestBase extends TestApplicationTestBase
 			'World',
 		]);
 	}
-
+	
 	/**
 	 * @return Response
 	 * @throws ClassNotFound
@@ -67,22 +60,22 @@ class ResponseTestBase extends TestApplicationTestBase
 	private function __testRequestResponse(): Response
 	{
 		$app = $this->testApplication;
-
+		
 		$publicRoot = $app->documentRoot('public');
-
+		
 		Directory::depend($publicRoot);
-
+		
 		$this->assertFalse($app->isConfigured());
 		$app->configure();
 		$this->assertTrue($app->isConfigured());
-
+		
 		$this->request = Request::factory($app, 'http://www.example.com/home');
 		$wantedIP = '10.0.0.2';
 		$this->request->initializeFromSettings([Request::OPTION_REMOTE_IP => $wantedIP] + $this->request->variables());
-
+		
 		return $this->requestRoundTrip($this->request, 'home', $wantedIP);
 	}
-
+	
 	/**
 	 * @return void
 	 * @covers ::status ::statusMessage ::id
@@ -100,15 +93,15 @@ class ResponseTestBase extends TestApplicationTestBase
 	public function testStatus(): void
 	{
 		$newApplication = $this->testApplication;
-
-
+		
+		
 		$response = $this->__testRequestResponse();
-
+		
 		$this->assertIsInteger($response->id());
 		$this->assertEquals(HTTP::STATUS_OK, $response->status());
 		$this->assertEquals('OK', $response->statusMessage());
 	}
-
+	
 	/**
 	 * @return void
 	 * @covers ::isHTML ::isJSON ::makeJSON ::makeHTML ::setContentType
@@ -123,29 +116,29 @@ class ResponseTestBase extends TestApplicationTestBase
 	public function testResponseTypes(): void
 	{
 		$response = $this->__testRequestResponse();
-
+		
 		$this->assertTrue($response->isHTML());
 		$this->assertFalse($response->isJSON());
-
+		
 		$this->assertEquals($response, $response->makeJSON());
 		$this->assertFalse($response->isHTML());
 		$this->assertTrue($response->isJSON());
-
+		
 		$this->assertEquals($response, $response->makeHTML());
 		$this->assertTrue($response->isHTML());
 		$this->assertFalse($response->isJSON());
-
+		
 		$this->assertEquals($response, $response->setContentType(Response::CONTENT_TYPE_JSON));
 		$this->assertEquals('application/json', $response->contentType());
 		$this->assertFalse($response->isHTML());
 		$this->assertTrue($response->isJSON());
-
-
+		
+		
 		$this->assertEquals($response, $response->setContentType('text/html'));
 		$this->assertTrue($response->isHTML());
 		$this->assertFalse($response->isJSON());
 	}
-
+	
 	/**
 	 * @return void
 	 * @covers ::noCache ::setOutputHandler ::toJSON ::cacheSave ::setCacheFor
@@ -153,17 +146,17 @@ class ResponseTestBase extends TestApplicationTestBase
 	public function testCacheRelated(): void
 	{
 		$response = $this->__testRequestResponse();
-
+		
 		$this->assertEquals($response, $response->noCache());
 		$this->assertEquals($response, $response->setOutputHandler(Response::CONTENT_TYPE_HTML));
-
+		
 		$jsonResponse = [];
 		$this->assertEquals($jsonResponse, ArrayTools::filterKeys($response->toJSON(), null, ['elapsed']));
-
+		
 		$response->setCacheFor(100);
 		$response->cacheSave($this->testApplication->cacheItemPool(), $this->request->url());
 	}
-
+	
 	/**
 	 * @return void
 	 * @covers ::noCache ::setOutputHandler ::id_counter
@@ -178,11 +171,11 @@ class ResponseTestBase extends TestApplicationTestBase
 	public function testIDCounter(): void
 	{
 		$response = $this->__testRequestResponse();
-
+		
 		$id = $response->id_counter();
 		$this->assertEquals($id + 1, $response->id_counter());
 	}
-
+	
 	/**
 	 * @return void
 	 * @covers ::title ::setTitle
@@ -197,12 +190,12 @@ class ResponseTestBase extends TestApplicationTestBase
 	public function testTitle(): void
 	{
 		$response = $this->__testRequestResponse();
-
+		
 		$this->assertEquals('', $response->title());
 		$this->assertEquals($response, $response->setTitle('Hello, world'));
 		$this->assertEquals('Hello, world', $response->title());
 	}
-
+	
 	/**
 	 * @covers ::htmlAttributes ::setHTMLAttributes
 	 * @return void
@@ -217,7 +210,7 @@ class ResponseTestBase extends TestApplicationTestBase
 	public function test_htmlAttributes(): void
 	{
 		$response = $this->__testRequestResponse();
-
+		
 		$this->assertEquals([], $response->htmlAttributes());
 		$sampleAttributes = [
 			'class'            => 'nojs',
@@ -226,7 +219,7 @@ class ResponseTestBase extends TestApplicationTestBase
 		$this->assertEquals($response, $response->setHTMLAttributes($sampleAttributes));
 		$this->assertEquals($sampleAttributes, $response->htmlAttributes());
 	}
-
+	
 	/**
 	 * @return void
 	 * @covers ::fooBar
@@ -234,17 +227,17 @@ class ResponseTestBase extends TestApplicationTestBase
 	public function test_application_basics(): void
 	{
 		$response = $this->__testRequestResponse();
-
+		
 		$sampleAttributes = [
 			'class'            => 'bodystyle',
 			'data-application' => 'poughkeepsie',
 		];
-
+		
 		$this->assertEquals([], $response->bodyAttributes());
 		$this->assertEquals($response, $response->setBodyAttributes($sampleAttributes));
 		$this->assertEquals($sampleAttributes, $response->bodyAttributes());
 	}
-
+	
 	/**
 	 * @return void
 	 * @covers ::metaKeywords ::setMetaKeywords
@@ -260,19 +253,19 @@ class ResponseTestBase extends TestApplicationTestBase
 	public function testMetaKeywords(): void
 	{
 		$response = $this->__testRequestResponse();
-
+		
 		$sampleKeywords = 'buy moar stuff';
-
+		
 		try {
 			$this->assertEquals('', $response->metaKeywords());
 			$this->fail('should throw ' . KeyNotFound::class);
 		} catch (KeyNotFound) {
 		}
-
+		
 		$this->assertEquals($response, $response->setMetaKeywords($sampleKeywords));
 		$this->assertEquals($sampleKeywords, $response->metaKeywords());
 	}
-
+	
 	/**
 	 * @return void
 	 * @covers ::setMetaDescription ::metaDescription
@@ -288,9 +281,9 @@ class ResponseTestBase extends TestApplicationTestBase
 	public function testMetaDescription(): void
 	{
 		$response = $this->__testRequestResponse();
-
+		
 		$sampleDesc = 'a website where you can purchase more things for your closets';
-
+		
 		try {
 			$this->assertEquals('', $response->metaDescription());
 			$this->fail('should throw ' . KeyNotFound::class);
@@ -299,7 +292,7 @@ class ResponseTestBase extends TestApplicationTestBase
 		$this->assertEquals($response, $response->setMetaDescription($sampleDesc));
 		$this->assertEquals($sampleDesc, $response->metaDescription());
 	}
-
+	
 	/**
 	 * @return void
 	 * @covers ::pageTheme ::setPageTheme
@@ -314,12 +307,12 @@ class ResponseTestBase extends TestApplicationTestBase
 	public function testPageTheme(): void
 	{
 		$response = $this->__testRequestResponse();
-
+		
 		$this->assertEquals('page', $response->pageTheme());
 		$this->assertEquals($response, $response->setPageTheme('text'));
 		$this->assertEquals('text', $response->pageTheme());
 	}
-
+	
 	/**
 	 * @covers ::javascript ::inlineJavaScript
 	 * @covers \zesk\Response\HTML::scripts
@@ -370,7 +363,7 @@ class ResponseTestBase extends TestApplicationTestBase
 		}
 		$this->assertEquals($expectedScripts, $html);
 	}
-
+	
 	/**
 	 * @return void
 	 * @covers \zesk\Response\HTML::shortcutIcon \zesk\Response\HTML::setShortcutIcon
@@ -392,7 +385,7 @@ class ResponseTestBase extends TestApplicationTestBase
 		$this->assertEquals($response, $response->html()->setShortcutIcon($shortcutIcon));
 		$this->assertEquals($shortcutIcon, $response->html()->shortcutIcon());
 	}
-
+	
 	/**
 	 * @param Request $rootRequest
 	 * @param string  $uri

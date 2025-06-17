@@ -3,8 +3,10 @@ declare(strict_types=1);
 
 namespace testZesk;
 
-class ThemeTestCase extends TestCase
-{
+use zesk\Application;
+
+class ThemeTestCase extends TestCase {
+	
 	public function test_themePath(): void
 	{
 		$prefix = '';
@@ -13,7 +15,7 @@ class ThemeTestCase extends TestCase
 		$paths = $this->application->themes->themePath();
 		$this->assertTrue(in_array(__DIR__, $paths[$prefix]));
 	}
-
+	
 	/**
 	 */
 	public function test_theme(): void

@@ -3,8 +3,8 @@ declare(strict_types=1);
 
 namespace testZesk;
 
-class UTF8_TestCase extends TestCase
-{
+class UTF8_TestCase extends TestCase {
+	
 	public static function data_sampleUTF8(): array
 	{
 		return [
@@ -13,7 +13,7 @@ class UTF8_TestCase extends TestCase
 			['OMG I Totally ❤️ that'],
 		];
 	}
-
+	
 	public static function data_to_iso8859(): array
 	{
 		return [
@@ -23,7 +23,7 @@ class UTF8_TestCase extends TestCase
 			],
 		];
 	}
-
+	
 	/**
 	 * @dataProvider data_to_iso8859
 	 * @param string $utf8
@@ -34,14 +34,14 @@ class UTF8_TestCase extends TestCase
 	{
 		$this->assertEquals($iso8859, UTF8::toISO8859($utf8));
 	}
-
+	
 	/**
 	 * @dataProvider data_to_iso8859
 	 * @param string $utf8
 	 * @param string $iso8859
 	 * @return void
 	 */
-	public function test_from_charset($utf8, $iso8859): void
+	public function test_from_charset(string $utf8, string $iso8859): void
 	{
 		$this->assertEquals($utf8, UTF8::fromCharacterSet($iso8859, 'iso-8859-1'));
 	}

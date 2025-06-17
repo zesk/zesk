@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace zesk;
 
+use DateTimeZone;
 use zesk\Exception\DirectoryCreate;
 use zesk\Exception\DirectoryNotFound;
 use zesk\Exception\DirectoryPermission;
@@ -29,187 +30,187 @@ use zesk\Exception\UnimplementedException;
  *
  * @author kent
  */
-class File
-{
+class File {
+	
 	/**
 	 * Dimension returned by expandStats related to file permissions
 	 */
 	public const STATS_PERMS = 'perms';
-
+	
 	/**
 	 * Dimension returned by expandStats related to file owner and group
 	 */
 	public const STATS_OWNER = 'owner';
-
+	
 	/**
 	 * Dimension returned by expandStats related to file names and paths
 	 */
 	public const STATS_NAME = 'name';
-
+	
 	/**
 	 * Dimension returned by expandStats related to file type
 	 */
 	public const STATS_TYPE = 'type';
-
+	
 	/**
 	 * Dimension returned by expandStats related to file device
 	 */
 	public const STATS_DEVICE = 'device';
-
+	
 	/**
 	 * Dimension returned by expandStats related to file size
 	 */
 	public const STATS_SIZE = 'size';
-
+	
 	/**
 	 * Dimension returned by expandStats related to file creation, modification, and accessed time
 	 */
 	public const STATS_TIME = 'time';
-
+	
 	/**
 	 *
 	 * @var integer
 	 */
 	public const MASK_FILE = 0o100000;
-
+	
 	/**
 	 *
 	 * @var integer
 	 */
 	public const MASK_SOCKET = 0o140000;
-
+	
 	/**
 	 *
 	 * @var integer
 	 */
 	public const MASK_LINK = 0o120000;
-
+	
 	/**
 	 *
 	 * @var integer
 	 */
 	public const MASK_BLOCK = 0o060000;
-
+	
 	/**
 	 *
 	 * @var integer
 	 */
 	public const MASK_DIR = 0o040000;
-
+	
 	/**
 	 *
 	 * @var integer
 	 */
 	public const MASK_CHAR = 0o020000;
-
+	
 	/**
 	 *
 	 * @var integer
 	 */
 	public const MASK_FIFO = 0o010000;
-
+	
 	/**
 	 *
 	 * @var integer
 	 */
 	public const MASK_FTYPE = 0o170000;
-
+	
 	/**
 	 *
 	 * @var string
 	 */
 	public const TYPE_SOCKET = 'socket';
-
+	
 	/**
 	 *
 	 * @var string
 	 */
 	public const TYPE_LINK = 'link';
-
+	
 	/**
 	 *
 	 * @var string
 	 */
 	public const TYPE_FILE = 'file';
-
+	
 	/**
 	 *
 	 * @var string
 	 */
 	public const TYPE_BLOCK = 'block';
-
+	
 	/**
 	 *
 	 * @var string
 	 */
 	public const TYPE_DIR = 'dir';
-
+	
 	/**
 	 *
 	 * @var string
 	 */
 	public const TYPE_CHAR = 'char';
-
+	
 	/**
 	 *
 	 * @var string
 	 */
 	public const TYPE_FIFO = 'fifo';
-
+	
 	/**
 	 *
 	 * @var string
 	 */
 	public const TYPE_UNKNOWN = 'unknown';
-
+	
 	/**
 	 *
 	 * @var string
 	 */
 	public const CHAR_SOCKET = 's';
-
+	
 	/**
 	 *
 	 * @var string
 	 */
 	public const CHAR_LINK = 'l';
-
+	
 	/**
 	 *
 	 * @var string
 	 */
 	public const CHAR_FILE = '-';
-
+	
 	/**
 	 *
 	 * @var string
 	 */
 	public const CHAR_BLOCK = 'b';
-
+	
 	/**
 	 *
 	 * @var string
 	 */
 	public const CHAR_DIR = 'd';
-
+	
 	/**
 	 *
 	 * @var string
 	 */
 	public const CHAR_CHAR = 'c';
-
+	
 	/**
 	 *
 	 * @var string
 	 */
 	public const CHAR_FIFO = 'p';
-
+	
 	/**
 	 *
 	 * @var string
 	 */
 	public const CHAR_UNKNOWN = 'u';
-
+	
 	public static array $charToString = [
 		self::CHAR_FIFO    => self::TYPE_FIFO,
 		self::CHAR_CHAR    => self::TYPE_CHAR,
@@ -220,7 +221,7 @@ class File
 		self::CHAR_SOCKET  => self::TYPE_SOCKET,
 		self::CHAR_UNKNOWN => self::TYPE_UNKNOWN,
 	];
-
+	
 	/**
 	 * Return an absolute path given a filename and a working directory
 	 *
@@ -238,7 +239,7 @@ class File
 		}
 		return self::path($cwd, $filename);
 	}
-
+	
 	/**
 	 * Synonym for Directory::path for convenience
 	 *
@@ -250,7 +251,7 @@ class File
 	{
 		return Directory::path(func_get_args());
 	}
-
+	
 	/**
 	 * Require a file or files to exist
 	 *
@@ -265,7 +266,15 @@ class File
 			}
 		}
 	}
-
+	
+	public static function modified(string $path, string|DateTimeZone $timeZone = ""): Timestamp
+	{
+		if (file_exists($path)) {
+			$modified = filemtime($path);
+			return Timestamp::factory($modified, $timeZone);
+		}
+	}
+	
 	/**
 	 * Clean a filename of invalid characters, restrictively
 	 *
@@ -280,7 +289,7 @@ class File
 		$mixed = preg_replace('/[^-A-Za-z0-9_.]/', $sep_char, $mixed);
 		return preg_replace("/$sep_char$sep_char+/", $sep_char, $mixed);
 	}
-
+	
 	/**
 	 * Convert a string into a valid path suitable for all platforms.
 	 * Useful for cleaning user input for conversion to a
@@ -295,7 +304,7 @@ class File
 	{
 		return preg_replace('%[^-_./a-zA-Z0-9]%', '_', str_replace('_', '/', $path));
 	}
-
+	
 	/**
 	 * Check a path name of attempted hacking attempts
 	 *
@@ -308,14 +317,14 @@ class File
 			return false;
 		}
 		if (StringTools::contains($x, [
-			'..',
-			'/./',
-		]) !== false) {
+				'..',
+				'/./',
+			]) !== false) {
 			return false;
 		}
 		return true;
 	}
-
+	
 	/**
 	 * Generate an MD5 checksum for a file
 	 *
@@ -342,7 +351,7 @@ class File
 		fclose($f);
 		return md5($data);
 	}
-
+	
 	/**
 	 * Convert a file path to another string using the map call
 	 *
@@ -361,10 +370,10 @@ class File
 		$sep = DIRECTORY_SEPARATOR;
 		$pathInfo['dirnamePrefix'] = $dirName !== '.' || str_starts_with($filename, ".$sep") ? $dirName . $sep : '';
 		return ArrayTools::map($pattern, $pathInfo + [
-			'/' => $sep,
-		]);
+				'/' => $sep,
+			]);
 	}
-
+	
 	/**
 	 * Strip extension off of filename
 	 *
@@ -375,7 +384,7 @@ class File
 	{
 		return self::mapPathInfo($filename, '{dirnamePrefix}{filename}');
 	}
-
+	
 	/**
 	 * Extract a file extension from a file path
 	 *
@@ -395,7 +404,7 @@ class File
 		}
 		return trim($name);
 	}
-
+	
 	/**
 	 * Use a file as a semaphore counter
 	 *
@@ -417,7 +426,7 @@ class File
 			usleep(100);
 			if (time() >= $until) {
 				fclose($fp);
-
+				
 				throw new TimeoutExpired('atomicIncrement({file}) after {timeout} seconds', [
 					'file'    => $path,
 					'timeout' => $timeout,
@@ -432,7 +441,7 @@ class File
 		fclose($fp);
 		return $id;
 	}
-
+	
 	/**
 	 * Put a file atomically
 	 *
@@ -462,7 +471,7 @@ class File
 		fclose($fp);
 		return true;
 	}
-
+	
 	/**
 	 * Create a unique temporary file name
 	 *
@@ -477,7 +486,7 @@ class File
 	{
 		return self::path(Directory::depend($path, $mode), md5(microtime()) . '.' . ltrim($ext, '.'));
 	}
-
+	
 	/**
 	 * Extract a file name excluding extension from a file path
 	 *
@@ -495,7 +504,7 @@ class File
 		$filename = substr($filename, 0, $dot);
 		return trim($filename);
 	}
-
+	
 	/**
 	 * Change file mode (iff file exists)
 	 *
@@ -518,7 +527,7 @@ class File
 			]);
 		}
 	}
-
+	
 	/**
 	 * file_get_contents with exceptions
 	 *
@@ -534,13 +543,13 @@ class File
 			if (is_string($contents)) {
 				return $contents;
 			}
-
+			
 			throw new FilePermission($filename);
 		}
-
+		
 		throw new FileNotFound($filename);
 	}
-
+	
 	/**
 	 * Create or append a file with content provided
 	 *
@@ -565,7 +574,7 @@ class File
 		}
 		return $result;
 	}
-
+	
 	/**
 	 * Like file_put_contents, but does some sanity checks and throws errors
 	 *
@@ -583,7 +592,7 @@ class File
 			]);
 		}
 	}
-
+	
 	/**
 	 * Like unlink, but does some sanity test and throws errors
 	 *
@@ -603,7 +612,7 @@ class File
 		}
 		clearstatcache(false, $path);
 	}
-
+	
 	/**
 	 * Like filesize but throws an error when file not found
 	 *
@@ -618,7 +627,7 @@ class File
 		}
 		return filesize($filename);
 	}
-
+	
 	/**
 	 * Wrapper around file() to throw a file not found exception
 	 *
@@ -633,7 +642,7 @@ class File
 		}
 		return file($filename);
 	}
-
+	
 	/**
 	 * @param string $filename
 	 * @param string $mode
@@ -650,7 +659,7 @@ class File
 		}
 		return $res;
 	}
-
+	
 	/**
 	 *
 	 * @var array
@@ -665,7 +674,7 @@ class File
 		self::MASK_FIFO   => self::CHAR_FIFO,
 		0                 => self::CHAR_UNKNOWN,
 	];
-
+	
 	/**
 	 *
 	 * @var array
@@ -679,7 +688,7 @@ class File
 		self::CHAR_CHAR   => self::MASK_CHAR,
 		self::CHAR_FIFO   => self::MASK_FIFO,
 	];
-
+	
 	/**
 	 * This array corresponds, one-to-one of the pattern for ls directories
 	 *
@@ -735,7 +744,7 @@ class File
 			],
 		];
 	}
-
+	
 	/**
 	 * Given a character type in the Unix "ls" command, convert it to our
 	 * internal string type names (e.g self::type_foo)
@@ -748,7 +757,7 @@ class File
 		$char = substr($char, 0, 1);
 		return self::$maskToChars[self::$charToMask[$char] ?? 0] ?? self::TYPE_UNKNOWN;
 	}
-
+	
 	/**
 	 * Convert an octal or decimal file mode to a string
 	 *
@@ -766,7 +775,7 @@ class File
 				foreach ($items as $char => $bits) {
 					if (($mode & $bits) === $bits) {
 						$result .= $char;
-
+						
 						break;
 					}
 				}
@@ -774,7 +783,7 @@ class File
 		}
 		return $result;
 	}
-
+	
 	/**
 	 * Convert a ls-style mode string (e.g.
 	 * -rw-rw-rw) to a bitwise file mode
@@ -801,7 +810,7 @@ class File
 		}
 		return $mode;
 	}
-
+	
 	/**
 	 * Change a file extension from one extension to another (string manipulation)
 	 *
@@ -824,7 +833,7 @@ class File
 		}
 		return $prefix . $base;
 	}
-
+	
 	/**
 	 * Octal with a zero prefix
 	 *
@@ -835,7 +844,7 @@ class File
 	{
 		return sprintf('0%o', 0o777 & $mode);
 	}
-
+	
 	/**
 	 *
 	 * @param string $id
@@ -853,7 +862,7 @@ class File
 		}
 		return $result['name'] ?? null;
 	}
-
+	
 	/**
 	 *
 	 * @param int $uid
@@ -863,7 +872,7 @@ class File
 	{
 		return self::_nameFromID($uid, 'posix_getpwuid');
 	}
-
+	
 	/**
 	 *
 	 * @param int $gid
@@ -873,7 +882,7 @@ class File
 	{
 		return self::_nameFromID($gid, 'posix_getgrgid');
 	}
-
+	
 	/**
 	 * stat with extended results
 	 *
@@ -897,7 +906,7 @@ class File
 		}
 		return $s;
 	}
-
+	
 	/**
 	 * fstat with extended results
 	 *
@@ -922,7 +931,7 @@ class File
 		}
 		return $s;
 	}
-
+	
 	/**
 	 * Thanks webmaster at askapache dot com
 	 * Souped up fstat.
@@ -934,7 +943,7 @@ class File
 	public static function expandStats(array $ss): array
 	{
 		$o777 = 511; /* 0o777 */
-
+		
 		$is_resource = $ss['is_resource'] ?? false;
 		$path = $ss['path'] ?? null;
 		$p = $ss['mode'];
@@ -1009,13 +1018,13 @@ class File
 				'created'  => @date('Y M D H:i:s', $ss['ctime']),
 			],
 		];
-
+		
 		if (!$is_resource) {
 			clearstatcache(false, $path);
 		}
 		return $s;
 	}
-
+	
 	/**
 	 * Max file size to trim files in memory
 	 *
@@ -1036,7 +1045,7 @@ class File
 		$memory_limit = Types::toBytes(ini_get('memory_limit'));
 		return intval($memory_limit / 2);
 	}
-
+	
 	/**
 	 * Max memory size to read while trimming files
 	 *
@@ -1058,7 +1067,7 @@ class File
 		$default_trim_read_buffer_size = Number::clamp(10240, $memory_limit / 4, 1048576);
 		return intval($default_trim_read_buffer_size);
 	}
-
+	
 	/**
 	 * Trim a file similarly to how you would trim a string.
 	 *
@@ -1092,7 +1101,7 @@ class File
 			if ($result === $length - $offset) {
 				return true;
 			}
-
+			
 			throw new FileSystemException("Unable to write $length bytes to $path ($result !== $length - $offset)");
 		}
 		if ($offset < 0) {
@@ -1113,7 +1122,7 @@ class File
 		$r = fopen($path, 'r+b');
 		if (!$r) {
 			fclose($w);
-
+			
 			throw new FileCreate($path);
 		}
 		fseek($r, $offset);
@@ -1130,7 +1139,7 @@ class File
 		if (!rename($path, $temp_mv)) {
 			@unlink($temp);
 			@unlink($temp_mv);
-
+			
 			throw new FilePermission("Rename $path to $temp_mv");
 		}
 		$result = rename($temp, $path);
@@ -1140,7 +1149,7 @@ class File
 		}
 		return true;
 	}
-
+	
 	/**
 	 * Retrieve the first part of a file
 	 *
@@ -1163,7 +1172,7 @@ class File
 		fclose($f);
 		return $result;
 	}
-
+	
 	/**
 	 * Handle log rotation
 	 *
@@ -1193,7 +1202,7 @@ class File
 		@rename($path, "$path.0$suffix");
 		return true;
 	}
-
+	
 	/**
 	 * Is the path an absolute path?
 	 *
@@ -1216,7 +1225,7 @@ class File
 			return $path[0] === '/';
 		}
 	}
-
+	
 	/**
 	 * Rename a file to another file atomically - and delete file.
 	 * Handles rollback, locking, etc.
@@ -1251,14 +1260,14 @@ class File
 		if (!flock($lock, LOCK_EX)) {
 			fclose($lock);
 			unlink($targetLock);
-
+			
 			throw new FileLocked($targetLock);
 		}
 		$target_temp = $target . ".atomic.$pid";
 		$exception = null;
 		if (!rename($target, $target_temp)) {
 			$exception = new FilePermission($target_temp, 'Can not rename target {target} to temp {target_temp}', compact('target', 'target_temp'));
-		} elseif (!@rename($source, $target)) {
+		} else if (!@rename($source, $target)) {
 			if (!@rename($target_temp, $target)) {
 				$exception = new FilePermission($target, 'RECOVERY: Can not rename target temp {target_temp} BACK to target {target}', compact('target', 'target_temp'));
 			} else {
@@ -1278,7 +1287,7 @@ class File
 			rename($target_temp, $new_target);
 		}
 	}
-
+	
 	/**
 	 * Copy uid and gid
 	 *
@@ -1292,7 +1301,7 @@ class File
 	{
 		return self::copyGroup($source, self::copyOwner($source, $target));
 	}
-
+	
 	/**
 	 * Copy uid
 	 *
@@ -1317,7 +1326,7 @@ class File
 		}
 		return $target;
 	}
-
+	
 	/**
 	 * Copy uid and gid
 	 *
@@ -1342,7 +1351,7 @@ class File
 		}
 		return $target;
 	}
-
+	
 	/**
 	 * Check that file is writable
 	 *
@@ -1360,7 +1369,7 @@ class File
 			if (is_writable($file)) {
 				return $file;
 			}
-
+			
 			throw new FilePermission($file, 'Unable to write (!is_writable)');
 		}
 		$lock_name = "$file.pid=" . getmypid() . '.writable.temp';
@@ -1368,12 +1377,12 @@ class File
 			unlink($lock_name);
 			return $file;
 		}
-
+		
 		throw new FilePermission($file, 'Unable to write in {dir} {filename}', [
 			'dir' => $dir,
 		]);
 	}
-
+	
 	/**
 	 * @param array             $paths List of strings representing file system paths
 	 * @param array|string|null $files File name to search for, or list of file names to search for (array)
@@ -1384,7 +1393,7 @@ class File
 	{
 		if (is_string($files)) {
 			$files = [$files];
-		} elseif ($files === null) {
+		} else if ($files === null) {
 			$files = [null];
 		}
 		$all_files = [];
@@ -1397,13 +1406,13 @@ class File
 				$all_files[] = $the_path;
 			}
 		}
-
+		
 		throw new NotFoundException('No files exist {paths} {files}', [
 			'paths' => $paths,
 			'files' => $all_files,
 		]);
 	}
-
+	
 	/**
 	 * Given a list of paths and a file name, find all occurrence of the named file.
 	 *
@@ -1430,7 +1439,7 @@ class File
 		}
 		return $result;
 	}
-
+	
 	/**
 	 * @param string|array $files
 	 * @param int          $modifiedBefore

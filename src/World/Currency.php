@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 /**
- * @package zesk
+ * @package    zesk
  * @subpackage model
- * @author kent
- * @copyright Copyright &copy; 2025, Market Acumen, Inc.
+ * @author     kent
+ * @copyright  Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\World;
@@ -12,15 +12,16 @@ namespace zesk\World;
 use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Entity;
+use Doctrine\ORM\Mapping\EntityListeners;
 use Doctrine\ORM\Mapping\JoinColumn;
 use Doctrine\ORM\Mapping\ManyToOne;
 use Doctrine\ORM\Mapping\UniqueConstraint;
 use zesk\Application;
 use zesk\ArrayTools;
 use zesk\Doctrine\Model;
+use zesk\Doctrine\ModelListener;
 use zesk\Doctrine\Trait\AutoID;
 use zesk\Exception\NotFoundException;
-use zesk\ORM\Exception\ORMEmpty;
 
 /**
  * Currency represents a world currency.
@@ -33,52 +34,53 @@ use zesk\ORM\Exception\ORMEmpty;
  * - fractional_units represents what the fractional unit of this currency is. (e.g. cents)
  * - format is how the currency should be output
  *
- * @package zesk
+ * @package    zesk
  * @subpackage currency
- * @see World_Bootstrap_Currency
- * @see Class_Currency
+ * @see        World_Bootstrap_Currency
+ * @see        Class_Currency
  * @property integer $id
  * @property Country $bank_country
- * @property string $country_name
- * @property string $name
- * @property string $code
- * @property string $symbol
+ * @property string  $country_name
+ * @property string  $name
+ * @property string  $code
+ * @property string  $symbol
  * @property integer $fractional
- * @property string $fractionalUnits
- * @property string $format
+ * @property string  $fractionalUnits
+ * @property string  $format
  * @property integer $precision
  */
 #[Entity]
+#[EntityListeners([ModelListener::class])]
 #[UniqueConstraint(fields: ['code'])]
-class Currency extends Model
-{
+class Currency extends Model {
+	
 	use AutoID;
-
+	
 	#[ManyToOne]
 	#[JoinColumn(name: 'bankCountry')]
 	public Country $bankCountry;
-
+	
 	#[Column(type: 'string', length: 3)]
 	public string $code;
-
+	
 	#[Column(type: 'string', length: 48)]
 	public string $name;
-
+	
 	#[Column(type: 'string', length: 16)]
 	public string $symbol;
-
+	
 	#[Column(type: 'string', length: 32)]
 	public string $format;
-
+	
 	#[Column(type: 'smallint')]
 	public int $fractional;
-
+	
 	#[Column(type: 'string')]
 	public string $fractionalUnits;
-
+	
 	#[Column(type: 'smallint')]
 	public int $precision;
-
+	
 	/**
 	 * Format a currency for output
 	 *
@@ -91,13 +93,17 @@ class Currency extends Model
 		$decimals = $this->option('decimal_point', $locale->__('Currency::decimalPoint:=.'));
 		$thousands = $this->option('thousands_separator', $locale->__('Currency::thousandsSeparator:=.'));
 		return ArrayTools::map($this->format, [
-			'valueRaw' => $value, 'valueDecimal' => $intValue = intval($value),
-			'valueFraction' => substr(strval(abs($value - $intValue)), 2), 'minus' => $value < 0 ? '-' : '',
-			'plus' => $value > 0 ? '+' : '', 'decimal' => $decimals, 'thousands' => $thousands,
-			'amount' => number_format($value, $this->precision, $decimals, $thousands),
-		] + $this->variables());
+				'valueRaw'      => $value,
+				'valueDecimal'  => $intValue = intval($value),
+				'valueFraction' => substr(strval(abs($value - $intValue)), 2),
+				'minus'         => $value < 0 ? '-' : '',
+				'plus'          => $value > 0 ? '+' : '',
+				'decimal'       => $decimals,
+				'thousands'     => $thousands,
+				'amount'        => number_format($value, $this->precision, $decimals, $thousands),
+			] + $this->variables());
 	}
-
+	
 	/**
 	 * Get Euros
 	 *
@@ -125,7 +131,7 @@ class Currency extends Model
 		$em->persist($currency);
 		return $currency;
 	}
-
+	
 	/**
 	 * Get US dollars
 	 *
@@ -154,19 +160,19 @@ class Currency extends Model
 		$em->persist($currency);
 		return $currency;
 	}
-
+	
 	/**
 	 */
 	public function precision(): int
 	{
 		return $this->precision;
 	}
-
+	
 	/**
 	 * Look up a Currency object based on its code
 	 *
 	 * @param Application $application
-	 * @param string $code
+	 * @param string      $code
 	 * @return Currency
 	 * @throws NotFoundException
 	 */
@@ -177,7 +183,10 @@ class Currency extends Model
 		if ($currency) {
 			return $currency;
 		}
-
-		throw new NotFoundException('{class} by {code}', ['class' => self::class, 'code' => $code]);
+		
+		throw new NotFoundException('{class} by {code}', [
+			'class' => self::class,
+			'code'  => $code,
+		]);
 	}
 }

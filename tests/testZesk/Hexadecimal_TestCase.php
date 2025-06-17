@@ -6,13 +6,15 @@ declare(strict_types=1);
 
 namespace testZesk;
 
+use zesk\Hexadecimal;
+
 /**
  *
  * @author kent
  *
  */
-class Hexadecimal_TestCase extends TestCase
-{
+class Hexadecimal_TestCase extends TestCase {
+	
 	public function test_decode(): void
 	{
 		$decoded = Hexadecimal::decode('DEADBEEF');
@@ -24,7 +26,7 @@ class Hexadecimal_TestCase extends TestCase
 			chr(239),
 		]);
 	}
-
+	
 	public function test_encode(): void
 	{
 		$this->assertEquals(Hexadecimal::encode(chr(222) . chr(173) . chr(190) . chr(239)), 'DEADBEEF');

@@ -6,13 +6,15 @@ declare(strict_types=1);
 
 namespace testZesk;
 
+use zesk\Request;
+
 /**
  *
  * @author kent
  *
  */
-class Response_TestCase extends TestCase
-{
+class Response_TestCase extends TestCase {
+	
 	/**
 	 *
 	 */
@@ -20,9 +22,9 @@ class Response_TestCase extends TestCase
 	{
 		$request = new Request($this->application);
 		$response = $this->application->responseFactory($request);
-
+		
 		$add = null;
-
+		
 		$response->html()->addBodyAttributes(['goo' => 'bar']);
 		$response->html()->addBodyAttributes([
 			'goo' => 'actual',
@@ -36,19 +38,19 @@ class Response_TestCase extends TestCase
 		]);
 		$response->html()->addBodyAttributes(['dee' => 'actual']);
 		$response->html()->addBodyAttributes(['loo' => 'actual']);
-
+		
 		$attrs = $response->html()->bodyAttributes();
-
+		
 		$compare_result = [
 			'goo' => 'actual',
 			'poo' => 'actual',
 			'dee' => 'actual',
 			'loo' => 'actual',
 		];
-
+		
 		$this->assertEquals($attrs, $compare_result);
 	}
-
+	
 	/**
 	 *
 	 */
@@ -56,27 +58,27 @@ class Response_TestCase extends TestCase
 	{
 		$request = new Request($this->application);
 		$response = $this->application->responseFactory($request);
-
+		
 		$type = 'text/javascript';
 		$script = 'alert(\'Hello, world!\');';
 		$response->html()->inlineJavaScript($script, [
 			'browser' => 'ie',
 		]);
-
+		
 		$content = $this->application->themes->theme('Response/HTML/scripts', [
 			'response'     => $response,
 			'jquery_ready' => [],
 		]);
 		$scripts = $response->html()->scripts();
-
+		
 		$this->assertTrue(is_array($scripts), 'Scripts is array');
-
+		
 		$this->assertStringContainsString($script, $content);
 		$this->assertStringContainsString('<!--', $content);
 		$this->assertStringContainsString('[if IE]', $content);
 		$this->assertStringContainsString('<![endif]-->', $content);
 		$this->assertStringContainsString('<![endif]-->', $content);
-
+		
 		$this->assertStringContainsString('<!--[if IE]><script>alert(\'Hello, world!\');</script><![endif]-->', $content);
 	}
 }

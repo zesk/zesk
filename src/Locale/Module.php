@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 /**
- * @package zesk
+ * @package    zesk
  * @subpackage locale
- * @author kent
- * @copyright &copy; 2023, Market Acumen, Inc.
+ * @author     kent
+ * @copyright  &copy; 2023, Market Acumen, Inc.
  */
 
 namespace zesk\Locale;
@@ -13,6 +13,7 @@ namespace zesk\Locale;
  *
  */
 
+use zesk\Application;
 use zesk\Directory;
 use zesk\Exception\FileNotFound;
 use zesk\Exception\FilePermission;
@@ -32,11 +33,11 @@ use zesk\Theme;
  * @author kent
  *
  */
-class Module extends \zesk\Module implements Head, Routes
-{
+class Module extends \zesk\Module implements Head, Routes {
+	
 	/**
 	 * @param Locale $locale
-	 * @param array $phrases
+	 * @param array  $phrases
 	 * @param string $phrasesContext
 	 * @return void
 	 * @see self::shutdownLocale()
@@ -60,18 +61,18 @@ class Module extends \zesk\Module implements Head, Routes
 			return;
 		}
 		$writer = new Writer($this->application, Directory::path($path, $locale->id() . '-auto.php'), $locale->id());
-
+		
 		try {
 			$writer->append($phrases, $phrasesContext);
 		} catch (UnimplementedException|FileNotFound|FilePermission $e) {
 			PHP::log($e);
 		}
 	}
-
+	
 	/**
 	 * Output our locale translation files for JavaScript to use
 	 *
-	 * @param Request $request
+	 * @param Request  $request
 	 * @param Response $response
 	 */
 	public function hook_head(Request $request, Response $response, Theme $template): void
@@ -92,12 +93,13 @@ class Module extends \zesk\Module implements Head, Routes
 			PHP::log($e);
 		}
 	}
-
+	
 	/**
-	 *
 	 * @param Router $router
+	 * @return void
 	 */
-	public function hook_routes(Router $router): void
+	#[HookMethod(handles: Application::HOOK_ROUTER)]
+	public function addRoutes(Router $router): void
 	{
 		$router->addRoute('locale(/{option action})', [
 			'controller' => Controller::class,

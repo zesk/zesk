@@ -9,7 +9,6 @@ declare(strict_types=1);
 
 namespace testZesk;
 
-use zesk\Exception\NotFoundException;
 use zesk\Number;
 
 /**
@@ -17,12 +16,12 @@ use zesk\Number;
  * @author kent
  *
  */
-class OverheadTestCase extends TestCase
-{
+class OverheadTestCase extends TestCase {
+	
 	protected array $loadModules = [
 		'Doctrine',
 	];
-
+	
 	public function test_usage(): void
 	{
 		$test_limit = 10 * 1024 * 1024; // 10M
@@ -45,7 +44,7 @@ class OverheadTestCase extends TestCase
 			'perObject' => Number::formatBytes($this->application->locale, intval($test_limit / $nObjects)),
 		]);
 	}
-
+	
 	/**
 	 */
 	private function run_php_sandbox($sandbox): bool|string
@@ -56,7 +55,7 @@ class OverheadTestCase extends TestCase
 		ob_end_clean();
 		return $result;
 	}
-
+	
 	/**
 	 * @no_buffer true
 	 */
@@ -68,13 +67,13 @@ class OverheadTestCase extends TestCase
 		$this->assertIsNumeric($result);
 		$raw_usage = intval($result);
 		$this->log("Raw PHP usage is $raw_usage");
-
+		
 		file_put_contents($sandbox, "<?php\nrequire_once '" . $this->application->path('zesk.application.php') . "';\necho memory_get_usage();");
 		$result = $this->run_php_sandbox($sandbox);
 		$this->assertIsNumeric($result);
 		$usage = intval($result);
 		$this->log("Zesk PHP usage is $usage");
-
+		
 		$delta = $usage - $raw_usage;
 		$this->log('Zesk Overhead is ' . $delta . ' ' . Number::formatBytes($this->application->locale, $delta));
 	}

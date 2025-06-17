@@ -1,4 +1,8 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 
-/* @var $this Template */
+use zesk\Theme;
+
+/* @var $this Theme */
+
 echo $this->theme('Exception');

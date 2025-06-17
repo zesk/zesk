@@ -3,27 +3,29 @@ declare(strict_types=1);
 /**
  *
  */
+
 namespace zesk;
 
 /**
  * @author kent
  */
-class Hexadecimal
-{
+class Hexadecimal {
+	
 	/**
 	 * Hex character codes
 	 *
 	 * @var string
 	 */
 	public const codes = '0123456789ABCDEF';
-
+	
 	/**
 	 * Decode a hexadecimal string
+	 *
 	 * @todo Doesn't PHP offer this natively?
 	 * @param string $hexadecimal
 	 * @return string
 	 */
-	public static function decode(string $hexadecimal)
+	public static function decode(string $hexadecimal): string
 	{
 		$r = '';
 		$x = preg_replace('/[^' . self::codes . ']/', '', strtoupper($hexadecimal));
@@ -33,7 +35,7 @@ class Hexadecimal
 		}
 		return $r;
 	}
-
+	
 	/**
 	 * Encode a hexadecimal string
 	 *

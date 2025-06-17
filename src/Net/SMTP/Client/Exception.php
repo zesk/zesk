@@ -1,16 +1,16 @@
 <?php
 declare(strict_types=1);
 /**
- * @package zesk
+ * @package    zesk
  * @subpackage system
- * @author kent
- * @copyright Copyright &copy; 2025, Market Acumen, Inc.
+ * @author     kent
+ * @copyright  Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Net\SMTP\Client;
 
-use zesk\Net_Exception;
+use zesk\Net\Exception as NetException;
 
-class Net_SMTP_Client_Exception extends Net_Exception
-{
+class Exception extends NetException {
+
 }

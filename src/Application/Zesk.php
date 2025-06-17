@@ -5,7 +5,6 @@ namespace zesk\Application;
 
 use zesk\Application;
 use zesk\ArrayTools;
-use zesk\Doctrine\User;
 use zesk\Exception\CommandFailed;
 use zesk\Exception\ConfigurationException;
 use zesk\Exception\FilePermission;
@@ -14,10 +13,7 @@ use zesk\Exception\NotFoundException;
 use zesk\Exception\SemanticsException as SemanticsException;
 use zesk\File;
 use zesk\HookMethod;
-use zesk\FilterMethod;
 use zesk\Logger\FileLogger;
-use zesk\Model;
-use zesk\Module;
 use zesk\RuntimeException;
 use zesk\Types;
 use zesk\Version;
@@ -26,10 +22,10 @@ use Psr\Log\LogLevel;
 /**
  * Used internally for deployment and version management
  */
-class Zesk extends Application
-{
+class Zesk extends Application {
+	
 	public string $file = __FILE__;
-
+	
 	/**
 	 * @return void
 	 * @throws ConfigurationException
@@ -39,7 +35,7 @@ class Zesk extends Application
 	{
 		parent::beforeConfigure();
 		$logger = new FileLogger($this->path('test.log'));
-
+		
 		try {
 			$logger->setLevels([
 				LogLevel::NOTICE => true,
@@ -50,9 +46,9 @@ class Zesk extends Application
 			throw new RuntimeException('Where did we go wrong');
 		}
 		$this->setLogger($logger->setChild($this->logger()));
-
+		
 		$this->configuration->set(ArrayTools::filterKeyPrefixes($_SERVER, ['DATABASE']));
-
+		
 		$this->configureInclude([
 			'/etc/application.conf',
 			'/etc/application.json',
@@ -60,7 +56,7 @@ class Zesk extends Application
 			$this->paths->userHome('test.conf'),
 			$this->paths->userHome('test.json'),
 		]);
-
+		
 		if (defined('PHPUNIT')) {
 			$this->modules->load('PHPUnit');
 		}
@@ -68,10 +64,10 @@ class Zesk extends Application
 			$this->modules->loadMultiple(Types::toList($_SERVER['ZESK_EXTRA_MODULES']));
 		}
 		$this->setOption('version', Version::release());
-
+		
 		$this->router->import(file_get_contents(File::setExtension(__FILE__, 'router')));
 	}
-
+	
 	/**
 	 * @throws FilePermission
 	 * @throws CommandFailed

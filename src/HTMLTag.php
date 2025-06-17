@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 /**
- * @package zesk
+ * @package    zesk
  * @subpackage system
- * @author kent
- * @copyright Copyright &copy; 2025, Market Acumen, Inc.
+ * @author     kent
+ * @copyright  Copyright &copy; 2025, Market Acumen, Inc.
  *            Created on Fri Sep 05 19:32:05 EDT 2008 19:32:05
  */
 
@@ -14,56 +14,61 @@ namespace zesk;
  * Representation of an HTML tag.
  * contents is a string containing more HTML.
  * Inherits Options, attributes of the tag can be accessed via option, optionBool, hasOption, etc.
- * @package zesk
+ *
+ * @package    zesk
  * @subpackage tools
  */
-class HTMLTag extends Options
-{
+class HTMLTag extends Options {
+	
 	/**
 	 * Tag name
+	 *
 	 * @var string
 	 */
 	public string $name = '';
-
+	
 	/**
 	 * Contents between tags.
 	 * If empty, then singleton tag, e.g. <tag />
+	 *
 	 * @var string
 	 */
 	private string $innerHTML;
-
+	
 	/**
 	 * Original, outer HTML including tag itself.
 	 * Useful for replacing a matched tag in a document.
 	 * If null, means it has not been matched in a document, or has been edited.
+	 *
 	 * @var string
 	 */
 	private string $outerHTML;
-
+	
 	/**
 	 * Offset to where the tag is in the found context
+	 *
 	 * @var integer
 	 */
 	public int $offset = -1;
-
+	
 	/**
 	 *
-	 * @param string $name Tag name
-	 * @param array $attributes tag attributes
+	 * @param string $name       Tag name
+	 * @param array  $attributes tag attributes
 	 * @param string $inner_html
 	 * @param string $outer_html
-	 * @param int $offset
+	 * @param int    $offset
 	 */
 	public function __construct(string $name, array $attributes = [], string $inner_html = '', string $outer_html = '', int $offset = -1)
 	{
 		parent::__construct($attributes);
-
+		
 		$this->name = $name;
 		$this->innerHTML = $inner_html;
 		$this->outerHTML = $outer_html;
 		$this->offset = $offset;
 	}
-
+	
 	/**
 	 * Is this a single tag (no close tag, ends with '\>')
 	 *
@@ -73,7 +78,7 @@ class HTMLTag extends Options
 	{
 		return $this->innerHTML === '';
 	}
-
+	
 	/**
 	 *
 	 * @return string
@@ -82,7 +87,7 @@ class HTMLTag extends Options
 	{
 		return $this->innerHTML;
 	}
-
+	
 	/**
 	 * Getter/setter for inner HTML
 	 *
@@ -94,7 +99,7 @@ class HTMLTag extends Options
 		$this->innerHTML = $set;
 		return $this;
 	}
-
+	
 	/**
 	 * Getter/setter for outer HTML
 	 *
@@ -104,7 +109,7 @@ class HTMLTag extends Options
 	{
 		return $this->outerHTML;
 	}
-
+	
 	/**
 	 * Getter/setter for outer HTML
 	 *
@@ -116,7 +121,7 @@ class HTMLTag extends Options
 		$this->outerHTML = $set;
 		return $this;
 	}
-
+	
 	/**
 	 * Get content (inner HTML)
 	 *
@@ -126,7 +131,7 @@ class HTMLTag extends Options
 	{
 		return $this->innerHTML();
 	}
-
+	
 	/**
 	 * Get/set content (inner HTML)
 	 *
@@ -137,23 +142,23 @@ class HTMLTag extends Options
 	{
 		return $this->setInnerHTML($set);
 	}
-
+	
 	/**
 	 * Convert to PHP
 	 *
 	 * @return string
 	 */
-	public function toPHP()
+	public function toPHP(): string
 	{
 		return 'new ' . __CLASS__ . '(' . implode(', ', [
-			PHP::dump($this->name),
-			PHP::dump($this->options()),
-			PHP::dump($this->innerHTML),
-			PHP::dump($this->outerHTML),
-			$this->offset,
-		]) . ')';
+				PHP::dump($this->name),
+				PHP::dump($this->options()),
+				PHP::dump($this->innerHTML),
+				PHP::dump($this->outerHTML),
+				$this->offset,
+			]) . ')';
 	}
-
+	
 	/**
 	 * Convert to string
 	 *

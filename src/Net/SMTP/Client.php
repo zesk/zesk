@@ -1,16 +1,17 @@
 <?php
 declare(strict_types=1);
 /**
- * @package zesk
+ * @package    zesk
  * @subpackage system
- * @author kent
- * @copyright Copyright &copy; 2025, Market Acumen, Inc.
+ * @author     kent
+ * @copyright  Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Net\SMTP;
 
 use zesk\Exception\ConnectionFailed;
 use zesk\Exception\ProtocolException;
+use zesk\Mail\Mail;
 use zesk\Net\SocketClient;
 use zesk\Types;
 
@@ -19,27 +20,27 @@ use zesk\Types;
  * @author kent
  *
  */
-class Client extends SocketClient
-{
+class Client extends SocketClient {
+	
 	/**
 	 * Default port to connect to
 	 *
 	 * @var int
 	 */
 	protected int $default_port = 25;
-
+	
 	protected bool $authenticated = false;
-
+	
 	/**
 	 * Send email
 	 *
-	 * @param string $from
+	 * @param string       $from
 	 *            Simple FROM
-	 * @param mixed $to
+	 * @param mixed        $to
 	 *            Email address or array of email addresses
 	 * @param array|string $headers
 	 *            raw formatted headers, or array of headers (not name-value, array of strings)
-	 * @param string $body
+	 * @param string       $body
 	 *            Body to send
 	 * @return boolean
 	 */
@@ -74,7 +75,7 @@ class Client extends SocketClient
 			$this->authenticated = true;
 		}
 		$this->mail($from);
-
+		
 		if (!is_array($headers)) {
 			$headers = [
 				$headers,
@@ -84,16 +85,16 @@ class Client extends SocketClient
 			$this->rcpt($recipient);
 		}
 		$this->data();
-
+		
 		// Fix .s when first-on-line for email formatting
 		$headers = str_replace($this->EOL . '.', $this->EOL . '..', trim(implode($this->EOL, $headers)));
 		$body = $this->format_body($body);
-
+		
 		$this->write($headers . $this->EOL . $this->EOL . $body . $this->EOL . '.');
-
+		
 		$message = false;
 		$result = $this->expect('250', $message);
-
+		
 		$this->application->debug('Sent email to {rcpts} {nbytes} bytes via {user}@{host}', [
 			'rcpts'  => $rcpts,
 			'nbytes' => strlen($body),
@@ -102,7 +103,7 @@ class Client extends SocketClient
 		]);
 		return $result;
 	}
-
+	
 	/**
 	 * Clean up email body for sending with correct encoding
 	 *
@@ -118,35 +119,35 @@ class Client extends SocketClient
 		$body = str_starts_with($body, '.') ? '.' . $body : $body;
 		return $body;
 	}
-
+	
 	/**
 	 * Connect using rfc2821 method
 	 *
 	 * @see http://www.ietf.org/rfc/rfc2821.txt
-	 * @return boolean
+	 * @return string
 	 */
-	private function helo()
+	private function helo(): string
 	{
 		return $this->command('HELO ' . $this->urlComponent('host'), '250');
 	}
-
+	
 	/**
 	 * Connect using SMTP extension
 	 *
 	 * @see http://www.ietf.org/rfc/rfc1869.txt
-	 * @return boolean
+	 * @return string
 	 */
-	private function ehlo()
+	private function ehlo(): string
 	{
 		return $this->command('EHLO ' . $this->urlComponent('host'), '250');
 	}
-
+	
 	/**
 	 * Authenticate using username and password
 	 *
-	 * @return boolean
+	 * @return string
 	 */
-	private function auth()
+	private function auth(): string
 	{
 		$result = $this->command('AUTH LOGIN', '334');
 		$this->log($result);
@@ -157,7 +158,7 @@ class Client extends SocketClient
 		$this->authenticated = true;
 		return $result;
 	}
-
+	
 	/**
 	 * MAIL FROM command
 	 *
@@ -171,7 +172,7 @@ class Client extends SocketClient
 	{
 		return $this->command('MAIL FROM: <' . $from . '>', '250');
 	}
-
+	
 	/**
 	 * RCPT TO command
 	 *
@@ -185,7 +186,7 @@ class Client extends SocketClient
 	{
 		return $this->command("RCPT TO: <$to>", '25');
 	}
-
+	
 	/**
 	 * Send message data command (data should follow using RFC2821 method)
 	 *
@@ -197,7 +198,7 @@ class Client extends SocketClient
 	{
 		return $this->command('DATA', '354');
 	}
-
+	
 	/**
 	 * Send RSET command
 	 *
@@ -209,7 +210,7 @@ class Client extends SocketClient
 	{
 		return $this->command('RSET', '250');
 	}
-
+	
 	/**
 	 * Terminate the connection
 	 *

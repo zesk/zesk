@@ -7,20 +7,23 @@ declare(strict_types=1);
 namespace testZesk;
 
 use zesk\Exception\FilePermission;
+use zesk\HTTP;
+use zesk\Request;
+use zesk\Request\File as FileRequest;
 
 /**
  *
  * @author kent
  *
  */
-class Request_TestCase extends TestCase
-{
+class Request_TestCase extends TestCase {
+	
 	public function test_requestFactory(): void
 	{
 		$request = $this->application->requestFactory();
 		$this->assertInstanceOf(Request::class, $request);
 	}
-
+	
 	public function test_Request(): void
 	{
 		$settings = [
@@ -29,25 +32,25 @@ class Request_TestCase extends TestCase
 		];
 		$request = new Request($this->application);
 		$request->initializeFromSettings($settings);
-
+		
 		$this->assertTrue($request->isSecure());
 		$this->assertFalse($request->isPost());
 		$this->assertEquals('text/plain', $request->contentType());
-
+		
 		$this->assertEquals([
 			'*/*' => [
 				'q'       => 1,
 				'pattern' => '#[^/]+/[^/]+#',
 			],
 		], $request->parseAccept());
-
+		
 		$this->assertEquals('/hello', $request->path());
 		$this->assertEquals([], $request->data());
-
+		
 		$this->assertEquals(['Content-Type' => 'text/plain; yothis is ignored'], $request->headers());
 		$this->assertEquals('text/plain; yothis is ignored', $request->header(HTTP::REQUEST_CONTENT_TYPE));
 	}
-
+	
 	/**
 	 *
 	 */
@@ -62,10 +65,10 @@ class Request_TestCase extends TestCase
 		$this->assertTrue(file_exists($source));
 		$dest_path = $this->test_sandbox(__FUNCTION__ . '-dest.txt');
 		$options = [];
-		$filename = Request\File::instance($upload_array)->migrate($this->application, $dest_path, $options);
+		$filename = FileRequest::instance($upload_array)->migrate($this->application, $dest_path, $options);
 		$this->assertNull($filename);
 	}
-
+	
 	/**
 	 * Should prefer HTML in this case.
 	 */
@@ -85,12 +88,12 @@ class Request_TestCase extends TestCase
 				'Cookie'          => 'CWCOOKIE=a63dde59ac85d83734e2c137fb747445; AWSALB=1cKvKVLPxVDY8cef7JQMjqou7t1ABG0ctym4vg0EWGENnsXnPNV1oRnA5cFVNOktenQFLojlRt+usB7N+0V8RTsiAkr+WUIHvzqMjSMyCEwnWjqqktx8goRxrxE2; AWSALBCORS=1cKvKVLPxVDY8cef7JQMjqou7t1ABG0ctym4vg0EWGENnsXnPNV1oRnA5cFVNOktenQFLojlRt+usB7N+0V8RTsiAkr+WUIHvzqMjSMyCEwnWjqqktx8goRxrxE2',
 			],
 		];
-
+		
 		$request = Request::factory($this->application, $settings);
-
+		
 		$this->assertFalse($request->preferJSON(), 'Request should NOT prefer JSON');
 	}
-
+	
 	public function test_chrome_works_fine(): void
 	{
 		$settings = [
@@ -107,9 +110,9 @@ class Request_TestCase extends TestCase
 				'Cookie'          => 'CWCOOKIE=a63dde59ac85d83734e2c137fb747445; AWSALB=1cKvKVLPxVDY8cef7JQMjqou7t1ABG0ctym4vg0EWGENnsXnPNV1oRnA5cFVNOktenQFLojlRt+usB7N+0V8RTsiAkr+WUIHvzqMjSMyCEwnWjqqktx8goRxrxE2; AWSALBCORS=1cKvKVLPxVDY8cef7JQMjqou7t1ABG0ctym4vg0EWGENnsXnPNV1oRnA5cFVNOktenQFLojlRt+usB7N+0V8RTsiAkr+WUIHvzqMjSMyCEwnWjqqktx8goRxrxE2',
 			],
 		];
-
+		
 		$request = Request::factory($this->application, $settings);
-
+		
 		$this->assertFalse($request->preferJSON(), 'Request should NOT prefer JSON');
 	}
 }

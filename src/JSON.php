@@ -15,15 +15,14 @@ use stdClass;
 use zesk\Exception\ParseException;
 use zesk\Exception\ProtocolException;
 use zesk\Exception\SemanticsException;
-use zesk\Exception\SyntaxException;
 
 /**
  *
  * @author kent
  *
  */
-class JSON
-{
+class JSON {
+	
 	/**
 	 * Is the name passed a valid member name which does not require quotes in JavaScript?
 	 *
@@ -34,7 +33,7 @@ class JSON
 	{
 		return preg_match('/^[$A-Za-z_][$A-Za-z_0-9]*$/', $name) !== 0;
 	}
-
+	
 	/**
 	 * Quote a member name if necessary
 	 *
@@ -48,7 +47,7 @@ class JSON
 		}
 		return self::quote($name);
 	}
-
+	
 	/**
 	 * Quote a JSON token properly
 	 *
@@ -59,7 +58,7 @@ class JSON
 	{
 		return '"' . addcslashes($name, "\t\n\r\"\\") . '"';
 	}
-
+	
 	/**
 	 * Pretty output of JSON
 	 *
@@ -70,7 +69,7 @@ class JSON
 	{
 		return json_encode($mixed, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_IGNORE);
 	}
-
+	
 	/**
 	 * Default methods to use in prepare
 	 *
@@ -82,7 +81,7 @@ class JSON
 		'toJSON',
 		'__toJSON',
 	];
-
+	
 	/**
 	 * Prepare internal objects to simple JSON-capable structures.
 	 *
@@ -126,7 +125,7 @@ class JSON
 		}
 		return Types::flatten($mixed);
 	}
-
+	
 	/**
 	 * Prefer default JSON options, so use this for compatibility (this will probably go away)
 	 *
@@ -143,7 +142,7 @@ class JSON
 		}
 		return $result;
 	}
-
+	
 	/**
 	 * Like json_encode, except handles special variable name cases to NOT encode JavaScript
 	 *
@@ -171,12 +170,12 @@ class JSON
 					$recursion--;
 				}
 				return '[' . implode(',', $result) . ']';
-			} elseif (is_object($mixed)) {
+			} else if (is_object($mixed)) {
 				if (method_exists($mixed, 'toJSON')) {
 					$mixed = $mixed->toJSON();
-				} elseif (method_exists($mixed, '__toString')) {
+				} else if (method_exists($mixed, '__toString')) {
 					$mixed = strval($mixed);
-				} elseif ($mixed instanceof stdClass) {
+				} else if ($mixed instanceof stdClass) {
 					$mixed = get_object_vars($mixed);
 					if (count($mixed) === 0) {
 						return '{}';
@@ -201,23 +200,23 @@ class JSON
 				}
 				return '{' . implode(',', $result) . '}';
 			}
-		} elseif (is_bool($mixed)) {
+		} else if (is_bool($mixed)) {
 			return $mixed ? 'true' : 'false';
-		} elseif (is_int($mixed) || is_float($mixed)) {
+		} else if (is_int($mixed) || is_float($mixed)) {
 			return strval($mixed);
-		} elseif (is_string($mixed)) {
+		} else if (is_string($mixed)) {
 			return self::quote($mixed);
-		} elseif (is_resource($mixed)) {
+		} else if (is_resource($mixed)) {
 			return '"' . $mixed . '"';
-		} elseif ($mixed === null) {
+		} else if ($mixed === null) {
 			return 'null';
-		} elseif ($mixed instanceof __PHP_Incomplete_Class) {
+		} else if ($mixed instanceof __PHP_Incomplete_Class) {
 			return 'null';
 		} else {
 			die("Unknown type: $mixed " . gettype($mixed));
 		}
 	}
-
+	
 	/**
 	 * Like json_encode, except removes unnecessary quotes in keys
 	 *
@@ -239,7 +238,7 @@ class JSON
 					$result[] = self::encodeJavaScript($v);
 				}
 				return '[' . implode(',', $result) . ']';
-			} elseif (is_object($mixed) && method_exists($mixed, 'toJSON')) {
+			} else if (is_object($mixed) && method_exists($mixed, 'toJSON')) {
 				$mixed = $mixed->toJSON();
 				return self::encodeJavaScript($mixed);
 			} else {
@@ -253,19 +252,19 @@ class JSON
 				}
 				return '{' . implode(',', $result) . '}';
 			}
-		} elseif (is_bool($mixed)) {
+		} else if (is_bool($mixed)) {
 			return $mixed ? 'true' : 'false';
-		} elseif (is_int($mixed) || is_float($mixed)) {
+		} else if (is_int($mixed) || is_float($mixed)) {
 			return strval($mixed);
-		} elseif (is_string($mixed)) {
+		} else if (is_string($mixed)) {
 			return self::quote($mixed);
-		} elseif (is_resource($mixed)) {
+		} else if (is_resource($mixed)) {
 			return '"' . $mixed . '"';
 		} else {
 			return 'null';
 		}
 	}
-
+	
 	/**
 	 * Like json_decode, except if the decoding fails throw an exception
 	 *
@@ -285,10 +284,10 @@ class JSON
 		if ($result !== null) {
 			return $result;
 		}
-
+		
 		throw self::lastError();
 	}
-
+	
 	/**
 	 *
 	 * @param int $code
@@ -309,7 +308,7 @@ class JSON
 		];
 		return $errors[$code] ?? "Unknown code $code";
 	}
-
+	
 	/**
 	 * @return ParseException
 	 */
@@ -320,14 +319,14 @@ class JSON
 			'json_last_error' => $code,
 		], $code);
 	}
-
+	
 	/**
 	 * Used to track state for internal JSON decoder
 	 *
 	 * @var ?Exception
 	 */
 	public static ?Exception $last_error = null;
-
+	
 	/**
 	 * Like json_decode except use internal parser (slow)
 	 *
@@ -338,7 +337,7 @@ class JSON
 	public static function zesk_decode(string $string, bool $assoc = false): mixed
 	{
 		$string = trim($string);
-
+		
 		try {
 			self::$last_error = null;
 			[
@@ -355,7 +354,7 @@ class JSON
 		}
 		return null;
 	}
-
+	
 	/**
 	 * Decode JSON string starting with white space, then a value
 	 *
@@ -383,7 +382,7 @@ class JSON
 			$result,
 		];
 	}
-
+	
 	/**
 	 * This is somewhat of a pain in the ass to implement and maintain, so do the basics here, but
 	 * assume PHP 5.2 and json will
@@ -428,13 +427,13 @@ class JSON
 		if (preg_match('/[-0-9]/', $c)) {
 			return self::_decode_number($string, $offset);
 		}
-
+		
 		throw new ParseException('Invalid JSON token "{char}" at position {offset}', [
 			'char'   => $c,
 			'offset' => $offset,
 		]);
 	}
-
+	
 	/**
 	 * JSON parse number
 	 *
@@ -459,13 +458,13 @@ class JSON
 				floatval($match[0]),
 			];
 		}
-
+		
 		throw new ParseException('Invalid JSON numeric token "{string}..." at position {offset}', [
 			'string' => substr($string, 16),
 			'offset' => $offset,
 		]);
 	}
-
+	
 	/**
 	 * JSON decode array
 	 *
@@ -484,7 +483,7 @@ class JSON
 			$c = $string[$i];
 			if (str_contains(" \r\n\t", $c)) {
 				$i++;
-
+				
 				continue;
 			}
 			if ($c === ']') {
@@ -503,7 +502,7 @@ class JSON
 				$c = $string[$i];
 				if (str_contains(" \r\n\t", $c)) {
 					$i++;
-
+					
 					continue;
 				}
 				if ($c === ']') {
@@ -514,21 +513,21 @@ class JSON
 				}
 				if ($c === ',') {
 					$i++;
-
+					
 					break;
 				}
-
+				
 				throw new ParseException('Invalid JSON array at offset {offset} expecting comma or end bracket', [
 					'offset' => $offset + $i,
 				]);
 			}
 		}
-
+		
 		throw new ParseException('Unterminated array structure at offset {offset}', [
 			'offset' => $offset,
 		]);
 	}
-
+	
 	/**
 	 * JSON decode object
 	 *
@@ -548,13 +547,13 @@ class JSON
 			$c = $string[$i];
 			if (str_contains(" \r\n\t", $c)) {
 				$i++;
-
+				
 				continue;
 			}
 			if ($c === '}') {
 				return [
 					$i + 1,
-					$assoc ? $result : (object) $result,
+					$assoc ? $result : (object)$result,
 				];
 			}
 			if ($c !== '"') {
@@ -593,7 +592,7 @@ class JSON
 				$c = $string[$i];
 				if (str_contains(" \r\n\t", $c)) {
 					$i++;
-
+					
 					continue;
 				}
 				if ($c === '}') {
@@ -604,22 +603,22 @@ class JSON
 				}
 				if ($c === ',') {
 					$i++;
-
+					
 					break;
 				}
-
+				
 				throw new ParseException('Invalid JSON object at offset {offset} expecting comma or end bracket, found "{char}"', [
 					'char'   => $c,
 					'offset' => $offset + $i,
 				]);
 			}
 		}
-
+		
 		throw new ParseException('Unterminated array structure at offset {offset}', [
 			'offset' => $offset,
 		]);
 	}
-
+	
 	/**
 	 * JSON decode string
 	 *
@@ -641,7 +640,7 @@ class JSON
 			'r'  => "\r",
 			't'  => "\t",
 		];
-
+		
 		$len = strlen($string);
 		$result = '';
 		$i = 1;
@@ -656,10 +655,10 @@ class JSON
 			$i++;
 			if ($c !== '\\') {
 				$result .= $c;
-
+				
 				continue;
 			}
-
+			
 			if ($i >= $len) {
 				throw new ParseException('Unterminated string at offset {offset}', [
 					'offset' => $offset + $i,
@@ -668,7 +667,7 @@ class JSON
 			$c = $string[$i];
 			if (array_key_exists($c, $string_characters)) {
 				$result .= $string_characters[$c];
-			} elseif ($c === 'u') {
+			} else if ($c === 'u') {
 				++$i;
 				if ($i + 4 >= $len) {
 					throw new ParseException('Invalid unterminated hex code at string {offset}', [
@@ -684,7 +683,7 @@ class JSON
 				]);
 			}
 		}
-
+		
 		throw new ParseException('Invalid unterminated string at end of JSON string {offset}', [
 			'offset' => $offset + $i,
 		]);

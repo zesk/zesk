@@ -16,6 +16,7 @@ use zesk\Hookable;
 use zesk\JSON;
 use zesk\StringTools;
 use zesk\Types;
+use zesk\World\Country;
 use zesk\World\Currency;
 use zesk\World\Module;
 
@@ -24,20 +25,20 @@ use zesk\World\Module;
  * @author kent
  *
  */
-class BootstrapCurrency extends Hookable
-{
+class BootstrapCurrency extends Hookable {
+	
 	/**
 	 *
 	 * @var array
 	 */
 	private array $include_currency = [];
-
+	
 	/**
 	 *
 	 * @var array
 	 */
 	private array $include_country = [];
-
+	
 	/**
 	 *
 	 * @param Application $application
@@ -48,7 +49,7 @@ class BootstrapCurrency extends Hookable
 	{
 		return new self($application, $options);
 	}
-
+	
 	/**
 	 *
 	 * @param Application $application
@@ -70,11 +71,11 @@ class BootstrapCurrency extends Hookable
 			$this->include_country = array_change_key_case(ArrayTools::keysFromValues(Types::toList($include_country), true));
 		}
 	}
-
+	
 	public function bootstrap(): void
 	{
 		$x = $this->application->ormFactory(Currency::class);
-
+		
 		if ($this->optionBool('drop')) {
 			$x->database()->query('TRUNCATE ' . $x->table());
 		}
@@ -83,7 +84,7 @@ class BootstrapCurrency extends Hookable
 			$this->processRow($row);
 		}
 	}
-
+	
 	private function isIncluded(Currency $currency)
 	{
 		if ($this->include_country) {
@@ -98,7 +99,7 @@ class BootstrapCurrency extends Hookable
 		}
 		return true;
 	}
-
+	
 	/**
 	 * @param string $code
 	 * @param string $name
@@ -116,7 +117,7 @@ class BootstrapCurrency extends Hookable
 			Country::MEMBER_CODE => $code,
 			Country::MEMBER_NAME => $name,
 		]);
-
+		
 		try {
 			$result = $country->find(Country::MEMBER_CODE);
 		} catch (ORMNotFound|ORMEmpty) {
@@ -131,7 +132,7 @@ class BootstrapCurrency extends Hookable
 		/** @var Country $result */
 		return $result;
 	}
-
+	
 	private function processRow(array $row): void
 	{
 		$countryName = $row[0];
@@ -141,7 +142,7 @@ class BootstrapCurrency extends Hookable
 		$symbol = $row[4];
 		$fractional_string = $row[5];
 		$code = strtolower(substr($codeName, 0, 2));
-
+		
 		$country = $this->determineCountry($code, $countryName);
 		if (!$country && !$this->optionBool('include_no_country')) {
 			return;
@@ -150,7 +151,7 @@ class BootstrapCurrency extends Hookable
 		if (empty($symbol)) {
 			$symbol = $codeName;
 		}
-
+		
 		$fields['id'] = $id = intval($codeNumber);
 		$fields['name'] = $name;
 		$fields['code'] = $codeName;
@@ -162,12 +163,12 @@ class BootstrapCurrency extends Hookable
 		$fields['fractional'] = intval($fractional);
 		$fields['fractional_units'] = $units;
 		$fields['format'] = '{symbol}{amount}';
-
+		
 		if (empty($id)) {
 			$this->application->debug('Unknown id for currency {code} {name}', $fields);
 			return;
 		}
-
+		
 		$currency = $this->application->ormFactory(Currency::class);
 		/* @var $currency Currency */
 		if ($this->isIncluded($currency)) {
@@ -185,7 +186,7 @@ class BootstrapCurrency extends Hookable
 			}
 		}
 	}
-
+	
 	private function _codes(): array
 	{
 		$codes = $this->_somewhat_dated_codes();
@@ -198,7 +199,7 @@ class BootstrapCurrency extends Hookable
 					$this->application->debug('Code {2} ({1}) no longer valid, remove it', $row);
 				}
 				unset($codes[$index]);
-
+				
 				continue;
 			}
 			unset($missing_ones[$code]);
@@ -210,7 +211,7 @@ class BootstrapCurrency extends Hookable
 		}
 		return $codes;
 	}
-
+	
 	/**
 	 * https://gist.githubusercontent.com/Fluidbyte/2973986/raw/b0d1722b04b0a737aade2ce6e055263625a0b435/Common-Currency.json
 	 */
@@ -220,7 +221,7 @@ class BootstrapCurrency extends Hookable
 		File::depends($file);
 		return JSON::decode(file_get_contents($file));
 	}
-
+	
 	public static function _process_somewhat_dated_codes(): array
 	{
 		$codes = self::_somewhat_dated_codes();
@@ -234,12 +235,12 @@ class BootstrapCurrency extends Hookable
 				'symbol',
 				'unit_phrase',
 			]);
-
+			
 			$result[$item['code']] = $item;
 		}
 		return $result;
 	}
-
+	
 	public static function _somewhat_dated_codes(): array
 	{
 		return [
@@ -2327,7 +2328,7 @@ class BootstrapCurrency extends Hookable
 			],
 		];
 	}
-
+	
 	/**
 	 * Taken from http://www.xe.com/currency/ HTML as of 2017-09-13
 	 */

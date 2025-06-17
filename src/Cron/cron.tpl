@@ -1,29 +1,34 @@
 <?php
 declare(strict_types=1);
 
+use zesk\Application;
 use zesk\HTML;
+use zesk\Request;
+use zesk\Response;
+use zesk\Route;
+use zesk\Router;
+use zesk\Theme;
 use zesk\Timestamp;
 
-/* @var $this \zesk\Theme */
+/* @var $this Theme */
 /* @var $locale \zesk\Locale\Locale */
-/* @var $application \zesk\Application */
-/* @var $session \zesk\Session */
-/* @var $router \zesk\Router */
-/* @var $route \zesk\Route */
-/* @var $request \zesk\Request */
-/* @var $response \zesk\Response */
+/* @var $application Application */
+/* @var $router Router */
+/* @var $route Route */
+/* @var $request Request */
+/* @var $response Response */
 /* @var $module_class string */
 $service = $application->settings_registry();
 
 $now = Timestamp::now('UTC');
 
 foreach ([
-	Timestamp::UNIT_MINUTE => $locale->__('Last minute run'),
-	Timestamp::UNIT_HOUR => $locale->__('Last hour run'),
-	Timestamp::UNIT_WEEK => $locale->__('Last week run'),
-	Timestamp::UNIT_MONTH => $locale->__('Last month run'),
-	Timestamp::UNIT_YEAR => $locale->__('Last year run'),
-] as $unit => $label) {
+			 Timestamp::UNIT_MINUTE => $locale->__('Last minute run'),
+			 Timestamp::UNIT_HOUR   => $locale->__('Last hour run'),
+			 Timestamp::UNIT_WEEK   => $locale->__('Last week run'),
+			 Timestamp::UNIT_MONTH  => $locale->__('Last month run'),
+			 Timestamp::UNIT_YEAR   => $locale->__('Last year run'),
+		 ] as $unit => $label) {
 	$suffix = "_$unit";
 	$runtime = $service->get($module_class . '::last' . $suffix);
 	$attributes = [];

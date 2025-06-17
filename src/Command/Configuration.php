@@ -10,7 +10,6 @@ declare(strict_types=1);
 namespace zesk\Command;
 
 use Throwable;
-use zesk\ArrayTools;
 use zesk\Configuration\Loader;
 
 /**
@@ -31,14 +30,14 @@ use zesk\Configuration\Loader;
  * @author   kent
  *
  */
-class Configuration extends SimpleCommand
-{
+class Configuration extends SimpleCommand {
+	
 	protected array $shortcuts = [
 		'conf',
 		'config',
 		'configuration',
 	];
-
+	
 	protected array $argumentTypes = [
 		'loaded'           => 'boolean',
 		'not-loaded'       => 'boolean',
@@ -47,7 +46,7 @@ class Configuration extends SimpleCommand
 		'missing-classes'  => 'boolean',
 		'top-level-scalar' => 'boolean',
 	];
-
+	
 	protected array $option_help = [
 		'loaded'           => 'Show loaded configuration files',
 		'not-loaded'       => 'Show configuration files which would be loaded but were not because they did not exist',
@@ -56,7 +55,7 @@ class Configuration extends SimpleCommand
 		'missing-classes'  => 'Show missing classes in the configuration root',
 		'top-level-scalar' => 'Show top-level configuration settings which are scalars (globals or environment variables)',
 	];
-
+	
 	/**
 	 *
 	 * @return int
@@ -65,43 +64,43 @@ class Configuration extends SimpleCommand
 	{
 		$app = $this->application;
 		$variables = $app->loaderVariables();
-
+		
 		[
 			$missingClasses,
 			$warning_top_levels,
 		] = $this->collectMisnamedClassConfigurations();
 		$variables['-missing-classes-'] = $missingClasses;
 		$variables['-warning-top-'] = $warning_top_levels;
-
+		
 		$flags = $this->showFlags();
-
+		
 		$result = [];
 		foreach ([
-			'loaded'           => [
-				'Loaded',
-				Loader::PROCESSED,
-			],
-			'not-loaded'       => [
-				'Missing',
-				Loader::MISSING,
-			],
-			'skipped'          => [
-				'Skipped',
-				Loader::SKIPPED,
-			],
-			'externals'        => [
-				'External variables',
-				Loader::EXTERNALS,
-			],
-			'missing-classes'  => [
-				'Missing classes',
-				'-missing-classes-',
-			],
-			'top-level-scalar' => [
-				'Top-level variables which are scalar',
-				'-warning-top-',
-			],
-		] as $flag => [$key, $variablesKey]) {
+					 'loaded'           => [
+						 'Loaded',
+						 Loader::PROCESSED,
+					 ],
+					 'not-loaded'       => [
+						 'Missing',
+						 Loader::MISSING,
+					 ],
+					 'skipped'          => [
+						 'Skipped',
+						 Loader::SKIPPED,
+					 ],
+					 'externals'        => [
+						 'External variables',
+						 Loader::EXTERNALS,
+					 ],
+					 'missing-classes'  => [
+						 'Missing classes',
+						 '-missing-classes-',
+					 ],
+					 'top-level-scalar' => [
+						 'Top-level variables which are scalar',
+						 '-warning-top-',
+					 ],
+				 ] as $flag => [$key, $variablesKey]) {
 			$list = $variables[$variablesKey];
 			if ($flags[$flag] && count($list)) {
 				$result[$key] = $this->outputList($list);
@@ -110,7 +109,7 @@ class Configuration extends SimpleCommand
 		$this->renderFormat($result);
 		return 0;
 	}
-
+	
 	/**
 	 * @return array
 	 */
@@ -125,7 +124,7 @@ class Configuration extends SimpleCommand
 			'top-level-scalar' => true,
 		]);
 	}
-
+	
 	/**
 	 *
 	 * @return
@@ -152,7 +151,7 @@ class Configuration extends SimpleCommand
 			$warning,
 		];
 	}
-
+	
 	/**
 	 * @param array $list
 	 * @return array

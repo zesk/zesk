@@ -16,20 +16,14 @@ use zesk\StringTools;
 use zesk\Types;
 use zesk\World\Module;
 
-class BootstrapLanguage extends Hookable
-{
+class BootstrapLanguage extends Hookable {
+	
 	/**
 	 *
 	 * @var array
 	 */
-	private $include_country = null;
-
-	/**
-	 *
-	 * @var array
-	 */
-	private $include_language = null;
-
+	private array|null $includeLanguage = null;
+	
 	/**
 	 *
 	 * @param Application $application
@@ -40,7 +34,12 @@ class BootstrapLanguage extends Hookable
 	{
 		return new self($application, $options);
 	}
-
+	
+	/**
+	 * List of languages to bootstrap
+	 */
+	const OPTION_INCLUDE_LANGUAGES_LIST = 'languages';
+	
 	/**
 	 * @param Application $application
 	 * @param array       $options
@@ -49,21 +48,21 @@ class BootstrapLanguage extends Hookable
 	{
 		parent::__construct($application, $options);
 		$this->inheritConfiguration(Module::class);
-		$include_language = $this->option('include_language');
+		$include_language = $this->optionArray(self::OPTION_INCLUDE_LANGUAGES_LIST);
 		if ($include_language) {
-			$this->include_language = array_change_key_case(ArrayTools::keysFromValues(Types::toList($include_language), true));
+			$this->includeLanguage = array_change_key_case(ArrayTools::keysFromValues(Types::toList($include_language), true));
 		}
 	}
-
+	
 	private function is_included(BootstrapLanguage $language)
 	{
-		if ($this->include_language) {
+		if ($this->includeLanguage) {
 			$name = strtolower($language->code);
-			return $this->include_language[$name] ?? false;
+			return $this->includeLanguage[$name] ?? false;
 		}
 		return true;
 	}
-
+	
 	public function bootstrap(): void
 	{
 		$application = $this->application;
@@ -84,8 +83,8 @@ class BootstrapLanguage extends Hookable
 			}
 		}
 	}
-
-	private static function _language_codes_en()
+	
+	private static function _language_codes_en(): array
 	{
 		return [
 			'aa' => 'Afar',

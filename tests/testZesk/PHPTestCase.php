@@ -5,16 +5,14 @@ namespace testZesk;
 
 use stdClass;
 use zesk\Exception\KeyNotFound;
-use zesk\Exception\ParseException;
 use zesk\Exception\UnimplementedException;
 use zesk\PHP;
-use zesk\Types;
 
 /**
  * @coversDefaultClass \zesk\PHP
  */
-class PHPTestCase extends TestCase
-{
+class PHPTestCase extends TestCase {
+	
 	public static function data_provider_clean_function(): array
 	{
 		return [
@@ -32,7 +30,7 @@ class PHPTestCase extends TestCase
 			],
 		];
 	}
-
+	
 	/**
 	 * @dataProvider data_provider_clean_function
 	 *
@@ -45,20 +43,20 @@ class PHPTestCase extends TestCase
 		$result = PHP::cleanFunction($name);
 		$this->assertEquals($result, $expected, 'PHP::cleanFunction');
 	}
-
+	
 	/**
 	 * @return void
 	 */
 	public function test_php_basics(): void
 	{
 		$this->assertFalse(!![]);
-		$this->assertTrue(!![1, ]);
+		$this->assertTrue(!![1,]);
 		$truthy = [
 			new stdClass(),
-			[1, ],
-			['', ],
-			[0, ],
-			[null, ],
+			[1,],
+			['',],
+			[0,],
+			[null,],
 		];
 		$falsy = [
 			0,
@@ -74,7 +72,7 @@ class PHPTestCase extends TestCase
 			$this->assertTrue(!$false, gettype($false) . ' is not FALSE ' . var_export($false, true));
 		}
 	}
-
+	
 	/**
 	 * PHP does not support Javascript-style assignment using ||, e.g.
 	 *
@@ -87,23 +85,23 @@ class PHPTestCase extends TestCase
 		$a->val = 'a';
 		$b = new stdClass();
 		$b->val = 'b';
-
+		
 		$c = $a || $b;
 		$this->assertEquals(true, $c);
-
+		
 		$c = $a || [];
 		$this->assertEquals(true, $c);
-
+		
 		$c = false || [];
 		$this->assertEquals(false, $c);
 	}
-
+	
 	public function test_ini_path(): void
 	{
 		$file = PHP::ini_path();
 		$this->assertFileExists($file);
 	}
-
+	
 	/**
 	 * @return void
 	 * @throws KeyNotFound
@@ -118,7 +116,7 @@ class PHPTestCase extends TestCase
 		$this->assertArrayNotHasKey('unserialize_exception', $settings);
 		$this->assertEquals("\t\t", $settings['array_value_separator']);
 	}
-
+	
 	public static function data_provider_render(): array
 	{
 		return [
@@ -156,7 +154,7 @@ class PHPTestCase extends TestCase
 			],
 		];
 	}
-
+	
 	/**
 	 * @dataProvider data_provider_render
 	 * @covers ::singleton ::settingsOneLine ::render
@@ -165,7 +163,7 @@ class PHPTestCase extends TestCase
 	{
 		$this->assertEquals(PHP::singleton()->settingsOneLine()->render($test), $expected);
 	}
-
+	
 	public static function data_setFeature(): array
 	{
 		return [
@@ -183,7 +181,7 @@ class PHPTestCase extends TestCase
 			],
 		];
 	}
-
+	
 	/**
 	 * @dataProvider data_setFeature
 	 * @param string   $setting
@@ -201,7 +199,7 @@ class PHPTestCase extends TestCase
 		$old_value = PHP::setFeature($setting, $value);
 		$this->assertEquals($value, PHP::setFeature($setting, $old_value));
 	}
-
+	
 	/**
 	 * @dataProvider dataProviderClean
 	 *
@@ -214,7 +212,7 @@ class PHPTestCase extends TestCase
 		$result = PHP::cleanClass($name);
 		$this->assertEquals($result, $expected, "PHP::clean_class($name) = $result !== $expected");
 	}
-
+	
 	public static function dataProviderClean(): array
 	{
 		return [
@@ -228,7 +226,7 @@ class PHPTestCase extends TestCase
 			],
 		];
 	}
-
+	
 	/**
 	 * @return void
 	 * @coversNothing
@@ -249,13 +247,13 @@ class PHPTestCase extends TestCase
 				'code' => ord('9'),
 			],
 		];
-
+		
 		$otherarray = [];
 		$otherarray['test'] = &$bigthing['a'];
 		// What happens to $bigthing?
 		unset($otherarray['test']);
 		// Nothing, unset applies only to the key in the array
-
+		
 		$this->assertEquals($bigthing, [
 			'a' => [
 				'kind' => 'letter',

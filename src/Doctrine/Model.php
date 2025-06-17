@@ -20,20 +20,20 @@ use zesk\Model as ModelBase;
  *
  * Provides utilities
  */
-class Model extends ModelBase
-{
+class Model extends ModelBase {
+	
 	protected string $emName = '';
-
+	
 	/**
 	 * @var EntityManager|null
 	 */
 	private ?EntityManager $em = null;
-
+	
 	public function __construct(Application $application, array $options = [])
 	{
 		parent::__construct($application, $options);
 	}
-
+	
 	/**
 	 * @return EntityManager
 	 */
@@ -41,12 +41,12 @@ class Model extends ModelBase
 	{
 		return $this->em ??= $this->application->entityManager($this->emName);
 	}
-
+	
 	public function hydrate(Application $application): void
 	{
 		$this->application = $application;
 	}
-
+	
 	/**
 	 * @return array
 	 */
@@ -68,7 +68,7 @@ class Model extends ModelBase
 		}
 		return $members;
 	}
-
+	
 	/**
 	 * @return void
 	 * @throws ORMException
@@ -77,22 +77,22 @@ class Model extends ModelBase
 	{
 		$this->entityManager()->remove($this);
 	}
-
+	
 	/**
 	 * @return $this
 	 * @throws ORMException
 	 */
-	public function store(): static
+	public function store(): self
 	{
 		$this->entityManager()->persist($this);
 		return $this;
 	}
-
+	
 	public function entityRepository(): EntityRepository
 	{
 		return $this->entityManager()->getRepository(self::class);
 	}
-
+	
 	public function reconnect(EntityManager $em): void
 	{
 		$evm = $em->getEventManager();
@@ -102,7 +102,7 @@ class Model extends ModelBase
 			$this->application = Kernel::wakeupApplication();
 		}
 		$this->em = $em;
-
+		
 		try {
 			$this->options = clone $this->application->configuration->path(get_class($this));
 		} catch (Throwable) {

@@ -4,12 +4,13 @@ declare(strict_types=1);
 namespace testZesk;
 
 use zesk\Exception\KeyNotFound;
+use zesk\preg;
 
 /**
  *
  */
-class pregTestCase extends TestCase
-{
+class pregTestCase extends TestCase {
+	
 	public function collectIterationKeys(preg $iterator): array
 	{
 		$text = $iterator->text();
@@ -29,7 +30,7 @@ class pregTestCase extends TestCase
 			$text,
 		];
 	}
-
+	
 	public function test_preg(): void
 	{
 		$original = '{dog} {fence} {lunch} {dialogue} {Ignored } {Dreadlock}';
@@ -47,11 +48,11 @@ class pregTestCase extends TestCase
 		], $keys);
 		$this->assertCount(5, $keys);
 		$this->assertEquals('0 1 2 3 {Ignored } 4', $text);
-
+		
 		$this->assertTrue(isset($iterator[0]));
 		$this->assertTrue(isset($iterator[1]));
 		$this->assertFalse(isset($iterator[99]));
-
+		
 		$this->assertEquals([
 			'{dog}',
 			'dog',
@@ -64,16 +65,16 @@ class pregTestCase extends TestCase
 			'{Dreadlock}',
 			'Dreadlock',
 		], $iterator[4]);
-
+		
 		$iterator = preg::matches("/\{([A-Za-z]+)\}/", $original);
-
+		
 		/* Editing, for coverage, not sure of the use cases here */
 		$iterator[0] = [
 			'{purple}',
 			'purple',
 		]; // Don't
 		unset($iterator[4]);
-
+		
 		[
 			$keys,
 			$text,
@@ -87,7 +88,7 @@ class pregTestCase extends TestCase
 		$this->assertCount(4, $keys);
 		$this->assertEquals('0 1 2 3 {Ignored } {Dreadlock}', $text);
 	}
-
+	
 	public function test_emptyMatch(): void
 	{
 		$original = '{dog} {fence} {lunch} {dialogue} {Ignored } {Dreadlock}';
@@ -99,7 +100,7 @@ class pregTestCase extends TestCase
 		$this->assertCount(0, $keys);
 		$this->assertEquals($original, $text);
 	}
-
+	
 	public static function data_badOffsets(): array
 	{
 		return [
@@ -109,7 +110,7 @@ class pregTestCase extends TestCase
 			[6],
 		];
 	}
-
+	
 	/**
 	 * @param $mixed
 	 * @return void

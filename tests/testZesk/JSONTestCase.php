@@ -9,26 +9,27 @@ namespace testZesk;
 use stdClass;
 use zesk\Exception\ParseException;
 use zesk\Exception\ProtocolException;
+use zesk\JSON;
 
 /**
  *
  * @author kent
  *
  */
-class JSONTestCase extends TestCase
-{
+class JSONTestCase extends TestCase {
+	
 	public function test_decode(): void
 	{
 		$this->expectException(ParseException::class);
 		JSON::decode('{');
 	}
-
+	
 	public function test_decode_parse(): void
 	{
 		$this->expectException(ParseException::class);
 		JSON::decode('{');
 	}
-
+	
 	/**
 	 * @return void
 	 * @throws ProtocolException
@@ -39,30 +40,32 @@ class JSONTestCase extends TestCase
 		$content = ['Hello' => JSON::prepare($content)];
 		$this->assertStringContainsString('{"Hello":', json_encode($content));
 	}
-
+	
 	public static function data_prepare(): array
 	{
 		$thing1 = new class {
+			
 			public function doit(): array
 			{
 				return ['yes' => 'works'];
 			}
-
+			
 			public function doit_again($param): array
 			{
 				return ['param' => $param];
 			}
-
+			
 			public function __toString(): string
 			{
 				return 'thing one';
 			}
 		};
 		$thing2 = new class {
+			
 			public string $kind = 'thing';
-
+			
 			public string $type = 'class';
-
+			
 			public int $id = 1232;
 		};
 		$random_string = self::randomHex(16);
@@ -127,7 +130,7 @@ class JSONTestCase extends TestCase
 			],
 		];
 	}
-
+	
 	/**
 	 * @param $expected
 	 * @param $mixed
@@ -141,12 +144,12 @@ class JSONTestCase extends TestCase
 	{
 		$this->assertEquals($expected, JSON::prepare($mixed, $methods, $arguments));
 	}
-
+	
 	public function test_decode_null(): void
 	{
 		$this->assertNull(JSON::decode('null'));
 	}
-
+	
 	public static function data_encode(): array
 	{
 		return [
@@ -179,7 +182,7 @@ class JSONTestCase extends TestCase
 			],
 		];
 	}
-
+	
 	/**
 	 * @param string|null $expected
 	 * @param mixed       $mixed
@@ -194,7 +197,7 @@ class JSONTestCase extends TestCase
 		}
 		$this->assertEquals($expected, JSON::encode($mixed));
 	}
-
+	
 	/**
 	 * @param string|null $expected
 	 * @param mixed       $mixed
@@ -208,7 +211,7 @@ class JSONTestCase extends TestCase
 		}
 		$this->assertEquals($expected, JSON::encodeSpecial($mixed));
 	}
-
+	
 	/**
 	 * @return array[]
 	 */
@@ -249,7 +252,7 @@ class JSONTestCase extends TestCase
 			],
 		];
 	}
-
+	
 	/**
 	 * @dataProvider data_encodeJavaScript
 	 * @param string $expected
@@ -260,7 +263,7 @@ class JSONTestCase extends TestCase
 	{
 		$this->assertEquals($expected, JSON::encodeJavaScript($mixed));
 	}
-
+	
 	public static function data_encodeJavaScript(): array
 	{
 		return [
@@ -298,7 +301,7 @@ class JSONTestCase extends TestCase
 			],
 		];
 	}
-
+	
 	/**
 	 * @param string $name
 	 * @param string $expected
@@ -309,7 +312,7 @@ class JSONTestCase extends TestCase
 	{
 		$this->assertEquals($expected, JSON::object_member_name_quote($name));
 	}
-
+	
 	public static function data_object_member_name_quote(): array
 	{
 		return [
@@ -347,7 +350,7 @@ class JSONTestCase extends TestCase
 			],
 		];
 	}
-
+	
 	/**
 	 * @param string $expected
 	 * @param string $mixed
@@ -358,7 +361,7 @@ class JSONTestCase extends TestCase
 	{
 		$this->assertEquals($expected, JSON::quote($mixed));
 	}
-
+	
 	public static function data_quote(): array
 	{
 		return [
@@ -388,7 +391,7 @@ class JSONTestCase extends TestCase
 			],
 		];
 	}
-
+	
 	public static function data_valid_member_name(): array
 	{
 		return [
@@ -426,7 +429,7 @@ class JSONTestCase extends TestCase
 			],
 		];
 	}
-
+	
 	/**
 	 * @dataProvider data_valid_member_name
 	 * @param bool   $expected
@@ -437,7 +440,7 @@ class JSONTestCase extends TestCase
 	{
 		$this->assertEquals($expected, JSON::valid_member_name($name));
 	}
-
+	
 	public static function data_internal_values(): array
 	{
 		$obj = new stdClass();
@@ -448,7 +451,7 @@ class JSONTestCase extends TestCase
 			'5',
 		];
 		$obj->another = new stdClass();
-
+		
 		return [
 			[
 				null,
@@ -480,7 +483,7 @@ class JSONTestCase extends TestCase
 			],
 		];
 	}
-
+	
 	/**
 	 * @dataProvider data_internal_values
 	 * @param mixed $mixed
@@ -494,7 +497,7 @@ class JSONTestCase extends TestCase
 		$encode2 = JSON::encode($decode);
 		$this->assertEquals($encode, $encode2);
 	}
-
+	
 	public static function data_zesk_decode(): array
 	{
 		return [
@@ -572,7 +575,7 @@ class JSONTestCase extends TestCase
 			],
 		];
 	}
-
+	
 	/**
 	 * @dataProvider data_zesk_decode
 	 * @param string $mixed

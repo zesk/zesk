@@ -9,20 +9,23 @@ declare(strict_types=1);
 
 namespace testZesk;
 
+use zesk\Exception\KeyNotFound;
+use zesk\MIME;
+
 /**
  * Generic test class
  */
-class MIME_TestCase extends TestCase
-{
+class MIME_TestCase extends TestCase {
+	
 	public static function data_from_bad(): array
 	{
 		return [
-			['who/wants/a/foo.iges1', ],
-			['who/wants/a/foo.dessr', ],
-			['who/wants/a/foo.ssnbp', ],
+			['who/wants/a/foo.iges1',],
+			['who/wants/a/foo.dessr',],
+			['who/wants/a/foo.ssnbp',],
 		];
 	}
-
+	
 	/**
 	 * @param string $expected
 	 * @param string $tested
@@ -32,10 +35,10 @@ class MIME_TestCase extends TestCase
 	 */
 	public function test_from_bad(string $tested): void
 	{
-		$this->expectException(Exception\KeyNotFound::class);
+		$this->expectException(KeyNotFound::class);
 		MIME::fromExtension($tested);
 	}
-
+	
 	public static function data_from(): array
 	{
 		return [
@@ -53,7 +56,7 @@ class MIME_TestCase extends TestCase
 			],
 		];
 	}
-
+	
 	/**
 	 * @param string $expected
 	 * @param string $tested
@@ -65,7 +68,7 @@ class MIME_TestCase extends TestCase
 	{
 		$this->assertEquals($expected, MIME::fromExtension($tested));
 	}
-
+	
 	public static function data_to(): array
 	{
 		return [
@@ -83,7 +86,7 @@ class MIME_TestCase extends TestCase
 			],
 		];
 	}
-
+	
 	/**
 	 * @param string $expected
 	 * @param string $tested
@@ -95,16 +98,16 @@ class MIME_TestCase extends TestCase
 	{
 		$this->assertEquals($expected, MIME::toExtension($tested));
 	}
-
+	
 	public static function data_to_bad(): array
 	{
 		return [
 			['model//iges'],
 			['application/y-x509-ca-cert'],
-			['application/vnd.wolfram', ],
+			['application/vnd.wolfram',],
 		];
 	}
-
+	
 	/**
 	 * @param string $tested
 	 * @return void
@@ -113,7 +116,7 @@ class MIME_TestCase extends TestCase
 	 */
 	public function test_to_bad(string $tested): void
 	{
-		$this->expectException(Exception\KeyNotFound::class);
+		$this->expectException(KeyNotFound::class);
 		MIME::toExtension($tested);
 	}
 }

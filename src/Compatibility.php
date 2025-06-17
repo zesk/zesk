@@ -7,28 +7,32 @@ declare(strict_types=1);
  *
  * PHP version 5.5 - support for ClassName::class constants introduced
  *
- * @package zesk
+ * @package    zesk
  * @subpackage core
- * @author kent
- * @copyright Copyright &copy; 2025, Market Acumen, Inc.
+ * @author     kent
+ * @copyright  Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk;
 
-class Compatibility
-{
-	public const PHP_VERSION_MINIMUM = 80000;
+use zesk\Exception\UnsupportedException;
 
+class Compatibility {
+	
+	public const PHP_VERSION_MINIMUM = 80000;
+	
 	/**
-	 * @throws Unsupported
+	 * @throws UnsupportedException
 	 * @codeCoverageIgnore
 	 */
 	public static function check(): void
 	{
 		$v = self::PHP_VERSION_MINIMUM;
 		if (!defined('PHP_VERSION_ID') || PHP_VERSION_ID < $v) {
-			throw new Unsupported('Zesk requires PHP version {maj}.{min}.{patch} or greater', [
-				'maj' => intval($v / 10000), 'min' => ($v / 100) % 100, 'patch' => $v % 100,
+			throw new UnsupportedException('Zesk requires PHP version {maj}.{min}.{patch} or greater', [
+				'maj'   => intval($v / 10000),
+				'min'   => ($v / 100) % 100,
+				'patch' => $v % 100,
 			]);
 		}
 	}

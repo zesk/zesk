@@ -1,14 +1,16 @@
 <?php
 declare(strict_types=1);
+
 namespace zesk;
 
-/* @var $this \zesk\Theme */
-/* @var $application \zesk\Application */
-/* @var $locale \zesk\Locale\Locale */
-/* @var $session \zesk\Session */
-/* @var $router \zesk\Router */
-/* @var $request \zesk\Request */
-/* @var $response \zesk\Response */
+use zesk\Locale\Locale;
+
+/* @var $this Theme */
+/* @var $application Application */
+/* @var $locale Locale */
+/* @var $router Router */
+/* @var $request Request */
+/* @var $response Response */
 
 // For some bizarre reason, when outputting frames beyond 10, the output is immediately rendered to
 // STDOUT and the outer page.tpl is NOT rendered; like

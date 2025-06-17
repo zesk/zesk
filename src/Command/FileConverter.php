@@ -23,8 +23,8 @@ use zesk\File;
  * @api
  *
  */
-abstract class FileConverter extends SimpleCommand
-{
+abstract class FileConverter extends SimpleCommand {
+	
 	/**
 	 * Scan for files matching this extension pattern (no delimiters), use vertical bar only
 	 *
@@ -33,27 +33,27 @@ abstract class FileConverter extends SimpleCommand
 	 * @var string
 	 */
 	protected string $source_extension_pattern = '';
-
+	
 	/**
 	 *
 	 * @var string
 	 */
 	protected string $destination_extension = '';
-
+	
 	/**
 	 * Overwrite files (when true, implies destination_extension is null)
 	 *
 	 * @var boolean
 	 */
 	protected bool $overwrite = false;
-
+	
 	/**
 	 * Override in subclasses to modify the configuration file loaded by this command.
 	 *
 	 * @var string
 	 */
 	protected string $configuration_file = 'file-convert';
-
+	
 	/**
 	 *
 	 * {@inheritDoc}
@@ -87,7 +87,7 @@ abstract class FileConverter extends SimpleCommand
 		];
 		parent::initialize();
 	}
-
+	
 	/**
 	 * @throws SyntaxException
 	 */
@@ -99,7 +99,7 @@ abstract class FileConverter extends SimpleCommand
 		$new_file = Directory::path(dirname($new_file), $target_prefix, basename($new_file));
 		return Directory::removeDots($new_file);
 	}
-
+	
 	/**
 	 *
 	 */
@@ -155,7 +155,7 @@ abstract class FileConverter extends SimpleCommand
 				if (!$force && is_file($new_file) && filesize($new_file) > 0) {
 					if ($noclobber) {
 						$this->application->debug("noclobber: Will not overwrite: $new_file");
-
+						
 						continue;
 					}
 					if (!$nomtime) {
@@ -163,14 +163,14 @@ abstract class FileConverter extends SimpleCommand
 						$mtime = filemtime($file);
 						if ($new_mtime > $mtime) {
 							$this->application->debug("Modification time, skipping: $new_file");
-
+							
 							continue;
 						}
 					}
 				}
 				if ($dry_run) {
 					$this->application->notice("Would write $new_file");
-
+					
 					continue;
 				}
 				if (!is_dir($new_path) && $mkdir_target) {
@@ -178,14 +178,14 @@ abstract class FileConverter extends SimpleCommand
 				} else {
 					$this->application->debug('Skipping convert {file} because {new_path} does not exist', compact('file', 'new_path'));
 				}
-
+				
 				try {
 					$this->convert_file($file, $new_file);
 				} catch (Throwable $t) {
 					$this->application->error('unable to convert from {file} to {new_file}: {throwableClass} {throwableMessage}', [
-						'file'    => $file,
-						'newFile' => $new_file,
-					] + Exception::exceptionVariables($t));
+							'file'    => $file,
+							'newFile' => $new_file,
+						] + Exception::exceptionVariables($t));
 				}
 			}
 		} else {
@@ -193,7 +193,7 @@ abstract class FileConverter extends SimpleCommand
 		}
 		return 0;
 	}
-
+	
 	/**
 	 * Default implementation of "convert_fp" which loads the file until feof($fp) and does the conversion in memory.
 	 *
@@ -208,7 +208,7 @@ abstract class FileConverter extends SimpleCommand
 		}
 		return $this->convert_raw($content);
 	}
-
+	
 	/**
 	 * Convert $file into $new_file
 	 *
@@ -217,7 +217,7 @@ abstract class FileConverter extends SimpleCommand
 	 * @api
 	 */
 	abstract protected function convert_file(string $file, string $new_file): void;
-
+	
 	/**
 	 * Convert in memory and return converted entity
 	 *
@@ -225,7 +225,7 @@ abstract class FileConverter extends SimpleCommand
 	 * @api
 	 */
 	abstract protected function convert_raw(string $content): string;
-
+	
 	/**
 	 * @param string $file
 	 * @param string $new_file
@@ -237,26 +237,30 @@ abstract class FileConverter extends SimpleCommand
 		$this->application->notice('Writing {new_file}', compact('new_file'));
 		File::put($new_file, $this->convert_raw(file_get_contents($file)));
 	}
-
+	
 	/**
 	 *
-	 * @param unknown $content
+	 * @param string $content
 	 * @return string
-	 * @throws SyntaxException
+	 * @throws Exception\DirectoryCreate
+	 * @throws Exception\DirectoryPermission
+	 * @throws FilePermission
 	 */
-	final protected function default_convert_raw($content)
+	final protected function default_convert_raw(string $content): string
 	{
 		$src = File::temporary($this->application->paths->temporary(), '.source');
 		$dst = File::temporary($this->application->paths->temporary(), '.' . $this->destination_extension);
-		File::put($src, $content);
-		$result = $this->convert_file($src, $dst);
-		if ($result) {
+		try {
+			File::put($src, $content);
+			$this->convert_file($src, $dst);
+			File::unlink($src);
 			$contents = file_get_contents($dst);
+			File::unlink($dst);
+			return $contents;
+		} catch (Throwable $t) {
 			unlink($dst);
 			@unlink($src);
-			return $contents;
+			throw $t;
 		}
-
-		throw new SyntaxException('Unable to convert file - ambigious');
 	}
 }

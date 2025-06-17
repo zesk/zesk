@@ -13,7 +13,9 @@
 		"ext-intl": "*",
 		"ext-readline": "*",
 		"ext-mysqli": "*",
-		"doctrine/orm": "^3.3.3"
+		"doctrine/orm": "^3.3.3",
+		"ext-gd": "*",
+		"ext-sockets": "*"
 	},
 	"suggest": {
 		"ext-xdebug": "*",

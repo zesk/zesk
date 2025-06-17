@@ -3,14 +3,14 @@ declare(strict_types=1);
 
 namespace zesk\Net;
 
-use zesk\ConnectionFailed;
-use zesk\Net\Whois\Net_Whois_Servers;
-use zesk\NotFoundException;
+use zesk\Exception\ConnectionFailed;
+use zesk\Net\Whois\Servers;
+use zesk\Exception\NotFoundException;
 use zesk\StringTools;
 
-class Whois
-{
-	private static function clean_domain($domain)
+class Whois {
+	
+	private static function cleanDomain(string $domain): string
 	{
 		$domain = strtolower(trim($domain));
 		$domain = StringTools::removePrefix($domain, [
@@ -23,19 +23,25 @@ class Whois
 		[$domain] = explode('/', $domain, 2);
 		return $domain;
 	}
-
-	public static function query($domain)
+	
+	/**
+	 * @param string $domain
+	 * @return string
+	 * @throws ConnectionFailed
+	 * @throws NotFoundException
+	 */
+	public static function query(string $domain): string
 	{
 		// fix the domain name:
-		$domain = self::clean_domain($domain);
+		$domain = self::cleanDomain($domain);
 		$extension = StringTools::reverseRight($domain, '.');
-		$server = Net_Whois_Servers::fromTLD($extension);
+		$server = Servers::fromTLD($extension);
 		if (!$server) {
 			throw new NotFoundException('No whois server for {extension}', [
 				'extension' => $extension,
 			]);
 		}
-
+		
 		$conn = fsockopen($server, 43);
 		if (!$conn) {
 			throw new ConnectionFailed($server);

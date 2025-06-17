@@ -25,15 +25,15 @@ use zesk\Types;
  * @package    zesk
  * @subpackage tools
  */
-class Writer extends Base
-{
+class Writer extends Base {
+	
 	/**
 	 * Whether the headers have been written yet
 	 *
 	 * @var boolean
 	 */
 	protected bool $writeHeaders = false;
-
+	
 	/**
 	 * An array containing "map_name" => array("input_column" => "header_index", "input_column2" =>
 	 * "header_index2")
@@ -46,7 +46,7 @@ class Writer extends Base
 	 * @var array
 	 */
 	protected array $writeMapGroup = [];
-
+	
 	/**
 	 * Default values for the write maps
 	 * Form is: "map_name" => array("input_column" => "default_value", "input_column2" =>
@@ -55,7 +55,7 @@ class Writer extends Base
 	 * @var array
 	 */
 	protected array $writeMapGroupDefaults = [];
-
+	
 	/**
 	 * Translation tables for output
 	 * Form is: "index" => translation array (old => new)
@@ -63,14 +63,14 @@ class Writer extends Base
 	 * @var array
 	 */
 	protected array $writeTranslationMap = [];
-
+	
 	/**
 	 * Hooks to call on name/value pair row before writing
 	 *
 	 * @var array of callable
 	 */
 	protected array $writeHooks = [];
-
+	
 	/**
 	 * Get the filename to write to
 	 */
@@ -78,7 +78,7 @@ class Writer extends Base
 	{
 		return $this->file;
 	}
-
+	
 	/**
 	 * @param string $f
 	 * @return self
@@ -89,11 +89,11 @@ class Writer extends Base
 	{
 		return parent::_setFile($f, 'w', true);
 	}
-
+	
 	/*====================================================================================*\
 	 * CSV Writing to current row
 	 \*------------------------------------------------------------------------------------*/
-
+	
 	/**
 	 * New empty row
 	 *
@@ -103,7 +103,7 @@ class Writer extends Base
 	{
 		return array_fill(0, count($this->headers), '');
 	}
-
+	
 	/**
 	 * Add a mapping from an object member names to CSV file header names.
 	 *
@@ -147,7 +147,7 @@ class Writer extends Base
 		}
 		return $this;
 	}
-
+	
 	/**
 	 * Add a translation map for a column which is a boolean value
 	 *
@@ -157,7 +157,7 @@ class Writer extends Base
 	{
 		return array_keys($this->writeMapGroup);
 	}
-
+	
 	/**
 	 * Add an output translation map for boolean values
 	 *
@@ -171,16 +171,16 @@ class Writer extends Base
 	 *            The value to output when the value is null
 	 * @return self
 	 */
-	public function add_translation_map_boolean($column_names, $no = null, $yes = null, $null = null)
+	public function addTranslationMapBoolean(array|string $column_names, string $no = null, string $yes = null, string $null = null)
 	{
-		$this->add_translation_map($column_names, [
+		$this->addTranslationMap($column_names, [
 			''  => $null === null ? '' : $null,
 			'0' => $no === null ? 'no' : $no,
 			'1' => $yes === null ? 'yes' : $no,
 		]);
 		return $this;
 	}
-
+	
 	/**
 	 * Set up a mapping of values when writing
 	 *
@@ -191,7 +191,7 @@ class Writer extends Base
 	 * @throws KeyNotFound
 	 * @throws ProtocolException
 	 */
-	public function add_translation_map(array|string $column_names, array $map): self
+	public function addTranslationMap(array|string $column_names, array $map): self
 	{
 		if (!count($this->headersToIndex)) {
 			throw new ProtocolException("Need to set headers prior to setting a translation map ($column_names)");
@@ -209,7 +209,7 @@ class Writer extends Base
 		}
 		return $this;
 	}
-
+	
 	/**
 	 *
 	 * @param string $name   Name of an existing object map
@@ -224,20 +224,20 @@ class Writer extends Base
 		if (!isset($this->writeMapGroup[$lowName])) {
 			throw new KeyNotFound("CSV::set_object($name) doesn't exist");
 		}
-
-
+		
+		
 		$fields = array_change_key_case($fields);
-
+		
 		if (is_array($this->writeMapGroupDefaults[$lowName] ?? false)) {
 			foreach ($this->writeMapGroupDefaults[$lowName] as $k => $v) {
 				$fields[$k] ??= $v;
 			}
 		}
-
+		
 		if (!count($this->row)) {
 			$this->row = $this->_writeNewRow();
 		}
-
+		
 		$g = $this->writeMapGroup[$lowName];
 		foreach ($fields as $k => $v) {
 			$k = strtolower($k);
@@ -253,7 +253,7 @@ class Writer extends Base
 		}
 		return $this->row;
 	}
-
+	
 	/**
 	 * @param array $row
 	 * @return void
@@ -281,7 +281,7 @@ class Writer extends Base
 			$this->row = array_values($row);
 		}
 	}
-
+	
 	/**
 	 * Set a column value for the current row.
 	 *
@@ -303,7 +303,7 @@ class Writer extends Base
 		}
 		return true;
 	}
-
+	
 	/**
 	 * @return void
 	 * @throws ProtocolException
@@ -332,7 +332,7 @@ class Writer extends Base
 		$this->rowIndex += 1;
 		$this->row = [];
 	}
-
+	
 	/**
 	 * Enter description here...
 	 *
@@ -353,7 +353,7 @@ class Writer extends Base
 		}
 		return implode($d, $rowOut) . "\n";
 	}
-
+	
 	/**
 	 *
 	 * @param callable $callable

@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace testZesk;
 
 use Exception;
-use zesk\Exception\TimeoutExpired;
 use zesk\File;
 
 use zesk\Exception\DirectoryCreate;
@@ -15,8 +14,8 @@ use zesk\Exception\FilePermission;
 /**
  * @coversDefaultClass \zesk\File
  */
-class FileTestCase extends TestCase
-{
+class FileTestCase extends TestCase {
+	
 	private function _test_atomic_increment(string $path, $start): void
 	{
 		$this->assertTrue(File::atomicPut($path, "$start"), 'Creating initial file');
@@ -25,7 +24,7 @@ class FileTestCase extends TestCase
 		}
 		$this->assertTrue(unlink($path), "Deleting $path at end");
 	}
-
+	
 	/**
 	 * @return array
 	 */
@@ -54,7 +53,7 @@ class FileTestCase extends TestCase
 			],
 		];
 	}
-
+	
 	/**
 	 * @param $expected
 	 * @param $path
@@ -66,7 +65,7 @@ class FileTestCase extends TestCase
 	{
 		$this->assertEquals($expected, File::absolutePath($path, $cwd));
 	}
-
+	
 	/**
 	 * @return void
 	 * @covers ::atomicIncrement
@@ -74,21 +73,21 @@ class FileTestCase extends TestCase
 	public function test_atomic_increment(): void
 	{
 		$path = $this->test_sandbox(__FUNCTION__);
-
+		
 		$this->assertTrue(!file_exists($path) || unlink($path), "Deleting $path");
 		$exception = false;
-
+		
 		try {
 			File::atomicIncrement($path);
 		} catch (Exception $e) {
 			$exception = true;
 		}
 		$this->assertTrue($exception, 'when file doesn\'t exist, an exception should occur');
-
+		
 		$this->_test_atomic_increment($path, 0);
 		$this->_test_atomic_increment($path, 48123192);
 	}
-
+	
 	/**
 	 * @return void
 	 * @throws FileNotFound
@@ -100,7 +99,7 @@ class FileTestCase extends TestCase
 		$data = 'hello';
 		File::atomicPut($path, $data);
 	}
-
+	
 	/**
 	 * @param string $filename
 	 * @param string $expected
@@ -112,7 +111,7 @@ class FileTestCase extends TestCase
 	{
 		$this->assertEquals($expected, File::base($filename));
 	}
-
+	
 	public static function data_base(): array
 	{
 		return [
@@ -130,7 +129,7 @@ class FileTestCase extends TestCase
 			],
 		];
 	}
-
+	
 	/**
 	 * @param string $expected
 	 * @param string $content
@@ -146,7 +145,7 @@ class FileTestCase extends TestCase
 		file_put_contents($path, $content);
 		$this->assertEquals($expected, File::checksum($path));
 	}
-
+	
 	public static function data_checksum(): array
 	{
 		return [
@@ -160,7 +159,7 @@ class FileTestCase extends TestCase
 			],
 		];
 	}
-
+	
 	/**
 	 * @return void
 	 * @throws FileNotFound
@@ -173,11 +172,11 @@ class FileTestCase extends TestCase
 		file_put_contents($file_name, 'abc');
 		$mode = 504;
 		File::chmod($file_name, $mode);
-
+		
 		$this->expectException(FileNotFound::class);
 		File::chmod($file_name . '.notthere', $mode);
 	}
-
+	
 	/**
 	 * @return void
 	 * @throws FileNotFound
@@ -191,7 +190,7 @@ class FileTestCase extends TestCase
 		file_put_contents($file_name, $data);
 		$this->assertEquals($data, File::contents($file_name));
 	}
-
+	
 	/**
 	 * @return void
 	 * @throws FileNotFound
@@ -204,7 +203,7 @@ class FileTestCase extends TestCase
 		$this->expectException(FileNotFound::class);
 		File::contents($file_name);
 	}
-
+	
 	/**
 	 * @return void
 	 * @throws FileNotFound
@@ -216,7 +215,7 @@ class FileTestCase extends TestCase
 		$this->expectException(FilePermission::class);
 		File::contents('/root/');
 	}
-
+	
 	/**
 	 * @dataProvider data_extension
 	 * @param string $filename
@@ -228,7 +227,7 @@ class FileTestCase extends TestCase
 	{
 		$this->assertEquals($expected, File::extension($filename));
 	}
-
+	
 	public static function data_extension(): array
 	{
 		return [
@@ -274,7 +273,7 @@ class FileTestCase extends TestCase
 			],
 		];
 	}
-
+	
 	/**
 	 * @param string $path
 	 * @param string $sep_char
@@ -287,7 +286,7 @@ class FileTestCase extends TestCase
 	{
 		$this->assertEquals($expected, File::nameClean($path, $sep_char));
 	}
-
+	
 	/**
 	 * @return array
 	 */
@@ -306,7 +305,7 @@ class FileTestCase extends TestCase
 			],
 		];
 	}
-
+	
 	/**
 	 * @param string $path_to_check
 	 * @param bool   $is_valid
@@ -318,7 +317,7 @@ class FileTestCase extends TestCase
 	{
 		$this->assertEquals($is_valid, File::pathCheck($path_to_check));
 	}
-
+	
 	/**
 	 * @return array[]
 	 */
@@ -343,7 +342,7 @@ class FileTestCase extends TestCase
 			],
 		];
 	}
-
+	
 	/**
 	 * @return void
 	 * @throws DirectoryCreate
@@ -356,7 +355,7 @@ class FileTestCase extends TestCase
 		$filename = File::temporary($this->application->paths->temporary(), $ext);
 		$this->assertFalse(file_exists($filename));
 	}
-
+	
 	/**
 	 * @param string $expected
 	 * @param string $thingToStrip
@@ -368,7 +367,7 @@ class FileTestCase extends TestCase
 	{
 		$this->assertEquals($expected, File::stripExtension($thingToStrip));
 	}
-
+	
 	public static function dataStripExtension(): array
 	{
 		return [

@@ -7,39 +7,40 @@ use zesk\ArrayTools;
 use zesk\Exception\NotFoundException;
 use zesk\Types;
 use zesk\UnitTest;
+use zesk\Repository\Base;
 
-class TestCase extends UnitTest
-{
+class TestCase extends UnitTest {
+	
 	/**
 	 *
 	 * @var string
 	 */
 	protected string $path = '';
-
+	
 	/**
 	 *
 	 * @var string
 	 */
 	protected string $url = '';
-
+	
 	/**
 	 *
 	 * @var array
 	 */
 	protected array $repository_options = [];
-
+	
 	/**
 	 * Override in subclasses
 	 *
 	 * @var string
 	 */
 	protected string $repository_class = '';
-
+	
 	/**
 	 *
 	 */
 	protected array $repository_types = [];
-
+	
 	/**
 	 *
 	 * @return string
@@ -65,7 +66,7 @@ class TestCase extends UnitTest
 		]));
 		return $this->path;
 	}
-
+	
 	/**
 	 *
 	 */
@@ -77,7 +78,7 @@ class TestCase extends UnitTest
 		$this->assertTrue(class_exists($this->repository_class), "\$this->repository_class = \"$this->repository_class\" does not exist");
 		return $this->path;
 	}
-
+	
 	/**
 	 * @depends testConfiguration
 	 * @throws NotFoundException
@@ -92,8 +93,8 @@ class TestCase extends UnitTest
 		]));
 		foreach ($this->repository_types as $repository_type) {
 			$repo = Base::factory($this->application, $repository_type, $path, [
-				'test_option' => 'dude',
-			] + $this->repository_options);
+					'test_option' => 'dude',
+				] + $this->repository_options);
 			$this->assertInstanceOf($this->repository_class, $repo);
 			$this->assertEquals(rtrim($path, '/'), rtrim($repo->path(), '/'));
 			$this->assertEquals($repo->option('test_option'), 'dude');

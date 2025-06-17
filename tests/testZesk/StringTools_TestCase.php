@@ -5,9 +5,12 @@ namespace testZesk;
 
 use stdClass;
 use zesk\Directory;
+use zesk\HTML;
+use zesk\StringTools;
+use zesk\Text;
 
-class StringTools_TestCase extends TestCase
-{
+class StringTools_TestCase extends TestCase {
+	
 	/**
 	 * @param string $expected
 	 * @param string $test
@@ -21,7 +24,7 @@ class StringTools_TestCase extends TestCase
 		$this->assertTrue(StringTools::hasTokens($test));
 		$this->assertEquals($expected, StringTools::cleanTokens($test, $prefix, $suffix));
 	}
-
+	
 	public static function data_mapClean(): array
 	{
 		return [
@@ -57,7 +60,7 @@ class StringTools_TestCase extends TestCase
 			],
 		];
 	}
-
+	
 	public static function data_joinArray(): array
 	{
 		return [
@@ -87,7 +90,7 @@ class StringTools_TestCase extends TestCase
 			],
 		];
 	}
-
+	
 	/**
 	 * @param string $expected
 	 * @param string $separator
@@ -106,7 +109,7 @@ class StringTools_TestCase extends TestCase
 		$result = StringTools::joinArray($separator, $mixed);
 		$this->assertEquals('^one^two^three^', $result);
 	}
-
+	
 	/**
 	 * @return array[]
 	 */
@@ -181,7 +184,7 @@ class StringTools_TestCase extends TestCase
 			],
 		];
 	}
-
+	
 	/**
 	 * @return void
 	 * @dataProvider data_begins
@@ -190,7 +193,7 @@ class StringTools_TestCase extends TestCase
 	{
 		$this->assertEquals($expected, StringTools::begins($haystack, $needle, $lower));
 	}
-
+	
 	public static function data_capitalize(): array
 	{
 		return [
@@ -212,7 +215,7 @@ class StringTools_TestCase extends TestCase
 			],
 		];
 	}
-
+	
 	/**
 	 * @return void
 	 * @dataProvider data_capitalize
@@ -221,7 +224,7 @@ class StringTools_TestCase extends TestCase
 	{
 		$this->assertEquals($expected, StringTools::capitalize($phrase));
 	}
-
+	
 	/**
 	 * @return array
 	 */
@@ -238,7 +241,7 @@ class StringTools_TestCase extends TestCase
 			],
 		];
 	}
-
+	
 	/**
 	 * @return void
 	 * @dataProvider data_to_camel
@@ -247,7 +250,7 @@ class StringTools_TestCase extends TestCase
 	{
 		$this->assertEquals($expected, StringTools::toCamelCase($test));
 	}
-
+	
 	/**
 	 * @return array
 	 */
@@ -264,7 +267,7 @@ class StringTools_TestCase extends TestCase
 			],
 		];
 	}
-
+	
 	/**
 	 * @return void
 	 * @dataProvider data_from_camel
@@ -273,7 +276,7 @@ class StringTools_TestCase extends TestCase
 	{
 		$this->assertEquals($expected, StringTools::fromCamelCase($test));
 	}
-
+	
 	public static function data_caseMatch(): array
 	{
 		return [
@@ -339,7 +342,7 @@ class StringTools_TestCase extends TestCase
 			],
 		];
 	}
-
+	
 	/**
 	 * @param string $string
 	 * @param string $pattern
@@ -351,7 +354,7 @@ class StringTools_TestCase extends TestCase
 	{
 		$this->assertEquals($expected, StringTools::caseMatch($string, $pattern));
 	}
-
+	
 	public static function data_ellipsis_word(): array
 	{
 		$n = 20;
@@ -425,7 +428,7 @@ class StringTools_TestCase extends TestCase
 			],
 		];
 	}
-
+	
 	/**
 	 * @return void
 	 * @dataProvider data_ellipsis_word
@@ -434,7 +437,7 @@ class StringTools_TestCase extends TestCase
 	{
 		$this->assertEquals($expected, StringTools::ellipsisWord($text, $number, $dot_dot_dot));
 	}
-
+	
 	public static function data_replaceTabs(): array
 	{
 		return [
@@ -494,7 +497,7 @@ class StringTools_TestCase extends TestCase
 			],
 		];
 	}
-
+	
 	/**
 	 * @param string $expected
 	 * @param string $text
@@ -506,7 +509,7 @@ class StringTools_TestCase extends TestCase
 	{
 		$this->assertEquals($expected, StringTools::replaceTabs($text, $tab_width, $replace));
 	}
-
+	
 	public static function data_contains(): array
 	{
 		$trueTests = [];
@@ -590,7 +593,7 @@ class StringTools_TestCase extends TestCase
 			],
 		]);
 	}
-
+	
 	/**
 	 * @param string|array $haystack
 	 * @param string|array $needle
@@ -603,7 +606,7 @@ class StringTools_TestCase extends TestCase
 	{
 		$this->assertEquals($expected, StringTools::contains($haystack, $needle, $lower));
 	}
-
+	
 	public static function data_ends(): array
 	{
 		return [
@@ -738,7 +741,7 @@ class StringTools_TestCase extends TestCase
 			],
 		];
 	}
-
+	
 	/**
 	 * @param string|array $haystack
 	 * @param string|array $needle
@@ -751,7 +754,7 @@ class StringTools_TestCase extends TestCase
 	{
 		$this->assertEquals($expected, StringTools::ends($haystack, $needle, $lower));
 	}
-
+	
 	/**
 	 * @return array
 	 */
@@ -824,7 +827,7 @@ class StringTools_TestCase extends TestCase
 			],
 		];
 	}
-
+	
 	/**
 	 * @return void
 	 * @dataProvider data_toBool
@@ -833,7 +836,7 @@ class StringTools_TestCase extends TestCase
 	{
 		$this->assertEquals($expected ? 'true' : 'false', StringTools::fromBool($mixed));
 	}
-
+	
 	/**
 	 * @return void
 	 * @dataProvider data_toBool
@@ -842,7 +845,7 @@ class StringTools_TestCase extends TestCase
 	{
 		$this->assertEquals($expected, StringTools::toBool($mixed));
 	}
-
+	
 	public function test_is_ascii(): void
 	{
 		$str = 'string';
@@ -850,7 +853,7 @@ class StringTools_TestCase extends TestCase
 		$str = chr(255) . chr(254) . 'Hello';
 		$this->assertFalse(StringTools::isASCII($str));
 	}
-
+	
 	public static function data_isUTF16(): array
 	{
 		return [
@@ -891,7 +894,7 @@ class StringTools_TestCase extends TestCase
 			],
 		];
 	}
-
+	
 	/**
 	 * @return void
 	 * @dataProvider data_isUTF16
@@ -904,7 +907,7 @@ class StringTools_TestCase extends TestCase
 			$this->assertEquals($beShouldBe, $be, 'BOM matches');
 		}
 	}
-
+	
 	public static function data_wrap_tests(): array
 	{
 		return [
@@ -946,7 +949,7 @@ class StringTools_TestCase extends TestCase
 				],
 				'This is an example with <em>two</em> <em>items</em> example',
 			],
-
+			
 			[
 				[
 					'This is an example with [1:two] [1:items] example',
@@ -955,7 +958,7 @@ class StringTools_TestCase extends TestCase
 				],
 				'This is an example with <em>two</em> <em>items</em> example',
 			],
-
+			
 			[
 				[
 					'Nested example with [outernest [nest0] [nest1]] example',
@@ -967,7 +970,7 @@ class StringTools_TestCase extends TestCase
 			],
 		];
 	}
-
+	
 	/**
 	 * @param array  $arguments
 	 * @param string $expected
@@ -981,14 +984,14 @@ class StringTools_TestCase extends TestCase
 			'wrap',
 		], $arguments), $expected, "HTML::wrap {$arguments[0]} => $expected failed");
 	}
-
+	
 	public function test_is_utf8(): void
 	{
 		$this->assertTrue(StringTools::isUTF8(''));
 		$this->assertTrue(StringTools::isUTF8('????, ???'));
 		$this->assertTrue(StringTools::isUTF8('????, ???'));
 	}
-
+	
 	public static function data_is_utf8_file(): array
 	{
 		return [
@@ -1030,7 +1033,7 @@ class StringTools_TestCase extends TestCase
 			],
 		];
 	}
-
+	
 	/**
 	 * @param $f
 	 * @param $isutf8
@@ -1043,7 +1046,7 @@ class StringTools_TestCase extends TestCase
 		$content = file_get_contents(Directory::path($test_dir, $f));
 		$this->assertEquals($isutf8, StringTools::isUTF8($content));
 	}
-
+	
 	public static function data_left(): array
 	{
 		return [
@@ -1073,7 +1076,7 @@ class StringTools_TestCase extends TestCase
 			],
 		];
 	}
-
+	
 	/**
 	 * @param string $haystack
 	 * @param string $needle
@@ -1086,7 +1089,7 @@ class StringTools_TestCase extends TestCase
 	{
 		$this->assertEquals($expected, StringTools::left($haystack, $needle, $default));
 	}
-
+	
 	public static function data_pair(): array
 	{
 		return [
@@ -1192,7 +1195,7 @@ class StringTools_TestCase extends TestCase
 			],
 		];
 	}
-
+	
 	/**
 	 * @param string $string
 	 * @param string $delim
@@ -1206,7 +1209,7 @@ class StringTools_TestCase extends TestCase
 	{
 		$this->assertEquals($expected, StringTools::pair($string, $delim, $left, $right));
 	}
-
+	
 	public static function data_reversePair(): array
 	{
 		return [
@@ -1312,7 +1315,7 @@ class StringTools_TestCase extends TestCase
 			],
 		];
 	}
-
+	
 	/**
 	 * @return void
 	 * @dataProvider data_reversePair
@@ -1321,7 +1324,7 @@ class StringTools_TestCase extends TestCase
 	{
 		$this->assertEquals($expected, StringTools::reversePair($string, $delim, $left, $right));
 	}
-
+	
 	public static function data_replaceFirst(): array
 	{
 		return [
@@ -1351,7 +1354,7 @@ class StringTools_TestCase extends TestCase
 			],
 		];
 	}
-
+	
 	/**
 	 * @param string $search
 	 * @param string $replace
@@ -1364,7 +1367,7 @@ class StringTools_TestCase extends TestCase
 	{
 		$this->assertEquals($expected, StringTools::replaceFirst($search, $replace, $content));
 	}
-
+	
 	public static function data_right(): array
 	{
 		return [
@@ -1400,7 +1403,7 @@ class StringTools_TestCase extends TestCase
 			],
 		];
 	}
-
+	
 	/**
 	 * @param $haystack
 	 * @param $needle
@@ -1412,7 +1415,7 @@ class StringTools_TestCase extends TestCase
 	{
 		$this->assertEquals($expected, StringTools::right($haystack, $needle, $default));
 	}
-
+	
 	/**
 	 * @return array
 	 */
@@ -1451,7 +1454,7 @@ class StringTools_TestCase extends TestCase
 			],
 		];
 	}
-
+	
 	/**
 	 * @dataProvider data_reverseLeft
 	 * @param string $haystack
@@ -1464,7 +1467,7 @@ class StringTools_TestCase extends TestCase
 	{
 		$this->assertEquals($expected, StringTools::reverseLeft($haystack, $needle, $default));
 	}
-
+	
 	/**
 	 * @return array
 	 */
@@ -1503,7 +1506,7 @@ class StringTools_TestCase extends TestCase
 			],
 		];
 	}
-
+	
 	/**
 	 * @dataProvider data_reverseRight
 	 * @param string      $haystack
@@ -1516,7 +1519,7 @@ class StringTools_TestCase extends TestCase
 	{
 		$this->assertEquals($expected, StringTools::reverseRight($haystack, $needle, $default));
 	}
-
+	
 	/**
 	 * @param mixed $value
 	 * @param bool  $expected
@@ -1527,7 +1530,7 @@ class StringTools_TestCase extends TestCase
 	{
 		$this->assertEquals($expected, StringTools::toBool($value));
 	}
-
+	
 	public static function data_toBoolOriginal(): array
 	{
 		return [
@@ -1579,7 +1582,7 @@ class StringTools_TestCase extends TestCase
 				'true',
 				true,
 			],
-
+			
 			[
 				'f',
 				false,
@@ -1632,7 +1635,7 @@ class StringTools_TestCase extends TestCase
 				'',
 				false,
 			],
-
+			
 			[
 				0,
 				false,
@@ -1641,7 +1644,7 @@ class StringTools_TestCase extends TestCase
 				'0',
 				false,
 			],
-
+			
 			[
 				1,
 				true,
@@ -1650,7 +1653,7 @@ class StringTools_TestCase extends TestCase
 				'1',
 				true,
 			],
-
+			
 			[
 				'01',
 				true,
@@ -1663,10 +1666,10 @@ class StringTools_TestCase extends TestCase
 				new stdClass(),
 				true,
 			],
-
+		
 		];
 	}
-
+	
 	/**
 	 * @return array[]
 	 */
@@ -1700,7 +1703,7 @@ class StringTools_TestCase extends TestCase
 				true,
 				'ing',
 			],
-
+			
 			[
 				'string',
 				'Str',
@@ -1713,7 +1716,7 @@ class StringTools_TestCase extends TestCase
 				true,
 				'ing',
 			],
-
+			
 			[
 				'String',
 				'str',
@@ -1726,7 +1729,7 @@ class StringTools_TestCase extends TestCase
 				true,
 				'ing',
 			],
-
+			
 			[
 				'String',
 				'Str',
@@ -1786,7 +1789,7 @@ class StringTools_TestCase extends TestCase
 			],
 		];
 	}
-
+	
 	/**
 	 * @param string|array $string
 	 * @param string|array $prefix
@@ -1799,7 +1802,7 @@ class StringTools_TestCase extends TestCase
 	{
 		$this->assertEquals($expected, StringTools::removePrefix($string, $prefix, $case_insensitive));
 	}
-
+	
 	/**
 	 * @return array[]
 	 */
@@ -1838,7 +1841,7 @@ class StringTools_TestCase extends TestCase
 			],
 		];
 	}
-
+	
 	/**
 	 * @param string $expected
 	 * @param string $string
@@ -1850,7 +1853,7 @@ class StringTools_TestCase extends TestCase
 	{
 		$this->assertEquals($expected, StringTools::prefixMatch($string, $pattern));
 	}
-
+	
 	/**
 	 * @return array[]
 	 */
@@ -1869,7 +1872,7 @@ class StringTools_TestCase extends TestCase
 				true,
 				'str',
 			],
-
+			
 			[
 				'string',
 				'ING',
@@ -1882,7 +1885,7 @@ class StringTools_TestCase extends TestCase
 				true,
 				'str',
 			],
-
+			
 			[
 				'String',
 				'ing',
@@ -1895,7 +1898,7 @@ class StringTools_TestCase extends TestCase
 				true,
 				'Str',
 			],
-
+			
 			[
 				'String',
 				'Ing',
@@ -1908,7 +1911,7 @@ class StringTools_TestCase extends TestCase
 				true,
 				'Str',
 			],
-
+			
 			[
 				[
 					'String',
@@ -1943,7 +1946,7 @@ class StringTools_TestCase extends TestCase
 			],
 		];
 	}
-
+	
 	/**
 	 * @param string|array $string
 	 * @param string       $suffix
@@ -1956,7 +1959,7 @@ class StringTools_TestCase extends TestCase
 	{
 		$this->assertEquals($expected, StringTools::removeSuffix($string, $suffix, $case_insensitive));
 	}
-
+	
 	public static function data_zeroPad(): array
 	{
 		return [
@@ -2007,7 +2010,7 @@ class StringTools_TestCase extends TestCase
 			],
 		];
 	}
-
+	
 	/**
 	 * @param string $string
 	 * @param string $expected
@@ -2018,7 +2021,7 @@ class StringTools_TestCase extends TestCase
 	{
 		$this->assertEquals($expected, StringTools::zeroPad($string, $length));
 	}
-
+	
 	public static function data_leftAlign(): array
 	{
 		return [
@@ -2052,7 +2055,7 @@ class StringTools_TestCase extends TestCase
 			],
 		];
 	}
-
+	
 	/**
 	 * @param string $text
 	 * @param int    $length
@@ -2066,7 +2069,7 @@ class StringTools_TestCase extends TestCase
 	{
 		$this->assertEquals($expected, Text::leftAlign($text, $length, $padding, $trim));
 	}
-
+	
 	public static function data_rightAlign(): array
 	{
 		return [
@@ -2100,7 +2103,7 @@ class StringTools_TestCase extends TestCase
 			],
 		];
 	}
-
+	
 	/**
 	 * @param string $text
 	 * @param int    $length
@@ -2114,7 +2117,7 @@ class StringTools_TestCase extends TestCase
 	{
 		$this->assertEquals($expected, Text::rightAlign($text, $length, $padding, $trim));
 	}
-
+	
 	public function test_filter(): void
 	{
 		$name = '';
@@ -2165,7 +2168,7 @@ class StringTools_TestCase extends TestCase
 			$this->assertEquals(StringTools::filter($name, $rules, $default), $result, "Test #$index failed: $name");
 		}
 	}
-
+	
 	/**
 	 * @param string $expected
 	 * @param string $string
@@ -2179,7 +2182,7 @@ class StringTools_TestCase extends TestCase
 	{
 		$this->assertEquals($expected, StringTools::substring($string, $start, $length, $encoding));
 	}
-
+	
 	public static function data_substr(): array
 	{
 		$sample1 = '😉2345🤣789🙄1👍3456789😁';
@@ -2242,7 +2245,7 @@ class StringTools_TestCase extends TestCase
 			],
 		];
 	}
-
+	
 	public function test_PHP_substr(): void
 	{
 		// Never knew this
@@ -2251,13 +2254,13 @@ class StringTools_TestCase extends TestCase
 		$this->assertEquals('string', gettype($result));
 		$this->assertEquals('', $result);
 	}
-
+	
 	public function test_replace_first1(): void
 	{
 		$this->assertEquals('bbracadabra', StringTools::replaceFirst('a', 'b', 'abracadabra'));
 		$this->assertEquals('astrapcadabra', StringTools::replaceFirst('bra', 'strap', 'abracadabra'));
 	}
-
+	
 	/**
 	 * @param array  $expected
 	 * @param string $string
@@ -2270,7 +2273,7 @@ class StringTools_TestCase extends TestCase
 	{
 		$this->assertEquals($expected, StringTools::split($string, $split_length, $encoding));
 	}
-
+	
 	public static function data_str_split(): array
 	{
 		return [
@@ -2339,7 +2342,7 @@ class StringTools_TestCase extends TestCase
 			],
 		];
 	}
-
+	
 	public static function data_csv_quote_row(): array
 	{
 		return [
@@ -2373,7 +2376,7 @@ class StringTools_TestCase extends TestCase
 			],
 		];
 	}
-
+	
 	public static function data_length(): array
 	{
 		return [
@@ -2394,7 +2397,7 @@ class StringTools_TestCase extends TestCase
 			],
 		];
 	}
-
+	
 	/**
 	 * @dataProvider data_length
 	 */
@@ -2402,7 +2405,7 @@ class StringTools_TestCase extends TestCase
 	{
 		$this->assertEquals($expected, StringTools::length($string, $encoding));
 	}
-
+	
 	/**
 	 * @param string $expected
 	 * @param array  $row
@@ -2413,7 +2416,7 @@ class StringTools_TestCase extends TestCase
 	{
 		$this->assertEquals($expected, StringTools::csvQuoteRow($row));
 	}
-
+	
 	/**
 	 * @dataProvider data_csv_quote_row
 	 * @param string $row_expected

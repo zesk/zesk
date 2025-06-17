@@ -22,15 +22,15 @@ use zesk\File;
  * @author kent
  *
  */
-class Command extends SimpleCommand
-{
+class Command extends SimpleCommand {
+	
 	protected array $shortcuts = ['github'];
-
+	
 	/**
 	 *
 	 */
 	public const OPTION_DESCRIPTION = 'description';
-
+	
 	/**
 	 *
 	 * @var array
@@ -41,34 +41,35 @@ class Command extends SimpleCommand
 		self::OPTION_DESCRIPTION => 'string',
 		'commitish'              => 'string',
 	];
-
-	/**
-	 *
-	 * @var array
-	 */
-	protected array $options = [
-		'description' => 'Release of version {version}.',
-		'commitish'   => 'master',
-	];
-
+	
+	
 	/**
 	 *
 	 * @var integer
 	 */
 	public const EXIT_CODE_NO_DESCRIPTION = 1;
-
+	
 	/**
 	 *
 	 * @var integer
 	 */
 	public const EXIT_CODE_GITHUB_MODULE = 2;
-
+	
 	/**
 	 *
 	 * @var integer
 	 */
 	public const EXIT_CODE_TAG_FAILED = 3;
-
+	
+	public function initialize(): void
+	{
+		$this->setOptions([
+			'description' => 'Release of version {version}.',
+			'commitish'   => 'master',
+		], false);
+		parent::initialize();
+	}
+	
 	/**
 	 *
 	 * {@inheritDoc}
@@ -82,7 +83,7 @@ class Command extends SimpleCommand
 		$this->usage('Need to specify --tag');
 		return 0;
 	}
-
+	
 	/**
 	 *
 	 * @return int
@@ -90,7 +91,7 @@ class Command extends SimpleCommand
 	public function command_tag(): int
 	{
 		$file = $this->option('description-file');
-
+		
 		try {
 			$description = File::contents($file);
 		} catch (FileNotFound) {
@@ -101,9 +102,9 @@ class Command extends SimpleCommand
 			return self::EXIT_CODE_NO_DESCRIPTION;
 		}
 		$description = ArrayTools::map($description, $this->description_variables());
-
+		
 		$commitish = $this->optionString('commitish');
-
+		
 		try {
 			/* @var $github Module */
 			$github = $this->application->modules->object('GitHub');
@@ -118,12 +119,12 @@ class Command extends SimpleCommand
 			return self::EXIT_CODE_GITHUB_MODULE;
 		} catch (Throwable $e) {
 			$this->error('Running {this_class} but unknown exception {class} {message}', [
-				'this_class' => get_class($this),
-			] + Exception::exceptionVariables($e));
+					'this_class' => get_class($this),
+				] + Exception::exceptionVariables($e));
 			return self::EXIT_CODE_GITHUB_MODULE;
 		}
 	}
-
+	
 	public function description_variables(): array
 	{
 		return [

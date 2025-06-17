@@ -2,13 +2,12 @@
 declare(strict_types=1);
 /**
  * @copyright &copy; 2023 Market Acumen, Inc.
- * @author kent
- * @category Management
+ * @author    kent
+ * @category  Management
  */
 
 namespace zesk;
 
-use aws\classes\Hookable;
 use zesk\Exception\DirectoryNotFound;
 use zesk\Exception\FileNotFound;
 use zesk\Exception\FilePermission;
@@ -20,45 +19,45 @@ use zesk\Exception\FilePermission;
  *
  * You can also pass back "wakeup" messages which wake up the server.
  *
- * @author kent
+ * @author   kent
  * @category Management
  */
-class FIFO
-{
+class FIFO {
+	
 	/**
 	 * FP to fifo: Reader
 	 *
 	 * @var resource
 	 */
 	private mixed $r = null;
-
+	
 	/**
 	 * FP to fifo: Writer
 	 *
 	 * @var resource
 	 */
 	private mixed $w = null;
-
+	
 	/**
 	 * Path to fifo
 	 *
 	 * @var string
 	 */
 	private string $path;
-
+	
 	/**
 	 * Whether this object created the FIFO (and therefore should destroy it!)
 	 *
 	 * @var boolean
 	 */
 	private bool $created = false;
-
+	
 	/**
 	 * Create the FIFO
 	 *
-	 * @param string $path Full path name
-	 * @param bool $create Create the FIFO if it doesn't exist (assumes READER)
-	 * @param int $mode File mode to create the FIFO (uses umask)
+	 * @param string $path   Full path name
+	 * @param bool   $create Create the FIFO if it doesn't exist (assumes READER)
+	 * @param int    $mode   File mode to create the FIFO (uses umask)
 	 * @throws DirectoryNotFound
 	 * @throws FilePermission
 	 */
@@ -81,7 +80,7 @@ class FIFO
 		$this->created = true;
 		$this->_beforeRead();
 	}
-
+	
 	/**
 	 * Delete the FIFO
 	 *
@@ -94,7 +93,7 @@ class FIFO
 			unlink($this->path);
 		}
 	}
-
+	
 	/**
 	 * FIFO path
 	 *
@@ -104,7 +103,7 @@ class FIFO
 	{
 		return $this->path;
 	}
-
+	
 	/**
 	 * Send a message to parent process
 	 *
@@ -122,14 +121,14 @@ class FIFO
 		fflush($this->w);
 		return true;
 	}
-
+	
 	/**
 	 * Read a message from client process
 	 *
 	 * @param float $timeout in seconds
 	 * @return mixed
+	 * @throws Exception\SyntaxException
 	 * @throws FileNotFound
-	 * @throws SyntaxException
 	 */
 	public function read(float $timeout): mixed
 	{
@@ -143,10 +142,10 @@ class FIFO
 			$n = intval(fgets($this->r));
 			return PHP::unserialize(fread($this->r, $n));
 		}
-
+		
 		throw new FileNotFound($this->path, 'FIFO closed');
 	}
-
+	
 	/**
 	 * Open write FIFO
 	 *
@@ -160,7 +159,7 @@ class FIFO
 		}
 		$this->w = File::open($this->path, 'wb');
 	}
-
+	
 	/**
 	 * Open read FIFO (used by parent process only)
 	 *
@@ -173,7 +172,7 @@ class FIFO
 			throw new FilePermission($this->path, 'fopen(\'{path}\', \'r\')');
 		}
 	}
-
+	
 	/**
 	 * Close read FIFO
 	 */
@@ -184,7 +183,7 @@ class FIFO
 			$this->r = null;
 		}
 	}
-
+	
 	/**
 	 * Close write FIFO
 	 */
@@ -195,7 +194,7 @@ class FIFO
 			$this->w = null;
 		}
 	}
-
+	
 	/**
 	 * Close all FIFOs
 	 */

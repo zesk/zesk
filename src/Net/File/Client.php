@@ -10,6 +10,10 @@ declare(strict_types=1);
 namespace zesk\Net\File;
 
 use zesk\Directory;
+use zesk\Exception\DirectoryNotFound;
+use zesk\Exception\FileNotFound;
+use zesk\Exception\FilePermission;
+use zesk\Exception\SemanticsException;
 use zesk\File;
 use zesk\Net\Client as NetClient;
 use zesk\Net\FileSystem;
@@ -20,15 +24,15 @@ use zesk\Timestamp;
  * @author kent
  *
  */
-class Client extends NetClient implements FileSystem
-{
+class Client extends NetClient implements FileSystem {
+	
 	/**
 	 * Are we "connected"? Simply for semantic integrity between clients.
 	 *
 	 * @var boolean
 	 */
-	private $connected = false;
-
+	private bool $connected = false;
+	
 	/**
 	 * Connect to the remote host
 	 *
@@ -37,37 +41,32 @@ class Client extends NetClient implements FileSystem
 	public function connect(): self
 	{
 		if ($this->connected) {
-			throw new Semantics('Already connected');
+			throw new SemanticsException('Already connected');
 		}
 		$this->connected = true;
 		return $this;
 	}
-
+	
 	/**
 	 * Are we connected?
 	 *
 	 * @return boolean
-	 * @see Net_Client::connect()
 	 */
-	public function isConnected()
+	public function isConnected(): bool
 	{
 		return $this->connected;
 	}
-
+	
 	/**
 	 * Disconnect if connected
 	 *
-	 * @return boolean true if disconnected, false if already disconnected
-	 * @see Net_Client::connect()
 	 */
-	public function disconnect()
+	public function disconnect(): void
 	{
-		$old_connected = $this->connected;
 		$this->connected = false;
-		return $old_connected;
 	}
-
-	public function ls($path = null)
+	
+	public function ls(string $path): array
 	{
 		if ($path === null) {
 			$path = getcwd();
@@ -91,77 +90,87 @@ class Client extends NetClient implements FileSystem
 		}
 		return $entries;
 	}
-
-	public function mkdir($path)
+	
+	public function mkdir(string $path): void
 	{
-		return mkdir($path);
+		Directory::depend($path);
 	}
-
-	public function rmdir($path)
+	
+	public function rmdir(string $path): void
 	{
-		return rmdir($path);
+		Directory::delete($path);
 	}
-
-	public function unlink($path)
+	
+	public function unlink(string $path): void
 	{
-		return unlink($path);
+		File::unlink($path);
 	}
-
-	public function download($remote_path, $local_path)
+	
+	public function download(string $remotePath, string $localPath): void
 	{
-		return copy($remote_path, $local_path);
+		File::copy($remotePath, $localPath);
 	}
-
-	public function upload($local_path, $remote_path, $temporary = false)
+	
+	public function upload(string $localPath, string $remotePath, bool $temporary = false): void
 	{
 		if ($temporary) {
 			$temp = null;
-			if (is_file($remote_path)) {
-				$temp = $remote_path . '.rename-' . $this->application->process->id();
-				if (!rename($remote_path, $temp)) {
-					throw new FilePermission($remote_path);
+			if (is_file($remotePath)) {
+				$temp = $remotePath . '.rename-' . $this->application->process->id();
+				if (!rename($remotePath, $temp)) {
+					throw new FilePermission($remotePath);
 				}
 			}
-			$result = rename($local_path, $remote_path);
+			$result = rename($localPath, $remotePath);
 			if ($temp) {
 				if ($result) {
 					unlink($temp);
 				} else {
-					rename($temp, $remote_path);
+					rename($temp, $remotePath);
 				}
 			}
-			return $result;
+			if (!$result) {
+				throw new FilePermission($remotePath);
+			}
 		} else {
-			return copy($local_path, $remote_path);
+			File::copy($localPath, $remotePath);
 		}
 	}
-
-	public function pwd()
+	
+	public function pwd(): string
 	{
 		return getcwd();
 	}
-
-	public function cd($path)
+	
+	public function cd($path): void
 	{
-		return chdir($path);
+		if (!chdir($path)) {
+			throw new DirectoryNotFound($path);
+		}
 	}
-
-	public function chmod($path, int $mode = 0o770)
+	
+	public function chmod(string $path, int $mode = 0o770): void
 	{
-		return chmod($path, $mode);
+		if (!chmod($path, $mode)) {
+			throw new FilePermission($path);
+		}
 	}
-
-	public function stat($path)
+	
+	/**
+	 * @param string $path
+	 * @return array|null[]
+	 */
+	public function stat(string $path): array
 	{
 		$entry = [];
 		$entry['name'] = basename($path);
-
+		
 		try {
 			$stats = File::stat($path);
 		} catch (FileNotFound $e) {
 			return $entry + [
-				'type' => null,
-			];
+					'type' => null,
+				];
 		}
 		$entry['mode'] = $stats['perms']['string'];
 		$entry['type'] = $stats['filetype']['type'];
@@ -172,19 +181,37 @@ class Client extends NetClient implements FileSystem
 		$entry['mtime_granularity'] = 'second';
 		return $entry;
 	}
-
-	public function mtime($path, Timestamp $ts)
+	
+	public function setModificationTime(string $path, Timestamp $mtime): void
 	{
-		return touch($path, $ts->unixTimestamp());
+		touch($path, $mtime->unixTimestamp());
 	}
-
-	public function has_feature($feature)
+	
+	public function hasFeature(string $feature): bool
 	{
 		switch ($feature) {
-			case self::feature_mtime:
+			case self::FEATURE_MODIFICATION_TIME:
 				return true;
 			default:
 				return false;
 		}
+	}
+	
+	/**
+	 * @return string
+	 */
+	public function connectGreeting(): string
+	{
+		// TODO: Implement connectGreeting() method.
+		return php_uname('n');
+	}
+	
+	/**
+	 * @param string $path
+	 * @return Timestamp
+	 */
+	public function modificationTime(string $path): Timestamp
+	{
+		return File::modified($path);
 	}
 }

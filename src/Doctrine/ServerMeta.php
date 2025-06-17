@@ -12,6 +12,7 @@ namespace zesk\Doctrine;
 use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Entity;
+use Doctrine\ORM\Mapping\EntityListeners;
 use Doctrine\ORM\Mapping\JoinColumn;
 use Doctrine\ORM\Mapping\ManyToOne;
 use Doctrine\ORM\Mapping\UniqueConstraint;
@@ -26,24 +27,25 @@ use zesk\Doctrine\Trait\AutoID;
  * @property mixed  $value
  */
 #[Entity]
+#[EntityListeners([ModelListener::class])]
 #[UniqueConstraint(name: 'serverName', fields: [
 	'server',
 	'name',
 ])]
-class ServerMeta extends Model
-{
+class ServerMeta extends Model {
+	
 	use AutoID;
-
+	
 	#[ManyToOne(targetEntity: Server::class, inversedBy: 'metas')]
 	#[JoinColumn(name: 'server', referencedColumnName: 'id')]
 	public Server $server;
-
+	
 	#[Column(type: 'string', nullable: false)]
 	public string $name;
-
+	
 	#[Column(type: 'json', nullable: false)]
 	public mixed $value;
-
+	
 	public function __construct(Application $application, Server $server, string $name, mixed $value, array $options = [])
 	{
 		parent::__construct($application, $options);
@@ -51,7 +53,7 @@ class ServerMeta extends Model
 		$this->name = $name;
 		$this->value = $value;
 	}
-
+	
 	/**
 	 * Delete all data associated with server
 	 *
@@ -64,7 +66,7 @@ class ServerMeta extends Model
 		$query = $em->createQueryBuilder()->delete(self::class)->where(['server' => $server])->getQuery();
 		$query->execute();
 	}
-
+	
 	/**
 	 * @param Server $server
 	 * @param string $name
