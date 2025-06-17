@@ -16,8 +16,8 @@ namespace zesk;
  * @author kent
  *
  */
-class Timer {
-	
+class Timer
+{
 	/**
 	 * Seconds offset of the time this timer was started
 	 *
@@ -25,7 +25,7 @@ class Timer {
 	 * @var float
 	 */
 	private float $start;
-	
+
 	/**
 	 * Seconds offset of the time the function mark() was called
 	 *
@@ -33,14 +33,14 @@ class Timer {
 	 * @var float
 	 */
 	private float $last;
-	
+
 	/**
 	 * Seconds offset of the time this timer was stopped
 	 *
 	 * @var null|float
 	 */
 	private null|float $stop = null;
-	
+
 	/**
 	 * Create a new Timer
 	 *
@@ -59,7 +59,7 @@ class Timer {
 		$this->start = $start + $offset;
 		$this->last = $this->start;
 	}
-	
+
 	/**
 	 * Convert legacy string result from microtime call to double
 	 *
@@ -75,9 +75,9 @@ class Timer {
 			$integer_seconds,
 			$fractional_seconds,
 		] = explode(' ', $value, 2);
-		return ((float)$integer_seconds + (float)$fractional_seconds);
+		return ((float) $integer_seconds + (float) $fractional_seconds);
 	}
-	
+
 	/**
 	 * Current time
 	 *
@@ -87,7 +87,7 @@ class Timer {
 	{
 		return microtime(true);
 	}
-	
+
 	/**
 	 * Stop the timer and return the total elapsed time
 	 *
@@ -98,7 +98,7 @@ class Timer {
 		$this->stop = self::now();
 		return $this->stop - $this->start;
 	}
-	
+
 	/**
 	 * Mark the time and return the time between the last mark and this mark
 	 *
@@ -109,10 +109,10 @@ class Timer {
 		$now = self::now();
 		$result = $now - $this->last;
 		$this->last = $now;
-		
+
 		return $result;
 	}
-	
+
 	/**
 	 * Current elapsed time (does not stop timer)
 	 *
@@ -122,7 +122,7 @@ class Timer {
 	{
 		return self::now() - $this->last;
 	}
-	
+
 	/**
 	 * Reset timer to zero
 	 */
@@ -130,7 +130,7 @@ class Timer {
 	{
 		$this->last = $this->start = self::now();
 	}
-	
+
 	/**
 	 * Generate the elapsed time (or total if stopped) in HTML
 	 *
@@ -144,7 +144,7 @@ class Timer {
 		$delta = $this->elapsed();
 		$elapsed = self::now() - $this->start;
 		$this->last = $now;
-		
+
 		$result = '';
 		if (!empty($comment)) {
 			$result .= "<strong>$comment</strong>: ";
@@ -157,7 +157,7 @@ class Timer {
 		}
 		return $result;
 	}
-	
+
 	/**
 	 * Echo the output
 	 *

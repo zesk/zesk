@@ -23,20 +23,20 @@ use zesk\World\Bootstrap\BootstrapLanguage;
  * @author kent
  *
  */
-class Module extends BaseModule {
-	
+class Module extends BaseModule
+{
 	/**
 	 * List of currencies to include (Currency)
 	 */
 	public const OPTION_INCLUDE_CURRENCY = 'includeCurrency';
-	
+
 	/**
 	 * List of countries to include (Currency)
 	 */
 	public const OPTION_INCLUDE_COUNTRY = 'includeCountry';
-	
+
 	protected string $name = 'World';
-	
+
 	protected array $modelClasses = [
 		Currency::class,
 		City::class,
@@ -45,13 +45,13 @@ class Module extends BaseModule {
 		Language::class,
 		Province::class,
 	];
-	
+
 	public function initialize(): void
 	{
 		$this->application->modules->load('doctrine');
 		parent::initialize();
 	}
-	
+
 	/**
 	 * @return void
 	 * @throws KeyNotFound
@@ -82,7 +82,7 @@ class Module extends BaseModule {
 			BootstrapCurrency::factory($this->application)->bootstrap();
 		}
 		$this->application->debug('{method} ended', $__);
-		
+
 		Language::clean_table($this->application);
 	}
 }

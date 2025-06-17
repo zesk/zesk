@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 /**
- *
+ * @copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Preference;
@@ -29,27 +29,27 @@ use zesk\Types;
  *
  * @author kent
  */
-class Controller extends BaseController {
-	
+class Controller extends BaseController
+{
 	protected array $argumentMethods = [
 		'arguments_{METHOD}',
 		'arguments',
 	];
-	
+
 	protected array $actionMethods = [
 		'action_{METHOD}',
 	];
-	
+
 	protected array $beforeMethods = [];
-	
+
 	protected array $afterMethods = [];
-	
+
 	/**
 	 *
 	 * @var array
 	 */
 	protected array $allowed = [];
-	
+
 	/**
 	 *
 	 * @return string
@@ -59,7 +59,7 @@ class Controller extends BaseController {
 		$file = $this->optionString('whitelistFile', './etc/preferences.txt');
 		return $this->application->paths->expand($file);
 	}
-	
+
 	/**
 	 *
 	 */
@@ -67,7 +67,7 @@ class Controller extends BaseController {
 	{
 		file_put_contents($this->_whitelistFile(), implode("\n", array_keys($this->allowed)));
 	}
-	
+
 	/**
 	 * @return array
 	 * @throws FilePermission
@@ -86,7 +86,7 @@ class Controller extends BaseController {
 		}
 		return $this->allowed;
 	}
-	
+
 	/**
 	 * Add a key to the allowed list to permit saving later.
 	 *
@@ -99,11 +99,11 @@ class Controller extends BaseController {
 		$this->_allowedList();
 		$this->allowed[$name] = true;
 	}
-	
+
 	/**
-	 * @param Request  $request
+	 * @param Request $request
 	 * @param Response $response
-	 * @param array    $arguments
+	 * @param array $arguments
 	 * @return array
 	 * @throws ParameterException
 	 * @throws FilePermission
@@ -126,9 +126,9 @@ class Controller extends BaseController {
 			$name,
 		];
 	}
-	
+
 	/**
-	 * @param Request  $request
+	 * @param Request $request
 	 * @param Response $response
 	 * @return array
 	 */
@@ -139,7 +139,7 @@ class Controller extends BaseController {
 			$request,
 		];
 	}
-	
+
 	/**
 	 * @param Response $response
 	 * @return Response
@@ -149,12 +149,12 @@ class Controller extends BaseController {
 	{
 		return $this->handleOPTIONS($response, '');
 	}
-	
+
 	/**
 	 *
-	 * @param Request  $request
+	 * @param Request $request
 	 * @param Response $response
-	 * @param string   $name
+	 * @param string $name
 	 * @return Response
 	 * @throws NotFoundException
 	 * @throws ClassNotFound
@@ -166,15 +166,15 @@ class Controller extends BaseController {
 	{
 		$user = $this->application->requireUser($request);
 		return $response->json()->setData([
-			'name'  => $name,
+			'name' => $name,
 			'value' => Value::userGet($user, $name),
 		]);
 	}
-	
+
 	/**
-	 * @param Request  $request
+	 * @param Request $request
 	 * @param Response $response
-	 * @param string   $name
+	 * @param string $name
 	 * @return Response
 	 * @throws ClassNotFound
 	 * @throws KeyNotFound
@@ -186,11 +186,11 @@ class Controller extends BaseController {
 	{
 		$user = $this->application->requireUser($request);
 		$value = Types::autoType($request->get('value'));
-		
+
 		try {
 			Value::userSet($user, [$name => $value]);
 			return $response->json()->setData([
-				'name'  => $name,
+				'name' => $name,
 				'value' => $value,
 			]);
 		} catch (Throwable $t) {

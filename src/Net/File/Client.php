@@ -24,15 +24,15 @@ use zesk\Timestamp;
  * @author kent
  *
  */
-class Client extends NetClient implements FileSystem {
-	
+class Client extends NetClient implements FileSystem
+{
 	/**
 	 * Are we "connected"? Simply for semantic integrity between clients.
 	 *
 	 * @var boolean
 	 */
 	private bool $connected = false;
-	
+
 	/**
 	 * Connect to the remote host
 	 *
@@ -46,7 +46,7 @@ class Client extends NetClient implements FileSystem {
 		$this->connected = true;
 		return $this;
 	}
-	
+
 	/**
 	 * Are we connected?
 	 *
@@ -56,7 +56,7 @@ class Client extends NetClient implements FileSystem {
 	{
 		return $this->connected;
 	}
-	
+
 	/**
 	 * Disconnect if connected
 	 *
@@ -65,7 +65,7 @@ class Client extends NetClient implements FileSystem {
 	{
 		$this->connected = false;
 	}
-	
+
 	public function ls(string $path): array
 	{
 		if ($path === null) {
@@ -90,27 +90,27 @@ class Client extends NetClient implements FileSystem {
 		}
 		return $entries;
 	}
-	
+
 	public function mkdir(string $path): void
 	{
 		Directory::depend($path);
 	}
-	
+
 	public function rmdir(string $path): void
 	{
 		Directory::delete($path);
 	}
-	
+
 	public function unlink(string $path): void
 	{
 		File::unlink($path);
 	}
-	
+
 	public function download(string $remotePath, string $localPath): void
 	{
 		File::copy($remotePath, $localPath);
 	}
-	
+
 	public function upload(string $localPath, string $remotePath, bool $temporary = false): void
 	{
 		if ($temporary) {
@@ -136,26 +136,26 @@ class Client extends NetClient implements FileSystem {
 			File::copy($localPath, $remotePath);
 		}
 	}
-	
+
 	public function pwd(): string
 	{
 		return getcwd();
 	}
-	
+
 	public function cd($path): void
 	{
 		if (!chdir($path)) {
 			throw new DirectoryNotFound($path);
 		}
 	}
-	
+
 	public function chmod(string $path, int $mode = 0o770): void
 	{
 		if (!chmod($path, $mode)) {
 			throw new FilePermission($path);
 		}
 	}
-	
+
 	/**
 	 * @param string $path
 	 * @return array|null[]
@@ -164,13 +164,13 @@ class Client extends NetClient implements FileSystem {
 	{
 		$entry = [];
 		$entry['name'] = basename($path);
-		
+
 		try {
 			$stats = File::stat($path);
 		} catch (FileNotFound $e) {
 			return $entry + [
-					'type' => null,
-				];
+				'type' => null,
+			];
 		}
 		$entry['mode'] = $stats['perms']['string'];
 		$entry['type'] = $stats['filetype']['type'];
@@ -181,12 +181,12 @@ class Client extends NetClient implements FileSystem {
 		$entry['mtime_granularity'] = 'second';
 		return $entry;
 	}
-	
+
 	public function setModificationTime(string $path, Timestamp $mtime): void
 	{
 		touch($path, $mtime->unixTimestamp());
 	}
-	
+
 	public function hasFeature(string $feature): bool
 	{
 		switch ($feature) {
@@ -196,7 +196,7 @@ class Client extends NetClient implements FileSystem {
 				return false;
 		}
 	}
-	
+
 	/**
 	 * @return string
 	 */
@@ -205,7 +205,7 @@ class Client extends NetClient implements FileSystem {
 		// TODO: Implement connectGreeting() method.
 		return php_uname('n');
 	}
-	
+
 	/**
 	 * @param string $path
 	 * @return Timestamp

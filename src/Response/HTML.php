@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package    zesk
  * @subpackage Response
  * @author     kent
- * @copyright  &copy; 2023, Market Acumen, Inc.
+ * @copyright  &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Response;

@@ -1,8 +1,8 @@
 <?php
 declare(strict_types=1);
 /**
- * @author kent
- * @copyright 2022 Market Acumen, Inc.
+ * @author    kent
+ * @copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -164,14 +164,22 @@ abstract class Temporal implements Formatting
 	 * @var array
 	 */
 	public static array $UNITS_TRANSLATION_TABLE = [
-		self::UNIT_YEAR => self::SECONDS_PER_YEAR, self::UNIT_QUARTER => self::SECONDS_PER_QUARTER,
-		self::UNIT_MONTH => self::SECONDS_PER_MONTH, // 365*86400/12 (average 30.42 days)
-		self::UNIT_WEEK => self::SECONDS_PER_WEEK, // 60*60*24*7
-		self::UNIT_DAY => self::SECONDS_PER_DAY, // 60*60*24
-		self::UNIT_HOUR => self::SECONDS_PER_HOUR, // 60*60
-		self::UNIT_MINUTE => self::SECONDS_PER_MINUTE, // 60
-		self::UNIT_SECOND => 1, // 1:1
-		self::UNIT_MILLISECOND => 0.001, // 1:1000
+		self::UNIT_YEAR => self::SECONDS_PER_YEAR,
+		self::UNIT_QUARTER => self::SECONDS_PER_QUARTER,
+		self::UNIT_MONTH => self::SECONDS_PER_MONTH,
+		// 365*86400/12 (average 30.42 days)
+		self::UNIT_WEEK => self::SECONDS_PER_WEEK,
+		// 60*60*24*7
+		self::UNIT_DAY => self::SECONDS_PER_DAY,
+		// 60*60*24
+		self::UNIT_HOUR => self::SECONDS_PER_HOUR,
+		// 60*60
+		self::UNIT_MINUTE => self::SECONDS_PER_MINUTE,
+		// 60
+		self::UNIT_SECOND => 1,
+		// 1:1
+		self::UNIT_MILLISECOND => 0.001,
+		// 1:1000
 	];
 
 	/**
@@ -183,6 +191,7 @@ abstract class Temporal implements Formatting
 
 	/**
 	 * Format
+	 *
 	 * @param string $format
 	 * @param array $options
 	 * @return string

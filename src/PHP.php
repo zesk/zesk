@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 /**
- *
+ * @copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -19,20 +19,20 @@ use zesk\Exception\UnsupportedException;
  * @author kent
  *
  */
-class PHP {
-	
+class PHP
+{
 	/**
 	 * @see PHP::requires
 	 * @var string
 	 */
 	public const FEATURE_POSIX = 'posix';
-	
+
 	/**
 	 * @see PHP::requires
 	 * @var string
 	 */
 	public const FEATURE_PROCESS_CONTROL = 'pcntl';
-	
+
 	/**
 	 * Constant to set the current script time limit (applies to web server only)
 	 *
@@ -40,7 +40,7 @@ class PHP {
 	 * @var string
 	 */
 	public const FEATURE_TIME_LIMIT = 'time_limit';
-	
+
 	/**
 	 * Constant to set the current script memory limit. Takes an integer, or a string compatible with to_bytes
 	 *
@@ -50,91 +50,91 @@ class PHP {
 	 * @see self::MEMORY_LIMIT_UNLIMITED
 	 */
 	public const FEATURE_MEMORY_LIMIT = 'memory_limit';
-	
+
 	/**
 	 * Used with FEATURE_MEMORY_LIMIT to set limit to unlimited. Use with caution.
 	 *
 	 * @var integer`
 	 */
 	public const MEMORY_LIMIT_UNLIMITED = -1;
-	
+
 	/**
 	 * Character used to indent code
 	 *
 	 * @var string
 	 */
 	public string $indent_char = ' ';
-	
+
 	/**
 	 * When indenting, use $indent_multiple times $indent_char for each indent level
 	 *
 	 * @var integer
 	 */
 	public int $indent_multiple = 4;
-	
+
 	/**
 	 * Value to separate array values
 	 *
 	 * @var string
 	 */
 	public string $array_value_separator = "\n";
-	
+
 	/**
 	 * Put a trailing comma on array output
 	 *
 	 * @var boolean
 	 */
 	public bool $array_trailing_comma = true;
-	
+
 	/**
 	 * Characters to place before an array arrow =>
 	 *
 	 * @var string
 	 */
 	public string $array_arrow_prefix = ' ';
-	
+
 	/**
 	 * Characters to place after an array arrow =>
 	 *
 	 * @var string
 	 */
 	public string $array_arrow_suffix = ' ';
-	
+
 	/**
 	 * Characters to place before an array open parenthesis
 	 *
 	 * @var string
 	 */
 	public string $array_open_parenthesis_prefix = '';
-	
+
 	/**
 	 * Characters to place after an array open parenthesis
 	 *
 	 * @var string
 	 */
 	public string $array_open_parenthesis_suffix = "\n";
-	
+
 	/**
 	 * Characters to place before an array close parenthesis
 	 *
 	 * @var string
 	 */
 	public string $array_close_parenthesis_prefix = '';
-	
+
 	/**
 	 * Characters to place after an array close parenthesis
 	 *
 	 * @var string
 	 */
 	public string $array_close_parenthesis_suffix = '';
-	
+
 	/**
 	 * Global dump settings, used when called statically
 	 *
 	 * @var ?self
 	 */
 	private static ?self $singleton = null;
-	
+
 	/**
 	 * Return global static dump object
 	 *
@@ -147,7 +147,7 @@ class PHP {
 		}
 		return self::$singleton;
 	}
-	
+
 	/**
 	 * Retrieve the php.ini path
 	 *
@@ -157,7 +157,7 @@ class PHP {
 	{
 		return get_cfg_var('cfg_file_path');
 	}
-	
+
 	/**
 	 * Set the settings in this object to support one-line output
 	 *
@@ -171,7 +171,7 @@ class PHP {
 		$this->array_close_parenthesis_suffix = '';
 		return $this;
 	}
-	
+
 	/**
 	 *
 	 * @return array
@@ -180,7 +180,7 @@ class PHP {
 	{
 		return self::singleton()->settingsOneLine()->settings();
 	}
-	
+
 	/**
 	 * Dump value as PHP
 	 *
@@ -191,7 +191,7 @@ class PHP {
 	{
 		return self::singleton()->render($x);
 	}
-	
+
 	/**
 	 * Get the settings for this object
 	 *
@@ -208,7 +208,7 @@ class PHP {
 		}
 		return $result;
 	}
-	
+
 	/**
 	 * Get or set the settings in this object
 	 *
@@ -233,7 +233,7 @@ class PHP {
 		}
 		return $this;
 	}
-	
+
 	/**
 	 * Output PHP structures formatted in PHP language
 	 *
@@ -267,15 +267,15 @@ class PHP {
 			$result .= $this->array_value_separator;
 			$result .= str_repeat($this->indent_char, $indent_level * $this->indent_multiple) . $this->array_close_parenthesis_prefix . ']' . $this->array_close_parenthesis_suffix;
 			return $result;
-		} else if (is_string($x)) {
+		} elseif (is_string($x)) {
 			return '"' . addcslashes($x, "\$\"\\\0..\37") . '"';
-		} else if (is_int($x)) {
+		} elseif (is_int($x)) {
 			return "$x";
-		} else if ($x === null) {
+		} elseif ($x === null) {
 			return 'null';
-		} else if (is_bool($x)) {
+		} elseif (is_bool($x)) {
 			return $x ? 'true' : 'false';
-		} else if (is_object($x)) {
+		} elseif (is_object($x)) {
 			if (method_exists($x, 'toPHP')) {
 				return $x->toPHP();
 			}
@@ -287,25 +287,25 @@ class PHP {
 			return strval($x);
 		}
 	}
-	
+
 	/**
 	 * Exception logged during unserialize
 	 *
 	 * @var ?SyntaxException
 	 */
 	protected static ?SyntaxException $unserialize_exception = null;
-	
+
 	/**
 	 * Temporary error handler during unserialize
 	 *
-	 * @param int    $errno
+	 * @param int $errno
 	 * @param string $errorString
 	 */
 	public static function _unserialize_handler(int $errno, string $errorString): void
 	{
 		self::$unserialize_exception = new SyntaxException($errorString, [], $errno);
 	}
-	
+
 	/**
 	 * Safe unserialize function.
 	 *
@@ -327,17 +327,17 @@ class PHP {
 		if (self::$unserialize_exception) {
 			$exception = self::$unserialize_exception;
 			self::$unserialize_exception = null;
-			
+
 			throw $exception;
 		}
 		return $original;
 	}
-	
+
 	/**
 	 * Test PHP for presence of various features
 	 *
 	 * @param string|array $features
-	 * @param bool         $throw Unsupported will be thrown if fails
+	 * @param bool $throw Unsupported will be thrown if fails
 	 * @return array
 	 * @throws
 	 */
@@ -353,26 +353,26 @@ class PHP {
 					if (!$result) {
 						$errors[] = ArrayTools::map("Need pcntl extensions for PHP\nphp.ini at {0}\n", [get_cfg_var('cfg_file_path')]);
 					}
-					
+
 					break;
 				case self::FEATURE_TIME_LIMIT:
 					$results[$feature] = $result = !Types::toBool(ini_get('safe_mode'));
 					if (!$result) {
 						$errors[] = ArrayTools::map("PHP safe mode prevents removing time limits on pages\nphp.ini at {0}\n", [get_cfg_var('safe_mode')]);
 					}
-					
+
 					break;
 				case self::FEATURE_POSIX:
 					$results[$feature] = $result = function_exists('posix_getpid');
 					if (!$result) {
 						$errors[] = 'Need POSIX extensions to PHP (posix_getpid)';
 					}
-					
+
 					break;
 				default:
 					$results[$feature] = false;
 					$errors[] = "Unknown feature \"$feature\"";
-					
+
 					break;
 			}
 		}
@@ -383,12 +383,12 @@ class PHP {
 		}
 		return $results;
 	}
-	
+
 	/**
 	 * Set a PHP feature. Useful when you're a moron and can't remember the ini file settings names, or
 	 * if best practices change over time. Wink, wink.
 	 *
-	 * @param string           $feature
+	 * @param string $feature
 	 * @param int|float|string $value Value to set it to
 	 *
 	 * @return mixed Return previous value
@@ -412,7 +412,7 @@ class PHP {
 				throw new UnimplementedException('No such feature {feature}', ['feature' => $feature]);
 		}
 	}
-	
+
 	/**
 	 * Is this a valid function name, syntactically?
 	 *
@@ -423,7 +423,7 @@ class PHP {
 	{
 		return self::cleanFunction($func) === $func;
 	}
-	
+
 	/**
 	 * Is this a valid class name, syntactically?
 	 *
@@ -434,7 +434,7 @@ class PHP {
 	{
 		return self::cleanClass($class) === $class;
 	}
-	
+
 	/**
 	 * Convert a string into a valid PHP function name.
 	 * Useful for cleaning hooks generated automatically or
@@ -448,7 +448,7 @@ class PHP {
 	{
 		return preg_replace('/[^a-zA-Z0-9_]/', '_', $func);
 	}
-	
+
 	/**
 	 * Remove any unwanted characters from a class name; does not validate
 	 * class names which start with invalid characters.
@@ -460,18 +460,18 @@ class PHP {
 	{
 		return preg_replace('/[^a-zA-Z0-9_\\\\]/', '_', $name);
 	}
-	
+
 	/**
 	 * Convert a value automatically into a native PHP type
 	 *
 	 * @param mixed $value
 	 * @return mixed
 	 */
-	
+
 	/**
 	 * Convert a value automatically into a native PHP type
 	 *
-	 * @param mixed   $value
+	 * @param mixed $value
 	 * @param boolean $throw Throw an ParseException error when value is invalid JSON. Defaults to true.
 	 * @return mixed
 	 * @throws ParseException
@@ -481,7 +481,7 @@ class PHP {
 	{
 		return Types::autoType($value, $throw);
 	}
-	
+
 	/**
 	 * Given a class with a namespace, return just the class portion.
 	 *
@@ -497,7 +497,7 @@ class PHP {
 		$parts = self::parseNamespaceClass($class);
 		return $parts[1];
 	}
-	
+
 	/**
 	 * Given a class with a namespace, return just the class portion.
 	 *
@@ -511,7 +511,7 @@ class PHP {
 		$parts = self::parseNamespaceClass($class);
 		return $parts[0];
 	}
-	
+
 	/**
 	 * Given a class with a namespace, return a two-element list with the namespace first and the class second.
 	 *
@@ -524,11 +524,11 @@ class PHP {
 	{
 		return StringTools::reversePair($class, '\\', '', $class);
 	}
-	
+
 	/**
 	 *
 	 * @param Throwable|string $message
-	 * @param array            $arguments
+	 * @param array $arguments
 	 */
 	public static function log(Throwable|string $message, array $arguments = []): void
 	{

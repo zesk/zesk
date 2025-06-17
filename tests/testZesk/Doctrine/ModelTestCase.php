@@ -18,10 +18,10 @@ use zesk\Exception\NotFoundException;
 use zesk\Exception\SemanticsException;
 use zesk\PHP;
 
-class ModelTestCase extends DatabaseTestBaseCase {
-	
+class ModelTestCase extends DatabaseTestBaseCase
+{
 	protected array $entities = [];
-	
+
 	/**
 	 * @return void
 	 * @throws Throwable
@@ -32,23 +32,23 @@ class ModelTestCase extends DatabaseTestBaseCase {
 	public function initialize(): void
 	{
 		parent::initialize();
-		
+
 		try {
 			$this->schemaSynchronize($this->entities);
 		} catch (Throwable $e) {
 			PHP::log('Schema synchronization failed: ' . $this::class . ' ' . $e->getMessage());
-			
+
 			throw $e;
 		}
 	}
-	
+
 	public function truncateModelTable(string $entityName): void
 	{
 		$this->em->getConnection()->executeQuery("TRUNCATE $entityName");
 		$this->em->flush($entityName);
 		$this->assertRowCount(0, $entityName);
 	}
-	
+
 	/**
 	 * @param string $entityName
 	 * @return void
@@ -62,18 +62,18 @@ class ModelTestCase extends DatabaseTestBaseCase {
 		$this->em->flush($entityName);
 		$this->assertRowCount(0, $entityName);
 	}
-	
+
 	/**
 	 *
 	 */
 	final public function assertModel(Model $object): void
 	{
 		$entityName = $object::class;
-		
+
 		$this->em->getRepository($entityName);
-		
+
 		$this->schemaSynchronize($entityName);
-		
+
 		$this->assertRowCount(0, $entityName);
 	}
 }

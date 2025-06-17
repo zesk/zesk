@@ -20,17 +20,17 @@ use zesk\Types;
  * @author kent
  *
  */
-class Client extends SocketClient {
-	
+class Client extends SocketClient
+{
 	/**
 	 * Default port to connect to
 	 *
 	 * @var int
 	 */
 	protected int $default_port = 25;
-	
+
 	protected bool $authenticated = false;
-	
+
 	/**
 	 * Send email
 	 *
@@ -75,7 +75,7 @@ class Client extends SocketClient {
 			$this->authenticated = true;
 		}
 		$this->mail($from);
-		
+
 		if (!is_array($headers)) {
 			$headers = [
 				$headers,
@@ -85,16 +85,16 @@ class Client extends SocketClient {
 			$this->rcpt($recipient);
 		}
 		$this->data();
-		
+
 		// Fix .s when first-on-line for email formatting
 		$headers = str_replace($this->EOL . '.', $this->EOL . '..', trim(implode($this->EOL, $headers)));
 		$body = $this->format_body($body);
-		
+
 		$this->write($headers . $this->EOL . $this->EOL . $body . $this->EOL . '.');
-		
+
 		$message = false;
 		$result = $this->expect('250', $message);
-		
+
 		$this->application->debug('Sent email to {rcpts} {nbytes} bytes via {user}@{host}', [
 			'rcpts'  => $rcpts,
 			'nbytes' => strlen($body),
@@ -103,7 +103,7 @@ class Client extends SocketClient {
 		]);
 		return $result;
 	}
-	
+
 	/**
 	 * Clean up email body for sending with correct encoding
 	 *
@@ -119,7 +119,7 @@ class Client extends SocketClient {
 		$body = str_starts_with($body, '.') ? '.' . $body : $body;
 		return $body;
 	}
-	
+
 	/**
 	 * Connect using rfc2821 method
 	 *
@@ -130,7 +130,7 @@ class Client extends SocketClient {
 	{
 		return $this->command('HELO ' . $this->urlComponent('host'), '250');
 	}
-	
+
 	/**
 	 * Connect using SMTP extension
 	 *
@@ -141,7 +141,7 @@ class Client extends SocketClient {
 	{
 		return $this->command('EHLO ' . $this->urlComponent('host'), '250');
 	}
-	
+
 	/**
 	 * Authenticate using username and password
 	 *
@@ -158,7 +158,7 @@ class Client extends SocketClient {
 		$this->authenticated = true;
 		return $result;
 	}
-	
+
 	/**
 	 * MAIL FROM command
 	 *
@@ -172,7 +172,7 @@ class Client extends SocketClient {
 	{
 		return $this->command('MAIL FROM: <' . $from . '>', '250');
 	}
-	
+
 	/**
 	 * RCPT TO command
 	 *
@@ -186,7 +186,7 @@ class Client extends SocketClient {
 	{
 		return $this->command("RCPT TO: <$to>", '25');
 	}
-	
+
 	/**
 	 * Send message data command (data should follow using RFC2821 method)
 	 *
@@ -198,7 +198,7 @@ class Client extends SocketClient {
 	{
 		return $this->command('DATA', '354');
 	}
-	
+
 	/**
 	 * Send RSET command
 	 *
@@ -210,7 +210,7 @@ class Client extends SocketClient {
 	{
 		return $this->command('RSET', '250');
 	}
-	
+
 	/**
 	 * Terminate the connection
 	 *

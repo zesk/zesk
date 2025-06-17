@@ -1,5 +1,8 @@
 <?php
 declare(strict_types=1);
+/**
+ * @copyright &copy; 2025, Market Acumen, Inc.
+ */
 
 namespace zesk\Net;
 
@@ -8,8 +11,8 @@ use zesk\Net\Whois\Servers;
 use zesk\Exception\NotFoundException;
 use zesk\StringTools;
 
-class Whois {
-	
+class Whois
+{
 	private static function cleanDomain(string $domain): string
 	{
 		$domain = strtolower(trim($domain));
@@ -23,7 +26,7 @@ class Whois {
 		[$domain] = explode('/', $domain, 2);
 		return $domain;
 	}
-	
+
 	/**
 	 * @param string $domain
 	 * @return string
@@ -41,7 +44,7 @@ class Whois {
 				'extension' => $extension,
 			]);
 		}
-		
+
 		$conn = fsockopen($server, 43);
 		if (!$conn) {
 			throw new ConnectionFailed($server);

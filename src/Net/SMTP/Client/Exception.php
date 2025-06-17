@@ -11,6 +11,6 @@ namespace zesk\Net\SMTP\Client;
 
 use zesk\Net\Exception as NetException;
 
-class Exception extends NetException {
-
+class Exception extends NetException
+{
 }

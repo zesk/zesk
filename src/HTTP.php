@@ -10,472 +10,472 @@ declare(strict_types=1);
 
 namespace zesk;
 
-class HTTP {
-	
+class HTTP
+{
 	// From http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
 	/*
 	 * 100 - carry on
 	 */
-	
+
 	/**
 	 *
 	 * @var integer
 	 */
 	public const STATUS_CONTINUE = 100;
-	
+
 	/**
 	 *
 	 * @var integer
 	 */
 	public const STATUS_SWITCHING_PROTOCOLS = 101;
-	
+
 	/**
 	 *
 	 * @var integer
 	 */
 	public const STATUS_PROCESSING = 102;
-	
+
 	/*
 	 * 200 - it's all good
 	 */
-	
+
 	/**
 	 *
 	 * @var integer
 	 */
 	public const STATUS_OK = 200;
-	
+
 	/**
 	 *
 	 * @var integer
 	 */
 	public const STATUS_CREATED = 201;
-	
+
 	/**
 	 *
 	 * @var integer
 	 */
 	public const STATUS_ACCEPTED = 202;
-	
+
 	/**
 	 *
 	 * @var integer
 	 */
 	public const STATUS_NON_AUTHORIATIVE_INFORMATION = 203;
-	
+
 	/**
 	 *
 	 * @var integer
 	 */
 	public const STATUS_NO_CONTENT = 204;
-	
+
 	/**
 	 *
 	 * @var integer
 	 */
 	public const STATUS_RESET_CONTENT = 205;
-	
+
 	/**
 	 *
 	 * @var integer
 	 */
 	public const STATUS_PARTIAL_CONTENT = 206;
-	
+
 	/**
 	 *
 	 * @var integer
 	 */
 	public const STATUS_MULTI_STATUS = 207;
-	
+
 	/*
 	 * 300 - Maybe, Maybe not
 	 */
-	
+
 	/**
 	 * @var integer
 	 */
 	public const STATUS_MULTIPLE_CHOICES = 300;
-	
+
 	/**
 	 *
 	 * @var integer
 	 */
 	public const STATUS_MOVED_PERMANENTLY = 301;
-	
+
 	/**
 	 *
 	 * @var integer
 	 */
 	public const STATUS_FOUND = 302;
-	
+
 	/**
 	 *
 	 * @var integer
 	 */
 	public const STATUS_SEE_OTHER = 303;
-	
+
 	/**
 	 *
 	 * @var integer
 	 */
 	public const STATUS_NOT_MODIFIED = 304;
-	
+
 	/**
 	 *
 	 * @var integer
 	 */
 	public const STATUS_USE_PROXY = 305;
-	
+
 	/**
 	 *
 	 * @var integer
 	 */
 	public const STATUS_TEMPORARY_REDIRECT = 307;
-	
+
 	/*
 	 * 400 - Bad client! No biscuit!
 	 */
-	
+
 	/**
 	 *
 	 * @var integer
 	 */
 	public const STATUS_BAD_REQUEST = 400;
-	
+
 	/**
 	 *
 	 * @var integer
 	 */
 	public const STATUS_UNAUTHORIZED = 401;
-	
+
 	/**
 	 *
 	 * @var integer
 	 */
 	public const STATUS_PAYMENT_GRANTED = 402;
-	
+
 	/**
 	 *
 	 * @var integer
 	 */
 	public const STATUS_FORBIDDEN = 403;
-	
+
 	/**
 	 *
 	 * @var integer
 	 */
 	public const STATUS_FILE_NOT_FOUND = 404;
-	
+
 	/**
 	 *
 	 * @var integer
 	 */
 	public const STATUS_METHOD_NOT_ALLOWED = 405;
-	
+
 	/**
 	 *
 	 * @var integer
 	 */
 	public const STATUS_NOT_ACCEPTABLE = 406;
-	
+
 	/**
 	 *
 	 * @var integer
 	 */
 	public const STATUS_PROXY_AUTHENTICATION_REQUIRED = 407;
-	
+
 	/**
 	 *
 	 * @var integer
 	 */
 	public const STATUS_REQUEST_TIMEOUT = 408;
-	
+
 	/**
 	 *
 	 * @var integer
 	 */
 	public const STATUS_CONFLICT = 409;
-	
+
 	/**
 	 *
 	 * @var integer
 	 */
 	public const STATUS_GONE = 410;
-	
+
 	/**
 	 *
 	 * @var integer
 	 */
 	public const STATUS_LENGTH_REQUIRED = 411;
-	
+
 	/**
 	 *
 	 * @var integer
 	 */
 	public const STATUS_PRECONDITION_FAILED = 412;
-	
+
 	/**
 	 *
 	 * @var integer
 	 */
 	public const STATUS_REQUEST_ENTITY_TOO_LARGE = 413;
-	
+
 	/**
 	 *
 	 * @var integer
 	 */
 	public const STATUS_REQUEST_URI_TOO_LARGE = 414;
-	
+
 	/**
 	 *
 	 * @var integer
 	 */
 	public const STATUS_UNSUPPORTED_MEDIA_TYPE = 415;
-	
+
 	/**
 	 *
 	 * @var integer
 	 */
 	public const STATUS_REQUESTED_RANGE_NOT_SATISFIABLE = 416;
-	
+
 	/**
 	 *
 	 * @var integer
 	 */
 	public const STATUS_EXPECTATION_FAILED = 417;
-	
+
 	/**
 	 *
 	 * @var integer
 	 */
 	public const STATUS_UNPROCESSABLE_ENTITY = 422;
-	
+
 	/**
 	 *
 	 * @var integer
 	 */
 	public const STATUS_LOCKED = 423;
-	
+
 	/**
 	 *
 	 * @var integer
 	 */
 	public const STATUS_FAILED_DEPENDENCY = 424;
-	
+
 	/*
 	 * 500 - Bad programmer! No coffee!
 	 */
-	
+
 	/**
 	 *
 	 * @var integer
 	 */
 	public const STATUS_INTERNAL_SERVER_ERROR = 500;
-	
+
 	/**
 	 *
 	 * @var integer
 	 */
 	public const STATUS_NOT_IMPLEMENTED = 501;
-	
+
 	/**
 	 *
 	 * @var integer
 	 */
 	public const STATUS_OVERLOADED = 502;
-	
+
 	/**
 	 *
 	 * @var integer
 	 */
 	public const STATUS_GATEWAY_TIMEOUT = 503;
-	
+
 	/**
 	 *
 	 * @var integer
 	 */
 	public const STATUS_HTTP_VERSION_NOT_SUPPORTED = 505;
-	
+
 	/**
 	 *
 	 * @var integer
 	 */
 	public const STATUS_INSUFFICIENT_STORAGE = 507;
-	
+
 	/*
 	 * Response Type - intval(STATUS_FOO / 100)
 	 */
-	
+
 	/**
 	 *
 	 * @var integer
 	 */
 	public const RESPONSE_TYPE_INFO = 1;
-	
+
 	/**
 	 *
 	 * @var integer
 	 */
 	public const RESPONSE_TYPE_SUCCESS = 2;
-	
+
 	/**
 	 *
 	 * @var integer
 	 */
 	public const RESPONSE_TYPE_REDIRECT = 3;
-	
+
 	/**
 	 *
 	 * @var integer
 	 */
 	public const RESPONSE_TYPE_ERROR_CLIENT = 4;
-	
+
 	/**
 	 *
 	 * @var integer
 	 */
 	public const RESPONSE_TYPE_ERROR_SERVER = 5;
-	
+
 	/* Method types */
-	
+
 	/**
 	 *
 	 * @var string
 	 */
 	public const METHOD_GET = 'GET';
-	
+
 	/**
 	 *
 	 * @var string
 	 */
 	public const METHOD_POST = 'POST';
-	
+
 	/**
 	 *
 	 * @var string
 	 */
 	public const METHOD_PUT = 'PUT';
-	
+
 	/**
 	 * DELETE a resource
 	 *
 	 * @var string
 	 */
 	public const METHOD_DELETE = 'DELETE';
-	
+
 	/**
 	 * Just the header, no content expected
 	 *
 	 * @var string
 	 */
 	public const METHOD_HEAD = 'HEAD';
-	
+
 	/**
 	 *
 	 * @var string
 	 */
 	public const METHOD_OPTIONS = 'OPTIONS';
-	
+
 	/**
 	 *
 	 * @var string
 	 */
 	public const METHOD_TRACE = 'TRACE';
-	
+
 	/**
 	 *
 	 * @var string
 	 */
 	public const METHOD_CONNECT = 'CONNECT';
-	
+
 	/**
 	 * PROPFIND — used to retrieve properties, stored as XML, from a web resource. It is also overloaded to allow one to retrieve the collection structure (a.k.a. directory hierarchy) of a remote system.
 	 *
 	 * @var string
 	 */
 	public const METHOD_PROPFIND = 'PROPFIND';
-	
+
 	/* Request headers */
-	
+
 	/**
 	 *
 	 * @var string
 	 */
 	public const REQUEST_REFERRER = 'Referer';
-	
+
 	/**
 	 *
 	 * @var string
 	 */
 	public const REQUEST_AUTHORIZATION = 'Authorization';
-	
+
 	/**
 	 *
 	 * @var string
 	 */
 	public const REQUEST_USER_AGENT = 'User-Agent';
-	
+
 	/**
 	 *
 	 * @var string
 	 */
 	public const REQUEST_ACCEPT = 'Accept';
-	
+
 	/**
 	 *
 	 * @var string
 	 */
 	public const REQUEST_CONTENT_TYPE = 'Content-Type';
-	
+
 	/* Response headers */
-	
+
 	/**
 	 *
 	 * @var string
 	 */
 	public const RESPONSE_CONTENT_DISPOSITION = 'Content-Disposition';
-	
+
 	/**
 	 *
 	 * @var string
 	 */
 	public const RESPONSE_CONTENT_TYPE = 'Content-Type';
-	
+
 	/**
 	 *
 	 * @var string
 	 */
 	public const RESPONSE_ACCEPT_RANGES = 'Accept-Ranges';
-	
+
 	/**
 	 *
 	 * @var string
 	 */
 	public const RESPONSE_CONTENT_ENCODING = 'Content-Encoding';
-	
+
 	/**
 	 *
 	 * @var string
 	 */
 	public const RESPONSE_TRANSFER_ENCODING = 'Transfer-Encoding';
-	
+
 	/**
 	 *
 	 * @var string
 	 */
 	public const RESPONSE_ACCESS_CONTROL_ALLOW_ORIGIN = 'Access-Control-Allow-Origin';
-	
+
 	/**
 	 * @var string
 	 */
 	public const RESPONSE_ACCESS_CONTROL_ALLOW_ORIGIN_CREDENTIALS = 'Access-Control-Allow-Credentials';
-	
+
 	/**
 	 *
 	 * @var string
 	 */
 	public const HEADER_CONTENT_LENGTH = 'Content-Length';
-	
+
 	/**
 	 * Valid methods. 2018-05 added PROPFIND
 	 *
@@ -492,7 +492,7 @@ class HTTP {
 		self::METHOD_CONNECT  => self::METHOD_CONNECT,
 		self::METHOD_PROPFIND => self::METHOD_PROPFIND,
 	];
-	
+
 	/**
 	 * Default status text when custom status is not given
 	 *
@@ -545,7 +545,7 @@ class HTTP {
 		self::STATUS_HTTP_VERSION_NOT_SUPPORTED      => 'HTTP Version not supported',
 		self::STATUS_INSUFFICIENT_STORAGE            => 'Insufficient Storage',
 	];
-	
+
 	/**
 	 *
 	 * @var array
@@ -584,7 +584,7 @@ class HTTP {
 		'upgrade'                => 'Upgrade',
 		'via'                    => 'Via',
 		'warning'                => 'Warning',
-		
+
 		/* Non-standard */
 		'x-requested-with'       => 'X-Requested-With',
 		'dnt'                    => 'DNT',
@@ -599,7 +599,7 @@ class HTTP {
 		'x-uidh'                 => 'X-UIDH',
 		'x-csrf-token'           => 'X-Csrf-Token',
 	];
-	
+
 	/**
 	 * https://en.wikipedia.org/wiki/List_of_HTTP_header_fields
 	 *
@@ -647,7 +647,7 @@ class HTTP {
 		'via'                                     => 'Via',
 		'warning'                                 => 'Warning',
 		'www-authenticate'                        => 'WWW-Authenticate',
-		
+
 		/* Non-standard */
 		'x-xss-protection'                        => 'X-XSS-Protection',
 		'content-security-policy'                 => 'Content-Security-Policy',

@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 /**
- * @package zesk
+ * @package    zesk
  * @subpackage kernel
- * @author kent
- * @copyright &copy; 2023, Market Acumen, Inc.
+ * @author     kent
+ * @copyright  &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -52,7 +52,7 @@ abstract class Version
 	 * Fetch a file within the ZESK ROOT and return the trimmed contents
 	 *
 	 * @param string $name
-	 * @param mixed $default
+	 * @param mixed  $default
 	 * @return string
 	 */
 	private static function _file(string $name, string $default): string
@@ -108,7 +108,8 @@ abstract class Version
 	public static function variables(): array
 	{
 		return [
-			'release' => self::release(), 'date' => self::date(),
+			'release' => self::release(),
+			'date'    => self::date(),
 		];
 	}
 }

@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package    zesk
  * @subpackage response
  * @author     kent
- * @copyright  &copy; 2023, Market Acumen, Inc.
+ * @copyright  &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Response;
@@ -23,8 +23,8 @@ use zesk\Types;
  * @see    Type
  * @author kent
  */
-class Redirect extends Type {
-	
+class Redirect extends Type
+{
 	/**
 	 *
 	 * @return SessionInterface
@@ -33,7 +33,7 @@ class Redirect extends Type {
 	{
 		return $this->application->requireSession($this->application->request());
 	}
-	
+
 	/**
 	 *
 	 * @todo Move this elsewhere. Response addon?
@@ -49,9 +49,9 @@ class Redirect extends Type {
 			]);
 		}
 	}
-	
+
 	public const SESSION_KEY_REDIRECT_STATE = 'redirect_message';
-	
+
 	/**
 	 *
 	 * @param string $message
@@ -69,7 +69,7 @@ class Redirect extends Type {
 		$session->set(self::SESSION_KEY_REDIRECT_STATE, $messages);
 		return $this->parent;
 	}
-	
+
 	/**
 	 *
 	 * @return array
@@ -80,7 +80,7 @@ class Redirect extends Type {
 		$messages = Types::toArray($session->get(self::SESSION_KEY_REDIRECT_STATE));
 		return array_values($messages);
 	}
-	
+
 	/**
 	 * Render HTML
 	 *
@@ -92,7 +92,7 @@ class Redirect extends Type {
 	{
 		return $this->parent->html()->render($content);
 	}
-	
+
 	/**
 	 * @return array
 	 */
@@ -100,7 +100,7 @@ class Redirect extends Type {
 	{
 		return [];
 	}
-	
+
 	/**
 	 * @param string $content
 	 * @return void
@@ -110,7 +110,7 @@ class Redirect extends Type {
 	{
 		echo $this->render($content);
 	}
-	
+
 	/**
 	 * @param string $url
 	 * @param string $message
@@ -120,7 +120,7 @@ class Redirect extends Type {
 	{
 		throw new RedirectException($url, $message);
 	}
-	
+
 	/**
 	 * @param string $url
 	 * @param string $message
@@ -130,9 +130,9 @@ class Redirect extends Type {
 	{
 		throw new RedirectTemporary($url, $message);
 	}
-	
+
 	public const HOOK_URL_ALTER = self::class . '::urlAlter';
-	
+
 	/**
 	 *
 	 * @param string $url
@@ -148,7 +148,7 @@ class Redirect extends Type {
 		}
 		return $url;
 	}
-	
+
 	/**
 	 * Load up an Redirect for handling
 	 *
@@ -159,13 +159,13 @@ class Redirect extends Type {
 	{
 		$original_url = $exception->url();
 		$message = $exception->getMessage();
-		
+
 		if ($message) {
 			$this->addMessage($message);
 		}
 		$url = $this->processURL($original_url);
 		$this->parent->setOutputHandler(Response::HANDLER_REDIRECT);
-		
+
 		$this->parent->setHeader('Location', $url);
 		$status_code = $exception->statusCode();
 		if (!$status_code) {

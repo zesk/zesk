@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 /**
- * @copyright &copy; 2023 Market Acumen, Inc.
+ * @copyright &copy; 2025, Market Acumen, Inc.
  * @author    kent
  * @category  Management
  */
@@ -22,36 +22,36 @@ use zesk\Exception\FilePermission;
  * @author   kent
  * @category Management
  */
-class FIFO {
-	
+class FIFO
+{
 	/**
 	 * FP to fifo: Reader
 	 *
 	 * @var resource
 	 */
 	private mixed $r = null;
-	
+
 	/**
 	 * FP to fifo: Writer
 	 *
 	 * @var resource
 	 */
 	private mixed $w = null;
-	
+
 	/**
 	 * Path to fifo
 	 *
 	 * @var string
 	 */
 	private string $path;
-	
+
 	/**
 	 * Whether this object created the FIFO (and therefore should destroy it!)
 	 *
 	 * @var boolean
 	 */
 	private bool $created = false;
-	
+
 	/**
 	 * Create the FIFO
 	 *
@@ -80,7 +80,7 @@ class FIFO {
 		$this->created = true;
 		$this->_beforeRead();
 	}
-	
+
 	/**
 	 * Delete the FIFO
 	 *
@@ -93,7 +93,7 @@ class FIFO {
 			unlink($this->path);
 		}
 	}
-	
+
 	/**
 	 * FIFO path
 	 *
@@ -103,7 +103,7 @@ class FIFO {
 	{
 		return $this->path;
 	}
-	
+
 	/**
 	 * Send a message to parent process
 	 *
@@ -121,7 +121,7 @@ class FIFO {
 		fflush($this->w);
 		return true;
 	}
-	
+
 	/**
 	 * Read a message from client process
 	 *
@@ -142,10 +142,10 @@ class FIFO {
 			$n = intval(fgets($this->r));
 			return PHP::unserialize(fread($this->r, $n));
 		}
-		
+
 		throw new FileNotFound($this->path, 'FIFO closed');
 	}
-	
+
 	/**
 	 * Open write FIFO
 	 *
@@ -159,7 +159,7 @@ class FIFO {
 		}
 		$this->w = File::open($this->path, 'wb');
 	}
-	
+
 	/**
 	 * Open read FIFO (used by parent process only)
 	 *
@@ -172,7 +172,7 @@ class FIFO {
 			throw new FilePermission($this->path, 'fopen(\'{path}\', \'r\')');
 		}
 	}
-	
+
 	/**
 	 * Close read FIFO
 	 */
@@ -183,7 +183,7 @@ class FIFO {
 			$this->r = null;
 		}
 	}
-	
+
 	/**
 	 * Close write FIFO
 	 */
@@ -194,7 +194,7 @@ class FIFO {
 			$this->w = null;
 		}
 	}
-	
+
 	/**
 	 * Close all FIFOs
 	 */

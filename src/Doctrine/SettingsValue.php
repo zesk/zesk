@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 /**
- * @copyright &copy; 2023, Market Acumen, Inc.
+ * @copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Doctrine;
@@ -25,21 +25,21 @@ use zesk\Exception\NotFoundException;
 #[Entity]
 #[EntityListeners([ModelListener::class])]
 #[Table(name: 'Settings')]
-class SettingsValue extends Model {
-	
+class SettingsValue extends Model
+{
 	#[Id, Column(type: 'string', nullable: false)]
 	public string $name;
-	
+
 	#[Column(type: 'json', nullable: false)]
 	public mixed $value = null;
-	
+
 	public function __construct(Application $application, string $name, mixed $value = null, array $options = [])
 	{
 		parent::__construct($application, $options);
 		$this->name = $name;
 		$this->value = $value;
 	}
-	
+
 	/**
 	 * @param Application $application
 	 * @param string      $name
@@ -53,13 +53,13 @@ class SettingsValue extends Model {
 		if ($item) {
 			return $item;
 		}
-		
+
 		throw new NotFoundException('No {class} with name {name} found', [
 			'class' => self::class,
 			'name'  => $name,
 		]);
 	}
-	
+
 	/**
 	 * @param Application   $application
 	 * @param EntityManager $em

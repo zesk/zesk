@@ -1,13 +1,16 @@
 <?php
 declare(strict_types=1);
+/**
+ * @copyright  Copyright &copy; 2025, Market Acumen, Inc.
+ */
 
 namespace zesk;
 
 use zesk\Exception\ClassNotFound;
 use zesk\Exception\SemanticsException;
 
-class Service extends Hookable {
-	
+class Service extends Hookable
+{
 	/**
 	 *
 	 * @param Application $application
@@ -18,7 +21,7 @@ class Service extends Hookable {
 		parent::__construct($application, $options);
 		$this->inheritConfiguration();
 	}
-	
+
 	/**
 	 * Valid service type
 	 *
@@ -30,7 +33,7 @@ class Service extends Hookable {
 		$types = self::validTypes($application);
 		return in_array($type, $types);
 	}
-	
+
 	/**
 	 * Valid service types - taken from the class hierarchy
 	 *
@@ -45,7 +48,7 @@ class Service extends Hookable {
 			self::class . '\\',
 		]);
 	}
-	
+
 	/**
 	 * Retrieve the classes which implement the selected service
 	 *
@@ -60,7 +63,7 @@ class Service extends Hookable {
 		}
 		return [];
 	}
-	
+
 	/**
 	 * Subclasses should create a factory_$type function to allow parameters to be passed
 	 *

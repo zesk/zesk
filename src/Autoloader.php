@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 /**
- * @package zesk
+ * @package    zesk
  * @subpackage core
- * @author kent
- * @copyright &copy; 2023, Market Acumen, Inc.
+ * @author     kent
+ * @copyright  &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -173,7 +173,7 @@ class Autoloader
 	 * When a PHP class is encountered which can't be found, this function tries to find it and
 	 * include the file.
 	 *
-	 * @param string $class
+	 * @param string  $class
 	 * @param boolean $no_exception
 	 *            Do not throw an exception if class is not found
 	 * @return string
@@ -257,7 +257,7 @@ class Autoloader
 	 * Search for a file in the autoload path (::path), looking for files with
 	 * "extensions"
 	 *
-	 * @param string $class
+	 * @param string     $class
 	 * @param array|null $extensions
 	 * @param array|null $tried_path
 	 * @return string|null
@@ -306,7 +306,7 @@ class Autoloader
 	 *
 	 * @param string $add
 	 *            (Optional) Path to add to the autoload path. Pass in null to do nothing.
-	 * @param mixed $options
+	 * @param mixed  $options
 	 *            (Optional) Boolean value, string or array. If you pass in a string, it sets that
 	 *            flag to true.
 	 *

@@ -3,8 +3,8 @@ declare(strict_types=1);
 /**
  * String manipulation functions, largely based on latin languages.
  *
- * @copyright &copy; 2023 Market Acumen, Inc
- * @package zesk
+ * @copyright &copy; 2025, Market Acumen, Inc.
+ * @package   zesk
  */
 
 namespace zesk;
@@ -126,7 +126,7 @@ class StringTools
 	 * @param string $left The default left value if delimiter is not found
 	 * @param string $right The default right value if delimiter is not found
 	 * @param string $includeDelimiter If "left" includes the delimiter in the left value, if "right" includes the
-	 *            delimiter in the right value Any other value the delimiter is stripped from the results
+	 *                                 delimiter in the right value Any other value the delimiter is stripped from the results
 	 * @return array A size 2 array containing the left and right portions of the pair
 	 */
 	public static function pair(string $a, string $delim = '.', string $left = '', string $right = '', string $includeDelimiter = ''): array
@@ -134,7 +134,8 @@ class StringTools
 		$n = strpos($a, $delim);
 		$delim_len = strlen($delim);
 		return ($n === false) ? [
-			$left, $right,
+			$left,
+			$right,
 		] : [
 			substr($a, 0, $n + ($includeDelimiter === 'left' ? $delim_len : 0)),
 			substr($a, $n + ($includeDelimiter === 'right' ? 0 : $delim_len)),
@@ -155,7 +156,7 @@ class StringTools
 	 * @param string $include_delimiter
 	 *            If "left" includes the delimiter in the left value
 	 *            If "right" includes the delimiter in the right value
-	 *          Any other value the delimiter is stripped from the results
+	 *            Any other value the delimiter is stripped from the results
 	 * @return array A size 2 array containing the left and right portions of the pair
 	 * @see pair
 	 */
@@ -164,7 +165,8 @@ class StringTools
 		$n = strrpos($a, $delim);
 		$delim_len = strlen($delim);
 		return ($n === false) ? [
-			$left, $right,
+			$left,
+			$right,
 		] : [
 			substr($a, 0, $n + ($include_delimiter === 'left' ? $delim_len : 0)),
 			substr($a, $n + ($include_delimiter === 'right' ? 0 : $delim_len)),
@@ -178,8 +180,8 @@ class StringTools
 	 * @param string $separator Token used to divide path
 	 * @param array $mixed List of path items, or array of path items to concatenate
 	 * @return string with a properly formatted path
-	 * @see glue
-	 * @see Host
+	 * @see         glue
+	 * @see         Host
 	 * @inline_test self::joinArray("/", ["", "", ""]) === "/"
 	 * @inline_test self::joinArray("/", ["", null, false]) === "/"
 	 * @inline_test self::joinArray("/", ["", "", "", null, false, "a", "b"]) === "/a/b"
@@ -431,9 +433,9 @@ class StringTools
 	 * Determine if a string contains with another string
 	 *
 	 * @param array|string $haystack
-	 *            String to search
+	 *                                       String to search
 	 * @param array|string $needle
-	 *            String to find
+	 *                                       String to find
 	 * @param bool $case_insensitive Case insensitive comparison
 	 * @return bool Whether the haystack contains the needle
 	 * @see StringTools::begins, StringTools::ends
@@ -463,9 +465,9 @@ class StringTools
 	 * Determine if a string ends with another string
 	 *
 	 * @param array|string $haystack
-	 *            A string or array of strings to search
+	 *                                       A string or array of strings to search
 	 * @param array|string $needle
-	 *            A string or array of strings to find
+	 *                                       A string or array of strings to find
 	 * @param bool $case_insensitive Case insensitive comparison
 	 * @return bool
 	 */
@@ -508,7 +510,7 @@ class StringTools
 	 *
 	 * @param string|array $string
 	 * @param string|array $prefix A string or an array of strings to removePrefix. First matched string is used to
-	 *            removePrefix the string.
+	 *                             removePrefix the string.
 	 * @param bool $case_insensitive
 	 * @return string|array
 	 */
@@ -749,7 +751,9 @@ class StringTools
 		$text = StringTools::substring($text, 0, $length);
 		$off = 0;
 		$aa = [
-			' ', "\n", "\t",
+			' ',
+			"\n",
+			"\t",
 		];
 		$letters = StringTools::split($text);
 		if (count($letters) >= 1) {
@@ -890,6 +894,7 @@ class StringTools
 
 	/**
 	 * Converts camelCaseStringToConvert to camel_case_string_to_convert
+	 *
 	 * @param string $string
 	 * @return string
 	 */

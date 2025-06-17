@@ -13,35 +13,35 @@ use Iterator;
 use zesk\Net\POP\Client;
 use zesk\Mail\Mail;
 
-class POPIterator implements Iterator {
-	
+class POPIterator implements Iterator
+{
 	/**
 	 * @var Client
 	 */
 	private Client $client;
-	
+
 	/**
 	 * @var boolean
 	 */
 	private bool $valid = false;
-	
+
 	/**
 	 * @var array
 	 */
 	private array $messages_list = [];
-	
+
 	/**
 	 * Message top for current message
 	 *
 	 * @var string
 	 */
 	private array $message_headers = [];
-	
+
 	public function __construct(Client $client)
 	{
 		$this->client = $client;
 	}
-	
+
 	/**
 	 *
 	 * @return array
@@ -55,7 +55,7 @@ class POPIterator implements Iterator {
 		$this->message_headers = array_change_key_case(Mail::parseHeaders($top));
 		return $this->message_headers;
 	}
-	
+
 	/**
 	 *
 	 * @return number
@@ -64,7 +64,7 @@ class POPIterator implements Iterator {
 	{
 		return intval(current($this->messages_list));
 	}
-	
+
 	/**
 	 * If filename supplied, number of bytes written. If not, string of data read.
 	 *
@@ -74,7 +74,7 @@ class POPIterator implements Iterator {
 	{
 		return $this->client->message_retrieve($this->key());
 	}
-	
+
 	/**
 	 * Delete item at current iterator point
 	 */
@@ -82,23 +82,23 @@ class POPIterator implements Iterator {
 	{
 		$this->client->message_delete($this->key());
 	}
-	
+
 	public function key(): int|string
 	{
 		return key($this->messages_list);
 	}
-	
+
 	public function next(): void
 	{
 		$this->valid = next($this->messages_list);
 		$this->message_headers = null;
 	}
-	
+
 	public function valid(): bool
 	{
 		return $this->valid;
 	}
-	
+
 	public function rewind(): void
 	{
 		$this->messages_list = $this->client->messages_list();

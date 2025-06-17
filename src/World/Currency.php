@@ -52,35 +52,35 @@ use zesk\Exception\NotFoundException;
 #[Entity]
 #[EntityListeners([ModelListener::class])]
 #[UniqueConstraint(fields: ['code'])]
-class Currency extends Model {
-	
+class Currency extends Model
+{
 	use AutoID;
-	
+
 	#[ManyToOne]
 	#[JoinColumn(name: 'bankCountry')]
 	public Country $bankCountry;
-	
+
 	#[Column(type: 'string', length: 3)]
 	public string $code;
-	
+
 	#[Column(type: 'string', length: 48)]
 	public string $name;
-	
+
 	#[Column(type: 'string', length: 16)]
 	public string $symbol;
-	
+
 	#[Column(type: 'string', length: 32)]
 	public string $format;
-	
+
 	#[Column(type: 'smallint')]
 	public int $fractional;
-	
+
 	#[Column(type: 'string')]
 	public string $fractionalUnits;
-	
+
 	#[Column(type: 'smallint')]
 	public int $precision;
-	
+
 	/**
 	 * Format a currency for output
 	 *
@@ -93,17 +93,17 @@ class Currency extends Model {
 		$decimals = $this->option('decimal_point', $locale->__('Currency::decimalPoint:=.'));
 		$thousands = $this->option('thousands_separator', $locale->__('Currency::thousandsSeparator:=.'));
 		return ArrayTools::map($this->format, [
-				'valueRaw'      => $value,
-				'valueDecimal'  => $intValue = intval($value),
-				'valueFraction' => substr(strval(abs($value - $intValue)), 2),
-				'minus'         => $value < 0 ? '-' : '',
-				'plus'          => $value > 0 ? '+' : '',
-				'decimal'       => $decimals,
-				'thousands'     => $thousands,
-				'amount'        => number_format($value, $this->precision, $decimals, $thousands),
-			] + $this->variables());
+			'valueRaw'      => $value,
+			'valueDecimal'  => $intValue = intval($value),
+			'valueFraction' => substr(strval(abs($value - $intValue)), 2),
+			'minus'         => $value < 0 ? '-' : '',
+			'plus'          => $value > 0 ? '+' : '',
+			'decimal'       => $decimals,
+			'thousands'     => $thousands,
+			'amount'        => number_format($value, $this->precision, $decimals, $thousands),
+		] + $this->variables());
 	}
-	
+
 	/**
 	 * Get Euros
 	 *
@@ -131,7 +131,7 @@ class Currency extends Model {
 		$em->persist($currency);
 		return $currency;
 	}
-	
+
 	/**
 	 * Get US dollars
 	 *
@@ -160,14 +160,14 @@ class Currency extends Model {
 		$em->persist($currency);
 		return $currency;
 	}
-	
+
 	/**
 	 */
 	public function precision(): int
 	{
 		return $this->precision;
 	}
-	
+
 	/**
 	 * Look up a Currency object based on its code
 	 *
@@ -183,7 +183,7 @@ class Currency extends Model {
 		if ($currency) {
 			return $currency;
 		}
-		
+
 		throw new NotFoundException('{class} by {code}', [
 			'class' => self::class,
 			'code'  => $code,

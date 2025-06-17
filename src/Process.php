@@ -1,9 +1,9 @@
 <?php
 declare(strict_types=1);
 /**
- * @package zesk
+ * @package    zesk
  * @subpackage kernel
- * @copyright &copy; 2023, Market Acumen, Inc.
+ * @copyright  &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -170,10 +170,10 @@ class Process extends Hookable
 	 * </code>
 	 *
 	 * @param string $command
-	 *            Command to run
-	 * @param array $args
-	 *            Arguments to escape and pass into the command
-	 * @param bool $passThru Whether to use passthru vs exec
+	 *                         Command to run
+	 * @param array  $args
+	 *                         Arguments to escape and pass into the command
+	 * @param bool   $passThru Whether to use passthru vs exec
 	 * @return array Lines output by the command (returned by exec)
 	 * @throws CommandFailed
 	 * @see exec
@@ -216,9 +216,9 @@ class Process extends Hookable
 	 * - Should be able to write to /tmp/tempIn to write to process
 	 *
 	 * @param string $command Command
-	 * @param array $args Arguments
-	 * @param string $stdout Optional output file
-	 * @param string $stderr Optional error file
+	 * @param array  $args    Arguments
+	 * @param string $stdout  Optional output file
+	 * @param string $stderr  Optional error file
 	 * @return int Process ID of background process
 	 * @throws CommandFailed
 	 */

@@ -30,22 +30,22 @@ use zesk\Exception\SemanticsException;
  * @package    zesk
  * @subpackage system
  */
-class Options {
-	
+class Options
+{
 	/**
 	 * Boolean or string value
 	 *
 	 * @var string
 	 */
 	public const OPTION_DEBUG = 'debug';
-	
+
 	/**
 	 * Character used for space
 	 *
 	 * @var string
 	 */
 	public const CHARACTER_OPTION_SPACE = '_';
-	
+
 	/**
 	 * An associative array of lower-case strings pointing to mixed values. $options should
 	 * always be serializable, so it should only contain primitive scalar types.
@@ -53,7 +53,7 @@ class Options {
 	 * Keys typically use _ for dash or space
 	 */
 	protected Configuration $options;
-	
+
 	/**
 	 * Create an Options object.
 	 *
@@ -63,7 +63,7 @@ class Options {
 	{
 		$this->options = is_array($options) ? new Configuration($options) : $options;
 	}
-	
+
 	/**
 	 * @ignore
 	 */
@@ -73,12 +73,12 @@ class Options {
 			'options' => $this->options,
 		];
 	}
-	
+
 	public function __unserialize(array $data): void
 	{
 		$this->setOptions($data['options'] ?? []);
 	}
-	
+
 	/**
 	 * Return a list of options, optionally filtering by key name
 	 *
@@ -100,7 +100,7 @@ class Options {
 		}
 		return $result;
 	}
-	
+
 	/**
 	 * @return array A list of all keys in this Options object.
 	 */
@@ -108,7 +108,7 @@ class Options {
 	{
 		return $this->options->getKeys();
 	}
-	
+
 	/**
 	 * Does any option exist (and check empty, optionally)?
 	 *
@@ -126,7 +126,7 @@ class Options {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Checks an option to see if it is set and optionally if it has a non-empty value.
 	 *
@@ -139,7 +139,7 @@ class Options {
 	{
 		return $this->options->has($name, $checkEmpty);
 	}
-	
+
 	/**
 	 * Set an option for this object, or remove it.
 	 *
@@ -166,7 +166,7 @@ class Options {
 		$this->options->set($name, $value);
 		return $this;
 	}
-	
+
 	/**
 	 * @param array $values
 	 * @param bool  $overwrite
@@ -179,7 +179,7 @@ class Options {
 		}
 		return $this;
 	}
-	
+
 	/**
 	 * @param string $name
 	 * @return $this
@@ -189,7 +189,7 @@ class Options {
 		$this->options->set($name);
 		return $this;
 	}
-	
+
 	/**
 	 * Converts a non-array option into an array, and appends a value to the end.
 	 *
@@ -207,13 +207,13 @@ class Options {
 				$currentValue,
 				$value,
 			];
-		} else if (is_array($currentValue)) {
+		} elseif (is_array($currentValue)) {
 			$currentValue[] = $value;
 		}
 		$this->setOption($name, $currentValue);
 		return $this;
 	}
-	
+
 	/**
 	 * Get an option
 	 *
@@ -225,7 +225,7 @@ class Options {
 	{
 		return $this->options->get($name, $default);
 	}
-	
+
 	/**
 	 * @param string     $name
 	 * @param mixed|null $default
@@ -235,7 +235,7 @@ class Options {
 	{
 		return $this->options->getString($name, $default);
 	}
-	
+
 	/**
 	 * Returns first option found
 	 *
@@ -252,7 +252,7 @@ class Options {
 		}
 		return $default;
 	}
-	
+
 	/**
 	 * Generate an option key from an option name
 	 *
@@ -267,7 +267,7 @@ class Options {
 			' ' => self::CHARACTER_OPTION_SPACE,
 		]);
 	}
-	
+
 	/**
 	 * Get an option as a boolean.
 	 *
@@ -279,7 +279,7 @@ class Options {
 	{
 		return Types::toBool($this->options->get($name), $default);
 	}
-	
+
 	/**
 	 * @param string $name
 	 * @param int    $default
@@ -289,7 +289,7 @@ class Options {
 	{
 		return Types::toInteger($this->options->get($name), $default);
 	}
-	
+
 	/**
 	 * Get an option as a numeric (floating-point or integer) value.
 	 *
@@ -306,7 +306,7 @@ class Options {
 		}
 		return $default;
 	}
-	
+
 	/**
 	 * Get an option as an array.
 	 *
@@ -320,12 +320,12 @@ class Options {
 		$value = $this->options->get($name);
 		if ($value instanceof Configuration) {
 			return $value->toArray();
-		} else if (is_array($value)) {
+		} elseif (is_array($value)) {
 			return $value;
 		}
 		return $default;
 	}
-	
+
 	/**
 	 * Get an option as a tree-path
 	 *
@@ -341,7 +341,7 @@ class Options {
 		}
 		return $this->options->getPath($path, $default);
 	}
-	
+
 	/**
 	 * Set an option as a tree-path
 	 *
@@ -355,7 +355,7 @@ class Options {
 		$this->options->setPath($path, $value);
 		return $this;
 	}
-	
+
 	/**
 	 * Set an option as a tree-path
 	 *
@@ -368,7 +368,7 @@ class Options {
 		$this->options->setPath($path);
 		return $this;
 	}
-	
+
 	/**
 	 * Get an option as a zero-indexed array, or list array("Bob","Rajiv","Franz")
 	 *
@@ -381,7 +381,7 @@ class Options {
 	{
 		return $this->options->getIterable($name, $default);
 	}
-	
+
 	/**
 	 * Convert to string
 	 *

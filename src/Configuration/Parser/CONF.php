@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 /**
- * @package zesk
+ * @package    zesk
  * @subpackage Configuration
- * @author kent
- * @copyright &copy; 2023, Market Acumen, Inc.
+ * @author     kent
+ * @copyright  &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Configuration\Parser;
@@ -64,14 +64,14 @@ class CONF extends Parser
 	public const DEFAULT_UNQUOTE = '\'\'""';
 
 	protected array $parseOptions = [
-		self::OPTION_OVERWRITE => self::DEFAULT_OVERWRITE,
-		self::OPTION_TRIM_KEY => self::DEFAULT_TRIM_KEY,
-		self::OPTION_SEPARATOR => self::DEFAULT_SEPARATOR,
+		self::OPTION_OVERWRITE  => self::DEFAULT_OVERWRITE,
+		self::OPTION_TRIM_KEY   => self::DEFAULT_TRIM_KEY,
+		self::OPTION_SEPARATOR  => self::DEFAULT_SEPARATOR,
 		self::OPTION_TRIM_VALUE => self::DEFAULT_TRIM_VALUE,
-		self::OPTION_AUTO_TYPE => self::DEFAULT_AUTO_TYPE,
-		self::OPTION_LOWER => self::DEFAULT_LOWER,
-		self::OPTION_MULTILINE => self::DEFAULT_MULTILINE,
-		self::OPTION_UNQUOTE => self::DEFAULT_UNQUOTE,
+		self::OPTION_AUTO_TYPE  => self::DEFAULT_AUTO_TYPE,
+		self::OPTION_LOWER      => self::DEFAULT_LOWER,
+		self::OPTION_MULTILINE  => self::DEFAULT_MULTILINE,
+		self::OPTION_UNQUOTE    => self::DEFAULT_UNQUOTE,
 	];
 
 	/**

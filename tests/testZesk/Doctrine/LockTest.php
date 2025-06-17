@@ -1,6 +1,9 @@
 <?php
 
 declare(strict_types=1);
+/**
+ * @copyright &copy; 2025, Market Acumen, Inc.
+ */
 
 namespace testZesk\Doctrine;
 
@@ -14,10 +17,10 @@ use zesk\Exception\TimeoutExpired;
 /**
  * @coversDefaultClass \zesk\Doctrine\Lock
  */
-class LockTest extends ModelTestCase {
-	
+class LockTest extends ModelTestCase
+{
 	public array $entities = [Lock::class];
-	
+
 	/**
 	 * @covers ::deleteDeadProcesses ::deleteUnused
 	 * @covers ::instance ::isLocked ::isMine ::acquire ::crack ::getLockState
@@ -31,21 +34,21 @@ class LockTest extends ModelTestCase {
 	{
 		Lock::deleteUnused($this->testApplication);
 		Lock::deleteDeadProcesses($this->testApplication);
-		
+
 		$childName = __METHOD__ . '-child';
 		$crackChildName = __METHOD__ . '-child-crack';
 		$parentName = __METHOD__;
 		$acquireWait = 2;
-		
+
 		$lock = Lock::instance($this->testApplication, $parentName);
-		
+
 		$this->assertFalse($lock->isLocked());
 		$this->assertEquals($parentName, $lock->code);
-		
+
 		//		$thisServer = Server::singleton($this->application);
 		//
 		//		$this->assertEquals($thisServer, $lock->server);
-		
+
 		$this->assertFalse($lock->isLocked());
 		$this->assertFalse($lock->isMine());
 		$this->assertEquals($lock, $lock->acquire());
@@ -57,16 +60,16 @@ class LockTest extends ModelTestCase {
 			$childLock = Lock::instance($this->testApplication, $childName);
 			$crackLock = Lock::instance($this->testApplication, $crackChildName);
 			$parentLock = Lock::instance($this->testApplication, $parentName);
-			
+
 			$this->assertEquals($crackLock, $crackLock->acquire());
-			
+
 			$this->assertFalse($childLock->isMine());
 			$this->assertFalse($parentLock->isMine());
 			$this->assertFalse($childLock->isLocked());
 			$this->assertTrue($parentLock->isLocked());
 			$this->assertEquals($lock->code, $parentLock->code);
 			$this->assertEquals($lock->id, $parentLock->id);
-			
+
 			try {
 				$savePid = $parentLock->getLockState();
 				$this->assertNull($parentLock->acquire());
@@ -75,7 +78,7 @@ class LockTest extends ModelTestCase {
 				// All good
 				$this->assertInstanceOf(LockedException::class, $e);
 			}
-			
+
 			try {
 				$savePid = $parentLock->getLockState();
 				$parentLock->acquire($acquireWait);
@@ -83,10 +86,10 @@ class LockTest extends ModelTestCase {
 			} catch (Throwable $e) {
 				$this->assertInstanceOf(TimeoutExpired::class, $e);
 			}
-			
+
 			$this->assertTrue($parentLock->isLocked());
 			$this->assertFalse($parentLock->isMine());
-			
+
 			$this->assertFalse($childLock->isLocked());
 			$this->assertFalse($childLock->isMine());
 			sleep(1);
@@ -94,7 +97,7 @@ class LockTest extends ModelTestCase {
 			$this->assertFalse($childLock->isLocked());
 			$this->assertTrue($childLock->isMine());
 			$childLock->entityManager()->getConnection()->close();
-			
+
 			/* Die without releasing here - is there some hook which releases upon fork/exit? Hmmm. Should know this. */
 			exit(0);
 		} else {
@@ -116,10 +119,10 @@ class LockTest extends ModelTestCase {
 			}
 			pcntl_waitpid($secondPid, $status);
 			$this->assertEquals(0, $status, "Exit code from forked process is not 0: $status");
-			
+
 			// Release parentName
 			$this->assertEquals($lock, $lock->release());
-			
+
 			$this->assertFalse($lock->isLocked());
 			/* Process is dead therefore child is NOT locked */
 			$this->assertFalse($childLock->isLocked());

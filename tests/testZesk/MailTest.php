@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 /**
- *
+ * @copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace testZesk;
@@ -30,31 +30,31 @@ use zesk\Net\POP\Client as POPClient;
  * @author kent
  * @coversDefaultClass \zesk\Mail\Mail
  */
-class MailTest extends TestCase {
-	
+class MailTest extends TestCase
+{
 	/**
 	 *
 	 */
 	private ?string $url = null;
-	
+
 	/**
 	 *
 	 */
 	private ?string $email = null;
-	
+
 	/**
 	 */
 	public function testRequirements(): void
 	{
 		$this->url = $this->application->environment()->getString('SMTP_URL');
-		
+
 		if (!$this->url) {
 			$this->markTestSkipped(__METHOD__ . ' SMTP_URL is not set.');
 		}
 		if (!URL::valid($this->url)) {
 			$this->markTestSkipped(__METHOD__ . ' SMTP_URL is not a valid URL.');
 		}
-		
+
 		try {
 			$parts = URL::parse($this->url);
 		} catch (SyntaxException) {
@@ -68,7 +68,7 @@ class MailTest extends TestCase {
 			$this->markTestSkipped(__METHOD__ . ' SMTP_URL User ' . $parts['user'] . " !== $this->email\n");
 		}
 	}
-	
+
 	/**
 	 * @return void
 	 * @covers ::load
@@ -77,16 +77,16 @@ class MailTest extends TestCase {
 	{
 		$result = Mail::load(file_get_contents($this->application->zeskHome('tests/test-data/mail_load.0.txt')));
 		$this->assertEquals([
-			'File-Format'           => 'both',
+			'File-Format' => 'both',
 			'File-Format-Separator' => '--DOG--',
-			'Subject'               => 'This is my dog',
-			'From'                  => 'support@conversionruler.com',
-			'Reply-To'              => 'support@conversionruler.com',
-			'body_text'             => 'This is a text email',
-			'body_html'             => 'This is an <strong>HTML</strong> message',
+			'Subject' => 'This is my dog',
+			'From' => 'support@conversionruler.com',
+			'Reply-To' => 'support@conversionruler.com',
+			'body_text' => 'This is a text email',
+			'body_html' => 'This is an <strong>HTML</strong> message',
 		], $result);
 	}
-	
+
 	/**
 	 * @return void
 	 * @throws SyntaxException
@@ -98,15 +98,15 @@ class MailTest extends TestCase {
 		$result = Mail::parseAddress($email);
 		$expected = [
 			'length' => 23,
-			'text'   => 'John Doe <john@doe.com>',
-			'name'   => 'John Doe',
-			'email'  => 'john@doe.com',
-			'user'   => 'john',
-			'host'   => 'doe.com',
+			'text' => 'John Doe <john@doe.com>',
+			'name' => 'John Doe',
+			'email' => 'john@doe.com',
+			'user' => 'john',
+			'host' => 'doe.com',
 		];
 		$this->assertEquals($expected, $result);
 	}
-	
+
 	/**
 	 * @return void
 	 * @covers ::headerCharsets
@@ -115,7 +115,7 @@ class MailTest extends TestCase {
 	{
 		$header = '=?ISO-8859-1?q?Hello?= =?ISO-8859-2?q?This?= =?ISO-8859-3?q?is?= =?ISO-8859-4?q?a?= =?ISO-8859-5?q?test?= =?ISO-8859-4?X?but_ignore_this_part?= ';
 		$result = Mail::headerCharsets($header);
-		
+
 		$this->assertEquals([
 			'ISO-8859-1',
 			'ISO-8859-2',
@@ -124,7 +124,7 @@ class MailTest extends TestCase {
 			'ISO-8859-5',
 		], $result);
 	}
-	
+
 	/**
 	 * @return void
 	 * @throws SyntaxException
@@ -139,17 +139,17 @@ class MailTest extends TestCase {
 			[
 				'=?US-ASCII?Q?Keith_Moore?= <moore@cs.utk.edu>',
 				'Keith Moore <moore@cs.utk.edu>',
-				['US-ASCII',],
+				['US-ASCII', ],
 			],
 			[
 				'=?ISO-8859-1?Q?Keld_J=F8rn_Simonsen?= <keld@dkuug.dk>',
 				'Keld J' . UTF8::fromCharacterSet(chr(hexdec('F8')), 'ISO-8859-1') . 'rn Simonsen <keld@dkuug.dk>',
-				['ISO-8859-1',],
+				['ISO-8859-1', ],
 			],
 			[
 				'=?ISO-8859-1?Q?Andr=E9?= Pirard <PIRARD@vm1.ulg.ac.be>',
 				'Andr' . chr(hexdec('C3')) . chr(hexdec('A9')) . ' Pirard <PIRARD@vm1.ulg.ac.be>',
-				['ISO-8859-1',],
+				['ISO-8859-1', ],
 			],
 			[
 				'=?ISO-8859-1?B?SWYgeW91IGNhbiByZWFkIHRoaXMgeW8=?=
@@ -165,7 +165,7 @@ class MailTest extends TestCase {
  (=?iso-8859-8?b?7eXs+SDv4SDp7Oj08A==?=)',
 				'Nathaniel Borenstein <nsb@thumper.bellcore.com>
  (םולש ןב ילטפנ)',
-				['ISO-8859-8',],
+				['ISO-8859-8', ],
 			],
 			[
 				'(=?ISO-8859-1?Q?a?=
@@ -186,7 +186,7 @@ class MailTest extends TestCase {
 			[
 				'(=?ISO-8859-1?Q?a_b?=)',
 				'(a b)',
-				['ISO-8859-1',],
+				['ISO-8859-1', ],
 			],
 			[
 				'(=?ISO-8859-1?Q?a?= =?iso-8859-2?q?_b?=)',
@@ -219,7 +219,7 @@ class MailTest extends TestCase {
 				],
 			],
 		];
-		
+
 		foreach ($headers as $header) {
 			[
 				$test,
@@ -233,7 +233,7 @@ class MailTest extends TestCase {
 		}
 		$charset = null;
 	}
-	
+
 	/**
 	 * @return void
 	 * @covers ::isEncodedHeader
@@ -311,7 +311,7 @@ class MailTest extends TestCase {
 				true,
 			],
 		];
-		
+
 		foreach ($headers as $i => $header) {
 			[
 				$test,
@@ -327,7 +327,7 @@ class MailTest extends TestCase {
 			}
 		}
 	}
-	
+
 	/**
 	 * @return void
 	 * @throws FileNotFound
@@ -356,9 +356,9 @@ Thanks,
 <a href="https://www.example.com/unsubscribe?email={email}">Unsubscribe</a>
 EOF;
 		file_put_contents($filename, $contents);
-		
+
 		$result = Mail::loadFile($filename);
-		
+
 		$this->assertEquals('both', $result['File-Format']);
 		$this->assertEquals('Test Email', $result['Subject']);
 		$this->assertEquals('support@zesk.com', $result['From']);
@@ -374,7 +374,7 @@ Thanks,
 
 <a href="https://www.example.com/unsubscribe?email={email}">Unsubscribe</a>', $result['body_html'], 'HTML Failed: ' . $result['body_html']);
 	}
-	
+
 	/**
 	 * @return void
 	 * @throws DirectoryNotFound
@@ -388,15 +388,15 @@ Thanks,
 		$file = $this->sandbox('The-Template.tpl');
 		file_put_contents($file, "File-Format: html\nSubject: Yo\n\nHello <strong>$hash</strong> you are so {verb}");
 		$this->application->addThemePath($this->sandbox());
-		
+
 		$options = ['verb' => 'fun'];
 		$this->assertEquals([
-			'Subject'     => 'Yo',
+			'Subject' => 'Yo',
 			'File-Format' => 'html',
-			'body_html'   => "Hello <strong>$hash</strong> you are so fun",
+			'body_html' => "Hello <strong>$hash</strong> you are so fun",
 		], Mail::loadTheme($application, 'The-Template', $options));
 	}
-	
+
 	/**
 	 * @return void
 	 * @throws SyntaxException
@@ -410,7 +410,7 @@ Thanks,
 		$subject = 'This is a subject';
 		$array = [
 			'Hello' => 'Name',
-			'Boo'   => 'FEDF',
+			'Boo' => 'FEDF',
 		];
 		$prefix = '';
 		$suffix = '';
@@ -420,7 +420,7 @@ Thanks,
 		$this->assertStringContainsString("To: $to", $content);
 		$this->assertStringContainsString("Subject: $subject", $content);
 	}
-	
+
 	/**
 	 * @return void
 	 * @covers ::mailer
@@ -428,8 +428,8 @@ Thanks,
 	public function test_mailer(): void
 	{
 		$headers = [
-			'From'    => 'no-reply@zesk.com',
-			'To'      => $to = 'noone@example.com',
+			'From' => 'no-reply@zesk.com',
+			'To' => $to = 'noone@example.com',
 			'Subject' => $subject = basename(__FILE__),
 		];
 		$body = "This is the body\n\n--\nnoone@example.com";
@@ -440,7 +440,7 @@ Thanks,
 		$this->assertStringContainsString("Subject: $subject", $content);
 		$this->assertStringContainsString("$body", $content);
 	}
-	
+
 	/**
 	 * @return void
 	 * @throws FileNotFound
@@ -451,7 +451,7 @@ Thanks,
 	{
 		$filename = $this->sandbox('testfile.txt');
 		file_put_contents($filename, $saved_content = $this->randomHex(128));
-		
+
 		$to = 'dude@example.com';
 		$from = 'from@example.com';
 		$subject = 'subject';
@@ -465,7 +465,7 @@ Thanks,
 		$this->assertStringContainsString("Subject: $subject", $content);
 		$this->assertStringContainsString($saved_content, $content);
 	}
-	
+
 	/**
 	 * @return void
 	 * @covers ::parseHeaders
@@ -473,11 +473,11 @@ Thanks,
 	public function test_parse_headers(): void
 	{
 		$this->assertEquals([
-			'Header'  => 'Value',
+			'Header' => 'Value',
 			'Another' => 'Thing',
 		], Mail::parseHeaders("Header: Value\r\nAnother: Thing"));
 	}
-	
+
 	/**
 	 * @return void
 	 * @throws FileNotFound
@@ -490,11 +490,11 @@ Thanks,
 	{
 		$filename = $this->sandbox('testfile.gif');
 		file_put_contents($filename, File::contents($this->application->zeskHome('share/image/zesk-logo.png')));
-		
-		
+
+
 		$mail_options = [
-			'From'    => $from = 'noone@zesk.com',
-			'To'      => $to = 'no-reply@zesk.com',
+			'From' => $from = 'noone@zesk.com',
+			'To' => $to = 'no-reply@zesk.com',
 			'Subject' => $subject = $this->randomHex(12),
 		];
 		$mailName = $this->randomHex(12);
@@ -504,7 +504,7 @@ Thanks,
 		];
 		$result = Mail::multipartFactory($this->application, $mail_options, [$attachments]);
 		$content = $result->dump();
-		
+
 		$this->assertStringContainsString("$to", $content);
 		$this->assertStringContainsString('noone@zesk.com', $content);
 		$this->assertStringContainsString($subject, $content);
@@ -514,7 +514,7 @@ Thanks,
 		$this->assertStringNotContainsString('testfile.gif', $content);
 		$this->assertStringNotContainsString('zesk.png', $content);
 	}
-	
+
 	/**
 	 *
 	 * @covers ::sms
@@ -538,18 +538,18 @@ All work and no play makes Kent a dull boy.
 		$bcc = '';
 		$headers = [];
 		$mail = Mail::sms($this->application, $to, $from, $subject, $body, $cc, $bcc, $headers);
-		
+
 		$mail->setDebug(true);
-		
+
 		$content = $mail->dump();
-		
+
 		$this->assertStringContainsString("$to", $content);
 		$this->assertStringContainsString('To:', $content);
 		$this->assertStringContainsString($subject, $content);
 		$this->assertStringContainsString('Subject:', $content);
 		$this->assertStringContainsString(substr($body, 0, 114), $content);
 	}
-	
+
 	/**
 	 * @depends testRequirements
 	 */
@@ -566,16 +566,16 @@ All work and no play makes Kent a dull boy.
 		$cc = '';
 		$bcc = '';
 		$headers[] = 'X-Bogus-Header: This is a bogus header';
-		
+
 		$this->log("Sending mail to $to");
 		$this->assertInstanceOf(Mail::class, Mail::sendmail($this->application, $to, $from, $subject, $body, $cc, $bcc, $headers));
-		
+
 		$test_mailbox = $to;
 		$n_seconds = 1;
 		$success = false;
 		$timer = new Timer();
 		do {
-			$pop = new POPClient($this->application, $pop_url, ['echo_log' => false,]);
+			$pop = new POPClient($this->application, $pop_url, ['echo_log' => false, ]);
 			$iterator = $pop->iterator();
 			foreach ($iterator as $headers) {
 				$remote_subject = $headers['subject'] ?? null;
@@ -585,7 +585,7 @@ All work and no play makes Kent a dull boy.
 					$bogus_header = $headers['x-bogus-header'] ?? null;
 					if ($bogus_header === 'This is a bogus header') {
 						$success = true;
-						
+
 						break 2;
 					}
 				}
@@ -595,7 +595,7 @@ All work and no play makes Kent a dull boy.
 			$n_seconds *= 2;
 			$pop->disconnect();
 		} while ($timer->elapsed() < 300);
-		
+
 		$this->assertTrue($success, "Unable to find message with subject $subject in destination folder");
 	}
 }

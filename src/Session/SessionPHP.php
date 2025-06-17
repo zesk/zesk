@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 /**
- *
+ * @copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Session;
@@ -16,31 +16,31 @@ use zesk\Request;
 
 /**
  */
-class SessionPHP implements SessionInterface {
-	
+class SessionPHP implements SessionInterface
+{
 	/**
 	 * Have we started the session yet?
 	 *
 	 * @var bool
 	 */
 	private bool $started;
-	
+
 	/**
 	 *
 	 * @var Application
 	 */
 	private Application $application;
-	
+
 	/**
 	 * @var array
 	 */
 	private array $init;
-	
+
 	/**
 	 *
 	 * @param Application $application
-	 * @param mixed       $mixed
-	 * @param array       $options
+	 * @param mixed $mixed
+	 * @param array $options
 	 */
 	public function __construct(Application $application, mixed $mixed = null, array $options = [])
 	{
@@ -48,7 +48,7 @@ class SessionPHP implements SessionInterface {
 		$this->started = false;
 		$this->init = is_array($mixed) ? $mixed : [];
 	}
-	
+
 	/**
 	 * Configure session connected to the Request
 	 *
@@ -60,7 +60,7 @@ class SessionPHP implements SessionInterface {
 		$this->need();
 		return $this;
 	}
-	
+
 	private function need(): void
 	{
 		if ($this->started) {
@@ -77,7 +77,7 @@ class SessionPHP implements SessionInterface {
 		}
 		$this->started = true;
 	}
-	
+
 	/**
 	 *
 	 *
@@ -87,18 +87,18 @@ class SessionPHP implements SessionInterface {
 	{
 		return session_id();
 	}
-	
+
 	public function has(int|string $name): bool
 	{
 		return $this->__isset($name);
 	}
-	
+
 	public function __isset(int|string $name): bool
 	{
 		$this->need();
 		return isset($_SESSION[$name]);
 	}
-	
+
 	/**
 	 *
 	 * @see SettingsInterface::get()
@@ -108,7 +108,7 @@ class SessionPHP implements SessionInterface {
 		$this->need();
 		return $_SESSION[$name] ?? $default;
 	}
-	
+
 	/**
 	 *
 	 * @param int|string $name
@@ -120,11 +120,11 @@ class SessionPHP implements SessionInterface {
 		$this->need();
 		return $_SESSION[$name] ?? null;
 	}
-	
+
 	/**
 	 *
 	 * @param int|string $name
-	 * @param mixed      $value
+	 * @param mixed $value
 	 * @return void
 	 * @see SettingsInterface::__set()
 	 */
@@ -133,7 +133,7 @@ class SessionPHP implements SessionInterface {
 		$this->need();
 		$_SESSION[$name] = $value;
 	}
-	
+
 	/**
 	 *
 	 * {@inheritdoc}
@@ -145,7 +145,7 @@ class SessionPHP implements SessionInterface {
 		$this->__set($name, $value);
 		return $this;
 	}
-	
+
 	/**
 	 *
 	 * @return string
@@ -154,7 +154,7 @@ class SessionPHP implements SessionInterface {
 	{
 		return $this->application->configuration->path('session')->get('user_id_variable', 'user');
 	}
-	
+
 	/**
 	 *
 	 * @return int
@@ -167,10 +167,10 @@ class SessionPHP implements SessionInterface {
 		if (is_int($result)) {
 			return $result;
 		}
-		
+
 		throw new AuthenticationException('No session ID');
 	}
-	
+
 	/**
 	 *
 	 *
@@ -184,22 +184,22 @@ class SessionPHP implements SessionInterface {
 		if (empty($userId)) {
 			throw new AuthenticationException('Not authenticated');
 		}
-		
+
 		try {
 			$result = $this->application->ormFactory(User::class, $userId)->fetch();
 			assert($result instanceof Userlike);
 			return $result;
 		} catch (Throwable $e) {
 			$this->__set($this->globalSessionUserId(), null);
-			
+
 			throw new AuthenticationException('No user fetched for user id "{userId}"', ['userId' => $userId], 0, $e);
 		}
 	}
-	
+
 	/**
 	 *
 	 * @param Userlike $user
-	 * @param Request  $request
+	 * @param Request $request
 	 * @return void
 	 * @throws AuthenticationException
 	 * @see SessionInterface::authenticate()
@@ -213,7 +213,7 @@ class SessionPHP implements SessionInterface {
 		}
 		$this->__set($this->globalSessionUserId() . '_IP', $request->remoteIP());
 	}
-	
+
 	/**
 	 *
 	 * {@inheritdoc}
@@ -225,7 +225,7 @@ class SessionPHP implements SessionInterface {
 		$user = $this->__get($this->globalSessionUserId());
 		return !empty($user);
 	}
-	
+
 	/**
 	 *
 	 * {@inheritdoc}
@@ -236,7 +236,7 @@ class SessionPHP implements SessionInterface {
 	{
 		$this->__set($this->globalSessionUserId(), null);
 	}
-	
+
 	/**
 	 *
 	 * {@inheritdoc}
@@ -247,7 +247,7 @@ class SessionPHP implements SessionInterface {
 	{
 		return $_SESSION;
 	}
-	
+
 	/**
 	 *
 	 * {@inheritdoc}

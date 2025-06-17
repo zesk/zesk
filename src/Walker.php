@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 /**
- * @package zesk
- * @subpackage orm
- * @author kent
- * @copyright &copy; 2023, Market Acumen, Inc.
+ * @package    module
+ * @subpackage Doctrine
+ * @author     kent
+ * @copyright  &copy; 2025, Market Acumen, Inc.
  */
 
 /**
@@ -97,6 +97,7 @@ class Walker
 
 	/**
 	 * Hook called on ORM class and object after walked
+	 *
 	 * @var string
 	 */
 	protected string $postprocess_hook = 'walked';
@@ -166,6 +167,7 @@ class Walker
 
 	/**
 	 * Setter for class info
+	 *
 	 * @param bool $set
 	 * @return self
 	 */
@@ -177,6 +179,7 @@ class Walker
 
 	/**
 	 * Getter for class info
+	 *
 	 * @return bool
 	 */
 	public function classInfo(): bool
@@ -242,7 +245,7 @@ class Walker
 
 	/**
 	 * @param array|null $members
-	 * @param bool $append
+	 * @param bool       $append
 	 * @return $this
 	 */
 	public function setExcludeMembers(array $members = null, bool $append = false): self
@@ -284,7 +287,7 @@ class Walker
 
 	/**
 	 * @param array $handlers
-	 * @param bool $append
+	 * @param bool  $append
 	 * @return $this
 	 */
 	public function setMembersHandler(array $handlers, bool $append = false): self
@@ -297,7 +300,7 @@ class Walker
 	 * List of member dotted paths to resolve in JSON
 	 *
 	 * @param array $resolve_objects
-	 * @param bool $append
+	 * @param bool  $append
 	 * @return $this
 	 */
 	public function setResolveObjects(array $resolve_objects, bool $append = false): self
@@ -323,7 +326,7 @@ class Walker
 	 * You can permit all resolve_objects paths by setting this to an empty array, so use with caution.
 	 *
 	 * @param array $allow_resolve_objects
-	 * @param bool $append
+	 * @param bool  $append
 	 * @return self
 	 */
 	public function setAllowResolveObjects(array $allow_resolve_objects, bool $append = false): self
@@ -488,10 +491,10 @@ class Walker
 	/**
 	 * JSON a single member
 	 *
-	 * @param Model $model
-	 * @param string $member
-	 * @param mixed $value
-	 * @param array $resolve_object_match
+	 * @param Model           $model
+	 * @param string          $member
+	 * @param mixed           $value
+	 * @param array           $resolve_object_match
 	 * @param LoggerInterface $logger
 	 * @return int|string|null|Model|Timestamp
 	 */
@@ -535,10 +538,11 @@ class Walker
 
 	/**
 	 * Convert an object
-	 * @param Model $object
-	 * @param string $member
-	 * @param object $value
-	 * @param Walker $child_options
+	 *
+	 * @param Model           $object
+	 * @param string          $member
+	 * @param object          $value
+	 * @param Walker          $child_options
 	 * @param LoggerInterface $logger
 	 * @return mixed
 	 */

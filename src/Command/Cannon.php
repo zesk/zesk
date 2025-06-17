@@ -3,7 +3,7 @@ declare(strict_types=1);
 /**
  * @package    zesk
  * @subpackage Command
- * @copyright  @copy; 2023 Market Acumen, Inc.
+ * @copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Command;
@@ -25,43 +25,43 @@ use zesk\StringTools;
  *
  * @category Tools
  */
-class Cannon extends SimpleCommand {
-	
+class Cannon extends SimpleCommand
+{
 	protected array $shortcuts = ['cannon'];
-	
+
 	protected array $argumentTypes = [
-		'directory'         => 'dir',
-		'dir'               => 'dir',
-		'list'              => 'boolean',
-		'show'              => 'boolean',
-		'dry-run'           => 'boolean',
-		'backup'            => 'boolean',
-		'duplicate'         => 'boolean',
-		'config'            => 'file',
-		'extensions'        => 'string',
-		'extension'         => 'string',
-		'files'             => 'files',
+		'directory' => 'dir',
+		'dir' => 'dir',
+		'list' => 'boolean',
+		'show' => 'boolean',
+		'dry-run' => 'boolean',
+		'backup' => 'boolean',
+		'duplicate' => 'boolean',
+		'config' => 'file',
+		'extensions' => 'string',
+		'extension' => 'string',
+		'files' => 'files',
 		'skip-when-matches' => 'string[]',
-		'also-match'        => 'string[]',
-		'*'                 => 'string',
+		'also-match' => 'string[]',
+		'*' => 'string',
 	];
-	
+
 	protected array $option_help = [
-		'directory'         => 'Directory to look for files',
-		'dir'               => 'Synonym for --directory',
-		'list'              => 'List files which would be scanned',
-		'show'              => 'Output files and matched lines',
-		'dry-run'           => 'Show what files would match without changing anything (implies --show)',
-		'backup'            => 'Backup files before changing',
-		'duplicate'         => 'Create a copy of the file next to the original which has changes',
-		'extensions'        => 'List of extensions separated by commas to look for',
-		'extension'         => 'Synonym for --extensions',
-		'files'             => 'Just run against this file',
+		'directory' => 'Directory to look for files',
+		'dir' => 'Synonym for --directory',
+		'list' => 'List files which would be scanned',
+		'show' => 'Output files and matched lines',
+		'dry-run' => 'Show what files would match without changing anything (implies --show)',
+		'backup' => 'Backup files before changing',
+		'duplicate' => 'Create a copy of the file next to the original which has changes',
+		'extensions' => 'List of extensions separated by commas to look for',
+		'extension' => 'Synonym for --extensions',
+		'files' => 'Just run against this file',
 		'skip-when-matches' => 'Skip replacements in files which contain ANY of the string(s) specified.',
-		'also-match'        => 'File must also match ANY of the given strings(s) in addition to the search term',
-		'*'                 => 'Follow by Search string and Replace string',
+		'also-match' => 'File must also match ANY of the given strings(s) in addition to the search term',
+		'*' => 'Follow by Search string and Replace string',
 	];
-	
+
 	protected function initialize(): void
 	{
 		$this->setOptions([
@@ -69,24 +69,24 @@ class Cannon extends SimpleCommand {
 		], false);
 		parent::initialize();
 	}
-	
+
 	/**
 	 * Set to true in subclasses to skip Application configuration until ->go
 	 *
 	 * @var boolean
 	 */
 	public bool $hasConfiguration = true;
-	
+
 	/**
 	 * @var ?array
 	 */
 	private ?array $skip_when_matches = null;
-	
+
 	/**
 	 * @var ?array
 	 */
 	private ?array $also_match = null;
-	
+
 	/**
 	 * @return int
 	 * @throws ParameterException
@@ -99,7 +99,7 @@ class Cannon extends SimpleCommand {
 	public function run(): int
 	{
 		$this->configure('cannon');
-		
+
 		$dir = $this->firstOption([
 			'dir',
 			'directory',
@@ -111,7 +111,7 @@ class Cannon extends SimpleCommand {
 		$backup = $this->optionBool('backup');
 		$duplicate = $this->optionBool('duplicate');
 		$show = $this->optionBool('show');
-		
+
 		$this->verboseLog('Verbose enabled.');
 		if ($this->optionBool('dry-run')) {
 			$this->verboseLog('Dry run - nothing will change.');
@@ -155,7 +155,7 @@ class Cannon extends SimpleCommand {
 			$this->verboseLog("Replacement files MUST contain one of: \n\t\"" . implode("\"\n\t\"", $this->also_match) . "\"\n\n");
 			$stats['skipped'] = 0;
 		}
-		
+
 		if ($this->hasArgument()) {
 			$search = $this->getArgument('search');
 		} else {
@@ -165,7 +165,7 @@ class Cannon extends SimpleCommand {
 		$replace = null;
 		if ($this->hasArgument()) {
 			$replace = $this->getArgument('replace');
-		} else if (!$show) {
+		} elseif (!$show) {
 			echo 'Replace? ';
 			$replace = rtrim(fgets(STDIN), "\n\r");
 		}
@@ -174,7 +174,7 @@ class Cannon extends SimpleCommand {
 		}
 		if ($show) {
 			$this->verboseLog('Showing matches only');
-		} else if ($backup) {
+		} elseif ($backup) {
 			if ($duplicate) {
 				$this->error('--duplicate and --backup are exclusive, ignoring --backup');
 			}
@@ -192,7 +192,7 @@ class Cannon extends SimpleCommand {
 			if ($result > 0) {
 				$stats['files']++;
 				$stats['lines'] += $result;
-			} else if ($result < 0) {
+			} elseif ($result < 0) {
 				if (!isset($stats['skipped'])) {
 					$stats['skipped'] = 0;
 				}
@@ -202,7 +202,7 @@ class Cannon extends SimpleCommand {
 		$this->info(Text::formatPairs($stats));
 		return 0;
 	}
-	
+
 	/**
 	 * List files
 	 */
@@ -213,11 +213,11 @@ class Cannon extends SimpleCommand {
 			true,
 		], [
 			'#\.' . implode('|', $extensions) . '$#' => true,
-			'#.*/\.#'                                => true,
+			'#.*/\.#' => true,
 			false,
 		], [false], [Directory::LIST_ADD_PATH => true]);
 	}
-	
+
 	/**
 	 * @param string $file
 	 * @param string $search
@@ -231,8 +231,8 @@ class Cannon extends SimpleCommand {
 			$locale = $this->application->locale;
 			$this->info('Skipping {file} which exceeds {maxFileSize} (file is {size})', [
 				'maxFileSize' => Number::formatBytes($locale, $maxFileSize),
-				'size'        => Number::formatBytes($locale, $size),
-				'file'        => $file,
+				'size' => Number::formatBytes($locale, $size),
+				'file' => $file,
 			]);
 			return 0;
 		}
@@ -248,11 +248,11 @@ class Cannon extends SimpleCommand {
 		if (is_array($this->skip_when_matches) && StringTools::contains($contents, $this->skip_when_matches)) {
 			return -1;
 		}
-		
+
 		if (is_array($this->also_match) && !StringTools::contains($contents, $this->also_match)) {
 			return -1;
 		}
-		
+
 		$rabbit = "\x01";
 		$search_tr = [
 			$search => $rabbit,
@@ -281,10 +281,10 @@ class Cannon extends SimpleCommand {
 					"\t" => '    ',
 				]);
 				$carrot_line = preg_replace("#[^$rabbit]#", ' ', $line);
-				
+
 				echo Text::rightAlign(strval($lineno + 1), 4) . ': ' . strtr($line, [
-						$rabbit => $search,
-					]) . "\n";
+					$rabbit => $search,
+				]) . "\n";
 				if (!$sameLength) {
 					echo Text::rightAlign('', 4) . '  ' . rtrim(strtr($carrot_line, $carrotSearch)) . "\n";
 				}

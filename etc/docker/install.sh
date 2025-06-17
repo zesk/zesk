@@ -31,6 +31,9 @@ __phpExtensionDependency() {
       fi
       printf -- "%s\n" "libcurl4"
       ;;
+    gd)
+      printf -- "%s\n" "zlib1g-dev" "libpng-dev" "libjpeg-dev"
+      ;;
     # Built-in
     json | readline | ftp)
       return 1

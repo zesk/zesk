@@ -16,7 +16,7 @@ class EN extends Locale
 	/**
 	 * @desc {@inheritDoc}
 	 * @see       Locale::formatDate()
-	 * @copyright &copy; 2023 Market Acumen, Inc.
+	 * @copyright &copy; 2025, Market Acumen, Inc.
 	 * @package   zesk
 	 */
 	public function formatDate(): string

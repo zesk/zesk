@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 /**
- * @package zesk
+ * @package    zesk
  * @subpackage repository
- * @author kent
- * @copyright &copy; 2023, Market Acumen, Inc.
+ * @author     kent
+ * @copyright  &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Repository;
@@ -21,8 +21,8 @@ use zesk\Process;
  * For repository tools which are invoked via an external command (e.g. most of them)
  *
  * @author kent
- * @see \zesk\Login\Module
- * @see \zesk\Git\Repository
+ * @see    \zesk\Login\Module
+ * @see    \zesk\Git\Repository
  */
 abstract class CommandBase extends Base
 {
@@ -109,8 +109,8 @@ abstract class CommandBase extends Base
 	/**
 	 *
 	 * @param string $suffix
-	 * @param array $arguments
-	 * @param bool $passThrough
+	 * @param array  $arguments
+	 * @param bool   $passThrough
 	 * @return array
 	 * @throws CommandFailed
 	 */

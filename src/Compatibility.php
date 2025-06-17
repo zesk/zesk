@@ -17,10 +17,10 @@ namespace zesk;
 
 use zesk\Exception\UnsupportedException;
 
-class Compatibility {
-	
+class Compatibility
+{
 	public const PHP_VERSION_MINIMUM = 80000;
-	
+
 	/**
 	 * @throws UnsupportedException
 	 * @codeCoverageIgnore

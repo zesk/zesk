@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 /**
- * @package zesk
+ * @package    zesk
  * @subpackage orm
- * @author kent
- * @copyright &copy; 2023, Market Acumen, Inc.
+ * @author     kent
+ * @copyright  &copy; 2025, Market Acumen, Inc.
  */
 
 /**
@@ -38,6 +38,7 @@ class JSONWalker extends Walker
 
 	/**
 	 * Hook called on Model class and object after walked
+	 *
 	 * @var string
 	 */
 	protected string $postprocess_hook = 'json';

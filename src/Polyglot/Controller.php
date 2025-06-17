@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @author     kent
  * @package    zesk/modules
  * @subpackage Polyglot
- * @copyright  &copy; 2023, Market Acumen, Inc.
+ * @copyright  &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Polyglot;
@@ -27,14 +27,14 @@ use zesk\World\Language;
  * @author kent
  *
  */
-class Controller extends AuthenticatedController {
-	
+class Controller extends AuthenticatedController
+{
 	/**
 	 *
 	 * @var Module
 	 */
 	protected Module $module;
-	
+
 	/**
 	 *
 	 * {@inheritDoc}
@@ -45,7 +45,7 @@ class Controller extends AuthenticatedController {
 		$this->module = $this->application->polyglotModule();
 		parent::initialize();
 	}
-	
+
 	/**
 	 *
 	 * @see Controller_Authenticated::before()
@@ -63,7 +63,7 @@ class Controller extends AuthenticatedController {
 	public function before(Request $request, Response $response): void
 	{
 		parent::before($request, $response);
-		
+
 		try {
 			/* If we are running a command, then continue all clear */
 			$this->application->command();
@@ -75,7 +75,7 @@ class Controller extends AuthenticatedController {
 			throw new PermissionDenied($this->user, $action);
 		}
 	}
-	
+
 	/**
 	 *
 	 * @return string
@@ -85,7 +85,7 @@ class Controller extends AuthenticatedController {
 	{
 		if (!$this->user->can('zesk\\Module_PolyGlot::translate')) {
 			$app_locale = $this->application->locale;
-			
+
 			throw new PermissionDenied($this->user, 'Module_PolyGlot::index', null, [
 				'message' => $app_locale->__('Not allowed to do translations.'),
 			]);
@@ -94,7 +94,7 @@ class Controller extends AuthenticatedController {
 			'localeOptions' => $this->module->localeOptions(),
 		]);
 	}
-	
+
 	/**
 	 * Load a locale for translation
 	 *
@@ -121,7 +121,7 @@ class Controller extends AuthenticatedController {
 			'message' => $app_locale->__('You do not have permission to do translations.'),
 		]);
 	}
-	
+
 	/**
 	 * Update a locale on all servers with current translations
 	 *
@@ -154,7 +154,7 @@ class Controller extends AuthenticatedController {
 			'message' => $locale->__('Locale {lang_name} was not updated.', $__),
 		]);
 	}
-	
+
 	/**
 	 * Save a token
 	 *
@@ -180,10 +180,10 @@ class Controller extends AuthenticatedController {
 		$id = $request->getInt('id');
 		$fields = [];
 		foreach ([
-					 'original',
-					 'translation',
-					 'status',
-				 ] as $k) {
+			'original',
+			'translation',
+			'status',
+		] as $k) {
 			$fields[$k] = $request->get($k);
 		}
 		$fields['dialect'] = Locale::parseDialect($locale);

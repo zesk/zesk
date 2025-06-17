@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 /**
- * @copyright &copy; 2023, Market Acumen, Inc.
+ * @copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Image\Library;
@@ -44,8 +44,8 @@ class GD extends Library
 	/**
 	 *
 	 * @param GdImage $src
-	 * @param mixed $dest file to write to, or null to return raw data
-	 * @param array $options
+	 * @param mixed   $dest file to write to, or null to return raw data
+	 * @param array   $options
 	 * @return string|bool
 	 * @throws ParseException
 	 */
@@ -146,7 +146,7 @@ class GD extends Library
 	/**
 	 *
 	 * @param string $data
-	 * @param array $options
+	 * @param array  $options
 	 * @return string
 	 * @throws ProtocolException
 	 * @throws ParseException
@@ -172,7 +172,7 @@ class GD extends Library
 	 *
 	 * @param string $source
 	 * @param string $dest
-	 * @param array $options
+	 * @param array  $options
 	 * @return bool
 	 * @throws FileNotFound
 	 * @throws ParseException
@@ -212,6 +212,7 @@ class GD extends Library
 
 	/**
 	 * Create an image in memory
+	 *
 	 * @param int $width
 	 * @param int $height
 	 * @return GdImage
@@ -230,8 +231,8 @@ class GD extends Library
 	/**
 	 * Output image
 	 *
-	 * @param GdImage $dst
-	 * @param string $type
+	 * @param GdImage     $dst
+	 * @param string      $type
 	 * @param string|null $dest
 	 * @return void
 	 * @throws ParseException
@@ -256,7 +257,7 @@ class GD extends Library
 	 * Output image
 	 *
 	 * @param GdImage $dst
-	 * @param string $type Image type to output
+	 * @param string  $type Image type to output
 	 * @return string
 	 * @throws ParseException
 	 */
@@ -278,7 +279,7 @@ class GD extends Library
 	 * Output image
 	 *
 	 * @param GdImage $dst
-	 * @param mixed $dest Filename to output to, or if blank, returns image data
+	 * @param mixed   $dest Filename to output to, or if blank, returns image data
 	 * @throws ParseException
 	 */
 	private function _imageOutputFile(GdImage $dst, string $dest): void

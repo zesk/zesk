@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 /**
- *
+ * @copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace testZesk;
@@ -16,38 +16,6 @@ use zesk\Exception\ParameterException;
 use zesk\Exception\SyntaxException;
 use zesk\PHPUnit\TestCase;
 use zesk\StringTools;
-
-/**
- *
- * @author kent
- *
- */
-class testdir
-{
-	public static array $dirs = [];
-
-	public static array $files = [];
-
-	public static function collect_dirs($name): void
-	{
-		echo "DIR: $name\n";
-		self::$dirs[] = $name;
-	}
-
-	public static function collect_files($name): void
-	{
-		echo "FILE: $name\n";
-		self::$files[] = $name;
-	}
-
-	public static function dump(): array
-	{
-		return [
-			self::$dirs,
-			self::$files,
-		];
-	}
-}
 
 /**
  *
@@ -148,7 +116,7 @@ class DirectoryTest extends TestCase
 
 	/**
 	 * @param string $result
-	 * @param array  $args
+	 * @param array $args
 	 * @return void
 	 * @dataProvider data_path
 	 * @covers       \zesk\Directory::path
@@ -190,7 +158,7 @@ class DirectoryTest extends TestCase
 	}
 
 	/**
-	 * @param bool   $expected
+	 * @param bool $expected
 	 * @param string $path
 	 * @return void
 	 * @dataProvider data_isAbsolute
@@ -378,11 +346,11 @@ class DirectoryTest extends TestCase
 		$source = Application::zeskPath();
 		ob_start();
 		Directory::iterate($source, [
-			__NAMESPACE__ . '\\testdir',
-			'collect_dirs',
+			DirectoryTestDumper::class,
+			'collectDirectories',
 		], [
-			__NAMESPACE__ . '\\testdir',
-			'collect_files',
+			DirectoryTestDumper::class,
+			'collectFiles',
 		]);
 		$iterate_dump = ob_get_clean();
 
@@ -391,7 +359,7 @@ class DirectoryTest extends TestCase
 		[
 			$dirs,
 			$files,
-		] = testdir::dump();
+		] = DirectoryTestDumper::dump();
 		//		Debug::dump($files);
 
 		$this->assertInArray($root . 'autoload.php', $files);

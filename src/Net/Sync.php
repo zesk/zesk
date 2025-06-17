@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 /**
- *
+ * @copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Net;
@@ -30,79 +30,80 @@ use zesk\Types;
  * @author kent
  *
  */
-class Sync extends Options {
-	
+class Sync extends Options
+{
 	/**
 	 * The path to store temporary files
 	 */
-	const OPTION_TEMPORARY_PATH = "temporaryPath";
-	
+	public const OPTION_TEMPORARY_PATH = 'temporaryPath';
+
 	/**
 	 * The number of seconds for files to be valid after downloaded.
 	 */
-	const OPTION_TIME_TO_LIVE_SECONDS = "ttl";
-	
+	public const OPTION_TIME_TO_LIVE_SECONDS = 'ttl';
+
 	/**
 	 * Connection and download requests time out after this time span
 	 */
-	const OPTION_TIMEOUT_SECONDS = "timeout";
-	
+	public const OPTION_TIMEOUT_SECONDS = 'timeout';
+
 	/**
 	 * Use this user agent when requesting files from the remote system
 	 */
-	const OPTION_USER_AGENT = "userAgent";
-	
+	public const OPTION_USER_AGENT = 'userAgent';
+
 	/**
 	 * Default timeout in seconds (2 minutes))
 	 */
-	const DEFAULT_TIMEOUT_SECONDS = 2 * 60;
-	
+	public const DEFAULT_TIMEOUT_SECONDS = 2 * 60;
+
 	/**
 	 * Default time to live - once a day. Be considerate of remote systems.
 	 */
-	const DEFAULT_TIME_TO_LIVE_SECONDS = 86400; // Once a day
+	public const DEFAULT_TIME_TO_LIVE_SECONDS = 86400; // Once a day
+
 	/**
 	 *
 	 * @var FileSystem
 	 */
 	protected FileSystem $src;
-	
+
 	/**
 	 *
 	 * @var FileSystem
 	 */
 	protected FileSystem $dst;
-	
+
 	/*
 	 * Synchronization stats
 	 */
 	private array $stats = [];
-	
+
 	/**
 	 * @var array
 	 */
 	private array $walkFilter = [true];
-	
+
 	/**
 	 * @var array
 	 */
 	private array $fileFilter = [true];
-	
+
 	/**
 	 * @var array
 	 */
 	private array $directoryFilter = [true];
-	
+
 	/**
 	 * Sync a local file with a destination file, optionally checking checksums
 	 *
 	 * @param Application $application The current application context.
-	 * @param string      $url
+	 * @param string $url
 	 *                                 URL of remote file to download
-	 * @param string      $path
+	 * @param string $path
 	 *                                 Local file system path of destination, requires a file name to use timestamp
 	 *                                 checking on local file
-	 * @param array       $options
+	 * @param array $options
 	 *                                 Options to configure how this works:
 	 *                                 - self::OPTION_TIME_TO_LIVE_SECONDS - Check remote URL for changes every n seconds (defaults to 1 day)
 	 *                                 - self::OPTION_TIMEOUT_SECONDS - Seconds to timeout remote retrieval
@@ -146,12 +147,12 @@ class Sync extends Options {
 			return false;
 		}
 	}
-	
+
 	/**
 	 *
 	 * @param Application $application
-	 * @param string      $url
-	 * @param array       $options
+	 * @param string $url
+	 * @param array $options
 	 * @return array
 	 * @throws DirectoryCreate
 	 * @throws DirectoryNotFound
@@ -166,7 +167,7 @@ class Sync extends Options {
 	{
 		$milliseconds = Types::toInteger($options['timeout'] ?? null);
 		$user_agent = $options[self::OPTION_USER_AGENT] ?? null;
-		
+
 		$client = new Net_HTTP_Client($application, $url);
 		if ($milliseconds) {
 			$client->setTimeout($milliseconds);
@@ -178,22 +179,22 @@ class Sync extends Options {
 			$client->setUserAgent($user_agent);
 		}
 		$client->setDestination($temp_file_name);
-		
+
 		$result = $client->go();
-		
+
 		$filename = $client->filename();
 		return [
 			$temp_file_name,
 			$filename,
 		];
 	}
-	
+
 	/**
 	 * Utility function to sync two URLs
 	 *
-	 * @param string      $source_url
-	 * @param string      $destination_url
-	 * @param array       $options
+	 * @param string $source_url
+	 * @param string $destination_url
+	 * @param array $options
 	 * @param Application $application
 	 * @return array Transfer statistics
 	 * @return int[]
@@ -207,19 +208,19 @@ class Sync extends Options {
 	 */
 	public static function urls(Application $application, string $source_url, string $destination_url, array $options = []): array
 	{
-		$factory = $application->modules->load("Net")->clientFactory(...);
+		$factory = $application->modules->load('Net')->clientFactory(...);
 		$src_client = $factory($source_url, $options);
 		$dst_client = $factory($destination_url, $options);
 		$sync = new self($src_client, $dst_client, $options);
 		return $sync->go();
 	}
-	
+
 	/**
 	 * Create sync object
 	 *
 	 * @param FileSystem $source
 	 * @param FileSystem $destination
-	 * @param array      $options
+	 * @param array $options
 	 *            Settings for the sync
 	 */
 	public function __construct(FileSystem $source, FileSystem $destination, array $options = [])
@@ -228,7 +229,7 @@ class Sync extends Options {
 		$this->src = $source;
 		$this->dst = $destination;
 	}
-	
+
 	/**
 	 * Internal function to manage filter values properly.
 	 * If it's a boolean (include all, exclude all), store it.
@@ -239,12 +240,12 @@ class Sync extends Options {
 	 */
 	/**
 	 * @param string|bool $pattern
-	 * @param string      $default
+	 * @param string $default
 	 * @return string|bool
 	 */
 	private function setFilter(string|bool $pattern, string $default): string|bool
 	{
-		if ($pattern === "") {
+		if ($pattern === '') {
 			return $default;
 		}
 		$srcVar = Types::toBool($pattern, null);
@@ -256,38 +257,37 @@ class Sync extends Options {
 		}
 		return '/' . preg_quote($pattern) . '/';
 	}
-	
-	
+
 	public function setWalkFilter(array $filter): static
 	{
 		$this->walkFilter = $filter;
 		return $this;
 	}
-	
+
 	public function setFileFilter(array $filter): static
 	{
 		$this->fileFilter = $filter;
 		return $this;
 	}
-	
+
 	public function setDirectoryFilter(array $filter): static
 	{
 		$this->directoryFilter = $filter;
 		return $this;
 	}
-	
+
 	/**
 	 * Given a filename, should it be included in this sync?
 	 *
 	 * @param string $filename
-	 * @param array  $filter
+	 * @param array $filter
 	 * @return boolean
 	 */
 	private function _allow(string $filename, array $filter): bool
 	{
 		return StringTools::filter($filename, $filter);
 	}
-	
+
 	/**
 	 * Allow this file to be synced?
 	 *
@@ -298,7 +298,7 @@ class Sync extends Options {
 	{
 		return $this->_allow($filename, $this->fileFilter);
 	}
-	
+
 	/**
 	 * Allow this directory to be synced?
 	 *
@@ -309,7 +309,7 @@ class Sync extends Options {
 	{
 		return $this->_allow($filename, $this->directoryFilter);
 	}
-	
+
 	/**
 	 * Allow this directory to be synced?
 	 *
@@ -320,12 +320,12 @@ class Sync extends Options {
 	{
 		return $this->_allow($filename, $this->walkFilter);
 	}
-	
+
 	/**
 	 * Should this file be synced based on entry values?
 	 *
-	 * @param array   $src_entry
-	 * @param array   $dst_entry
+	 * @param array $src_entry
+	 * @param array $dst_entry
 	 * @param boolean $check_mtime
 	 *            If mod time should be checked.
 	 * @return boolean
@@ -355,7 +355,7 @@ class Sync extends Options {
 		}
 		return true;
 	}
-	
+
 	/**
 	 * Synchronize two URLs, recursively.
 	 *
@@ -372,17 +372,17 @@ class Sync extends Options {
 	public function go(): array
 	{
 		$logger = $this->src->application();
-		
+
 		$src = $this->src;
 		$dst = $this->dst;
-		
+
 		$src_url = $src->url();
 		$src_root = Directory::addSlash($src->urlComponent('path'));
 		$src_root_length = strlen($src_root);
-		
+
 		$dst_url = $dst->url();
 		$dst_root = Directory::addSlash($dst->urlComponent('path'));
-		
+
 		if (!$src->cd($src_root)) {
 			throw new DirectoryNotFound("Source \"$src_url\" directory \"$src_root\" not found");
 		}
@@ -395,11 +395,11 @@ class Sync extends Options {
 			$src_root,
 		];
 		$stats = [
-			'dirs'  => 0,
+			'dirs' => 0,
 			'mkdir' => 0,
 			'files' => 0,
-			'copy'  => 0,
-			'skip'  => 0,
+			'copy' => 0,
+			'skip' => 0,
 			'total' => 0,
 		];
 		$check_mtime = $dst->has_feature('mtime');
@@ -411,7 +411,7 @@ class Sync extends Options {
 				$stats['total']++;
 				$name = $src_entry['name'];
 				$type = $src_entry['type'];
-				
+
 				$full_src_path = Directory::path($src_path, $name);
 				$rel_path = substr($full_src_path, $src_root_length);
 				if (!$this->isDirectoryIncluded($rel_path)) {
@@ -420,12 +420,12 @@ class Sync extends Options {
 					continue;
 				}
 				$full_dst_path = Directory::path($dst_root, $rel_path);
-				
+
 				$logger->debug("sync $full_src_path");
-				
+
 				$dst_entry = $dst->stat($full_dst_path);
 				$dst_type = $dst_entry['type'] ?? null;
-				
+
 				if ($type === 'dir') {
 					if ($dst_type === null) {
 						if (!$dst->mkdir($full_dst_path)) {
@@ -442,13 +442,13 @@ class Sync extends Options {
 						$stats['ignore']++;
 						$logger->debug("Skipping walking directory \"$rel_path\"");
 					}
-				} else if ($type === 'file') {
+				} elseif ($type === 'file') {
 					if ($this->canSyncFile($rel_path)) {
 						$stats['files']++;
 						if ($this->_should_sync($src_entry, $dst_entry, $check_mtime)) {
 							$temp = File::temporary(dirname($full_dst_path));
 							$logger->debug("Temporary file: $temp");
-							
+
 							try {
 								$src->download($full_src_path, $temp);
 								$dst->upload($temp, $full_dst_path, true);
@@ -460,7 +460,7 @@ class Sync extends Options {
 								if (is_file($temp)) {
 									unlink($temp);
 								}
-								
+
 								throw $e;
 							}
 							if (is_file($temp)) {
@@ -481,7 +481,7 @@ class Sync extends Options {
 		$this->stats = $stats;
 		return $this->stats;
 	}
-	
+
 	/**
 	 * Retrieve the most recent synchronization stats
 	 *

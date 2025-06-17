@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @author     kent
  * @package    zesk/modules
  * @subpackage Polyglot
- * @copyright  &copy; 2023, Market Acumen, Inc.
+ * @copyright  &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Polyglot;
@@ -30,14 +30,14 @@ use zesk\World\Language;
  * @author kent
  *
  */
-class Module extends BaseModule implements Routes {
-	
+class Module extends BaseModule implements Routes
+{
 	public const DEFAULT_UPDATE_PATH = './etc/language';
-	
+
 	public const TYPE_UPDATE_PATH = 'directory';
-	
+
 	public const OPTION_UPDATE_PATH = 'updatePath';
-	
+
 	/**
 	 *
 	 * @var array
@@ -46,11 +46,11 @@ class Module extends BaseModule implements Routes {
 		Token::class,
 		Update::class,
 	];
-	
+
 	public const OPTION_LOCALE_OPTIONS_DEFAULT = self::class . '::localeOptions';
-	
+
 	public const HOOK_LOCALE_OPTIONS = self::class . '::localeOptions';
-	
+
 	/**
 	 * @return string
 	 */
@@ -58,7 +58,7 @@ class Module extends BaseModule implements Routes {
 	{
 		return $this->optionString(self::OPTION_UPDATE_PATH, self::DEFAULT_UPDATE_PATH);
 	}
-	
+
 	/**
 	 *
 	 * @return array
@@ -66,7 +66,7 @@ class Module extends BaseModule implements Routes {
 	public function localeOptions(): array
 	{
 		$list = $this->invokeTypedFilters(self::HOOK_LOCALE_OPTIONS, $this->optionArray(self::OPTION_LOCALE_OPTIONS_DEFAULT));
-		
+
 		$em = $this->application->entityManager();
 		$qb = $em->createQueryBuilder();
 		$ex = Criteria::expr();
@@ -96,7 +96,7 @@ class Module extends BaseModule implements Routes {
 		}
 		return $this->application->locale->__($results);
 	}
-	
+
 	/**
 	 *
 	 * @param string $locale
@@ -132,7 +132,7 @@ class Module extends BaseModule implements Routes {
 		$language = Locale::parseLanguage($locale);
 		$dialect = Locale::parseDialect($locale);
 		$tokens = Token::fetchAll($this->application, $language, $dialect);
-		
+
 		foreach ($table as $original => $translation) {
 			if (array_key_exists($original, $tokens)) {
 				$object = $tokens[$original];
@@ -143,7 +143,7 @@ class Module extends BaseModule implements Routes {
 		}
 		return array_values($table);
 	}
-	
+
 	/**
 	 * @param Router $router
 	 * @return void
@@ -156,22 +156,22 @@ class Module extends BaseModule implements Routes {
 		];
 		$router->addRoute('polyglot', $base);
 		$router->addRoute('polyglot/load/{dialect}', $base + [
-				'action'    => 'load',
-				'arguments' => [
-					2,
-				],
-			]);
+			'action'    => 'load',
+			'arguments' => [
+				2,
+			],
+		]);
 		$router->addRoute('polyglot/token/{dialect}', $base + [
-				'action'    => 'token',
-				'arguments' => [
-					2,
-				],
-			]);
+			'action'    => 'token',
+			'arguments' => [
+				2,
+			],
+		]);
 		$router->addRoute('polyglot/update/{dialect}', $base + [
-				'action'    => 'update',
-				'arguments' => [
-					2,
-				],
-			]);
+			'action'    => 'update',
+			'arguments' => [
+				2,
+			],
+		]);
 	}
 }

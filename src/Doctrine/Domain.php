@@ -1,5 +1,8 @@
 <?php
 declare(strict_types=1);
+/**
+ * @copyright &copy; 2025, Market Acumen, Inc.
+ */
 
 namespace zesk\Doctrine;
 
@@ -27,50 +30,49 @@ use zesk\URL;
  */
 #[Entity]
 #[EntityListeners([ModelListener::class])]
-class Domain extends Model {
-	
+class Domain extends Model
+{
 	use AutoID;
-	
+
 	#[Column(type: 'string')]
 	public string $name;
-	
+
 	#[Column(type: 'string', length: 8)]
 	public string $tld;
-	
-	
+
 	/**
 	 * @see http://www.seobythesea.com/2006/01/googles-most-popular-and-least-popular-top-level-domains/
 	 * @var string
 	 */
 	public const DEFAULT_PUBLIC_SUFFIX_LIST = "com\norg\nedu\ngov\nuk\nnet\nca\nde\njp\nfr\nau\nus\nru\nch\nit\nnl\nse\nno\nes\nmil";
-	
+
 	/**
 	 *
 	 * @todo credit
 	 * @var string
 	 */
 	public const URL_TOP_LEVEL_DOMAINS = 'https://data.iana.org/TLD/tlds-alpha-by-domain.txt';
-	
+
 	/**
 	 *
 	 * @var array
 	 */
 	private static array $publicTopLevelDomains = [];
-	
+
 	/**
 	 *
 	 * @param Application $application
 	 * @throws ConfigurationException
 	 * @throws SemanticsException
 	 */
-	#[Cron(schedule: "0 * * * *", scope: Cron::SCOPE_APPLICATION)]
+	#[Cron(schedule: '0 * * * *', scope: Cron::SCOPE_APPLICATION)]
 	public static function cronUpdateDomains(Application $application): void
 	{
 		$urlPublic = $application->environment()->get(self::URL_PUBLIC_DOMAIN_SUFFIX);
 		foreach ([
-					 $urlPublic                  => self::publicSuffixListFile($application),
-					 self::URL_TOP_LEVEL_DOMAINS => self::topLevelDomainsFile($application->paths),
-				 ] as $url => $path) {
+			$urlPublic => self::publicSuffixListFile($application),
+			self::URL_TOP_LEVEL_DOMAINS => self::topLevelDomainsFile($application->paths),
+		] as $url => $path) {
 			try {
 				Sync::urlToFile($application, $url, $path);
 			} catch (FilePermission|DirectoryNotFound $e) {
@@ -78,7 +80,7 @@ class Domain extends Model {
 			}
 		}
 	}
-	
+
 	/**
 	 * @return void
 	 * @throws ConfigurationException
@@ -90,11 +92,11 @@ class Domain extends Model {
 	{
 		self::updateDataFiles($this->application);
 	}
-	
+
 	/**
 	 *
 	 * @param Application $application
-	 * @param string      $name
+	 * @param string $name
 	 * @return Domain
 	 * @throws ConfigurationException
 	 * @throws FileNotFound
@@ -107,7 +109,7 @@ class Domain extends Model {
 		$domain->name = $name;
 		return $domain->nameChanged();
 	}
-	
+
 	/**
 	 * Compute the TLD for a domain
 	 *
@@ -122,7 +124,7 @@ class Domain extends Model {
 		$this->tld = $this->computeTLD();
 		return $this;
 	}
-	
+
 	/**
 	 * @return self
 	 * @throws ConfigurationException
@@ -138,7 +140,7 @@ class Domain extends Model {
 		}
 		return parent::store();
 	}
-	
+
 	/**
 	 *
 	 * @return string
@@ -167,7 +169,7 @@ class Domain extends Model {
 		} while (count($x) > 0);
 		return $default;
 	}
-	
+
 	/**
 	 * @return array
 	 * @throws ConfigurationException
@@ -182,7 +184,7 @@ class Domain extends Model {
 		}
 		return self::$publicTopLevelDomains;
 	}
-	
+
 	/**
 	 *
 	 * @return string
@@ -209,9 +211,9 @@ class Domain extends Model {
 		} while (count($x) > 0);
 		return $default;
 	}
-	
-	const URL_PUBLIC_DOMAIN_SUFFIX = 'URL_PUBLIC_DOMAIN_SUFFIX';
-	
+
+	public const URL_PUBLIC_DOMAIN_SUFFIX = 'URL_PUBLIC_DOMAIN_SUFFIX';
+
 	/**
 	 * @param Application $application
 	 * @return array
@@ -222,11 +224,11 @@ class Domain extends Model {
 	{
 		$urlPublic = $application->environment()->get(self::URL_PUBLIC_DOMAIN_SUFFIX);
 		return [
-			$urlPublic                  => self::publicSuffixListFile($application),
+			$urlPublic => self::publicSuffixListFile($application),
 			self::URL_TOP_LEVEL_DOMAINS => self::topLevelDomainsFile($application->paths),
 		];
 	}
-	
+
 	/**
 	 * @param Application $application
 	 * @return string
@@ -237,6 +239,7 @@ class Domain extends Model {
 	private static function publicSuffixListFile(Application $application): string
 	{
 		$domainSuffix = $application->environment()->get(self::URL_PUBLIC_DOMAIN_SUFFIX);
+
 		try {
 			$parts = URL::parse($domainSuffix);
 			$file = basename($parts['path']);
@@ -248,7 +251,7 @@ class Domain extends Model {
 		}
 		return $application->paths->zesk('etc/db/' . $file);
 	}
-	
+
 	/**
 	 * @param Paths $paths
 	 * @return string
@@ -257,7 +260,7 @@ class Domain extends Model {
 	{
 		return $paths->zesk('etc/db/tlds.txt');
 	}
-	
+
 	/**
 	 * Update our data files from our remote URLs
 	 *
@@ -274,7 +277,7 @@ class Domain extends Model {
 			Sync::urlToFile($application, $url, $path);
 		}
 	}
-	
+
 	/**
 	 * Load the public TLDs from the file
 	 *

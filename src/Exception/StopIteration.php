@@ -14,6 +14,6 @@ use zesk\Exception;
 /**
  * Throw to signal the end of iteration
  */
-class StopIteration extends Exception {
-
+class StopIteration extends Exception
+{
 }

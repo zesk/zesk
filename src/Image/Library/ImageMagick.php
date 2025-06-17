@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 /**
- * @copyright &copy; 2023, Market Acumen, Inc.
+ * @copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Image\Library;
@@ -20,20 +20,20 @@ use zesk\Exception\UnimplementedException;
 use zesk\File;
 use zesk\Image\Library;
 
-class ImageMagick extends Library {
-	
+class ImageMagick extends Library
+{
 	/**
 	 *
 	 * @var string
 	 */
 	public const command_default = 'convert';
-	
+
 	/**
 	 *
 	 * @var string
 	 */
 	public const command_scale = '{command} -antialias -matte -geometry "{width}x{height}" {source} {destination}';
-	
+
 	/**
 	 *
 	 * @return string
@@ -47,7 +47,7 @@ class ImageMagick extends Library {
 		], self::command_default);
 		return $this->application->paths->which($command);
 	}
-	
+
 	/**
 	 *
 	 * @return string
@@ -64,7 +64,7 @@ class ImageMagick extends Library {
 			'command' => $command,
 		]);
 	}
-	
+
 	/**
 	 *
 	 * @return boolean
@@ -78,7 +78,7 @@ class ImageMagick extends Library {
 			return false;
 		}
 	}
-	
+
 	/**
 	 * @param string $data
 	 * @param array  $options
@@ -105,7 +105,7 @@ class ImageMagick extends Library {
 		unlink($dest);
 		return $result;
 	}
-	
+
 	/**
 	 * @param string $source
 	 * @param string $dest
@@ -127,17 +127,17 @@ class ImageMagick extends Library {
 		] = getimagesize($source);
 		$width = $options['width'] ?? $actual_width;
 		$height = $options['height'] ?? $actual_height;
-		
+
 		$map = [
 			'source'      => escapeshellarg($source),
 			'destination' => escapeshellarg($dest),
 			'width'       => $width,
 			'height'      => $height,
 		];
-		
+
 		$cmd = $this->shellCommandScale();
 		$cmd = ArrayTools::map($cmd, $map);
-		
+
 		try {
 			$this->application->process->executeArguments($cmd);
 			if (file_exists($dest)) {
@@ -147,11 +147,11 @@ class ImageMagick extends Library {
 			return false;
 		} catch (Exception $e) {
 			File::unlink($dest);
-			
+
 			throw $e;
 		}
 	}
-	
+
 	/**
 	 * @param string $source
 	 * @param string $destination

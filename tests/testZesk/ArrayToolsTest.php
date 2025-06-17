@@ -3,6 +3,7 @@ declare(strict_types=1);
 /**
  * @package    zesk
  * @subpackage test
+ * @copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace testZesk;
@@ -37,12 +38,12 @@ class ArrayToolsTest extends TestCase
 	/**
 	 * @param string|array $expected
 	 * @param string|array $test
-	 * @param array        $map
-	 * @param bool         $case
-	 * @param string       $prefix
-	 * @param string       $suffix
+	 * @param array $map
+	 * @param bool $case
+	 * @param string $prefix
+	 * @param string $suffix
 	 * @return void
-	 * @dataProvider ArrayToolsData::map
+	 * @dataProvider \testZesk\ArrayToolsData::map
 	 * @covers ::map
 	 */
 	public function test_map(string|array $expected, string|array $test, array $map, bool $case, string $prefix, string $suffix): void
@@ -51,7 +52,7 @@ class ArrayToolsTest extends TestCase
 	}
 
 	/**
-	 * @dataProvider ArrayToolsData::simplify
+	 * @dataProvider \testZesk\ArrayToolsData::simplify
 	 * @param array $expected
 	 * @param array $array
 	 * @return void
@@ -68,7 +69,7 @@ class ArrayToolsTest extends TestCase
 	 * @param mixed $mixed
 	 * @param array $map
 	 * @return void
-	 * @dataProvider ArrayToolsData::replaceSubstrings
+	 * @dataProvider \testZesk\ArrayToolsData::replaceSubstrings
 	 * @covers ::replaceSubstrings
 	 */
 	public function test_replaceSubstrings(mixed $expected, mixed $mixed, array $map): void
@@ -80,7 +81,7 @@ class ArrayToolsTest extends TestCase
 	 * @param array $array
 	 * @param array $expected
 	 * @return void
-	 * @dataProvider ArrayToolsData::changeValueCase
+	 * @dataProvider \testZesk\ArrayToolsData::changeValueCase
 	 * @covers ::changeValueCase
 	 */
 	public function test_changeValueCase(array $array, array $expected): void
@@ -92,7 +93,7 @@ class ArrayToolsTest extends TestCase
 	 * @param array $array
 	 * @param array $expected
 	 * @return void
-	 * @dataProvider ArrayToolsData::valuesFlipCopy
+	 * @dataProvider \testZesk\ArrayToolsData::valuesFlipCopy
 	 * @covers ::valuesFlipCopy
 	 */
 	public function test_valuesFlipCopy(array $array, array $expected): void
@@ -101,12 +102,12 @@ class ArrayToolsTest extends TestCase
 	}
 
 	/**
-	 * @param array  $expected
-	 * @param array  $array
+	 * @param array $expected
+	 * @param array $array
 	 * @param string $prefix
 	 * @param string $suffix
 	 * @return void
-	 * @dataProvider ArrayToolsData::wrap
+	 * @dataProvider \testZesk\ArrayToolsData::wrap
 	 * @covers ::wrapValues
 	 */
 	public function test_wrap(array $expected, array $array, string $prefix, string $suffix): void
@@ -115,11 +116,11 @@ class ArrayToolsTest extends TestCase
 	}
 
 	/**
-	 * @param array  $expected
-	 * @param array  $array
+	 * @param array $expected
+	 * @param array $array
 	 * @param string $prefix
 	 * @return void
-	 * @dataProvider ArrayToolsData::prefixKeys
+	 * @dataProvider \testZesk\ArrayToolsData::prefixKeys
 	 * @covers ::prefixKeys
 	 */
 	public function test_prefixKeys(array $expected, array $array, string $prefix): void
@@ -128,10 +129,10 @@ class ArrayToolsTest extends TestCase
 	}
 
 	/**
-	 * @dataProvider ArrayToolsData::suffixValues
+	 * @dataProvider \testZesk\ArrayToolsData::suffixValues
 	 * @covers       ::suffixValues
-	 * @param array  $expected
-	 * @param array  $test
+	 * @param array $expected
+	 * @param array $test
 	 * @param string $suffix
 	 * @return void
 	 */
@@ -142,7 +143,7 @@ class ArrayToolsTest extends TestCase
 
 	/**
 	 * @covers ::keysRemove
-	 * @covers       ArrayToolsData::keysRemove
+	 * @dataProvider        \testZesk\ArrayToolsData::keysRemove
 	 * @param array $expected
 	 * @param array $test
 	 * @param array $remove
@@ -154,11 +155,11 @@ class ArrayToolsTest extends TestCase
 	}
 
 	/**
-	 * @param bool         $expected
-	 * @param array        $array
+	 * @param bool $expected
+	 * @param array $array
 	 * @param string|array $values
 	 * @return void
-	 * @dataProvider ArrayToolsData::hasAnyValues
+	 * @dataProvider \testZesk\ArrayToolsData::hasAnyValues
 	 * @covers ::hasAnyValue
 	 */
 	public function test_hasAnyValue(bool $expected, array $array, string|array $values): void
@@ -167,11 +168,11 @@ class ArrayToolsTest extends TestCase
 	}
 
 	/**
-	 * @param bool             $expected
-	 * @param array            $array
+	 * @param bool $expected
+	 * @param array $array
 	 * @param string|array|int $keys
 	 * @return void
-	 * @dataProvider ArrayToolsData::hasAnyKey
+	 * @dataProvider \testZesk\ArrayToolsData::hasAnyKey
 	 * @covers ::hasAnyKey
 	 */
 	public function test_hasAnyKey(bool $expected, array $array, string|array|int $keys): void
@@ -201,7 +202,7 @@ class ArrayToolsTest extends TestCase
 		$result = ArrayTools::increment($arr, $k, 2.1);
 		$this->assertEquals(2.1, $result);
 		$this->assertEquals([
-			'item'    => 2,
+			'item' => 2,
 			'decimal' => 2.1,
 		], $arr);
 		$result = ArrayTools::increment($arr, $k, 3.2);
@@ -213,14 +214,14 @@ class ArrayToolsTest extends TestCase
 	}
 
 	/**
-	 * @param array      $expected
-	 * @param array      $test
+	 * @param array $expected
+	 * @param array $test
 	 * @param string|int $key
-	 * @param array      $other
-	 * @param bool       $before
+	 * @param array $other
+	 * @param bool $before
 	 * @return void
 	 * @covers ::insert
-	 * @dataProvider ArrayToolsData::insert
+	 * @dataProvider \testZesk\ArrayToolsData::insert
 	 */
 	public function test_insert(array $expected, array $test, string|int $key, array $other, bool $before): void
 	{
@@ -228,12 +229,12 @@ class ArrayToolsTest extends TestCase
 	}
 
 	/**
-	 * @param array  $expected
-	 * @param array  $test
+	 * @param array $expected
+	 * @param array $test
 	 * @param string $prefix
 	 * @param string $suffix
 	 * @return void
-	 * @dataProvider ArrayToolsData::wrapKeys
+	 * @dataProvider \testZesk\ArrayToolsData::wrapKeys
 	 * @covers ::wrapKeys
 	 * @return void
 	 */
@@ -243,12 +244,12 @@ class ArrayToolsTest extends TestCase
 	}
 
 	/**
-	 * @param array  $expected
-	 * @param array  $test
+	 * @param array $expected
+	 * @param array $test
 	 * @param string $prefix
 	 * @return void
 	 * @covers ::keysRemovePrefix
-	 * @dataProvider ArrayToolsData::keysRemovePrefix()
+	 * @dataProvider \testZesk\ArrayToolsData::keysRemovePrefix()
 	 * @return void
 	 */
 	public function test_keysRemovePrefix(array $expected, array $test, string $prefix): void
@@ -257,12 +258,12 @@ class ArrayToolsTest extends TestCase
 	}
 
 	/**
-	 * @param array  $expected
-	 * @param array  $test
+	 * @param array $expected
+	 * @param array $test
 	 * @param string $suffix
 	 * @return void
 	 * @covers ::keysRemoveSuffix
-	 * @dataProvider       ArrayToolsData::keysRemoveSuffix
+	 * @dataProvider       \testZesk\ArrayToolsData::keysRemoveSuffix
 	 */
 	public function test_keysRemoveSuffix(array $expected, array $test, string $suffix): void
 	{
@@ -274,7 +275,7 @@ class ArrayToolsTest extends TestCase
 	 * @param array $key_map
 	 * @param array $expected
 	 * @return void
-	 * @dataProvider ArrayToolsData::keysMap
+	 * @dataProvider \testZesk\ArrayToolsData::keysMap
 	 * @covers ::keysMap
 	 */
 	public function test_keysMap(array $array, array $key_map, array $expected): void
@@ -283,11 +284,11 @@ class ArrayToolsTest extends TestCase
 	}
 
 	/**
-	 * @param array  $array
+	 * @param array $array
 	 * @param string $delim
-	 * @param array  $expected
+	 * @param array $expected
 	 * @return void
-	 * @dataProvider ArrayToolsData::pairValues
+	 * @dataProvider \testZesk\ArrayToolsData::pairValues
 	 * @covers ::pairValues
 	 */
 	public function test_pairValues(array $array, string $delim, array $expected): void
@@ -300,7 +301,8 @@ class ArrayToolsTest extends TestCase
 	 * @param $value_map
 	 * @param $expected
 	 * @return void
-	 * @dataProvider ArrayToolsData::valuesMap
+	 * @dataProvider \testZesk\ArrayToolsData::valuesMap
+	 * @covers ::valuesMap
 	 */
 	public function test_valuesMap($array, $value_map, $expected): void
 	{
@@ -313,7 +315,8 @@ class ArrayToolsTest extends TestCase
 	 * @param array $a1
 	 * @param array $a2
 	 * @return void
-	 * @dataProvider ArrayToolsData::merge
+	 * @dataProvider \testZesk\ArrayToolsData::merge
+	 * @covers ::merge
 	 */
 	public function test_merge(array $expected, array $a1, array $a2): void
 	{
@@ -321,11 +324,11 @@ class ArrayToolsTest extends TestCase
 	}
 
 	/**
-	 * @param array  $expected
-	 * @param array  $source
+	 * @param array $expected
+	 * @param array $source
 	 * @param string $prefix
 	 * @return void
-	 * @dataProvider ArrayToolsData::prefixValues()
+	 * @dataProvider \testZesk\ArrayToolsData::prefixValues()
 	 * @covers ::prefixValues
 	 */
 	public function test_prefixValues(array $expected, array $source, string $prefix): void
@@ -336,11 +339,11 @@ class ArrayToolsTest extends TestCase
 	}
 
 	/**
-	 * @param array  $expected
-	 * @param array  $source
+	 * @param array $expected
+	 * @param array $source
 	 * @param string $prefix
 	 * @return void
-	 * @dataProvider ArrayToolsData::valuesRemovePrefix()
+	 * @dataProvider \testZesk\ArrayToolsData::valuesRemovePrefix()
 	 * @covers ::valuesRemovePrefix
 	 */
 	public function test_removePrefix(array $expected, array $source, string $prefix): void
@@ -350,11 +353,11 @@ class ArrayToolsTest extends TestCase
 	}
 
 	/**
-	 * @param array  $expected
-	 * @param array  $source
+	 * @param array $expected
+	 * @param array $source
 	 * @param string $suffix
 	 * @return void
-	 * @dataProvider ArrayToolsData::valuesRemoveSuffix()
+	 * @dataProvider \testZesk\ArrayToolsData::valuesRemoveSuffix()
 	 * @covers ::valuesRemoveSuffix
 	 */
 	public function test_removeSuffix(array $expected, array $source, string $suffix): void
@@ -364,7 +367,7 @@ class ArrayToolsTest extends TestCase
 	}
 
 	/**
-	 * @dataProvider ArrayToolsData::trim()
+	 * @dataProvider \testZesk\ArrayToolsData::trim()
 	 * @covers ::trim
 	 * @param array $expected
 	 * @param array $test
@@ -378,7 +381,7 @@ class ArrayToolsTest extends TestCase
 
 	/**
 	 * @covers ::transpose
-	 * @dataProvider ArrayToolsData::dataTranspose
+	 * @dataProvider \testZesk\ArrayToolsData::dataTranspose
 	 * @param array $expected
 	 * @param array $test
 	 * @return void
@@ -393,25 +396,26 @@ class ArrayToolsTest extends TestCase
 	}
 
 	/**
-	 * @param array  $expected
-	 * @param array  $test
-	 * @param string $prefix
-	 * @param bool   $caseInsensitive
+	 * @param array $expected
+	 * @param array $test
+	 * @param string|array $prefix
+	 * @param bool $caseInsensitive
 	 * @return void
 	 * @covers ::filterKeyPrefixes
-	 * @dataProvider ArrayToolsData::filterKeyPrefixes
+	 * @dataProvider \testZesk\ArrayToolsData::filterKeyPrefixes
 	 */
-	public function test_filterKeyPrefixes(array $expected, array $test, string $prefix, bool $caseInsensitive): void
+	public function test_filterKeyPrefixes(array $expected, array $test, string|array $prefix, bool $caseInsensitive): void
 	{
 		$this->assertEquals($expected, ArrayTools::filterKeyPrefixes($test, $prefix, $caseInsensitive));
 	}
 
 	/**
-	 * @param array        $expected
-	 * @param array        $test
+	 * @param array $expected
+	 * @param array $test
 	 * @param string|array $include
 	 * @return void
-	 * @dataProvider ArrayToolsData::filter()
+	 * @dataProvider \testZesk\ArrayToolsData::filter()
+	 * @covers ::filter
 	 */
 	public function test_filter(array $expected, array $test, string|array $include): void
 	{
@@ -420,11 +424,11 @@ class ArrayToolsTest extends TestCase
 	}
 
 	/**
-	 * @param array        $expected
+	 * @param array $expected
 	 * @param array|string $test
 	 * @param string|array $needles
 	 * @return void
-	 * @dataProvider ArrayToolsData::find()
+	 * @dataProvider \testZesk\ArrayToolsData::find
 	 * @covers
 	 */
 	public function test_find(array $expected, array|string $test, string|array $needles): void
@@ -433,8 +437,8 @@ class ArrayToolsTest extends TestCase
 	}
 
 	/**
-	 * @dataProvider ArrayToolsData::has
-	 * @param bool  $expected
+	 * @dataProvider \testZesk\ArrayToolsData::has
+	 * @param bool $expected
 	 * @param array $test
 	 * @param mixed $has
 	 * @covers ::has
@@ -518,11 +522,11 @@ class ArrayToolsTest extends TestCase
 	}
 
 	/**
-	 * @param bool  $expected
+	 * @param bool $expected
 	 * @param mixed $test
 	 * @return void
 	 * @covers ::isList
-	 * @dataProvider ArrayToolsData::dataIsList()
+	 * @dataProvider \testZesk\ArrayToolsData::dataIsList()
 	 */
 	public function test_isList(bool $expected, mixed $test): void
 	{
@@ -535,7 +539,7 @@ class ArrayToolsTest extends TestCase
 	 * @param array $source_keys
 	 * @param mixed $default
 	 * @return void
-	 * @dataProvider ArrayToolsData::keysFind
+	 * @dataProvider \testZesk\ArrayToolsData::keysFind
 	 * @covers ::keysFind
 	 */
 	public function test_keysFind(mixed $expected, array $source, array $source_keys, mixed $default): void
@@ -548,7 +552,8 @@ class ArrayToolsTest extends TestCase
 	 * @param array $array
 	 * @param mixed $default
 	 * @return void
-	 * @dataProvider ArrayToolsData::max
+	 * @covers ::max
+	 * @dataProvider \testZesk\ArrayToolsData::max
 	 */
 	public function test_max(mixed $expected, array $array, mixed $default): void
 	{
@@ -560,7 +565,7 @@ class ArrayToolsTest extends TestCase
 	 * @param mixed $default
 	 * @param mixed $expected
 	 * @return void
-	 * @dataProvider ArrayToolsData::min
+	 * @dataProvider \testZesk\ArrayToolsData::min
 	 * @covers ::min
 	 */
 	public function test_min(array $array, mixed $default, mixed $expected): void
@@ -578,7 +583,7 @@ class ArrayToolsTest extends TestCase
 			'path' => [
 				'to' => [
 					'the' => [
-						'deep'    => [
+						'deep' => [
 							'portion' => 1231242,
 						],
 						'funzone' => 'pigeon',
@@ -599,14 +604,14 @@ class ArrayToolsTest extends TestCase
 	}
 
 	/**
-	 * @param string|null $expected
-	 * @param string      $haystack
-	 * @param array       $needles
+	 * @param array|null $expected
+	 * @param string $haystack
+	 * @param array $needles
 	 * @return void
 	 * @covers ::findInsensitive
-	 * @dataProvider ArrayToolsData::findInsensitive
+	 * @dataProvider \testZesk\ArrayToolsData::findInsensitive
 	 */
-	public function test_findInsensitive(string|null $expected, string $haystack, array $needles): void
+	public function test_findInsensitive(array|null $expected, string $haystack, array $needles): void
 	{
 		$this->assertEquals($expected, ArrayTools::findInsensitive($haystack, $needles));
 	}
@@ -641,12 +646,13 @@ class ArrayToolsTest extends TestCase
 	}
 
 	/**
-	 * @param array  $expected
-	 * @param array  $actual
+	 * @param array $expected
+	 * @param array $actual
 	 * @param string $key
-	 * @param mixed  $value
+	 * @param mixed $value
 	 * @return void
-	 * @dataProvider ArrayToolsData::append
+	 * @covers ::append
+	 * @dataProvider \testZesk\ArrayToolsData::append
 	 */
 	public function test_append(array $expected, array $actual, string $key, mixed $value): void
 	{
@@ -697,7 +703,7 @@ class ArrayToolsTest extends TestCase
 	 * @param $exclude
 	 * @param $lower
 	 * @return void
-	 * @dataProvider ArrayToolsData::filterKeys
+	 * @dataProvider \testZesk\ArrayToolsData::filterKeys
 	 * @covers       ::filterKeys
 	 */
 	public function test_filterKeys($expected, $array_to_filter, $include, $exclude, $lower): void
@@ -713,7 +719,7 @@ class ArrayToolsTest extends TestCase
 	{
 		$characterList = 'a';
 		$this->assertEquals([
-			'b'     => 'aaaab',
+			'b' => 'aaaab',
 			'AAAAb' => 'AAAAb',
 			'baaaa' => 'baaaa',
 		], ArrayTools::keysLeftTrim([
@@ -730,14 +736,14 @@ class ArrayToolsTest extends TestCase
 	public function test_suffixKeys(): void
 	{
 		$arr = [
-			1       => 'one',
-			2       => 'two',
+			1 => 'one',
+			2 => 'two',
 			'three' => 3,
 		];
 		$str = 'duck';
 		$this->assertEquals([
-			'1duck'     => 'one',
-			'2duck'     => 'two',
+			'1duck' => 'one',
+			'2duck' => 'two',
 			'threeduck' => 3,
 		], ArrayTools::suffixKeys($arr, $str));
 	}
@@ -765,7 +771,7 @@ class ArrayToolsTest extends TestCase
 	 * @param string $delimiter
 	 * @param string $expected
 	 * @return void
-	 * @dataProvider ArrayToolsData::preg_quote
+	 * @dataProvider \testZesk\ArrayToolsData::preg_quote
 	 * @covers ::preg_quote
 	 */
 	public function test_preg_quote(string $string, string $delimiter, string $expected): void
@@ -774,12 +780,12 @@ class ArrayToolsTest extends TestCase
 	}
 
 	/**
-	 * @param array  $actual
+	 * @param array $actual
 	 * @param string $key
-	 * @param mixed  $value
-	 * @param array  $expected
+	 * @param mixed $value
+	 * @param array $expected
 	 * @return void
-	 * @dataProvider ArrayToolsData::prepend
+	 * @dataProvider \testZesk\ArrayToolsData::prepend
 	 * @covers ::prepend
 	 * /
 	 */
@@ -815,7 +821,7 @@ class ArrayToolsTest extends TestCase
 	 * @param array $test
 	 * @param array $expected
 	 * @return void
-	 * @dataProvider ArrayToolsData::listTrim
+	 * @dataProvider \testZesk\ArrayToolsData::listTrim
 	 * @covers ::listTrim
 	 */
 	public function test_listTrim(array $test, array $expected): void

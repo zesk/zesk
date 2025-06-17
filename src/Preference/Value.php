@@ -36,29 +36,29 @@ use zesk\Interface\Userlike;
  */
 #[Entity]
 #[EntityListeners([ModelListener::class])]
-#[Table(name: "PreferenceValue")]
-#[UniqueConstraint(name: "userType", columns: [
+#[Table(name: 'PreferenceValue')]
+#[UniqueConstraint(name: 'userType', columns: [
 	'user',
 	'type',
 ])]
-class Value extends Model {
-	
+class Value extends Model
+{
 	public function __construct(Application $application, Type $type, mixed $value, array $options = [])
 	{
 		parent::__construct($application, $options);
 		$this->type = $type;
 		$this->value = $value;
 	}
-	
+
 	use AutoID;
-	
+
 	#[OneToOne]
-	#[JoinColumn(referencedColumnName: "id")]
+	#[JoinColumn(referencedColumnName: 'id')]
 	public Type $type;
-	
-	#[Column(type: "json", nullable: false)]
+
+	#[Column(type: 'json', nullable: false)]
 	public mixed $value;
-	
+
 	/**
 	 * Internal function to retrieve
 	 *
@@ -77,6 +77,7 @@ class Value extends Model {
 		} else {
 			$type = Type::findName($application, $name);
 		}
+
 		try {
 			$value = $em->getRepository(self::class)->findOneBy([
 				'user' => $user,
@@ -84,15 +85,14 @@ class Value extends Model {
 			]);
 			assert($value instanceof Value);
 			return $value;
-			
 		} catch (Throwable) {
-			throw new NotFoundException("No value found for {user} {name}", [
-				"user" => $user,
-				"name" => $name,
+			throw new NotFoundException('No value found for {user} {name}', [
+				'user' => $user,
+				'name' => $name,
 			]);
 		}
 	}
-	
+
 	/**
 	 * Does the user have a preference value?
 	 *
@@ -108,7 +108,7 @@ class Value extends Model {
 			return false;
 		}
 	}
-	
+
 	/**
 	 * @param User   $user
 	 * @param string $name
@@ -120,7 +120,7 @@ class Value extends Model {
 		$value = self::find($user, $name);
 		return $value->value;
 	}
-	
+
 	/**
 	 * @param User  $user
 	 * @param array $values
@@ -136,12 +136,12 @@ class Value extends Model {
 		$result = [];
 		foreach ($values as $name => $value) {
 			$type = Type::registerName($app, $name);
+
 			try {
 				$valueObject = self::find($user, $type);
 				$valueObject->value = $value;
 			} catch (NotFoundException) {
 				$valueObject = new self($app, $type, $value);
-				
 			}
 			$em->persist($valueObject);
 		}

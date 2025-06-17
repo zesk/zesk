@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package    zesk
  * @subpackage locale
  * @author     kent
- * @copyright  &copy; 2023, Market Acumen, Inc.
+ * @copyright  &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Locale;
@@ -33,8 +33,8 @@ use zesk\Theme;
  * @author kent
  *
  */
-class Module extends \zesk\Module implements Head, Routes {
-	
+class Module extends \zesk\Module implements Head, Routes
+{
 	/**
 	 * @param Locale $locale
 	 * @param array  $phrases
@@ -61,14 +61,14 @@ class Module extends \zesk\Module implements Head, Routes {
 			return;
 		}
 		$writer = new Writer($this->application, Directory::path($path, $locale->id() . '-auto.php'), $locale->id());
-		
+
 		try {
 			$writer->append($phrases, $phrasesContext);
 		} catch (UnimplementedException|FileNotFound|FilePermission $e) {
 			PHP::log($e);
 		}
 	}
-	
+
 	/**
 	 * Output our locale translation files for JavaScript to use
 	 *
@@ -93,7 +93,7 @@ class Module extends \zesk\Module implements Head, Routes {
 			PHP::log($e);
 		}
 	}
-	
+
 	/**
 	 * @param Router $router
 	 * @return void

@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 /**
- *
+ * @copyright  Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -29,12 +29,13 @@ use zesk\Interface\Themeable;
  * $this->account
  * $account
  * Are the same value.
- * @format markdown
  *
- * @package zesk
+ * @format     markdown
+ *
+ * @package    zesk
  * @subpackage system
- * @see Application::themePaths
- * @author kent
+ * @see        Application::themePaths
+ * @author     kent
  */
 class Theme implements Themeable
 {
@@ -148,8 +149,8 @@ class Theme implements Themeable
 	/**
 	 * Construct a new template
 	 *
-	 * @param Themes $app
-	 * @param string $path
+	 * @param Themes      $app
+	 * @param string      $path
 	 * @param array|Theme $variables
 	 * @return self
 	 */
@@ -226,7 +227,7 @@ class Theme implements Themeable
 	 * Complete output buffering, passing additional variables to be added to the template,
 	 * and pass an optional variable name for the output content to be applied to the template.
 	 *
-	 * @param array $variables Optional variables to apply to the template
+	 * @param array  $variables Optional variables to apply to the template
 	 * @param string $content_variable
 	 * @return string
 	 * @throws ProtocolException|Redirect
@@ -354,9 +355,9 @@ class Theme implements Themeable
 					$template_path = true;
 				}
 				$this->themes->logger?->warning('Template::path("{path}") not found in themePath ({n_paths} paths).', [
-					'path' => $path,
+					'path'       => $path,
 					'themePaths' => $themePaths,
-					'n_paths' => count($themePaths),
+					'n_paths'    => count($themePaths),
 				]);
 			}
 			return [
@@ -460,8 +461,8 @@ class Theme implements Themeable
 	/**
 	 * Set a variable to the template
 	 *
-	 * @param array|string|Theme|int $key Thing to set
-	 * @param mixed $value Value to set (string or int $key only)
+	 * @param array|string|Theme|int $key   Thing to set
+	 * @param mixed                  $value Value to set (string or int $key only)
 	 */
 	public function set(array|string|int|Theme $key, mixed $value = null): void
 	{
@@ -550,7 +551,7 @@ class Theme implements Themeable
 
 	/**
 	 *
-	 * @param Request $request
+	 * @param Request  $request
 	 * @param Response $response
 	 * @return string
 	 * @throws Redirect
@@ -574,7 +575,7 @@ class Theme implements Themeable
 	 * values. If you pass in a string, and a value it's the same as __set
 	 *
 	 * @param array|Theme|string|int $mixed
-	 * @param mixed $value When $mixed is a string or int, the value to set
+	 * @param mixed                  $value When $mixed is a string or int, the value to set
 	 * @return $this
 	 */
 	public function inherit(array|Theme|string|int $mixed, mixed $value = null): self
@@ -593,8 +594,8 @@ class Theme implements Themeable
 
 	/**
 	 *
-	 * @param string|int $key Key
-	 * @param mixed $value Value
+	 * @param string|int $key   Key
+	 * @param mixed      $value Value
 	 * @see stdClass::__set
 	 */
 	public function __set(string|int $key, mixed $value): void
@@ -660,9 +661,9 @@ class Theme implements Themeable
 	 *
 	 * @param array|string $types
 	 *            Theme, or list of themes
-	 * @param array $arguments
+	 * @param array        $arguments
 	 *            Arguments for the theme to render
-	 * @param array $options
+	 * @param array        $options
 	 *            Extra options which effect how the theme request is interpreted
 	 * @return string|null
 	 * @throws Redirect

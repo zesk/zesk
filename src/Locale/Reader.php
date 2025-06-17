@@ -1,11 +1,12 @@
 <?php
 declare(strict_types=1);
 /**
- * @package zesk
+ * @package    zesk
  * @subpackage Locale
- * @author kent
- * @copyright &copy; 2023, Market Acumen, Inc.
+ * @author     kent
+ * @copyright  &copy; 2025, Market Acumen, Inc.
  */
+
 namespace zesk\Locale;
 
 use Throwable;
@@ -76,9 +77,9 @@ class Reader
 
 	/**
 	 *
-	 * @param array $paths
+	 * @param array  $paths
 	 * @param string $id
-	 * @param array $extensions
+	 * @param array  $extensions
 	 * @return self
 	 */
 	public static function factory(array $paths, string $id, array $extensions = []): self
@@ -88,14 +89,17 @@ class Reader
 
 	/**
 	 *
-	 * @param array $paths
+	 * @param array  $paths
 	 * @param string $id
-	 * @param array $extensions
+	 * @param array  $extensions
 	 */
 	public function __construct(array $paths, string $id, array $extensions = [])
 	{
 		$this->paths = $paths;
-		[$language, $dialect] = Locale::parse($id);
+		[
+			$language,
+			$dialect,
+		] = Locale::parse($id);
 		$this->id = Locale::normalize($id);
 		$this->language = $language;
 		$this->dialect = $dialect;
@@ -139,7 +143,7 @@ class Reader
 	/**
 	 *
 	 * @param Application $application
-	 * @param array $options
+	 * @param array       $options
 	 * @return Locale
 	 * @throws ClassNotFound
 	 */
@@ -222,7 +226,7 @@ class Reader
 			$result = JSON::decode(File::contents($file));
 		} else {
 			throw new UnsupportedException('Locale file {file} extension {extension} not supported', [
-				'file' => $file,
+				'file'      => $file,
 				'extension' => $extension,
 			]);
 		}

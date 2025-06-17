@@ -26,26 +26,26 @@ use zesk\URL;
  * @author kent
  *
  */
-class ClientTestCase extends TestCase {
-	
+class ClientTestCase extends TestCase
+{
 	/**
 	 *
 	 * @var string
 	 */
 	private string $url;
-	
+
 	/**
 	 *
 	 * @var string
 	 */
 	private string $email;
-	
+
 	/**
 	 *
 	 * @var array
 	 */
 	private array $parts = [];
-	
+
 	/**
 	 */
 	public function test_outgoing_requirements(): void
@@ -73,7 +73,7 @@ class ClientTestCase extends TestCase {
 			'port',
 		], $this->parts);
 	}
-	
+
 	/**
 	 * @return void
 	 * @depends test_outgoing_requirements
@@ -82,26 +82,26 @@ class ClientTestCase extends TestCase {
 	{
 		$test_email = $this->email;
 		$test_url = $this->url;
-		
+
 		$options = [
 			'echo_log' => true,
 		];
-		
+
 		$test_prefix = __CLASS__;
-		
+
 		$test_key = $test_prefix . '-' . md5(microtime());
-		
+
 		$mail = Mail::sendmail($this->application, $test_email, 'no-reply@zesk.com', "Test Subject: $test_key", "This is not a comment. I hold a mild disdain for writing comments, but find them useful when others write them.\n$test_key");
-		
+
 		$this->assertInstanceOf(Mail::class, $mail);
-		
+
 		$n_seconds = 1;
 		$success = false;
 		$timer = new Timer();
 		echo "Searching for subject containing: $test_key\n";
 		do {
 			$testObject = new Client($this->application, $test_url, $options);
-			
+
 			$iterator = $testObject->iterator();
 			foreach ($iterator as $message_id => $headers) {
 				$subject = $headers['subject'] ?? '-no-subject-';
@@ -123,12 +123,12 @@ class ClientTestCase extends TestCase {
 			sleep($n_seconds);
 			$n_seconds *= 2;
 		} while ($timer->elapsed() < 300);
-		
+
 		$this->assertTrue($success, "Ran out of time trying to find $test_prefix");
-		
+
 		echo basename(__FILE__) . ": success\n";
 	}
-	
+
 	/**
 	 * @depends test_outgoing_requirements
 	 */
@@ -138,7 +138,7 @@ class ClientTestCase extends TestCase {
 		$parts = ArrayTools::filter($this->parts, 'scheme;host;user');
 		$parts['pass'] = 'bad-password';
 		$test_url = URL::stringify($parts);
-		
+
 		$options = [
 			'echo_log'   => true,
 			'read_debug' => true,
@@ -146,7 +146,7 @@ class ClientTestCase extends TestCase {
 			'debug_apop' => true,
 		];
 		$testObject = new Client($this->application, $test_url, $options);
-		
+
 		$testObject->authenticate();
 	}
 }

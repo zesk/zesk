@@ -1,11 +1,10 @@
 <?php
 declare(strict_types=1);
 /**
- * @package zesk
+ * @package    zesk
  * @subpackage system
- * @author kent
- * @copyright Copyright &copy; 2025, Market Acumen, Inc.
- * Created on Wed Feb 24 14:17:02 EST 2010 14:17:02
+ * @author     kent
+ * @copyright  Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -25,7 +24,7 @@ class UTF16
 	 * http://www.onicos.com/staff/iz/amuse/javascript/expert/utf.txt
 	 *
 	 * @param string $content
-	 * @param bool $be Return BOM encoding characters
+	 * @param bool   $be Return BOM encoding characters
 	 * @return string
 	 */
 	public static function toUTF8(string $content, bool &$be = null): string
@@ -70,7 +69,7 @@ class UTF16
 	 * From: http://php.net/manual/en/function.utf8-decode.php
 	 *
 	 * @param string $content UTF-16 encoded data to decode.
-	 * @param bool $be Return BOM value
+	 * @param bool   $be      Return BOM value
 	 * @return  string  UTF-8 / ISO encoded data.
 	 * @access  public
 	 * @version 0.1 / 2005-01-19
@@ -114,8 +113,8 @@ class UTF16
 	 * This is probably too simplistic, but should work for most standard ASCII < 0x7F
 	 * Used currently in CSVReader to convert delimiters
 	 *
-	 * @param string $content String to encode
-	 * @param boolean $be Big endian-encoding
+	 * @param string  $content String to encode
+	 * @param boolean $be      Big endian-encoding
 	 * @param boolean $add_bom Add byte-order marker
 	 * @return string Encoded in UTF-16
 	 */
@@ -143,7 +142,7 @@ class UTF16
 	/**
 	 * Syntactic sugar function?
 	 *
-	 * @param string $mixed
+	 * @param string    $mixed
 	 * @param bool|null $be
 	 * @return string
 	 */

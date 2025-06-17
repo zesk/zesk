@@ -33,21 +33,21 @@ use zesk\Preference\Class\Class_Value;
  */
 #[Entity]
 #[EntityListeners([ModelListener::class])]
-#[Table(name: "PreferenceType")]
-#[UniqueConstraint(name: "code", columns: ['code'])]
-class Type extends Model {
-	
+#[Table(name: 'PreferenceType')]
+#[UniqueConstraint(name: 'code', columns: ['code'])]
+class Type extends Model
+{
 	use AutoID;
-	
-	#[Column(type: "string", length: 64, nullable: false)]
-	public string $code = "";
-	
-	#[Column(type: "string", length: 64, nullable: false)]
-	public string $name = "";
-	
-	#[Column(type: "json", nullable: false)]
+
+	#[Column(type: 'string', length: 64, nullable: false)]
+	public string $code = '';
+
+	#[Column(type: 'string', length: 64, nullable: false)]
+	public string $name = '';
+
+	#[Column(type: 'json', nullable: false)]
 	public array $attributes = [];
-	
+
 	/**
 	 * @param Application $application
 	 * @param string      $code
@@ -55,15 +55,14 @@ class Type extends Model {
 	 * @param array       $attributes
 	 * @param array       $options
 	 */
-	public function __construct(Application $application, string $code, string $name = "", array $attributes = [], array $options = [])
+	public function __construct(Application $application, string $code, string $name = '', array $attributes = [], array $options = [])
 	{
 		parent::__construct($application, $options);
 		$this->code = $code;
 		$this->name = $name;
 		$this->attributes = $attributes;
-		
 	}
-	
+
 	/**
 	 * Find a preference type with the given name
 	 *
@@ -88,7 +87,7 @@ class Type extends Model {
 			], $e->getCode(), $e);
 		}
 	}
-	
+
 	/**
 	 * Find a preference type with the given name
 	 *

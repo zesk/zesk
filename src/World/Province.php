@@ -1,6 +1,7 @@
 <?php
 declare(strict_types=1);
 /**
+ * @copyright &copy; 2025, Market Acumen, Inc.
  * @package    zesk
  * @subpackage World
  */
@@ -21,11 +22,11 @@ use zesk\Doctrine\Trait\CodeName;
  */
 #[Entity]
 #[EntityListeners([ModelListener::class])]
-class Province extends Model {
-	
+class Province extends Model
+{
 	use AutoID;
 	use CodeName;
-	
+
 	#[ManyToOne]
 	#[JoinColumn(name: 'country')]
 	public Country $country;

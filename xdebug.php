@@ -9,10 +9,10 @@ declare(strict_types=1);
  *
  * Also try `isset($GLOBALS['xdebug_break_if_enabled']) && $GLOBALS['xdebug_break_if_enabled']();`
  *
- * @package zesk
+ * @package    zesk
  * @subpackage core
- * @author kent
- * @copyright Copyright &copy; 2025, Market Acumen, Inc.
+ * @author     kent
+ * @copyright  Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 $xdebug_break_if_enabled = function (): void {
@@ -28,4 +28,4 @@ $xdebug_break_if_enabled = function (): void {
 	}
 };
 
-$xdebug_break_if_enabled();
+// $xdebug_break_if_enabled();

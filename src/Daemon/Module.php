@@ -31,16 +31,16 @@ use zesk\Timestamp;
  * @author kent
  *
  */
-class Module extends \zesk\Module {
-	
+class Module extends \zesk\Module
+{
 	/**
 	 *
 	 * @var string
 	 */
 	public string $runPath;
-	
+
 	private bool $db_debug = false;
-	
+
 	/**
 	 *
 	 *
@@ -57,7 +57,7 @@ class Module extends \zesk\Module {
 		$this->runPath = Directory::path($runPath, 'daemon');
 		Directory::depend($this->runPath, 0o700);
 	}
-	
+
 	/**
 	 * @return string[][]
 	 * @todo This is not doing anything
@@ -74,12 +74,12 @@ class Module extends \zesk\Module {
 			],
 		];
 	}
-	
+
 	#[Cron(schedule: Temporal::UNIT_MINUTE)]
 	protected function hook_cron(): void
 	{
 		$application = $this->application;
-		
+
 		try {
 			$server = Server::singleton($application);
 			$database = $this->loadProcessDatabase();
@@ -93,7 +93,7 @@ class Module extends \zesk\Module {
 			$this->application->error($e->getMessage());
 		}
 	}
-	
+
 	/**
 	 * Retrieve database path
 	 *
@@ -103,7 +103,7 @@ class Module extends \zesk\Module {
 	{
 		return Directory::path($this->runPath, 'daemon.db');
 	}
-	
+
 	/**
 	 * @return void
 	 * @throws FilePermission
@@ -112,7 +112,7 @@ class Module extends \zesk\Module {
 	{
 		File::unlink($this->_databasePath());
 	}
-	
+
 	/**
 	 * @param array $database
 	 * @return void
@@ -145,7 +145,7 @@ class Module extends \zesk\Module {
 			]);
 		}
 	}
-	
+
 	/**
 	 * Get daemon database
 	 *
@@ -164,13 +164,13 @@ class Module extends \zesk\Module {
 		}
 		if (!flock($fp, LOCK_SH)) {
 			fclose($fp);
-			
+
 			throw new FilePermission($path, "flock($path, LOCK_SH) returned false-ish");
 		}
 		$result = fread($fp, 1024 * 1024);
 		if ($result === false) {
 			fclose($fp);
-			
+
 			throw new FilePermission($path, "fread($path) returned false");
 		}
 		$database = PHP::unserialize($result);
@@ -185,7 +185,7 @@ class Module extends \zesk\Module {
 		}
 		if (!flock($fp, LOCK_UN)) {
 			fclose($fp);
-			
+
 			throw new FilePermission($path, "flock($path, LOCK_UN) returned false-ish");
 		}
 		fclose($fp);

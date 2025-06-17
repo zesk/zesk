@@ -16,22 +16,22 @@ use zesk\Options;
 /**
  * Iterator for CSV files. Options allows attaching extra unstructured data.
  */
-class Iterator extends Options implements BaseIterator {
-	
+class Iterator extends Options implements BaseIterator
+{
 	/**
 	 * CSV
 	 *
 	 * @var Reader
 	 */
 	private Reader $csv;
-	
+
 	/**
 	 * Tell structure used to rewind
 	 *
 	 * @var array
 	 */
 	private array $csv_tell;
-	
+
 	/**
 	 * Whether rows should be read as readRowAssoc or readRow
 	 *
@@ -39,28 +39,28 @@ class Iterator extends Options implements BaseIterator {
 	 * @see \zesk\Reader::readRowAssoc, \zesk\Reader::readRow
 	 */
 	private bool $assoc;
-	
+
 	/**
 	 * Return the read map for this reader
 	 *
 	 * @var string
 	 */
 	private string $use_map;
-	
+
 	/**
 	 * Current row
 	 *
 	 * @var array
 	 */
 	private array $row = [];
-	
+
 	/**
 	 * At end of file?
 	 *
 	 * @var boolean
 	 */
 	private bool $valid;
-	
+
 	public function __construct(Reader $csv, array $options = [])
 	{
 		parent::__construct($options);
@@ -71,7 +71,7 @@ class Iterator extends Options implements BaseIterator {
 		$this->row = [];
 		$this->valid = true;
 	}
-	
+
 	public function rewind(): void
 	{
 		$this->assoc = $this->optionBool('assoc', true);
@@ -79,17 +79,17 @@ class Iterator extends Options implements BaseIterator {
 		$this->valid = true;
 		$this->next();
 	}
-	
+
 	public function current(): array
 	{
 		return $this->row;
 	}
-	
+
 	public function key(): string
 	{
 		return strval($this->csv->rowIndex());
 	}
-	
+
 	public function next(): void
 	{
 		if ($this->assoc) {
@@ -99,16 +99,16 @@ class Iterator extends Options implements BaseIterator {
 		}
 		if (!is_array($this->row)) {
 			$this->valid = false;
-		} else if ($this->use_map) {
+		} elseif ($this->use_map) {
 			$this->row = $this->csv->read_map($this->use_map);
 		}
 	}
-	
+
 	public function valid(): bool
 	{
 		return $this->valid;
 	}
-	
+
 	/**
 	 * Convert iterator to an array
 	 *

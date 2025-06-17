@@ -1,6 +1,8 @@
 <?php
 declare(strict_types=1);
 /**
+ * @copyright &copy; 2025, Market Acumen, Inc.
+ *
  * Unit tests for database tests
  */
 
@@ -8,7 +10,7 @@ namespace testZesk\Doctrine;
 
 use Doctrine\ORM\EntityManager;
 use Doctrine\Persistence\ObjectRepository;
-use testZesk\TestApplicationTestBase;
+use testZesk\ApplicationTestBase;
 use zesk\Doctrine\Model;
 use zesk\Exception\ConfigurationException;
 use zesk\Exception\NotFoundException;
@@ -20,10 +22,10 @@ use zesk\Module;
  *
  * @author kent
  */
-class DatabaseTestBaseCase extends TestApplicationTestBase {
-	
+class DatabaseTestBaseCase extends ApplicationTestBase
+{
 	public EntityManager $em;
-	
+
 	/**
 	 * @throws ConfigurationException
 	 * @throws NotFoundException
@@ -34,7 +36,7 @@ class DatabaseTestBaseCase extends TestApplicationTestBase {
 		parent::initialize();
 		$this->testApplication->modules->load('Doctrine');
 		$this->testApplication->setOption('userClass', User::class);
-		
+
 		$password = $_SERVER['DATABASE_ROOT_PASSWORD'] ?? null;
 		if (!$password) {
 			throw new ConfigurationException('DATABASE_ROOT_PASSWORD', 'Database root password is required.');
@@ -44,15 +46,15 @@ class DatabaseTestBaseCase extends TestApplicationTestBase {
 			'connections',
 			'default',
 		], [
-			'driver'   => 'mysqli',
-			'user'     => $_SERVER['DATABASE_ROOT_USER'] ?? 'root',
+			'driver' => 'mysqli',
+			'user' => $_SERVER['DATABASE_ROOT_USER'] ?? 'root',
 			'password' => $password,
-			'host'     => $_SERVER['DATABASE_HOST'] ?? 'localhost',
-			'dbname'   => $_SERVER['DATABASE_TEST_NAME'] ?? 'zeskTest',
+			'host' => $_SERVER['DATABASE_HOST'] ?? 'localhost',
+			'dbname' => $_SERVER['DATABASE_TEST_NAME'] ?? 'zeskTest',
 		]);
 		$this->em = $this->testApplication->entityManager();
 	}
-	
+
 	/**
 	 * @return Module
 	 */
@@ -60,7 +62,7 @@ class DatabaseTestBaseCase extends TestApplicationTestBase {
 	{
 		return $this->testApplication->doctrineModule();
 	}
-	
+
 	/**
 	 * @return ObjectRepository
 	 */
@@ -68,7 +70,7 @@ class DatabaseTestBaseCase extends TestApplicationTestBase {
 	{
 		return $this->em->getRepository($name);
 	}
-	
+
 	/**
 	 * @param string $entity
 	 * @return string
@@ -77,7 +79,7 @@ class DatabaseTestBaseCase extends TestApplicationTestBase {
 	{
 		return $this->em->getClassMetadata($entity)->getTableName();
 	}
-	
+
 	/**
 	 * @return EntityManager
 	 * @deprecated 2023-04
@@ -86,7 +88,7 @@ class DatabaseTestBaseCase extends TestApplicationTestBase {
 	{
 		return $this->em;
 	}
-	
+
 	//	/**
 	//	 * @param string $name
 	//	 * @param string $create_sql
@@ -106,7 +108,7 @@ class DatabaseTestBaseCase extends TestApplicationTestBase {
 	//	}
 	//
 	/**
-	 * @param int    $expected
+	 * @param int $expected
 	 * @param string $modelClass
 	 * @return void
 	 */
@@ -115,7 +117,7 @@ class DatabaseTestBaseCase extends TestApplicationTestBase {
 		$actual = $this->em->getRepository($modelClass)->count([]);
 		$this->assertEquals($expected, $actual, "$modelClass does not have expected $expected rows (has $actual)");
 	}
-	
+
 	/**
 	 */
 	final protected function assertRepositoryMatch(string $modelClass, array $match = []): void
@@ -144,7 +146,7 @@ class DatabaseTestBaseCase extends TestApplicationTestBase {
 		}
 		$this->assertEquals($rows, $databaseRows, "Matching $modelClass to row values");
 	}
-	
+
 	/**
 	 * Synchronize the given classes with the database schema
 	 *
@@ -163,12 +165,12 @@ class DatabaseTestBaseCase extends TestApplicationTestBase {
 		}
 		return $this->testApplication->doctrineModule()->schemaSynchronize(array_keys($collection));
 	}
-	
+
 	final protected function sqlNormalizeTrim(string $sql): string
 	{
 		return preg_replace('/\s+/', ' ', trim($sql));
 	}
-	
+
 	/**
 	 * Compare SQL loosely
 	 *

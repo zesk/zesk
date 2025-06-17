@@ -255,7 +255,7 @@ class TestCase extends BaseTestCase
 	{
 		$keys = Types::toList($keys);
 		foreach ($keys as $key) {
-			$this->assertArrayHasKey($key, $array, $message);
+			$this->assertArrayHasKey($key, $array, $message === '' ? implode(', ', array_keys($array)) : $message);
 		}
 	}
 

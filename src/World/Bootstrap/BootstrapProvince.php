@@ -24,19 +24,19 @@ use zesk\World\Module;
  * @package    zesk
  * @subpackage system
  */
-class BootstrapProvince extends Hookable {
-	
+class BootstrapProvince extends Hookable
+{
 	/**
 	 * List of country codes to include
 	 */
 	public const OPTION_INCLUDE_COUNTRY = 'includeCountry';
-	
+
 	/**
 	 *
 	 * @var array
 	 */
 	private array $include_country = [];
-	
+
 	/**
 	 *
 	 * @param Application $application
@@ -47,7 +47,7 @@ class BootstrapProvince extends Hookable {
 	{
 		return new self($application, $options);
 	}
-	
+
 	/**
 	 * @param Application $application
 	 * @param array       $options
@@ -61,7 +61,7 @@ class BootstrapProvince extends Hookable {
 			$this->include_country = array_change_key_case(ArrayTools::keysFromValues(Types::toList($include_country), true));
 		}
 	}
-	
+
 	/**
 	 *
 	 * @param Country $country
@@ -74,7 +74,7 @@ class BootstrapProvince extends Hookable {
 		}
 		return true;
 	}
-	
+
 	/**
 	 * @param string $countryCode
 	 * @return Country
@@ -92,21 +92,21 @@ class BootstrapProvince extends Hookable {
 		assert($country instanceof Country);
 		return $country;
 	}
-	
+
 	/**
 	 * @throws ORMNotFound
 	 */
 	public function bootstrap(): void
 	{
 		$application = $this->application;
-		
+
 		$province_class = Province::class;
-		
+
 		$x = $application->ormFactory($province_class);
 		if ($this->optionBool('drop')) {
 			$x->database()->query('TRUNCATE ' . $x->table());
 		}
-		
+
 		$usProvinces = self::_province_us();
 		if ($this->optionBool('usOutlying')) {
 			$usProvinces += self::_province_us_outlying();
@@ -128,7 +128,7 @@ class BootstrapProvince extends Hookable {
 			}
 		}
 	}
-	
+
 	private static function _province_ca(): array
 	{
 		/* From: http://canadaonline.about.com/library/bl/blpabb.htm */
@@ -148,7 +148,7 @@ class BootstrapProvince extends Hookable {
 			'YT' => 'Yukon',
 		];
 	}
-	
+
 	private static function _province_us_outlying(): array
 	{
 		return [
@@ -163,7 +163,7 @@ class BootstrapProvince extends Hookable {
 			'VI' => 'U.S. Virgin Islands',
 		];
 	}
-	
+
 	private static function _province_us(): array
 	{
 		return [

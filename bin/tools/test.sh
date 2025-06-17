@@ -96,6 +96,7 @@ zeskTest() {
   fi
   args+=("--display-skipped")
 
+  args+=("--log-events-text" "$top/phpunit.log")
   __verifyDatabase "$usage" || return $?
 
   local testBinary="vendor/bin/phpunit" testResultPath="$top/test-results"

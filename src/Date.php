@@ -26,20 +26,20 @@ use function jdtogregorian;
  *
  * @author kent
  */
-class Date extends Weekday {
-	
+class Date extends Weekday
+{
 	/**
 	 *
 	 * @var string
 	 */
 	public const DEFAULT_FORMAT_STRING = '{YYYY}-{MM}-{DD}';
-	
+
 	/**
 	 *
 	 * @var integer
 	 */
 	public const seconds_in_day = 86400;
-	
+
 	/**
 	 * Year 2000+
 	 *
@@ -48,42 +48,42 @@ class Date extends Weekday {
 	 * @var int
 	 */
 	protected int $year = 0;
-	
+
 	/**
 	 * Month 1-12
 	 *
 	 * @var integer
 	 */
 	protected int $month = 1;
-	
+
 	/**
 	 * Day 1-31
 	 *
 	 * @var integer
 	 */
 	protected int $day = 0;
-	
+
 	/**
 	 * Day of the week 0-6
 	 *
 	 * @var ?int
 	 */
 	private ?int $_weekday;
-	
+
 	/**
 	 * Day of the year 0-366
 	 *
 	 * @var ?int
 	 */
 	private ?int $_year_day;
-	
+
 	/**
 	 * Offset from day 1,1,1 in gregorian calendar, computed first time
 	 *
 	 * @var ?int
 	 */
 	private static ?int $gregorian_offset = null;
-	
+
 	/**
 	 * Construct a new date instance with specific Year/Month/Day
 	 * Pass a negative value to use current year/month/date
@@ -100,7 +100,7 @@ class Date extends Weekday {
 		$d->ymd($year, $month, $day);
 		return $d;
 	}
-	
+
 	/**
 	 * @param mixed $value
 	 * @return Date
@@ -109,7 +109,7 @@ class Date extends Weekday {
 	{
 		return new self($value);
 	}
-	
+
 	/**
 	 * Date constructor.
 	 */
@@ -119,7 +119,7 @@ class Date extends Weekday {
 		$this->_year_day = null;
 		$this->set($value);
 	}
-	
+
 	/**
 	 * Copy that puppy
 	 *
@@ -129,7 +129,7 @@ class Date extends Weekday {
 	{
 		return clone $this;
 	}
-	
+
 	/**
 	 * Return a new Date object with the current date
 	 *
@@ -139,7 +139,7 @@ class Date extends Weekday {
 	{
 		return (new Date())->setNow();
 	}
-	
+
 	/**
 	 * Return a new Date object with the current date
 	 *
@@ -149,7 +149,7 @@ class Date extends Weekday {
 	{
 		return (new Date())->setUTCNow();
 	}
-	
+
 	/**
 	 * @param DateTime $value
 	 * @return $this
@@ -158,7 +158,7 @@ class Date extends Weekday {
 	{
 		return $this->setUNIXTimestamp($value->getTimestamp());
 	}
-	
+
 	/**
 	 * Set the date with a variety of values
 	 *
@@ -178,7 +178,7 @@ class Date extends Weekday {
 			DateTime::class => $this->setDateTime($value),
 		};
 	}
-	
+
 	/**
 	 * @param Date $date
 	 * @return $this
@@ -187,7 +187,7 @@ class Date extends Weekday {
 	{
 		return $this->setUNIXTimestamp($date->unixTimestamp());
 	}
-	
+
 	/**
 	 * @return string
 	 */
@@ -195,7 +195,7 @@ class Date extends Weekday {
 	{
 		return $this->year . '-' . StringTools::zeroPad($this->month) . '-' . StringTools::zeroPad($this->day);
 	}
-	
+
 	/**
 	 * Parse a Date from a variety of formats
 	 *
@@ -207,7 +207,7 @@ class Date extends Weekday {
 	 * @return $this|int
 	 * @throws ParseException
 	 */
-	
+
 	/**
 	 * @param string $value
 	 * @return self
@@ -222,7 +222,7 @@ class Date extends Weekday {
 		}
 		return $this->setUNIXTimestamp($ts);
 	}
-	
+
 	/**
 	 * @return $this
 	 */
@@ -235,7 +235,7 @@ class Date extends Weekday {
 			return $this;
 		}
 	}
-	
+
 	/**
 	 * @return $this
 	 */
@@ -243,7 +243,7 @@ class Date extends Weekday {
 	{
 		return $this->setUNIXTimestamp(time());
 	}
-	
+
 	/**
 	 * @return int
 	 */
@@ -253,7 +253,7 @@ class Date extends Weekday {
 		/* returns false, but have not been able to get it to do so with any ints used so ... */
 		return intval($ts);
 	}
-	
+
 	/**
 	 * @param int $set
 	 * @return $this
@@ -263,7 +263,7 @@ class Date extends Weekday {
 	{
 		return $this->_setDateArray(getdate($set));
 	}
-	
+
 	/**
 	 * @param null|int $yy
 	 * @param null|int $mm
@@ -284,7 +284,7 @@ class Date extends Weekday {
 		}
 		return $this;
 	}
-	
+
 	/**
 	 * @param array $date getdate result
 	 * @return $this
@@ -295,7 +295,7 @@ class Date extends Weekday {
 		$this->ymd($date['year'], $date['mon'], $date['mday']);
 		return $this;
 	}
-	
+
 	/**
 	 * @return int
 	 */
@@ -303,7 +303,7 @@ class Date extends Weekday {
 	{
 		return $this->month;
 	}
-	
+
 	/**
 	 * @param int $set
 	 * @return $this
@@ -320,7 +320,7 @@ class Date extends Weekday {
 		$this->month = $set;
 		return $this;
 	}
-	
+
 	/**
 	 * Set or get 1-based quarter number
 	 *
@@ -330,7 +330,7 @@ class Date extends Weekday {
 	{
 		return intval(($this->month - 1) / 3) + 1;
 	}
-	
+
 	/**
 	 * Set or get 1-based quarter number
 	 *
@@ -349,7 +349,7 @@ class Date extends Weekday {
 		if ($quarter === $set) {
 			return $this;
 		}
-		
+
 		// ($set - $quarter)
 		// ========+====+====+====+====+
 		// | 0 | 1 | 2 | 3 | $set
@@ -360,7 +360,7 @@ class Date extends Weekday {
 		// 3 | -3 | -2 | -1 | X |
 		// ========+====+====+====+====+
 		// $quarter
-		
+
 		/*
 		 * if ($quarter < $set) { // positive #s $this->add(0, ($set - $quarter) * 3); } if ($quarter > $set) { //
 		 * negative #s $this->add(0, (4 - ($quarter - $set)) * 3); }
@@ -368,7 +368,7 @@ class Date extends Weekday {
 		$this->add(0, ($set - $quarter) * 3);
 		return $this;
 	}
-	
+
 	/**
 	 * @return integer
 	 */
@@ -376,7 +376,7 @@ class Date extends Weekday {
 	{
 		return $this->day;
 	}
-	
+
 	/**
 	 * @param int $set
 	 * @return $this
@@ -393,7 +393,7 @@ class Date extends Weekday {
 		$this->day = $set;
 		return $this;
 	}
-	
+
 	/**
 	 *
 	 * @return int
@@ -402,7 +402,7 @@ class Date extends Weekday {
 	{
 		return $this->year;
 	}
-	
+
 	/**
 	 * @param int $set
 	 * @return $this
@@ -419,7 +419,7 @@ class Date extends Weekday {
 		$this->year = $set;
 		return $this;
 	}
-	
+
 	/**
 	 * @return int
 	 */
@@ -428,7 +428,7 @@ class Date extends Weekday {
 		$this->_refresh();
 		return $this->_weekday;
 	}
-	
+
 	/**
 	 * Get the 0-based index of the day of the year
 	 *
@@ -442,7 +442,7 @@ class Date extends Weekday {
 		$this->_refresh();
 		return $this->_year_day;
 	}
-	
+
 	/**
 	 * Get the 0-based index of the day of the year
 	 *
@@ -456,7 +456,7 @@ class Date extends Weekday {
 		$yearDay = $this->yearDay();
 		return $this->add(0, 0, $set - $yearDay);
 	}
-	
+
 	/**
 	 * Returns the last day of the month (or number of days in the month)
 	 *
@@ -467,7 +467,7 @@ class Date extends Weekday {
 	{
 		return self::daysInMonth($this->month, $this->year);
 	}
-	
+
 	/**
 	 * Return the number of days in the month
 	 *
@@ -503,7 +503,7 @@ class Date extends Weekday {
 		}
 		return 28;
 	}
-	
+
 	/**
 	 * Compare two dates
 	 * $this->compare($value) < 0 analagous to $this < $value
@@ -523,7 +523,7 @@ class Date extends Weekday {
 		}
 		return $result;
 	}
-	
+
 	/**
 	 * Returns true if $date is before $this
 	 *
@@ -541,7 +541,7 @@ class Date extends Weekday {
 			return $result < 0;
 		}
 	}
-	
+
 	/**
 	 * Returns true if $date is after $this
 	 *
@@ -559,7 +559,7 @@ class Date extends Weekday {
 			return $result > 0;
 		}
 	}
-	
+
 	/**
 	 * Returns difference in seconds between two dates
 	 *
@@ -570,7 +570,7 @@ class Date extends Weekday {
 	{
 		return $this->unixTimestamp() - $value->unixTimestamp();
 	}
-	
+
 	/**
 	 * Returns difference in seconds between two dates
 	 *
@@ -581,7 +581,7 @@ class Date extends Weekday {
 	{
 		return round($this->subtract($value) / self::seconds_in_day);
 	}
-	
+
 	/**
 	 * @param Date|null $min_date
 	 * @param Date|null $max_date
@@ -599,7 +599,7 @@ class Date extends Weekday {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Add years, months, or days to a Date
 	 *
@@ -611,10 +611,10 @@ class Date extends Weekday {
 	public function add(int $years = 0, int $months = 0, int $days = 0): self
 	{
 		$foo = mktime(0, 0, 0, $this->month + $months, $this->day + $days, $this->year + $years);
-		
+
 		return $this->_setDateArray(getdate($foo));
 	}
-	
+
 	/**
 	 * Add units to a date or time
 	 *
@@ -638,7 +638,7 @@ class Date extends Weekday {
 			]),
 		};
 	}
-	
+
 	/**
 	 * Month names in English
 	 *
@@ -658,14 +658,14 @@ class Date extends Weekday {
 		11 => 'November',
 		12 => 'December',
 	];
-	
+
 	/**
 	 * Month names translated
 	 *
 	 * @var array
 	 */
 	private static array $translated_months = [];
-	
+
 	/**
 	 * Weekday names in English
 	 *
@@ -680,14 +680,14 @@ class Date extends Weekday {
 		5 => 'Friday',
 		6 => 'Saturday',
 	];
-	
+
 	/**
 	 * Weekday names translated
 	 *
 	 * @var array
 	 */
 	private static array $translated_weekdays = [];
-	
+
 	/**
 	 * @param Locale $locale
 	 * @param bool   $short
@@ -702,11 +702,11 @@ class Date extends Weekday {
 		if (isset($cached[$id][$short])) {
 			return $cached[$id][$short];
 		}
-		$names = array_map(function ($name) use ($short, $locale) { return $locale->__($short ? 'Date-short:=' . substr($name, 0, 3) : 'Date:=' . $name); }, $source);
+		$names = array_map(fn ($name) => $locale->__($short ? 'Date-short:=' . substr($name, 0, 3) : 'Date:=' . $name), $source);
 		$cached[$id][$short] = $names;
 		return $names;
 	}
-	
+
 	/**
 	 * Return a localized list of month dates, 1-index based
 	 *
@@ -718,7 +718,7 @@ class Date extends Weekday {
 	{
 		return self::_cachedNames($locale, $short, self::$months, self::$translated_months);
 	}
-	
+
 	/**
 	 *
 	 * @param Locale  $locale
@@ -729,7 +729,7 @@ class Date extends Weekday {
 	{
 		return self::_cachedNames($locale, $short, self::$weekday_names, self::$translated_weekdays);
 	}
-	
+
 	/**
 	 * Format YYYY${sep}MM${sep}DD
 	 *
@@ -739,7 +739,7 @@ class Date extends Weekday {
 	{
 		return $this->year . '-' . StringTools::zeroPad($this->month) . '-' . StringTools::zeroPad($this->day);
 	}
-	
+
 	/**
 	 * @return string
 	 */
@@ -747,7 +747,7 @@ class Date extends Weekday {
 	{
 		return $this->_ymd_format();
 	}
-	
+
 	/**
 	 *
 	 * {@inheritdoc}
@@ -763,31 +763,31 @@ class Date extends Weekday {
 		$m = $this->month;
 		$w = $this->weekday();
 		$d = $this->day;
-		
+
 		$x = [];
 		$x['M'] = $m;
 		$x['D'] = $this->day;
 		$x['W'] = $w;
-		
+
 		foreach ($x as $k => $v) {
 			$x[$k . $k] = StringTools::zeroPad($v);
 		}
-		
+
 		$x['YYYY'] = $y = strval($this->year);
 		$x['YY'] = substr($y, -2);
-		
+
 		if ($locale instanceof Locale) {
 			$x['MMMM'] = $this->monthNames($locale)[$m] ?? '?';
 			$x['MMM'] = $this->monthNames($locale, true)[$m] ?? '?';
-			
+
 			$x['DDD'] = $locale->ordinal($d);
-			
+
 			$x['WWWW'] = $this->weekdayNames($locale)[$w] ?? '?';
 			$x['WWW'] = $this->weekdayNames($locale, true)[$w] ?? '?';
 		}
 		return $x;
 	}
-	
+
 	/**
 	 *
 	 * @param string $format
@@ -802,7 +802,7 @@ class Date extends Weekday {
 		$formatting = $this->formatting($options);
 		return ArrayTools::map($format, $formatting);
 	}
-	
+
 	/**
 	 * Set/get date as an integer (UNIX timestamp)
 	 *
@@ -812,7 +812,7 @@ class Date extends Weekday {
 	{
 		return $this->unixTimestamp();
 	}
-	
+
 	/**
 	 * @param int $value
 	 * @return $this
@@ -821,7 +821,7 @@ class Date extends Weekday {
 	{
 		return $this->setUNIXTimestamp($value);
 	}
-	
+
 	/**
 	 * @param Date $d
 	 * @return bool
@@ -830,7 +830,7 @@ class Date extends Weekday {
 	{
 		return $d->__toString() === $this->__toString();
 	}
-	
+
 	/**
 	 * Are the years equal in these two dates?
 	 *
@@ -842,7 +842,7 @@ class Date extends Weekday {
 	{
 		return $d->year() === $this->year;
 	}
-	
+
 	/**
 	 * Are the months equal in these two dates?
 	 *
@@ -854,7 +854,7 @@ class Date extends Weekday {
 	{
 		return $d->month() === $this->month;
 	}
-	
+
 	/**
 	 * @return boolean
 	 */
@@ -862,7 +862,7 @@ class Date extends Weekday {
 	{
 		return ($this->day === $this->daysInMonth($this->month, $this->year));
 	}
-	
+
 	/**
 	 * Check if empty, return false. Otherwise, compute _weekday and _yearday and return true
 	 *
@@ -876,7 +876,7 @@ class Date extends Weekday {
 			$this->_year_day = $date['yday'];
 		}
 	}
-	
+
 	/**
 	 * Is the supplied year (or the date's year) a leap year?
 	 *
@@ -891,7 +891,7 @@ class Date extends Weekday {
 		}
 		return ((($year % 4) == 0) && ((($year % 100) != 0) || (($year % 400) == 0)));
 	}
-	
+
 	/**
 	 * @return int
 	 */
@@ -902,7 +902,7 @@ class Date extends Weekday {
 		}
 		return self::$gregorian_offset;
 	}
-	
+
 	/**
 	 * Get or set the gregorgian offset from year 1
 	 *
@@ -912,7 +912,7 @@ class Date extends Weekday {
 	{
 		return gregoriantojd($this->month, $this->day, $this->year) - self::_gregorian_offset();
 	}
-	
+
 	/**
 	 * Get or set the gregorgian offset from year 1
 	 *
@@ -927,7 +927,7 @@ class Date extends Weekday {
 			$day,
 			$year,
 		] = explode('/', jdtogregorian($set + self::_gregorian_offset()), 3);
-		
+
 		try {
 			return $this->ymd(intval($year), intval($month), intval($day));
 		} catch (OutOfBoundsException) {
@@ -935,7 +935,7 @@ class Date extends Weekday {
 			return $this;
 		}
 	}
-	
+
 	/**
 	 * Returns the last day of the month (or number of days in the month).
 	 *

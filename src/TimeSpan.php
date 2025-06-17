@@ -2,8 +2,8 @@
 declare(strict_types=1);
 /**
  *
- * @author kent
- * @copyright &copy; 2023, Market Acumen, Inc.
+ * @author    kent
+ * @copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -133,7 +133,7 @@ class TimeSpan extends Temporal
 	 * Format time span
 	 *
 	 * @param string $format
-	 * @param array $options
+	 * @param array  $options
 	 * @return string
 	 */
 	public function format(string $format = '', array $options = []): string

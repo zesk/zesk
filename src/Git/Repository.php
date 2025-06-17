@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 /**
- * @package zesk
+ * @package    zesk
  * @subpackage git
- * @author kent
- * @copyright &copy; 2023, Market Acumen, Inc.
+ * @author     kent
+ * @copyright  &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Git;
@@ -44,7 +44,7 @@ class Repository extends CommandBase
 	 * Fetch a list of repository status for a target
 	 *
 	 * @param string $target
-	 * @param bool $updates
+	 * @param bool   $updates
 	 * @return array
 	 */
 	public function status(string $target, bool $updates = false): array

@@ -39,19 +39,19 @@ use zesk\StringTools;
 	'code',
 	'dialect',
 ])]
-class Language extends Model {
-	
+class Language extends Model
+{
 	use AutoID;
-	
+
 	#[Column(type: 'string', length: 2, nullable: false)]
 	public string $code;
-	
+
 	#[Column(type: 'string', length: 2, nullable: false)]
 	public string $dialect;
-	
+
 	#[Column(type: 'string', length: 128, nullable: false)]
 	public string $name;
-	
+
 	public function locale_string(): string
 	{
 		if (!$this->dialect) {
@@ -59,14 +59,14 @@ class Language extends Model {
 		}
 		return strtolower($this->code) . '_' . strtoupper($this->dialect);
 	}
-	
+
 	public static function find(Application $application, string $code): self
 	{
 		[
 			$language,
 			$dialect,
 		] = StringTools::pair($code, '_', $code, '');
-		
+
 		try {
 			$item = $application->entityManager()->getRepository(self::class)->findOneBy([
 				'code'    => $language,
@@ -75,7 +75,7 @@ class Language extends Model {
 			return $item;
 		} catch (Throwable) {
 		}
-		
+
 		throw new NotFoundException('{class} with {code}', [
 			'class' => self::class,
 			'code'  => $code,

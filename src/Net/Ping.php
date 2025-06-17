@@ -1,24 +1,27 @@
 <?php
 declare(strict_types=1);
+/**
+ * @copyright &copy; 2025, Market Acumen, Inc.
+ */
 
 namespace zesk\Net;
 
-class Ping {
-	
+class Ping
+{
 	private static $icmp_proto = null;
-	
+
 	public static function _init(): void
 	{
 		if (self::$icmp_proto === null) {
 			self::$icmp_proto = getprotobyname('icmp');
 		}
 	}
-	
+
 	/**
 	 * Note: on most systems you must be root to create raw sockets and call this function.
 	 *
-	 * @param string $host    IP address of hostname to ping
-	 * @param flaot  $timeout Seconds or fractional seconds to require a response by remote host. By default timeout is 1
+	 * @param string $host IP address of hostname to ping
+	 * @param flaot $timeout Seconds or fractional seconds to require a response by remote host. By default timeout is 1
 	 *                        second.
 	 * @return float Ping response time
 	 * @throws Exception if host did not reply in time/unreachable.
@@ -32,7 +35,7 @@ class Ping {
 		$seconds = intval($timeout);
 		$microseconds = ($timeout - $seconds) * 1000000;
 		socket_set_option($socket, SOL_SOCKET, SO_RCVTIMEO, [
-			'sec'  => $seconds,
+			'sec' => $seconds,
 			'usec' => $microseconds,
 		]);
 		socket_connect($socket, $host, null);
@@ -41,7 +44,7 @@ class Ping {
 		if (socket_read($socket, 255)) {
 			$result = microtime(true) - $ts;
 		} else {
-			throw new Exception("Failed to read from socket");
+			throw new Exception('Failed to read from socket');
 		}
 		socket_close($socket);
 		return $result;

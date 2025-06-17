@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 /**
- * @package zesk
+ * @package    zesk
  * @subpackage repository
- * @author kent
- * @copyright &copy; 2023, Market Acumen, Inc.
+ * @author     kent
+ * @copyright  &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Repository;
@@ -19,8 +19,8 @@ use zesk\Hookable;
 use zesk\URL;
 
 /**
- * @see \zesk\GitHub\Command
- * @see \zesk\Git\Repository
+ * @see    \zesk\GitHub\Command
+ * @see    \zesk\Git\Repository
  * @author kent
  */
 abstract class Base extends Hookable
@@ -164,8 +164,8 @@ abstract class Base extends Hookable
 	/**
 	 *
 	 * @param Application $application
-	 * @param string $root Path to repository root directory or a file within the repository
-	 * @param array $options
+	 * @param string      $root Path to repository root directory or a file within the repository
+	 * @param array       $options
 	 */
 	final public function __construct(Application $application, $root = null, array $options = [])
 	{
@@ -245,9 +245,9 @@ abstract class Base extends Hookable
 	/**
 	 *
 	 * @param Application $application
-	 * @param string $type
+	 * @param string      $type
 	 * @param string|null $root
-	 * @param array $options
+	 * @param array       $options
 	 * @return Base
 	 * @throws NotFoundException
 	 */
@@ -333,7 +333,7 @@ abstract class Base extends Hookable
 	/**
 	 * Fetch a list of repository status for a target
 	 *
-	 * @param string $target
+	 * @param string  $target
 	 * @param boolean $updates
 	 *
 	 * @return array[]

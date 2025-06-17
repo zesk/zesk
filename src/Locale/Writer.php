@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 /**
- * @package zesk
+ * @package    zesk
  * @subpackage Locale
- * @author kent
- * @copyright &copy; 2023, Market Acumen, Inc.
+ * @author     kent
+ * @copyright  &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Locale;
@@ -39,8 +39,8 @@ class Writer
 
 	/**
 	 * @param Application $application
-	 * @param string $file
-	 * @param string $localeHeader
+	 * @param string      $file
+	 * @param string      $localeHeader
 	 */
 	public function __construct(Application $application, string $file, string $localeHeader)
 	{
@@ -51,7 +51,7 @@ class Writer
 
 	/**
 	 *
-	 * @param array $phrases
+	 * @param array  $phrases
 	 * @param string $context Some context for where these strings came from
 	 * @return array
 	 * @throws FileNotFound
@@ -65,7 +65,9 @@ class Writer
 			'php' => $this->appendPHPFile($phrases, $context),
 			'json' => $this->appendCSVFile($phrases, $context),
 			default => throw new UnimplementedException('{method}: No handler for file extension {extension} (file is {file})', [
-				'method' => __METHOD__, 'extension' => $extension, 'file' => $this->file,
+				'method'    => __METHOD__,
+				'extension' => $extension,
+				'file'      => $this->file,
 			])
 		};
 	}
@@ -76,7 +78,7 @@ class Writer
 	 * @return string[]
 	 */
 	/**
-	 * @param array $phrases
+	 * @param array  $phrases
 	 * @param string $context
 	 * @return array
 	 * @throws FilePermission
@@ -122,7 +124,7 @@ class Writer
 	/**
 	 * Dump untranslated phrases
 	 *
-	 * @param array $phrases
+	 * @param array  $phrases
 	 * @param string $context
 	 * @return array
 	 * @throws FilePermission
@@ -134,18 +136,24 @@ class Writer
 			return [];
 		}
 		$csv = StringTools::csvQuoteRow([
-			'en_US', $this->localeHeader, 'context',
+			'en_US',
+			$this->localeHeader,
+			'context',
 		]);
 		$result = [];
 		foreach ($phrases as $k => $v) {
 			$csv .= StringTools::csvQuoteRow([
-				$k, $v, $context,
+				$k,
+				$v,
+				$context,
 			]);
 			$result[$k] = $v;
 		}
 		File::append($this->file, $csv);
 		$app->debug('{method} - Appended {n} entries to {filename}', [
-			'filename' => $this->file, 'n' => count($phrases), 'method' => __METHOD__,
+			'filename' => $this->file,
+			'n'        => count($phrases),
+			'method'   => __METHOD__,
 		]);
 		return $result;
 	}

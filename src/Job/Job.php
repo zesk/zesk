@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 /**
- *
+ * @copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Job;
@@ -54,106 +54,106 @@ use zesk\Types;
 	'pid',
 ])]
 #[EntityListeners([ModelListener::class])]
-class Job extends Model implements SystemProcess, ProgressStack {
-	
+class Job extends Model implements SystemProcess, ProgressStack
+{
 	public const HOOK_BEFORE = __CLASS__ . '::before';
-	
+
 	public const HOOK_AFTER = __CLASS__ . '::after';
-	
+
 	public const HOOK_SUCCESS = __CLASS__ . '::success';
-	
+
 	public const HOOK_INTERRUPTED = __CLASS__ . '::interrupted';
-	
+
 	public const HOOK_FAILED = __CLASS__ . '::failed';
-	
+
 	public const OPTION_RETRY_ATTEMPTS = 'retryAttempts';
-	
+
 	/**
 	 * Default
 	 */
 	public const DEFAULT_RETRY_ATTEMPTS = 100;
-	
+
 	/**
 	 *
 	 * @var integer
 	 */
 	public const PRIORITY_URGENT = 255;
-	
+
 	/**
 	 *
 	 * @var integer
 	 */
 	public const PRIORITY_IMPORTANT = 240;
-	
+
 	/**
 	 *
 	 * @var integer
 	 */
 	public const PRIORITY_NORMAL = 0;
-	
+
 	use AutoID;
-	
+
 	#[Column(type: 'string', length: 64, nullable: false)]
 	public string $name = '';
-	
+
 	#[Column(type: 'string', length: 64, nullable: false)]
 	public string $code = '';
-	
+
 	#[ManyToOne(targetEntity: User::class, inversedBy: 'metas')]
 	#[JoinColumn(name: 'user', referencedColumnName: 'id')]
 	public User|null $user = null;
-	
+
 	#[ManyToOne(targetEntity: Server::class, inversedBy: 'metas')]
 	#[JoinColumn(name: 'server', referencedColumnName: 'id')]
 	public Server|null $server = null;
-	
+
 	use Created;
-	
+
 	#[Column(type: 'timestamp', nullable: true)]
 	public null|Timestamp $start = null;
-	
+
 	#[Column(type: 'timestamp', nullable: true)]
 	public null|Timestamp $updated = null;
-	
+
 	#[Column(type: 'timestamp', nullable: true)]
 	public null|Timestamp $completed = null;
-	
+
 	#[Column(type: 'integer', nullable: false)]
 	public int $priority = 0;
-	
+
 	#[Column(type: 'integer', nullable: false)]
 	public int $pid = 0;
-	
+
 	#[Column(type: 'integer', nullable: false)]
 	public int $duration = 0;
-	
+
 	#[Column(type: 'integer', nullable: false)]
 	public int $died = 0;
-	
+
 	#[Column(type: 'integer', nullable: false, options: ['unsigned' => true])]
 	public int $lastExit = 0;
-	
+
 	#[Column(type: 'float', nullable: false)]
 	public float $progress = 0;
-	
+
 	#[Column(type: 'string', length: 128, nullable: false)]
 	public string $hook = '';
-	
+
 	#[Column(type: 'json', nullable: false)]
 	public array $arguments = [];
-	
+
 	#[Column(type: 'json', nullable: false)]
 	public array $data = [];
-	
+
 	#[Column(type: 'text', nullable: false)]
 	public string $status = '';
-	
+
 	/**
 	 *
 	 * @var null|SystemProcess
 	 */
 	private null|SystemProcess $process = null;
-	
+
 	public static function find(Application $application, int|string $id): ?Job
 	{
 		$em = $application->entityManager();
@@ -162,7 +162,7 @@ class Job extends Model implements SystemProcess, ProgressStack {
 		}
 		return $em->getRepository(self::class)->find(['code' => $id]);
 	}
-	
+
 	/**
 	 * @param Application $set
 	 * @return $this
@@ -173,7 +173,7 @@ class Job extends Model implements SystemProcess, ProgressStack {
 		$this->application = $set;
 		return $this;
 	}
-	
+
 	/**
 	 *
 	 * Hook should be a function like:
@@ -193,14 +193,14 @@ class Job extends Model implements SystemProcess, ProgressStack {
 	 * Job execute depends heavily on the fact that a daemon is running to process jobs.
 	 *
 	 * @param Application $application
-	 * @param string      $name      Name to describe this job to a human.
-	 * @param string      $code      Unique identifier for this job.
-	 * @param string      $hook
+	 * @param string $name Name to describe this job to a human.
+	 * @param string $code Unique identifier for this job.
+	 * @param string $hook
 	 *                               Name of a static method to invoke to run this job. First argument is ALWAYS the
 	 *                               application. Additional arguments are specified in the call and should be easily
 	 *                               serializable.
-	 * @param array       $arguments Additional arguments to pass to the hook.
-	 * @param int         $priority  Numeric priority between 0 and 255.
+	 * @param array $arguments Additional arguments to pass to the hook.
+	 * @param int $priority Numeric priority between 0 and 255.
 	 * @see Modue_Job::daemon
 	 */
 	public static function instance(Application $application, string $name, string $code, string $hook, array $arguments = [], int $priority = self::PRIORITY_NORMAL): self
@@ -224,12 +224,12 @@ class Job extends Model implements SystemProcess, ProgressStack {
 		$em->persist($job);
 		return $job;
 	}
-	
+
 	/**
 	 *
 	 * @param Application $application
-	 * @param int         $id
-	 * @param array       $options
+	 * @param int $id
+	 * @param array $options
 	 */
 	public static function mockRun(Application $application, int $id, array $options = []): SystemProcess
 	{
@@ -239,7 +239,7 @@ class Job extends Model implements SystemProcess, ProgressStack {
 		$job->execute($process);
 		return $process;
 	}
-	
+
 	/**
 	 *
 	 * @return int
@@ -248,7 +248,7 @@ class Job extends Model implements SystemProcess, ProgressStack {
 	{
 		return $this->priority;
 	}
-	
+
 	/**
 	 *
 	 * @param int $set
@@ -259,7 +259,7 @@ class Job extends Model implements SystemProcess, ProgressStack {
 		$this->priority = $set;
 		return $this;
 	}
-	
+
 	/**
 	 * Top priority
 	 *
@@ -269,7 +269,7 @@ class Job extends Model implements SystemProcess, ProgressStack {
 	{
 		return $this->setPriority(self::PRIORITY_URGENT);
 	}
-	
+
 	/**
 	 * Near-top priority
 	 *
@@ -279,7 +279,7 @@ class Job extends Model implements SystemProcess, ProgressStack {
 	{
 		return $this->setPriority(self::PRIORITY_IMPORTANT);
 	}
-	
+
 	/**
 	 * Determine how soon this job will be updated in the UI.
 	 * Return milliseconds.
@@ -300,7 +300,7 @@ class Job extends Model implements SystemProcess, ProgressStack {
 		}
 		return min($mag * 100, 5000);
 	}
-	
+
 	/**
 	 * Does the job appear to be in a running state? (May not be)
 	 *
@@ -310,7 +310,7 @@ class Job extends Model implements SystemProcess, ProgressStack {
 	{
 		return !$this->completed && $this->start;
 	}
-	
+
 	/**
 	 * Support application context
 	 *
@@ -320,7 +320,7 @@ class Job extends Model implements SystemProcess, ProgressStack {
 	{
 		return $this->application;
 	}
-	
+
 	/**
 	 * Start a job.
 	 * Sets start to $when, completed to null.
@@ -332,7 +332,7 @@ class Job extends Model implements SystemProcess, ProgressStack {
 	{
 		if ($when === null) {
 			$when = Timestamp::now();
-		} else if (!$when instanceof Timestamp) {
+		} elseif (!$when instanceof Timestamp) {
 			$when = Timestamp::factory($when);
 		}
 		$this->start = $when;
@@ -349,19 +349,19 @@ class Job extends Model implements SystemProcess, ProgressStack {
 		$this->invokeHooks(self::HOOK_START);
 		return $this;
 	}
-	
+
 	public const STATUS_STARTING = 'Starting';
-	
+
 	/**
 	 *
 	 */
 	public const HOOK_START = __CLASS__ . '::start';
-	
+
 	/**
 	 *
 	 */
 	public const HOOK_END = __CLASS__ . '::end';
-	
+
 	/**
 	 * Run jobs as part of a process
 	 *
@@ -376,18 +376,18 @@ class Job extends Model implements SystemProcess, ProgressStack {
 	{
 		$application = $process->application();
 		$logger = $application->logger();
-		
+
 		$server = Server::singleton($application);
 		$pid = getmypid();
-		
+
 		if ($process->done()) {
 			return 0;
 		}
 		$server_pid = [
-			'pid'    => $pid,
+			'pid' => $pid,
 			'server' => $server,
 		];
-		
+
 		$jobs = 0;
 		/*
 		 * If any processes are held by this process, free them.
@@ -395,23 +395,23 @@ class Job extends Model implements SystemProcess, ProgressStack {
 		 * Deals with the situation below where this process grabs them and then crashes. (you never know)
 		 */
 		$application->ormRegistry(__CLASS__)->queryUpdate()->setValues([
-			'pid'    => null,
+			'pid' => null,
 			'server' => null,
 		])->appendWhere($server_pid)->execute();
 		/*
 		 * Find Server records with processes which no longer are running and free them up
 		 */
 		self::cleanDeadProcessIDs($application, $server);
-		
+
 		do {
 			/*
 			 * Now iterate through available Jobs, and re-sort each iteration in case stuff changes between jobs
 			 */
 			$query = $application->ormRegistry(__CLASS__)->querySelect()->ormWhat()->appendWhere([
-				'start|<='  => Timestamp::now('UTC'),
-				'pid'       => null,
+				'start|<=' => Timestamp::now('UTC'),
+				'pid' => null,
 				'completed' => null,
-				'died|<='   => self::retryAttempts($application),
+				'died|<=' => self::retryAttempts($application),
 			])->setOrderBy([
 				'priority DESC',
 				'died',
@@ -425,23 +425,23 @@ class Job extends Model implements SystemProcess, ProgressStack {
 				// Tag the Job as "ours" - this avoids race conditions between multiple servers
 				$application->ormRegistry(__CLASS__)->queryUpdate()->setValues($server_pid)->appendWhere([
 					'pid' => null,
-					'id'  => $job->id,
+					'id' => $job->id,
 				])->execute();
 				// Race condition if we crash before this executes
 				if (!Types::toBool($application->ormFactory(__CLASS__)->querySelect()->addWhat('*X', 'COUNT(id)')->appendWhere($server_pid)->addWhere('id', $job->id)->integer('X'))) {
 					// Someone else grabbed it.
 					continue;
 				}
-				
+
 				try {
 					$job = $application->ormFactory(__CLASS__, $job->id)->fetch();
 					$found_job = true;
 					$logger->info('Server ID # {id}: Running Job # {job_id} - {job_name}', [
-						'id'       => $server,
-						'job_id'   => $job->id,
+						'id' => $server,
+						'job_id' => $job->id,
 						'job_name' => $job->name,
 					]);
-					
+
 					try {
 						$job->execute($process);
 					} catch (Throwable $e) {
@@ -463,7 +463,7 @@ class Job extends Model implements SystemProcess, ProgressStack {
 				}
 			}
 		} while (!$process->done() && $found_job === true);
-		
+
 		if ($jobs === 0) {
 			$logger->debug('Server ID # {id}: No jobs', [
 				'id' => $server,
@@ -471,19 +471,19 @@ class Job extends Model implements SystemProcess, ProgressStack {
 		}
 		return $jobs;
 	}
-	
+
 	/**
 	 * Find all process IDs on this server, and see if they are still alive.
 	 * If they're not, mark them as dead and set the PID back to null.
 	 *
 	 * @param Application $application
-	 * @param Server      $server
+	 * @param Server $server
 	 */
 	private static function cleanDeadProcessIDs(Application $application, Server $server): void
 	{
 		$em = $application->entityManager();
 		$qb = $em->createQueryBuilder();
-		
+
 		$ex = $qb->expr();
 		$pids = $qb->select('DISTINCT j.pid')->from(self::class, 'j')->where('j.server', $qb->createNamedParameter($server))->andWhere($ex->isNotNull('j.pid'))->getQuery()->getArrayResult();
 		$deadPids = [];
@@ -497,13 +497,13 @@ class Job extends Model implements SystemProcess, ProgressStack {
 		 	.died', 1))->where($ex->in('j.pid', $deadPids))->andWhere('j.server', $qb->createNamedParameter($server))->getQuery();
 			$result = $query->execute();
 			$application->info('Removed dead jobs {result} due to dead process IDs on server #{id} {pids}', [
-				'pids'   => $pids,
+				'pids' => $pids,
 				'result' => $result,
-				'id'     => $server->id,
+				'id' => $server->id,
 			]);
 		}
 	}
-	
+
 	/**
 	 * @param SystemProcess $process
 	 * @return void
@@ -514,9 +514,9 @@ class Job extends Model implements SystemProcess, ProgressStack {
 	public function execute(SystemProcess $process): void
 	{
 		$this->process = $process;
-		
+
 		$timer = new Timer();
-		
+
 		try {
 			[
 				$class,
@@ -544,7 +544,7 @@ class Job extends Model implements SystemProcess, ProgressStack {
 			$this->invokeFilters(self::HOOK_AFTER, $e, $this->arguments);
 			$args = array_merge($this->arguments, [$e]);
 			$this->invokeHooks(self::HOOK_FAILED, $args);
-			
+
 			throw $e;
 		}
 		$elapsed = $timer->elapsed();
@@ -556,20 +556,20 @@ class Job extends Model implements SystemProcess, ProgressStack {
 		$this->process = null;
 		$em->refresh($this);
 	}
-	
+
 	public function progressPush($name): void
 	{
 		// TODO
 	}
-	
+
 	public function progressPop(): void
 	{
 		// TODO
 	}
-	
+
 	/**
 	 * @param string|null $status
-	 * @param float|null  $percent
+	 * @param float|null $percent
 	 * @return void
 	 * @throws ORMException
 	 */
@@ -586,9 +586,9 @@ class Job extends Model implements SystemProcess, ProgressStack {
 		$em->persist($this);
 		$em->flush();
 	}
-	
+
 	public const HOOK_COMPLETED = 'completed';
-	
+
 	/**
 	 * Complete job and set exit status
 	 *
@@ -604,7 +604,7 @@ class Job extends Model implements SystemProcess, ProgressStack {
 		$em->persist($this);
 		return $this;
 	}
-	
+
 	/**
 	 * Return completion time for Job
 	 *
@@ -614,7 +614,7 @@ class Job extends Model implements SystemProcess, ProgressStack {
 	{
 		return $this->completed;
 	}
-	
+
 	/**
 	 * Did this complete and succeed?
 	 *
@@ -624,7 +624,7 @@ class Job extends Model implements SystemProcess, ProgressStack {
 	{
 		return $this->completed() && $this->lastExit === 0;
 	}
-	
+
 	/**
 	 * Getter/Setter for failed job termination
 	 *
@@ -634,7 +634,7 @@ class Job extends Model implements SystemProcess, ProgressStack {
 	{
 		return $this->completed() && $this->lastExit !== 0;
 	}
-	
+
 	/**
 	 *
 	 * @param Application $application
@@ -647,7 +647,7 @@ class Job extends Model implements SystemProcess, ProgressStack {
 			self::OPTION_RETRY_ATTEMPTS,
 		], self::DEFAULT_RETRY_ATTEMPTS);
 	}
-	
+
 	/**
 	 * Is this job dead?
 	 *
@@ -657,7 +657,7 @@ class Job extends Model implements SystemProcess, ProgressStack {
 	{
 		return $this->died > $this->optionInt(self::OPTION_RETRY_ATTEMPTS, self::retryAttempts($this->application));
 	}
-	
+
 	/**
 	 * Mark this job as dead.
 	 *
@@ -669,7 +669,7 @@ class Job extends Model implements SystemProcess, ProgressStack {
 		$this->died = $this->died + 1;
 		return $this->setCompleted($exitCode);
 	}
-	
+
 	/**
 	 * Release the job so others can process
 	 *
@@ -684,7 +684,7 @@ class Job extends Model implements SystemProcess, ProgressStack {
 		$em->persist($this);
 		$em->flush();
 	}
-	
+
 	/**
 	 *
 	 * @return bool
@@ -694,7 +694,7 @@ class Job extends Model implements SystemProcess, ProgressStack {
 	{
 		return !$this->process || $this->process->done();
 	}
-	
+
 	/**
 	 *
 	 * @param float $seconds
@@ -705,7 +705,7 @@ class Job extends Model implements SystemProcess, ProgressStack {
 	{
 		$this->process?->sleep($seconds);
 	}
-	
+
 	/**
 	 *
 	 * @see SystemProcess::terminate()
@@ -714,7 +714,7 @@ class Job extends Model implements SystemProcess, ProgressStack {
 	{
 		$this->process?->terminate();
 	}
-	
+
 	/**
 	 * @return void
 	 * @see SystemProcess::kill()
@@ -723,18 +723,18 @@ class Job extends Model implements SystemProcess, ProgressStack {
 	{
 		$this->process?->kill();
 	}
-	
+
 	/**
 	 * @param                   $level
 	 * @param string|Stringable $message
-	 * @param array             $context
+	 * @param array $context
 	 * @return void
 	 */
 	public function log($level, string|Stringable $message, array $context = []): void
 	{
 		$this->process?->log($level, $message, $context);
 	}
-	
+
 	/**
 	 * Getter for content
 	 *
@@ -745,7 +745,7 @@ class Job extends Model implements SystemProcess, ProgressStack {
 	{
 		return $this->data('content');
 	}
-	
+
 	/**
 	 * Setter for content
 	 *
@@ -756,12 +756,12 @@ class Job extends Model implements SystemProcess, ProgressStack {
 	{
 		return $this->setData('content', $set);
 	}
-	
+
 	/**
 	 * Data setter
 	 *
 	 * @param int|string $name
-	 * @param mixed      $value
+	 * @param mixed $value
 	 * @return self
 	 */
 	public function setData(int|string $name, mixed $value): self
@@ -769,7 +769,7 @@ class Job extends Model implements SystemProcess, ProgressStack {
 		$this->data[$name] = $value;
 		return $this;
 	}
-	
+
 	/**
 	 * Data getter
 	 *
@@ -780,7 +780,7 @@ class Job extends Model implements SystemProcess, ProgressStack {
 	{
 		return $this->data[$name] ?? null;
 	}
-	
+
 	/**
 	 * Does this Job have the data key?
 	 *

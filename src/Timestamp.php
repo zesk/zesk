@@ -31,8 +31,8 @@ use zesk\Locale\Locale;
  *
  * @author kent
  */
-class Timestamp extends Weekday {
-	
+class Timestamp extends Weekday
+{
 	/**
 	 * Default __toString format
 	 *
@@ -41,103 +41,103 @@ class Timestamp extends Weekday {
 	 * @var string
 	 */
 	public const DEFAULT_FORMAT_STRING = '{YYYY}-{MM}-{DD} {hh}:{mm}:{ss}';
-	
+
 	/**
 	 *
 	 */
 	public const FORMAT_JSON = '{YYYY}-{MM}-{DD} {hh}:{mm}:{ss} {ZZZ}';
-	
+
 	/**
 	 * Time zone offset (in seconds)
 	 */
 	public const FORMATTING_TIMEZONE_OFFSET = 'Z';
-	
+
 	/**
 	 * Formatting keys
 	 */
 	public const FORMATTING_TIMEZONE_NAME = 'ZZZ';
-	
+
 	/**
 	 * https://en.wikipedia.org/wiki/Year_2038_problem
 	 *
 	 * @var integer
 	 */
 	public const maximum_year = 2038;
-	
+
 	/**
 	 *
 	 * @var DateTime
 	 */
 	protected DateTime $datetime;
-	
+
 	/**
 	 *
 	 * @var DateTimeZone
 	 */
 	protected DateTimeZone $tz;
-	
+
 	/**
 	 *
 	 * @var integer
 	 */
 	protected int $milliseconds = 0;
-	
+
 	/**
 	 * Internal year format - do not use
 	 *
 	 * @var string
 	 */
 	public const DATETIME_FORMAT_YEAR = 'Y';
-	
+
 	/**
 	 * Internal month format - do not use
 	 *
 	 * @var string
 	 */
 	public const DATETIME_FORMAT_MONTH = 'n';
-	
+
 	/**
 	 * Internal day format - do not use
 	 *
 	 * @var string
 	 */
 	public const DATETIME_FORMAT_DAY = 'j';
-	
+
 	/**
 	 * Internal hour format - do not use
 	 *
 	 * @var string
 	 */
 	public const DATETIME_FORMAT_HOUR = 'G';
-	
+
 	/**
 	 * Internal minute format - do not use
 	 *
 	 * @var string
 	 */
 	public const DATETIME_FORMAT_MINUTE = 'i';
-	
+
 	/**
 	 * Internal second format - do not use
 	 *
 	 * @var string
 	 */
 	public const DATETIME_FORMAT_SECOND = 's';
-	
+
 	/**
 	 * Internal weekday format - do not use
 	 *
 	 * @var string
 	 */
 	public const DATETIME_FORMAT_WEEKDAY = 'w';
-	
+
 	/**
 	 * Internal yearDay format - do not use
 	 *
 	 * @var string
 	 */
 	public const DATETIME_FORMAT_YEARDAY = 'z';
-	
+
 	/**
 	 *
 	 * @return DateTimeZone
@@ -150,7 +150,7 @@ class Timestamp extends Weekday {
 		}
 		return $utc;
 	}
-	
+
 	/**
 	 * @return DateTimeZone
 	 */
@@ -158,7 +158,7 @@ class Timestamp extends Weekday {
 	{
 		return new DateTimeZone(date_default_timezone_get());
 	}
-	
+
 	/**
 	 * Construct a new Timestamp consisting of a Date and a Time
 	 *
@@ -177,7 +177,7 @@ class Timestamp extends Weekday {
 			}
 		}
 	}
-	
+
 	/**
 	 * @param DateTimeZone $tz
 	 * @return $this
@@ -185,21 +185,21 @@ class Timestamp extends Weekday {
 	private function _init(DateTimeZone $tz): self
 	{
 		$this->tz = $tz;
-		
+
 		try {
 			$this->datetime = new DateTime('now', $this->tz);
 		} catch (Exception) {
 		}
 		return $this;
 	}
-	
+
 	/**
 	 */
 	public function __clone(): void
 	{
 		$this->datetime = clone $this->datetime;
 	}
-	
+
 	/**
 	 * Create a duplicate object
 	 *
@@ -209,7 +209,7 @@ class Timestamp extends Weekday {
 	{
 		return clone $this;
 	}
-	
+
 	/**
 	 * Get time zone
 	 *
@@ -219,7 +219,7 @@ class Timestamp extends Weekday {
 	{
 		return $this->tz;
 	}
-	
+
 	/**
 	 * Set time zone
 	 *
@@ -235,7 +235,7 @@ class Timestamp extends Weekday {
 		$this->datetime->setTimezone($mixed);
 		return $this;
 	}
-	
+
 	/**
 	 * Create a new Timestamp with a single value.
 	 *
@@ -245,25 +245,25 @@ class Timestamp extends Weekday {
 	 * @param string|DateTimeZone          $timezone
 	 * @return self
 	 */
-	public static function factory(null|int|Date|Time|Timestamp $value = null, string|DateTimeZone $timezone = ""): self
+	public static function factory(null|int|Date|Time|Timestamp $value = null, string|DateTimeZone $timezone = ''): self
 	{
 		if (!$timezone instanceof DateTimeZone) {
 			$timezone = empty($timezone) ? null : new DateTimeZone($timezone);
 		}
 		return new self($value, $timezone);
 	}
-	
+
 	/**
 	 * Return new Timestamp date time representing now
 	 *
 	 * @param string|DateTimeZone $timezone
 	 * @return Timestamp
 	 */
-	public static function now(string|DateTimeZone $timezone = ""): self
+	public static function now(string|DateTimeZone $timezone = ''): self
 	{
 		return self::factory(null, $timezone)->setNow();
 	}
-	
+
 	/**
 	 * Just prefer utc as an acronym.
 	 * Returns UTC Timestamp set to current time.
@@ -274,7 +274,7 @@ class Timestamp extends Weekday {
 	{
 		return self::factory(null, self::utcTimeZone())->setNow();
 	}
-	
+
 	/**
 	 * @return $this
 	 */
@@ -283,7 +283,7 @@ class Timestamp extends Weekday {
 		$this->setUnixTimestamp(time());
 		return $this;
 	}
-	
+
 	/**
 	 * Set/get the date component of this Timestamp
 	 *
@@ -293,7 +293,7 @@ class Timestamp extends Weekday {
 	{
 		return Date::instance($this->year(), $this->month(), $this->day());
 	}
-	
+
 	/**
 	 * Set/get the date component of this Timestamp
 	 *
@@ -305,7 +305,7 @@ class Timestamp extends Weekday {
 		$this->setYMD($date->year(), $date->month(), $date->day());
 		return $this;
 	}
-	
+
 	/**
 	 * Set/get the time component of this Timestamp
 	 *
@@ -315,7 +315,7 @@ class Timestamp extends Weekday {
 	{
 		return Time::instance($this->hour(), $this->minute(), $this->second());
 	}
-	
+
 	/**
 	 * Set/get the time component of this Timestamp
 	 *
@@ -327,7 +327,7 @@ class Timestamp extends Weekday {
 		$this->setHMS($time->hour(), $time->minute(), $time->second());
 		return $this;
 	}
-	
+
 	/**
 	 * Get the integer value of this Timestamp
 	 *
@@ -337,7 +337,7 @@ class Timestamp extends Weekday {
 	{
 		return $this->unixTimestamp();
 	}
-	
+
 	/**
 	 * Set the Timestamp with a variety of formats (string use parse)
 	 *
@@ -361,7 +361,7 @@ class Timestamp extends Weekday {
 		assert($value instanceof Timestamp);
 		return $this->setUnixTimestamp($value->unixTimestamp());
 	}
-	
+
 	/**
 	 * Convert to a standard string, suitable for use in databases and for string comparisons
 	 *
@@ -371,7 +371,7 @@ class Timestamp extends Weekday {
 	{
 		return $this->format();
 	}
-	
+
 	/**
 	 * Convert to a standard string, suitable for use in databases and for string comparisons
 	 *
@@ -381,7 +381,7 @@ class Timestamp extends Weekday {
 	{
 		return $this->format(self::FORMAT_JSON);
 	}
-	
+
 	/**
 	 * Require object
 	 *
@@ -391,7 +391,7 @@ class Timestamp extends Weekday {
 	{
 		return $this->datetime;
 	}
-	
+
 	/**
 	 * Retrieve the DateTime
 	 *
@@ -401,7 +401,7 @@ class Timestamp extends Weekday {
 	{
 		return $this->datetime;
 	}
-	
+
 	/**
 	 *
 	 * @return int
@@ -410,7 +410,7 @@ class Timestamp extends Weekday {
 	{
 		return $this->datetime->getTimestamp();
 	}
-	
+
 	/**
 	 * @param int $set
 	 * @return $this
@@ -421,7 +421,7 @@ class Timestamp extends Weekday {
 		$this->datetime->setTimestamp($set);
 		return $this;
 	}
-	
+
 	/**
 	 * was fromLocaleString
 	 *
@@ -451,7 +451,7 @@ class Timestamp extends Weekday {
 						if (strlen($value) == 8) {
 							return $this->parseLocaleString(substr($value, 0, 2) . '/' . substr($value, 2, 2) . '/' . substr($value, 4));
 						}
-						
+
 						throw new ParseException('Timestamp::parse_locale_string({value},{locale_format}): Unknown format', [
 							'value'         => $value,
 							'locale_format' => $locale_format,
@@ -471,7 +471,7 @@ class Timestamp extends Weekday {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * English month names
 	 *
@@ -495,7 +495,7 @@ class Timestamp extends Weekday {
 		];
 		return $m;
 	}
-	
+
 	/**
 	 * Parse a date string
 	 *
@@ -520,7 +520,7 @@ class Timestamp extends Weekday {
 		if ($parsed === false) {
 			throw new ParseException('Timestamp::parse({value})', ['value' => $value]);
 		}
-		
+
 		try {
 			$datetime = new DateTime($value, $this->tz);
 		} catch (Exception $e) {
@@ -530,7 +530,7 @@ class Timestamp extends Weekday {
 		$this->datetime = $datetime;
 		return $this;
 	}
-	
+
 	/**
 	 * Get/Set year
 	 *
@@ -540,7 +540,7 @@ class Timestamp extends Weekday {
 	{
 		return intval($this->datetime->format(self::DATETIME_FORMAT_YEAR));
 	}
-	
+
 	/**
 	 * Get/Set year
 	 *
@@ -552,7 +552,7 @@ class Timestamp extends Weekday {
 		$this->datetime->setDate($set, $this->month(), $this->day());
 		return $this;
 	}
-	
+
 	/**
 	 * Set a 1-based quarter (1,2,3,4)
 	 *
@@ -562,7 +562,7 @@ class Timestamp extends Weekday {
 	{
 		return intval(($this->month() - 1) * (4 / 12)) + 1;
 	}
-	
+
 	/**
 	 * Set a 1-based quarter (1,2,3,4)
 	 *
@@ -583,7 +583,7 @@ class Timestamp extends Weekday {
 		$this->add(0, ($set - $quarter) * 3);
 		return $this;
 	}
-	
+
 	/**
 	 * Get month
 	 *
@@ -593,7 +593,7 @@ class Timestamp extends Weekday {
 	{
 		return intval($this->datetime->format(self::DATETIME_FORMAT_MONTH));
 	}
-	
+
 	/**
 	 * Get/Set month
 	 *
@@ -609,7 +609,7 @@ class Timestamp extends Weekday {
 		$this->datetime->setDate($this->year(), $set, $this->day());
 		return $this;
 	}
-	
+
 	/**
 	 * Get/Set day of month
 	 *
@@ -619,7 +619,7 @@ class Timestamp extends Weekday {
 	{
 		return intval($this->datetime->format(self::DATETIME_FORMAT_DAY));
 	}
-	
+
 	/**
 	 * Set day of month
 	 *
@@ -634,7 +634,7 @@ class Timestamp extends Weekday {
 		$this->datetime->setDate($this->year(), $this->month(), $set);
 		return $this;
 	}
-	
+
 	/**
 	 * Is this today?
 	 *
@@ -644,7 +644,7 @@ class Timestamp extends Weekday {
 	{
 		return $this->datetime->format('Y-m-d') === date('Y-m-d');
 	}
-	
+
 	/**
 	 * Set date to today
 	 *
@@ -654,7 +654,7 @@ class Timestamp extends Weekday {
 	{
 		return $this->setYear(intval(date('Y')))->setMonth(intval(date('n')))->setDay(intval(date('j')));
 	}
-	
+
 	/**
 	 * Set to the past weekday specified
 	 *
@@ -665,7 +665,7 @@ class Timestamp extends Weekday {
 	{
 		return $this->setWeekday($set)->addUnit(-7, self::UNIT_DAY);
 	}
-	
+
 	/**
 	 * Get day of the week
 	 *
@@ -675,8 +675,7 @@ class Timestamp extends Weekday {
 	{
 		return intval($this->datetime->format(self::DATETIME_FORMAT_WEEKDAY));
 	}
-	
-	
+
 	/**
 	 * Get yearday
 	 *
@@ -686,7 +685,7 @@ class Timestamp extends Weekday {
 	{
 		return intval($this->datetime->format(self::DATETIME_FORMAT_YEARDAY));
 	}
-	
+
 	/**
 	 * Set yearday
 	 *
@@ -698,7 +697,7 @@ class Timestamp extends Weekday {
 		$yearday = $this->yearday();
 		return $this->add(0, 0, $set - $yearday);
 	}
-	
+
 	/**
 	 * Get hour of day
 	 *
@@ -708,7 +707,7 @@ class Timestamp extends Weekday {
 	{
 		return intval($this->datetime->format(self::DATETIME_FORMAT_HOUR));
 	}
-	
+
 	/**
 	 * Set hour of day
 	 *
@@ -720,7 +719,7 @@ class Timestamp extends Weekday {
 		$this->datetime->setTime($set, $this->minute(), $this->second());
 		return $this;
 	}
-	
+
 	/**
 	 * Get minute of the day
 	 *
@@ -730,7 +729,7 @@ class Timestamp extends Weekday {
 	{
 		return intval($this->datetime->format(self::DATETIME_FORMAT_MINUTE));
 	}
-	
+
 	/**
 	 * Set minute of the day
 	 *
@@ -742,7 +741,7 @@ class Timestamp extends Weekday {
 		$this->datetime->setTime($this->hour(), $set, $this->second());
 		return $this;
 	}
-	
+
 	/**
 	 * Get second of the day
 	 *
@@ -752,7 +751,7 @@ class Timestamp extends Weekday {
 	{
 		return intval($this->datetime->format(self::DATETIME_FORMAT_SECOND));
 	}
-	
+
 	/**
 	 * Set second of the day
 	 *
@@ -764,7 +763,7 @@ class Timestamp extends Weekday {
 		$this->datetime->setTime($this->hour(), $this->minute(), $set);
 		return $this;
 	}
-	
+
 	/**
 	 * Get millisecond
 	 *
@@ -774,7 +773,7 @@ class Timestamp extends Weekday {
 	{
 		return $this->milliseconds;
 	}
-	
+
 	/**
 	 * Set millisecond
 	 *
@@ -786,7 +785,7 @@ class Timestamp extends Weekday {
 		$this->milliseconds = $set % 1000;
 		return $this;
 	}
-	
+
 	/**
 	 * Number of seconds since midnight
 	 *
@@ -798,7 +797,7 @@ class Timestamp extends Weekday {
 		$midnight->setMidnight();
 		return $this->difference($midnight);
 	}
-	
+
 	/**
 	 * Get 12-hour
 	 *
@@ -809,7 +808,7 @@ class Timestamp extends Weekday {
 		$hour = $this->hour() % 12;
 		return ($hour === 0) ? 12 : $hour;
 	}
-	
+
 	/**
 	 * Set 12-hour
 	 *
@@ -822,7 +821,7 @@ class Timestamp extends Weekday {
 		// Retains AM/PM
 		return $this->setHour($set + ($this->hour() < 12 ? 0 : 12));
 	}
-	
+
 	/**
 	 * Get AMPM
 	 */
@@ -830,7 +829,7 @@ class Timestamp extends Weekday {
 	{
 		return $this->time()->ampm();
 	}
-	
+
 	/**
 	 * Set time to midnight
 	 *
@@ -841,13 +840,13 @@ class Timestamp extends Weekday {
 		$this->datetime->setTime(0, 0);
 		return $this;
 	}
-	
+
 	public function setNoon(): self
 	{
 		$this->datetime->setTime(12, 0);
 		return $this;
 	}
-	
+
 	/**
 	 * Set the Year/Month/Date for this Timestamp
 	 *
@@ -861,7 +860,7 @@ class Timestamp extends Weekday {
 		$this->datetime->setDate($year === null ? $this->year() : $year, $month === null ? $this->month() : $month, $day === null ? $this->day() : $day);
 		return $this;
 	}
-	
+
 	/**
 	 * Set the Hour/Minute/Second for this Timestamp
 	 *
@@ -875,7 +874,7 @@ class Timestamp extends Weekday {
 		$this->datetime->setTime($hour === null ? $this->hour() : $hour, $minute === null ? $this->minute() : $minute, $second === null ? $this->second() : $second);
 		return $this;
 	}
-	
+
 	/**
 	 * Set the Year/Month/Date/Hour/Minute/Second for this Timestamp
 	 *
@@ -891,7 +890,7 @@ class Timestamp extends Weekday {
 	{
 		return $this->setYMD($year, $month, $day)->setHMS($hour, $minute, $second);
 	}
-	
+
 	/**
 	 * Compare two Timestamps, like strcmp
 	 * $this->compare($value) < 0 ~= ($this < $value) => -
@@ -905,7 +904,7 @@ class Timestamp extends Weekday {
 	{
 		return $this->unixTimestamp() <=> $value->unixTimestamp();
 	}
-	
+
 	/**
 	 * Return the difference in seconds between two Timestamps
 	 *
@@ -916,7 +915,7 @@ class Timestamp extends Weekday {
 	{
 		return $this->unixTimestamp() - $value->unixTimestamp();
 	}
-	
+
 	/**
 	 * Format a Timestamp
 	 *
@@ -931,7 +930,7 @@ class Timestamp extends Weekday {
 		}
 		return ArrayTools::map($format, $this->formatting($options));
 	}
-	
+
 	/**
 	 * Formatting a timestamp string
 	 *
@@ -951,7 +950,7 @@ class Timestamp extends Weekday {
 		$locale = $options['locale'] ?? null;
 		$ts = $this->unixTimestamp();
 		$formatting = $this->date()->formatting($options) + $this->time()->formatting($options);
-		
+
 		$formatting['seconds'] = $ts;
 		$formatting['unixTimestamp'] = $ts;
 		if ($locale instanceof Locale) {
@@ -965,14 +964,14 @@ class Timestamp extends Weekday {
 		}
 		return $formatting;
 	}
-	
+
 	/**
 	 * Filter for formatting values in Locale
 	 *
 	 * @var string
 	 */
 	public const FILTER_FORMATTING = self::class . '::formatting';
-	
+
 	/**
 	 * @param Locale $locale
 	 * @param array  $formatting
@@ -990,7 +989,7 @@ class Timestamp extends Weekday {
 		// Support $unit_minimum and $zero_string strings which include formatting
 		$unit_minimum = ArrayTools::map($unit_minimum, $formatting);
 		$zero_string = ArrayTools::map($zero_string, $formatting);
-		
+
 		try {
 			$formatting['delta'] = $locale->nowString($this, strval($unit_minimum), strval($zero_string));
 		} catch (ParseException) {
@@ -998,7 +997,7 @@ class Timestamp extends Weekday {
 		}
 		return $formatting;
 	}
-	
+
 	/**
 	 * Are these two timestamps identical?
 	 *
@@ -1011,10 +1010,10 @@ class Timestamp extends Weekday {
 			$timestamp = clone $timestamp;
 			$timestamp->setTimeZone($this->tz->getName());
 		}
-		$options = ['skipHook' => true,];
+		$options = ['skipHook' => true, ];
 		return $this->format(self::DEFAULT_FORMAT_STRING, $options) === $timestamp->format(self::DEFAULT_FORMAT_STRING, $options);
 	}
-	
+
 	/**
 	 * Is passed in Timestamp before $this?
 	 *
@@ -1028,7 +1027,7 @@ class Timestamp extends Weekday {
 		$result = $this->compare($model);
 		return ($equal) ? ($result <= 0) : ($result < 0);
 	}
-	
+
 	/**
 	 * Shortcut to test if time is before current time
 	 *
@@ -1042,7 +1041,7 @@ class Timestamp extends Weekday {
 		$now = time();
 		return $equal ? ($timestamp <= $now) : ($timestamp < $now);
 	}
-	
+
 	/**
 	 * Shortcut to test if time is before current time
 	 *
@@ -1056,7 +1055,7 @@ class Timestamp extends Weekday {
 		$now = time();
 		return $equal ? ($timestamp >= $now) : ($timestamp > $now);
 	}
-	
+
 	/**
 	 * Is passed in Timestamp after $this?
 	 *
@@ -1070,7 +1069,7 @@ class Timestamp extends Weekday {
 		$result = $this->compare($model);
 		return $equal ? ($result >= 0) : ($result > 0);
 	}
-	
+
 	/**
 	 * Given another model and this, return the one which is later.
 	 * If both are empty, returns $this
@@ -1086,7 +1085,7 @@ class Timestamp extends Weekday {
 		}
 		return $model->after($this) ? $model : $this;
 	}
-	
+
 	/**
 	 * Is this date before current time?
 	 *
@@ -1096,7 +1095,7 @@ class Timestamp extends Weekday {
 	{
 		return ($this->unixTimestamp() < time());
 	}
-	
+
 	/**
 	 * Given another model and this, return the one which is earlier.
 	 * If both are empty, returns $this
@@ -1112,7 +1111,7 @@ class Timestamp extends Weekday {
 		}
 		return $model->before($this) ? $model : $this;
 	}
-	
+
 	/**
 	 * Add DateInterval to dates
 	 *
@@ -1124,7 +1123,7 @@ class Timestamp extends Weekday {
 		$this->datetime->add($interval);
 		return $this;
 	}
-	
+
 	/**
 	 * Add units to dates
 	 *
@@ -1152,10 +1151,10 @@ class Timestamp extends Weekday {
 				$this->milliseconds = ($this->milliseconds % 1000);
 			}
 		}
-		
+
 		return $this;
 	}
-	
+
 	/**
 	 * Utility for add
 	 *
@@ -1177,11 +1176,11 @@ class Timestamp extends Weekday {
 		}
 		return $this;
 	}
-	
+
 	/*
 	 *
 	 */
-	
+
 	/**
 	 * Determine the difference between two dates based on a unit.
 	 * $early $later
@@ -1222,13 +1221,13 @@ class Timestamp extends Weekday {
 			case self::UNIT_WEEK:
 				return round($delta / (86400 * 7), $precision);
 		}
-		
+
 		$month_start = $timestamp->month();
 		$year_start = $timestamp->year();
-		
+
 		$month_end = $this->month();
 		$year_end = $this->year();
-		
+
 		if ($precision === 0) {
 			switch ($unit) {
 				case self::UNIT_MONTH:
@@ -1246,36 +1245,36 @@ class Timestamp extends Weekday {
 			//
 			// 2/22 -> 3/22 = 1 month
 			// 2/12 -> 3/22 = 1 month + ((3/22-2/22) / 28)
-			
+
 			$integerMonth = ($year_end - $year_start) * 12 + ($month_end - $month_start);
 			$total = Date::daysInMonth($month_start, $year_start);
-			
+
 			$temp = clone $timestamp;
 			$temp->setMonth($month_start);
 			$temp->setYear($year_start);
-			
+
 			$fract = $temp->subtract($this);
 			$fract = $fract / floatval($total * 86400);
-			
+
 			switch ($unit) {
 				case self::UNIT_MONTH:
 					$result = round($integerMonth + $fract, $precision);
-					
+
 					break;
 				case self::UNIT_QUARTER:
 					$result = round(($integerMonth + $fract) / 3, $precision);
-					
+
 					break;
 				default:
 				case self::UNIT_YEAR:
 					$result = round(($integerMonth + $fract) / 12, $precision);
-					
+
 					break;
 			}
 			return $result;
 		}
 	}
-	
+
 	/**
 	 * Set or get a unit.
 	 *
@@ -1299,7 +1298,7 @@ class Timestamp extends Weekday {
 			default => throw new ParameterException('Timestamp::unit({unit}): Bad unit', ['unit' => $unit]),
 		};
 	}
-	
+
 	/**
 	 * Set a unit.
 	 *
@@ -1328,7 +1327,7 @@ class Timestamp extends Weekday {
 			]),
 		};
 	}
-	
+
 	/**
 	 * Add a unit to this Timestamp.
 	 *
@@ -1357,7 +1356,7 @@ class Timestamp extends Weekday {
 			]) ?? $this->add(0, 0, 0, 0, 0, $n_units),
 		};
 	}
-	
+
 	/**
 	 * Format YYYY${sep}MM${sep}DD
 	 *
@@ -1368,7 +1367,7 @@ class Timestamp extends Weekday {
 	{
 		return $this->year() . $sep . StringTools::zeroPad($this->month()) . $sep . StringTools::zeroPad($this->day());
 	}
-	
+
 	/**
 	 * Format HH${sep}MM${sep}SS
 	 *
@@ -1382,7 +1381,7 @@ class Timestamp extends Weekday {
 			StringTools::zeroPad($this->second()),
 		]);
 	}
-	
+
 	/**
 	 * Convert to SQL format
 	 *
@@ -1392,7 +1391,7 @@ class Timestamp extends Weekday {
 	{
 		return $this->_ymd_format() . ' ' . $this->_hms_format();
 	}
-	
+
 	/**
 	 * Return timestamp formatted in iso8601 date format
 	 *
@@ -1403,7 +1402,7 @@ class Timestamp extends Weekday {
 	{
 		return $this->_ymd_format('') . 'T' . $this->_hms_format();
 	}
-	
+
 	/**
 	 * @param string $set
 	 * @return $this
@@ -1431,7 +1430,7 @@ class Timestamp extends Weekday {
 		$this->setYMDHMS(intval(substr($dd, 0, 4)), intval(substr($dd, 4, 2)), intval(substr($dd, 6, 2)), intval($hh), intval($mm), intval($ss));
 		return $this;
 	}
-	
+
 	/**
 	 * Create a new Timestamp with explicit values
 	 *
@@ -1455,7 +1454,7 @@ class Timestamp extends Weekday {
 		}
 		return $dt;
 	}
-	
+
 	/**
 	 * Use with usort or uasort of Timestamp[]
 	 *
@@ -1468,7 +1467,7 @@ class Timestamp extends Weekday {
 		$delta = $a->unixTimestamp() - $b->unixTimestamp();
 		if ($delta < 0) {
 			return -1;
-		} else if ($delta === 0) {
+		} elseif ($delta === 0) {
 			return 0;
 		}
 		return 1;

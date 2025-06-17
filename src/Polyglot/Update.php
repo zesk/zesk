@@ -2,9 +2,9 @@
 declare(strict_types=1);
 /**
  * @author     kent
- * @package    zesk/modules
+ * @package    modules
  * @subpackage Polyglot
- * @copyright  &copy; 2023, Market Acumen, Inc.
+ * @copyright  &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Polyglot;

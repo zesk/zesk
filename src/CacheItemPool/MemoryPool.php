@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 /**
- * @copyright &copy; 2023, Market Acumen, Inc.
+ * @copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\CacheItemPool;
@@ -15,7 +15,7 @@ use InvalidArgumentException;
  * The most basic of caching, storing everything in PHP memory as an array of keyed values.
  *
  * @author kent
- * @see CacheItem
+ * @see    CacheItem
  */
 class MemoryPool implements CacheItemPoolInterface
 {

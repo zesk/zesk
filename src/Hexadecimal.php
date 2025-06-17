@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 /**
- *
+ * @copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -9,15 +9,15 @@ namespace zesk;
 /**
  * @author kent
  */
-class Hexadecimal {
-	
+class Hexadecimal
+{
 	/**
 	 * Hex character codes
 	 *
 	 * @var string
 	 */
 	public const codes = '0123456789ABCDEF';
-	
+
 	/**
 	 * Decode a hexadecimal string
 	 *
@@ -35,7 +35,7 @@ class Hexadecimal {
 		}
 		return $r;
 	}
-	
+
 	/**
 	 * Encode a hexadecimal string
 	 *
