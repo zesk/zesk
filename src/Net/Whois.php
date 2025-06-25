@@ -7,8 +7,8 @@ declare(strict_types=1);
 namespace zesk\Net;
 
 use zesk\Exception\ConnectionFailed;
-use zesk\Net\Whois\Servers;
 use zesk\Exception\NotFoundException;
+use zesk\Net\Whois\Servers;
 use zesk\StringTools;
 
 class Whois

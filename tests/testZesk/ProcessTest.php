@@ -20,6 +20,10 @@ class ProcessTest extends TestCase
 		$this->assertGreaterThan(0, $this->application->process->id());
 	}
 
+	/**
+	 * @return void
+	 * @covers ::id
+	 */
 	public function test_running(): void
 	{
 		$process = $this->application->process;

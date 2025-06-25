@@ -9,8 +9,8 @@ declare(strict_types=1);
 
 namespace zesk\Login;
 
-use zesk\Module as BaseModule;
 use zesk\Doctrine\User;
+use zesk\Module as BaseModule;
 
 class Module extends BaseModule
 {

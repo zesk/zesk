@@ -14,6 +14,7 @@ use zesk\Exception\FileNotFound;
 use zesk\Exception\KeyNotFound;
 use zesk\Exception\ParameterException;
 use zesk\Exception\ParseException;
+use zesk\Exception\SemanticsException;
 use zesk\Exception\SyntaxException;
 use zesk\Exception\UploadException;
 
@@ -110,12 +111,12 @@ class Request extends Hookable
 	 *
 	 * @var ?array
 	 */
-	protected ?array $data;
+	protected ?array $data = null;
 
 	/**
 	 * @var string
 	 */
-	protected string $rawData;
+	protected string $rawData = '';
 
 	/**
 	 * Where to retrieve the data from
@@ -150,9 +151,9 @@ class Request extends Hookable
 	 * @var array
 	 */
 	protected array $urlParts = [
-		'host'   => null,
+		'host' => null,
 		'scheme' => null,
-		'path'   => null,
+		'path' => null,
 	];
 
 	/**
@@ -195,7 +196,7 @@ class Request extends Hookable
 
 	/**
 	 *
-	 * @param Application            $application
+	 * @param Application $application
 	 * @param string|array|self|null $settings If NULL, uses PHP globals to initialize
 	 * @return self
 	 * @throws FileNotFound
@@ -214,6 +215,7 @@ class Request extends Hookable
 	 * Create a new Request object
 	 *
 	 * @param Application $application
+	 * @throws SemanticsException
 	 */
 	public function __construct(Application $application)
 	{
@@ -221,11 +223,6 @@ class Request extends Hookable
 		$this->userAgent = null;
 		$this->inheritConfiguration();
 		$this->init = 'uninitialized';
-	}
-
-	public function __serialize(): array
-	{
-		return parent::__serialize() + $this->variables();
 	}
 
 	public function __unserialize(array $data): void
@@ -419,7 +416,7 @@ class Request extends Hookable
 		} catch (KeyNotFound) {
 			return [
 				'*/*' => [
-					'q'       => 1,
+					'q' => 1,
 					'pattern' => '#[^/]+/[^/]+#',
 				],
 			];
@@ -593,7 +590,7 @@ class Request extends Hookable
 	/**
 	 * Retrieve a header
 	 *
-	 * @param string       $key
+	 * @param string $key
 	 * @param string|array $value
 	 * @return self
 	 */
@@ -619,7 +616,7 @@ class Request extends Hookable
 	/**
 	 * Getter/setter for parsed header values
 	 *
-	 * @param string       $key
+	 * @param string $key
 	 * @param string|array $value Optional value to
 	 * @return void
 	 */
@@ -662,7 +659,7 @@ class Request extends Hookable
 		if (!array_key_exists($method, HTTP::$methods)) {
 			throw new ParameterException('Unknown method in {method_name}({method}', [
 				'method_name' => __METHOD__,
-				'method'      => $method,
+				'method' => $method,
 			]);
 		}
 		$this->method = HTTP::$methods[$method];
@@ -672,9 +669,9 @@ class Request extends Hookable
 	/**
 	 * Set a variable associated with this request
 	 *
-	 * @param string            $name      Value to set
-	 * @param string|array|null $value     Value to set
-	 * @param bool              $overwrite Overwrite value only if it's not set alrady
+	 * @param string $name Value to set
+	 * @param string|array|null $value Value to set
+	 * @param bool $overwrite Overwrite value only if it's not set already
 	 * @return mixed
 	 */
 	public function set(string $name, string|array $value = null, bool $overwrite = true): self
@@ -726,7 +723,7 @@ class Request extends Hookable
 	 * - error - The error associated with the upload
 	 *
 	 * @param string $name
-	 * @param int    $index
+	 * @param int $index
 	 * @return array
 	 * @throws KeyNotFound
 	 * @throws UploadException
@@ -771,23 +768,23 @@ class Request extends Hookable
 	public function variables(): array
 	{
 		return [
-			self::OPTION_METHOD       => $this->method,
-			self::OPTION_URI          => $this->uri,
-			self::OPTION_HEADERS      => $this->headers,
-			self::OPTION_COOKIES      => $this->cookies,
-			self::OPTION_DATA         => $this->data(),
-			self::OPTION_DATA_FILE    => $this->dataFile,
+			self::OPTION_METHOD => $this->method,
+			self::OPTION_URI => $this->uri,
+			self::OPTION_HEADERS => $this->headers,
+			self::OPTION_COOKIES => $this->cookies,
+			self::OPTION_DATA => $this->data(),
+			self::OPTION_DATA_FILE => $this->dataFile,
 			self::OPTION_REQUEST_DATA => $this->requestData,
-			self::OPTION_FILES        => $this->files,
-			self::OPTION_URL          => $this->url,
-			self::OPTION_URL_PARTS    => $this->urlParts,
-			self::OPTION_USER_AGENT   => $this->userAgent?->classify(),
-			self::OPTION_IP           => $this->ip,
-			self::OPTION_SERVER_IP    => $this->serverIP,
-			self::OPTION_REMOTE_IP    => $this->remoteIP,
-			'initialized'             => $this->init,
-			'DEFAULT_URI'             => self::DEFAULT_URI,
-			'DEFAULT_IP'              => self::DEFAULT_IP,
+			self::OPTION_FILES => $this->files,
+			self::OPTION_URL => $this->url,
+			self::OPTION_URL_PARTS => $this->urlParts,
+			self::OPTION_USER_AGENT => $this->userAgent?->classify(),
+			self::OPTION_IP => $this->ip,
+			self::OPTION_SERVER_IP => $this->serverIP,
+			self::OPTION_REMOTE_IP => $this->remoteIP,
+			'initialized' => $this->init,
+			'DEFAULT_URI' => self::DEFAULT_URI,
+			'DEFAULT_IP' => self::DEFAULT_IP,
 		];
 	}
 
@@ -869,7 +866,7 @@ class Request extends Hookable
 	/**
 	 * Retrieve a segment of the request path
 	 *
-	 * @param int   $index
+	 * @param int $index
 	 * @param mixed $default
 	 * @return string
 	 */
@@ -952,7 +949,7 @@ class Request extends Hookable
 	 * Retrieve the URL component
 	 *
 	 * @param ?string $component
-	 * @param mixed   $default
+	 * @param mixed $default
 	 * @return array|string
 	 * @throws KeyNotFound
 	 */
@@ -1153,11 +1150,11 @@ class Request extends Hookable
 			$parts = ['error' => 'syntax'];
 		}
 		$this->urlParts = $parts + [
-			'url'    => $this->url,
+			'url' => $this->url,
 			'scheme' => 'http',
-			'host'   => 'localhost',
-			'port'   => 80,
-			'path'   => '',
+			'host' => 'localhost',
+			'port' => 80,
+			'path' => '',
 		];
 	}
 
@@ -1191,7 +1188,7 @@ class Request extends Hookable
 		$headers = [];
 		foreach ($server as $key => $value) {
 			foreach ([
-				'http-'    => true,
+				'http-' => true,
 				'content-' => false,
 			] as $prefix => $removePrefix) {
 				$len = strlen($prefix);
@@ -1331,5 +1328,54 @@ class Request extends Hookable
 			}
 		}
 		return self::DEFAULT_IP;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function __serializeChild(): array
+	{
+		return [
+			'cookies' => $this->cookies,
+			'data' => $this->data,
+			'dataFile' => $this->dataFile,
+			'files' => $this->files,
+			'headers' => $this->headers,
+			'init' => $this->init,
+			'ip' => $this->ip,
+			'method' => $this->method,
+			'rawData' => $this->rawData,
+			'remoteIP' => $this->remoteIP,
+			'requestData' => $this->requestData,
+			'serverIP' => $this->serverIP,
+			'uri' => $this->uri,
+			'url' => $this->url,
+			'urlParts' => $this->urlParts,
+			'userAgent' => $this->userAgent,
+		];
+	}
+
+	/**
+	 * @param array $data
+	 * @return void
+	 */
+	public function __unserializeChild(array $data): void
+	{
+		$this->cookies = $data['cookies'];
+		$this->data = $data['data'];
+		$this->dataFile = $data['dataFile'];
+		$this->files = $data['files'];
+		$this->headers = $data['headers'];
+		$this->init = $data['init'];
+		$this->ip = $data['ip'];
+		$this->method = $data['method'];
+		$this->rawData = $data['rawData'];
+		$this->remoteIP = $data['remoteIP'];
+		$this->requestData = $data['requestData'];
+		$this->serverIP = $data['serverIP'];
+		$this->uri = $data['uri'];
+		$this->url = $data['url'];
+		$this->urlParts = $data['urlParts'];
+		$this->userAgent = $data['userAgent'];
 	}
 }

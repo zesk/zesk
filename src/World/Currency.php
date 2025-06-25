@@ -18,6 +18,7 @@ use Doctrine\ORM\Mapping\ManyToOne;
 use Doctrine\ORM\Mapping\UniqueConstraint;
 use zesk\Application;
 use zesk\ArrayTools;
+use zesk\Configuration;
 use zesk\Doctrine\Model;
 use zesk\Doctrine\ModelListener;
 use zesk\Doctrine\Trait\AutoID;
@@ -40,13 +41,13 @@ use zesk\Exception\NotFoundException;
  * @see        Class_Currency
  * @property integer $id
  * @property Country $bank_country
- * @property string  $country_name
- * @property string  $name
- * @property string  $code
- * @property string  $symbol
+ * @property string $country_name
+ * @property string $name
+ * @property string $code
+ * @property string $symbol
  * @property integer $fractional
- * @property string  $fractionalUnits
- * @property string  $format
+ * @property string $fractionalUnits
+ * @property string $format
  * @property integer $precision
  */
 #[Entity]
@@ -64,22 +65,29 @@ class Currency extends Model
 	public string $code;
 
 	#[Column(type: 'string', length: 48)]
-	public string $name;
+	public string $name = '';
 
 	#[Column(type: 'string', length: 16)]
-	public string $symbol;
+	public string $symbol = '';
 
 	#[Column(type: 'string', length: 32)]
-	public string $format;
+	public string $format = '';
 
 	#[Column(type: 'smallint')]
-	public int $fractional;
+	public int $fractional = 100;
 
 	#[Column(type: 'string')]
-	public string $fractionalUnits;
+	public string $fractionalUnits = '';
 
 	#[Column(type: 'smallint')]
-	public int $precision;
+	public int $precision = 0;
+
+	public function __construct(Application $application, int $id, string $code, array|Configuration $options = [])
+	{
+		parent::__construct($application, $options);
+		$this->id = $id;
+		$this->code = $code;
+	}
 
 	/**
 	 * Format a currency for output
@@ -93,15 +101,15 @@ class Currency extends Model
 		$decimals = $this->option('decimal_point', $locale->__('Currency::decimalPoint:=.'));
 		$thousands = $this->option('thousands_separator', $locale->__('Currency::thousandsSeparator:=.'));
 		return ArrayTools::map($this->format, [
-			'valueRaw'      => $value,
-			'valueDecimal'  => $intValue = intval($value),
+			'valueRaw' => $value,
+			'valueDecimal' => $intValue = intval($value),
 			'valueFraction' => substr(strval(abs($value - $intValue)), 2),
-			'minus'         => $value < 0 ? '-' : '',
-			'plus'          => $value > 0 ? '+' : '',
-			'decimal'       => $decimals,
-			'thousands'     => $thousands,
-			'amount'        => number_format($value, $this->precision, $decimals, $thousands),
-		] + $this->variables());
+			'minus' => $value < 0 ? '-' : '',
+			'plus' => $value > 0 ? '+' : '',
+			'decimal' => $decimals,
+			'thousands' => $thousands,
+			'amount' => number_format($value, $this->precision, $decimals, $thousands),
+		] + $this->members());
 	}
 
 	/**
@@ -119,10 +127,8 @@ class Currency extends Model
 		if ($currency) {
 			return $currency;
 		}
-		$currency = new Currency($application);
+		$currency = new Currency($application, 978, $code);
 		$currency->name = 'Euro';
-		$currency->code = $code;
-		$currency->id = 978;
 		$currency->symbol = '&euro;';
 		$currency->format = '{symbol}{amount}';
 		$currency->precision = 2;
@@ -138,6 +144,7 @@ class Currency extends Model
 	 * @param Application $application
 	 * @return self
 	 * @throws ORMException
+	 * @throws NotFoundException
 	 */
 	public static function USD(Application $application): self
 	{
@@ -147,11 +154,9 @@ class Currency extends Model
 		if ($currency) {
 			return $currency;
 		}
-		$currency = new Currency($application);
+		$currency = new Currency($application, 840, $code);
 		$currency->name = 'US Dollar';
-		$currency->code = $code;
 		$currency->bankCountry = Country::findCountry($application, 'us');
-		$currency->id = 840;
 		$currency->symbol = '$';
 		$currency->format = '{symbol}{amount}';
 		$currency->precision = 2;
@@ -172,11 +177,11 @@ class Currency extends Model
 	 * Look up a Currency object based on its code
 	 *
 	 * @param Application $application
-	 * @param string      $code
+	 * @param string $code
 	 * @return Currency
 	 * @throws NotFoundException
 	 */
-	public static function fromCode(Application $application, string $code): Currency
+	public static function find(Application $application, string $code): Currency
 	{
 		$em = $application->entityManager();
 		$currency = $em->getRepository(self::class)->findOneBy(['code' => $code]);
@@ -186,7 +191,7 @@ class Currency extends Model
 
 		throw new NotFoundException('{class} by {code}', [
 			'class' => self::class,
-			'code'  => $code,
+			'code' => $code,
 		]);
 	}
 }

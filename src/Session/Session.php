@@ -23,10 +23,10 @@ use Doctrine\ORM\Mapping\OneToOne;
 use Doctrine\ORM\Mapping\PostLoad;
 use Doctrine\ORM\Mapping\PrePersist;
 use Doctrine\ORM\Mapping\UniqueConstraint;
-use zesk\Cron\Attributes\Cron;
 use Throwable;
 use TypeError;
 use zesk\Application;
+use zesk\Cron\Attributes\Cron;
 use zesk\Doctrine\Model;
 use zesk\Doctrine\Trait\AutoID;
 use zesk\Doctrine\User;
@@ -209,7 +209,7 @@ class Session extends Model implements SessionInterface
 
 	/**
 	 * @param int|string $key
-	 * @param mixed      $value
+	 * @param mixed $value
 	 * @return $this
 	 * @throws TypeError Requires values to be serializable
 	 */
@@ -260,7 +260,7 @@ class Session extends Model implements SessionInterface
 	 * Authenticate user
 	 *
 	 * @param Userlike $user
-	 * @param Request  $request
+	 * @param Request $request
 	 * @return void
 	 * @throws AuthenticationException
 	 * @see SessionInterface::authenticate()
@@ -401,7 +401,7 @@ class Session extends Model implements SessionInterface
 	{
 		$session = $this->entityRepository()->findOneBy([
 			'token' => $token,
-			'type'  => $type,
+			'type' => $type,
 		]);
 		if (!$session) {
 			throw new NotFoundException("No session with $token and $type");
@@ -417,7 +417,7 @@ class Session extends Model implements SessionInterface
 	public function initializeSession(Request $request): self
 	{
 		$methods = [
-			self::METHOD_COOKIE        => $this->initializeCookieSession(...),
+			self::METHOD_COOKIE => $this->initializeCookieSession(...),
 			self::METHOD_AUTHORIZATION => $this->initializeAuthorizationSession(...),
 		];
 		$method = $methods[$this->option(self::OPTION_METHOD)] ?? null;
@@ -426,8 +426,8 @@ class Session extends Model implements SessionInterface
 		}
 		$this->application->warning('{class}::{option} is not set to one of {methods} - no session will load', [
 			'methods' => array_keys($methods),
-			'class'   => self::class,
-			'option'  => self::OPTION_METHOD,
+			'class' => self::class,
+			'option' => self::OPTION_METHOD,
 		]);
 		return $this;
 	}
@@ -532,9 +532,9 @@ class Session extends Model implements SessionInterface
 
 	/**
 	 *
-	 * @param User   $user
+	 * @param User $user
 	 * @param string $ip
-	 * @param int    $expire_seconds Expiration time in seconds, inherits from
+	 * @param int $expire_seconds Expiration time in seconds, inherits from
 	 *                               'zesk\SessionORM::one_time_expire_seconds' if not set. Defaults to 1 day (86400 seconds).
 	 *
 	 * @return Session
@@ -573,7 +573,7 @@ class Session extends Model implements SessionInterface
 	 * Given a hash, find the one-time Session
 	 *
 	 * @param Application $application
-	 * @param string      $hash
+	 * @param string $hash
 	 * @return self
 	 * @throws NotFoundException
 	 */
@@ -582,7 +582,7 @@ class Session extends Model implements SessionInterface
 		$hash = trim($hash);
 		$criteria = [
 			'token' => $hash,
-			'type'  => self::TYPE_ONE_TIME,
+			'type' => self::TYPE_ONE_TIME,
 		];
 		$oneTime = $application->entityManager()->getRepository(self::class)->findOneBy($criteria);
 		if ($oneTime instanceof self) {
@@ -596,7 +596,7 @@ class Session extends Model implements SessionInterface
 	 * Converts a 'one-time' to a regular cookie session with the same ID
 	 *
 	 * @param Userlike $user
-	 * @param Request  $request
+	 * @param Request $request
 	 * @return $this
 	 * @throws AuthenticationException
 	 * @throws ProtocolException

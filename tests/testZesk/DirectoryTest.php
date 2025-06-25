@@ -368,14 +368,14 @@ class DirectoryTest extends TestCase
 		$iterate_dump = ob_get_clean();
 
 		$root = Application::zeskPath();
-		$this->assertStringContainsString($root . 'autoload.php', $iterate_dump);
+		$this->assertStringContainsString($root . 'src/autoload.php', $iterate_dump);
 		[
 			$dirs,
 			$files,
 		] = DirectoryTestDumper::dump();
 		//		Debug::dump($files);
 
-		$this->assertInArray($root . 'autoload.php', $files);
+		$this->assertInArray($root . 'src/autoload.php', $files);
 		$this->assertInArray($root . 'LICENSE.md', $files);
 		$this->assertNotInArray($root . 'LICENSE.md', $dirs);
 

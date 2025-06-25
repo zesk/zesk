@@ -7,9 +7,18 @@ declare(strict_types=1);
 namespace testZesk;
 
 use zesk\Application;
+use zesk\Exception\DirectoryNotFound;
 
+/**
+ * @uses Theme
+ */
 class ThemeTest extends TestCase
 {
+	/**
+	 * @return void
+	 * @throws DirectoryNotFound
+	 * @covers \zesk\Application::addThemePath
+	 */
 	public function test_themePath(): void
 	{
 		$prefix = '';
@@ -20,6 +29,7 @@ class ThemeTest extends TestCase
 	}
 
 	/**
+	 * @covers \zesk\Themes::theme
 	 */
 	public function test_theme(): void
 	{

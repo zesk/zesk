@@ -11,15 +11,15 @@ namespace zesk\Net;
 
 use Psr\Log\LogLevel;
 use zesk\Application;
-use zesk\Exception\ConfigurationException;
-use zesk\Exception\ConnectionFailed;
+use zesk\Exception;
 use zesk\Exception\KeyNotFound;
-use zesk\Exception\ProtocolException;
+use zesk\Exception\SemanticsException;
 use zesk\Exception\SyntaxException;
 use zesk\Hookable;
+use zesk\Interface\Initializer;
 use zesk\URL;
 
-abstract class Client extends Hookable
+abstract class URLClient extends Hookable implements Initializer
 {
 	/**
 	 * Connection string
@@ -32,7 +32,7 @@ abstract class Client extends Hookable
 	 * Valid if url is a valid url.
 	 * @var array
 	 */
-	protected array $urlParts;
+	protected array $urlParts = [];
 
 	/**
 	 * Error log
@@ -41,17 +41,41 @@ abstract class Client extends Hookable
 	protected array $errors = [];
 
 	/**
+	 * @return array
+	 */
+	public function __serializeChild(): array
+	{
+		return ['url' => $this->url];
+	}
+
+	/**
+	 * @param array $data
+	 * @return void
+	 * @throws Exception
+	 */
+	public function __unserializeChild(array $data): void
+	{
+		$this->url = $data['url'];
+		$this->initialize();
+	}
+
+	public function initialize(): void
+	{
+		$this->urlParts = URL::parse($this->url);
+	}
+
+	/**
 	 * Create a new Net_Client object
 	 * @param string $url smtp://user:pass@server:port/
 	 * @param array $options Options which change the behavior of this SMTP_Client connection
-	 * @throws SyntaxException
+	 * @throws SyntaxException|SemanticsException|Exception
 	 */
 	public function __construct(Application $application, string $url, array $options = [])
 	{
 		parent::__construct($application, $options);
-		$this->url = $url;
-		$this->urlParts = URL::parse($url);
 		$this->inheritConfiguration();
+		$this->url = $url;
+		$this->initialize();
 	}
 
 	public function __toString(): string
@@ -69,38 +93,7 @@ abstract class Client extends Hookable
 	}
 
 	/**
-	 * Connect. Returns the greeting line from the server.
-	 *
-	 * SemanticsException
-	 * @throws ProtocolException
-	 * @throws ConnectionFailed
-	 * @throws ConfigurationException
-	 */
-	abstract public function connect(): self;
-
-	/**
-	 * Reads first line from server as well as connecting.
-	 *
-	 * @return string
-	 * @throws ConnectionFailed
-	 * @throws ConfigurationException
-	 */
-	abstract public function connectGreeting(): string;
-
-	/**
-	 * Disconnect
-	 * @return void
-	 */
-	abstract public function disconnect(): void;
-
-	/**
-	 * Are we connected?
-	 * @return bool
-	 */
-	abstract public function isConnected(): bool;
-
-	/**
-	 * Retrieve the URL  from this Net_Client
+	 * Retrieve the URL from this client
 	 *
 	 * @return string
 	 */
@@ -127,16 +120,12 @@ abstract class Client extends Hookable
 	/**
 	 * Log a message
 	 * @param string $message
+	 * @param array $arguments
 	 */
 	final protected function log(string $message, array $arguments = []): void
 	{
 		if ($this->optionBool('debug')) {
-			$this->_log($message, $arguments);
+			$this->application->log($arguments['severity'] ?? LogLevel::DEBUG, $message, $arguments);
 		}
-	}
-
-	final protected function _log(string $message, array $arguments = []): void
-	{
-		$this->application->log($arguments['severity'] ?? LogLevel::DEBUG, $message, $arguments);
 	}
 }

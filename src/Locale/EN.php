@@ -68,14 +68,14 @@ class EN extends Locale
 	{
 		$exceptions = [
 			'company' => 'companies',
-			'day'     => 'days',
-			'staff'   => 'staff',
-			'sheep'   => 'sheep',
+			'day' => 'days',
+			'staff' => 'staff',
+			'sheep' => 'sheep',
 			'octopus' => 'octopi',
-			'news'    => 'news',
-			'person'  => 'people',
-			'woman'   => 'women',
-			'man'     => 'men',
+			'news' => 'news',
+			'person' => 'people',
+			'woman' => 'women',
+			'man' => 'men',
 		];
 		$ss = $exceptions[strtolower($s)] ?? null;
 		if ($ss) {

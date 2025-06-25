@@ -13,6 +13,7 @@ use zesk\Application;
 use zesk\ArrayTools;
 use zesk\Command;
 use zesk\Debug;
+use zesk\Exception;
 use zesk\Exception\ConnectionFailed;
 use zesk\Exception\DirectoryNotFound;
 use zesk\Exception\DomainLookupFailed;
@@ -22,12 +23,13 @@ use zesk\Exception\NotFoundException;
 use zesk\Exception\ParameterException;
 use zesk\Exception\ParseException;
 use zesk\Exception\ProtocolException;
+use zesk\Exception\SyntaxException;
 use zesk\Exception\UnsupportedException;
 use zesk\File;
-use zesk\Hookable;
 use zesk\HTTP;
 use zesk\Net\HTTP\Client\Cookie;
 use zesk\Net\HTTP\Client\Exception as ClientException;
+use zesk\Net\URLClient;
 use zesk\Request;
 use zesk\Response;
 use zesk\StringTools;
@@ -41,7 +43,7 @@ use zesk\Version;
  * @package    zesk
  * @subpackage system
  */
-class Client extends Hookable
+class Client extends URLClient
 {
 	public const OPTION_FOLLOW_LOCATION = 'setFollowLocation';
 
@@ -82,16 +84,6 @@ class Client extends Hookable
 		self::USER_AGENT_INTERNET_EXPLORER,
 		self::USER_AGENT_SAFARI,
 	];
-
-	/**
-	 * @var string
-	 */
-	protected string $url = '';
-
-	/**
-	 * @var array
-	 */
-	protected array $urlParts = [];
 
 	/**
 	 * Cookies to send
@@ -226,40 +218,25 @@ class Client extends Hookable
 	 */
 	public const ERROR_SSL_CONNECT = 'Error_SSL_Connect';
 
+	public const OPTION_DEFAULT_USER_AGENT = 'default_user_agent';
+
 	/**
 	 * For proxy
 	 *
 	 * @var array
 	 */
 	public static array $ignore_response_headers = [
-		HTTP::RESPONSE_CONTENT_ENCODING  => true,
+		HTTP::RESPONSE_CONTENT_ENCODING => true,
 		HTTP::RESPONSE_TRANSFER_ENCODING => true,
 	];
 
-	/**
-	 * Create a new Net_HTTP_Client
-	 *
-	 * @param Application $application
-	 * @param string      $url
-	 * @param array       $options
-	 */
-	public function __construct(Application $application, string $url = '', array $options = [])
+	public function initialize(): void
 	{
-		parent::__construct($application, $options);
-
-		$this->inheritConfiguration();
+		parent::initialize();
 		$this->loadFromOptions();
-		if ($url) {
-			$this->setURL($url);
-		}
 		if (!$this->userAgent) {
 			$this->setUserAgent($this->defaultUserAgent());
 		}
-	}
-
-	public function application(): Application
-	{
-		return $this->application;
 	}
 
 	private function loadFromOptions(): void
@@ -271,8 +248,6 @@ class Client extends Hookable
 			$this->setUserAgent($this->option('user_agent'));
 		}
 	}
-
-	public const OPTION_DEFAULT_USER_AGENT = 'default_user_agent';
 
 	/**
 	 * The default user agent
@@ -408,7 +383,7 @@ class Client extends Hookable
 
 	/**
 	 *
-	 * @return $ResponseProtocol
+	 * @return string
 	 */
 	public function responseProtocol(): string
 	{
@@ -429,7 +404,7 @@ class Client extends Hookable
 	 * Set request cookies
 	 *
 	 * @param array $set
-	 * @param bool  $append
+	 * @param bool $append
 	 * @return $this
 	 */
 	public function setRequestCookies(array $set, bool $append = false): self
@@ -611,11 +586,11 @@ class Client extends Hookable
 	{
 		$httpHeaders = [];
 		$this->curl_opts = [
-			CURLOPT_ENCODING       => 1,
+			CURLOPT_ENCODING => 1,
 			CURLOPT_RETURNTRANSFER => 1,
 			CURLOPT_SSL_VERIFYPEER => $this->optionBool(self::OPTION_VERIFY_SSL, self::DEFAULT_OPTION_VERIFY_SSL),
 		];
-		$data = $this->_encodeData();
+		$data = $this->_encodeData($this->data);
 		$length = strlen($data);
 		switch ($this->method) {
 			case HTTP::METHOD_GET:
@@ -876,7 +851,7 @@ class Client extends Hookable
 			curl_setopt($curl, $option, $value);
 		}
 		$this->content = @curl_exec($curl);
-		$this->_methodClose($curl);
+		$this->_methodClose();
 		$errno = curl_errno($curl);
 		$error_code = curl_error($curl);
 
@@ -899,10 +874,10 @@ class Client extends Hookable
 			}
 			// TODO 2017-08 These should probably all be their own Exception class
 			$errno_map = [
-				CURLE_COULDNT_CONNECT      => self::ERROR_CONNECTION,
+				CURLE_COULDNT_CONNECT => self::ERROR_CONNECTION,
 				CURLE_COULDNT_RESOLVE_HOST => self::ERROR_RESOLVE_HOST,
-				CURLE_OPERATION_TIMEOUTED  => self::ERROR_TIMEOUT,
-				CURLE_SSL_CONNECT_ERROR    => self::ERROR_SSL_CONNECT,
+				CURLE_OPERATION_TIMEOUTED => self::ERROR_TIMEOUT,
+				CURLE_SSL_CONNECT_ERROR => self::ERROR_SSL_CONNECT,
 			];
 			$error_string = $errno_map[$errno] ?? "UnknownErrno-$errno";
 
@@ -932,7 +907,7 @@ class Client extends Hookable
 		])) {
 			throw new ProtocolException('Require valid HTTP URL {protocol} ({url})', [
 				'protocol' => $protocol,
-				'url'      => $url,
+				'url' => $url,
 			]);
 		}
 		$ctx_options = [
@@ -948,7 +923,7 @@ class Client extends Hookable
 		} else {
 			$ctx_options['ssl'] = [
 				'verify_peer' => true,
-				'cafile'      => $cafile,
+				'cafile' => $cafile,
 			];
 		}
 		$context = stream_context_create($ctx_options);
@@ -986,21 +961,17 @@ class Client extends Hookable
 		if ($result !== 2) {
 			throw new ClientException('{method}({url}) returned response code {result} ', [
 				'method' => __METHOD__,
-				'ur'     => $url,
+				'ur' => $url,
 				'result' => $x->responseCode(),
 			]);
 		}
 		return $x->responseHeaders();
 	}
 
-	private function _encodeData(): string
+	private function _encodeData(array|string $data): string
 	{
-		$data = $this->data;
 		if (is_string($data)) {
 			return $data;
-		}
-		if (!is_array($data)) {
-			throw new ProtocolException('Data is not a string or array?');
 		}
 		return http_build_query($data);
 	}
@@ -1117,8 +1088,8 @@ class Client extends Hookable
 
 		throw new NotFoundException('Cookie {cookieName}', [
 			'cookieName' => $cookieName,
-			'domain'     => $domain,
-			'path'       => $path,
+			'domain' => $domain,
+			'path' => $path,
 		]);
 	}
 
@@ -1284,6 +1255,7 @@ class Client extends Hookable
 	 * Getter only
 	 *
 	 * @param string $name
+	 * @return string
 	 */
 	public function responseHeader(string $name): string
 	{
@@ -1312,6 +1284,7 @@ class Client extends Hookable
 	 * Getter for User-Agent for request
 	 *
 	 * @return string
+	 * @throws KeyNotFound
 	 */
 	public function userAgent(): string
 	{
@@ -1334,6 +1307,7 @@ class Client extends Hookable
 	 * Retrieve the filename of the file per the Content-Disposition header
 	 *
 	 * @return string
+	 * @throws SyntaxException
 	 */
 	public function filename(): string
 	{
@@ -1377,6 +1351,7 @@ class Client extends Hookable
 	 * Configure this object to mimic/passthrough the Request
 	 *
 	 * @param Request $request
+	 * @param string $url_prefix
 	 * @return self
 	 */
 	public function proxyRequest(Request $request, string $url_prefix): self
@@ -1423,10 +1398,10 @@ class Client extends Hookable
 	public function requestVariables(): array
 	{
 		return [
-			'url'            => $this->url(),
-			'requestMethod'  => $this->method(),
+			'url' => $this->url(),
+			'requestMethod' => $this->method(),
 			'requestCookies' => $this->requestCookie,
-			'requestData'    => $this->data(),
+			'requestData' => $this->data(),
 		];
 	}
 
@@ -1436,11 +1411,11 @@ class Client extends Hookable
 	public function responseVariables(): array
 	{
 		return [
-			'responseCode'     => $this->responseCode,
-			'responseMessage'  => $this->responseMessage,
+			'responseCode' => $this->responseCode,
+			'responseMessage' => $this->responseMessage,
 			'responseProtocol' => $this->responseProtocol,
 			'responseCodeType' => $this->responseCodeType(),
-			'responseData'     => $this->content,
+			'responseData' => $this->content,
 		];
 	}
 
@@ -1450,5 +1425,60 @@ class Client extends Hookable
 	public function variables(): array
 	{
 		return $this->requestVariables() + $this->responseVariables();
+	}
+
+	/**
+	 * @return array
+	 */
+	public function __serializeChild(): array
+	{
+		return [
+			'connectTimeout' => $this->connectTimeout,
+			'content' => $this->content,
+			'curl_opts' => $this->curl_opts,
+			'data' => $this->data,
+			'dataFile' => $this->dataFile,
+			'destination' => $this->destination,
+			'method' => $this->method,
+			'recurse' => $this->recurse,
+			'requestCookie' => $this->requestCookie,
+			'requestHeaders' => $this->requestHeaders,
+			'responseCode' => $this->responseCode,
+			'responseCookies' => $this->responseCookies,
+			'responseHeaders' => $this->responseHeaders,
+			'responseMessage' => $this->responseMessage,
+			'responseProtocol' => $this->responseProtocol,
+			'skipRequestHeaders' => $this->skipRequestHeaders,
+			'timeout' => $this->timeout,
+			'userAgent' => $this->userAgent,
+		] + parent::__serializeChild();
+	}
+
+	/**
+	 * @param array $data
+	 * @return void
+	 * @throws Exception
+	 */
+	public function __unserializeChild(array $data): void
+	{
+		parent::__unserializeChild($data);
+		$this->connectTimeout = $data['connectTimeout'];
+		$this->content = $data['content'];
+		$this->curl_opts = $data['curl_opts'];
+		$this->data = $data['data'];
+		$this->dataFile = $data['dataFile'];
+		$this->destination = $data['destination'];
+		$this->method = $data['method'];
+		$this->recurse = $data['recurse'];
+		$this->requestCookie = $data['requestCookie'];
+		$this->requestHeaders = $data['requestHeaders'];
+		$this->responseCode = $data['responseCode'];
+		$this->responseCookies = $data['responseCookies'];
+		$this->responseHeaders = $data['responseHeaders'];
+		$this->responseMessage = $data['responseMessage'];
+		$this->responseProtocol = $data['responseProtocol'];
+		$this->skipRequestHeaders = $data['skipRequestHeaders'];
+		$this->timeout = $data['timeout'];
+		$this->userAgent = $data['userAgent'];
 	}
 }

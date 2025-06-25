@@ -9,13 +9,10 @@ declare(strict_types=1);
 
 namespace zesk\FileMonitor;
 
-use zesk\CSV\Base;
-
 /**
  * Monitors current include files for changes
  *
  * @author kent
- * @see    \zesk\Diff\Base
  */
 class IncludeFilesMonitor extends Base
 {

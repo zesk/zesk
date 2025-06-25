@@ -195,8 +195,8 @@ class Check extends FileIterator
 	}
 
 	/**
-	 * @param string   $contents
-	 * @param string   $term
+	 * @param string $contents
+	 * @param string $term
 	 * @param callable $fixFunction
 	 * @param callable $addFunction
 	 * @return bool

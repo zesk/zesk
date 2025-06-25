@@ -11,10 +11,10 @@ declare(strict_types=1);
 
 namespace zesk;
 
-if (!is_file(__DIR__ . '/vendor/autoload.php')) {
+if (!is_file(dirname(__DIR__) . '/vendor/autoload.php')) {
 	spl_autoload_register(function ($class) {
 		if (str_starts_with($class, __NAMESPACE__ . '\\')) {
-			$file = __DIR__ . '/zesk/' . strtr($class, ['_'  => '/',
+			$file = dirname(__DIR__) . '/zesk/' . strtr($class, ['_' => '/',
 				'\\' => '/',
 			]) . '.php';
 			if (is_file($file)) {
@@ -25,5 +25,5 @@ if (!is_file(__DIR__ . '/vendor/autoload.php')) {
 		return false;
 	});
 } else {
-	require_once __DIR__ . '/vendor/autoload.php';
+	require_once dirname(__DIR__) . '/vendor/autoload.php';
 }

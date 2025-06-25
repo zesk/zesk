@@ -21,8 +21,8 @@ class URL
 	 * @var array
 	 */
 	protected static array $secureProtocols = [
-		'http'   => 'https',
-		'ftp'    => 'sftp',
+		'http' => 'https',
+		'ftp' => 'sftp',
 		'telnet' => 'ssh',
 	];
 
@@ -45,11 +45,11 @@ class URL
 	/**
 	 * Query string parsing (case-sensitive)
 	 *
-	 * @param string      $qs
+	 * @param string $qs
 	 *            Query string to parse (Does NOT parse URLs)
 	 * @param string|null $name
 	 *            Name of field to return, or null to return an array
-	 * @param string      $default
+	 * @param string $default
 	 *            Value to return if name not found in query string
 	 * @return mixed Parsed query string
 	 */
@@ -72,9 +72,9 @@ class URL
 	/**
 	 * Case-insensitive query string parsing
 	 *
-	 * @param string  $qs
+	 * @param string $qs
 	 *            Query string to parse (Does NOT parse URLs)
-	 * @param string  $name
+	 * @param string $name
 	 *            Name of field to return, or null to return an array
 	 * @param ?string $default
 	 *            Value to return if name not found in query string
@@ -98,7 +98,7 @@ class URL
 	 *
 	 * Use this instead? Issues with . in variables names for parse_str may mean: use this instead
 	 *
-	 * @param string  $url
+	 * @param string $url
 	 *            A query string or URL
 	 * @param boolean $qmark
 	 *            Find and strip out everything before the question mark in the string
@@ -137,7 +137,7 @@ class URL
 	 * Given a result array, a starting key, and a set of keys formatted like "[a][b][c]"
 	 * and the final value, updates the result array with the correct PHP array keys.
 	 *
-	 * @param array  $result
+	 * @param array $result
 	 *            A result array to populate from the query string
 	 * @param string $k
 	 *            The starting key to populate in $result
@@ -177,9 +177,9 @@ class URL
 
 	/**
 	 *
-	 * @param string       $path
-	 * @param string|array $add    Name/value pairs to replace
-	 * @param string[]     $remove List of items to remove
+	 * @param string $path
+	 * @param string|array $add Name/value pairs to replace
+	 * @param string[] $remove List of items to remove
 	 * @return string
 	 */
 	public static function queryFormat(string $path, string|array $add = [], array|string $remove = []): string
@@ -210,7 +210,7 @@ class URL
 	 * Convert multidimensional arrays into a query string which PHP supports for reconstruction.
 	 *
 	 * @param string $key_name
-	 * @param array  $qs
+	 * @param array $qs
 	 * @return string
 	 */
 	private static function queryArrayToString(string $key_name, array $qs): string
@@ -253,7 +253,7 @@ class URL
 	 * Append to the query string of a URL
 	 *
 	 * @param string $url
-	 * @param mixed  $values
+	 * @param mixed $values
 	 *            Array or string to append
 	 * @return string
 	 */
@@ -283,7 +283,7 @@ class URL
 	/**
 	 * Remove items from a query string
 	 *
-	 * @param string       $url
+	 * @param string $url
 	 * @param array|string $names A ;-separated list of query string names to remove, case-sensitive.
 	 * @return string
 	 */
@@ -317,7 +317,7 @@ class URL
 	/**
 	 * Remove items from a query string using case-insensitive string matching
 	 *
-	 * @param string       $url   URL to remove query string variables from
+	 * @param string $url URL to remove query string variables from
 	 * @param array|string $names `;` separated list or array of strings of query string variables to remove
 	 * @return string The URL with the query string variables removed
 	 */
@@ -355,7 +355,7 @@ class URL
 	/**
 	 * Parse a URL without choking on non-URLs
 	 *
-	 * @param mixed  $url
+	 * @param mixed $url
 	 *            URL to parse
 	 * @param string $component
 	 *            Optional string of component to retrieve. Different from parse_url as it doesn't
@@ -379,15 +379,15 @@ class URL
 		if (strtolower(substr($url, 0, 7)) === 'file://') {
 			$result = [
 				'scheme' => 'file',
-				'host'   => '',
-				'path'   => substr($url, 7),
+				'host' => '',
+				'path' => substr($url, 7),
 			];
 		} else {
 			$result = parse_url($url);
 			if (!is_array($result)) {
 				throw new SyntaxException('parse_url({url}) failed {type}', [
 					'type' => Types::type($result),
-					'url'  => $url,
+					'url' => $url,
 				]);
 			}
 		}
@@ -545,13 +545,13 @@ class URL
 	public static function protocolPort(string $scheme): int
 	{
 		static $protocols = [
-			'ftp'    => 21,
-			'smtp'   => 25,
+			'ftp' => 21,
+			'smtp' => 25,
 			'mailto' => 25,
-			'http'   => 80,
-			'pop'    => 110,
-			'https'  => 443,
-			'file'   => -1,
+			'http' => 80,
+			'pop' => 110,
+			'https' => 443,
+			'file' => -1,
 			'telnet' => 23,
 		];
 		return $protocols[strtolower($scheme)] ?? -1;
@@ -654,7 +654,7 @@ class URL
 	 * @return string The URL up to the path
 	 * @throws SyntaxException
 	 */
-	public static function left_path(string $url): string
+	public static function leftPath(string $url): string
 	{
 		return self::left($url, 'path');
 	}
@@ -794,16 +794,16 @@ class URL
 		$scheme = $parts['scheme'] ?? '';
 		if (!array_key_exists($scheme, self::$secureProtocols)) {
 			throw new ProtocolException('{url} Not a known insecure protocol: {choices}', [
-				'url'     => $url,
+				'url' => $url,
 				'choices' => array_keys(self::$secureProtocols),
 			]);
 		}
 		$defaultPort = self::protocolPort($scheme);
 		if (intval($parts['port'] ?? $defaultPort) !== $defaultPort) {
 			throw new ProtocolException('{url} Port must be standard to promote: {port} !== {defaultPort}', [
-				'url'         => $url,
+				'url' => $url,
 				'defaultPort' => $defaultPort,
-				'port'        => $parts['port'],
+				'port' => $parts['port'],
 			]);
 		}
 		$parts['scheme'] = self::$secureProtocols[$scheme];

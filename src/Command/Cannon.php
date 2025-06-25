@@ -17,8 +17,8 @@ use zesk\Exception\SemanticsException;
 use zesk\Exception\SystemException;
 use zesk\File;
 use zesk\Number;
-use zesk\Text;
 use zesk\StringTools;
+use zesk\Text;
 
 /**
  * Global search and replace tool for code

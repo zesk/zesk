@@ -47,16 +47,16 @@ class Search extends ThemeController
 				}
 			} else {
 				$this->application->error('Controller_Search::action_index {class} does not have method {method}', [
-					'class'  => $class,
+					'class' => $class,
 					'method' => $method,
 				]);
 			}
 		}
 		return $this->theme($total === 0 ? 'search/no-results' : 'search/results', [
-			'raw_query'         => $query,
-			'query'             => htmlspecialchars($query),
+			'raw_query' => $query,
+			'query' => htmlspecialchars($query),
 			'theme_search_form' => 'block/search',
-			'results'           => $results,
+			'results' => $results,
 		]);
 	}
 }

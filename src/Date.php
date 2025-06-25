@@ -479,15 +479,15 @@ class Date extends Weekday
 	public static function daysInMonth(int $month, int $year): int
 	{
 		$daysInMonth = [
-			1  => 31,
-			2  => 28,
-			3  => 31,
-			4  => 30,
-			5  => 31,
-			6  => 30,
-			7  => 31,
-			8  => 31,
-			9  => 30,
+			1 => 31,
+			2 => 28,
+			3 => 31,
+			4 => 30,
+			5 => 31,
+			6 => 30,
+			7 => 31,
+			8 => 31,
+			9 => 30,
 			10 => 31,
 			11 => 30,
 			12 => 31,
@@ -527,7 +527,7 @@ class Date extends Weekday
 	/**
 	 * Returns true if $date is before $this
 	 *
-	 * @param Date    $date
+	 * @param Date $date
 	 * @param boolean $equal
 	 *            Returns true if $date === $this
 	 * @return boolean
@@ -545,7 +545,7 @@ class Date extends Weekday
 	/**
 	 * Returns true if $date is after $this
 	 *
-	 * @param Date    $date
+	 * @param Date $date
 	 * @param boolean $equal
 	 *            Returns true if $date === $this
 	 * @return boolean
@@ -618,7 +618,7 @@ class Date extends Weekday
 	/**
 	 * Add units to a date or time
 	 *
-	 * @param int    $n_units
+	 * @param int $n_units
 	 * @param string $units Use Date::UNIT_FOO for units
 	 * @return self
 	 * @throws ParameterException
@@ -632,9 +632,9 @@ class Date extends Weekday
 			self::UNIT_QUARTER => $this->add(0, $n_units * self::MONTHS_PER_QUARTER),
 			self::UNIT_YEAR => $this->add($n_units),
 			default => throw new ParameterException('{method)({n_units}, {units}): Invalid unit', [
-				'method'  => __METHOD__,
+				'method' => __METHOD__,
 				'n_units' => $n_units,
-				'units'   => $units,
+				'units' => $units,
 			]),
 		};
 	}
@@ -645,15 +645,15 @@ class Date extends Weekday
 	 * @var array
 	 */
 	private static array $months = [
-		1  => 'January',
-		2  => 'February',
-		3  => 'March',
-		4  => 'April',
-		5  => 'May',
-		6  => 'June',
-		7  => 'July',
-		8  => 'August',
-		9  => 'September',
+		1 => 'January',
+		2 => 'February',
+		3 => 'March',
+		4 => 'April',
+		5 => 'May',
+		6 => 'June',
+		7 => 'July',
+		8 => 'August',
+		9 => 'September',
 		10 => 'October',
 		11 => 'November',
 		12 => 'December',
@@ -690,9 +690,9 @@ class Date extends Weekday
 
 	/**
 	 * @param Locale $locale
-	 * @param bool   $short
-	 * @param array  $source
-	 * @param array  $cached
+	 * @param bool $short
+	 * @param array $source
+	 * @param array $cached
 	 * @return array
 	 */
 	private static function _cachedNames(Locale $locale, bool $short, array $source, array &$cached): array
@@ -710,8 +710,8 @@ class Date extends Weekday
 	/**
 	 * Return a localized list of month dates, 1-index based
 	 *
-	 * @param Locale  $locale Locale to translate to
-	 * @param boolean $short  Short dates
+	 * @param Locale $locale Locale to translate to
+	 * @param boolean $short Short dates
 	 * @return array
 	 */
 	public static function monthNames(Locale $locale, bool $short = false): array
@@ -721,7 +721,7 @@ class Date extends Weekday
 
 	/**
 	 *
-	 * @param Locale  $locale
+	 * @param Locale $locale
 	 * @param boolean $short
 	 * @return string[]
 	 */
@@ -791,7 +791,7 @@ class Date extends Weekday
 	/**
 	 *
 	 * @param string $format
-	 * @param array  $options
+	 * @param array $options
 	 * @return string
 	 */
 	public function format(string $format = '', array $options = []): string

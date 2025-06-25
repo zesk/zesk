@@ -136,16 +136,16 @@ class Paths
 
 	/**
 	 * @param Configuration $configuration
-	 * @param array         $server
+	 * @param array $server
 	 * @return void
 	 * @throws DirectoryNotFound
 	 */
 	public function inheritEnvironment(Configuration $configuration, array $server): void
 	{
 		$serverVariables = [
-			self::ENVIRONMENT_HOME           => Application::OPTION_USER_HOME,
+			self::ENVIRONMENT_HOME => Application::OPTION_USER_HOME,
 			self::ENVIRONMENT_XDG_CACHE_HOME => Application::OPTION_CACHE_HOME,
-			self::ENVIRONMENT_XDG_DATA_HOME  => Application::OPTION_DATA_HOME,
+			self::ENVIRONMENT_XDG_DATA_HOME => Application::OPTION_DATA_HOME,
 		];
 		foreach ($serverVariables as $environmentName => $optionName) {
 			$value = $server[$environmentName] ?? null;
@@ -154,7 +154,7 @@ class Paths
 			}
 		}
 		$serverListVariables = [
-			self::ENVIRONMENT_XDG_DATA_DIRS   => Application::OPTION_DATA_DIRECTORY_LIST,
+			self::ENVIRONMENT_XDG_DATA_DIRS => Application::OPTION_DATA_DIRECTORY_LIST,
 			self::ENVIRONMENT_XDG_CONFIG_DIRS => Application::OPTION_CONFIGURATION_DIRECTORY_LIST,
 		];
 		foreach ($serverListVariables as $environmentName => $optionName) {
@@ -238,12 +238,12 @@ class Paths
 	public function configure(Configuration $options): void
 	{
 		$setters = [
-			Application::OPTION_PATH                => $this->setApplication(...),
-			Application::OPTION_CACHE_HOME          => $this->setTemporary(...),
-			Application::OPTION_COMMAND_HOME        => $this->addCommand(...),
-			Application::OPTION_DATA_HOME           => $this->setData(...),
+			Application::OPTION_PATH => $this->setApplication(...),
+			Application::OPTION_CACHE_HOME => $this->setTemporary(...),
+			Application::OPTION_COMMAND_HOME => $this->addCommand(...),
+			Application::OPTION_DATA_HOME => $this->setData(...),
 			Application::OPTION_DATA_DIRECTORY_LIST => $this->setDataList(...),
-			Application::OPTION_USER_HOME           => $this->setHome(...),
+			Application::OPTION_USER_HOME => $this->setHome(...),
 			Application::OPTION_USER_CONFIGURE_HOME => $this->setUserHome(...),
 		];
 		foreach ($setters as $key => $setter) {
@@ -491,7 +491,7 @@ class Paths
 	{
 		$_SERVER[self::ENVIRONMENT_HOME] = $this->home();
 		return [
-			Application::OPTION_USER_HOME           => $this->home(),
+			Application::OPTION_USER_HOME => $this->home(),
 			Application::OPTION_USER_CONFIGURE_HOME => $this->userHome(),
 		];
 	}
@@ -555,7 +555,7 @@ class Paths
 
 		throw new NotFoundException('{command} not found in {paths}', [
 			'command' => $command,
-			'paths'   => $this->command(),
+			'paths' => $this->command(),
 		]);
 	}
 
@@ -567,13 +567,13 @@ class Paths
 	public function variables(): array
 	{
 		return [
-			'zesk'        => ZESK_ROOT,
+			'zesk' => ZESK_ROOT,
 			'application' => $this->application,
-			'temporary'   => $this->temporary,
-			'data'        => $this->data,
-			'home'        => $this->home,
-			'uid'         => $this->userHome,
-			'command'     => $this->command(),
+			'temporary' => $this->temporary,
+			'data' => $this->data,
+			'home' => $this->home,
+			'uid' => $this->userHome,
+			'command' => $this->command(),
 		];
 	}
 }

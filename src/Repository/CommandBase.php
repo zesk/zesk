@@ -78,9 +78,9 @@ abstract class CommandBase extends Base
 			if ($root !== $path) {
 				$this->application->debug('{method} {code} moved to {root} instead of {path}', [
 					'method' => __METHOD__,
-					'code'   => $this->code,
-					'root'   => $root,
-					'path'   => $path,
+					'code' => $this->code,
+					'root' => $root,
+					'path' => $path,
 				]);
 			}
 			$this->path = $root;
@@ -109,8 +109,8 @@ abstract class CommandBase extends Base
 	/**
 	 *
 	 * @param string $suffix
-	 * @param array  $arguments
-	 * @param bool   $passThrough
+	 * @param array $arguments
+	 * @param bool $passThrough
 	 * @return array
 	 * @throws CommandFailed
 	 */

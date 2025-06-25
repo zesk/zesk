@@ -1,14 +1,17 @@
 <?php
 declare(strict_types=1);
+/**
+ * @copyright &copy; 2025, Market Acumen, Inc.
+ */
 
 namespace zesk\Route;
 
 use zesk\Application;
 use zesk\ArrayTools;
 use zesk\Exception\CommandFailed;
-use zesk\Route;
 use zesk\Request;
 use zesk\Response;
+use zesk\Route;
 
 /**
  *

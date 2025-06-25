@@ -6,16 +6,15 @@ declare(strict_types=1);
 
 namespace zesk\Image\Library;
 
+use GdImage;
 use zesk\ArrayTools;
 use zesk\CSS;
+use zesk\Exception\FileNotFound;
 use zesk\Exception\KeyNotFound;
+use zesk\Exception\ParseException;
 use zesk\Exception\ProtocolException;
 use zesk\Exception\SyntaxException;
 use zesk\Image\Library;
-
-use GdImage;
-use zesk\Exception\FileNotFound;
-use zesk\Exception\ParseException;
 use zesk\MIME;
 
 /**
@@ -26,10 +25,10 @@ use zesk\MIME;
 class GD extends Library
 {
 	private static array $output_map = [
-		'png'  => 'png',
-		'gif'  => 'gif',
+		'png' => 'png',
+		'gif' => 'gif',
 		'jpeg' => 'jpeg',
-		'jpg'  => 'jpeg',
+		'jpg' => 'jpeg',
 	];
 
 	/**
@@ -44,8 +43,8 @@ class GD extends Library
 	/**
 	 *
 	 * @param GdImage $src
-	 * @param mixed   $dest file to write to, or null to return raw data
-	 * @param array   $options
+	 * @param mixed $dest file to write to, or null to return raw data
+	 * @param array $options
 	 * @return string|bool
 	 * @throws ParseException
 	 */
@@ -146,7 +145,7 @@ class GD extends Library
 	/**
 	 *
 	 * @param string $data
-	 * @param array  $options
+	 * @param array $options
 	 * @return string
 	 * @throws ProtocolException
 	 * @throws ParseException
@@ -161,7 +160,7 @@ class GD extends Library
 		$src = @imagecreatefromstring($data);
 		if ($src) {
 			throw new ProtocolException('{method} passed an invalid string of {n} bytes', [
-				'n'      => strlen($data),
+				'n' => strlen($data),
 				'method' => __METHOD__,
 			]);
 		}
@@ -172,7 +171,7 @@ class GD extends Library
 	 *
 	 * @param string $source
 	 * @param string $dest
-	 * @param array  $options
+	 * @param array $options
 	 * @return bool
 	 * @throws FileNotFound
 	 * @throws ParseException
@@ -202,7 +201,7 @@ class GD extends Library
 		$src = imagecreatefromstring($contents);
 		if (!$src instanceof GdImage) {
 			throw new ProtocolException('{method} passed an invalid string from {source} of {n} bytes', [
-				'n'      => strlen($contents),
+				'n' => strlen($contents),
 				'source' => $source,
 				'method' => __METHOD__,
 			]);
@@ -231,8 +230,8 @@ class GD extends Library
 	/**
 	 * Output image
 	 *
-	 * @param GdImage     $dst
-	 * @param string      $type
+	 * @param GdImage $dst
+	 * @param string $type
 	 * @param string|null $dest
 	 * @return void
 	 * @throws ParseException
@@ -248,7 +247,7 @@ class GD extends Library
 		if ($result === false) {
 			throw new ParseException('{method} returned false {dest}', [
 				'method' => $method,
-				'dest'   => $dest,
+				'dest' => $dest,
 			]);
 		}
 	}
@@ -257,7 +256,7 @@ class GD extends Library
 	 * Output image
 	 *
 	 * @param GdImage $dst
-	 * @param string  $type Image type to output
+	 * @param string $type Image type to output
 	 * @return string
 	 * @throws ParseException
 	 */
@@ -279,7 +278,7 @@ class GD extends Library
 	 * Output image
 	 *
 	 * @param GdImage $dst
-	 * @param mixed   $dest Filename to output to, or if blank, returns image data
+	 * @param mixed $dest Filename to output to, or if blank, returns image data
 	 * @throws ParseException
 	 */
 	private function _imageOutputFile(GdImage $dst, string $dest): void

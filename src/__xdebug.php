@@ -1,5 +1,8 @@
 <?php
 declare(strict_types=1);
+
+namespace zesk;
+
 /**
  * Include this in any application, anywhere, if you want to try and ensure a breakpoint is hit upon entry
  *
@@ -14,18 +17,23 @@ declare(strict_types=1);
  * @author     kent
  * @copyright  Copyright &copy; 2025, Market Acumen, Inc.
  */
-
-$xdebug_break_if_enabled = function (): void {
-	// Hide from scope
-	$function = 'xdebug_break';
-	$marker = 'XDEBUG_ACTIVE';
-	if (($_SERVER['XDEBUG_ENABLED'] ?? 0) && function_exists($function)) {
-		if (!($_SERVER[$marker] ?? false)) {
-			$_SERVER[$marker] = true;
-			/* Skip automatic code link by using call_user_func 'cause we're clever */
-			call_user_func($function);
-		}
+class __xdebug
+{
+	public static function interrupt(): callable
+	{
+		return function (): void {
+			// Hide from scope
+			$function = 'xdebug_break';
+			$marker = 'XDEBUG_ACTIVE';
+			if (filter_var($_SERVER['XDEBUG_ENABLED'] ?? false, FILTER_VALIDATE_BOOLEAN) && function_exists($function)) {
+				if (!($_SERVER[$marker] ?? false)) {
+					$_SERVER[$marker] = true;
+					/* Skip automatic code link by using call_user_func 'cause we're clever */
+					call_user_func($function);
+				}
+			}
+		};
 	}
-};
+}
 
-// $xdebug_break_if_enabled();
+return __xdebug::interrupt();

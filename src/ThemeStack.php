@@ -79,7 +79,7 @@ class ThemeStack
 	/**
 	 *
 	 * @param string $name
-	 * @param mixed  $value
+	 * @param mixed $value
 	 * @return self
 	 */
 	public function set(string $name, mixed $value): self

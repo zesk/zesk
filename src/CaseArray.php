@@ -1,5 +1,8 @@
 <?php
 declare(strict_types=1);
+/**
+ * @copyright &copy; 2025, Market Acumen, Inc.
+ */
 
 namespace zesk;
 
@@ -66,7 +69,7 @@ class CaseArray extends ArrayObject implements ArrayAccess
 		$lowKey = strtolower($key);
 
 		$this->nameToCase[$lowKey] = $key;
-		$this->lowNameToValue[$lowKey]  = $value;
+		$this->lowNameToValue[$lowKey] = $value;
 	}
 
 	public function offsetUnset(mixed $key): void

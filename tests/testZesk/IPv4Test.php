@@ -7,8 +7,7 @@ declare(strict_types=1);
 namespace testZesk;
 
 use zesk\IPv4;
-
-use zesk\Request;
+use zesk\StringTools;
 
 /**
  * @uses IPv4
@@ -111,13 +110,15 @@ class IPv4Test extends TestCase
 	 * @return void
 	 * @covers ::fromInteger
 	 */
-	public function test_from_integer(): void
+	public function test_fromInteger(): void
 	{
 		$this->assertEquals('192.168.0.200', IPv4::fromInteger(3232235720));
 		$this->assertEquals('192.168.0.200', IPv4::fromInteger('3232235720'));
 	}
 
 	/**
+	 * @param bool $expected
+	 * @param string $testValue
 	 * @return void
 	 * @covers ::isMask
 	 * @dataProvider dataIsMask
@@ -271,6 +272,10 @@ class IPv4Test extends TestCase
 		$this->assertEquals($expected, IPv4::maskToIntegers($string));
 	}
 
+	/**
+	 * @return void
+	 * @covers ::maskToIntegers ::maskToString ::fromInteger
+	 */
 	public function test_maskToIntegers2(): void
 	{
 		$ips = file($this->application->zeskHome('tests/test-data/ip.txt'));
@@ -448,13 +453,13 @@ class IPv4Test extends TestCase
 
 	/**
 	 * @param string $mask
-	 * @param string|int $ip_check_low
-	 * @param string|int $ip_check_high
+	 * @param string|int|float $ip_check_low
+	 * @param string|int|float $ip_check_high
 	 * @return void
 	 * @dataProvider data_network
 	 * @covers ::toInteger ::fromInteger ::network
 	 */
-	public function test_network(string $mask, string|int $ip_check_low, string|int $ip_check_high): void
+	public function test_network(string $mask, string|int|float $ip_check_low, string|int|float $ip_check_high): void
 	{
 		if (is_string($ip_check_low)) {
 			$ip_check_low = IPv4::toInteger($ip_check_low);
@@ -470,7 +475,7 @@ class IPv4Test extends TestCase
 		$this->assertEquals($ip_high, $ip_check_high, 'High Check: ' . IPv4::fromInteger($ip_high) . ' !== ' . IPv4::fromInteger($ip_check_high));
 	}
 
-	public static function data_to_integer(): array
+	public static function data_toInteger(): array
 	{
 		return [
 			[
@@ -556,10 +561,10 @@ class IPv4Test extends TestCase
 	 * @param float $expected
 	 * @param       $mixed
 	 * @return void
-	 * @dataProvider data_to_integer
+	 * @dataProvider data_toInteger
 	 * @covers ::toInteger ::fromInteger
 	 */
-	public function test_to_integer(float $expected, $mixed): void
+	public function test_toInteger(float $expected, $mixed): void
 	{
 		$this->assertEquals($expected, IpV4::toInteger($mixed));
 		if (is_string($mixed) && !empty($mixed) && !empty($expected)) {
@@ -590,6 +595,10 @@ class IPv4Test extends TestCase
 		}
 	}
 
+	/**
+	 * @return void
+	 * @covers ::subnetMask
+	 */
 	public function test_subnetMask(): void
 	{
 		for ($n = 1; $n <= 32; $n++) {
@@ -659,6 +668,7 @@ class IPv4Test extends TestCase
 	 * @param $ip_bits
 	 * @return void
 	 * @dataProvider data_subnetMaskNot
+	 * @covers ::subnetMaskNot
 	 */
 	public function test_subnetMaskNot($expected, $ip_bits): void
 	{
@@ -748,13 +758,14 @@ class IPv4Test extends TestCase
 	 * @param bool $valid
 	 * @return void
 	 * @dataProvider data_valid
+	 * @covers ::valid
 	 */
 	public function test_valid(string $ip, bool $valid): void
 	{
 		$this->assertEquals($valid, IPv4::valid($ip), "$ip should be " . ($valid ? 'valid ip' : 'invalid ip'));
 	}
 
-	public static function data_within_network(): array
+	public static function data_withinNetwork(): array
 	{
 		return [
 			[
@@ -815,14 +826,15 @@ class IPv4Test extends TestCase
 	 * @param $network
 	 * @param $result
 	 * @return void
-	 * @dataProvider data_within_network
+	 * @dataProvider data_withinNetwork
+	 * @covers ::withinNetwork
 	 */
-	public function test_within_network($ip, $network, $result): void
+	public function test_withinNetwork($ip, $network, $result): void
 	{
-		$this->assertEquals($result, IPv4::withinNetwork($ip, $network), "IPv4::within_network($ip, $network) === " . StringTools::fromBool($result));
+		$this->assertEquals($result, IPv4::withinNetwork($ip, $network), "IPv4::withinNetwork($ip, $network) === " . StringTools::fromBool($result));
 	}
 
-	public static function data_is_private(): array
+	public static function data_isPrivate(): array
 	{
 		$r0 = self::randomInteger(0, 255);
 		$r1 = self::randomInteger(0, 255);
@@ -887,9 +899,10 @@ class IPv4Test extends TestCase
 	 * @param $expected
 	 * @param $ip
 	 * @return void
-	 * @dataProvider data_is_private
+	 * @dataProvider data_isPrivate
+	 * @covers ::isPrivate
 	 */
-	public function test_is_private($expected, $ip): void
+	public function test_isPrivate($expected, $ip): void
 	{
 		$this->assertEquals($expected, IPv4::isPrivate($ip));
 	}

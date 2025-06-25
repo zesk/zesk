@@ -133,7 +133,7 @@ class IPv4
 	 * Given an IP integer address, convert to "low" IP integer in subnet
 	 *
 	 * @param float $ip_integer
-	 * @param int   $ip_bits
+	 * @param int $ip_bits
 	 * @return float
 	 */
 	public static function subnetBits(float $ip_integer, int $ip_bits): float
@@ -221,9 +221,9 @@ class IPv4
 	 *
 	 * @param int|float $ip
 	 *            An IP integer
-	 * @param int       $ip_bits
+	 * @param int $ip_bits
 	 *            An IP number of bits in the mask (from 0 to 32)
-	 * @param boolean   $star_notation
+	 * @param boolean $star_notation
 	 *            When true, returns masks of 8, 16 and 24 bits using stars instead of slashes, e.g.
 	 *            "192.168.*"
 	 * @return string An IP and subnet notation string
@@ -278,7 +278,7 @@ class IPv4
 	 * </code>
 	 *
 	 * @param string $network An IP network string (see self::maskToIntegers)
-	 * @param string $ip      IP Address
+	 * @param string $ip IP Address
 	 * @return bool
 	 */
 	public static function withinNetwork(string $ip, string $network): bool

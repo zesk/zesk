@@ -44,8 +44,8 @@ class Timer
 	/**
 	 * Create a new Timer
 	 *
-	 * @param string|float|null $start  Optional. Float value for starting time of this timer, in seconds.
-	 * @param float             $offset Offset to add to the start time, in seconds.
+	 * @param string|float|null $start Optional. Float value for starting time of this timer, in seconds.
+	 * @param float $offset Offset to add to the start time, in seconds.
 	 */
 	public function __construct(string|float $start = null, float $offset = 0.0)
 	{

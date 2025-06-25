@@ -1,15 +1,14 @@
 <?php
 declare(strict_types=1);
 /**
- *
+ * @copyright  Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace testZesk\Exception;
 
-use zesk\PHPUnit\ExceptionTestCase;
-
-use zesk\Exception\DirectoryNotFound;
 use zesk\Exception\DirectoryCreate;
+use zesk\Exception\DirectoryNotFound;
+use zesk\PHPUnit\ExceptionTestCase;
 
 /**
  *

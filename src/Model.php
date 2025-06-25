@@ -19,7 +19,7 @@ use zesk\Exception\Redirect;
  * @author kent
  *
  */
-class Model extends Hookable
+abstract class Model extends Hookable
 {
 	public const OPTION_DEFAULT_THEME = 'default_theme';
 
@@ -90,7 +90,7 @@ class Model extends Hookable
 			$result = array_merge($result_prefix, $result);
 		}
 		return array_map(fn ($name) => strtr($name, [
-			'_'  => '/',
+			'_' => '/',
 			'\\' => '/',
 		]), $result);
 	}
@@ -102,7 +102,7 @@ class Model extends Hookable
 	 *            Theme or list of themes to invoke (first found is used)
 	 * @param array|string $variables
 	 *            Variables to be passed to the template.
-	 * @param string       $default
+	 * @param string $default
 	 *            Default value if no theme is found
 	 * @return ?string
 	 * @throws Redirect
@@ -113,12 +113,12 @@ class Model extends Hookable
 			'content' => $variables,
 		] : $variables;
 		$variables += [
-			'object'                     => $this,
+			'object' => $this,
 			strtolower(get_class($this)) => $this,
 		];
 		return $this->application->themes->theme($this->themePaths($theme_names), $variables, [
 			'default' => $default,
-			'first'   => true,
+			'first' => true,
 		]);
 	}
 
@@ -148,7 +148,7 @@ class Model extends Hookable
 
 		throw new ParseException('Unable to convert {mixed} ({type}) to ID', [
 			'mixed' => $mixed,
-			'type'  => Types::type($mixed),
+			'type' => Types::type($mixed),
 		]);
 	}
 

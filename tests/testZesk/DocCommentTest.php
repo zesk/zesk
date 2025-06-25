@@ -13,10 +13,15 @@ use zesk\JSON;
 /**
  *
  * @author kent
- *
+ * @coversDefaultClass \zesk\DocComment
+ * @uses DocComment
  */
 class DocCommentTest extends TestCase
 {
+	/**
+	 * @return void
+	 * @covers ::extract
+	 */
 	public function test_extract(): void
 	{
 		$testFile = Application::zeskPath('src/ArrayTools.php');
@@ -26,7 +31,10 @@ class DocCommentTest extends TestCase
 		$this->assertGreaterThan(8, count($comments), "More than 8 DocComments in $testFile");
 		if (count($comments) > 0) {
 			$text = $comments[0];
-			$this->assertStringContainsString('@package zesk', $text->content());
+			$content = $text->content();
+			$this->assertStringContainsString('@package', $content);
+			$this->assertStringContainsString('zesk', $content);
+			$this->assertStringContainsString('@copyright', $content);
 		}
 	}
 
@@ -54,6 +62,10 @@ class DocCommentTest extends TestCase
 		];
 	}
 
+	/**
+	 * @return void
+	 * @covers ::instance ::content
+	 */
 	public function test_desc_no_tag(): void
 	{
 		$doc = DocComment::instance([
@@ -72,6 +84,7 @@ class DocCommentTest extends TestCase
 
 	/**
 	 * @dataProvider data_provider_clean
+	 * @covers ::clean
 	 */
 	public function test_clean($test, $expected): void
 	{
@@ -194,6 +207,7 @@ class DocCommentTest extends TestCase
 
 	/**
 	 * @dataProvider data_provider_parse
+	 * @covers ::variables ::instance ::content
 	 */
 	public function test_parse($test, $expected, $unparse_expected): void
 	{
@@ -201,10 +215,14 @@ class DocCommentTest extends TestCase
 		$this->assertEquals(DocComment::instance($parsed)->content(), $unparse_expected, JSON::encodePretty($parsed));
 	}
 
-	public static function data_provider_content(): array
+	/**
+	 * @return array[]
+	 */
+	public static function data_content(): array
 	{
 		return [
 			[
+				"/**\n * @see line1\n * @see line2\n * @desc Description\n */",
 				[
 					'see' => [
 						'line1',
@@ -212,20 +230,18 @@ class DocCommentTest extends TestCase
 					],
 					'desc' => 'Description',
 				],
-				"/**\n * @see line1\n * @see line2\n * @desc Description\n */",
 			],
 		];
 	}
 
 	/**
-	 * @dataProvider data_provider_content
+	 * @dataProvider data_content
+	 * @param array $expect
 	 * @param string $test
-	 * @param string $expect
+	 * @covers ::instance ::content
 	 */
-	public function test_content(string $test, string $expect): void
+	public function test_content(string $expect, array $test): void
 	{
-		$this->assertIsArray($test);
-		$this->assertIsString($expect);
 		$this->assertEquals($expect, DocComment::instance($test)->content());
 	}
 }

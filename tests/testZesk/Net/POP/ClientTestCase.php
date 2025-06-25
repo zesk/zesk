@@ -140,9 +140,9 @@ class ClientTestCase extends TestCase
 		$test_url = URL::stringify($parts);
 
 		$options = [
-			'echo_log'   => true,
+			'echo_log' => true,
 			'read_debug' => true,
-			'debug'      => true,
+			'debug' => true,
 			'debug_apop' => true,
 		];
 		$testObject = new Client($this->application, $test_url, $options);

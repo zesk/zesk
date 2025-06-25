@@ -7,12 +7,16 @@ declare(strict_types=1);
 namespace testZesk;
 
 use zesk\ArrayTools;
+use zesk\Exception\DirectoryNotFound;
+use zesk\Exception\ProtocolException;
+use zesk\Exception\Redirect;
 use zesk\Theme;
 
 /**
  *
  * @author kent
- *
+ * @coversDefaultClass  \zesk\Theme
+ * @uses Theme
  */
 class TemplateTest extends TestCase
 {
@@ -20,6 +24,13 @@ class TemplateTest extends TestCase
 	{
 	}
 
+	/**
+	 * @return void
+	 * @throws DirectoryNotFound
+	 * @throws ProtocolException
+	 * @throws Redirect
+	 * @covers ::end
+	 */
 	public function test_begin(): void
 	{
 		$this->application->addThemePath($this->test_sandbox());
@@ -34,12 +45,20 @@ class TemplateTest extends TestCase
 		$this->assertEquals('3.14159', $result);
 	}
 
+	/**
+	 * @return void
+	 * @covers ::findPath
+	 */
 	public function test_find_path(): void
 	{
 		$template = new Theme($this->application->themes);
 		$template->findPath('template.tpl');
 	}
 
+	/**
+	 * @return void
+	 * @covers ::wouldExist
+	 */
 	public function test_would_exist(): void
 	{
 		$path = 'foo.tpl';
@@ -47,6 +66,13 @@ class TemplateTest extends TestCase
 		$this->assertFalse($template->wouldExist($path));
 	}
 
+	/**
+	 * @return void
+	 * @throws DirectoryNotFound
+	 * @throws Redirect
+	 * @covers ::exists
+	 * @covers ::render
+	 */
 	public function test_output(): void
 	{
 		$this->application->addThemePath($this->test_sandbox());

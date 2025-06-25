@@ -2,7 +2,9 @@
 declare(strict_types=1);
 /**
  * Utility class for \DateInterval
+ * @copyright &copy; 2025, Market Acumen, Inc.
  */
+
 namespace zesk;
 
 /**

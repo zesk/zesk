@@ -23,8 +23,8 @@ use zesk\Exception\NotFoundException;
 use zesk\Exception\ParseException;
 use zesk\Exception\SemanticsException;
 use zesk\File;
-use zesk\Module;
 use zesk\JSON;
+use zesk\Module;
 
 /**
  * Module loading and management

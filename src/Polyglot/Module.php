@@ -156,19 +156,19 @@ class Module extends BaseModule implements Routes
 		];
 		$router->addRoute('polyglot', $base);
 		$router->addRoute('polyglot/load/{dialect}', $base + [
-			'action'    => 'load',
+			'action' => 'load',
 			'arguments' => [
 				2,
 			],
 		]);
 		$router->addRoute('polyglot/token/{dialect}', $base + [
-			'action'    => 'token',
+			'action' => 'token',
 			'arguments' => [
 				2,
 			],
 		]);
 		$router->addRoute('polyglot/update/{dialect}', $base + [
-			'action'    => 'update',
+			'action' => 'update',
 			'arguments' => [
 				2,
 			],

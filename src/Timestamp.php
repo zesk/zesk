@@ -163,7 +163,7 @@ class Timestamp extends Weekday
 	 * Construct a new Timestamp consisting of a Date and a Time
 	 *
 	 * @param null|DateTimeInterface|int|Time|Date|Timestamp $value
-	 * @param DateTimeZone|null                              $timezone
+	 * @param DateTimeZone|null $timezone
 	 */
 	public function __construct(null|DateTimeInterface|int|Time|Date|Timestamp $value = null, DateTimeZone $timezone = null)
 	{
@@ -242,7 +242,7 @@ class Timestamp extends Weekday
 	 *     $item = Timestamp::factory($value)->format("{MMM} {DDD}");
 	 *
 	 * @param int|Date|Time|Timestamp|null $value
-	 * @param string|DateTimeZone          $timezone
+	 * @param string|DateTimeZone $timezone
 	 * @return self
 	 */
 	public static function factory(null|int|Date|Time|Timestamp $value = null, string|DateTimeZone $timezone = ''): self
@@ -453,7 +453,7 @@ class Timestamp extends Weekday
 						}
 
 						throw new ParseException('Timestamp::parse_locale_string({value},{locale_format}): Unknown format', [
-							'value'         => $value,
+							'value' => $value,
 							'locale_format' => $locale_format,
 						]);
 					case 'M':
@@ -628,8 +628,9 @@ class Timestamp extends Weekday
 	 */
 	public function setDay(int $set): self
 	{
-		if ($set < 0 || $set > 31) {
-			throw new OutOfBoundsException("Day must be between 1 and 31 ($set passed)");
+		$max = Date::daysInMonth($this->month(), $this->year());
+		if ($set < 0 || $set > $max) {
+			throw new OutOfBoundsException("Day must be between 1 and $max ($set passed)");
 		}
 		$this->datetime->setDate($this->year(), $this->month(), $set);
 		return $this;
@@ -920,7 +921,7 @@ class Timestamp extends Weekday
 	 * Format a Timestamp
 	 *
 	 * @param string $format
-	 * @param array  $options
+	 * @param array $options
 	 * @return string
 	 */
 	public function format(string $format = '', array $options = []): string
@@ -974,7 +975,7 @@ class Timestamp extends Weekday
 
 	/**
 	 * @param Locale $locale
-	 * @param array  $formatting
+	 * @param array $formatting
 	 * @return array
 	 * @throws SemanticsException
 	 */
@@ -1018,7 +1019,7 @@ class Timestamp extends Weekday
 	 * Is passed in Timestamp before $this?
 	 *
 	 * @param Timestamp $model
-	 * @param bool      $equal
+	 * @param bool $equal
 	 *            Return true if they are equal
 	 * @return bool
 	 */
@@ -1060,7 +1061,7 @@ class Timestamp extends Weekday
 	 * Is passed in Timestamp after $this?
 	 *
 	 * @param Timestamp $model
-	 * @param bool      $equal
+	 * @param bool $equal
 	 *            Return true if they are equal
 	 * @return bool
 	 */
@@ -1158,9 +1159,9 @@ class Timestamp extends Weekday
 	/**
 	 * Utility for add
 	 *
-	 * @param int    $number
+	 * @param int $number
 	 * @param string $code
-	 * @param bool   $time
+	 * @param bool $time
 	 * @return Timestamp
 	 */
 	private function _addUnit(int $number, string $code, bool $time = false): self
@@ -1191,10 +1192,10 @@ class Timestamp extends Weekday
 	 * $a->difference($b) equivalent to ($a - $b)
 	 *
 	 * @param Timestamp $timestamp
-	 * @param string    $unit
+	 * @param string $unit
 	 *              millisecond, second, minute, hour, day, week, weekday, quarter
 	 *              bad unit defaults to year
-	 * @param int       $precision
+	 * @param int $precision
 	 *              The precision for the result (decimal places to use)
 	 * @return int|float
 	 */
@@ -1304,7 +1305,7 @@ class Timestamp extends Weekday
 	 *
 	 * @param string $unit
 	 *            One of millisecond, second, minute, hour, weekday, day, month, quarter, year
-	 * @param int    $value
+	 * @param int $value
 	 *            Value to set
 	 * @return Timestamp integer
 	 * @throws KeyNotFound|OutOfBoundsException
@@ -1322,7 +1323,7 @@ class Timestamp extends Weekday
 			self::UNIT_QUARTER => $this->setQuarter($value),
 			self::UNIT_YEAR => $this->setYear($value),
 			default => throw new KeyNotFound($unit, [
-				'unit'  => $unit,
+				'unit' => $unit,
 				'value' => $value,
 			]),
 		};
@@ -1333,7 +1334,7 @@ class Timestamp extends Weekday
 	 *
 	 * @param int|float $n_units
 	 *            Number of units to add (negative is ok)
-	 * @param string    $unit
+	 * @param string $unit
 	 *            One of millisecond, second, minute, hour, weekday, day, month, quarter, year
 	 * @return Timestamp
 	 */
@@ -1350,9 +1351,9 @@ class Timestamp extends Weekday
 			self::UNIT_QUARTER => $this->add(0, $n_units * self::MONTHS_PER_QUARTER),
 			self::UNIT_YEAR => $this->add($n_units),
 			default => PHP::log('{method)({n_units}, {units}): Invalid unit, using seconds', [
-				'method'  => __METHOD__,
+				'method' => __METHOD__,
 				'n_units' => $n_units,
-				'units'   => $unit,
+				'units' => $unit,
 			]) ?? $this->add(0, 0, 0, 0, 0, $n_units),
 		};
 	}
@@ -1373,9 +1374,9 @@ class Timestamp extends Weekday
 	 *
 	 * @return string
 	 */
-	private function _hms_format(): string
+	private function _hms_format(string $separator = ':'): string
 	{
-		return implode(':', [
+		return implode($separator, [
 			StringTools::zeroPad($this->hour()),
 			StringTools::zeroPad($this->minute()),
 			StringTools::zeroPad($this->second()),
@@ -1400,8 +1401,15 @@ class Timestamp extends Weekday
 	 */
 	public function iso8601(): string
 	{
-		return $this->_ymd_format('') . 'T' . $this->_hms_format();
+		return $this->_ymd_format() . 'T' . $this->_hms_format();
 	}
+
+	public function iso8601Compact(): string
+	{
+		return $this->_ymd_format('') . 'T' . $this->_hms_format('');
+	}
+
+	public const PREG_ISO8601 = '#^(\d{4})-?([012]\d)-?([0-3]\d)T([012]\d):?([0-5]\d):?([0-5]\d)(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})?$#';
 
 	/**
 	 * @param string $set
@@ -1411,23 +1419,12 @@ class Timestamp extends Weekday
 	public function setISO8601(string $set): self
 	{
 		$value = trim($set);
-		// if (preg_match('/[0-9]{4}-([0-9]{2}-[0-9]{2}|W[0-9]{2}|[0-9]{3})(T[0-9]{2}(:?[0-9]{2}(:?[0-9]{2}))/',
-		// $value, $matches)) {
-		// TODO support iso8601 latest
-		// }
-		[
-			$dd,
-			$tt,
-		] = StringTools::pair(strtoupper($value), 'T');
-		if ($dd === false || $tt === false) {
-			throw new SyntaxException('Timestamp::iso8601({set}) - invalid date format', ['set' => $set]);
+		$matches = [];
+		if (!preg_match(self::PREG_ISO8601, $value, $matches)) {
+			throw new SyntaxException('Timestamp::iso8601({set}) - invalid date format', ['set' => $value]);
 		}
-		[
-			$hh,
-			$mm,
-			$ss,
-		] = explode(':', $tt, 3);
-		$this->setYMDHMS(intval(substr($dd, 0, 4)), intval(substr($dd, 4, 2)), intval(substr($dd, 6, 2)), intval($hh), intval($mm), intval($ss));
+		[$_, $YYYY, $MM, $DD, $hh, $mm, $ss] = $matches;
+		$this->setYMDHMS(intval($YYYY), intval($MM), intval($DD), intval($hh), intval($mm), intval($ss));
 		return $this;
 	}
 

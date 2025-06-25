@@ -173,7 +173,7 @@ class Autoloader
 	 * When a PHP class is encountered which can't be found, this function tries to find it and
 	 * include the file.
 	 *
-	 * @param string  $class
+	 * @param string $class
 	 * @param boolean $no_exception
 	 *            Do not throw an exception if class is not found
 	 * @return string
@@ -191,10 +191,10 @@ class Autoloader
 			}
 
 			throw new ClassNotFound($class, "Class {class} called from {calling_function} invoked from:\n{backtrace}\n{tried_path}", [
-				'class'            => $class,
+				'class' => $class,
 				'calling_function' => Kernel::callingFunction(2),
-				'tried_path'       => Text::indent(implode("\n", $tried_path)),
-				'backtrace'        => Text::indent(Kernel::backtrace()),
+				'tried_path' => Text::indent(implode("\n", $tried_path)),
+				'backtrace' => Text::indent(Kernel::backtrace()),
 			]);
 		}
 		if ($this->debug) {
@@ -257,7 +257,7 @@ class Autoloader
 	 * Search for a file in the autoload path (::path), looking for files with
 	 * "extensions"
 	 *
-	 * @param string     $class
+	 * @param string $class
 	 * @param array|null $extensions
 	 * @param array|null $tried_path
 	 * @return string|null
@@ -306,7 +306,7 @@ class Autoloader
 	 *
 	 * @param string $add
 	 *            (Optional) Path to add to the autoload path. Pass in null to do nothing.
-	 * @param mixed  $options
+	 * @param mixed $options
 	 *            (Optional) Boolean value, string or array. If you pass in a string, it sets that
 	 *            flag to true.
 	 *
@@ -349,7 +349,7 @@ class Autoloader
 		}
 		$options += [
 			self::OPTION_CLASS_PREFIX => self::OPTION_CLASS_PREFIX_DEFAULT,
-			self::OPTION_LOWER        => self::OPTION_LOWER_DEFAULT,
+			self::OPTION_LOWER => self::OPTION_LOWER_DEFAULT,
 		];
 		if ($options[self::OPTION_FIRST] ?? null) {
 			$this->first[$add] = $options;

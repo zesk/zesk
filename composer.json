@@ -15,11 +15,11 @@
     "ext-mysqli": "*",
     "doctrine/orm": "^3.3.3",
     "ext-gd": "*",
-    "ext-sockets": "*"
+    "ext-sockets": "*",
+    "ext-curl": "*"
   },
   "suggest": {
     "ext-xdebug": "*",
-    "ext-curl": "*",
     "ext-imap": "*"
   },
   "require-dev": {

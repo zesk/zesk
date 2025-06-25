@@ -1,22 +1,25 @@
 <?php
 declare(strict_types=1);
 /**
- *
+ * @package zesk
+ * @subpackage Session
+ * @author     kent
+ * @copyright  Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Session;
 
 use Throwable;
 use zesk\Application;
+use zesk\EmptyHookable;
 use zesk\Exception\AuthenticationException;
-use zesk\Hookable;
 use zesk\Interface\SessionInterface;
 use zesk\Interface\Userlike;
 use zesk\Request;
 
 /**
  */
-class SessionMock extends Hookable implements SessionInterface
+class SessionMock extends EmptyHookable implements SessionInterface
 {
 	/**
 	 *
@@ -160,7 +163,7 @@ class SessionMock extends Hookable implements SessionInterface
 		try {
 			$user = $this->application->userFactory();
 			assert($user instanceof Userlike);
-			return $user->fetch($userId);
+			return $user->fetchById($userId);
 		} catch (Throwable $e) {
 			$this->__set($this->global_session_userId(), null);
 

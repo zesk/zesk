@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace zesk\Net\FTP;
 
 use FTP\Connection;
+use zesk\Exception;
 use zesk\Exception\DirectoryCreate;
 use zesk\Exception\DirectoryNotFound;
 use zesk\Exception\FileNotFound;
@@ -18,7 +19,7 @@ use zesk\Exception\FileSystemException;
 use zesk\Exception\NotFoundException;
 use zesk\Exception\ProtocolException;
 use zesk\Exception\UnimplementedException;
-use zesk\Net\Client as ClientBase;
+use zesk\Net\ConnectClient as ClientBase;
 use zesk\Net\FileSystem;
 use zesk\Timestamp;
 
@@ -52,6 +53,25 @@ class Client extends ClientBase implements FileSystem
 	 * @var array
 	 */
 	private array $stat_cache = [];
+
+	/**
+	 * @return array
+	 */
+	public function __serializeChild(): array
+	{
+		return ['passive' => $this->passive] + parent::__serializeChild();
+	}
+
+	/**
+	 * @param array $data
+	 * @return void
+	 * @throws Exception
+	 */
+	public function __unserializeChild(array $data): void
+	{
+		$this->passive = $data['passive'];
+		parent::__unserializeChild($data);
+	}
 
 	/**
 	 * Connect to the remote host
@@ -201,7 +221,7 @@ class Client extends ClientBase implements FileSystem
 		$result = ftp_put($this->ftp, $remotePath, $localPath);
 		if (!$result) {
 			throw new FileSystemException($localPath, 'Upload {localPath} to {remotePath} failed', [
-				'localPath'  => $localPath,
+				'localPath' => $localPath,
 				'remotePath' => $remotePath,
 			]);
 		}

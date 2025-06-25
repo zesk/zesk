@@ -9,7 +9,6 @@ declare(strict_types=1);
 namespace testZesk;
 
 use stdClass;
-
 use zesk\ArrayTools;
 use zesk\Types;
 

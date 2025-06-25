@@ -8,27 +8,65 @@ namespace testZesk;
 
 use zesk\Base26;
 
+/**
+ * @coversDefaultClass \zesk\Base26
+ * @uses Base26
+ */
 class Base26Test extends TestCase
 {
-	public function test_from_integer(): void
+	/**
+	 * @return array[]
+	 */
+	public static function data_fromInteger(): array
 	{
-		$this->assertEquals('AAAAAC', Base26::fromInteger(2, 6));
-
-		$this->assertEquals('A', Base26::fromInteger(0, 1));
-		$this->assertEquals('AA', Base26::fromInteger(0, 2));
-		$this->assertEquals('AAAAA', Base26::fromInteger(0, 5));
-		$this->assertEquals('AAAAB', Base26::fromInteger(1, 5));
-		$this->assertEquals('KENTY', Base26::fromInteger(4649370, 1));
-		$this->assertEquals('KENTY', Base26::fromInteger(4649370, 5));
+		return [
+			['AAAAAC', 2, 6],
+			['A', 0, 1],
+			['AA', 0, 2],
+			['AAAAA', 0, 5],
+			['AAAAB', 1, 5],
+			['KENTY', 4649370, 1],
+			['KENTY', 4649370, 5],
+		];
 	}
 
-	public function test_to_integer(): void
+	/**
+	 * @param $expected
+	 * @param int $test
+	 * @param int $nCharacters
+	 * @covers ::fromInteger
+	 * @return void
+	 * @dataProvider data_fromInteger
+	 */
+	public function test_from_integer($expected, int $test, int $nCharacters): void
 	{
-		$this->assertEquals(0, Base26::toInteger('A'));
-		$this->assertEquals(0, Base26::toInteger('AA'));
-		$this->assertEquals(0, Base26::toInteger('AAAAAAAAAAAA'));
-		$this->assertEquals(1, Base26::toInteger('AAAAB'));
-		$this->assertEquals(4649370, Base26::toInteger('KENTY'));
-		$this->assertEquals(4649370, Base26::toInteger('KENTY'));
+		$this->assertEquals($expected, Base26::fromInteger($test, $nCharacters));
+	}
+
+	/**
+	 * @return array[]
+	 */
+	public static function data_toInteger(): array
+	{
+		return [
+			[0, 'A'],
+			[0, 'AA'],
+			[0, 'AAAAAAAAAAAA'],
+			[1, 'AAAAB'],
+			[4649370, 'KENTY'],
+			[4649370, 'KENTY'],
+		];
+	}
+
+	/**
+	 * @dataProvider data_toInteger
+	 * @param int $expected
+	 * @param string $test
+	 * @return void
+	 * @covers ::toInteger
+	 */
+	public function test_to_integer(int $expected, string $test): void
+	{
+		$this->assertEquals($expected, Base26::toInteger($test));
 	}
 }

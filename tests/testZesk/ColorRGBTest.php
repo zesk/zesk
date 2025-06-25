@@ -6,9 +6,8 @@ declare(strict_types=1);
 
 namespace testZesk;
 
-use zesk\PHPUnit\TestCase;
-
 use zesk\ColorRGB;
+use zesk\PHPUnit\TestCase;
 
 /**
  * @coversDefaultClass  \zesk\ColorRGB

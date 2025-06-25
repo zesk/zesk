@@ -13,26 +13,37 @@ use zesk\Timer;
  * @author kent
  *
  */
+
+/**
+ * @coversDefaultClass \zesk\Timer
+ * @uses Timer
+ */
 class TimerTest extends TestCase
 {
+	/**
+	 * @return void
+	 * @covers ::now
+	 */
 	public function test_now(): void
 	{
-		Timer::now();
+		$timer = Timer::now();
+		$this->assertLessThanOrEqual(Timer::now(), $timer);
 	}
 
+	/**
+	 * @return void
+	 * @covers ::__construct ::stop ::mark ::elapsed ::output ::dump
+	 */
 	public function test_basics(): void
 	{
-		$initTime = false;
-		$offset = 0;
-		$x = new Timer($initTime, $offset);
+		$x = new Timer();
 
-		Timer::now();
+		$value = $x->stop();
 
-		$x->stop();
+		$mark = $x->mark();
 
-		$x->mark();
-
-		$x->elapsed();
+		$this->assertGreaterThanOrEqual($value, $mark);
+		$this->assertGreaterThan(0, $x->elapsed());
 
 		$comment = '';
 		$content = $x->output($comment);

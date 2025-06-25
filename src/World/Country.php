@@ -3,6 +3,8 @@ declare(strict_types=1);
 /**
  * @package zesk
  * @subpackage World
+ * @author     kent
+ * @copyright  Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\World;
@@ -15,6 +17,7 @@ use zesk\Application;
 use zesk\Doctrine\Model;
 use zesk\Doctrine\Trait\AutoID;
 use zesk\Exception\NotFoundException;
+use zesk\Types;
 
 /**
  * @see Country
@@ -76,6 +79,6 @@ class Country extends Model
 		} catch (Throwable) {
 		}
 
-		throw new NotFoundException(self::class);
+		throw new NotFoundException('{class} with {code} {type} not found', ['class' => self::class, 'code' => $mixed, 'type' => Types::type($mixed)]);
 	}
 }

@@ -58,6 +58,7 @@ class GenericTest extends TestCase
 	 * @param $tested
 	 * @return void
 	 * @dataProvider data_something
+	 * @covers       \zesk\Types::type
 	 */
 	public function test_something($expected, $tested): void
 	{

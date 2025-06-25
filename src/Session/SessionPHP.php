@@ -8,10 +8,10 @@ namespace zesk\Session;
 
 use Throwable;
 use zesk\Application;
+use zesk\Doctrine\User;
 use zesk\Exception\AuthenticationException;
 use zesk\Interface\SessionInterface;
 use zesk\Interface\Userlike;
-use zesk\Doctrine\User;
 use zesk\Request;
 
 /**

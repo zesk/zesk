@@ -9,11 +9,11 @@ declare(strict_types=1);
 
 namespace zesk\Route;
 
+use zesk\Exception\Redirect as RedirectException;
 use zesk\HTTP;
-use zesk\Route;
 use zesk\Request;
 use zesk\Response;
-use zesk\Exception\Redirect as RedirectException;
+use zesk\Route;
 
 /**
  * Allow a route which redirects

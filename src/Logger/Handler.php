@@ -14,7 +14,7 @@ interface Handler
 {
 	/**
 	 * @param string $message
-	 * @param array  $context
+	 * @param array $context
 	 * @return void
 	 */
 	public function log(string $message, array $context = []): void;

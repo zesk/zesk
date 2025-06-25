@@ -14,6 +14,7 @@ use zesk\Exception\ClassNotFound;
 use zesk\Exception\ConfigurationException;
 use zesk\Exception\FileNotFound;
 use zesk\Exception\NotFoundException;
+use zesk\Exception\SemanticsException;
 use zesk\Exception\UnsupportedException;
 
 /**
@@ -58,21 +59,6 @@ class Module extends Hookable
 	protected array $classAliases = [];
 
 	/**
-	 */
-	public function __serialize(): array
-	{
-		return [
-			'name'              => $this->name,
-			'path'              => $this->path,
-			'configuration'     => $this->configuration,
-			'configurationFile' => $this->configurationFile,
-			'configurationData' => $this->configuration,
-			'modelClasses'      => $this->modelClasses,
-			'classAliases'      => $this->classAliases,
-		] + parent::__serialize();
-	}
-
-	/**
 	 * @return void
 	 * @throws ConfigurationException
 	 */
@@ -81,16 +67,24 @@ class Module extends Hookable
 		// pass
 	}
 
-	public function __unserialize(array $data): void
+	public function __unserializeChild(array $data): void
 	{
-		parent::__unserialize($data);
 		$this->name = $data['name'];
-		$this->path = $data['path'];
 		$this->configuration = $data['configuration'];
 		$this->configurationFile = $data['configurationFile'];
-		$this->configurationData = $data['configurationData'];
 		$this->modelClasses = $data['modelClasses'];
 		$this->classAliases = $data['classAliases'];
+	}
+
+	public function __serializeChild(): array
+	{
+		return [
+			'name' => $this->name,
+			'configuration' => $this->configuration,
+			'configurationFile' => $this->configurationFile,
+			'modelClasses' => $this->modelClasses,
+			'classAliases' => $this->classAliases,
+		];
 	}
 
 	/**
@@ -98,6 +92,7 @@ class Module extends Hookable
 	 *
 	 * @param Application $application
 	 * @param array $options
+	 * @throws SemanticsException
 	 */
 	final public function __construct(Application $application, array $options = [])
 	{
@@ -141,7 +136,7 @@ class Module extends Hookable
 	final public function moduleData(): array
 	{
 		return [
-			'name'          => $this->name,
+			'name' => $this->name,
 			'configuration' => $this->configuration,
 		];
 	}

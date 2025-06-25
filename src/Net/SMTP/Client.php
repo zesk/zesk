@@ -12,7 +12,7 @@ namespace zesk\Net\SMTP;
 use zesk\Exception\ConnectionFailed;
 use zesk\Exception\ProtocolException;
 use zesk\Mail\Mail;
-use zesk\Net\SocketClient;
+use zesk\Net\SocketConnectClient;
 use zesk\Types;
 
 /**
@@ -20,7 +20,7 @@ use zesk\Types;
  * @author kent
  *
  */
-class Client extends SocketClient
+class Client extends SocketConnectClient
 {
 	/**
 	 * Default port to connect to
@@ -34,13 +34,13 @@ class Client extends SocketClient
 	/**
 	 * Send email
 	 *
-	 * @param string       $from
+	 * @param string $from
 	 *            Simple FROM
-	 * @param mixed        $to
+	 * @param mixed $to
 	 *            Email address or array of email addresses
 	 * @param array|string $headers
 	 *            raw formatted headers, or array of headers (not name-value, array of strings)
-	 * @param string       $body
+	 * @param string $body
 	 *            Body to send
 	 * @return boolean
 	 */
@@ -96,10 +96,10 @@ class Client extends SocketClient
 		$result = $this->expect('250', $message);
 
 		$this->application->debug('Sent email to {rcpts} {nbytes} bytes via {user}@{host}', [
-			'rcpts'  => $rcpts,
+			'rcpts' => $rcpts,
 			'nbytes' => strlen($body),
-			'user'   => $this->urlComponent('user'),
-			'host'   => $this->urlComponent('host'),
+			'user' => $this->urlComponent('user'),
+			'host' => $this->urlComponent('host'),
 		]);
 		return $result;
 	}

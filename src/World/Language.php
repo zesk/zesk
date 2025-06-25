@@ -10,6 +10,7 @@ declare(strict_types=1);
 
 namespace zesk\World;
 
+use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Entity;
 use Doctrine\ORM\Mapping\EntityListeners;
@@ -17,17 +18,19 @@ use Doctrine\ORM\Mapping\Table;
 use Doctrine\ORM\Mapping\UniqueConstraint;
 use Throwable;
 use zesk\Application;
+use zesk\Configuration;
 use zesk\Doctrine\Model;
 use zesk\Doctrine\ModelListener;
 use zesk\Doctrine\Trait\AutoID;
 use zesk\Exception\NotFoundException;
+use zesk\Locale\Locale;
 use zesk\StringTools;
 
 /**
  *
  * @see    Class_Language
  * @author kent
- * @property int    $id
+ * @property int $id
  * @property string $code
  * @property string $dialect
  * @property string $name
@@ -52,33 +55,63 @@ class Language extends Model
 	#[Column(type: 'string', length: 128, nullable: false)]
 	public string $name;
 
-	public function locale_string(): string
+	public function __construct(Application $application, string $code, string $dialect, string $name = '', array|Configuration $options = [])
 	{
-		if (!$this->dialect) {
-			return strtolower($this->code);
-		}
-		return strtolower($this->code) . '_' . strtoupper($this->dialect);
+		parent::__construct($application, $options);
+		$this->code = $code;
+		$this->dialect = $dialect;
+		$this->name = $name;
 	}
 
-	public static function find(Application $application, string $code): self
+	/**
+	 * @throws ORMException
+	 */
+	public static function register(Application $application, string $code, string $dialect, string $name): self
+	{
+		$em = $application->entityManager();
+
+		try {
+			return self::find($application, Locale::formatLocale($code, $dialect));
+		} catch (NotFoundException) {
+			$item = new self($application, $code, $name, $dialect);
+			$em->persist($item);
+			$em->refresh($item);
+			return $item;
+		}
+	}
+
+	/**
+	 * @return string
+	 * @todo Add a test
+	 */
+	public function localeString(): string
+	{
+		return Locale::formatLocale($this->code, $this->dialect);
+	}
+
+	/**
+	 * @param Application $application
+	 * @param string $localeString Full locale string
+	 * @return self
+	 * @throws NotFoundException
+	 */
+	public static function find(Application $application, string $localeString): self
 	{
 		[
 			$language,
 			$dialect,
-		] = StringTools::pair($code, '_', $code, '');
+		] = StringTools::pair($localeString, '_', $localeString);
 
 		try {
-			$item = $application->entityManager()->getRepository(self::class)->findOneBy([
-				'code'    => $language,
+			return $application->entityManager()->getRepository(self::class)->findOneBy([
+				'code' => $language,
 				'dialect' => $dialect,
 			]);
-			return $item;
-		} catch (Throwable) {
+		} catch (Throwable $e) {
+			throw new NotFoundException('{class} with {code}', [
+				'class' => self::class,
+				'code' => $localeString,
+			], $e->getCode(), $e);
 		}
-
-		throw new NotFoundException('{class} with {code}', [
-			'class' => self::class,
-			'code'  => $code,
-		]);
 	}
 }

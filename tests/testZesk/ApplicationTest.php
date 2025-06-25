@@ -8,29 +8,29 @@ namespace testZesk;
 
 use zesk\Application;
 use zesk\ArrayTools;
-use zesk\Directory;
-use zesk\Exception\Deprecated;
-use zesk\Exception\FileParseException;
-use zesk\Exception\SemanticsException;
-use zesk\Exception\SystemException;
-use zesk\File;
-use zesk\JSON;
-use zesk\Logger;
-use zesk\PHP;
 use zesk\CommandLoader;
-use zesk\Response;
-use zesk\Request;
+use zesk\Directory;
 use zesk\Exception\ClassNotFound;
 use zesk\Exception\ConfigurationException;
+use zesk\Exception\Deprecated;
 use zesk\Exception\DirectoryCreate;
 use zesk\Exception\DirectoryNotFound;
 use zesk\Exception\DirectoryPermission;
 use zesk\Exception\FileNotFound;
+use zesk\Exception\FileParseException;
 use zesk\Exception\FilePermission;
 use zesk\Exception\NotFoundException;
 use zesk\Exception\ParameterException;
 use zesk\Exception\ParseException;
+use zesk\Exception\SemanticsException;
+use zesk\Exception\SystemException;
 use zesk\Exception\UnsupportedException;
+use zesk\File;
+use zesk\JSON;
+use zesk\Logger;
+use zesk\PHP;
+use zesk\Request;
+use zesk\Response;
 
 /**
  *
@@ -42,6 +42,18 @@ use zesk\Exception\UnsupportedException;
  */
 class ApplicationTest extends ApplicationTestBase
 {
+	/**
+	 * @return void
+	 * @throws ParameterException
+	 * @throws ParseException
+	 * @covers ::requestFactory
+	 */
+	public function test_requestFactory(): void
+	{
+		$request = $this->application->requestFactory();
+		$this->assertNotNull($request);
+	}
+
 	public static function data_document_root_prefix(): array
 	{
 		return [
@@ -245,12 +257,25 @@ class ApplicationTest extends ApplicationTestBase
 			], $assertSetting);
 			$app->setConfiguration()->configure();
 		}
+	}
 
-		// TODO - this does nothing I think - run configure and fail or catch?
+	/**
+	 * @return void
+	 * @throws ConfigurationException
+	 * @throws NotFoundException
+	 * @throws SemanticsException
+	 * @throws SystemException
+	 */
+	public function testBadAssertSettings(): void
+	{
+		$app = $this->testApplication;
+		$configuration = $app->configuration;
 		$configuration->setPath([
 			$app::class,
 			Application::OPTION_ASSERT,
 		], 'badsetting');
+		$this->expectException(ConfigurationException::class);
+		$app->configure();
 	}
 
 	/**

@@ -1,5 +1,8 @@
 <?php
 declare(strict_types=1);
+/**
+ * @copyright &copy; 2025, Market Acumen, Inc.
+ */
 
 namespace zesk\Module;
 
@@ -52,8 +55,8 @@ class Version
 			} else {
 				throw new NotFoundException('Pattern "{pattern}" not found in {bytes} byte file {file}', [
 					'pattern' => $pattern,
-					'bytes'   => strlen($contents),
-					'file'    => $file,
+					'bytes' => strlen($contents),
+					'file' => $file,
 				]);
 			}
 		}
@@ -66,7 +69,7 @@ class Version
 					$data = PHP::unserialize($contents);
 				} catch (SyntaxException) {
 					throw new NotFoundException('Unable to decode PHP serialized file {file} ({key})', [
-						'key'  => $pattern,
+						'key' => $pattern,
 						'file' => $file,
 					]);
 				}
@@ -77,7 +80,7 @@ class Version
 					$data = JSON::decode($contents, true);
 				} catch (ParseException) {
 					throw new NotFoundException('Unable to decode JSON file {file} ({key})', [
-						'key'  => $pattern,
+						'key' => $pattern,
 						'file' => $file,
 					]);
 				}
@@ -86,24 +89,24 @@ class Version
 			default:
 				throw new NotFoundException('Pattern "{pattern}" not found in {bytes} byte file {file}', [
 					'pattern' => $pattern,
-					'bytes'   => strlen($contents),
-					'file'    => $file,
+					'bytes' => strlen($contents),
+					'file' => $file,
 				]);
 		}
 		if (!is_array($data)) {
 			throw new NotFoundException('Loaded structure in {bytes} byte file {file} is not an array', [
 				'pattern' => $pattern,
-				'bytes'   => strlen($contents),
-				'file'    => $file,
+				'bytes' => strlen($contents),
+				'file' => $file,
 			]);
 		}
 		$version = ArrayTools::path($data, $key);
 		if (!$version) {
 			throw new NotFoundException('Path "{key}" not found in file {file} (root keys {keys})', [
 				'pattern' => $pattern,
-				'bytes'   => strlen($contents),
-				'file'    => $file,
-				'keys'    => array_keys($data),
+				'bytes' => strlen($contents),
+				'file' => $file,
+				'keys' => array_keys($data),
 			]);
 		}
 		return $version;

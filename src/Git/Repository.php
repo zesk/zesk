@@ -44,7 +44,7 @@ class Repository extends CommandBase
 	 * Fetch a list of repository status for a target
 	 *
 	 * @param string $target
-	 * @param bool   $updates
+	 * @param bool $updates
 	 * @return array
 	 */
 	public function status(string $target, bool $updates = false): array
@@ -78,7 +78,7 @@ class Repository extends CommandBase
 		$tag = 'origin/master';
 		$target = $this->resolve_target($target);
 		$result = $this->run_command('diff --shortstat {tag} {target}', [
-			'tag'    => $tag,
+			'tag' => $tag,
 			'target' => $target,
 		]);
 		if (count($result) === 0) {

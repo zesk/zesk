@@ -8,8 +8,15 @@ namespace testZesk;
 
 use zesk\Application;
 use zesk\Exception\ProtocolException;
+use zesk\Exception\SemanticsException;
 use zesk\Exception\SyntaxException;
+use zesk\JSON;
+use zesk\URL;
 
+/**
+ * @coversDefaultClass \zesk\URL
+ * @uses URL
+ */
 class URLTest extends TestCase
 {
 	public static function data_parse(): array
@@ -50,6 +57,7 @@ class URLTest extends TestCase
 	 * @throws SyntaxException
 	 *
 	 * @dataProvider data_parse
+	 * @covers ::parse
 	 */
 	public function test_parse(bool|array $expected, string $url): void
 	{
@@ -76,6 +84,7 @@ class URLTest extends TestCase
 	 * @param string $url
 	 * @param array $values
 	 * @return void
+	 * @covers ::queryAppend
 	 */
 	public function test_queryAppend(string $expected, string $url, array $values): void
 	{
@@ -114,6 +123,7 @@ class URLTest extends TestCase
 	 * @param $add
 	 * @param $remove
 	 * @dataProvider data_queryFormat
+	 * @covers ::queryFormat
 	 */
 	public function test_queryFormat($expected, $path, $add, $remove): void
 	{
@@ -149,31 +159,55 @@ class URLTest extends TestCase
 	 * @param string $url
 	 * @param array $names
 	 * @dataProvider data_queryKeysRemoveInsensitive
+	 * @covers ::queryKeysRemoveInsensitive
 	 */
 	public function test_queryKeysRemoveInsensitive(string $expected, string $url, array $names): void
 	{
 		$this->assertEquals($expected, URL::queryKeysRemoveInsensitive($url, $names));
 	}
 
-	public function test_queryKeysRemove(): void
+	public static function dataQueryKeysRemove(): array
 	{
-		$u = 'http://www.example.com/?a=123&b=def&abcDEF=5716928736+5123123&dogfish=HEAD#marker=12&place=51';
-		$names = 'marker;a;abcDEF';
-		$result = URL::queryKeysRemove($u, $names);
-		$test_result = 'http://www.example.com/?b=def&dogfish=HEAD#marker=12&place=51';
-		$this->assertEquals($test_result, $result);
+		return [
+			[
+				'https://www.example.com/?b=def&dogfish=HEAD#marker=12&place=51',
+				'https://www.example.com/?a=123&b=def&abcDEF=5716928736+5123123&dogfish=HEAD#marker=12&place=51',
+				'marker;a;abcDEF',
+			],
+			[
+				'https://www.example.com/?b=def&dogfish=HEAD#marker=12&place=51',
+				'https://www.example.com/?a=123&b=def&abcDEF=5716928736+5123123&dogfish=HEAD#marker=12&place=51',
+				['marker', 'a', 'abcDEF'],
+			],
+			[
+				'?b=def&dogfish=HEAD#marker=12&place=51',
+				'?a=123&b=def&abcDEF=5716928736+5123123&dogfish=HEAD#marker=12&place=51',
+				'marker;a;abcDEF',
+			],
+			[
+				'?b=def&dogfish=HEAD#marker=12&place=51',
+				'?a=123&b=def&abcDEF=5716928736+5123123&dogfish=HEAD#marker=12&place=51',
+				['marker', 'a', 'abcDEF'],
+			],
+			[
+				'?b=def&dogfish=HEAD#marker=12&place=51',
+				'?a=123&b=def&abcDEF=5716928736+5123123&dogfish=HEAD#marker=12&place=51',
+				'marker;a;B;abcDEF',
+			],
+		];
+	}
 
-		$u = '?a=123&b=def&abcDEF=5716928736+5123123&dogfish=HEAD#marker=12&place=51';
-		$names = 'marker;a;abcDEF';
-		$result = URL::queryKeysRemove($u, $names);
-		$test_result = '?b=def&dogfish=HEAD#marker=12&place=51';
-		$this->assertEquals($test_result, $result);
-
-		$u = '?a=123&b=def&abcDEF=5716928736+5123123&dogfish=HEAD#marker=12&place=51';
-		$names = 'marker;a;B;abcDEF';
-		$result = URL::queryKeysRemove($u, $names);
-		$test_result = '?b=def&dogfish=HEAD#marker=12&place=51';
-		$this->assertEquals($test_result, $result);
+	/**
+	 * @param string $expected
+	 * @param string $url
+	 * @param string|array $names
+	 * @return void
+	 * @covers ::queryKeysRemove
+	 * @dataProvider dataQueryKeysRemove
+	 */
+	public function test_queryKeysRemove(string $expected, string $url, string|array $names): void
+	{
+		$this->assertEquals($expected, URL::queryKeysRemove($url, $names));
 	}
 
 	public static function data_stringify(): array
@@ -202,6 +236,7 @@ class URLTest extends TestCase
 	 * @return void
 	 * @throws SyntaxException
 	 * @dataProvider data_stringify
+	 * @covers ::parse ::stringify
 	 */
 	public function test_stringify(string|bool $expected, string $url): void
 	{
@@ -238,6 +273,8 @@ class URLTest extends TestCase
 	 * @param $url
 	 * @param $host
 	 * @dataProvider data_change_host
+	 * @covers ::changeHost
+	 * @throws SyntaxException
 	 */
 	public function test_change_host($expected, $url, $host): void
 	{
@@ -287,6 +324,7 @@ class URLTest extends TestCase
 	 * @param $href
 	 * @return void
 	 * @dataProvider data_computeHREF
+	 * @covers ::computeHREF
 	 */
 	public function test_computeHREF($expected, $url, $href): void
 	{
@@ -307,6 +345,7 @@ class URLTest extends TestCase
 	 * @param $expected
 	 * @param $url
 	 * @dataProvider data_host
+	 * @covers ::host
 	 */
 	public function test_host($expected, $url): void
 	{
@@ -346,6 +385,7 @@ class URLTest extends TestCase
 
 	/**
 	 * @dataProvider data_is
+	 * @covers ::is
 	 */
 	public function test_is($expected, $url): void
 	{
@@ -398,6 +438,7 @@ class URLTest extends TestCase
 	 * @param bool $expected
 	 * @param string $url
 	 * @dataProvider data_isAbsolute
+	 * @covers ::isAbsolute
 	 */
 	public function test_isAbsolute(bool $expected, string $url): void
 	{
@@ -435,6 +476,7 @@ class URLTest extends TestCase
 	 * @param string $url
 	 * @return void
 	 * @dataProvider data_isSecure
+	 * @covers ::isSecure
 	 */
 	public function test_is_secure(bool $expected, string $url): void
 	{
@@ -500,6 +542,7 @@ class URLTest extends TestCase
 	 * @return void
 	 * @throws SyntaxException
 	 * @dataProvider data_left
+	 * @covers ::left
 	 */
 	public function test_left($expected, $url, $part): void
 	{
@@ -542,8 +585,9 @@ class URLTest extends TestCase
 	 * @param $url
 	 * @return void
 	 * @throws SyntaxException
+	 * @covers ::leftHost
 	 */
-	public function test_left_host($expected, $url): void
+	public function test_leftHost($expected, $url): void
 	{
 		if ($expected === false) {
 			$this->expectException(SyntaxException::class);
@@ -587,10 +631,11 @@ class URLTest extends TestCase
 
 	/**
 	 * @dataProvider data_left_paths
+	 * @covers ::leftPath
 	 */
 	public function test_left_path($source, $expected): void
 	{
-		$this->assertEquals($expected, URL::left_path($source));
+		$this->assertEquals($expected, URL::leftPath($source));
 	}
 
 	public static function data_normalize(): array
@@ -629,6 +674,7 @@ class URLTest extends TestCase
 	 * @param $expected
 	 * @param $url
 	 * @dataProvider data_normalize
+	 * @covers  ::normalize
 	 */
 	public function test_normalize($expected, $url): void
 	{
@@ -693,6 +739,7 @@ class URLTest extends TestCase
 	 * @param string $scheme
 	 * @return void
 	 * @dataProvider data_protocolPort
+	 * @covers ::protocolPort
 	 */
 	public function test_protocolPort(int $expected, string $scheme): void
 	{
@@ -711,6 +758,7 @@ class URLTest extends TestCase
 
 	/**
 	 * @dataProvider data_query
+	 * @covers ::query
 	 */
 	public function test_query($expected, $url): void
 	{
@@ -758,6 +806,7 @@ class URLTest extends TestCase
 	 * @param $query
 	 * @param $name
 	 * @param $default
+	 * @covers ::queryParseInsensitive
 	 * @dataProvider data_queryParseInsensitive
 	 */
 	public function test_queryParseInsensitive($expected, $query, $name, $default): void
@@ -765,17 +814,31 @@ class URLTest extends TestCase
 		$this->assertEquals($expected, URL::queryParseInsensitive($query, $name, $default));
 	}
 
-	public function test_queryUnparse(): void
+	/**
+	 *
+	 */
+	public static function dataQueryUnparse(): array
 	{
-		$m = [
-			'A' => 'A',
-			'B' => 'C',
-			'D' => 'E',
+		return [
+			['?A=A&B=C&D=E', [
+				'A' => 'A',
+				'B' => 'C',
+				'D' => 'E',
+			]],
 		];
-		$this->assertEquals('?A=A&B=C&D=E', URL::queryToString($m));
 	}
 
-	public static function data_remove_password(): array
+	/**
+	 * @return void
+	 * @dataProvider dataQueryUnparse
+	 * @covers ::queryToString
+	 */
+	public function test_queryUnparse(string $expected, array $query): void
+	{
+		$this->assertEquals($expected, URL::queryToString($query));
+	}
+
+	public static function data_removePassword(): array
 	{
 		return [
 			[
@@ -797,9 +860,10 @@ class URLTest extends TestCase
 	 * @param $expected
 	 * @param $url
 	 * @throws SyntaxException
-	 * @dataProvider data_remove_password
+	 * @dataProvider data_removePassword
+	 * @covers ::removePassword
 	 */
-	public function test_remove_password($expected, $url): void
+	public function test_removePassword($expected, $url): void
 	{
 		$this->assertEquals($expected, URL::removePassword($url));
 	}
@@ -823,6 +887,7 @@ class URLTest extends TestCase
 	 * @return void
 	 * @throws SyntaxException
 	 * @dataProvider data_repair
+	 * @covers ::repair
 	 */
 	public function test_repair($u, $lineno): void
 	{
@@ -860,6 +925,7 @@ class URLTest extends TestCase
 	 * @param $url
 	 * @throws SyntaxException
 	 * @dataProvider data_schema
+	 * @covers ::scheme
 	 */
 	public function test_scheme($expected, $url): void
 	{
@@ -904,9 +970,10 @@ class URLTest extends TestCase
 	 * @param string $expected
 	 * @param string $url
 	 * @return void
-	 * @throws Exception\SyntaxException
+	 * @throws SyntaxException
 	 * @throws ProtocolException
 	 * @dataProvider data_makeSecure
+	 * @covers ::makeSecure
 	 */
 	public function test_makeSecure(string $expected, string $url): void
 	{
@@ -993,6 +1060,8 @@ class URLTest extends TestCase
 	 * @param string $serverRight
 	 * @return void
 	 * @dataProvider data_isSameServer
+	 * @covers ::isSameServer
+	 * @throws SemanticsException
 	 */
 	public function test_isSameServer(bool $expected, string $serverLeft, string $serverRight): void
 	{

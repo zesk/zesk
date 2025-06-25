@@ -8,9 +8,9 @@ namespace testZesk\Repository;
 
 use zesk\ArrayTools;
 use zesk\Exception\NotFoundException;
+use zesk\Repository\Base;
 use zesk\Types;
 use zesk\UnitTest;
-use zesk\Repository\Base;
 
 class TestCase extends UnitTest
 {

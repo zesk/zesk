@@ -50,10 +50,10 @@ class Type extends Model
 
 	/**
 	 * @param Application $application
-	 * @param string      $code
-	 * @param string      $name
-	 * @param array       $attributes
-	 * @param array       $options
+	 * @param string $code
+	 * @param string $name
+	 * @param array $attributes
+	 * @param array $options
 	 */
 	public function __construct(Application $application, string $code, string $name = '', array $attributes = [], array $options = [])
 	{
@@ -67,10 +67,10 @@ class Type extends Model
 	 * Find a preference type with the given name
 	 *
 	 * @param Application $application
-	 * @param string      $code
-	 * @param string      $name
-	 * @param array       $attributes
-	 * @param array       $options
+	 * @param string $code
+	 * @param string $name
+	 * @param array $attributes
+	 * @param array $options
 	 * @return self
 	 * @throws NotFoundException
 	 */
@@ -92,7 +92,7 @@ class Type extends Model
 	 * Find a preference type with the given name
 	 *
 	 * @param Application $application
-	 * @param string      $code
+	 * @param string $code
 	 * @return self
 	 * @throws NotFoundException
 	 */
@@ -105,7 +105,7 @@ class Type extends Model
 			return $item;
 		} catch (Throwable $e) {
 			throw new NotFoundException('Can not find {class} of {code}', [
-				'code'  => $code,
+				'code' => $code,
 				'class' => self::class,
 			], $e->getCode(), $e);
 		}

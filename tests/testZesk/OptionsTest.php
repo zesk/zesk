@@ -6,10 +6,9 @@ declare(strict_types=1);
 
 namespace testZesk;
 
+use zesk\Options;
 use function md5;
 use function microtime;
-
-use zesk\Options;
 
 /**
  *
@@ -33,7 +32,7 @@ class OptionsTest extends TestCase
 		$mapped = [
 			'item' => 1,
 			'thing' => 'sure',
-			'space_underscore_dash_' => 'ok',
+			'space underscore_dash-' => 'ok',
 		];
 		$options = new Options($init);
 
@@ -53,7 +52,7 @@ class OptionsTest extends TestCase
 		$this->assertEquals([
 			'item',
 			'thing',
-			'space_underscore_dash_',
+			'space underscore_dash-',
 		], $options->optionKeys());
 
 
@@ -145,17 +144,17 @@ class OptionsTest extends TestCase
 				$testOptions,
 			],
 			[
-				true,
+				false,
 				'three_space',
 				$testOptions,
 			],
 			[
-				true,
+				false,
 				'three-space',
 				$testOptions,
 			],
 			[
-				true,
+				false,
 				'four dash',
 				$testOptions,
 			],
@@ -165,7 +164,7 @@ class OptionsTest extends TestCase
 				$testOptions,
 			],
 			[
-				true,
+				false,
 				'four_dash',
 				$testOptions,
 			],

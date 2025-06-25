@@ -8,6 +8,10 @@ namespace testZesk;
 
 use zesk\Trie;
 
+/**
+ * @coversDefaultClass \zesk\Trie
+ * @uses Trie
+ */
 class TrieTest extends TestCase
 {
 	public static function data_trie(): array
@@ -157,6 +161,10 @@ class TrieTest extends TestCase
 	 * @param array $expected
 	 * @return void
 	 * @dataProvider data_trie
+	 * @covers ::get_words
+	 * @covers ::words
+	 * @covers ::add
+	 * @covers ::toJSON
 	 */
 	public function test_trie(array $words, array $expected): void
 	{

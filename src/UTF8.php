@@ -10,8 +10,8 @@ declare(strict_types=1);
 namespace zesk;
 
 use zesk\Exception\FileParseException;
-use zesk\Exception\ParseException;
 use zesk\Exception\KeyNotFound;
+use zesk\Exception\ParseException;
 
 /**
  * 8-bit UTF utilities

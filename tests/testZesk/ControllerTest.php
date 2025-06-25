@@ -1,5 +1,8 @@
 <?php
 declare(strict_types=1);
+/**
+ * @copyright  Copyright &copy; 2025, Market Acumen, Inc.
+ */
 
 namespace testZesk;
 
@@ -36,24 +39,24 @@ class ControllerTest extends TestCase
 
 		$router->addRoute('({first}(/{second}))', [
 			'controller' => TestController::class,
-			'arguments'  => [
+			'arguments' => [
 				0,
 				1,
 			],
-			'action'     => 'index',
-			'default'    => true,
-			'weight'     => 1,
+			'action' => 'index',
+			'default' => true,
+			'weight' => 1,
 		]);
 		$testRouteStart = 'array'; /* No slashes allowed - indexes 1,2 */
 		$router->addRoute($testRouteStart . '(/{what}(/{verb}))', [
 			'controller' => TestController::class,
-			'arguments'  => [
+			'arguments' => [
 				1,
 				2,
 				'{request}',
 			],
-			'action'     => 'array',
-			'weight'     => -1,
+			'action' => 'array',
+			'weight' => -1,
 		]);
 
 		$expected = ['init'];

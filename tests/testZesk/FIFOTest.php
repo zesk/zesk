@@ -9,7 +9,9 @@ namespace testZesk;
 use zesk\ArrayTools;
 use zesk\Directory;
 use zesk\Exception\CommandFailed;
+use zesk\Exception\DirectoryCreate;
 use zesk\Exception\DirectoryNotFound;
+use zesk\Exception\DirectoryPermission;
 use zesk\Exception\FileNotFound;
 use zesk\Exception\FilePermission;
 use zesk\Exception\SyntaxException;
@@ -17,14 +19,28 @@ use zesk\FIFO;
 use zesk\PHP;
 use zesk\Process;
 
+/**
+ * @coversDefaultClass \zesk\FIFO
+ * @uses FIFO
+ */
 class FIFOTest extends TestCase
 {
+	/**
+	 * @return void
+	 * @covers ::__construct
+	 */
 	public function test_fifo_create_false(): void
 	{
 		$fifo = new FIFO('does not matter whatever if create is false', false);
 		$this->assertInstanceOf(FIFO::class, $fifo);
 	}
 
+	/**
+	 * @return void
+	 * @throws DirectoryNotFound
+	 * @throws FilePermission
+	 * @covers ::__construct
+	 */
 	public function test_fifo_dnf(): void
 	{
 		$dir = $this->test_sandbox();
@@ -32,17 +48,28 @@ class FIFOTest extends TestCase
 		$badFile = Directory::path($dir, 'notpath/notfind.pipe');
 
 		$this->expectException(DirectoryNotFound::class);
-		$fifo = new FIFO($badFile, true);
-		$this->assertInstanceOf(FIFO::class, $fifo);
+		new FIFO($badFile, true);
 	}
 
+	/**
+	 * @return void
+	 * @covers ::__construct
+	 */
 	public function test_fifo_permissions(): void
 	{
 		$this->expectException(FilePermission::class);
-		$fifo = new FIFO('/proc/sys/fail', true);
-		$this->assertInstanceOf(FIFO::class, $fifo);
+		new FIFO('/proc/sys/fail', true);
 	}
 
+	/**
+	 * @return void
+	 * @throws DirectoryNotFound
+	 * @throws FilePermission
+	 * @throws DirectoryCreate
+	 * @throws DirectoryPermission
+	 * $this->assertInstanceOf(FIFO::class, $fifo);
+	 * @covers ::__construct
+	 */
 	public function test_fifo_permissions2(): void
 	{
 		$dir = $this->test_sandbox();
@@ -55,7 +82,6 @@ class FIFOTest extends TestCase
 		$this->expectException(FilePermission::class);
 		/* posix_mkfifo on a directory will fail I believe */
 		$fifo = new FIFO($badFile, true);
-		$this->assertInstanceOf(FIFO::class, $fifo);
 	}
 
 	public static function data_fifo_dataSet(): array
@@ -89,6 +115,7 @@ class FIFOTest extends TestCase
 	 * @throws CommandFailed
 	 * @throws FileNotFound
 	 * @throws SyntaxException
+	 * @covers ::read
 	 */
 	public function test_fifo_reader(array $expected): void
 	{
@@ -126,10 +153,14 @@ class FIFOTest extends TestCase
 	/**
 	 * @param array $expected
 	 * @return void
+	 * @throws CommandFailed
 	 * @throws DirectoryNotFound
+	 * @throws FileNotFound
 	 * @throws FilePermission
 	 * @throws SyntaxException
 	 * @dataProvider data_fifo_dataSet
+	 * @covers ::read
+	 * @covers ::write
 	 */
 	public function test_fifo_writer(array $expected): void
 	{

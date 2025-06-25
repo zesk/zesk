@@ -8,7 +8,6 @@ namespace testZesk;
 
 use zesk\ArrayTools;
 use zesk\Directory;
-
 use zesk\Exception\ClassNotFound;
 use zesk\Exception\ConfigurationException;
 use zesk\Exception\DirectoryCreate;

@@ -22,11 +22,11 @@ use Doctrine\ORM\Mapping\ManyToOne;
 use Doctrine\ORM\Mapping\Table;
 use Doctrine\ORM\Mapping\UniqueConstraint;
 use Doctrine\ORM\TransactionRequiredException;
-use zesk\ArrayTools;
-use zesk\Cron\Attributes\Cron;
 use Throwable;
 use zesk\Application;
 use zesk\Application\Hooks;
+use zesk\ArrayTools;
+use zesk\Cron\Attributes\Cron;
 use zesk\Doctrine\Trait\AutoID;
 use zesk\Doctrine\Trait\CodeName;
 use zesk\Exception;
@@ -102,7 +102,7 @@ class Lock extends Model
 	 * Retrieve the cached version of a lock or register one
 	 *
 	 * @param Application $application
-	 * @param string      $code
+	 * @param string $code
 	 * @return Lock
 	 * @throws ORMException|SemanticsException
 	 */
@@ -184,7 +184,7 @@ class Lock extends Model
 	}
 
 	/**
-	 * @param Lock   $lock
+	 * @param Lock $lock
 	 * @param string $context
 	 * @return void
 	 * @throws ORMException
@@ -197,10 +197,10 @@ class Lock extends Model
 		$id = $lock->server->id;
 		$lock->_release();
 		$lock->application->notice('Releasing lock #{id} {code} associated with defunct server # {serverId} (current server ids: {context})', [
-			'id'       => $lock->id,
-			'code'     => $lock->code,
+			'id' => $lock->id,
+			'code' => $lock->code,
 			'serverId' => $id,
-			'context'  => $context,
+			'context' => $context,
 		]);
 	}
 
@@ -386,8 +386,8 @@ class Lock extends Model
 			$application->notice(__METHOD__ . 'Deleted {result} {locks} associated with server {name} (#{id})', [
 				'method' => __METHOD__,
 				'result' => $result,
-				'name'   => $server->name,
-				'id'     => $server->id,
+				'name' => $server->name,
+				'id' => $server->id,
 			]);
 		}
 	}
@@ -403,7 +403,7 @@ class Lock extends Model
 	{
 		$args = [
 			'code' => $this->code,
-			'id'   => $this->id,
+			'id' => $this->id,
 		];
 		/* No database refresh */
 		if (!$this->_isLocked()) {
@@ -468,7 +468,7 @@ class Lock extends Model
 		if (!$this->isMine()) {
 			throw new SemanticsException('Release lock {code} (#{id}) not permitted - not mine', [
 				'code' => $this->code,
-				'id'   => $this->id,
+				'id' => $this->id,
 			]);
 		}
 		$this->_release();
@@ -486,7 +486,7 @@ class Lock extends Model
 	 * Register or create a lock
 	 *
 	 * @param Application $application
-	 * @param string      $code
+	 * @param string $code
 	 * @return Lock
 	 * @throws ORMException
 	 */
@@ -551,7 +551,7 @@ class Lock extends Model
 		}
 		$this->application->warning('Releasing lock from {server}:{pid} as process is dead', [
 			'server' => $this->server->id,
-			'pid'    => $this->pid,
+			'pid' => $this->pid,
 		]);
 		$this->_release();
 		return false;
@@ -701,9 +701,9 @@ class Lock extends Model
 			}
 			if ($timeout > 0 && $timer->elapsed() > $timeout) {
 				throw new TimeoutExpired('Waiting for Lock "{code}" ({timeout} seconds)', [
-					'method'  => __METHOD__,
+					'method' => __METHOD__,
 					'timeout' => $timeout,
-					'code'    => $this->code,
+					'code' => $this->code,
 				]);
 			}
 		}

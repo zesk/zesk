@@ -25,20 +25,20 @@ class Licenses extends SimpleCommand
 	protected array $shortcuts = ['licenses'];
 
 	protected array $argumentTypes = [
-		'all'  => 'boolean',
+		'all' => 'boolean',
 		'json' => 'boolean',
 	];
 
 	protected array $option_help = [
-		'all'  => 'Do all modules instead of just those loaded',
+		'all' => 'Do all modules instead of just those loaded',
 		'json' => 'Output JSON structure',
 	];
 
 	private array $codeToLabel = [
 		'description' => 'Description',
-		'licenses'    => 'Licenses',
-		'urlProject'  => 'Project URL',
-		'urlLicense'  => 'License URL',
+		'licenses' => 'Licenses',
+		'urlProject' => 'Project URL',
+		'urlLicense' => 'License URL',
 	];
 
 	protected function run(): int
@@ -52,7 +52,7 @@ class Licenses extends SimpleCommand
 					$moduleObject->initialize();
 				} catch (Exception $e) {
 					$this->error('Unable to create {module} {className} {message}', [
-						'module'    => $module,
+						'module' => $module,
 						'className' => $className,
 					] + $e->variables());
 				}

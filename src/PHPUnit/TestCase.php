@@ -126,7 +126,7 @@ class TestCase extends BaseTestCase
 			if (count($options)) {
 				$this->application->debug('{method}: {class} options is {option}', [
 					'method' => __METHOD__,
-					'class'  => get_class($this),
+					'class' => get_class($this),
 					'option' => $options,
 				]);
 			}
@@ -214,10 +214,10 @@ class TestCase extends BaseTestCase
 		$this->assertInstanceOf(Configuration::class, $this->configuration);
 		$this->assertInstanceOf(Application::class, $this->application);
 		file_put_contents($this->lastTestCaseFile(), JSON::encodePretty([
-			'class'     => get_class($this),
+			'class' => get_class($this),
 			'hierarchy' => $this->application->classes->hierarchy(get_class($this)),
-			'when'      => date('Y-m-d H:i:s'),
-			'debug'     => $this->option->toArray(),
+			'when' => date('Y-m-d H:i:s'),
+			'debug' => $this->option->toArray(),
 		]));
 	}
 
@@ -247,8 +247,8 @@ class TestCase extends BaseTestCase
 
 	/**
 	 * @param string|array $keys
-	 * @param array        $array
-	 * @param string       $message
+	 * @param array $array
+	 * @param string $message
 	 * @return void
 	 */
 	public function assertArrayHasKeys(string|array $keys, array $array, string $message = ''): void
@@ -262,7 +262,7 @@ class TestCase extends BaseTestCase
 	/**
 	 * Generate a list of absolute paths
 	 *
-	 * @param string   $path
+	 * @param string $path
 	 * @param string[] $suffixes
 	 * @return string[]
 	 */
@@ -278,7 +278,7 @@ class TestCase extends BaseTestCase
 	/**
 	 * All the passed in directories MUST exist to succeed
 	 *
-	 * @param array  $paths
+	 * @param array $paths
 	 * @param string $message
 	 * @return void
 	 */
@@ -295,7 +295,7 @@ class TestCase extends BaseTestCase
 	/**
 	 * All the passed in directories MUST exist to succeed
 	 *
-	 * @param array  $paths
+	 * @param array $paths
 	 * @param string $message
 	 * @return void
 	 */
@@ -312,7 +312,7 @@ class TestCase extends BaseTestCase
 	/**
 	 * Assert that the expected value is an integer
 	 *
-	 * @param mixed  $expected
+	 * @param mixed $expected
 	 * @param string $message
 	 */
 	public function assertIsInteger(mixed $expected, string $message = ''): void
@@ -394,7 +394,7 @@ class TestCase extends BaseTestCase
 	 * Create a sandbox folder to test with
 	 *
 	 * @param string $file
-	 * @param bool   $auto_delete
+	 * @param bool $auto_delete
 	 * @return string
 	 * @see self::sandbox
 	 */
@@ -450,7 +450,7 @@ class TestCase extends BaseTestCase
 	}
 
 	/**
-	 * @param string     $name
+	 * @param string $name
 	 * @param mixed|null $default
 	 * @return mixed
 	 */
@@ -496,7 +496,7 @@ class TestCase extends BaseTestCase
 
 	/**
 	 * @param array $args
-	 * @param bool  $captureFail
+	 * @param bool $captureFail
 	 * @return array Lines output
 	 * @throws CommandFailed
 	 */
@@ -551,9 +551,9 @@ class TestCase extends BaseTestCase
 	/**
 	 * Assert an object or class implements an interface
 	 *
-	 * @param string        $interface_class
+	 * @param string $interface_class
 	 * @param object|string $instanceof
-	 * @param string        $message
+	 * @param string $message
 	 * @return void
 	 */
 	final public function assertImplements(string $interface_class, object|string $instanceof, string $message = ''): void
@@ -563,8 +563,8 @@ class TestCase extends BaseTestCase
 	}
 
 	/**
-	 * @param mixed  $mixed
-	 * @param array  $array
+	 * @param mixed $mixed
+	 * @param array $array
 	 * @param string $message
 	 * @return void
 	 */
@@ -578,8 +578,8 @@ class TestCase extends BaseTestCase
 	}
 
 	/**
-	 * @param mixed  $mixed
-	 * @param array  $array
+	 * @param mixed $mixed
+	 * @param array $array
 	 * @param string $message
 	 * @return void
 	 */
@@ -609,7 +609,7 @@ class TestCase extends BaseTestCase
 	 * Given a class and a method, make the available method not-private to do blackbox testing
 	 *
 	 * @param string $class
-	 * @param array  $methods
+	 * @param array $methods
 	 * @return array
 	 * @throws ReflectionException
 	 */

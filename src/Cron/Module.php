@@ -13,11 +13,11 @@ declare(strict_types=1);
 namespace zesk\Cron;
 
 use Closure;
-use zesk\Cron\Attributes\Cron;
 use Throwable;
 use zesk\Application;
 use zesk\Application\Hooks;
 use zesk\ArrayTools;
+use zesk\Cron\Attributes\Cron;
 use zesk\Doctrine\Lock;
 use zesk\Doctrine\Server;
 use zesk\Exception\ClassNotFound;
@@ -135,7 +135,7 @@ class Module extends BaseModule
 		if (empty($name)) {
 			throw new ParameterException('Blank lock name for {method} {name}', [
 				'method' => __METHOD__,
-				'name'   => $name,
+				'name' => $name,
 			]);
 		}
 		$this->lock_name = $name;
@@ -166,7 +166,7 @@ class Module extends BaseModule
 	public function hook_routes(Router $router): void
 	{
 		$router->addRoute($this->page_runner_script(), [
-			'method'       => [
+			'method' => [
 				$this,
 				'run_js',
 			],
@@ -259,20 +259,20 @@ class Module extends BaseModule
 		$settings = $this->application->settings();
 
 		return $this->scopes = [
-			Cron::SCOPE_SERVER      => [
-				'state'  => $server,
+			Cron::SCOPE_SERVER => [
+				'state' => $server,
 				'prefix' => '',
-				'lock'   => 'cron-server-' . $server->id,
+				'lock' => 'cron-server-' . $server->id,
 			],
 			Cron::SCOPE_APPLICATION => [
-				'state'  => $settings,
+				'state' => $settings,
 				'prefix' => '',
-				'lock'   => 'cron-application-' . $this->application->id(),
+				'lock' => 'cron-application-' . $this->application->id(),
 			],
-			Cron::SCOPE_CLUSTER     => [
-				'state'  => $settings,
+			Cron::SCOPE_CLUSTER => [
+				'state' => $settings,
 				'prefix' => '_cluster',
-				'lock'   => 'cron-cluster',
+				'lock' => 'cron-cluster',
 			],
 		];
 	}
@@ -335,8 +335,8 @@ class Module extends BaseModule
 	private function _exception(Throwable $e, string|array $cron_hooks): void
 	{
 		$this->application->error("Exception during {hooks}: {message}\n{backtrace}", [
-			'hooks'     => $cron_hooks,
-			'message'   => $e->getMessage(),
+			'hooks' => $cron_hooks,
+			'message' => $e->getMessage(),
 			'backtrace' => $e->getTraceAsString(),
 			'exception' => $e,
 		]);
@@ -380,9 +380,9 @@ class Module extends BaseModule
 			} catch (TimeoutExpired) {
 				unset($scopes[$method]);
 				$this->application->warning('{method}: Unable to acquire lock {lock_name}, skipping scope {scope_method}', [
-					'method'       => __METHOD__,
+					'method' => __METHOD__,
 					'scope_method' => $method,
-					'lock_name'    => $lock_name,
+					'lock_name' => $lock_name,
 				]);
 			}
 		}
@@ -506,11 +506,11 @@ class Module extends BaseModule
 	{
 		$response->html()->javascript('/share/zesk/js/zesk.js', [
 			'weight' => 'first',
-			'share'  => true,
+			'share' => true,
 		]);
 		$response->html()->javascript($this->page_runner_script(), [
-			'async'   => 'async',
-			'defer'   => 'defer',
+			'async' => 'async',
+			'defer' => 'defer',
 			'nocache' => true,
 		]);
 	}

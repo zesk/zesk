@@ -6,38 +6,71 @@ declare(strict_types=1);
 
 namespace testZesk;
 
+use zesk\Exception\FilePermission;
+use zesk\IPv4;
 use zesk\System;
 
+/**
+ * @coversDefaultClass \zesk\System
+ * @uses System
+ */
 class SystemTest extends TestCase
 {
+	/**
+	 * @return void
+	 * @covers ::uname
+	 */
 	public function test_uname(): void
 	{
 		$this->assertGreaterThan(0, strlen(System::uname()));
 	}
 
+	/**
+	 * @return void
+	 * @covers ::processId
+	 */
 	public function test_process_id(): void
 	{
 		$this->assertGreaterThan(0, System::processId());
 	}
 
+	/**
+	 * @return void
+	 * @covers ::ipAddresses
+	 */
 	public function test_ip_addresses(): void
 	{
-		System::ipAddresses($this->application);
+		foreach (System::ipAddresses($this->application) as $ip) {
+			$this->assertTrue(IPv4::valid($ip), "$ip is not a valid IPv4");
+		}
 	}
 
+	/**
+	 * @return void
+	 * @covers ::macAddresses
+	 */
 	public function test_mac_addresses(): void
 	{
 		$macs = System::macAddresses($this->application);
 		$this->assertGreaterThan(0, count($macs));
 	}
 
-	public function test_ifconfig(): void
+	/**
+	 * @return void
+	 * @covers ::interfaceConfiguration
+	 */
+	public function testInterfaceConfiguration(): void
 	{
-		$interfaces = System::ifconfig($this->application);
+		$interfaces = System::interfaceConfiguration($this->application);
 		$this->assertIsArray($interfaces);
 		$this->assertGreaterThan(0, count($interfaces));
 	}
 
+	/**
+	 * @return void
+	 * @throws FilePermission
+	 * @covers ::loadAverages
+	 */
 	public function test_load_averages(): void
 	{
 		$averages = System::loadAverages();
@@ -49,6 +82,10 @@ class SystemTest extends TestCase
 		], $averages);
 	}
 
+	/**
+	 * @return void
+	 * @covers ::distro
+	 */
 	public function test_distro(): void
 	{
 		$result = System::distro();
@@ -65,11 +102,19 @@ class SystemTest extends TestCase
 		$this->assertEquals('/etc/debian_version', $result['source']);
 	}
 
+	/**
+	 * @return void
+	 * @covers ::memoryLimit
+	 */
 	public function test_memory_limit(): void
 	{
 		$this->assertIsInteger(System::memoryLimit());
 	}
 
+	/**
+	 * @return void
+	 * @covers ::volumeInfo
+	 */
 	public function test_volume_info(): void
 	{
 		$info = System::volumeInfo();

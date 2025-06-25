@@ -15,8 +15,8 @@ use zesk\Doctrine\Model;
 use zesk\Exception\ConfigurationException;
 use zesk\Exception\NotFoundException;
 use zesk\Exception\SemanticsException;
-use zesk\Types;
 use zesk\Module;
+use zesk\Types;
 
 /**
  *

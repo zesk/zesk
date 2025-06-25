@@ -17,13 +17,12 @@ use zesk\Exception\Redirect;
 use zesk\Exception\SyntaxException;
 use zesk\File;
 use zesk\Mail\Mail;
+use zesk\Net\POP\Client as POPClient;
 use zesk\PHPUnit\TestCase;
-
 use zesk\System;
 use zesk\Timer;
 use zesk\URL;
 use zesk\UTF8;
-use zesk\Net\POP\Client as POPClient;
 
 /**
  *

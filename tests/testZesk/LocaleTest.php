@@ -9,19 +9,23 @@ namespace testZesk;
 use Exception;
 use zesk\Exception\ClassNotFound;
 use zesk\Exception\ParseException;
-use zesk\Locale\Locale;
-
 use zesk\Lists;
+use zesk\Locale\Locale;
 use zesk\Temporal;
+use zesk\Timestamp;
 use zesk\Types;
 
 /**
- *
+ * @coversDefaultClass \zesk\Locale\Locale
  * @author kent
  *
  */
 class LocaleTest extends TestCase
 {
+	/**
+	 * @return void
+	 * @covers ::__
+	 */
 	public function test_locale___(): void
 	{
 		$locale = $this->application->locale;
@@ -66,6 +70,7 @@ class LocaleTest extends TestCase
 	}
 
 	/**
+	 * @covers ::plural
 	 * @dataProvider data_plural
 	 * @param $expected
 	 * @param $test
@@ -183,6 +188,7 @@ class LocaleTest extends TestCase
 	 * @param string $conjunction
 	 * @param string $expected
 	 * @return void
+	 * @covers ::conjunction
 	 * @dataProvider data_conjunction
 	 * @throws ClassNotFound
 	 */
@@ -230,6 +236,7 @@ class LocaleTest extends TestCase
 	/**
 	 * @dataProvider data_locales
 	 * @param $mixed
+	 * @covers ::formatDate
 	 */
 	public function test_date_format($mixed): void
 	{
@@ -241,6 +248,7 @@ class LocaleTest extends TestCase
 	/**
 	 * @dataProvider data_locales
 	 * @param mixed $mixed
+	 * @covers ::formatDateTime
 	 */
 	public function test_datetime_format(mixed $mixed): void
 	{
@@ -277,6 +285,7 @@ class LocaleTest extends TestCase
 
 	/**
 	 * @dataProvider data_parseDialect
+	 * @covers ::parseDialect
 	 */
 	public function test_parse_dialect(string $expected, string $languageString): void
 	{
@@ -330,6 +339,7 @@ class LocaleTest extends TestCase
 
 	/**
 	 * @dataProvider data_en_durationStrings
+	 * @covers ::durationString
 	 */
 	public function test_duration_string($expected, $delta, $unit, $mixed): void
 	{
@@ -341,6 +351,7 @@ class LocaleTest extends TestCase
 
 	/**
 	 * @dataProvider data_en_locales
+	 * @covers ::indefiniteArticle
 	 * @param $mixed
 	 */
 	public function test_indefinite_article($mixed): void
@@ -350,6 +361,10 @@ class LocaleTest extends TestCase
 		$this->assertEquals('an', $locale->indefiniteArticle('honor', []));
 	}
 
+	/**
+	 * @return void
+	 * @covers ::parseLanguage
+	 */
 	public function test_language(): void
 	{
 		$this->assertEquals('en', Locale::parseLanguage('EN_US'));
@@ -358,12 +373,20 @@ class LocaleTest extends TestCase
 		$this->assertEquals('', Locale::parseLanguage(''));
 	}
 
+	/**
+	 * @return void
+	 * @covers ::negateWord
+	 */
 	public function test_negate_word(): void
 	{
 		$locale = $this->application->locale;
 		$this->assertEquals('updog', $locale->negateWord('dog', 'up'));
 	}
 
+	/**
+	 * @return void
+	 * @covers ::normalize
+	 */
 	public function test_normalize(): void
 	{
 		$this->assertEquals('en_US', Locale::normalize('EN_us'));
@@ -407,12 +430,13 @@ class LocaleTest extends TestCase
 	/**
 	 * @dataProvider now_string_data
 	 * @throws ParseException
+	 * @covers ::nowString
 	 */
-	public function test_now_string($expeected, $timestamp, $min_unit, $zero_string, $mixed): void
+	public function test_now_string(string $expected, Timestamp|string|int $timestamp, string $min_unit, string $zero_string, mixed $mixed): void
 	{
 		$locale = $this->applyClosures($mixed);
 		/* @var $locale Locale */
-		$this->assertEquals($expeected, $locale->nowString($timestamp, $min_unit, $zero_string));
+		$this->assertEquals($expected, $locale->nowString($timestamp, $min_unit, $zero_string));
 	}
 
 	public static function data_ordinal_en(): array
@@ -488,6 +512,7 @@ class LocaleTest extends TestCase
 	/**
 	 * @dataProvider data_ordinal_en
 	 * @throws ClassNotFound
+	 * @covers ::ordinal
 	 */
 	public function test_ordinal_en(string $expected, int $number): void
 	{
@@ -503,6 +528,7 @@ class LocaleTest extends TestCase
 	/**
 	 * @dataProvider data_ordinal_fr
 	 * @throws ClassNotFound
+	 * @covers ::ordinal
 	 */
 	public function test_ordinal_fr(string $expected, int $number): void
 	{
@@ -530,6 +556,7 @@ class LocaleTest extends TestCase
 
 	/**
 	 * @throws ClassNotFound
+	 * @covers ::plural
 	 */
 	public function test_plural2(): void
 	{
@@ -568,6 +595,7 @@ class LocaleTest extends TestCase
 	 * @dataProvider data_en_locales
 	 * @param $mixed
 	 * @throws Exception
+	 * @covers ::pluralNumber
 	 */
 	public function test_plural_number($mixed): void
 	{
@@ -627,6 +655,7 @@ class LocaleTest extends TestCase
 
 	/**
 	 * @throws ClassNotFound
+	 * @covers ::pluralWord
 	 */
 	public function test_plural_word(): void
 	{
@@ -667,6 +696,7 @@ class LocaleTest extends TestCase
 
 	/**
 	 * @return array[]
+	 * @covers ::setTranslations
 	 */
 	public static function data_locale_translation(): array
 	{
@@ -707,6 +737,7 @@ class LocaleTest extends TestCase
 	 * @param        $mixed
 	 * @param string $test
 	 * @param string $expected
+	 * @covers ::__
 	 */
 	public function test_locale_translation($mixed, string $test, string $expected): void
 	{
@@ -718,6 +749,7 @@ class LocaleTest extends TestCase
 
 	/**
 	 * @dataProvider data_locales
+	 * @covers ::formatTime
 	 */
 	public function test_time_format($mixed): void
 	{
@@ -730,6 +762,7 @@ class LocaleTest extends TestCase
 	/**
 	 * @dataProvider data_locales
 	 * @param $mixed
+	 * @covers ::__
 	 */
 	public function test_translate($mixed): void
 	{
@@ -746,6 +779,7 @@ class LocaleTest extends TestCase
 	 * Apparently, this was a problem at some point
 	 *
 	 * @throws ParseException
+	 * @covers ::nowString
 	 */
 	public function test_now_string_translation(): void
 	{

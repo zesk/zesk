@@ -12,8 +12,8 @@ namespace zesk;
 use Psr\Log\LoggerInterface;
 use zesk\Exception\DirectoryNotFound;
 use zesk\Exception\NotFoundException;
-use zesk\Exception\Redirect;
 use zesk\Exception\ProtocolException;
+use zesk\Exception\Redirect;
 use zesk\Interface\Themeable;
 
 /**
@@ -80,7 +80,7 @@ class Themes implements Themeable
 	 *
 	 * @param array|string $paths
 	 *            Path to add to the theme path. Pass in null to do nothing.
-	 * @param string       $prefix
+	 * @param string $prefix
 	 *            (Optional) Handle theme requests which begin with this prefix. Saves having deep
 	 *            directories.
 	 * @return self
@@ -120,10 +120,10 @@ class Themes implements Themeable
 	/**
 	 * Invoke a single theme type
 	 *
-	 * @param string  $type
-	 * @param array   $args
+	 * @param string $type
+	 * @param array $args
 	 * @param ?string $content Default content
-	 * @param string  $extension
+	 * @param string $extension
 	 * @return ?string
 	 * @throws Redirect
 	 */
@@ -147,7 +147,7 @@ class Themes implements Themeable
 	private function cleanTemplatePath(string $path): string
 	{
 		return preg_replace('%[^-_./a-zA-Z0-9]%', '_', strtr($path, [
-			'_'  => '/',
+			'_' => '/',
 			'\\' => '/',
 		]));
 	}
@@ -226,8 +226,8 @@ class Themes implements Themeable
 	 * theme an element
 	 *
 	 * @param string|array $types
-	 * @param array        $arguments
-	 * @param array        $options
+	 * @param array $arguments
+	 * @param array $options
 	 * @return string|null
 	 * @throws Redirect
 	 */
@@ -286,7 +286,7 @@ class Themes implements Themeable
 		}
 		if (!$has_output) {
 			$this->logger?->warning('Theme {types} had no output ({details})', [
-				'types'   => $types,
+				'types' => $types,
 				'details' => Kernel::backtrace(),
 			]);
 		}
@@ -366,7 +366,7 @@ class Themes implements Themeable
 	 * Setter for top theme variable
 	 *
 	 * @param array|string|int|Theme $key
-	 * @param mixed|null             $value
+	 * @param mixed|null $value
 	 * @return $this
 	 */
 	final public function setThemeVariable(array|string|int|Theme $key, mixed $value = null): self

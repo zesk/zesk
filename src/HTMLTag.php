@@ -53,11 +53,11 @@ class HTMLTag extends Options
 
 	/**
 	 *
-	 * @param string $name       Tag name
-	 * @param array  $attributes tag attributes
+	 * @param string $name Tag name
+	 * @param array $attributes tag attributes
 	 * @param string $inner_html
 	 * @param string $outer_html
-	 * @param int    $offset
+	 * @param int $offset
 	 */
 	public function __construct(string $name, array $attributes = [], string $inner_html = '', string $outer_html = '', int $offset = -1)
 	{

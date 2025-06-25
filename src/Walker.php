@@ -245,7 +245,7 @@ class Walker
 
 	/**
 	 * @param array|null $members
-	 * @param bool       $append
+	 * @param bool $append
 	 * @return $this
 	 */
 	public function setExcludeMembers(array $members = null, bool $append = false): self
@@ -287,7 +287,7 @@ class Walker
 
 	/**
 	 * @param array $handlers
-	 * @param bool  $append
+	 * @param bool $append
 	 * @return $this
 	 */
 	public function setMembersHandler(array $handlers, bool $append = false): self
@@ -300,7 +300,7 @@ class Walker
 	 * List of member dotted paths to resolve in JSON
 	 *
 	 * @param array $resolve_objects
-	 * @param bool  $append
+	 * @param bool $append
 	 * @return $this
 	 */
 	public function setResolveObjects(array $resolve_objects, bool $append = false): self
@@ -326,7 +326,7 @@ class Walker
 	 * You can permit all resolve_objects paths by setting this to an empty array, so use with caution.
 	 *
 	 * @param array $allow_resolve_objects
-	 * @param bool  $append
+	 * @param bool $append
 	 * @return self
 	 */
 	public function setAllowResolveObjects(array $allow_resolve_objects, bool $append = false): self
@@ -432,7 +432,7 @@ class Walker
 	{
 		/* Convert to JSON structure */
 		$class_data = $this->class_info ? [
-			'_class'        => get_class($this),
+			'_class' => get_class($this),
 			'_parent_class' => get_parent_class($this),
 		] : [];
 		$reflectionClass = new ReflectionClass($model);
@@ -453,7 +453,7 @@ class Walker
 				return $result + $class_data;
 			} catch (ReflectionException $e) {
 				throw new RuntimeException('Invalid ids: {ids} for {class}', [
-					'ids'   => $ids,
+					'ids' => $ids,
 					'class' => $model,
 				], $e->getCode(), $e);
 			}
@@ -491,10 +491,10 @@ class Walker
 	/**
 	 * JSON a single member
 	 *
-	 * @param Model           $model
-	 * @param string          $member
-	 * @param mixed           $value
-	 * @param array           $resolve_object_match
+	 * @param Model $model
+	 * @param string $member
+	 * @param mixed $value
+	 * @param array $resolve_object_match
 	 * @param LoggerInterface $logger
 	 * @return int|string|null|Model|Timestamp
 	 */
@@ -514,7 +514,7 @@ class Walker
 			} catch (ReflectionException $e) {
 				throw new RuntimeException('Invalid member {member} for class {class}', [
 					'member' => $member,
-					'class'  => $model,
+					'class' => $model,
 				], $e->getCode(), $e);
 			}
 			$child_options->setResolveObjects($resolve_object_match[$member]);
@@ -539,10 +539,10 @@ class Walker
 	/**
 	 * Convert an object
 	 *
-	 * @param Model           $object
-	 * @param string          $member
-	 * @param object          $value
-	 * @param Walker          $child_options
+	 * @param Model $object
+	 * @param string $member
+	 * @param object $value
+	 * @param Walker $child_options
 	 * @param LoggerInterface $logger
 	 * @return mixed
 	 */
@@ -557,7 +557,7 @@ class Walker
 			}
 			$logger->warning('Invalid resolve method passed into {class} walker: {type}', [
 				'class' => $object::class,
-				'type'  => Types::type($resolve_method),
+				'type' => Types::type($resolve_method),
 			]);
 		}
 		return $value->__toString();

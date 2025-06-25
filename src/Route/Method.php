@@ -1,5 +1,8 @@
 <?php
 declare(strict_types=1);
+/**
+ * @copyright  Copyright &copy; 2025, Market Acumen, Inc.
+ */
 
 namespace zesk\Route;
 
@@ -127,15 +130,15 @@ class Method extends Route
 				throw new ParameterException("No such method {class}::{method} exists in $require or $include for {pattern}", $this->variables() + [
 					'require' => $require,
 					'include' => $include,
-					'method'  => $method,
+					'method' => $method,
 				]);
 			}
 		} elseif (is_object($class)) {
 			if (!method_exists($class, $method)) {
 				throw new ParameterException("No such method {objectClass}::{method} exists in $require or $include for {pattern}", $this->variables() + [
-					'require'     => $require,
-					'include'     => $include,
-					'method'      => $method,
+					'require' => $require,
+					'include' => $include,
+					'method' => $method,
 					'objectClass' => $class::class,
 				]);
 			}
@@ -149,7 +152,7 @@ class Method extends Route
 		} elseif (!is_callable($function)) {
 			throw new ParameterException('Not callable: {callable} for {pattern}', $this->variables() + [
 				'callable' => Hooks::callableString($function),
-				'pattern'  => $this->pattern,
+				'pattern' => $this->pattern,
 			]);
 		}
 		return true;
@@ -219,9 +222,9 @@ class Method extends Route
 			$content = null;
 			$app->invokeHooks(Application::HOOK_EXCEPTION, [$e]);
 			$app->error('{class}::_execute() Running {method} threw exception {e}', [
-				'class'  => __CLASS__,
+				'class' => __CLASS__,
 				'method' => $app->hooks->callableString($method),
-				'e'      => $e,
+				'e' => $e,
 			]);
 		}
 		return $content;

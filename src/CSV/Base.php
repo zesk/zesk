@@ -118,9 +118,9 @@ abstract class Base extends Options
 	/**
 	 * Set the file associated with this CSV object
 	 *
-	 * @param string  $filename File the path to use
-	 * @param string  $mode     File mode (fopen)
-	 * @param boolean $create   Create the file if it doesn't exist
+	 * @param string $filename File the path to use
+	 * @param string $mode File mode (fopen)
+	 * @param boolean $create Create the file if it doesn't exist
 	 * @return self
 	 * @throws FileNotFound
 	 * @throws FilePermission
@@ -158,7 +158,7 @@ abstract class Base extends Options
 	/**
 	 * Add headers to the CSV file
 	 *
-	 * @param array   $headers
+	 * @param array $headers
 	 * @param boolean $is_map The passed in array is a map from internal name => label name
 	 * @return Base
 	 * @throws KeyNotFound
@@ -198,7 +198,7 @@ abstract class Base extends Options
 
 	/**
 	 * @param array $headers
-	 * @param bool  $is_map
+	 * @param bool $is_map
 	 * @return $this
 	 * @throws KeyNotFound
 	 */
@@ -233,7 +233,7 @@ abstract class Base extends Options
 	/**
 	 * Retrieve the current row's column value
 	 *
-	 * @param string $name    Column to retrieve
+	 * @param string $name Column to retrieve
 	 * @param string $default Value to return if not found
 	 * @return string
 	 */
@@ -306,11 +306,11 @@ abstract class Base extends Options
 	 *
 	 * @param array $x
 	 * @return string
-	 * @see StringTools::csvQuoteRow
+	 * @see StringTools::quoteCSVRow
 	 */
 	public static function quoteRow(array $x): string
 	{
-		return StringTools::csvQuoteRow($x);
+		return StringTools::quoteCSVRow($x);
 	}
 
 	/**
@@ -318,10 +318,10 @@ abstract class Base extends Options
 	 *
 	 * @param array $x of arrays of strings
 	 * @return string
-	 * @see StringTools::csvQuoteRows
+	 * @see StringTools::quoteCSVRows
 	 */
 	public static function quoteRows(array $x): string
 	{
-		return StringTools::csvQuoteRows($x);
+		return StringTools::quoteCSVRows($x);
 	}
 }

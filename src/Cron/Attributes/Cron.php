@@ -1,5 +1,8 @@
 <?php
 declare(strict_types=1);
+/**
+ * @copyright &copy; 2025, Market Acumen, Inc.
+ */
 
 namespace zesk\Cron\Attributes;
 
@@ -28,8 +31,8 @@ class Cron implements HookableAttribute
 	public const SCOPE_CLUSTER = 'cluster';
 
 	/**
-	 * @param string                                           $schedule
-	 * @param string                                           $scope
+	 * @param string $schedule
+	 * @param string $scope
 	 * @psalm-param self::SCOPE_SERVER|self::SCOPE_APPLICATION $scope
 	 */
 	public function __construct(string $schedule = '*', string $scope = self::SCOPE_APPLICATION)
@@ -57,7 +60,7 @@ class Cron implements HookableAttribute
 
 	/**
 	 * @param ReflectionMethod $method
-	 * @param Hookable|null    $object
+	 * @param Hookable|null $object
 	 * @return $this
 	 */
 	public function setMethod(ReflectionMethod $method, Hookable|null $object = null): self

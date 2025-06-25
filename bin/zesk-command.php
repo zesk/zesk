@@ -26,9 +26,12 @@ class CommandLoaderFactory
 		}
 
 		/* We love debuggers */
-		require_once $here . 'xdebug.php';
+		$xdebug = require_once $here . 'src/__xdebug.php';
+		if (is_callable($xdebug)) {
+			$xdebug();
+		}
 		/* Basic autoloader */
-		require_once $here . 'autoload.php';
+		require_once $here . 'src/autoload.php';
 
 		/**
 		 * Run a zesk command and exit

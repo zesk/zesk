@@ -256,7 +256,7 @@ abstract class Temporal implements Formatting
 	 * @param ?float $fraction
 	 *            Returns $seconds divided by total units, can be used to specify 2.435 years, for
 	 *            example.
-	 * @return string The units closest to the number of seconds
+	 * @return string The units closest to the units desired
 	 */
 	public static function secondsToUnit(int $seconds, string $stop_unit = self::UNIT_SECOND, float &$fraction = null): string
 	{

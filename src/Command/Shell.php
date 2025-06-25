@@ -14,13 +14,12 @@ use Throwable;
 use zesk\Application;
 use zesk\Debug;
 use zesk\Exception\FilePermission;
-use zesk\Exception\ProtocolException;
 use zesk\Exception\ParameterException;
+use zesk\Exception\ProtocolException;
 use zesk\Exception\SemanticsException;
 use zesk\PHP;
 use zesk\StopIteration;
 use zesk\StringTools;
-
 use function str_contains;
 use function str_starts_with;
 
@@ -51,18 +50,18 @@ class Shell extends SimpleCommand
 
 	protected array $argumentTypes = [
 		'skip-configure' => 'boolean',
-		'json'           => 'boolean',
-		'interactive'    => 'boolean',
-		'debug-state'    => 'boolean',
-		'*'              => 'string',
+		'json' => 'boolean',
+		'interactive' => 'boolean',
+		'debug-state' => 'boolean',
+		'*' => 'string',
 	];
 
 	protected array $option_help = [
 		'skip-configure' => 'Skip application configuration',
-		'json'           => 'Output results as JSON instead of PHP',
-		'interactive'    => 'Run interactively',
-		'debug-state'    => 'Debug interactive state management',
-		'*'              => 'string',
+		'json' => 'Output results as JSON instead of PHP',
+		'interactive' => 'Run interactively',
+		'debug-state' => 'Debug interactive state management',
+		'*' => 'string',
 	];
 
 	protected array $option_chars = [
@@ -118,7 +117,7 @@ class Shell extends SimpleCommand
 	/**
 	 * Optionally output the result of the last evaluated code
 	 *
-	 * @param mixed  $__result
+	 * @param mixed $__result
 	 * @param string $content
 	 * @return void
 	 */

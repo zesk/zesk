@@ -39,9 +39,9 @@ class Info extends SimpleCommand
 	 * @var array
 	 */
 	protected array $argumentTypes = [
-		'help'            => 'boolean',
+		'help' => 'boolean',
 		'computer-labels' => 'boolean',
-		'format'          => 'string',
+		'format' => 'string',
 	];
 
 	/**
@@ -49,9 +49,9 @@ class Info extends SimpleCommand
 	 * @var array
 	 */
 	protected array $option_help = [
-		'help'            => 'This help',
+		'help' => 'This help',
 		'computer-labels' => 'Show computer labels',
-		'format'          => 'output format: text (default), html, php, serialize, json',
+		'format' => 'output format: text (default), html, php, serialize, json',
 	];
 
 	/**

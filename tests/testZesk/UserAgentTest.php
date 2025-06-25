@@ -6,6 +6,12 @@ declare(strict_types=1);
 
 namespace testZesk;
 
+use zesk\UserAgent;
+
+/**
+ * @coversDefaultClass  \zesk\UserAgent
+ * @uses   UserAgent
+ */
 class UserAgentTest extends TestCase
 {
 	public static function data_userAgents(): array
@@ -122,6 +128,7 @@ class UserAgentTest extends TestCase
 	 * @param string $userAgent
 	 * @return void
 	 * @dataProvider data_userAgents
+	 * @covers ::userAgent
 	 */
 	public function test_userAgents(array $attributes, array $classify, string $description, string $userAgent): void
 	{
@@ -155,6 +162,7 @@ class UserAgentTest extends TestCase
 	 * @param string $userAgent
 	 * @return void
 	 * @dataProvider data_userAgentsEN
+	 * @covers ::classifyEN
 	 */
 	public function test_userAgentEN(array $expected, string $userAgent): void
 	{

@@ -10,21 +10,25 @@ declare(strict_types=1);
 namespace testZesk;
 
 use zesk\Exception\ClassNotFound;
-
 use zesk\Model;
 
 /**
  * Generic test class
+ * @coversDefaultClass  \zesk\Model
+ * @uses   Model
  */
 class ModelTest extends TestCase
 {
 	public static function data_themePaths(): array
 	{
-		$model = Model::class;
-		$testModel = TestModel::class;
+		$model = TestModel::class;
+		$testModel = TestModelChild::class;
 		return [
 			[
-				['zesk/Model/view'],
+				[
+					'testZesk/TestModel/view',
+					'zesk/Model/view',
+				],
 				$model,
 				'',
 			],
@@ -39,13 +43,17 @@ class ModelTest extends TestCase
 				'./test',
 			],
 			[
-				['zesk/Model/test'],
+				[
+					'testZesk/TestModel/test',
+					'zesk/Model/test',
+				],
 				$model,
 				'test',
 			],
 			[
 				[
-					'zesk/TestModel/view',
+					'testZesk/TestModelChild/view',
+					'testZesk/TestModel/view',
 					'zesk/Model/view',
 				],
 				$testModel,
@@ -63,7 +71,8 @@ class ModelTest extends TestCase
 			],
 			[
 				[
-					'zesk/TestModel/test',
+					'testZesk/TestModelChild/test',
+					'testZesk/TestModel/test',
 					'zesk/Model/test',
 				],
 				$testModel,
@@ -71,7 +80,8 @@ class ModelTest extends TestCase
 			],
 			[
 				[
-					'zesk/TestModel/path/to/Another',
+					'testZesk/TestModelChild/path/to/Another',
+					'testZesk/TestModel/path/to/Another',
 					'zesk/Model/path/to/Another',
 				],
 				$testModel,
@@ -86,6 +96,7 @@ class ModelTest extends TestCase
 	 * @param array|string $theme_names
 	 * @return void
 	 * @dataProvider data_themePaths
+	 * @covers ::themePaths
 	 * @throws ClassNotFound
 	 */
 	public function test_themePaths(array $expected, string $modelClass, array|string $theme_names): void
@@ -96,6 +107,7 @@ class ModelTest extends TestCase
 
 	/**
 	 * @return void
+	 * @coversNothing
 	 */
 	public function test_access(): void
 	{
@@ -110,6 +122,10 @@ class ModelTest extends TestCase
 		$this->assertEquals(9421, $model->thingTwo);
 	}
 
+	/**
+	 * @return void
+	 * @coversNothing
+	 */
 	public function test_base(): void
 	{
 		$model = new TestModel($this->application);

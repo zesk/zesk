@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace zesk\Application;
 
+use Psr\Log\LogLevel;
 use zesk\Application;
 use zesk\ArrayTools;
 use zesk\Exception\CommandFailed;
@@ -23,7 +24,6 @@ use zesk\Logger\FileLogger;
 use zesk\RuntimeException;
 use zesk\Types;
 use zesk\Version;
-use Psr\Log\LogLevel;
 
 /**
  * Used internally for deployment and version management

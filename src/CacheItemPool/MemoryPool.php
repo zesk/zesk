@@ -6,10 +6,10 @@ declare(strict_types=1);
 
 namespace zesk\CacheItemPool;
 
+use InvalidArgumentException;
 use Psr\Cache\CacheItemInterface;
 use Psr\Cache\CacheItemPoolInterface;
 use zesk\CacheItem;
-use InvalidArgumentException;
 
 /**
  * The most basic of caching, storing everything in PHP memory as an array of keyed values.

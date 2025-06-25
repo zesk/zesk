@@ -24,10 +24,10 @@ class Module extends BaseModule
 	public function initialize(): void
 	{
 		$this->setOptions([
-			'name'        => 'Diff',
+			'name' => 'Diff',
 			'description' => 'Diff tools',
-			'urlLicense'  => './etc/diff.c.txt',
-			'licenses'    => [
+			'urlLicense' => './etc/diff.c.txt',
+			'licenses' => [
 				'MIT',
 			],
 		]);

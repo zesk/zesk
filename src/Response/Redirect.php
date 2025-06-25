@@ -11,9 +11,9 @@ namespace zesk\Response;
 
 use Throwable;
 use zesk\Exception\KeyNotFound;
+use zesk\Exception\ProtocolException;
 use zesk\Exception\Redirect as RedirectException;
 use zesk\Exception\RedirectTemporary;
-use zesk\Exception\ProtocolException;
 use zesk\HTTP;
 use zesk\Interface\SessionInterface;
 use zesk\Response;
@@ -45,7 +45,7 @@ class Redirect extends Type
 		} catch (Throwable $e) {
 			$this->application->debug('{method} caused an exception {e}', [
 				'method' => __METHOD__,
-				'e'      => $e,
+				'e' => $e,
 			]);
 		}
 	}
@@ -55,7 +55,7 @@ class Redirect extends Type
 	/**
 	 *
 	 * @param string $message
-	 * @param array  $attributes
+	 * @param array $attributes
 	 * @return Response
 	 * @throws ProtocolException
 	 * @throws KeyNotFound

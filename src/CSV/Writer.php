@@ -110,8 +110,8 @@ class Writer extends Base
 	 * The values passed in must exist as headers in the CSV file, otherwise an Exception\KeyNotFound is
 	 * thrown.
 	 *
-	 * @param string     $name
-	 * @param array      $map
+	 * @param string $name
+	 * @param array $map
 	 * @param array|null $defaultMap
 	 * @return self
 	 * @throws KeyNotFound
@@ -131,10 +131,10 @@ class Writer extends Base
 			$column = strtolower($column);
 			if (!isset($this->headersToIndex[strtolower($column)])) {
 				throw new KeyNotFound('{method}({name},...): {column} not found in headers {headers}', [
-					'method'  => __METHOD__,
-					'name'    => $name,
+					'method' => __METHOD__,
+					'name' => $name,
 					'headers' => JSON::encode($this->headersToIndex),
-					'column'  => $column,
+					'column' => $column,
 				]);
 			} else {
 				$indexes = $this->headersToIndex[$column];
@@ -161,7 +161,7 @@ class Writer extends Base
 	/**
 	 * Add an output translation map for boolean values
 	 *
-	 * @param mixed  $column_names
+	 * @param mixed $column_names
 	 *            List of column names
 	 * @param string $no
 	 *            The no string to output
@@ -174,7 +174,7 @@ class Writer extends Base
 	public function addTranslationMapBoolean(array|string $column_names, string $no = null, string $yes = null, string $null = null)
 	{
 		$this->addTranslationMap($column_names, [
-			''  => $null === null ? '' : $null,
+			'' => $null === null ? '' : $null,
 			'0' => $no === null ? 'no' : $no,
 			'1' => $yes === null ? 'yes' : $no,
 		]);
@@ -185,7 +185,7 @@ class Writer extends Base
 	 * Set up a mapping of values when writing
 	 *
 	 * @param array|string $column_names List or single column name
-	 * @param array        $map
+	 * @param array $map
 	 *                                   A list of values to map to and from upon writing
 	 * @return self
 	 * @throws KeyNotFound
@@ -212,8 +212,8 @@ class Writer extends Base
 
 	/**
 	 *
-	 * @param string $name   Name of an existing object map
-	 * @param array  $fields ORM to write to row (name/value pairs)
+	 * @param string $name Name of an existing object map
+	 * @param array $fields ORM to write to row (name/value pairs)
 	 * @return array Written row
 	 * @throws KeyNotFound
 	 * @see createORMMap
@@ -286,7 +286,7 @@ class Writer extends Base
 	 * Set a column value for the current row.
 	 *
 	 * @param string $col
-	 * @param mixed  $data
+	 * @param mixed $data
 	 * @return bool
 	 */
 	public function setColumn(string $col, mixed $data): bool

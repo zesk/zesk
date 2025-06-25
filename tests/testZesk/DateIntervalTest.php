@@ -8,10 +8,14 @@ declare(strict_types=1);
 
 namespace testZesk;
 
-use zesk\DateInterval;
 use Exception;
+use zesk\DateInterval;
 use zesk\Temporal;
 
+/**
+ * @coversDefaultClass \zesk\DateInterval
+ * @uses DateInterval
+ */
 class DateIntervalTest extends TestCase
 {
 	public static function data_sample_interval_row(): array
@@ -47,6 +51,7 @@ class DateIntervalTest extends TestCase
 	 * @return void
 	 * @throws Exception
 	 * @dataProvider data_extend
+	 * @covers ::extend
 	 */
 	public function test_extend(DateInterval $expected, \DateInterval $input): void
 	{
@@ -59,6 +64,7 @@ class DateIntervalTest extends TestCase
 	 * @return void
 	 * @dataProvider data_toSeconds
 	 * @throws Exception
+	 * @covers ::toSeconds
 	 */
 	public function test_toSeconds(string $input, float $expected): void
 	{

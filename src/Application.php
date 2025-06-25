@@ -86,6 +86,61 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	use LoggerTrait;
 
 	/**
+	 * @return array
+	 */
+	public function __serializeChild(): array
+	{
+		return [
+			'classes' => $this->classes,
+			'command' => $this->command,
+			'configuration' => $this->configuration,
+			'file' => $this->file,
+			'hooks' => $this->hooks,
+			'initializationMicrotime' => $this->initializationMicrotime,
+			'locale' => $this->locale,
+			'modules' => $this->modules,
+			'objects' => $this->objects,
+			'paths' => $this->paths,
+			'process' => $this->process,
+			'router' => $this->router,
+			'themes' => $this->themes,
+			'classAliases' => $this->classAliases,
+			'includes' => $this->includes,
+			'loadModules' => $this->loadModules,
+			'logger' => $this->logger,
+			'pool' => $this->pool,
+			'profiler' => $this->profiler,
+		];
+	}
+
+	/**
+	 * @param array $data
+	 * @return void
+	 */
+	public function __unserializeChild(array $data): void
+	{
+		$this->classes = $data['classes'];
+		$this->command = $data['command'];
+		$this->configuration = $data['configuration'];
+		$this->file = $data['file'];
+		$this->hooks = $data['hooks'];
+		$this->initializationMicrotime = $data['initializationMicrotime'];
+		$this->locale = $data['locale'];
+		$this->modules = $data['modules'];
+		$this->objects = $data['objects'];
+		$this->paths = $data['paths'];
+		$this->process = $data['process'];
+		$this->router = $data['router'];
+		$this->themes = $data['themes'];
+		$this->classAliases = $data['classAliases'];
+		$this->includes = $data['includes'];
+		$this->loadModules = $data['loadModules'];
+		$this->logger = $data['logger'];
+		$this->pool = $data['pool'];
+		$this->profiler = $data['profiler'];
+	}
+
+	/**
 	 * Fetch the current user.
 	 *
 	 * @see User::userFilter() for signature
@@ -608,7 +663,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 
 	/**
 	 *
-	 * @param Configuration          $configuration
+	 * @param Configuration $configuration
 	 * @param CacheItemPoolInterface $cacheItemPool
 	 * @throws ClassNotFound
 	 * @throws DirectoryNotFound
@@ -659,7 +714,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 		$this->deprecated = [
 			self::DEPRECATED_BACKTRACE => self::DEPRECATED_BACKTRACE,
 			self::DEPRECATED_EXCEPTION => self::DEPRECATED_EXCEPTION,
-			self::DEPRECATED_LOG       => self::DEPRECATED_LOG,
+			self::DEPRECATED_LOG => self::DEPRECATED_LOG,
 		][$set] ?? self::DEPRECATED_IGNORE;
 		return $old;
 	}
@@ -668,7 +723,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * Enables a method to be tagged as "deprecated"
 	 *
 	 * @param string $reason
-	 * @param array  $arguments
+	 * @param array $arguments
 	 * @return void
 	 * @throws Deprecated
 	 * @see self::obsolete()
@@ -680,9 +735,9 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 		}
 		$depth = $arguments['depth'] ?? 0;
 		$arguments = [
-			'reason'           => $reason,
+			'reason' => $reason,
 			'calling_function' => Kernel::callingFunction(),
-			'backtrace'        => Kernel::backtrace(4 + $depth),
+			'backtrace' => Kernel::backtrace(4 + $depth),
 		] + $arguments;
 		$message = "{reason} Deprecated: {calling_function}\n{backtrace}";
 		switch ($this->deprecated) {
@@ -727,7 +782,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 *
 	 * @param string $item
 	 *            Key
-	 * @param float  $seconds
+	 * @param float $seconds
 	 *            How long it took
 	 */
 	public function profileTimer(string $item, float $seconds): void
@@ -796,11 +851,13 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	}
 
 	/**
-	 * @param Configuration          $configuration
+	 * @param Configuration $configuration
 	 * @param CacheItemPoolInterface $pool
 	 * @return void
 	 * @throws ClassNotFound
+	 * @throws DirectoryCreate
 	 * @throws DirectoryNotFound
+	 * @throws DirectoryPermission
 	 */
 	protected function _initialize(Configuration $configuration, CacheItemPoolInterface $pool): void
 	{
@@ -887,7 +944,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 			$this->addLocalePath($this->defaultLocalePath());
 		} catch (DirectoryNotFound $e) {
 			throw new DirectoryNotFound($e->path(), 'Default {function} paths broken {message}', [
-				'message'  => $e->getMessage(),
+				'message' => $e->getMessage(),
 				'function' => $function,
 			], $e->getCode(), $e);
 		}
@@ -902,8 +959,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * Create a new Locale
 	 *
 	 * @param string $code
-	 * @param array  $extensions
-	 * @param array  $options
+	 * @param array $extensions
+	 * @param array $options
 	 * @return Locale
 	 * @throws ClassNotFound
 	 */
@@ -967,7 +1024,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 
 	/**
 	 * @param string $class
-	 * @param array  $arguments
+	 * @param array $arguments
 	 * @return object
 	 * @throws ClassNotFound
 	 */
@@ -1071,7 +1128,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 			} else {
 				$this->logger->debug('{method}: did not add "{path}" because it already exists', [
 					'method' => __METHOD__,
-					'path'   => $path,
+					'path' => $path,
 				]);
 			}
 		}
@@ -1091,7 +1148,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * (first in the list).
 	 *
 	 * @param array|string $paths Path to add to the theme path.
-	 * @param string       $prefix
+	 * @param string $prefix
 	 *                            (Optional) Handle theme requests which begin with this prefix. Saves having deep
 	 *                            directories.
 	 * @return self
@@ -1281,7 +1338,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 
 	/**
 	 * @param string $class
-	 * @param array  $arguments
+	 * @param array $arguments
 	 * @return object
 	 * @throws ClassNotFound
 	 * @throws SemanticsException
@@ -1296,8 +1353,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 		}
 		if ($object !== null) {
 			throw new SemanticsException('Singleton hook {hookName} returned type {objectType} expecting {expectedType}', [
-				'hookName'     => $hookName,
-				'objectType'   => $object::class,
+				'hookName' => $hookName,
+				'objectType' => $object::class,
 				'expectedType' => $desiredClass,
 			]);
 		}
@@ -1306,8 +1363,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 
 	/**
 	 * @param string $class
-	 * @param array  $arguments
-	 * @param array  $staticMethods
+	 * @param array $arguments
+	 * @param array $staticMethods
 	 * @return object
 	 * @throws ClassNotFound
 	 */
@@ -1418,6 +1475,12 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 		$this->loadOptionModules();
 	}
 
+	/**
+	 * @return void
+	 * @throws DirectoryCreate
+	 * @throws DirectoryNotFound
+	 * @throws DirectoryPermission
+	 */
 	private function configurePaths(): void
 	{
 		if (!$this->paths->configured()) {
@@ -1454,8 +1517,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	/**
 	 * Load configuration files
 	 *
-	 * @throws SystemException
-	 * @throws SemanticsException
+	 * @throws SemanticsException|FileParseException
 	 */
 	private function _configureFiles(): void
 	{
@@ -1474,11 +1536,11 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 *     ./etc/app.json Is application-root relative
 	 *     ~/.app/app.json Is user-home relative
 	 *
-	 * @param mixed $includes  An iterator which generates a list of include files to load.
-	 * @param bool  $overwrite Replace the existing include list (otherwise appends)
+	 * @param mixed $includes An iterator which generates a list of include files to load.
+	 * @param bool $overwrite Replace the existing include list (otherwise appends)
 	 * @return self
 	 */
-	final public function configureInclude(array $includes, bool $overwrite = true): self
+	final public function configureInclude(iterable $includes, bool $overwrite = true): self
 	{
 		$includes = $this->expandIncludes($includes);
 		if ($overwrite) {
@@ -1492,10 +1554,10 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	/**
 	 * Expand the array of include files
 	 *
-	 * @param array $includes
+	 * @param iterable $includes
 	 * @return string[]
 	 */
-	private function expandIncludes(array $includes): array
+	private function expandIncludes(iterable $includes): array
 	{
 		$result = [];
 		foreach ($includes as $include) {
@@ -1538,7 +1600,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @param array $files
 	 * @return void
 	 * @throws SemanticsException
-	 * @throws SystemException|FileParseException
+	 * @throws FileParseException
 	 */
 	public function configureFiles(array $files): void
 	{
@@ -1636,9 +1698,9 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 			return;
 		}
 		$ass_settings = [
-			self::ASSERT_ACTIVE  => ASSERT_ACTIVE,
+			self::ASSERT_ACTIVE => ASSERT_ACTIVE,
 			self::ASSERT_WARNING => ASSERT_WARNING,
-			self::ASSERT_BAIL    => ASSERT_BAIL,
+			self::ASSERT_BAIL => ASSERT_BAIL,
 		];
 		foreach ($ass_settings as $what) {
 			assert_options($what, 0);
@@ -1654,7 +1716,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 					__CLASS__,
 					'assert',
 				], 'Invalid assert option: {code}, valid options: {settings}', [
-					'code'     => $code,
+					'code' => $code,
 					'settings' => array_keys($ass_settings),
 				]);
 			}
@@ -1849,7 +1911,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 		} catch (Throwable $t) {
 			throw new SemanticsException('{applicationClass}::setMaintenance({value}) hook threw {exceptionClass} {message}', [
 				'applicationClass' => get_class($this),
-				'value'            => $set ? 'true' : 'false',
+				'value' => $set ? 'true' : 'false',
 			] + Exception::phpExceptionVariables($t), 0, $t);
 		}
 
@@ -1917,9 +1979,9 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 
 		try {
 			$request->initializeFromSettings([
-				'url'       => $url,
-				'method'    => HTTP::METHOD_GET,
-				'data'      => '',
+				'url' => $url,
+				'method' => HTTP::METHOD_GET,
+				'data' => '',
 				'variables' => URL::queryParseURL($path),
 			]);
 		} catch (FileNotFound) {
@@ -2003,10 +2065,10 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 			'seconds' => sprintf('%.3f', microtime(true) - $this->initializationMicrotime),
 		]);
 		$this->themes->setVariables([
-			'locale'      => $this->locale,
+			'locale' => $this->locale,
 			'application' => $this,
-			'router'      => $router,
-			'request'     => $request,
+			'router' => $router,
+			'request' => $request,
 		]);
 
 		try {
@@ -2033,7 +2095,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 
 	/**
 	 * @param Request $request
-	 * @param Route   $route
+	 * @param Route $route
 	 * @return Route
 	 * @throws ParameterException
 	 * @throws ReflectionException
@@ -2045,7 +2107,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 			$this->logger->debug('Matched route {class} Pattern: "{clean_pattern}" {options}', $route->variables());
 		}
 		$this->logger->debug('{uri} matched to {route}', [
-			'uri'   => $request->uri(),
+			'uri' => $request->uri(),
 			'route' => $route->getPattern(),
 		]);
 		return $route;
@@ -2088,7 +2150,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 
 	/**
 	 *
-	 * @param Request    $request
+	 * @param Request $request
 	 * @param \Exception $exception
 	 * @return Response
 	 */
@@ -2099,18 +2161,18 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 		try {
 			$response->content = $this->themes->theme($this->classes->hierarchy($exception), [
 				'application' => $this,
-				'request'     => $request,
-				'response'    => $response,
-				'exception'   => $exception,
-				'content'     => $exception,
+				'request' => $request,
+				'response' => $response,
+				'exception' => $exception,
+				'content' => $exception,
 			] + Exception::exceptionVariables($exception), [
 				'first' => true,
 			]);
 			if (!$exception instanceof Redirect) {
 				$this->invokeHooks(self::HOOK_EXCEPTION, [
-					'exception'   => $exception,
+					'exception' => $exception,
 					'application' => $this,
-					'response'    => $response,
+					'response' => $response,
 				]);
 			}
 		} catch (Redirect $e) {
@@ -2124,7 +2186,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	/**
 	 *
 	 * @param Request $request
-	 * @param string  $content_type
+	 * @param string $content_type
 	 * @return Response
 	 */
 	final public function responseFactory(Request $request, string $content_type = ''): Response
@@ -2151,14 +2213,14 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 		if ($ending_depth !== $starting_depth) {
 			throw new SemanticsException('Request ending depth mismatch start {starting_depth} !== end {ending_depth}', [
 				'starting_depth' => $starting_depth,
-				'ending_depth'   => $ending_depth,
+				'ending_depth' => $ending_depth,
 			]);
 		}
 		$popped = ArrayTools::last($this->requestStack);
 		if ($popped !== $request) {
 			throw new SemanticsException('Request changed between push and pop? {original} => {popped}', [
 				'original' => $request->variables(),
-				'popped'   => $popped->variables(),
+				'popped' => $popped->variables(),
 			]);
 		}
 		array_pop($this->requestStack);
@@ -2218,7 +2280,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	public const HOOK_REQUEST_PREPROCESS = __CLASS__ . '::requestPreprocess';
 
 	/**
-	 * @param Request  $request
+	 * @param Request $request
 	 * @param Response $response
 	 * @return void
 	 */
@@ -2247,8 +2309,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * Create a `zesk\Locale` if it has not been encountered in this process and cache it as part of the `Application`
 	 *
 	 * @param string $code
-	 * @param array  $extensions
-	 * @param array  $options
+	 * @param array $extensions
+	 * @param array $options
 	 * @return Locale
 	 * @throws ClassNotFound
 	 */
@@ -2395,9 +2457,9 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	/**
 	 * Create a model
 	 *
-	 * @param string     $class
+	 * @param string $class
 	 * @param mixed|null $value
-	 * @param array      $options
+	 * @param array $options
 	 * @return Model
 	 * @throws ClassNotFound
 	 * @see ModelFactory
@@ -2415,7 +2477,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	/**
 	 *
 	 * @param Request $request
-	 * @param bool    $require
+	 * @param bool $require
 	 * @return SessionInterface|null
 	 */
 	public function session(Request $request, bool $require = true): ?SessionInterface
@@ -2502,7 +2564,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	/**
 	 * Register a factory function.
 	 *
-	 * @param string           $code
+	 * @param string $code
 	 * @param callable|Closure $callable $callable
 	 * @return callable|Closure|null
 	 */
@@ -2515,7 +2577,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * Register a registry function.
 	 * Returns previous factory registered if you want to use it.
 	 *
-	 * @param string           $code
+	 * @param string $code
 	 * @param callable|Closure $callable $callable
 	 * @return callable|Closure|null
 	 */
@@ -2528,7 +2590,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * Register a manager function.
 	 * Returns previous manager registered if you want to use it.
 	 *
-	 * @param string           $code     Prefix for access to manager. The function to access your manager is
+	 * @param string $code Prefix for access to manager. The function to access your manager is
 	 *                                   `$this->${code}Manager`.
 	 * @param callable|Closure $callable $callable
 	 * @return callable|Closure|null
@@ -2541,7 +2603,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	/**
 	 * Add support for generic extension calls
 	 *
-	 * @param string           $code
+	 * @param string $code
 	 * @param callable|Closure $callable
 	 * @return null|callable|Closure
 	 */
@@ -2557,7 +2619,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 *
 	 * @param string $name
 	 *            Method called
-	 * @param array  $args
+	 * @param array $args
 	 * @return object
 	 * @throws NotFoundException
 	 * @throws UnsupportedException
@@ -2577,8 +2639,8 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 		}
 
 		throw new UnsupportedException("Application call {method} is not supported.\n\n\tCalled from: {calling}\n\nDo you ned to register the module which adds this functionality?\n\nAvailable: {available}", [
-			'method'    => $name,
-			'calling'   => Kernel::callingFunction(),
+			'method' => $name,
+			'calling' => Kernel::callingFunction(),
 			'available' => implode(', ', array_keys($this->callables)),
 		]);
 	}
@@ -2608,7 +2670,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * Uses current application Request for authentication if not supplied.
 	 *
 	 * @param ?Request $request Request to use for session
-	 * @param boolean  $require Force object creation if not found. May have side effect of creating a Session_Interface within the Request.
+	 * @param boolean $require Force object creation if not found. May have side effect of creating a Session_Interface within the Request.
 	 * @return Userlike|null
 	 * @throws ClassNotFound
 	 * @throws KeyNotFound

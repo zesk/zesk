@@ -30,8 +30,8 @@ class Compatibility
 		$v = self::PHP_VERSION_MINIMUM;
 		if (!defined('PHP_VERSION_ID') || PHP_VERSION_ID < $v) {
 			throw new UnsupportedException('Zesk requires PHP version {maj}.{min}.{patch} or greater', [
-				'maj'   => intval($v / 10000),
-				'min'   => ($v / 100) % 100,
+				'maj' => intval($v / 10000),
+				'min' => ($v / 100) % 100,
 				'patch' => $v % 100,
 			]);
 		}

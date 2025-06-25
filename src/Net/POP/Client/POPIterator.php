@@ -10,8 +10,8 @@ declare(strict_types=1);
 namespace zesk\Net\POP\Client;
 
 use Iterator;
-use zesk\Net\POP\Client;
 use zesk\Mail\Mail;
+use zesk\Net\POP\Client;
 
 class POPIterator implements Iterator
 {

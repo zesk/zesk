@@ -6,10 +6,13 @@ declare(strict_types=1);
 
 namespace testZesk;
 
+use zesk\CSS;
 use zesk\Exception\SyntaxException;
 
-use zesk\CSS;
-
+/**
+ * @uses CSS
+ * @coversDefaultClass \zesk\CSS
+ */
 class CSSTest extends TestCase
 {
 	public static function data_isColor(): array
@@ -55,22 +58,39 @@ class CSSTest extends TestCase
 	 * @param string $color
 	 * @return void
 	 * @dataProvider data_isColor
+	 * @covers ::isColor
 	 */
 	public function test_isColor(bool $expected, string $color): void
 	{
 		$this->assertEquals($expected, CSS::isColor($color));
 	}
 
-	/**
-	 * @return void@
-	 */
-	public function test_bad_color(): void
+	public static function data_colorParseThrow(): array
 	{
-		$text = '';
+		return [
+			[''],
+			['rgb('],
+		];
+	}
+
+	/**
+	 * @param string $text
+	 * @return void
+	 * @dataProvider data_colorParseThrow
+	 * @return void
+	 * @throws SyntaxException
+	 * @covers ::colorParse
+	 */
+	public function test_bad_color(string $text): void
+	{
 		$this->expectException(SyntaxException::class);
 		$this->assertEquals(null, CSS::colorParse($text));
 	}
 
+	/**
+	 * @return void
+	 * @covers ::colorParse
+	 */
 	public function test_colorParse(): void
 	{
 		$colors = [
@@ -94,50 +114,101 @@ class CSSTest extends TestCase
 				$g,
 				$b,
 			] = explode(';', $result);
-			//		$aresult = array('r' => intval($r),'g' => intval($g),'b'=>intval($b));
-			$aresult = [
+			$rgb = [
 				intval($r),
 				intval($g),
 				intval($b),
 			];
-			$this->assertEquals($aresult, $check_result, "Color check: $text => $result");
+			$this->assertEquals($rgb, $check_result, "Color check: $text => $result");
 		}
 	}
 
-	public function test_colorLookup(): void
+	public static function data_colorLookup(): array
 	{
-		$text = 'blue';
-		$this->assertEquals('0000ff', CSS::colorLookup($text));
-	}
-
-	public function test_colorFormat(): void
-	{
-		$rgb = [
-			250,
-			206,
-			190,
+		return [
+			['0000ff', 'blue'],
 		];
-		$this->assertEquals('#FACEBE', CSS::colorFormat($rgb));
 	}
 
 	/**
+	 * @param string $expected
+	 * @param string $lookup
+	 * @return void
+	 * @covers ::colorLookup
+	 * @dataProvider data_colorLookup
+	 */
+	public function test_colorLookup(string $expected, string $lookup): void
+	{
+		$this->assertEquals($expected, CSS::colorLookup($lookup));
+	}
+
+	/**
+	 * @return array[]
+	 */
+	public static function data_colorFormat(): array
+	{
+		return [
+			['#FACEBE', [250, 206, 190, ]],
+			['#FACE00', [250, 206, 0, ]],
+			['#FA00BE', [250, 0, 190, ]],
+		];
+	}
+
+	/**
+	 * @param string $expected
+	 * @param array $color
+	 * @return void
+	 * @dataProvider data_colorFormat
+	 * @covers ::colorFormat
+	 */
+	public function test_colorFormat(string $expected, array $color): void
+	{
+		$this->assertEquals($expected, CSS::colorFormat($color));
+	}
+
+	public static function data_colorNormalize(): array
+	{
+		return [
+			['FFFFFF', '#FFF'],
+		];
+	}
+
+	/**
+	 * @param string $expected
+	 * @param string $test
 	 * @return void
 	 * @throws SyntaxException
+	 * @covers ::colorNormalize
+	 * @dataProvider data_colorNormalize
 	 */
-	public function test_colorNormalize(): void
+	public function test_colorNormalize(string $expected, string $test): void
 	{
-		$this->assertEquals('FFFFFF', CSS::colorNormalize('#FFF'));
+		$this->assertEquals($expected, CSS::colorNormalize($test));
+	}
+
+	public static function data_colorNormalizeThrow(): array
+	{
+		return [
+			[''],
+		];
 	}
 
 	/**
+	 * @param string $text
 	 * @return void
+	 * @throws SyntaxException
+	 * @covers ::colorNormalize
+	 * @dataProvider data_colorNormalizeThrow
 	 */
-	public function test_color_normalize_blank(): void
+	public function test_color_normalize_blank(string $text): void
 	{
 		$this->expectException(SyntaxException::class);
-		CSS::colorNormalize('');
+		CSS::colorNormalize($text);
 	}
 
+	/**
+	 * @return array[]
+	 */
 	public static function data_colorTableColors(): array
 	{
 		return [
@@ -153,6 +224,7 @@ class CSSTest extends TestCase
 	 * @param string $key
 	 * @return void
 	 * @dataProvider data_colorTableColors
+	 * @covers ::colorTable
 	 */
 	public function test_color_table(string $key): void
 	{
@@ -165,6 +237,7 @@ class CSSTest extends TestCase
 	 * @param string $expected
 	 * @param array $rgb
 	 * @return void
+	 * @covers ::rgbToHex
 	 */
 	public function test_rgbToHex(string $expected, array $rgb): void
 	{

@@ -9,12 +9,12 @@ namespace zesk;
 use zesk\Exception\ClassNotFound;
 use zesk\Exception\SemanticsException;
 
-class Service extends Hookable
+class Service extends EmptyHookable
 {
 	/**
 	 *
 	 * @param Application $application
-	 * @param array       $options
+	 * @param array $options
 	 */
 	public function __construct(Application $application, array $options = [])
 	{
@@ -25,6 +25,7 @@ class Service extends Hookable
 	/**
 	 * Valid service type
 	 *
+	 * @param Application $application
 	 * @param string $type
 	 * @return bool
 	 */
@@ -53,7 +54,7 @@ class Service extends Hookable
 	 * Retrieve the classes which implement the selected service
 	 *
 	 * @param Application $application
-	 * @param string      $type Exact class suffix 'Translate'
+	 * @param string $type Exact class suffix 'Translate'
 	 * @return array
 	 */
 	public static function serviceClasses(Application $application, string $type): array
@@ -68,7 +69,8 @@ class Service extends Hookable
 	 * Subclasses should create a factory_$type function to allow parameters to be passed
 	 *
 	 * @param Application $application
-	 * @param string      $type
+	 * @param string $type
+	 * @param array $arguments
 	 * @return self
 	 * @throws ClassNotFound
 	 * @throws SemanticsException
@@ -88,7 +90,7 @@ class Service extends Hookable
 		if (!$class) {
 			$classes = self::serviceClasses($application, $type);
 			if (count($classes) === 0) {
-				throw new Semantics('No service classes for {type}', [
+				throw new SemanticsException('No service classes for {type}', [
 					'type' => $type,
 				]);
 			}

@@ -67,9 +67,9 @@ class Module extends \zesk\Module
 	{
 		return [
 			'system/panel/daemon' => [
-				'title'              => $this->application->locale->__('Daemons'),
-				'moduleClass'        => __CLASS__,
-				'server_data_key'    => __CLASS__ . '::process_database',
+				'title' => $this->application->locale->__('Daemons'),
+				'moduleClass' => __CLASS__,
+				'server_data_key' => __CLASS__ . '::process_database',
 				'server_updated_key' => __CLASS__ . '::process_database_updated',
 			],
 		];

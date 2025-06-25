@@ -19,7 +19,7 @@ interface Promptable
 	/**
 	 * @param string $message
 	 * @param string $default
-	 * @param array  $completions
+	 * @param array $completions
 	 * @return string
 	 * @throws ExitedException
 	 */

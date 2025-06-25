@@ -12,13 +12,17 @@ namespace testZesk;
  *
  */
 
-use zesk\Types;
-use zesk\Lists;
 use zesk\ArrayTools;
+use zesk\Lists;
+use zesk\Types;
 
+/**
+ * @coversDefaultClass \zesk\Lists
+ * @uses Lists
+ */
 class ListsTest extends TestCase
 {
-	public static function data_append_data_provider(): array
+	public static function dataAppend(): array
 	{
 		$lists = [
 			[
@@ -94,10 +98,10 @@ class ListsTest extends TestCase
 							$expected = $list_is_array ? array_merge($list, $add_cleaned) : implode($sep, array_merge($list, $add_cleaned));
 
 							$datum[] = [
+								$expected,
 								$list_is_array ? $list : implode($sep, $list),
 								$add_is_array ? $add : (count($add) === 0 ? [] : implode($sep, $add)),
 								$sep,
-								$expected,
 							];
 						}
 					}
@@ -108,9 +112,15 @@ class ListsTest extends TestCase
 	}
 
 	/**
-	 * @dataProvider data_append_data_provider
+	 * @dataProvider dataAppend
+	 * @covers ::append
+	 * @param string|array $expected
+	 * @param string|array $list
+	 * @param string|array $add
+	 * @param string $sep
+	 * @return void
 	 */
-	public function test_append($list, $add, $sep, $expected): void
+	public function test_append(string|array $expected, string|array $list, string|array $add, string $sep): void
 	{
 		$actual = Lists::append($list, $add, $sep);
 		$this->assertEquals(Types::type($expected), Types::type($actual));
@@ -118,9 +128,15 @@ class ListsTest extends TestCase
 	}
 
 	/**
-	 * @dataProvider data_append_data_provider
+	 * @dataProvider dataAppend
+	 * @covers ::appendUnique
+	 * @param string|array $expected
+	 * @param string|array $list
+	 * @param string|array $add
+	 * @param string $sep
+	 * @return void
 	 */
-	public function test_appendUnique($list, $add, $sep, $expected): void
+	public function test_appendUnique(string|array $expected, string|array $list, string|array $add, string $sep): void
 	{
 		if (is_array($expected)) {
 			$expected = array_unique($expected);
@@ -132,25 +148,78 @@ class ListsTest extends TestCase
 		$this->assertEquals($expected, $actual);
 	}
 
-	public function test_contains(): void
+	public static function dataContains(): array
 	{
-		$this->assertTrue(Lists::contains('a;b;c;d;ee;ff', 'a'));
-		$this->assertTrue(Lists::contains('a;b;c;d;ee;ff', 'b'));
-		$this->assertTrue(Lists::contains('a;b;c;d;ee;ff', 'c'));
-		$this->assertTrue(Lists::contains('a;b;c;d;ee;ff', 'd'));
-		$this->assertTrue(Lists::contains('a;b;c;d;ee;ff', 'ee'));
-		$this->assertTrue(Lists::contains('a;b;c;d;ee;ff', 'ff'));
+		return [
+			[true, 'a;b;c;d;ee;ff', 'a'],
+			[false, 'a;b;c;d;ee;ff', 'A'],
+			[true, 'a;b;c;d;ee;ff', 'b'],
+			[true, 'a;b;c;d;ee;ff', 'c'],
+			[true, 'a;b;c;d;ee;ff', 'd'],
+			[true, 'a;b;c;d;ee;ff', 'ee'],
+			[false, 'a;b;c;d;ee;ff', ';ee;'],
+			[true, 'a;b;c;d;ee;ff', 'ff'],
+		];
 	}
 
-	public function test_pop(): void
+	/**
+	 * @param bool $expected
+	 * @param string|array $list
+	 * @param string $item
+	 * @return void
+	 * @covers ::contains
+	 * @dataProvider dataContains
+	 */
+	public function test_contains(bool $expected, string|array $list, string $item): void
 	{
-		$sep = ';';
-		$this->assertEquals('a;b', Lists::pop('a;b;c', $sep));
+		$this->assertEquals($expected, Lists::contains($list, $item));
 	}
 
-	public function test_prepend(): void
+	public static function dataPop(): array
 	{
-		$this->assertEquals('a;b;c', Lists::prepend('b;c', 'a'));
+		return [
+			['a;b', 'a;b;c', ';'],
+			[['a', 'b'], ['a', 'b', 'c'], ';'],
+			[['a', 'b'], ['a', 'b', 'c'], '-'],
+			[['a', 'b'], ['a', 'b', 'c'], '+'],
+			['', 'a;b;c', '-'],
+			['a;', 'a;b;c', 'b'],
+		];
+	}
+
+	/**
+	 * @param string|array $expected
+	 * @param string|array $list
+	 * @param string $sep
+	 * @covers ::pop
+	 * @dataProvider dataPop
+	 * @return void
+	 */
+	public function test_pop(string|array $expected, string|array $list, string $sep): void
+	{
+		$this->assertEquals($expected, Lists::pop($list, $sep));
+	}
+
+	public static function dataPrepend(): array
+	{
+		return [
+			['a;b;c', 'b;c', 'a', ';'],
+			[['a', 'b', 'c'], ['b', 'c'], 'a', ';'],
+		];
+	}
+
+	/**
+	 * @param string|array $expected
+	 * @param string|array $list
+	 * @param string $prepend
+	 * @param string $sep
+	 * @return void
+	 * @covers ::prepend
+	 * @dataProvider dataPrepend
+	 */
+	public function testPrepend(string|array $expected, string|array $list, string $prepend, string $sep): void
+	{
+		$this->assertEquals($expected, Lists::prepend($list, $prepend, $sep));
 	}
 
 	public static function data_keysRemove(): array
@@ -172,22 +241,45 @@ class ListsTest extends TestCase
 	}
 
 	/**
-	 * @param $expected
-	 * @param $list
-	 * @param $item
-	 * @param $sep
+	 * @param string|array $expected
+	 * @param string|array $list
+	 * @param string $item
+	 * @param string $sep
 	 * @return void
+	 * @covers ::keysRemove
 	 * @dataProvider data_keysRemove
 	 */
-	public function test_keysRemove($expected, $list, $item, $sep): void
+	public function test_keysRemove(string|array $expected, string|array $list, string $item, string $sep): void
 	{
 		$this->assertEquals($expected, Lists::keysRemove($list, $item, $sep));
 	}
 
-	public function test_unique(): void
+	public static function dataUnique(): array
 	{
-		$list = 'X;a;A;b;b;c;c;D;F;a;X';
-		$sep = ';';
-		$this->assertEquals('X;a;A;b;c;D;F', Lists::unique($list, $sep));
+		return [
+			[
+				'X;a;A;b;c;D;F',
+				'X;a;A;b;b;c;c;D;F;a;X',
+				';',
+			],
+			[
+				explode(';', 'X;a;A;b;c;D;F'),
+				explode(';', 'X;a;A;b;b;c;c;D;F;a;X'),
+				'-',
+			],
+		];
+	}
+
+	/**
+	 * @param string|array $expected
+	 * @param string|array $list
+	 * @param string $sep
+	 * @return void
+	 * @covers ::unique
+	 * @dataProvider dataUnique
+	 */
+	public function testUnique(string|array $expected, string|array $list, string $sep): void
+	{
+		$this->assertEquals($expected, Lists::unique($list, $sep));
 	}
 }

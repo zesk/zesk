@@ -7,6 +7,7 @@ declare(strict_types=1);
 namespace testZesk;
 
 use OutOfBoundsException;
+use zesk\Date;
 use zesk\Exception\ClassNotFound;
 use zesk\Exception\KeyNotFound;
 use zesk\Exception\ParseException;
@@ -106,7 +107,7 @@ class TimestampTest extends TestCase
 		$this->assertEquals(strval($now), strval($other));
 
 		$now->add(0, 0, 0, 0, 0, 1);
-		$this->assertEquals($now->format(Timestamp::DEFAULT_FORMAT_STRING), $other->format(Timestamp::DEFAULT_FORMAT_STRING));
+		$this->assertEquals($now->format(Date::DEFAULT_FORMAT_STRING), $other->format(Date::DEFAULT_FORMAT_STRING));
 		$this->assertNotEquals(strval($now), strval($other));
 	}
 
@@ -437,10 +438,10 @@ class TimestampTest extends TestCase
 	public static function data_quarter(): array
 	{
 		return [
-			[0],
 			[1],
 			[2],
 			[3],
+			[4],
 		];
 	}
 
@@ -737,6 +738,7 @@ class TimestampTest extends TestCase
 	}
 
 	/**
+	 * @dataProvider data_setYMDHMS
 	 * @param string $expected
 	 * @param int $year
 	 * @param int $month
@@ -752,6 +754,13 @@ class TimestampTest extends TestCase
 		$this->assertEquals($expected, Timestamp::factory()->setYMDHMS($year, $month, $day, $hour, $minute, $second)->format(Timestamp::DEFAULT_FORMAT_STRING));
 	}
 
+	/**
+	 * @return void
+	 * @covers ::setHour ::hour
+	 * @covers ::setMinute ::minute
+	 * @covers ::setSecond ::second
+	 * @covers ::compare
+	 */
 	public function test_validRanges(): void
 	{
 		$x = Timestamp::factory();
@@ -769,7 +778,9 @@ class TimestampTest extends TestCase
 			$this->assertEquals($i, $x->second());
 		}
 		$value = Timestamp::now();
-		$this->assertGreaterThan($x->compare($value), 0);
+		$this->assertGreaterThan(0, $x->compare($value));
+		// compare -> -1 means x is BEFORE value
+		// compare -> +1 means x is AFTER value
 	}
 
 	/**
@@ -797,14 +808,20 @@ class TimestampTest extends TestCase
 			],
 			[
 				'minute',
-				2.0,
+				1.0333333333333334,
 				62,
 				'second',
 			],
 			[
 				'minute',
-				2.0,
+				1.0333333333333334,
 				62,
+				'minute',
+			],
+			[
+				'minute',
+				1.5,
+				90,
 				'minute',
 			],
 		];
@@ -858,7 +875,7 @@ class TimestampTest extends TestCase
 	}
 
 	/**
-	 * @param string $expected
+	 * @param int $expected
 	 * @param string $initial
 	 * @param string $subtract
 	 * @return void
@@ -866,7 +883,7 @@ class TimestampTest extends TestCase
 	 * @dataProvider data_subtract
 	 * @covers ::subtract
 	 */
-	public function test_subtract(string $expected, string $initial, string $subtract): void
+	public function test_subtract(int $expected, string $initial, string $subtract): void
 	{
 		$x = Timestamp::factory()->parse($initial);
 		$value = Timestamp::factory()->parse($subtract);
@@ -915,8 +932,54 @@ class TimestampTest extends TestCase
 		$this->assertTrue($n->before($x));
 	}
 
+	public static function data_iso8601Compact(): array
+	{
+		return [
+			['20290101T000000', '2029-01-01 00:00:00', ],
+			['20121231T235959', '2012-12-31 23:59:59', ],
+		];
+	}
+
+	public static function data_setISO8601(): array
+	{
+		return [
+			['2999-01-01T23:59:59', ],
+			['2029-01-01T00:00:00'],
+			['2012-12-31T23:59:59'],
+		];
+	}
+
+	public static function data_setISO8601Overflow(): array
+	{
+		return [
+			['1970-01-02T00:59:59', '1970-01-01T24:59:59', ],
+			['1970-01-02T01:59:59', '1970-01-01T25:59:59', ],
+			['1970-01-02T05:59:59', '1970-01-01T29:59:59', ],
+		];
+	}
+
+	public static function data_setISO8601Fail(): array
+	{
+		return [
+			['1970-01-01T35:59:59', ],
+			['1970-01-01 23:59:59', ],
+			['1970-01-01T23:60:59', ],
+			['1970-01-01T23:59:60', ],
+			['1970-01-01T-1:59:59', ],
+		];
+	}
+
+	public static function data_iso8601(): array
+	{
+		return [
+			['2029-01-01T00:00:00', '2029-01-01 00:00:00', ],
+			['2012-12-31T23:59:59', '2012-12-31 23:59:59', ],
+		];
+	}
+
 	/**
 	 * @throws ParseException
+	 * @dataProvider data_iso8601
 	 * @covers ::iso8601
 	 */
 	public function test_iso8601(string $expected, string $parse): void
@@ -927,8 +990,23 @@ class TimestampTest extends TestCase
 
 	/**
 	 * @throws SyntaxException
+	 * @throws ParseException
+	 * @dataProvider data_iso8601Compact
+	 * @covers ::iso8601Compact
+	 */
+	public function test_iso8601Compact(string $expected, string $parse): void
+	{
+		$x = Timestamp::factory()->parse($parse);
+		$this->assertEquals($expected, $x->iso8601Compact());
+		$n = Timestamp::factory()->setISO8601($x->iso8601Compact());
+		$this->assertEquals($n->iso8601(), $x->iso8601());
+	}
+
+	/**
+	 * @throws SyntaxException
 	 * @covers ::setISO8601
 	 * @covers ::iso8601
+	 * @dataProvider data_setISO8601
 	 */
 	public function test_setISO8601(string $value): void
 	{
@@ -936,16 +1014,16 @@ class TimestampTest extends TestCase
 		$this->assertEquals($value, $x->iso8601());
 	}
 
-	public static function data_setISO8601Fail(): array
+	/**
+	 * @throws SyntaxException
+	 * @covers ::setISO8601
+	 * @covers ::iso8601
+	 * @dataProvider data_setISO8601Overflow
+	 */
+	public function test_setISO8601Overflow(string $expected, string $value): void
 	{
-		return [
-			['1970-01-01T24:59:59', ],
-			['1970-01-01 23:59:59', ],
-			['1970-01-01T23:60:59', ],
-			['1970-01-01T23:59:60', ],
-			['2999-01-01T23:59:59', ],
-			['1970-01-01T-1:59:59', ],
-		];
+		$x = Timestamp::factory()->setISO8601($value);
+		$this->assertEquals($expected, $x->iso8601());
 	}
 
 	/**

@@ -42,58 +42,58 @@ class Time extends Temporal
 	 *
 	 * @var integer
 	 */
-	public const hour_max = 23;
+	public const HOUR_MAXIMUM = 23;
 
 	/**
 	 * Maximum 0-based second is 59
 	 *
 	 * @var integer
 	 */
-	public const second_max = 59;
+	public const SECOND_MAXIMUM = 59;
 
 	/**
 	 * Maximum 0-indexed minute is 59
 	 *
 	 * @var integer
 	 */
-	public const minute_max = 59;
+	public const MINUTE_MAXIMUM = 59;
 
 	/**
 	 * Maximum value for seconds from midnight in a day
 	 *
 	 * @var integer
 	 */
-	public const seconds_max = 86399;
+	public const SECONDS_MAXIMUM = 86399;
 
 	/**
 	 * 60 seconds in a minute
 	 *
 	 * @var integer
 	 */
-	public const seconds_per_minute = 60;
+	public const SECONDS_PER_MINUTE = 60;
 
 	/**
 	 * 3,600 seconds an hour
 	 *
 	 * @var integer
 	 */
-	public const seconds_per_hour = 3600;
+	public const SECONDS_PER_HOUR = 3600;
 
 	/**
 	 * 86,400 seconds in a day
 	 *
 	 * @var integer
 	 */
-	public const seconds_per_day = 86400;
+	public const SECONDS_PER_DAY = 86400;
 
 	/**
 	 * Integer value of seconds from midnight.
 	 *
-	 * Valid value range 0 to self::seconds_max
+	 * Valid value range 0 to self::SECONDS_MAXIMUM
 	 *
 	 * If null, represents no value assigned, yet.
 	 *
-	 * @see self::seconds_max
+	 * @see self::SECONDS_MAXIMUM
 	 * @var integer
 	 */
 	protected int $seconds = 0;
@@ -123,10 +123,10 @@ class Time extends Temporal
 	/**
 	 * Construct a new Time object
 	 *
-	 * @param null|int|Time|Timestamp $value
+	 * @param int|Time|Timestamp $value
 	 * @see Time::set
 	 */
-	public function __construct(null|int|Time|Timestamp $value = null)
+	public function __construct(int|Time|Timestamp $value = 0)
 	{
 		$this->set($value);
 	}
@@ -137,7 +137,7 @@ class Time extends Temporal
 	 * @param mixed $value
 	 * @return self
 	 */
-	public static function factory(null|int|Time|Timestamp $value = null): self
+	public static function factory(int|Time|Timestamp $value = 0): self
 	{
 		return new self($value);
 	}
@@ -166,10 +166,10 @@ class Time extends Temporal
 	 * Set the time object
 	 *
 	 *
-	 * @param null|int|Time|Timestamp $value Values of varying types
+	 * @param int|Time|Timestamp $value Values of varying types
 	 * @return self
 	 */
-	public function set(null|int|Time|Timestamp $value): self
+	public function set(int|Time|Timestamp $value): self
 	{
 		if (is_int($value)) {
 			return $this->setUNIXTimestamp($value);
@@ -181,28 +181,6 @@ class Time extends Temporal
 			$this->setUNIXTimestamp($value->unixTimestamp())->setMillisecond($value->millisecond());
 			return $this;
 		}
-		$this->setEmpty();
-		return $this;
-	}
-
-	/**
-	 * Is this object empty?
-	 *
-	 * @return boolean
-	 */
-	public function isEmpty(): bool
-	{
-		return $this->seconds === -1;
-	}
-
-	/**
-	 * Set this object as empty
-	 *
-	 * @return self
-	 */
-	public function setEmpty(): self
-	{
-		$this->seconds = -1;
 		return $this;
 	}
 
@@ -276,23 +254,19 @@ class Time extends Temporal
 	 */
 	public function setHMS(int $hh = 0, int $mm = 0, int $ss = 0): self
 	{
-		if (($hh < 0) || ($hh > self::hour_max) || ($mm < 0) || ($mm > self::minute_max) || ($ss < 0) || ($ss > self::second_max)) {
-			throw new OutOfBoundsException("Time::hms($hh,$mm,$ss)");
+		if (($hh < 0) || ($hh > self::HOUR_MAXIMUM) || ($mm < 0) || ($mm > self::MINUTE_MAXIMUM) || ($ss < 0) || ($ss > self::SECOND_MAXIMUM)) {
+			throw new OutOfBoundsException("Time::setHMS($hh,$mm,$ss)");
 		}
-		$this->seconds = ($hh * self::seconds_per_hour) + ($mm * self::seconds_per_minute) + $ss;
+		$this->seconds = ($hh * self::SECONDS_PER_HOUR) + ($mm * self::SECONDS_PER_MINUTE) + $ss;
 		return $this;
 	}
 
 	/**
 	 *
 	 * @return string
-	 * @todo should this honor locale? Or just be generic, programmer-only version
 	 */
 	public function __toString()
 	{
-		if ($this->isEmpty()) {
-			return '';
-		}
 		return $this->format('{hh}:{mm}:{ss}');
 	}
 
@@ -340,7 +314,7 @@ class Time extends Temporal
 	 */
 	public function hour(): int
 	{
-		return intval($this->seconds / self::seconds_per_hour);
+		return intval($this->seconds / self::SECONDS_PER_HOUR);
 	}
 
 	/**
@@ -362,7 +336,7 @@ class Time extends Temporal
 	 */
 	public function minute(): int
 	{
-		return intval($this->seconds / self::seconds_per_minute) % self::seconds_per_minute;
+		return intval($this->seconds / self::SECONDS_PER_MINUTE) % self::SECONDS_PER_MINUTE;
 	}
 
 	/**
@@ -383,7 +357,7 @@ class Time extends Temporal
 	 */
 	public function second(): int
 	{
-		return $this->seconds % self::seconds_per_minute;
+		return $this->seconds % self::SECONDS_PER_MINUTE;
 	}
 
 	/**
@@ -415,7 +389,7 @@ class Time extends Temporal
 	 */
 	public function setSeconds(int $set): self
 	{
-		$this->seconds = $set;
+		$this->seconds = $set % self::SECONDS_PER_DAY;
 		return $this;
 	}
 
@@ -448,7 +422,7 @@ class Time extends Temporal
 	 */
 	public function hour12(): int
 	{
-		$hour = intval($this->seconds / self::seconds_per_hour);
+		$hour = intval($this->seconds / self::SECONDS_PER_HOUR);
 		$hour = $hour % 12;
 		if ($hour === 0) {
 			$hour = 12;
@@ -488,16 +462,7 @@ class Time extends Temporal
 	 */
 	public function compare(Time $value): int
 	{
-		if ($this->isEmpty()) {
-			if (!$value->isEmpty()) {
-				return -1;
-			} else {
-				return 0;
-			}
-		} elseif ($value->isEmpty()) {
-			return 1;
-		}
-		return $this->seconds - $value->seconds;
+		return $this->seconds <=> $value->seconds;
 	}
 
 	/**
@@ -522,13 +487,13 @@ class Time extends Temporal
 	 */
 	public function add(int|float $hh = 0, int|float $mm = 0, int|float $ss = 0, int &$remain = null): self
 	{
-		$newValue = $this->seconds + $ss + ($hh * self::seconds_per_hour) + ($mm * self::seconds_per_minute);
+		$newValue = $this->seconds + $ss + ($hh * self::SECONDS_PER_HOUR) + ($mm * self::SECONDS_PER_MINUTE);
 		if ($newValue < 0) {
-			$remain = intval(($newValue - (self::seconds_per_day - 1)) / self::seconds_per_day);
-			$newValue = abs((self::seconds_per_day + $newValue) % self::seconds_per_day);
+			$remain = intval(($newValue - (self::SECONDS_PER_DAY - 1)) / self::SECONDS_PER_DAY);
+			$newValue = abs((self::SECONDS_PER_DAY + $newValue) % self::SECONDS_PER_DAY);
 		} else {
-			$remain = intval($newValue / self::seconds_per_day);
-			$newValue = $newValue % self::seconds_per_day;
+			$remain = intval($newValue / self::SECONDS_PER_DAY);
+			$newValue = $newValue % self::SECONDS_PER_DAY;
 		}
 		$this->seconds = $newValue;
 		return $this;
@@ -602,6 +567,8 @@ class Time extends Temporal
 	/**
 	 * Add a unit to a time
 	 *
+	 * Adding day-or-greater units is accepted but has no effect.
+	 *
 	 * @param int $n_units
 	 *            Number to add
 	 * @param string $units
@@ -616,7 +583,8 @@ class Time extends Temporal
 			self::UNIT_SECOND => $this->add(0, 0, $n_units),
 			self::UNIT_MINUTE => $this->add(0, $n_units),
 			self::UNIT_HOUR => $this->add($n_units),
-			default => throw new ParameterException('{method)({n_units}, {units}): Invalid unit', [
+			self::UNIT_DAY, self::UNIT_MONTH, self::UNIT_WEEK, self::UNIT_YEAR => $this,
+			default => throw new ParameterException('{method}({n_units}, {units}): Invalid units "{units}"', [
 				'method' => __METHOD__, 'n_units' => $n_units, 'units' => $units,
 			]),
 		};

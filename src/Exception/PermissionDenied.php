@@ -10,9 +10,9 @@ declare(strict_types=1);
 namespace zesk\Exception;
 
 use Throwable;
-use zesk\Model;
 use zesk\Exception;
 use zesk\Interface\Userlike;
+use zesk\Model;
 
 /**
  *

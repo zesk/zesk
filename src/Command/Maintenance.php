@@ -12,8 +12,8 @@ namespace zesk\Command;
 
 use zesk\Application;
 use zesk\Exception\SemanticsException;
-use zesk\Types;
 use zesk\FilterMethod;
+use zesk\Types;
 
 /**
  * Turn maintenance on or off, with an optional message.
@@ -67,7 +67,7 @@ class Maintenance extends SimpleCommand
 	 * Note this will only be called if it exists in the application as an object, usually as `->command()`
 	 *
 	 * @param Application $app
-	 * @param array       $values
+	 * @param array $values
 	 * @return array
 	 * @throws SemanticsException
 	 * @see self::maintenanceEnabled()

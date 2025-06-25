@@ -7,40 +7,63 @@ declare(strict_types=1);
 namespace testZesk;
 
 use zesk\Debug;
-use zesk\Kernel;
 
 /**
  *
  * @author kent
- *
+ * @coversDefaultClass \zesk\Debug
+ * @uses Debug
  */
 class DebugTest extends TestCase
 {
-	public function test_calling_file(): void
+	/**
+	 * @return void
+	 * @covers ::callingFile
+	 */
+	public function testCallingFile(): void
 	{
 		$this->assertEquals(__FILE__, Debug::callingFile());
 	}
 
-	public function test_calling_function(): void
+	public static function dataOutput(): array
 	{
-		$this->assertStringContainsString(__FILE__, Kernel::callingFunction(0));
-		$this->assertStringContainsString(__CLASS__, Kernel::callingFunction(0));
-		$this->assertStringContainsString(__FUNCTION__, Kernel::callingFunction(0));
+		return self::dataDump();
 	}
 
-	public function test_dump(): void
+	public static function dataDump(): array
 	{
-		$this->assertEquals('(null)', Debug::dump(null));
-		$this->assertEquals('(boolean) true', Debug::dump(true));
-		$this->assertEquals('(boolean) false', Debug::dump(false));
-		$this->assertEquals('array()', Debug::dump([]));
+		return [
+			['(null)', null],
+			['(boolean) true', true],
+			['(boolean) false', false],
+			['array()', []],
+		];
 	}
 
-	public function test_output(): void
+	/**
+	 * @param string $expected
+	 * @param mixed $dump
+	 * @return void
+	 * @covers ::dump
+	 * @dataProvider dataDump
+	 */
+	public function testDump(string $expected, mixed $dump): void
+	{
+		$this->assertEquals($expected, Debug::dump($dump));
+	}
+
+	/**
+	 * @param string $expected
+	 * @param mixed $dump
+	 * @return void
+	 * @covers ::output
+	 * @dataProvider dataOutput
+	 */
+	public function testOutput(string $expected, mixed $dump): void
 	{
 		ob_start();
-		Debug::output($random = $this->randomHex());
-		$content = ob_get_clean();
-		$this->assertStringContainsString($random, $content);
+		Debug::output($dump);
+		$dumped = ob_get_clean();
+		$this->assertEquals("$expected\n", $dumped);
 	}
 }

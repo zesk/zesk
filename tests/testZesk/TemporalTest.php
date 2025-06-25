@@ -9,6 +9,10 @@ namespace testZesk;
 use zesk\Exception\KeyNotFound;
 use zesk\Temporal;
 
+/**
+ * @coversDefaultClass \zesk\Temporal
+ * @uses Temporal
+ */
 class TemporalTest extends TestCase
 {
 	public static function data_convertUnits(): array
@@ -79,6 +83,7 @@ class TemporalTest extends TestCase
 	 * @return void
 	 * @throws KeyNotFound
 	 * @dataProvider data_convertUnits
+	 * @covers ::convertUnits
 	 */
 	public function test_convertUnits(float $expected, float $seconds, string $toUnits): void
 	{

@@ -36,10 +36,10 @@ class Command extends SimpleCommand
 	 * @var array
 	 */
 	protected array $argumentTypes = [
-		'tag'                    => 'boolean',
-		'description-file'       => 'file',
+		'tag' => 'boolean',
+		'description-file' => 'file',
 		self::OPTION_DESCRIPTION => 'string',
-		'commitish'              => 'string',
+		'commitish' => 'string',
 	];
 
 	/**
@@ -64,7 +64,7 @@ class Command extends SimpleCommand
 	{
 		$this->setOptions([
 			'description' => 'Release of version {version}.',
-			'commitish'   => 'master',
+			'commitish' => 'master',
 		], false);
 		parent::initialize();
 	}

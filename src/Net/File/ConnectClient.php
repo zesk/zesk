@@ -15,7 +15,7 @@ use zesk\Exception\FileNotFound;
 use zesk\Exception\FilePermission;
 use zesk\Exception\SemanticsException;
 use zesk\File;
-use zesk\Net\Client as NetClient;
+use zesk\Net\ConnectClient as NetClient;
 use zesk\Net\FileSystem;
 use zesk\Timestamp;
 
@@ -24,7 +24,7 @@ use zesk\Timestamp;
  * @author kent
  *
  */
-class Client extends NetClient implements FileSystem
+class ConnectClient extends NetClient implements FileSystem
 {
 	/**
 	 * Are we "connected"? Simply for semantic integrity between clients.

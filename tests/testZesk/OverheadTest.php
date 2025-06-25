@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 /**
+ * @copyright  Copyright &copy; 2025, Market Acumen, Inc.
  * @package    zesk
  * @subpackage test
  * @author     kent
- * @copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace testZesk;
@@ -23,7 +23,11 @@ class OverheadTest extends TestCase
 		'Doctrine',
 	];
 
-	public function test_usage(): void
+	/**
+	 * @return void
+	 * @coversNothing
+	 */
+	public function testUsage(): void
 	{
 		$test_limit = 10 * 1024 * 1024; // 10M
 		$servers = [];
@@ -60,9 +64,9 @@ class OverheadTest extends TestCase
 	}
 
 	/**
-	 * @no_buffer true
+	 * @coversNothing
 	 */
-	public function test_kernel_usage(): void
+	public function testKernelUsage(): void
 	{
 		$sandbox = $this->test_sandbox('run.php');
 		file_put_contents($sandbox, "<?php\necho memory_get_usage();");

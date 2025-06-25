@@ -15,7 +15,7 @@ use zesk\Response\HTML as ResponseHTML;
 /* @var $head_prefix string */
 /* @var $head_suffix string */
 /* @var $title string */
-echo HTML::tag_open('head');
+echo HTML::tagOpen('head');
 {
 	$application->invokeHooks(ResponseHTML::HOOK_HEAD_OPEN);
 	echo $this->theme('Response/HTML/head/title');
@@ -24,4 +24,4 @@ echo HTML::tag_open('head');
 	echo $this->theme('Response/HTML/head/styles');
 	$application->invokeHooks(ResponseHTML::HOOK_HEAD_CLOSE);
 }
-echo HTML::tag_close('head') . "\n";
+echo HTML::tagClose('head') . "\n";

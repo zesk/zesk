@@ -13,6 +13,7 @@ class CLITest extends TestCase
 {
 	public static function data_CLI(): array
 	{
+		$top = dirname(__DIR__, 2);
 		return [
 			[
 				['Unable to change directory to "/root"'],
@@ -31,9 +32,9 @@ class CLITest extends TestCase
 			[
 				[
 					'/etc',
-					'/zesk',
+					"$top",
 				],
-				'--cd /etc/ /zesk/zesk.application.php cwd -- --cd /zesk/ cwd',
+				"--cd /etc/ $top/zesk.application.php cwd -- --cd $top cwd",
 				false,
 			],
 			[
@@ -54,6 +55,8 @@ class CLITest extends TestCase
 	 * @return void
 	 * @dataProvider data_CLI
 	 * @throws CommandFailed
+	 * @covers       \zesk\CommandLoader::factory
+	 * @covers       \zesk\CommandLoader::run
 	 */
 	public function test_CLI(array $expectedStrings, string|array $args, bool $captureError): void
 	{

@@ -212,20 +212,20 @@ class File
 	public const CHAR_UNKNOWN = 'u';
 
 	public static array $charToString = [
-		self::CHAR_FIFO    => self::TYPE_FIFO,
-		self::CHAR_CHAR    => self::TYPE_CHAR,
-		self::CHAR_BLOCK   => self::TYPE_BLOCK,
-		self::CHAR_DIR     => self::TYPE_DIR,
-		self::CHAR_FILE    => self::TYPE_FILE,
-		self::CHAR_LINK    => self::TYPE_LINK,
-		self::CHAR_SOCKET  => self::TYPE_SOCKET,
+		self::CHAR_FIFO => self::TYPE_FIFO,
+		self::CHAR_CHAR => self::TYPE_CHAR,
+		self::CHAR_BLOCK => self::TYPE_BLOCK,
+		self::CHAR_DIR => self::TYPE_DIR,
+		self::CHAR_FILE => self::TYPE_FILE,
+		self::CHAR_LINK => self::TYPE_LINK,
+		self::CHAR_SOCKET => self::TYPE_SOCKET,
 		self::CHAR_UNKNOWN => self::TYPE_UNKNOWN,
 	];
 
 	/**
 	 * Return an absolute path given a filename and a working directory
 	 *
-	 * @param string  $filename
+	 * @param string $filename
 	 * @param ?string $cwd
 	 * @return string null
 	 */
@@ -428,7 +428,7 @@ class File
 				fclose($fp);
 
 				throw new TimeoutExpired('atomicIncrement({file}) after {timeout} seconds', [
-					'file'    => $path,
+					'file' => $path,
 					'timeout' => $timeout,
 				]);
 			}
@@ -476,8 +476,8 @@ class File
 	 * Create a unique temporary file name
 	 *
 	 * @param string $path Directory for temporary file
-	 * @param string $ext  Extension to place on temporary file
-	 * @param ?int   $mode Directory creation mode (e.g. 0700)
+	 * @param string $ext Extension to place on temporary file
+	 * @param ?int $mode Directory creation mode (e.g. 0700)
 	 * @return string
 	 * @throws DirectoryCreate
 	 * @throws DirectoryPermission
@@ -509,7 +509,7 @@ class File
 	 * Change file mode (iff file exists)
 	 *
 	 * @param string $file_name
-	 * @param int    $mode
+	 * @param int $mode
 	 * @return void
 	 * @throws FileNotFound
 	 * @throws FilePermission
@@ -564,7 +564,7 @@ class File
 		if (!is_resource($f = fopen($filename, $mode))) {
 			throw new FilePermission($filename, 'Can not open {path} with mode {mode} to append {n} bytes of content', [
 				'mode' => $mode,
-				'n'    => strlen($content),
+				'n' => strlen($content),
 			]);
 		}
 		$result = fwrite($f, $content);
@@ -578,8 +578,8 @@ class File
 	/**
 	 * Like file_put_contents, but does some sanity checks and throws errors
 	 *
-	 * @param string $path     File to write
-	 * @param mixed  $contents Contents of file
+	 * @param string $path File to write
+	 * @param mixed $contents Contents of file
 	 * @throws FilePermission
 	 * @see file_put_contents
 	 */
@@ -588,7 +588,7 @@ class File
 		if (file_put_contents($path, $contents) === false) {
 			throw new FilePermission($path, 'Unable to write {n} bytes to file {file}', [
 				'file' => $path,
-				'n'    => strlen($contents),
+				'n' => strlen($contents),
 			]);
 		}
 	}
@@ -665,14 +665,14 @@ class File
 	 * @var array
 	 */
 	private static array $maskToChars = [
-		self::MASK_FILE   => self::CHAR_FILE,
+		self::MASK_FILE => self::CHAR_FILE,
 		self::MASK_SOCKET => self::CHAR_SOCKET,
-		self::MASK_LINK   => self::CHAR_LINK,
-		self::MASK_BLOCK  => self::CHAR_BLOCK,
-		self::MASK_DIR    => self::CHAR_DIR,
-		self::MASK_CHAR   => self::CHAR_CHAR,
-		self::MASK_FIFO   => self::CHAR_FIFO,
-		0                 => self::CHAR_UNKNOWN,
+		self::MASK_LINK => self::CHAR_LINK,
+		self::MASK_BLOCK => self::CHAR_BLOCK,
+		self::MASK_DIR => self::CHAR_DIR,
+		self::MASK_CHAR => self::CHAR_CHAR,
+		self::MASK_FIFO => self::CHAR_FIFO,
+		0 => self::CHAR_UNKNOWN,
 	];
 
 	/**
@@ -680,13 +680,13 @@ class File
 	 * @var array
 	 */
 	private static array $charToMask = [
-		self::CHAR_FILE   => self::MASK_FILE,
+		self::CHAR_FILE => self::MASK_FILE,
 		self::CHAR_SOCKET => self::MASK_SOCKET,
-		self::CHAR_LINK   => self::MASK_LINK,
-		self::CHAR_BLOCK  => self::MASK_BLOCK,
-		self::CHAR_DIR    => self::MASK_DIR,
-		self::CHAR_CHAR   => self::MASK_CHAR,
-		self::CHAR_FIFO   => self::MASK_FIFO,
+		self::CHAR_LINK => self::MASK_LINK,
+		self::CHAR_BLOCK => self::MASK_BLOCK,
+		self::CHAR_DIR => self::MASK_DIR,
+		self::CHAR_CHAR => self::MASK_CHAR,
+		self::CHAR_FIFO => self::MASK_FIFO,
 	];
 
 	/**
@@ -886,7 +886,7 @@ class File
 	/**
 	 * stat with extended results
 	 *
-	 * @param string  $path    Path to check
+	 * @param string $path Path to check
 	 * @param ?string $section Section to retrieve, or null for all sections
 	 * @return array
 	 * @throws FileNotFound
@@ -912,7 +912,7 @@ class File
 	 *
 	 * @param resource $path
 	 *            Path or resource to check
-	 * @param ?string  $section
+	 * @param ?string $section
 	 *            Section to retrieve, or null for all sections
 	 * @return array
 	 * @throws FileNotFound
@@ -951,71 +951,71 @@ class File
 		$type = self::$maskToChars[$p & self::MASK_FTYPE];
 		$s = [
 			/* Permissions */
-			self::STATS_PERMS  => [
-				'umask'     => sprintf('%04o', umask()),
+			self::STATS_PERMS => [
+				'umask' => sprintf('%04o', umask()),
 				/* umask */
-				'string'    => $modeString,
+				'string' => $modeString,
 				/* drwxrwxrwx */
-				'octal'     => sprintf('%o', ($p & $o777)),
+				'octal' => sprintf('%o', ($p & $o777)),
 				/* Octal without a zero prefix */
-				'octal0'    => self::modeToOctal($p),
+				'octal0' => self::modeToOctal($p),
 				/* Octal with a zero prefix */
-				'decimal'   => intval($p) & $o777,
+				'decimal' => intval($p) & $o777,
 				/* Decimal value, truncated */
 				'fileperms' => is_string($path) ? @fileperms($path) : null,
 				/* Permissions */
-				'mode'      => $p,
+				'mode' => $p,
 				/* Raw permissions value returned by fstat */
 			],
-			self::STATS_OWNER  => [
-				'uid'   => $ss['uid'],
-				'gid'   => $ss['gid'],
+			self::STATS_OWNER => [
+				'uid' => $ss['uid'],
+				'gid' => $ss['gid'],
 				'owner' => self::nameFromUID($ss['uid']),
 				'group' => self::nameFromGID($ss['gid']),
 			],
-			self::STATS_NAME   => [
+			self::STATS_NAME => [
 				'filename' => $is_resource ? null : $path,
 				'realpath' => $is_resource ? null : realpath($path),
-				'dirname'  => $is_resource ? null : dirname($path),
+				'dirname' => $is_resource ? null : dirname($path),
 				'basename' => $is_resource ? null : basename($path),
 			],
-			self::STATS_TYPE   => [
+			self::STATS_TYPE => [
 				self::STATS_TYPE => $type,
-				'string'         => self::$charToString[$type] ?? '',
-				'is_file'        => is_file($path),
-				'is_dir'         => is_dir($path),
-				'is_link'        => is_link($path),
-				'is_readable'    => is_readable($path),
-				'is_writable'    => is_writable($path),
+				'string' => self::$charToString[$type] ?? '',
+				'is_file' => is_file($path),
+				'is_dir' => is_dir($path),
+				'is_link' => is_link($path),
+				'is_readable' => is_readable($path),
+				'is_writable' => is_writable($path),
 			],
 			self::STATS_DEVICE => [
 				self::STATS_DEVICE => $ss['dev'],
 				// Device
-				'deviceNumber'     => $ss['rdev'],
+				'deviceNumber' => $ss['rdev'],
 				// Device number, if device.
-				'inode'            => $ss['ino'],
+				'inode' => $ss['ino'],
 				// File serial number
-				'linkCount'        => $ss['nlink'],
+				'linkCount' => $ss['nlink'],
 				// link count
-				'linkTo'           => ($type == 'link') ? @readlink($path) : '',
+				'linkTo' => ($type == 'link') ? @readlink($path) : '',
 			],
-			self::STATS_SIZE   => [
+			self::STATS_SIZE => [
 				self::STATS_SIZE => $ss['size'],
 				// Size of file, in bytes.
-				'blocks'         => $ss['blocks'],
+				'blocks' => $ss['blocks'],
 				// Number 512-byte blocks allocated
-				'blockSize'      => $ss['blksize'],
+				'blockSize' => $ss['blksize'],
 			],
-			self::STATS_TIME   => [
-				'mtime'    => $ss['mtime'],
+			self::STATS_TIME => [
+				'mtime' => $ss['mtime'],
 				// Time of last modification
-				'atime'    => $ss['atime'],
+				'atime' => $ss['atime'],
 				// Time of last access.
-				'ctime'    => $ss['ctime'],
+				'ctime' => $ss['ctime'],
 				// Time of last status change
 				'accessed' => @date('Y M D H:i:s', $ss['atime']),
 				'modified' => @date('Y M D H:i:s', $ss['mtime']),
-				'created'  => @date('Y M D H:i:s', $ss['ctime']),
+				'created' => @date('Y M D H:i:s', $ss['ctime']),
 			],
 		];
 
@@ -1072,9 +1072,9 @@ class File
 	 * Trim a file similarly to how you would trim a string.
 	 *
 	 * @param Application $application
-	 * @param string      $path   Path to the file to trim
-	 * @param int         $offset Offset within the file to start
-	 * @param int|null    $length Length within the file to remove
+	 * @param string $path Path to the file to trim
+	 * @param int $offset Offset within the file to start
+	 * @param int|null $length Length within the file to remove
 	 * @return bool
 	 * @throws FileSystemException
 	 * @throws FileCreate
@@ -1154,7 +1154,7 @@ class File
 	 * Retrieve the first part of a file
 	 *
 	 * @param string $filename
-	 * @param int    $length
+	 * @param int $length
 	 * @return string
 	 * @throws FilePermission
 	 * @throws FileNotFound
@@ -1177,8 +1177,8 @@ class File
 	 * Handle log rotation
 	 *
 	 * @param string $path
-	 * @param int    $size_limit
-	 * @param int    $keep_count
+	 * @param int $size_limit
+	 * @param int $keep_count
 	 * @param string $suffix
 	 * @return boolean
 	 */
@@ -1230,8 +1230,8 @@ class File
 	 * Rename a file to another file atomically - and delete file.
 	 * Handles rollback, locking, etc.
 	 *
-	 * @param string      $source
-	 * @param string      $target
+	 * @param string $source
+	 * @param string $target
 	 * @param string|null $new_target
 	 * @return void
 	 * @throws FileLocked
@@ -1384,7 +1384,7 @@ class File
 	}
 
 	/**
-	 * @param array             $paths List of strings representing file system paths
+	 * @param array $paths List of strings representing file system paths
 	 * @param array|string|null $files File name to search for, or list of file names to search for (array)
 	 * @return string Full path of found file, or null if not found
 	 * @throws NotFoundException
@@ -1442,7 +1442,7 @@ class File
 
 	/**
 	 * @param string|array $files
-	 * @param int          $modifiedBefore
+	 * @param int $modifiedBefore
 	 * @return array
 	 */
 	public static function deleteModifiedBefore(string|array $files, int $modifiedBefore): array
@@ -1457,15 +1457,15 @@ class File
 			$fileModificationTime = filemtime($file);
 			if ($fileModificationTime < $modifiedBefore) {
 				$result[$file] = [
-					'file'    => $file,
-					'when'    => date('Y-m-d H:i:s'),
-					'delta'   => $now - $fileModificationTime,
+					'file' => $file,
+					'when' => date('Y-m-d H:i:s'),
+					'delta' => $now - $fileModificationTime,
 					'deleted' => unlink($file),
 				];
 			} else {
 				$result[$file] = [
-					'file'  => $file,
-					'when'  => date('Y-m-d H:i:s'),
+					'file' => $file,
+					'when' => date('Y-m-d H:i:s'),
 					'delta' => $now - $fileModificationTime,
 				];
 			}

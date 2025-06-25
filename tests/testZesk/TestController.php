@@ -1,5 +1,8 @@
 <?php
 declare(strict_types=1);
+/**
+ * @copyright &copy; 2025, Market Acumen, Inc.
+ */
 
 namespace testZesk;
 
@@ -47,8 +50,8 @@ class TestController extends ControllerBase
 			$b,
 		]);
 		return [
-			'first'   => $a,
-			'second'  => $b,
+			'first' => $a,
+			'second' => $b,
 			'request' => $request,
 		];
 	}

@@ -9,12 +9,13 @@ declare(strict_types=1);
 
 namespace zesk\World\Bootstrap;
 
-use zesk\Application;
-use zesk\ArrayTools;
-use zesk\Hookable;
-use zesk\Types;
+use Doctrine\ORM\Exception\ORMException;
+use zesk\Exception\NotFoundException;
+use zesk\Traits\Factory;
+use zesk\World\Bootstrap;
 use zesk\World\Country;
 use zesk\World\Module;
+use zesk\World\Province;
 
 /**
  * ProvinceCode registers US State/Provinces.
@@ -24,87 +25,20 @@ use zesk\World\Module;
  * @package    zesk
  * @subpackage system
  */
-class BootstrapProvince extends Hookable
+class BootstrapProvince extends Bootstrap
 {
-	/**
-	 * List of country codes to include
-	 */
-	public const OPTION_INCLUDE_COUNTRY = 'includeCountry';
+	use Factory;
+
+	protected string $includeOption = Module::OPTION_INCLUDE_COUNTRY;
 
 	/**
-	 *
-	 * @var array
-	 */
-	private array $include_country = [];
-
-	/**
-	 *
-	 * @param Application $application
-	 * @param array       $options
-	 * @return self
-	 */
-	public static function factory(Application $application, array $options): self
-	{
-		return new self($application, $options);
-	}
-
-	/**
-	 * @param Application $application
-	 * @param array       $options
-	 */
-	public function __construct(Application $application, array $options = [])
-	{
-		parent::__construct($application, $options);
-		$this->setConfiguration(Module::class);
-		$include_country = $this->option(self::OPTION_INCLUDE_COUNTRY);
-		if ($include_country) {
-			$this->include_country = array_change_key_case(ArrayTools::keysFromValues(Types::toList($include_country), true));
-		}
-	}
-
-	/**
-	 *
-	 * @param Country $country
-	 * @return bool
-	 */
-	private function isIncluded(Country $country): bool
-	{
-		if (count($this->include_country) !== 0) {
-			return $this->include_country[strtolower($country->code)] ?? false;
-		}
-		return true;
-	}
-
-	/**
-	 * @param string $countryCode
-	 * @return Country
-	 * @throws ORMNotFound
-	 */
-	private function findCountry(string $countryCode): Country
-	{
-		try {
-			$country = $this->application->ormFactory(Country::class, [
-				Country::MEMBER_CODE => $countryCode,
-			])->find();
-		} catch (ORMEmpty $e) {
-			throw new ORMNotFound(Country::class, $e->getRawMessage(), $e->variables(), $e);
-		}
-		assert($country instanceof Country);
-		return $country;
-	}
-
-	/**
-	 * @throws ORMNotFound
+	 * @throws NotFoundException
+	 * @throws ORMException
 	 */
 	public function bootstrap(): void
 	{
-		$application = $this->application;
-
-		$province_class = Province::class;
-
-		$x = $application->ormFactory($province_class);
 		if ($this->optionBool('drop')) {
-			$x->database()->query('TRUNCATE ' . $x->table());
+			$this->deleteEverything(Province::class);
 		}
 
 		$usProvinces = self::_province_us();
@@ -116,14 +50,10 @@ class BootstrapProvince extends Hookable
 			'CA' => self::_province_ca(),
 		];
 		foreach ($countries as $country_code => $map) {
-			$country = $this->findCountry($country_code);
-			if ($this->isIncluded($country)) {
+			$country = Country::findCountry($this->application, $country_code);
+			if ($this->isIncluded($country_code)) {
 				foreach ($map as $code => $name) {
-					$application->ormFactory($province_class, [
-						'country' => $country,
-						'code'    => strtoupper($code),
-						'name'    => $name,
-					])->register();
+					Province::register($this->application, $country, $code, $name);
 				}
 			}
 		}

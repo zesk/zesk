@@ -100,8 +100,8 @@ class Controller extends zeskController
 		if (!$session) {
 			return $response->json()->setData($responseData + [
 				'authenticated' => false,
-				'userId'        => null,
-				'session'       => $session->variables(),
+				'userId' => null,
+				'session' => $session->variables(),
 			]);
 		}
 		$authenticated = $session->isAuthenticated();
@@ -133,7 +133,7 @@ class Controller extends zeskController
 			// Done calling hooks
 			return $response->json()->setData([
 				'authenticated' => false,
-				'message'       => $e->getMessage(),
+				'message' => $e->getMessage(),
 			] + $this->_baseResponseData());
 		}
 		$user = $request->get($this->option('requestIdColumn', 'user'));
@@ -146,7 +146,7 @@ class Controller extends zeskController
 			$data = Types::toArray($user->invokeFilters(self::HOOK_LOGIN_SUCCESS, [], [$this]));
 			return $response->json()->appendData([
 				'authenticated' => true,
-				'user'          => $user->id(),
+				'user' => $user->id(),
 			] + $data + $this->_baseResponseData());
 		} catch (AuthenticationException $e) {
 			$response->setStatus(HTTP::STATUS_UNAUTHORIZED, 'Unauthorized');
@@ -154,7 +154,7 @@ class Controller extends zeskController
 
 			return $response->json()->setData([
 				'authenticated' => false,
-				'message'       => 'user-or-password-mismatch',
+				'message' => 'user-or-password-mismatch',
 			] + $data + $this->_baseResponseData());
 		}
 	}

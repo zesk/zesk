@@ -114,11 +114,6 @@ class Configuration implements Iterator, Countable, ArrayAccess
 		$this->count = count($this->keys);
 	}
 
-	public static function normalizeKey(string $key): string
-	{
-		return Types::keyToString(Types::configurationKey($key));
-	}
-
 	/**
 	 *
 	 * @param array $array
@@ -169,11 +164,14 @@ class Configuration implements Iterator, Countable, ArrayAccess
 	 * @param Configuration $config
 	 * @param boolean $overwrite
 	 * @return self
-	 * @throws SemanticsException
 	 */
 	public function merge(Configuration $config, bool $overwrite = true): self
 	{
-		$this->writeAttempt();
+		try {
+			$this->writeAttempt(__FUNCTION__);
+		} catch (SemanticsException) {
+			return $this;
+		}
 		foreach ($config as $key => $value) {
 			if (isset($this->keys[$key])) {
 				$this_value = $this->keys[$key];
@@ -205,10 +203,11 @@ class Configuration implements Iterator, Countable, ArrayAccess
 	/**
 	 * @param string|int $key
 	 * @return void
+	 * @throws SemanticsException
 	 */
 	public function __unset(string|int $key): void
 	{
-		$this->writeAttempt();
+		$this->writeAttempt(__FUNCTION__ . ' ' . $key);
 		if (isset($this->keys[$key])) {
 			unset($this->keys[$key]);
 			$this->count = count($this->keys);
@@ -219,10 +218,10 @@ class Configuration implements Iterator, Countable, ArrayAccess
 	 * @param string|array $key
 	 * @param mixed|null $value
 	 * @return $this
+	 * @throws SemanticsException
 	 */
 	public function set(string|array $key, mixed $value = null): self
 	{
-		$this->writeAttempt();
 		if (is_array($key)) {
 			foreach ($key as $k => $v) {
 				$this->__set($k, $v);
@@ -239,10 +238,11 @@ class Configuration implements Iterator, Countable, ArrayAccess
 	 * @param string|int $key
 	 * @param mixed $value
 	 * @return void
+	 * @throws SemanticsException
 	 */
 	public function __set(string|int $key, mixed $value): void
 	{
-		$this->writeAttempt();
+		$this->writeAttempt(__FUNCTION__ . ' ' . $key);
 		if (is_array($value) && ArrayTools::isAssoc($value)) {
 			$value = new self($value, $this->_addPath($key));
 		}
@@ -276,10 +276,11 @@ class Configuration implements Iterator, Countable, ArrayAccess
 	 *
 	 * @param array $paths
 	 * @return Configuration[]
+	 * @throws SemanticsException
 	 */
 	public function setPaths(array $paths): array
 	{
-		$this->writeAttempt();
+		$this->writeAttempt(__FUNCTION__ . ' ' . implode(' -> ', $paths));
 		$result = [];
 		foreach ($paths as $path => $value) {
 			$result[$path] = $this->setPath(Types::toList($path, [], self::key_separator), $value);
@@ -389,7 +390,7 @@ class Configuration implements Iterator, Countable, ArrayAccess
 	public function setPath(string|array $path, mixed $value = null): self
 	{
 		$path = is_array($path) ? $path : explode(self::key_separator, $path);
-		$this->writeAttempt(implode(' -> ', $path));
+		$this->writeAttempt(__FUNCTION__ . ' ' . implode(' -> ', $path));
 		$key = array_pop($path);
 		if (count($path) > 0) {
 			$this->path($path)->setPath($key, $value);
@@ -408,8 +409,8 @@ class Configuration implements Iterator, Countable, ArrayAccess
 	 */
 	public function path(string|array $keys): self
 	{
-		$this->writeAttempt();
 		$keys = is_array($keys) ? $keys : explode(self::key_separator, $keys);
+		$this->writeAttempt(__FUNCTION__ . ' ' . implode(' -> ', $keys));
 		$current = $this;
 		while (count($keys) > 0) {
 			$next = array_shift($keys);
@@ -582,6 +583,7 @@ class Configuration implements Iterator, Countable, ArrayAccess
 	 *
 	 * @param mixed $offset
 	 * @param mixed $value
+	 * @throws SemanticsException
 	 * @see ArrayAccess
 	 */
 	public function offsetSet(mixed $offset, mixed $value): void
@@ -592,6 +594,7 @@ class Configuration implements Iterator, Countable, ArrayAccess
 	/**
 	 *
 	 * @param mixed $offset
+	 * @throws SemanticsException
 	 * @see ArrayAccess
 	 */
 	public function offsetUnset(mixed $offset): void
@@ -618,7 +621,7 @@ class Configuration implements Iterator, Countable, ArrayAccess
 	 * @param array|string $old_path
 	 * @param string|array|null $new_path
 	 * @return boolean Returns true if OLD value still found and (optionally) mapped to new
-	 * @throws Deprecated
+	 * @throws Deprecated|SemanticsException
 	 */
 	final public function deprecated(string|array $old_path, string|array|null $new_path = null): bool
 	{

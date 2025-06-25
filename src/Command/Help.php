@@ -53,7 +53,7 @@ class Help extends SimpleCommand
 		$this->collectHelp($commands);
 		echo $this->application->themes->theme(Directory::path(__CLASS__, 'content'), [
 			'categories' => $this->categories,
-			'aliases'    => $this->aliases,
+			'aliases' => $this->aliases,
 		]);
 		return 0;
 	}

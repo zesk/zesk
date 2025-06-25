@@ -1,12 +1,14 @@
 <?php
 declare(strict_types=1);
+/**
+ * @copyright  Copyright &copy; 2025, Market Acumen, Inc.
+ */
 
 namespace zesk\Service;
 
-use zesk\Service;
 use zesk\Application;
-
 use zesk\Exception\ClassNotFound;
+use zesk\Service;
 
 abstract class Translate extends Service
 {
@@ -18,9 +20,9 @@ abstract class Translate extends Service
 
 	/**
 	 * @param Application $application
-	 * @param string      $targetLanguage
+	 * @param string $targetLanguage
 	 * @param string|null $sourceLanguage
-	 * @param array       $options
+	 * @param array $options
 	 * @return self
 	 * @throws ClassNotFound
 	 */

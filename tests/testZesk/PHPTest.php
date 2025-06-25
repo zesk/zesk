@@ -49,6 +49,7 @@ class PHPTest extends TestCase
 
 	/**
 	 * @return void
+	 * @coversNothing
 	 */
 	public function test_php_basics(): void
 	{
@@ -80,7 +81,7 @@ class PHPTest extends TestCase
 	 * PHP does not support Javascript-style assignment using ||, e.g.
 	 *
 	 * JS: var a = arg || {};
-	 * @covers ::ini_path
+	 * @coversNothing
 	 */
 	public function test_php_andor(): void
 	{
@@ -99,6 +100,10 @@ class PHPTest extends TestCase
 		$this->assertEquals(false, $c);
 	}
 
+	/**
+	 * @return void
+	 * @covers ::ini_path
+	 */
 	public function test_ini_path(): void
 	{
 		$file = PHP::ini_path();
@@ -236,7 +241,7 @@ class PHPTest extends TestCase
 	 */
 	public function test_php_references(): void
 	{
-		$bigthing = [
+		$bigThing = [
 			'a' => [
 				'kind' => 'letter',
 				'code' => 65,
@@ -251,13 +256,13 @@ class PHPTest extends TestCase
 			],
 		];
 
-		$otherarray = [];
-		$otherarray['test'] = &$bigthing['a'];
+		$otherArray = [];
+		$otherArray['test'] = &$bigThing['a'];
 		// What happens to $bigthing?
-		unset($otherarray['test']);
+		unset($otherArray['test']);
 		// Nothing, unset applies only to the key in the array
 
-		$this->assertEquals($bigthing, [
+		$this->assertEquals($bigThing, [
 			'a' => [
 				'kind' => 'letter',
 				'code' => 65,

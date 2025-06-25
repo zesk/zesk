@@ -55,9 +55,9 @@ class FIFO
 	/**
 	 * Create the FIFO
 	 *
-	 * @param string $path   Full path name
-	 * @param bool   $create Create the FIFO if it doesn't exist (assumes READER)
-	 * @param int    $mode   File mode to create the FIFO (uses umask)
+	 * @param string $path Full path name
+	 * @param bool $create Create the FIFO if it doesn't exist (assumes READER)
+	 * @param int $mode File mode to create the FIFO (uses umask)
 	 * @throws DirectoryNotFound
 	 * @throws FilePermission
 	 */

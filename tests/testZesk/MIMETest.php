@@ -13,7 +13,7 @@ use zesk\Exception\KeyNotFound;
 use zesk\MIME;
 
 /**
- * Generic test class
+ * @coversDefaultClass \zesk\MIME
  */
 class MIMETest extends TestCase
 {
@@ -27,7 +27,7 @@ class MIMETest extends TestCase
 	}
 
 	/**
-	 * @param string $expected
+	 * @covers ::fromExtension
 	 * @param string $tested
 	 * @return void
 	 * @throws KeyNotFound
@@ -58,6 +58,7 @@ class MIMETest extends TestCase
 	}
 
 	/**
+	 * @covers ::fromExtension
 	 * @param string $expected
 	 * @param string $tested
 	 * @return void
@@ -88,6 +89,7 @@ class MIMETest extends TestCase
 	}
 
 	/**
+	 * @covers ::toExtension
 	 * @param string $expected
 	 * @param string $tested
 	 * @return void
@@ -113,6 +115,7 @@ class MIMETest extends TestCase
 	 * @return void
 	 * @throws KeyNotFound
 	 * @dataProvider data_to_bad
+	 * @covers ::toExtension
 	 */
 	public function test_to_bad(string $tested): void
 	{

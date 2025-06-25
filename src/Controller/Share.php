@@ -1,28 +1,27 @@
 <?php
 declare(strict_types=1);
 /**
- *
+ * @copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Controller;
 
+use zesk\Controller;
+use zesk\Directory;
 use zesk\Exception\DirectoryCreate;
 use zesk\Exception\DirectoryNotFound;
 use zesk\Exception\DirectoryPermission;
 use zesk\Exception\FileNotFound;
 use zesk\Exception\FilePermission;
-
-use zesk\Controller;
-use zesk\Directory;
+use zesk\Exception\KeyNotFound;
 use zesk\Exception\SemanticsException;
+use zesk\HTML;
+use zesk\HTTP;
 use zesk\MIME;
 use zesk\PHP;
-use zesk\StringTools;
 use zesk\Request;
 use zesk\Response;
-use zesk\Exception\KeyNotFound;
-use zesk\HTTP;
-use zesk\HTML;
+use zesk\StringTools;
 
 /**
  * Main share controller
@@ -196,7 +195,7 @@ class Share extends Controller
 	/**
 	 * Invoked by $this->argumentsMethods.
 	 *
-	 * @param Request  $request
+	 * @param Request $request
 	 * @param Response $response
 	 * @return array
 	 * @see self::action_GET()
@@ -296,7 +295,7 @@ class Share extends Controller
 		Directory::depend(dirname($target), 0o775);
 		$status = copy($file, $target);
 		$this->application->notice('Copied {file} to {target} - {status}', [
-			'file'   => $file,
+			'file' => $file,
 			'target' => $target,
 			'status' => $status ? 'true' : 'false',
 		]);
@@ -345,7 +344,7 @@ class Share extends Controller
 		$share_dir = Directory::path($this->application->documentRoot(), $this->optionSharePrefix());
 		if (is_dir($share_dir)) {
 			$logger->notice('{class}::hook_cache_clear - deleting {share_dir}', [
-				'class'     => __CLASS__,
+				'class' => __CLASS__,
 				'share_dir' => $share_dir,
 			]);
 
@@ -358,7 +357,7 @@ class Share extends Controller
 			}
 		} else {
 			$logger->notice('{class}::hook_cache_clear - would delete {share_dir} but it is not found', [
-				'class'     => __CLASS__,
+				'class' => __CLASS__,
 				'share_dir' => $share_dir,
 			]);
 		}

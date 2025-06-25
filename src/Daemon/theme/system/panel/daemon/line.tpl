@@ -30,7 +30,7 @@ if ($process === 'me') {
 	$process = preg_replace_callback('#\^([0-9]+)#', fn ($match) => ' (#' . (intval($match[1]) + 1) . ')', $process);
 }
 //echo HTML::tag('li', HTML::tag('pre', _dump($content)));
-echo HTML::tag_open('li', [
+echo HTML::tagOpen('li', [
 	'class' => $class,
 ]);
 
@@ -43,4 +43,4 @@ echo HTML::span('.status', $alive && $status === 'up' ? 'up' : 'down');
 
 echo HTML::span('.duration', $this->theme('duration', $nseconds));
 
-echo HTML::tag_close('li');
+echo HTML::tagClose('li');

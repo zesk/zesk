@@ -9,13 +9,16 @@ declare(strict_types=1);
 
 namespace testZesk;
 
+use zesk\CharacterSet;
 use zesk\Exception\FileParseException;
 use zesk\Exception\KeyNotFound;
 use zesk\Exception\ParseException;
-
-use zesk\CharacterSet;
 use zesk\UTF16;
 
+/**
+ * @uses   CharacterSet
+ * @covers \zesk\CharacterSet
+ */
 class CharacterSetTest extends TestCase
 {
 	/**
@@ -37,6 +40,7 @@ class CharacterSetTest extends TestCase
 	 * @throws ParseException
 	 * @throws FileParseException|KeyNotFound
 	 * @dataProvider data_supported
+	 * @covers ::isSupported
 	 */
 	public function test_isSupported(string $charset): void
 	{
@@ -49,8 +53,9 @@ class CharacterSetTest extends TestCase
 	/**
 	 * @throws KeyNotFound
 	 * @throws FileParseException
+	 * @covers ::toUTF8
 	 */
-	public function to_utf8(): void
+	public function test_toUTF8(): void
 	{
 		$every_char = '';
 		for ($i = 32; $i <= 127; $i++) {
@@ -101,10 +106,6 @@ class CharacterSetTest extends TestCase
 				$expect,
 			] = $test;
 			$result = CharacterSet::toUTF8($data, $charset);
-			echo "$data\n";
-			echo "$charset\n";
-			echo "$result\n";
-			echo "-\n";
 			$this->assertEquals($result, $expect);
 		}
 	}

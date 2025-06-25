@@ -9,13 +9,14 @@ declare(strict_types=1);
 
 namespace testZesk;
 
-use zesk\Exception\SyntaxException;
 use zesk\Date;
-use zesk\TimeSpan;
+use zesk\Exception\SyntaxException;
 use zesk\Temporal;
+use zesk\TimeSpan;
 
 /**
- * Generic test class
+ * @coversDefaultClass \zesk\TimeSpan
+ * @uses TimeSpan
  */
 class TimeSpanTest extends TestCase
 {
@@ -88,6 +89,7 @@ class TimeSpanTest extends TestCase
 	 * @return void
 	 * @dataProvider data_TimeSpan
 	 * @throws SyntaxException
+	 * @covers ::format
 	 */
 	public function test_TimeSpan(string $expected_format, string $expected_sql, string|float|int $init): void
 	{
@@ -124,6 +126,7 @@ class TimeSpanTest extends TestCase
 	 * @return void
 	 * @throws SyntaxException
 	 * @dataProvider data_badTimeSpan
+	 * @covers ::factory
 	 */
 	public function test_badTimeSpan(string $init): void
 	{
@@ -172,6 +175,9 @@ class TimeSpanTest extends TestCase
 	 * @return void
 	 * @throws SyntaxException
 	 * @dataProvider data_add
+	 * @covers ::factory
+	 * @covers ::add
+	 * @covers ::format
 	 */
 	public function test_add(string $expected_format, int $add, string|float|int $init): void
 	{

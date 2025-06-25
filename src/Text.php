@@ -19,11 +19,11 @@ class Text
 	/**
 	 * Indent plain text
 	 *
-	 * @param string  $text
-	 * @param int     $indent_count
+	 * @param string $text
+	 * @param int $indent_count
 	 * @param boolean $trim_line_white
-	 * @param string  $indent_char
-	 * @param string  $newline
+	 * @param string $indent_char
+	 * @param string $newline
 	 * @return string
 	 */
 	public static function indent(string $text, int $indent_count = 1, bool $trim_line_white = false, string $indent_char = "\t", string $newline = "\n"): string
@@ -98,7 +98,7 @@ class Text
 	/**
 	 * Format an array with labels and values
 	 *
-	 * @param array  $fields
+	 * @param array $fields
 	 *            An associative array to format
 	 * @param string $padding
 	 *            Padding character
@@ -154,10 +154,10 @@ class Text
 	/**
 	 * Generate a fill string to support rightAlign and leftAlign, and modify text
 	 *
-	 * @param string  $text      Text to right-align
-	 * @param int     $length    Number of characters to return
-	 * @param string  $pad       Character used to fill string
-	 * @param string  $fill      The fill characters to be filled in.
+	 * @param string $text Text to right-align
+	 * @param int $length Number of characters to return
+	 * @param string $pad Character used to fill string
+	 * @param string $fill The fill characters to be filled in.
 	 * @param boolean $chop_text If $text is greater than $n, return the trimmed version; guarantees max character
 	 *                           length returned is $n.
 	 * @return string The text with padding to fill $n characters (aligned right), or the original string (optionally trimmed) if length is greater than $n
@@ -186,9 +186,9 @@ class Text
 	/**
 	 * Right align a string in a block of characters returned.
 	 *
-	 * @param string  $text      Text to right-align
-	 * @param int     $length    Number of characters to return
-	 * @param string  $pad       Character used to fill string
+	 * @param string $text Text to right-align
+	 * @param int $length Number of characters to return
+	 * @param string $pad Character used to fill string
 	 * @param boolean $chop_text If $text is greater than $n, return the trimmed version; guarantees max character
 	 *                           length returned is $n.
 	 * @return string The text with padding to fill $n characters (aligned right), or the original string
@@ -204,10 +204,10 @@ class Text
 	/**
 	 * Left align a string in a block of characters returned.
 	 *
-	 * @param string $text      Text to left-align
-	 * @param int    $length    Number of characters to return
-	 * @param string $pad       Character used to fill string
-	 * @param bool   $chop_text If $text is greater than $n, return the trimmed version; guarantees max character
+	 * @param string $text Text to left-align
+	 * @param int $length Number of characters to return
+	 * @param string $pad Character used to fill string
+	 * @param bool $chop_text If $text is greater than $n, return the trimmed version; guarantees max character
 	 *                          length returned is $n.
 	 * @return string Text, aligned left, using padding.
 	 */
@@ -221,9 +221,9 @@ class Text
 	/**
 	 * Delete the line comments in a string
 	 *
-	 * @param string  $data
+	 * @param string $data
 	 *            Contents to remove line comments from
-	 * @param string  $line_comment
+	 * @param string $line_comment
 	 *            The line comment prefix (e.g. #, or ', etc.)
 	 * @param boolean $alone
 	 *            True if line comments should be alone on their own line, otherwise, will trim line
@@ -275,12 +275,12 @@ class Text
 	/**
 	 * Output an array as name/value pairs
 	 *
-	 * @param array  $map
-	 * @param string $prefix    Character(s) to place before the key
-	 * @param string $suffix    Character(s) to place after the key
-	 * @param string $pad       Padding character (blank for no padding))
+	 * @param array $map
+	 * @param string $prefix Character(s) to place before the key
+	 * @param string $suffix Character(s) to place after the key
+	 * @param string $pad Padding character (blank for no padding))
 	 * @param string $delimiter Character after padding and before value
-	 * @param string $br        End of line character
+	 * @param string $br End of line character
 	 * @return string
 	 */
 	public static function formatPairs(array $map, string $prefix = '', string $suffix = ':', string $pad = ' ', string $delimiter = ' ', string $br = PHP_EOL): string
@@ -298,7 +298,7 @@ class Text
 
 	/**
 	 * @param string $string
-	 * @param int    $length
+	 * @param int $length
 	 * @param string $delimiter
 	 * @return string
 	 */
@@ -325,7 +325,7 @@ class Text
 
 	/**
 	 * @param string $string
-	 * @param int    $wordCount
+	 * @param int $wordCount
 	 * @return string
 	 */
 	public static function trimWords(string $string, int $wordCount): string
@@ -385,7 +385,7 @@ class Text
 	 *
 	 * Ignores numeric keys.
 	 *
-	 * @param array  $table
+	 * @param array $table
 	 *            Table to convert to a text-output table
 	 * @param string $prefix
 	 *            String to prefix every line with. Used for indenting
@@ -442,7 +442,7 @@ class Text
 	 *
 	 * @param string $line
 	 *            Line to split
-	 * @param int    $num_columns
+	 * @param int $num_columns
 	 *            Maximum number of columns to return
 	 * @param string $delimiters
 	 *            Characters which may serve as a delimiter of a token.
@@ -464,7 +464,7 @@ class Text
 	 *
 	 * @param string $content
 	 *            Multi-line table to parse.
-	 * @param int    $num_columns
+	 * @param int $num_columns
 	 *            Max Number of columns expected.
 	 * @param string $delimiters
 	 *            Delimiter characters
@@ -515,7 +515,7 @@ class Text
 	 *
 	 * @param string $string
 	 *            A string to count words in
-	 * @param int    $limit
+	 * @param int $limit
 	 *            Max words to count
 	 * @return integer The number of words found
 	 */
@@ -532,7 +532,7 @@ class Text
 	 * Similar to shell command "head" returns first $count lines from $string
 	 *
 	 * @param string $string
-	 * @param int    $count
+	 * @param int $count
 	 * @param string $newline
 	 * @return string
 	 */
@@ -545,7 +545,7 @@ class Text
 	 * Similar to shell command "tail" returns first $count lines from $string
 	 *
 	 * @param string $string
-	 * @param int    $count
+	 * @param int $count
 	 * @param string $newline
 	 * @return string
 	 */
@@ -574,7 +574,7 @@ class Text
 	 * Google Drive           487712924  411037236   76675688  85% /media/psf/Google Drive
 	 * </code>
 	 *
-	 * @param array  $lines
+	 * @param array $lines
 	 * @param string $whitespace
 	 * @return array
 	 */

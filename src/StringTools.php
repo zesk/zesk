@@ -867,7 +867,7 @@ class StringTools
 	 * @param array $row
 	 * @return string
 	 */
-	public static function csvQuoteRow(array $row): string
+	public static function quoteCSVRow(array $row): string
 	{
 		$yy = [];
 		foreach ($row as $col) {
@@ -883,11 +883,11 @@ class StringTools
 	 *            of arrays of strings
 	 * @return string
 	 */
-	public static function csvQuoteRows(array $rows): string
+	public static function quoteCSVRows(array $rows): string
 	{
 		$yy = '';
 		foreach ($rows as $row) {
-			$yy .= self::csvQuoteRow($row);
+			$yy .= self::quoteCSVRow($row);
 		}
 		return $yy;
 	}

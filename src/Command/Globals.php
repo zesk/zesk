@@ -31,7 +31,7 @@ class Globals extends SimpleCommand
 	 */
 	protected array $argumentTypes = [
 		'format' => 'string',
-		'*'      => 'string',
+		'*' => 'string',
 	];
 
 	/**
@@ -40,7 +40,7 @@ class Globals extends SimpleCommand
 	 */
 	protected array $option_help = [
 		'format' => 'Output format: html, php, json, text, serialize',
-		'*'      => 'globals to output',
+		'*' => 'globals to output',
 	];
 
 	/**

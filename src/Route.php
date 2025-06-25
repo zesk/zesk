@@ -11,8 +11,8 @@ use zesk\Exception\ClassNotFound;
 use zesk\Exception\NotFoundException;
 use zesk\Exception\ParseException;
 use zesk\Exception\PermissionDenied;
-use zesk\Exception\Redirect;
 use zesk\Exception\ProtocolException;
+use zesk\Exception\Redirect;
 use zesk\Exception\SyntaxException;
 use zesk\Route\Command as CommandRoute;
 use zesk\Route\Content as ContentRoute;
@@ -28,6 +28,40 @@ use zesk\Route\Theme as ThemeRoute;
  */
 abstract class Route extends Hookable
 {
+	public function __serializeChild(): array
+	{
+		return [
+			'originalPattern' => $this->originalPattern,
+			'originalOptions' => $this->originalOptions,
+			'pattern' => $this->pattern,
+			'cleanPattern' => $this->cleanPattern,
+			'methods' => $this->methods,
+			'named' => $this->named,
+			'args' => $this->args,
+			'argsValid' => $this->argsValid,
+			'types' => $this->types,
+			'urlParts' => $this->urlParts,
+		];
+	}
+
+	/**
+	 * @param array $data
+	 * @return void
+	 */
+	public function __unserializeChild(array $data): void
+	{
+		$this->originalPattern = $data['originalPattern'];
+		$this->originalOptions = $data['originalOptions'];
+		$this->pattern = $data['pattern'];
+		$this->cleanPattern = $data['cleanPattern'];
+		$this->methods = $data['methods'];
+		$this->named = $data['named'];
+		$this->args = $data['args'];
+		$this->argsValid = $data['argsValid'];
+		$this->types = $data['types'];
+		$this->urlParts = $data['urlParts'];
+	}
+
 	/**
 	 *
 	 */
@@ -211,7 +245,7 @@ abstract class Route extends Hookable
 	 * @param Router $router
 	 * @param string $pattern
 	 *            A regular-expression style pattern to match the URL
-	 * @param array  $options
+	 * @param array $options
 	 */
 	public function __construct(Router $router, string $pattern, array $options)
 	{
@@ -260,42 +294,6 @@ abstract class Route extends Hookable
 		return $this->cleanPattern;
 	}
 
-	/**
-	 * Return list of members to save upon sleep
-	 */
-	public function __serialize(): array
-	{
-		return parent::__serialize() + [
-			'originalOptions' => $this->originalOptions,
-			'originalPattern' => $this->originalPattern,
-			'cleanPattern'    => $this->cleanPattern,
-			'methods'         => $this->methods,
-			'pattern'         => $this->pattern,
-			'types'           => $this->types,
-			'urlParts'        => $this->urlParts,
-			'args'            => $this->args,
-			'argsValid'       => $this->argsValid,
-			'named'           => $this->named,
-			'byClass'         => $this->byClass,
-		];
-	}
-
-	public function __unserialize(array $data): void
-	{
-		parent::__unserialize($data);
-		$this->originalOptions = $data['originalOptions'];
-		$this->originalPattern = $data['originalPattern'];
-		$this->cleanPattern = $data['cleanPattern'];
-		$this->methods = $data['methods'];
-		$this->pattern = $data['pattern'];
-		$this->types = $data['types'];
-		$this->urlParts = $data['urlParts'];
-		$this->args = $data['args'];
-		$this->argsValid = $data['argsValid'];
-		$this->named = $data['named'];
-		$this->byClass = $data['byClass'];
-	}
-
 	public function wakeupConnect(Router $router): void
 	{
 		$this->router = $router;
@@ -309,18 +307,18 @@ abstract class Route extends Hookable
 	public function variables(): array
 	{
 		return [
-			'class'           => get_class($this),
+			'class' => get_class($this),
 			'originalOptions' => $this->originalOptions,
 			'originalPattern' => $this->originalPattern,
-			'cleanPattern'    => $this->cleanPattern,
-			'pattern'         => $this->pattern,
-			'methods'         => array_keys($this->methods),
-			'types'           => $this->types,
-			'args'            => $this->args,
-			'urlParts'        => $this->urlParts,
-			'named'           => $this->named,
-			'byClass'         => $this->byClass,
-			'options'         => $this->options(),
+			'cleanPattern' => $this->cleanPattern,
+			'pattern' => $this->pattern,
+			'methods' => array_keys($this->methods),
+			'types' => $this->types,
+			'args' => $this->args,
+			'urlParts' => $this->urlParts,
+			'named' => $this->named,
+			'byClass' => $this->byClass,
+			'options' => $this->options(),
 		];
 	}
 
@@ -348,7 +346,7 @@ abstract class Route extends Hookable
 	 * Log a message about this Route
 	 *
 	 * @param string $message
-	 * @param array  $arguments
+	 * @param array $arguments
 	 */
 	public function log(string $message, array $arguments = []): void
 	{
@@ -409,7 +407,7 @@ abstract class Route extends Hookable
 	 * Replace components in the $options which are constant and will not change
 	 *
 	 * @param string $pattern
-	 * @param array  $options
+	 * @param array $options
 	 * @return array
 	 */
 	public static function preprocessOptions(string $pattern, array $options): array
@@ -434,7 +432,7 @@ abstract class Route extends Hookable
 	 *
 	 * @param Router $router
 	 * @param string $pattern
-	 * @param array  $options
+	 * @param array $options
 	 * @return Route
 	 * @throws ClassNotFound - Means code has been deleted on disk, I assume.
 	 */
@@ -448,11 +446,11 @@ abstract class Route extends Hookable
 		 */
 		$types = [
 			'controller' => ControllerRoute::class,
-			'command'    => CommandRoute::class,
-			'theme'      => ThemeRoute::class,
-			'method'     => MethodRoute::class,
-			'file'       => ContentRoute::class,
-			'redirect'   => RedirectRoute::class,
+			'command' => CommandRoute::class,
+			'theme' => ThemeRoute::class,
+			'method' => MethodRoute::class,
+			'file' => ContentRoute::class,
+			'redirect' => RedirectRoute::class,
 		];
 		$options = self::preprocessOptions($pattern, $options);
 		foreach ($types as $k => $class) {
@@ -552,7 +550,7 @@ abstract class Route extends Hookable
 	/**
 	 * Retrieve the arguments for this route based on class name
 	 *
-	 * @param null|string     $class Single class to retrieve
+	 * @param null|string $class Single class to retrieve
 	 * @param null|string|int $index Optional index of argument to fetch
 	 * @return array
 	 * @throws NotFoundException
@@ -597,7 +595,7 @@ abstract class Route extends Hookable
 	 *
 	 * @param string|array $name
 	 *            Input variables
-	 * @param string       $value
+	 * @param string $value
 	 *            Optional value
 	 * @return string
 	 */
@@ -640,7 +638,7 @@ abstract class Route extends Hookable
 	}
 
 	/**
-	 * @param int   $index
+	 * @param int $index
 	 * @param array $type_name
 	 * @return void
 	 * @throws NotFoundException
@@ -759,7 +757,7 @@ abstract class Route extends Hookable
 		} catch (Throwable $e) {
 			throw new NotFoundException('{name} ({type}) model not found with value "{arg}"', [
 				'type' => $entityName,
-				'arg'  => $arg,
+				'arg' => $arg,
 				'name' => $name,
 			], 0, $e);
 		}
@@ -797,9 +795,9 @@ abstract class Route extends Hookable
 	{
 		return [
 			'{application}' => $this->application,
-			'{request}'     => $request,
-			'{route}'       => $this,
-			'{router}'      => $this->router,
+			'{request}' => $request,
+			'{route}' => $this,
+			'{router}' => $this->router,
 		];
 	}
 
@@ -811,7 +809,7 @@ abstract class Route extends Hookable
 	/**
 	 * Convert array values to objects
 	 *
-	 * @param mixed   $mixed
+	 * @param mixed $mixed
 	 * @param Request $request
 	 * @return string|array
 	 */
@@ -930,7 +928,7 @@ abstract class Route extends Hookable
 		$permissions = [];
 		if ($permission) {
 			$permissions[] = [
-				'action'  => $this->option('permission'),
+				'action' => $this->option('permission'),
 				'context' => $this->option('permission context'),
 				'options' => $this->optionArray('permission options'),
 			];
@@ -951,10 +949,10 @@ abstract class Route extends Hookable
 			}
 			if (!$context instanceof Model && $context !== null) {
 				$app->warning('Invalid permission context in route {url}, permission {action}, type={type}, value={value}', [
-					'url'    => $this->cleanPattern,
+					'url' => $this->cleanPattern,
 					'action' => $action,
-					'type'   => Types::type($context),
-					'value'  => strval($context),
+					'type' => Types::type($context),
+					'value' => strval($context),
 				]);
 				$context = null;
 			}
@@ -1005,8 +1003,8 @@ abstract class Route extends Hookable
 		}
 		$this->_permissions($request);
 		$template = Theme::factory($this->application->themes, '', [
-			'route'          => $this,
-			'request'        => $request,
+			'route' => $this,
+			'request' => $request,
 			'routeVariables' => $this->variables(),
 		])->push();
 
@@ -1066,7 +1064,7 @@ abstract class Route extends Hookable
 	 *
 	 * @param string $action
 	 * @param ?Model $object
-	 * @param array  $options
+	 * @param array $options
 	 *            Optional options relating to the requested route
 	 * @return array
 	 */
@@ -1120,9 +1118,9 @@ abstract class Route extends Hookable
 	/**
 	 * Retrieve the reverse route for a particular action
 	 *
-	 * @param string     $action
+	 * @param string $action
 	 * @param Model|null $object
-	 * @param array      $options
+	 * @param array $options
 	 * @return string
 	 */
 	public function getRoute(string $action, Model $object = null, array $options = []): string
@@ -1146,8 +1144,8 @@ abstract class Route extends Hookable
 			if (!is_string($aliasId)) {
 				$this->application->warning('{option} in route must be an object with string keys and values {alias} and {id} provided', [
 					'option' => self::OPTION_ALIASES,
-					'alias'  => gettype($alias),
-					'id'     => gettype($aliasId),
+					'alias' => gettype($alias),
+					'id' => gettype($aliasId),
 				]);
 				continue;
 			}

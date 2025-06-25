@@ -6,6 +6,15 @@ declare(strict_types=1);
 
 namespace testZesk;
 
+use zesk\Exception\FileParseException;
+use zesk\Exception\KeyNotFound;
+use zesk\Exception\ParseException;
+use zesk\UTF8;
+
+/**
+ * @coversDefaultClass \zesk\UTF8
+ * @uses UTF8
+ */
 class UTF8Test extends TestCase
 {
 	public static function data_sampleUTF8(): array
@@ -32,6 +41,7 @@ class UTF8Test extends TestCase
 	 * @param string $utf8
 	 * @param string $iso8859
 	 * @return void
+	 * @covers ::toISO8859
 	 */
 	public function test_to_iso8859(string $utf8, string $iso8859): void
 	{
@@ -43,6 +53,10 @@ class UTF8Test extends TestCase
 	 * @param string $utf8
 	 * @param string $iso8859
 	 * @return void
+	 * @throws FileParseException
+	 * @throws KeyNotFound
+	 * @throws ParseException
+	 * @covers ::fromCharacterSet
 	 */
 	public function test_from_charset(string $utf8, string $iso8859): void
 	{

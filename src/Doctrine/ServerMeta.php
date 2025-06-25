@@ -21,10 +21,10 @@ use zesk\Doctrine\Trait\AutoID;
 
 /**
  * @author kent
- * @property int    $id
+ * @property int $id
  * @property Server $server
  * @property string $name
- * @property mixed  $value
+ * @property mixed $value
  */
 #[Entity]
 #[EntityListeners([ModelListener::class])]
@@ -70,7 +70,7 @@ class ServerMeta extends Model
 	/**
 	 * @param Server $server
 	 * @param string $name
-	 * @param mixed  $value
+	 * @param mixed $value
 	 * @return static
 	 * @throws ORMException
 	 */
@@ -79,7 +79,7 @@ class ServerMeta extends Model
 		$em = $server->entityManager();
 		$meta = $em->getRepository(self::class)->findOneBy([
 			'server' => $server,
-			'name'   => $name,
+			'name' => $name,
 		]);
 		if (!$meta) {
 			$meta = new self($server->application, $server, $name, $value);

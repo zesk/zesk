@@ -7,13 +7,12 @@ declare(strict_types=1);
 namespace testZesk;
 
 use Exception;
-use zesk\Exception\NotFoundException;
-use zesk\File;
-
 use zesk\Exception\DirectoryCreate;
 use zesk\Exception\DirectoryPermission;
 use zesk\Exception\FileNotFound;
 use zesk\Exception\FilePermission;
+use zesk\Exception\NotFoundException;
+use zesk\File;
 
 /**
  * @coversDefaultClass \zesk\File
@@ -46,7 +45,7 @@ class FileTest extends TestCase
 	/**
 	 * @return array
 	 */
-	public static function data_absolute_path(): array
+	public static function data_absolutePath(): array
 	{
 		return [
 			[
@@ -77,9 +76,10 @@ class FileTest extends TestCase
 	 * @param $path
 	 * @param $cwd
 	 * @return void
-	 * @dataProvider data_absolute_path
+	 * @dataProvider data_absolutePath
+	 * @covers ::absolutePath
 	 */
-	public function test_absolute_path($expected, $path, $cwd): void
+	public function test_absolutePath($expected, $path, $cwd): void
 	{
 		$this->assertEquals($expected, File::absolutePath($path, $cwd));
 	}

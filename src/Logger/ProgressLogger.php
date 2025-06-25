@@ -1,8 +1,9 @@
 <?php
 declare(strict_types=1);
 /**
- *
+ * @copyright &copy; 2025, Market Acumen, Inc.
  */
+
 namespace zesk\Logger;
 
 use Psr\Log\LoggerInterface;

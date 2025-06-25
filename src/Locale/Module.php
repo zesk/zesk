@@ -37,7 +37,7 @@ class Module extends \zesk\Module implements Head, Routes
 {
 	/**
 	 * @param Locale $locale
-	 * @param array  $phrases
+	 * @param array $phrases
 	 * @param string $phrasesContext
 	 * @return void
 	 * @see self::shutdownLocale()
@@ -55,7 +55,7 @@ class Module extends \zesk\Module implements Head, Routes
 		$path = $this->application->paths->expand($autoPath);
 		if (!is_dir($path)) {
 			$this->application->warning('{class}::autoPath {path} is not a directory', [
-				'path'  => $path,
+				'path' => $path,
 				'class' => get_class($this),
 			]);
 			return;
@@ -72,7 +72,7 @@ class Module extends \zesk\Module implements Head, Routes
 	/**
 	 * Output our locale translation files for JavaScript to use
 	 *
-	 * @param Request  $request
+	 * @param Request $request
 	 * @param Response $response
 	 */
 	public function hook_head(Request $request, Response $response, Theme $template): void
@@ -80,11 +80,11 @@ class Module extends \zesk\Module implements Head, Routes
 		try {
 			$response->html()->javascript('/share/Locale/js/locale.js', [
 				'weight' => -20,
-				'share'  => true,
+				'share' => true,
 			]);
 			$response->html()->javascript('/locale/js?ll=' . $this->application->locale->id(), [
-				'weight'       => -10,
-				'is_route'     => true,
+				'weight' => -10,
+				'is_route' => true,
 				'route_expire' => 3600,
 				/* once an hour */
 			]);

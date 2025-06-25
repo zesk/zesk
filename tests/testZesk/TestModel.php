@@ -1,5 +1,10 @@
 <?php
 declare(strict_types=1);
+/**
+ * @package testZesk
+ * @subpackage Model
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
+ */
 
 namespace testZesk;
 
@@ -22,5 +27,26 @@ class TestModel extends Model
 			$this->thingTwo = $set;
 		}
 		return $this;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function __serializeChild(): array
+	{
+		return [
+			'thing' => $this->thing,
+			'thingTwo' => $this->thingTwo,
+		];
+	}
+
+	/**
+	 * @param array $data
+	 * @return void
+	 */
+	public function __unserializeChild(array $data): void
+	{
+		$this->thing = $data['thing'];
+		$this->thingTwo = $data['thingTwo'];
 	}
 }

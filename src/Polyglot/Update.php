@@ -42,7 +42,7 @@ use zesk\Timestamp;
  *
  * @see    Class_Update
  * @author kent
- * @property User      $user
+ * @property User $user
  * @property Timestamp $updated
  */
 class Update extends Model
@@ -102,7 +102,7 @@ class Update extends Model
 		$path = $application->polyglotModule()->updatePath();
 		if (!is_dir($path)) {
 			$application->warning(Module::class . '::update_path is not a directory ({path}) on {server}', [
-				'path'   => $path,
+				'path' => $path,
 				'server' => $server->name,
 			]);
 			return;
@@ -179,7 +179,7 @@ class Update extends Model
 		$updateLocales = array_unique($updateLocales);
 		$application->warning('Updating locales {locales} on {server}', [
 			'locales' => $updateLocales,
-			'server'  => $server->name,
+			'server' => $server->name,
 		]);
 		$success = true;
 		foreach ($updateLocales as $updateLocale) {
@@ -192,7 +192,7 @@ class Update extends Model
 			} catch (Throwable $e) {
 				$application->error('Updating locale {locale} on {server} FAILED due to {message}', [
 					'locales' => $updateLocales,
-					'server'  => $server->name,
+					'server' => $server->name,
 					'message' => $e->getMessage(),
 				]);
 				$success = false;
@@ -208,9 +208,9 @@ class Update extends Model
 	/**
 	 *
 	 * @param resource $f
-	 * @param string   $filename
-	 * @param string   $original
-	 * @param string   $translation
+	 * @param string $filename
+	 * @param string $original
+	 * @param string $translation
 	 * @throws FileSystemException
 	 */
 	private static function writeTranslationLine(mixed $f, string $filename, string $original, string $translation): void
@@ -223,8 +223,8 @@ class Update extends Model
 	/**
 	 *
 	 * @param Application $application
-	 * @param string      $path
-	 * @param string      $locale
+	 * @param string $path
+	 * @param string $locale
 	 * @return void
 	 * @throws FileSystemException
 	 * @throws FileLocked

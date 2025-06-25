@@ -34,18 +34,19 @@ class Process extends Hookable
 	public bool $debug = false;
 
 	/**
-	 *
+	 * @return array
 	 */
-	public function __serialize(): array
+	public function __serializeChild(): array
 	{
-		return [
-			'debug' => $this->debug,
-		] + parent::__serialize();
+		return ['debug' => $this->debug];
 	}
 
-	public function __unserialize(array $data): void
+	/**
+	 * @param array $data
+	 * @return void
+	 */
+	public function __unserializeChild(array $data): void
 	{
-		parent::__unserialize($data);
 		$this->debug = $data['debug'];
 	}
 
@@ -171,9 +172,9 @@ class Process extends Hookable
 	 *
 	 * @param string $command
 	 *                         Command to run
-	 * @param array  $args
+	 * @param array $args
 	 *                         Arguments to escape and pass into the command
-	 * @param bool   $passThru Whether to use passthru vs exec
+	 * @param bool $passThru Whether to use passthru vs exec
 	 * @return array Lines output by the command (returned by exec)
 	 * @throws CommandFailed
 	 * @see exec
@@ -216,9 +217,9 @@ class Process extends Hookable
 	 * - Should be able to write to /tmp/tempIn to write to process
 	 *
 	 * @param string $command Command
-	 * @param array  $args    Arguments
-	 * @param string $stdout  Optional output file
-	 * @param string $stderr  Optional error file
+	 * @param array $args Arguments
+	 * @param string $stdout Optional output file
+	 * @param string $stderr Optional error file
 	 * @return int Process ID of background process
 	 * @throws CommandFailed
 	 */

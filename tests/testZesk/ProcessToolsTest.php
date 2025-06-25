@@ -11,9 +11,14 @@ declare(strict_types=1);
 
 namespace testZesk;
 
+use zesk\Exception\FilePermission;
 use zesk\File;
 use zesk\ProcessTools;
 
+/**
+ * @coversDefaultClass \zesk\ProcessTools
+ * @uses ProcessTools
+ */
 class ProcessToolsTest extends TestCase
 {
 	/**
@@ -44,6 +49,12 @@ class ProcessToolsTest extends TestCase
 		$db->query('DROP TABLE IF EXISTS test_PGT');
 	}
 
+	/**
+	 * @return void
+	 * @throws FilePermission
+	 * @covers ::includesChanged
+	 * @covers ::includesChangedFiles
+	 */
 	public function test_code_changed(): void
 	{
 		$result = ProcessTools::includesChanged($this->application);

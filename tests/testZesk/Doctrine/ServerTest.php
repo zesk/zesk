@@ -1,4 +1,9 @@
 <?php
+/**
+ * @package zeskTest
+ * @copyright  Copyright &copy; 2025, Market Acumen, Inc.
+ * @subpackage Server
+ */
 
 declare(strict_types=1);
 
@@ -27,7 +32,7 @@ class ServerTest extends ModelTestCase
 		$now = Timestamp::now();
 
 
-		$this->assertTrue($server->alive->before($now), 'Server ' . $server->id . ' not alive before ' . $now . ' (Alive is ' . $server->alive . ')');
+		$this->assertTrue($server->alive->before($now, true), 'Server ' . $server->id . ' not alive before ' . $now . ' (Alive is ' . $server->alive . ')');
 		$earlier = $now->addUnit(-60);
 		$this->assertTrue($server->alive->after($earlier), 'Server ' . $server->id . ' not alive after ' . $earlier . ' (Alive is ' . $server->alive . ')');
 	}

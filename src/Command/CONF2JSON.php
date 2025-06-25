@@ -10,12 +10,12 @@ declare(strict_types=1);
 namespace zesk\Command;
 
 use SplFileInfo;
-use zesk\File;
-use zesk\JSON;
 use zesk\Adapter\SettingsArray;
 use zesk\Configuration\Parser;
 use zesk\Exception\ClassNotFound;
 use zesk\Exception\FilePermission;
+use zesk\File;
+use zesk\JSON;
 
 /**
  * Convert a .conf file to a .json configuration file
@@ -35,11 +35,11 @@ class CONF2JSON extends FileIterator
 	public function initialize(): void
 	{
 		$this->argumentTypes += [
-			'dry-run'   => 'boolean',
+			'dry-run' => 'boolean',
 			'noclobber' => 'boolean',
 		];
 		$this->option_help += [
-			'dry-run'   => 'Don\'t modify the file system',
+			'dry-run' => 'Don\'t modify the file system',
 			'noclobber' => 'Do not overwrite existing files',
 		];
 		parent::initialize();
@@ -75,8 +75,8 @@ class CONF2JSON extends FileIterator
 			$this->info($message, [
 				'source_name' => $source_name,
 				'target_name' => $target_name,
-				'n'           => $n,
-				'entries'     => $this->application->locale->plural('entry', $n),
+				'n' => $n,
+				'entries' => $this->application->locale->plural('entry', $n),
 			]);
 			return true;
 		}

@@ -8,6 +8,10 @@ namespace testZesk;
 
 use zesk\UTF16;
 
+/**
+ * @uses   UTF16
+ * @coversDefaultClass \zesk\UTF16
+ */
 class UTF16Test extends TestCase
 {
 	public static function data_sampleUTF8(): array
@@ -23,6 +27,7 @@ class UTF16Test extends TestCase
 	 * @param string $str
 	 * @return void
 	 * @dataProvider data_sampleUTF8
+	 * @covers ::decode ::encode
 	 */
 	public function test_decode_encode(string $str): void
 	{
@@ -42,6 +47,7 @@ class UTF16Test extends TestCase
 	 * @param $utf16string
 	 * @return void
 	 * @dataProvider data_test_to_utf8
+	 * @covers ::toUTF8
 	 */
 	public function test_to_utf8($utf8string, $bom_expected, $utf16string): void
 	{

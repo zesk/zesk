@@ -7,11 +7,11 @@ declare(strict_types=1);
 namespace testZesk;
 
 use zesk\Exception\ParameterException;
-
 use zesk\IPv6;
 
 /**
- *
+ * @coversDefaultClass \zesk\IPv6
+ * @uses IPv6
  */
 class IPv6Test extends TestCase
 {
@@ -38,6 +38,7 @@ class IPv6Test extends TestCase
 	 * @param string $expected
 	 * @param int $ip4
 	 * @return void
+	 * @covers ::fromIPv4
 	 */
 	public function testFromIPv4(string $expected, int $ip4): void
 	{
@@ -92,6 +93,7 @@ class IPv6Test extends TestCase
 	 * @param string $address
 	 * @return void
 	 * @dataProvider dataValid
+	 * @covers ::valid
 	 */
 	public function testValid(bool $valid, string $address): void
 	{
@@ -136,6 +138,7 @@ class IPv6Test extends TestCase
 	 * @param string $address
 	 * @return void
 	 * @dataProvider dataFromBinary
+	 * @covers ::fromBinary
 	 */
 	public function testFromBinary(string $result, string $address): void
 	{
@@ -150,6 +153,7 @@ class IPv6Test extends TestCase
 	 * @param string $ip
 	 * @return void
 	 * @dataProvider dataExpand
+	 * @covers ::expand
 	 */
 	public function testExpand(string $expected, string $ip): void
 	{
@@ -213,6 +217,7 @@ class IPv6Test extends TestCase
 	 * @param bool $expected
 	 * @param string $ip6
 	 * @return void
+	 * @covers ::isIPv4
 	 */
 	public function testIsIPv4(bool $expected, string $ip6): void
 	{
@@ -247,10 +252,11 @@ class IPv6Test extends TestCase
 	 * @param string $ip6
 	 * @return void
 	 * @dataProvider dataSimplify
+	 * @covers ::simplify
 	 */
 	public function testSimplify(string $expected, string $ip6): void
 	{
-		$this->assertEquals($expected, Ipv6::simplify($ip6));
+		$this->assertEquals($expected, IPv6::simplify($ip6));
 	}
 
 	public static function dataClean(): array
@@ -268,6 +274,8 @@ class IPv6Test extends TestCase
 	 * @param string $address
 	 * @return void
 	 * @dataProvider dataClean
+	 * @covers ::clean
+	 * @covers ::valid
 	 */
 	public function testClean(string $expected, string $address): void
 	{

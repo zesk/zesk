@@ -1,6 +1,8 @@
 <?php
 declare(strict_types=1);
-
+/**
+ * @copyright Copyright &copy; 2025, Market Acumen, Inc.
+ */
 
 namespace zesk\Net;
 
@@ -27,18 +29,18 @@ class Module extends BaseModule
 	/**
 	 * @param string $url
 	 * @param array $options
-	 * @return Client
+	 * @return ConnectClient
 	 * @throws SyntaxException
 	 * @throws ClassNotFound
 	 */
-	public function clientFactory(string $url, array $options = []): Client
+	public function clientFactory(string $url, array $options = []): ConnectClient
 	{
 		$scheme = strtolower(URL::scheme($url));
 		$scheme = ($scheme === 'https') ? 'http' : $scheme;
 		$app = $this->application;
 		$class = __NAMESPACE__ . strtoupper($scheme) . '\\Client';
 		$result = $app->factory($class, $app, $url, $options);
-		assert($result instanceof Client);
+		assert($result instanceof ConnectClient);
 		return $result;
 	}
 }

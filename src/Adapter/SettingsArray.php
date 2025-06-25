@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 /**
- *
+ * @copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Adapter;
@@ -71,7 +71,7 @@ class SettingsArray implements SettingsInterface
 	/**
 	 * Retrieve a value from the settings, returning a default value if not set
 	 *
-	 * @param int|string $key     A string or key value (integer, float)
+	 * @param int|string $key A string or key value (integer, float)
 	 * @param mixed|null $default A value to return if the session value is null
 	 * @return mixed The value of the session variable, or $default if nothing set
 	 */
@@ -83,7 +83,7 @@ class SettingsArray implements SettingsInterface
 	/**
 	 * Store a value to a settings
 	 *
-	 * @param mixed $key   A string or key value (integer, float)
+	 * @param mixed $key A string or key value (integer, float)
 	 * @param mixed $value Value to save. As a general rule, best to use scalar types
 	 */
 	public function __set(int|string $key, mixed $value): void
@@ -94,8 +94,8 @@ class SettingsArray implements SettingsInterface
 	/**
 	 * Store a value to a settings
 	 *
-	 * @param int|string $key   A string or key value (integer, float)
-	 * @param mixed      $value Value to save. As a general rule, best to use scalar types
+	 * @param int|string $key A string or key value (integer, float)
+	 * @param mixed $value Value to save. As a general rule, best to use scalar types
 	 * @return self
 	 */
 	public function set(int|string $key, mixed $value): self

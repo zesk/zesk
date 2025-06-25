@@ -28,10 +28,10 @@ use zesk\Doctrine\ModelListener;
 use zesk\Doctrine\Trait\AutoID;
 use zesk\Doctrine\User;
 use zesk\Exception\ConfigurationException;
+use zesk\JSONWalker;
 use zesk\Locale\Locale;
 use zesk\Locale\Validate;
 use zesk\Timestamp;
-use zesk\JSONWalker;
 
 #[Entity]
 #[EntityListeners([ModelListener::class])]
@@ -181,19 +181,19 @@ class Token extends Model implements PrePersist
 	 * Fetch all locale strings for the dialect/language
 	 *
 	 * @param Application $app
-	 * @param string      $language
-	 * @param string      $dialect
+	 * @param string $language
+	 * @param string $dialect
 	 * @return array
 	 */
 	public static function fetchAll(Application $app, string $language, string $dialect = ''): array
 	{
 		$where = [
 			'language' => $language,
-			'dialect'  => $dialect === '' ? null : $dialect,
+			'dialect' => $dialect === '' ? null : $dialect,
 		];
 		$em = $app->entityManager();
 		$query = $em->getRepository(self::class)->findBy($where, [
-			'updated'  => 'ASC',
+			'updated' => 'ASC',
 			'original' => 'ASC',
 		]);
 		$result = [];
@@ -223,7 +223,7 @@ class Token extends Model implements PrePersist
 	/**
 	 *
 	 * @param Application $application
-	 * @param string      $locale
+	 * @param string $locale
 	 * @return QueryBuilder
 	 */
 	public static function localeQuery(Application $application, string $locale): QueryBuilder
@@ -241,12 +241,12 @@ class Token extends Model implements PrePersist
 	public static function statusFilters_EN(): array
 	{
 		return [
-			self::STATUS_TODO   => 'Need translation',
-			self::STATUS_INFO   => 'Need more information',
-			self::STATUS_DEV    => 'Need developer review',
-			self::STATUS_DRAFT  => 'Draft',
+			self::STATUS_TODO => 'Need translation',
+			self::STATUS_INFO => 'Need more information',
+			self::STATUS_DEV => 'Need developer review',
+			self::STATUS_DRAFT => 'Draft',
 			self::STATUS_DELETE => 'Deleted',
-			self::STATUS_DONE   => 'Translated',
+			self::STATUS_DONE => 'Translated',
 		];
 	}
 
@@ -269,9 +269,9 @@ class Token extends Model implements PrePersist
 				$em->persist($token);
 			}
 			$app->debug('Updated #{id} {translation} to {entities}', [
-				'id'          => $token->id,
+				'id' => $token->id,
 				'translation' => $translation,
-				'entities'    => $entities,
+				'entities' => $entities,
 			]);
 		}
 		$em->flush();

@@ -9,9 +9,9 @@ declare(strict_types=1);
 
 namespace zesk\Command;
 
+use Psr\Log\LogLevel;
 use Psr\Log\NullLogger;
 use Stringable;
-use Psr\Log\LogLevel;
 use Throwable;
 use zesk\Application\Hooks;
 use zesk\Command;
@@ -22,8 +22,8 @@ use zesk\Exception\KeyNotFound;
 use zesk\Exception\ParameterException;
 use zesk\HookMethod;
 use zesk\Logger\FileLogger;
-use zesk\RuntimeException;
 use zesk\Logger\InterfaceAdapter;
+use zesk\RuntimeException;
 use const STDOUT;
 
 /**
@@ -44,9 +44,9 @@ abstract class SimpleCommand extends Command
 	 * @var array
 	 */
 	private static array $quiet_levels = [
-		'info'   => true,
+		'info' => true,
 		'notice' => true,
-		'debug'  => true,
+		'debug' => true,
 	];
 
 	/**
@@ -55,7 +55,7 @@ abstract class SimpleCommand extends Command
 	 *
 	 * @param                   $level
 	 * @param Stringable|string $message
-	 * @param array             $context
+	 * @param array $context
 	 */
 	public function log($level, Stringable|string $message, array $context = []): void
 	{
@@ -130,9 +130,9 @@ abstract class SimpleCommand extends Command
 				$debug = $this->optionBool('debug');
 				$logger = new FileLogger($filename);
 				$levels = [
-					LogLevel::INFO   => true,
+					LogLevel::INFO => true,
 					LogLevel::NOTICE => true,
-					LogLevel::DEBUG  => $debug,
+					LogLevel::DEBUG => $debug,
 				];
 
 				try {

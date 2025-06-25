@@ -8,23 +8,36 @@ namespace testZesk;
 
 use stdClass;
 use zesk\Exception\ParseException;
-use zesk\Exception\ProtocolException;
+use zesk\Exception\SemanticsException;
 use zesk\JSON;
 
 /**
  *
  * @author kent
+ * @coversDefaultClass \zesk\JSON
+ * @uses JSON
  *
  */
 class JSONTest extends TestCase
 {
-	public function test_decode(): void
+	public static function data_decodeBad(): array
 	{
-		$this->expectException(ParseException::class);
-		JSON::decode('{');
+		return [
+			['{'],
+			['}'],
+			['{{"notJSON": 0}'],
+			['{"notJSON"}'],
+		];
 	}
 
-	public function test_decode_parse(): void
+	/**
+	 * @param string $badJSON
+	 * @return void
+	 * @throws ParseException
+	 * @dataProvider data_decodeBad
+	 * @covers ::decode
+	 */
+	public function test_decode(string $badJSON): void
 	{
 		$this->expectException(ParseException::class);
 		JSON::decode('{');
@@ -32,7 +45,8 @@ class JSONTest extends TestCase
 
 	/**
 	 * @return void
-	 * @throws ProtocolException
+	 * @throws SemanticsException
+	 * @covers ::prepare
 	 */
 	public function test_malencode(): void
 	{
@@ -135,14 +149,20 @@ class JSONTest extends TestCase
 	 * @param $methods
 	 * @param $arguments
 	 * @return void
-	 * @throws ProtocolException
+	 * @throws SemanticsException
 	 * @dataProvider data_prepare
+	 * @covers ::prepare
 	 */
 	public function test_prepare($expected, $mixed, $methods, $arguments): void
 	{
 		$this->assertEquals($expected, JSON::prepare($mixed, $methods, $arguments));
 	}
 
+	/**
+	 * @return void
+	 * @covers ::decode
+	 * @throws ParseException
+	 */
 	public function test_decode_null(): void
 	{
 		$this->assertNull(JSON::decode('null'));
@@ -185,13 +205,14 @@ class JSONTest extends TestCase
 	 * @param string|null $expected
 	 * @param mixed $mixed
 	 * @return void
-	 * @throws ProtocolException
+	 * @throws SemanticsException
 	 * @dataProvider data_encode
+	 * @covers ::encode
 	 */
 	public function test_encode(?string $expected, mixed $mixed): void
 	{
 		if ($expected === null) {
-			$this->expectException(ProtocolException::class);
+			$this->expectException(SemanticsException::class);
 		}
 		$this->assertEquals($expected, JSON::encode($mixed));
 	}
@@ -201,11 +222,12 @@ class JSONTest extends TestCase
 	 * @param mixed $mixed
 	 * @return void
 	 * @dataProvider data_encodeSpecial
+	 * @covers ::encodeSpecial
 	 */
 	public function test_encodeSpecial(?string $expected, mixed $mixed): void
 	{
 		if ($expected === null) {
-			$this->expectException(ProtocolException::class);
+			$this->expectException(SemanticsException::class);
 		}
 		$this->assertEquals($expected, JSON::encodeSpecial($mixed));
 	}
@@ -256,6 +278,7 @@ class JSONTest extends TestCase
 	 * @param string $expected
 	 * @param mixed $mixed
 	 * @return void
+	 * @covers ::encodeJavaScript
 	 */
 	public function test_encodeJavaScript(string $expected, mixed $mixed): void
 	{
@@ -304,14 +327,15 @@ class JSONTest extends TestCase
 	 * @param string $name
 	 * @param string $expected
 	 * @return void
-	 * @dataProvider data_object_member_name_quote
+	 * @dataProvider data_quoteKey
+	 * @covers ::quoteKey
 	 */
-	public function test_object_member_name_quote(string $name, string $expected): void
+	public function test_quoteKey(string $name, string $expected): void
 	{
-		$this->assertEquals($expected, JSON::object_member_name_quote($name));
+		$this->assertEquals($expected, JSON::quoteKey($name));
 	}
 
-	public static function data_object_member_name_quote(): array
+	public static function data_quoteKey(): array
 	{
 		return [
 			[
@@ -354,6 +378,7 @@ class JSONTest extends TestCase
 	 * @param string $mixed
 	 * @return void
 	 * @dataProvider data_quote
+	 * @covers ::quote
 	 */
 	public function test_quote(string $expected, string $mixed): void
 	{
@@ -390,7 +415,7 @@ class JSONTest extends TestCase
 		];
 	}
 
-	public static function data_valid_member_name(): array
+	public static function data_isKey(): array
 	{
 		return [
 			[
@@ -429,14 +454,15 @@ class JSONTest extends TestCase
 	}
 
 	/**
-	 * @dataProvider data_valid_member_name
+	 * @dataProvider data_isKey
 	 * @param bool $expected
 	 * @param string $name
 	 * @return void
+	 * @covers ::isKey
 	 */
-	public function test_valid_member_name(bool $expected, string $name): void
+	public function test_isKey(bool $expected, string $name): void
 	{
-		$this->assertEquals($expected, JSON::valid_member_name($name));
+		$this->assertEquals($expected, JSON::isKey($name));
 	}
 
 	public static function data_internal_values(): array
@@ -486,7 +512,8 @@ class JSONTest extends TestCase
 	 * @dataProvider data_internal_values
 	 * @param mixed $mixed
 	 * @return void
-	 * @throws ProtocolException
+	 * @throws SemanticsException
+	 * @covers ::zesk_decode
 	 */
 	public function test_internal(mixed $mixed): void
 	{
@@ -578,6 +605,7 @@ class JSONTest extends TestCase
 	 * @dataProvider data_zesk_decode
 	 * @param string $mixed
 	 * @param mixed $expected
+	 * @covers ::zesk_decode
 	 */
 	public function test_zesk_decode(string $mixed, mixed $expected): void
 	{

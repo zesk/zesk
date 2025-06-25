@@ -164,8 +164,8 @@ abstract class Base extends Hookable
 	/**
 	 *
 	 * @param Application $application
-	 * @param string      $root Path to repository root directory or a file within the repository
-	 * @param array       $options
+	 * @param string $root Path to repository root directory or a file within the repository
+	 * @param array $options
 	 */
 	final public function __construct(Application $application, $root = null, array $options = [])
 	{
@@ -207,9 +207,9 @@ abstract class Base extends Hookable
 		$final_path = realpath($final_path);
 		if (!str_starts_with($this->path, $final_path)) {
 			throw new ProtocolException('Passed absolute path {target} (-> {final_path}) must be a subdirectory of {path}', [
-				'target'     => $target,
+				'target' => $target,
 				'final_path' => $final_path,
-				'path'       => $final_path,
+				'path' => $final_path,
 			]);
 		}
 		return $final_path;
@@ -245,9 +245,9 @@ abstract class Base extends Hookable
 	/**
 	 *
 	 * @param Application $application
-	 * @param string      $type
+	 * @param string $type
 	 * @param string|null $root
-	 * @param array       $options
+	 * @param array $options
 	 * @return Base
 	 * @throws NotFoundException
 	 */
@@ -333,7 +333,7 @@ abstract class Base extends Hookable
 	/**
 	 * Fetch a list of repository status for a target
 	 *
-	 * @param string  $target
+	 * @param string $target
 	 * @param boolean $updates
 	 *
 	 * @return array[]

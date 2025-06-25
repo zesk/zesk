@@ -12,8 +12,8 @@ namespace testZesk\Configuration;
 
 use zesk\Adapter\SettingsArray;
 use zesk\Adapter\SettingsConfiguration;
-use zesk\Configuration\Loader;
 use zesk\Configuration;
+use zesk\Configuration\Loader;
 use zesk\Configuration\Parser\CONF;
 use zesk\Directory;
 use zesk\Exception\DirectoryCreate;
@@ -60,9 +60,9 @@ class LoaderTest extends TestCase
 		Directory::depend($three = Directory::path($path, 'three'));
 
 		$array = [
-			'name'      => 'ralph',
-			'rank'      => 'admiral',
-			'weight'    => 140,
+			'name' => 'ralph',
+			'rank' => 'admiral',
+			'weight' => 140,
 			'eye_color' => 'brown',
 		];
 		$config = new Configuration($array);
@@ -72,13 +72,13 @@ class LoaderTest extends TestCase
 		// Four files
 
 		$one_json = [
-			'Person'      => [
-				'name'      => '${name}-one-json',
-				'rank'      => '${rank}-one-json',
-				'weight'    => '${weight}-one-json',
+			'Person' => [
+				'name' => '${name}-one-json',
+				'rank' => '${rank}-one-json',
+				'weight' => '${weight}-one-json',
 				'eye_color' => '${eye_color}-one-json',
 			],
-			'LAST'        => 'one-json',
+			'LAST' => 'one-json',
 			'FILE_LOADED' => [
 				'ONE_JSON' => 1,
 			],
@@ -96,8 +96,8 @@ class LoaderTest extends TestCase
 		$three_json = [
 			'Person::name' => '${name}-three-json',
 			'Person::rank' => '${rank}-three-json',
-			'LAST'         => 'three-json',
-			'FILE_LOADED'  => [
+			'LAST' => 'three-json',
+			'FILE_LOADED' => [
 				'THREE_JSON' => 1,
 			],
 		];
@@ -143,25 +143,25 @@ class LoaderTest extends TestCase
 		]);
 
 		$this->assertEquals([
-			'name'        => 'ralph',
-			'rank'        => 'admiral',
-			'weight'      => 140,
-			'eye_color'   => 'brown',
-			'Person'      => [
-				'name'       => 'ralph-three-json',
-				'rank'       => 'admiral-three-json',
-				'weight'     => '140-three-conf',
-				'eye_color'  => 'brown-two-conf',
+			'name' => 'ralph',
+			'rank' => 'admiral',
+			'weight' => 140,
+			'eye_color' => 'brown',
+			'Person' => [
+				'name' => 'ralph-three-json',
+				'rank' => 'admiral-three-json',
+				'weight' => '140-three-conf',
+				'eye_color' => 'brown-two-conf',
 				'hair_color' => 'red-two-conf',
 			],
-			'LAST'        => 'three-json',
+			'LAST' => 'three-json',
 			'FILE_LOADED' => [
-				'ONE_JSON'   => 1,
-				'TWO_CONF'   => 1,
+				'ONE_JSON' => 1,
+				'TWO_CONF' => 1,
 				'THREE_CONF' => 1,
 				'THREE_JSON' => 1,
 			],
-			'zesk\\User'  => [
+			'zesk\\User' => [
 				'class' => 'User',
 			],
 		], Types::toArray($config));
@@ -200,21 +200,21 @@ class LoaderTest extends TestCase
 		];
 
 		$results = [
-			'FOO'       => '/foo/foo',
-			'BAR'       => '/bar/bar',
-			'B_R'       => 'red',
-			'UNQ0'      => 'quotes0',
-			'UNQ1'      => 'quotes1',
-			'FOOTEST0'  => '/foo/foo',
-			'FOOTEST1'  => 123,
-			'FOOTEST2'  => '/foo/foo/bar/bar',
-			'FOOTEST3'  => '123/bar/bar',
-			'FOOTEST4'  => 'some/foo/foosome456some',
-			'FOOTEST5'  => 'goo123goo/bar/bargoo',
-			'FOOTEST6'  => 'goo/foo/foogoo/bar/bargoo',
-			'FOOTEST7'  => 'googoogoo',
-			'FOOTEST8'  => 'redredred',
-			'FOOTEST9'  => 'redredred',
+			'FOO' => '/foo/foo',
+			'BAR' => '/bar/bar',
+			'B_R' => 'red',
+			'UNQ0' => 'quotes0',
+			'UNQ1' => 'quotes1',
+			'FOOTEST0' => '/foo/foo',
+			'FOOTEST1' => 123,
+			'FOOTEST2' => '/foo/foo/bar/bar',
+			'FOOTEST3' => '123/bar/bar',
+			'FOOTEST4' => 'some/foo/foosome456some',
+			'FOOTEST5' => 'goo123goo/bar/bargoo',
+			'FOOTEST6' => 'goo/foo/foogoo/bar/bargoo',
+			'FOOTEST7' => 'googoogoo',
+			'FOOTEST8' => 'redredred',
+			'FOOTEST9' => 'redredred',
 			'FOOTEST10' => 'redredred',
 			'FOOTEST11' => '',
 			'FOOTEST12' => true,
@@ -222,7 +222,7 @@ class LoaderTest extends TestCase
 		];
 		$options = [
 			'overwrite' => false,
-			'lower'     => false,
+			'lower' => false,
 		];
 		$actual = [];
 		$settings = new SettingsArray($actual);

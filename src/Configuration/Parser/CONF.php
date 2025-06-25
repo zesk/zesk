@@ -11,9 +11,8 @@ namespace zesk\Configuration\Parser;
 
 use zesk\bash;
 use zesk\Configuration\Editor;
-use zesk\Configuration\Parser;
-
 use zesk\Configuration\Editor\CONFEditor;
+use zesk\Configuration\Parser;
 use zesk\Directory;
 use zesk\Exception\KeyNotFound;
 use zesk\Exception\ParseException;
@@ -64,14 +63,14 @@ class CONF extends Parser
 	public const DEFAULT_UNQUOTE = '\'\'""';
 
 	protected array $parseOptions = [
-		self::OPTION_OVERWRITE  => self::DEFAULT_OVERWRITE,
-		self::OPTION_TRIM_KEY   => self::DEFAULT_TRIM_KEY,
-		self::OPTION_SEPARATOR  => self::DEFAULT_SEPARATOR,
+		self::OPTION_OVERWRITE => self::DEFAULT_OVERWRITE,
+		self::OPTION_TRIM_KEY => self::DEFAULT_TRIM_KEY,
+		self::OPTION_SEPARATOR => self::DEFAULT_SEPARATOR,
 		self::OPTION_TRIM_VALUE => self::DEFAULT_TRIM_VALUE,
-		self::OPTION_AUTO_TYPE  => self::DEFAULT_AUTO_TYPE,
-		self::OPTION_LOWER      => self::DEFAULT_LOWER,
-		self::OPTION_MULTILINE  => self::DEFAULT_MULTILINE,
-		self::OPTION_UNQUOTE    => self::DEFAULT_UNQUOTE,
+		self::OPTION_AUTO_TYPE => self::DEFAULT_AUTO_TYPE,
+		self::OPTION_LOWER => self::DEFAULT_LOWER,
+		self::OPTION_MULTILINE => self::DEFAULT_MULTILINE,
+		self::OPTION_UNQUOTE => self::DEFAULT_UNQUOTE,
 	];
 
 	/**
@@ -140,7 +139,7 @@ class CONF extends Parser
 			$found_quote = null;
 			$key = strtr($key, [
 				'___' => '\\',
-				'__'  => '::',
+				'__' => '::',
 			]);
 			/**
 			 * Parse and normalize value

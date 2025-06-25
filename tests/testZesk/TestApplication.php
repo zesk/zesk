@@ -1,20 +1,23 @@
 <?php
 declare(strict_types=1);
+/**
+ * @copyright  Copyright &copy; 2025, Market Acumen, Inc.
+ */
 
 namespace testZesk;
 
+use zesk\Application;
 use zesk\Command;
+use zesk\Directory;
 use zesk\Doctrine\User;
+use zesk\Exception\AuthenticationException;
 use zesk\File;
 use zesk\FilterMethod;
+use zesk\HookMethod;
+use zesk\Locale\Locale;
 use zesk\Model;
 use zesk\Request;
-use zesk\HookMethod;
-use zesk\Directory;
-use zesk\Exception\AuthenticationException;
-use zesk\Locale\Locale;
 use zesk\Router\RouterFile;
-use zesk\Application;
 
 /**
  * @see ApplicationTestBase
@@ -85,7 +88,7 @@ class TestApplication extends Application
 
 	/**
 	 * @param TestApplication $test
-	 * @param Locale          $locale
+	 * @param Locale $locale
 	 * @return void
 	 */
 	#[HookMethod(handles: Application::HOOK_LOCALE)]

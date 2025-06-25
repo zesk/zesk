@@ -81,7 +81,7 @@ class ImageMagick extends Library
 
 	/**
 	 * @param string $data
-	 * @param array  $options
+	 * @param array $options
 	 * @return string
 	 * @throws CommandFailed
 	 * @throws DirectoryCreate
@@ -109,7 +109,7 @@ class ImageMagick extends Library
 	/**
 	 * @param string $source
 	 * @param string $dest
-	 * @param array  $options
+	 * @param array $options
 	 * @return bool
 	 * @throws CommandFailed
 	 * @throws DirectoryNotFound
@@ -129,10 +129,10 @@ class ImageMagick extends Library
 		$height = $options['height'] ?? $actual_height;
 
 		$map = [
-			'source'      => escapeshellarg($source),
+			'source' => escapeshellarg($source),
 			'destination' => escapeshellarg($dest),
-			'width'       => $width,
-			'height'      => $height,
+			'width' => $width,
+			'height' => $height,
 		];
 
 		$cmd = $this->shellCommandScale();
@@ -155,8 +155,8 @@ class ImageMagick extends Library
 	/**
 	 * @param string $source
 	 * @param string $destination
-	 * @param float  $degrees
-	 * @param array  $options
+	 * @param float $degrees
+	 * @param array $options
 	 * @return bool
 	 * @throws UnimplementedException
 	 */

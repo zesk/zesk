@@ -1,17 +1,20 @@
 <?php
 declare(strict_types=1);
+/**
+ * @copyright &copy; 2025, Market Acumen, Inc.
+ */
 
 namespace zesk\Configuration;
 
+use zesk\Adapter\SettingsArray;
 use zesk\Configuration\Parser\CONF;
 use zesk\Configuration\Parser\JSON;
 use zesk\Configuration\Parser\SH;
+use zesk\Exception\ClassNotFound;
 use zesk\Exception\ParseException;
 use zesk\Exception\UnimplementedException;
-use zesk\Options;
-use zesk\Adapter\SettingsArray;
-use zesk\Exception\ClassNotFound;
 use zesk\Interface\SettingsInterface;
+use zesk\Options;
 use zesk\PHP;
 
 abstract class Parser extends Options

@@ -1,4 +1,8 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
+/**
+ * @copyright &copy; 2025, Market Acumen, Inc.
+ */
 
 namespace zesk\ApplicationHook;
 
@@ -9,7 +13,7 @@ interface User
 {
 	/**
 	 * @param Application $application
-	 * @param User|null   $user
+	 * @param User|null $user
 	 * @return User|null
 	 */
 	#[FilterMethod(handles: Application::HOOK_USER, argumentTypes: [

@@ -17,10 +17,10 @@ use zesk\Directory;
 use zesk\Exception;
 use zesk\Exception\FileNotFound;
 use zesk\Exception\FilePermission;
-use zesk\File;
-use zesk\JSON;
 use zesk\Exception\ParseException;
 use zesk\Exception\SemanticsException;
+use zesk\File;
+use zesk\JSON;
 use zesk\Types;
 use zesk\Version as ZeskVersion;
 
@@ -51,27 +51,27 @@ class Version extends SimpleCommand
 	];
 
 	protected array $argumentTypes = [
-		'tag'         => 'string',
-		'zesk'        => 'boolean',
-		'major'       => 'boolean',
-		'minor'       => 'boolean',
+		'tag' => 'string',
+		'zesk' => 'boolean',
+		'major' => 'boolean',
+		'minor' => 'boolean',
 		'maintenance' => 'boolean',
-		'patch'       => 'boolean',
-		'decrement'   => 'boolean',
-		'zero'        => 'boolean',
-		'init'        => 'boolean',
+		'patch' => 'boolean',
+		'decrement' => 'boolean',
+		'zero' => 'boolean',
+		'init' => 'boolean',
 	];
 
 	protected array $option_help = [
-		'tag'         => 'Set tag to this value',
-		'major'       => 'Bump major version (cascades)',
-		'minor'       => 'Bump minor version (cascades)',
+		'tag' => 'Set tag to this value',
+		'major' => 'Bump major version (cascades)',
+		'minor' => 'Bump minor version (cascades)',
 		'maintenance' => 'Bump maintenance version',
-		'patch'       => 'Bump patch version',
-		'decrement'   => 'Decrement version instead of increasing version (cascades)',
-		'zero'        => 'Set version component to zero instead (cascades)',
-		'init'        => 'Write default etc/version-schema.json for the application',
-		'zesk'        => 'Ignore all other options and output the version of Zesk (not application version)',
+		'patch' => 'Bump patch version',
+		'decrement' => 'Decrement version instead of increasing version (cascades)',
+		'zero' => 'Set version component to zero instead (cascades)',
+		'init' => 'Write default etc/version-schema.json for the application',
+		'zesk' => 'Ignore all other options and output the version of Zesk (not application version)',
 	];
 
 	/**
@@ -209,7 +209,7 @@ class Version extends SimpleCommand
 			$new_version = $generator($version_structure);
 		} catch (Throwable $e) {
 			$this->error('Error generating new version from structure {message} ({version_structure})', [
-				'message'           => $e->getMessage(),
+				'message' => $e->getMessage(),
 				'version_structure' => $version_structure,
 			]);
 		}
@@ -228,15 +228,15 @@ class Version extends SimpleCommand
 			if ($new_version_raw === $version_raw) {
 				$this->error('Version number {version} is unchanged despite {flags}', [
 					'version' => $version_structure,
-					'flags'   => $flags,
+					'flags' => $flags,
 				]);
 				return self::EXIT_CODE_VERSION_UPDATE_UNCHANGED;
 			} else {
 				$params = [
 					'previousVersion' => $previousVersion,
-					'version'         => $new_version_raw,
-					'command'         => $this,
-					'application'     => $this->application,
+					'version' => $new_version_raw,
+					'command' => $this,
+					'application' => $this->application,
 				];
 				$this->invokeHooks(self::HOOK_UPDATED, [$params]);
 				$this->info('Updated version from {previousVersion} to {version}', $params);
@@ -277,7 +277,7 @@ class Version extends SimpleCommand
 
 		try {
 			File::put($schema_file_path, JSON::encodePretty([
-				'file'   => $version_file_path,
+				'file' => $version_file_path,
 				'reader' => [
 					'json' => $json_path,
 				],

@@ -146,38 +146,6 @@ class Router extends Hookable
 	protected int $weightIndex = 0;
 
 	/**
-	 *
-	 *
-	 */
-	public function __serialize(): array
-	{
-		return [
-			'applicationClass' => $this->applicationClass,
-			'reverseRoutes'    => $this->reverseRoutes,
-			'routes'           => $this->routes,
-			'prefix'           => $this->prefix,
-			'aliases'          => $this->aliases,
-		] + parent::__serialize();
-	}
-
-	/**
-	 */
-	public function __unserialize(array $data): void
-	{
-		parent::__unserialize($data);
-		$this->applicationClass = $data['applicationClass'];
-		$this->reverseRoutes = $data['reverseRoutes'];
-		$this->routes = $data['routes'];
-		$this->prefix = $data['prefix'];
-		$this->aliases = $data['aliases'];
-		$this->byId = [];
-		foreach ($this->routes as $route) {
-			$route->wakeupConnect($this);
-		}
-		$this->sorted = false;
-	}
-
-	/**
 	 * Empty the router of any settings except the application class (used for serialization)
 	 *
 	 * @return void
@@ -197,7 +165,7 @@ class Router extends Hookable
 	 * Create a new Router
 	 *
 	 * @param Application $application
-	 * @param array       $options
+	 * @param array $options
 	 * @return self
 	 * @throws ClassNotFound
 	 */
@@ -212,7 +180,7 @@ class Router extends Hookable
 	 * Router constructor.
 	 *
 	 * @param Application $application
-	 * @param array       $options
+	 * @param array $options
 	 */
 	public function __construct(Application $application, array $options = [])
 	{
@@ -288,7 +256,7 @@ class Router extends Hookable
 		}
 
 		throw new KeyNotFound('Route not found {id} (key: {key})', [
-			'id'  => $id,
+			'id' => $id,
 			'key' => $key,
 		]);
 	}
@@ -375,7 +343,7 @@ class Router extends Hookable
 
 		throw new NotFoundException('No match for {path} ({method})', [
 			'method' => $method,
-			'path'   => $path,
+			'path' => $path,
 		]);
 	}
 
@@ -395,7 +363,7 @@ class Router extends Hookable
 	 * Add a route
 	 *
 	 * @param string $path
-	 * @param array  $options
+	 * @param array $options
 	 * @return Route
 	 * @throws ClassNotFound
 	 */
@@ -431,7 +399,7 @@ class Router extends Hookable
 	 * Load a Router file
 	 *
 	 * @param string $contents
-	 * @param array  $add_options
+	 * @param array $add_options
 	 * @return void
 	 * @throws SyntaxException
 	 * @see Parser
@@ -462,10 +430,10 @@ class Router extends Hookable
 	}
 
 	/**
-	 * @param array      $routes
-	 * @param string     $action
+	 * @param array $routes
+	 * @param string $action
 	 * @param Model|null $object
-	 * @param array      $options
+	 * @param array $options
 	 * @return Route
 	 * @throws NotFoundException
 	 */
@@ -511,10 +479,10 @@ class Router extends Hookable
 	 * Retrieve a route to an object from the router.
 	 * Uses current route's context to determine new route.
 	 *
-	 * @param string                  $action
+	 * @param string $action
 	 * @param null|string|array|Model $object An instance of a Model, a name of a model class, a name of a Controller
 	 *                                        class
-	 * @param array|string            $options
+	 * @param array|string $options
 	 *                                        "query" => (string or array). Append query string to URL
 	 *                                        "inherit_current_route" => (boolean). Use variables from current route when
 	 *                                        generating this route.
@@ -594,8 +562,8 @@ class Router extends Hookable
 		]);
 		if (empty($url)) {
 			throw new NotFoundException('No reverse route for {classes}->{action} {backtrace}', [
-				'classes'   => $try_classes,
-				'action'    => $original_action,
+				'classes' => $try_classes,
+				'action' => $original_action,
 				'backtrace' => Kernel::backtrace(),
 			]);
 		}
@@ -617,5 +585,38 @@ class Router extends Hookable
 			}
 		}
 		return $controllers;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function __serializeChild(): array
+	{
+		return [
+			'debug' => $this->debug,
+			'aliases' => $this->aliases,
+			'byId' => $this->byId,
+			'prefix' => $this->prefix,
+			'reverseRoutes' => $this->reverseRoutes,
+			'routes' => $this->routes,
+			'weightIndex' => $this->weightIndex,
+			'sorted' => $this->sorted,
+		];
+	}
+
+	/**
+	 * @param array $data
+	 * @return void
+	 */
+	public function __unserializeChild(array $data): void
+	{
+		$this->debug = $data['debug'];
+		$this->aliases = $data['aliases'];
+		$this->byId = $data['byId'];
+		$this->prefix = $data['prefix'];
+		$this->reverseRoutes = $data['reverseRoutes'];
+		$this->routes = $data['routes'];
+		$this->weightIndex = $data['weightIndex'];
+		$this->sorted = $data['sorted'];
 	}
 }

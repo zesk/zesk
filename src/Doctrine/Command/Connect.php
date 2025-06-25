@@ -43,17 +43,17 @@ class Connect extends SimpleCommand
 	 * @var array
 	 */
 	protected array $argumentTypes = [
-		'name'           => 'string',
-		'format'         => 'string',
-		'echo'           => 'boolean',
-		'debug-connect'  => 'boolean',
-		'db-url'         => 'boolean',
+		'name' => 'string',
+		'format' => 'string',
+		'echo' => 'boolean',
+		'debug-connect' => 'boolean',
+		'db-url' => 'boolean',
 		'show-passwords' => 'boolean',
-		'force'          => 'boolean',
-		'test'           => 'boolean',
-		'db-name'        => 'boolean',
-		'grant'          => 'boolean',
-		'host'           => 'string',
+		'force' => 'boolean',
+		'test' => 'boolean',
+		'db-name' => 'boolean',
+		'grant' => 'boolean',
+		'host' => 'string',
 	];
 
 	/**
@@ -61,15 +61,15 @@ class Connect extends SimpleCommand
 	 * @var array
 	 */
 	protected array $option_help = [
-		'name'          => 'Database code name to connect to',
-		'echo'          => 'Output the connection command instead of running it',
+		'name' => 'Database code name to connect to',
+		'echo' => 'Output the connection command instead of running it',
 		'debug-connect' => 'Show the connect command',
-		'db-url'        => 'Output the database URL or URLs',
-		'force'         => 'Force command execution even on failure',
-		'test'          => 'Test to make sure all connections work',
-		'db-name'       => 'Output the database name or names',
-		'grant'         => 'Display grant statements for the database',
-		'host'          => 'Host used in grant statement if not otherwise supplied',
+		'db-url' => 'Output the database URL or URLs',
+		'force' => 'Force command execution even on failure',
+		'test' => 'Test to make sure all connections work',
+		'db-name' => 'Output the database name or names',
+		'grant' => 'Display grant statements for the database',
+		'host' => 'Host used in grant statement if not otherwise supplied',
 	];
 
 	/**
@@ -136,8 +136,8 @@ class Connect extends SimpleCommand
 
 	private static array $shell_command_options = [
 		'sql-dump-command' => 'boolean. Generate a command-line SQL dump command instead of a connection command',
-		'tables'           => 'string[]. Used in conjunction with sql-dump-command - an array of tables to dump',
-		'non-blocking'     => 'boolean. Used in conjunction with sql-dump-command - dump database in a non-blocking manner.',
+		'tables' => 'string[]. Used in conjunction with sql-dump-command - an array of tables to dump',
+		'non-blocking' => 'boolean. Used in conjunction with sql-dump-command - dump database in a non-blocking manner.',
 	];
 
 	public function mysqlShellCommand(array $options = []): array
@@ -151,8 +151,8 @@ class Connect extends SimpleCommand
 		foreach ($options as $option_key => $option_value) {
 			if (!array_key_exists($option_key, self::$shell_command_options)) {
 				$this->application->warning('Unknown option passed to {method}: {option_key}={option_value}', [
-					'method'       => __METHOD__,
-					'option_key'   => $option_key,
+					'method' => __METHOD__,
+					'option_key' => $option_key,
 					'option_value' => Debug::dump($option_value),
 				]);
 			}

@@ -1,5 +1,8 @@
 <?php
 declare(strict_types=1);
+/**
+ * @copyright  Copyright &copy; 2025, Market Acumen, Inc.
+ */
 
 namespace zesk\World\Command;
 
@@ -21,25 +24,25 @@ class Bootstrap extends SimpleCommand
 	protected array $shortcuts = ['world-bootstrap'];
 
 	protected array $argumentTypes = [
-		'drop'     => 'boolean',
-		'all'      => 'boolean',
-		'country'  => 'boolean',
+		'drop' => 'boolean',
+		'all' => 'boolean',
+		'country' => 'boolean',
 		'currency' => 'boolean',
 		'language' => 'boolean',
 		'province' => 'boolean',
 	];
 
 	protected array $option_help = [
-		'drop'     => 'Truncate all tables (may cause renumbering)',
-		'all'      => 'Bootstrap all codes',
-		'country'  => 'Bootstrap country codes',
+		'drop' => 'Truncate all tables (may cause renumbering)',
+		'all' => 'Bootstrap all codes',
+		'country' => 'Bootstrap country codes',
 		'currency' => 'Bootstrap currency codes',
 		'language' => 'Bootstrap language codes',
 		'province' => 'Bootstrap US/CA provinces',
 	];
 
 	private static array $straps = [
-		'country'  => BootstrapCountry::class,
+		'country' => BootstrapCountry::class,
 		'currency' => BootstrapCurrency::class,
 		'language' => BootstrapLanguage::class,
 		'province' => BootstrapProvince::class,

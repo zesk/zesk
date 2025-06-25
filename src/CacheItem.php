@@ -1,14 +1,14 @@
 <?php
 declare(strict_types=1);
 /**
- *
+ * @copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk;
 
+use DateInterval as NativeDateInterval;
 use DateTimeInterface;
 use Psr\Cache\CacheItemInterface;
-use DateInterval as NativeDateInterval;
 
 /**
  * Generic cache item

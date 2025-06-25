@@ -9,9 +9,9 @@ declare(strict_types=1);
 
 namespace zesk\Exception;
 
+use Throwable;
 use zesk\Configuration;
 use zesk\Exception;
-use Throwable;
 
 class ConfigurationException extends Exception
 {

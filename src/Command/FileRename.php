@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 /**
- *
+ * @copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Command;
@@ -34,8 +34,8 @@ class FileRename extends FileIterator
 	 * @var array
 	 */
 	protected array $argumentTypes = [
-		'from'    => 'string',
-		'to'      => 'string',
+		'from' => 'string',
+		'to' => 'string',
 		'dry-run' => 'boolean',
 	];
 
@@ -124,11 +124,11 @@ class FileRename extends FileIterator
 	protected function finish(): int
 	{
 		$this->info('Completed "{from}" => "{to}": {failed} failed, {succeed} succeeded, {ignored} ignored.', [
-			'failed'  => $this->failed,
+			'failed' => $this->failed,
 			'succeed' => $this->succeed,
 			'ignored' => $this->ignored,
-			'from'    => $this->from,
-			'to'      => $this->to,
+			'from' => $this->from,
+			'to' => $this->to,
 		]);
 		return $this->failed === 0 ? 0 : $this->failed;
 	}

@@ -66,7 +66,7 @@ class Module extends BaseModule
 	private array $managers = [];
 
 	private static array $zeskTypes = [
-		Timestamp::TYPE   => Timestamp::class,
+		Timestamp::TYPE => Timestamp::class,
 		EnumBoolean::TYPE => EnumBoolean::class,
 	];
 
@@ -227,7 +227,7 @@ class Module extends BaseModule
 	}
 
 	/**
-	 * @param array  $entities
+	 * @param array $entities
 	 * @param string $name
 	 * @return array
 	 * @throws ConfigurationException
@@ -250,7 +250,7 @@ class Module extends BaseModule
 	}
 
 	/**
-	 * @param array  $entities
+	 * @param array $entities
 	 * @param string $name
 	 * @return array
 	 * @throws ConfigurationException

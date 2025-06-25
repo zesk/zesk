@@ -77,9 +77,9 @@ class Reader
 
 	/**
 	 *
-	 * @param array  $paths
+	 * @param array $paths
 	 * @param string $id
-	 * @param array  $extensions
+	 * @param array $extensions
 	 * @return self
 	 */
 	public static function factory(array $paths, string $id, array $extensions = []): self
@@ -89,9 +89,9 @@ class Reader
 
 	/**
 	 *
-	 * @param array  $paths
+	 * @param array $paths
 	 * @param string $id
-	 * @param array  $extensions
+	 * @param array $extensions
 	 */
 	public function __construct(array $paths, string $id, array $extensions = [])
 	{
@@ -143,7 +143,7 @@ class Reader
 	/**
 	 *
 	 * @param Application $application
-	 * @param array       $options
+	 * @param array $options
 	 * @return Locale
 	 * @throws ClassNotFound
 	 */
@@ -226,7 +226,7 @@ class Reader
 			$result = JSON::decode(File::contents($file));
 		} else {
 			throw new UnsupportedException('Locale file {file} extension {extension} not supported', [
-				'file'      => $file,
+				'file' => $file,
 				'extension' => $extension,
 			]);
 		}

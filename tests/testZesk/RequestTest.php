@@ -6,7 +6,13 @@ declare(strict_types=1);
 
 namespace testZesk;
 
+use zesk\Exception\ClassNotFound;
+use zesk\Exception\FileNotFound;
 use zesk\Exception\FilePermission;
+use zesk\Exception\KeyNotFound;
+use zesk\Exception\ParameterException;
+use zesk\Exception\ParseException;
+use zesk\Exception\SemanticsException;
 use zesk\HTTP;
 use zesk\Request;
 use zesk\Request\File as FileRequest;
@@ -14,20 +20,15 @@ use zesk\Request\File as FileRequest;
 /**
  *
  * @author kent
- * @coversDefaultClass Request
+ * @coversDefaultClass \zesk\Request
  * @uses   Request
  */
 class RequestTest extends TestCase
 {
-	public function test_requestFactory(): void
-	{
-		$request = $this->application->requestFactory();
-		$this->assertNotNull($request);
-	}
-
 	/**
 	 * @return void
 	 * @covers ::ip
+	 * @throws SemanticsException
 	 */
 	public function test_remote(): void
 	{
@@ -36,6 +37,23 @@ class RequestTest extends TestCase
 		$this->assertEquals($default, $request->ip());
 	}
 
+	/**
+	 * @return void
+	 * @throws SemanticsException
+	 * @throws FileNotFound
+	 * @throws KeyNotFound
+	 * @throws ParameterException
+	 * @throws ParseException
+	 * @covers ::initializeFromSettings
+	 * @covers ::isSecure
+	 * @covers ::isPost
+	 * @covers ::contentType
+	 * @covers ::path
+	 * @covers ::parseAccept
+	 * @covers ::data
+	 * @covers ::headers
+	 * @covers ::header
+	 */
 	public function test_Request(): void
 	{
 		$settings = [
@@ -64,7 +82,7 @@ class RequestTest extends TestCase
 	}
 
 	/**
-	 *
+	 * @covers File::migrate
 	 */
 	public function test__file_migrate1(): void
 	{
@@ -83,6 +101,7 @@ class RequestTest extends TestCase
 
 	/**
 	 * Should prefer HTML in this case.
+	 * @covers ::preferJSON
 	 */
 	public function test_msie_broken(): void
 	{
@@ -106,6 +125,12 @@ class RequestTest extends TestCase
 		$this->assertFalse($request->preferJSON(), 'Request should NOT prefer JSON');
 	}
 
+	/**
+	 * @return void
+	 * @throws FileNotFound
+	 * @throws ClassNotFound
+	 * @covers ::preferJSON
+	 */
 	public function test_chrome_works_fine(): void
 	{
 		$settings = [

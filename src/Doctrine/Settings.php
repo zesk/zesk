@@ -11,14 +11,18 @@ namespace zesk\Doctrine;
 
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\Exception\ORMException;
+use Doctrine\ORM\OptimisticLockException;
 use zesk\Application;
 use zesk\Application\Hooks;
 use zesk\bash;
 use zesk\Configuration;
+use zesk\EmptyHookable;
 use zesk\Exception\ClassNotFound;
 use zesk\Exception\Deprecated;
+use zesk\Exception\KeyNotFound;
 use zesk\Exception\NotFoundException;
-use zesk\Hookable;
+use zesk\Exception\SemanticsException;
 use zesk\HookMethod;
 use zesk\Interface\MetaInterface;
 use zesk\Interface\SettingsInterface;
@@ -30,7 +34,7 @@ use zesk\Types;
  * @author kent
  * @see    Class_Settings
  */
-class Settings extends Hookable implements MetaInterface, SettingsInterface
+class Settings extends EmptyHookable implements MetaInterface, SettingsInterface
 {
 	/**
 	 * Enable debugging on the Settings save step
@@ -58,6 +62,8 @@ class Settings extends Hookable implements MetaInterface, SettingsInterface
 	 * @param Application $application
 	 * @return void
 	 * @throws ClassNotFound
+	 * @throws KeyNotFound
+	 * @throws SemanticsException
 	 */
 	#[HookMethod(handles: Hooks::HOOK_CONFIGURED)]
 	public static function configured(Application $application): void
@@ -90,36 +96,36 @@ class Settings extends Hookable implements MetaInterface, SettingsInterface
 	/**
 	 * Same as __get with a default
 	 *
-	 * @param int|string $name
+	 * @param int|string $key
 	 * @param mixed|null $default
 	 * @return mixed
 	 * @see Model::get()
 	 */
-	public function get(int|string $name, mixed $default = null): mixed
+	public function get(int|string $key, mixed $default = null): mixed
 	{
-		return $this->application->configuration->getPath($name, $default);
+		return $this->application->configuration->getPath($key, $default);
 	}
 
 	/**
 	 * Same as __get with a default
 	 *
-	 * @param int|string $name
+	 * @param int|string $key
 	 * @return mixed
 	 * @see Model::get()
 	 */
-	public function has(int|string $name): bool
+	public function has(int|string $key): bool
 	{
-		return $this->application->configuration->has($name, true);
+		return $this->application->configuration->has($key, true);
 	}
 
 	/**
-	 * @param int|string $name
+	 * @param int|string $key
 	 * @return bool
 	 * @see Model::__isset()
 	 */
-	public function __isset(int|string $name): bool
+	public function __isset(int|string $key): bool
 	{
-		return $this->application->configuration->pathExists($name);
+		return $this->application->configuration->pathExists($key);
 	}
 
 	/**
@@ -127,22 +133,22 @@ class Settings extends Hookable implements MetaInterface, SettingsInterface
 	 *
 	 * @see Model::__set($member, $value)
 	 */
-	public function __set(int|string $name, mixed $value): void
+	public function __set(int|string $key, mixed $value): void
 	{
-		SettingsValue::register($this->application, $name, $value);
+		SettingsValue::register($this->application, $key, $value);
 	}
 
 	/**
 	 * Global to save
 	 *
-	 * @param int|string $name
+	 * @param int|string $key
 	 * @param mixed|null $value
 	 * @return self
 	 * @see Model::set($member, $value)
 	 */
-	public function set(int|string $name, mixed $value = null): self
+	public function set(int|string $key, mixed $value = null): self
 	{
-		$this->__set($name, $value);
+		$this->__set($key, $value);
 		return $this;
 	}
 
@@ -165,12 +171,14 @@ class Settings extends Hookable implements MetaInterface, SettingsInterface
 	/**
 	 *
 	 * @param string $name
-	 * @param mixed  $value
+	 * @param mixed $value
 	 * @return $this
+	 * @throws ORMException
+	 * @throws OptimisticLockException
 	 */
 	public function setMeta(string $name, mixed $value): self
 	{
-		SettingsValue::register($this->application, $this->em, $name, $value);
+		SettingsValue::register($this->application, $name, $value);
 		return $this;
 	}
 
@@ -182,6 +190,8 @@ class Settings extends Hookable implements MetaInterface, SettingsInterface
 	/**
 	 *
 	 * @return $this
+	 * @throws ORMException
+	 * @throws OptimisticLockException
 	 */
 	public function clearMeta(): self
 	{
@@ -250,13 +260,13 @@ class Settings extends Hookable implements MetaInterface, SettingsInterface
 		$em = $this->application->entityManager();
 		$query = $em->createQuery('UPDATE ' . SettingsValue::class . ' SET name=REPLACE(name, :old, :new) WHERE name LIKE :oldPattern)');
 		$rowCount = $query->execute([
-			'old'        => $oldPrefix,
-			'new'        => $newPrefix,
+			'old' => $oldPrefix,
+			'new' => $newPrefix,
 			'oldPattern' => $oldPrefix . '%',
 		]);
 		if ($rowCount > 0) {
 			$this->application->notice('Updated {rowCount} settings from {old_prefix} to use new prefix {new_prefix}', [
-				'rowCount'   => $rowCount,
+				'rowCount' => $rowCount,
 				'old_prefix' => $oldPrefix,
 				'new_prefix' => $newPrefix,
 			]);

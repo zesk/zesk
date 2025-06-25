@@ -8,12 +8,10 @@ namespace testZesk;
 
 use stdClass;
 use zesk\Date;
-use zesk\Debug;
 use zesk\Exception\ParseException;
 use zesk\Types;
 
 /**
- * @see    AddressLock/functions.php
  * @author kent
  * @coversDefaultClass \zesk\Types
  */
@@ -111,6 +109,7 @@ class TypesTest extends TestCase
 
 	/**
 	 * @return void
+	 * @coversNothing
 	 */
 	public function test_patterns(): void
 	{
@@ -132,16 +131,6 @@ class TypesTest extends TestCase
 		for ($i = 256; $i < 32767; $i++) {
 			$this->assertFalse(preg_match('/^' . Types::PREG_PATTERN_IP4_DIGIT1 . '$/', strval($i)) !== 0);
 		}
-	}
-
-	public function test_dump(): void
-	{
-		$x = null;
-		$html = true;
-		ob_start();
-		Debug::output($x, $html);
-		$dumped = ob_get_clean();
-		$this->assertEquals("(null)\n(boolean) true\n", $dumped);
 	}
 
 	public static function data_bad_dates(): array
@@ -285,14 +274,15 @@ class TypesTest extends TestCase
 	 * @param string $expected
 	 * @param mixed $mixed
 	 * @return void
-	 * @dataProvider data_vartype
+	 * @dataProvider dataType
+	 * @covers ::type
 	 */
-	public function test_vartype(string $expected, mixed $mixed): void
+	public function testType(string $expected, mixed $mixed): void
 	{
 		$this->assertEquals($expected, Types::type($mixed));
 	}
 
-	public static function data_vartype(): array
+	public static function dataType(): array
 	{
 		return [
 			[
@@ -334,7 +324,7 @@ class TypesTest extends TestCase
 		];
 	}
 
-	public static function data_toList(): array
+	public static function dataToList(): array
 	{
 		return [
 			[
@@ -356,10 +346,10 @@ class TypesTest extends TestCase
 	 * @param string $delimiter
 	 * @param array $expected
 	 * @return void
-	 * @dataProvider data_toList
+	 * @dataProvider dataToList
 	 * @covers ::toList
 	 */
-	public function test_toList(mixed $mixed, array $default, string $delimiter, array $expected): void
+	public function testToList(mixed $mixed, array $default, string $delimiter, array $expected): void
 	{
 		$this->assertEquals($expected, Types::toList($mixed, $default, $delimiter));
 	}
@@ -368,15 +358,15 @@ class TypesTest extends TestCase
 	 * @param mixed $mixed
 	 * @param int $expected
 	 * @return void
-	 * @dataProvider data_to_integer
+	 * @dataProvider dataToInteger
 	 * @covers ::toInteger
 	 */
-	public function test_to_integer(mixed $mixed, int $expected): void
+	public function testToInteger(mixed $mixed, int $expected): void
 	{
 		$this->assertEquals($expected, Types::toInteger($mixed));
 	}
 
-	public static function data_to_integer(): array
+	public static function dataToInteger(): array
 	{
 		return [
 			[
@@ -426,15 +416,15 @@ class TypesTest extends TestCase
 	 * @param mixed $float_test
 	 * @param float $expected
 	 * @return void
-	 * @dataProvider data_toFloat
+	 * @dataProvider dataToFloat
 	 * @covers ::toFloat
 	 */
-	public function test_toFloat(mixed $float_test, float $expected): void
+	public function testToFloat(mixed $float_test, float $expected): void
 	{
 		$this->assertEquals($expected, Types::toFloat($float_test));
 	}
 
-	public static function data_toFloat(): array
+	public static function dataToFloat(): array
 	{
 		return [
 			[
@@ -469,15 +459,15 @@ class TypesTest extends TestCase
 	 * @param mixed $test
 	 * @param bool|null $expected
 	 * @return void
-	 * @dataProvider data_toBool
+	 * @dataProvider dataToBool
 	 * @covers ::toBool
 	 */
-	public function test_toBool(mixed $test, ?bool $expected): void
+	public function testToBool(mixed $test, ?bool $expected): void
 	{
 		$this->assertEquals($expected, Types::toBool($test));
 	}
 
-	public static function data_toBool(): array
+	public static function dataToBool(): array
 	{
 		return [
 			[
@@ -620,6 +610,11 @@ class TypesTest extends TestCase
 		];
 	}
 
+	/**
+	 * @param $value
+	 * @param $default
+	 * @return bool|mixed
+	 */
 	public static function to_bool_strpos($value, $default = false)
 	{
 		if (is_bool($value)) {
@@ -679,7 +674,7 @@ class TypesTest extends TestCase
 	 * @return void
 	 * @covers ::toArray
 	 */
-	public function test_toArray(): void
+	public function testToArray(): void
 	{
 		$this->assertEquals([
 			'foo',

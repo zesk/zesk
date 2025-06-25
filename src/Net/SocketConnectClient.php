@@ -13,7 +13,7 @@ use zesk\Exception\ConnectionFailed;
 use zesk\Exception\ProtocolException;
 use zesk\Exception\TimeoutExpired;
 
-class SocketClient extends Client
+class SocketConnectClient extends ConnectClient
 {
 	/**
 	 * Option to enable debugging of read calls.
@@ -208,8 +208,8 @@ class SocketClient extends Client
 		if (!str_starts_with(trim($result), $expect)) {
 			throw new ProtocolException('{command} expected {expect}, received {result}', [
 				'command' => $command,
-				'expect'  => $expect,
-				'result'  => $result,
+				'expect' => $expect,
+				'result' => $result,
 			]);
 		}
 		return $result;
@@ -324,7 +324,7 @@ class SocketClient extends Client
 		$result = fread($this->socket, $characterCount);
 		if ($this->optionBool(self::OPTION_DEBUG_READ)) {
 			$this->_log('->read({count}) = {result}', [
-				'count'  => $characterCount,
+				'count' => $characterCount,
 				'result' => $result === false ? 'false' : strlen($result) . ' bytes',
 			]);
 		}

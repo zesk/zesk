@@ -19,10 +19,10 @@ use Doctrine\ORM\Mapping\EntityListeners;
 use Doctrine\ORM\Mapping\OneToMany;
 use Doctrine\ORM\Mapping\UniqueConstraint;
 use Doctrine\ORM\OptimisticLockException;
-use zesk\Cron\Attributes\Cron;
 use Throwable;
 use zesk\Application;
 use zesk\ArrayTools;
+use zesk\Cron\Attributes\Cron;
 use zesk\Doctrine\Trait\AutoID;
 use zesk\Exception;
 use zesk\Exception\KeyNotFound;
@@ -393,7 +393,7 @@ class Server extends Model implements MetaInterface
 	 * Set or delete the server data object
 	 *
 	 * @param string $name
-	 * @param mixed  $value
+	 * @param mixed $value
 	 * @return self
 	 * @throws ORMException
 	 */
@@ -413,7 +413,7 @@ class Server extends Model implements MetaInterface
 	{
 		$meta = $this->entityManager()->getRepository(ServerMeta::class)->findOneBy([
 			'server' => $this,
-			'name'   => $name,
+			'name' => $name,
 		]);
 		if (!$meta) {
 			throw new KeyNotFound($name);
@@ -445,7 +445,7 @@ class Server extends Model implements MetaInterface
 	{
 		$meta = $this->entityManager()->getRepository(ServerMeta::class)->findOneBy([
 			'server' => $this,
-			'name'   => $name,
+			'name' => $name,
 		]);
 		if ($meta) {
 			$this->entityManager()->remove($meta);

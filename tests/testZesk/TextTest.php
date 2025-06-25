@@ -8,9 +8,13 @@ namespace testZesk;
 
 use zesk\Text;
 
+/**
+ * @coversDefaultClass \zesk\Text
+ * @uses Text
+ */
 class TextTest extends TestCase
 {
-	public static function data_fill(): array
+	public static function dataFill(): array
 	{
 		return [
 			[
@@ -36,14 +40,15 @@ class TextTest extends TestCase
 	 * @param int $n
 	 * @param string $pad
 	 * @return void
-	 * @dataProvider data_fill
+	 * @dataProvider dataFill
+	 * @covers ::fill
 	 */
-	public function test_fill(string $expected, int $n, string $pad): void
+	public function testFill(string $expected, int $n, string $pad): void
 	{
 		$this->assertEquals($expected, Text::fill($n, $pad));
 	}
 
-	public static function data_tail(): array
+	public static function dataTail(): array
 	{
 		$lines1 = "how\nmany\nlines\ncan\nwe\nmake\nup\na\nb\nc";
 		return [
@@ -85,18 +90,15 @@ class TextTest extends TestCase
 	 * @param string $content
 	 * @param int $lines
 	 * @return void
-	 * @dataProvider data_tail
+	 * @covers ::tail
+	 * @dataProvider dataTail
 	 */
-	public function test_tail(string $expected, string $content, int $lines): void
+	public function testTail(string $expected, string $content, int $lines): void
 	{
 		$this->assertEquals($expected, Text::tail($content, $lines));
 	}
 
-	/**
-	 * @return void
-	 * @see Text::formatPairs()
-	 */
-	public function test_format_pairs(): void
+	public static function dataFormatPairs(): array
 	{
 		$map = [
 			[
@@ -104,31 +106,37 @@ class TextTest extends TestCase
 				'b' => 'B',
 			],
 			[
-				'longervar' => 1,
+				'longerName' => 1,
 				'b' => 'Hello',
 			],
 		];
-		$prefix = '---';
-		$space = ' ';
-		$suffix = ': ';
-		$br = "\n";
-		$this->assertEquals("---a: A\n---b: B\n", Text::formatPairs($map[0], $prefix, $suffix, $space, '', $br));
-		$prefix = '$dude$';
-		$space = '==';
-		$this->assertEquals("\$dude\$longervar: 1\n\$dude\$b: ========Hello\n", Text::formatPairs($map[1], $prefix, $suffix, $space, '', $br));
-		$prefix = '-';
-		$space = '=';
-		$this->assertEquals("-longervar: 1\n-b: ========Hello\n", Text::formatPairs($map[1], $prefix, $suffix, $space, '', $br));
-
-		$map = [
-			'Name' => 'John',
+		return [
+			["---a: A\n---b: B\n", $map[0], '---', ': ', ' ', '', "\n"],
+			["\$dude\$longerName: 1\n\$dude\$b: =========Hello\n", $map[1], '$dude$', ': ', '==', '', "\n"],
+			["-longerName: 1\n-b: =========Hello\n", $map[1], '-', ': ', '=', '', "\n"],
+			[" Name: John\n", ['Name' => 'John', ], ' ', ': ', ' ', '', "\n"],
 		];
-		$prefix = ' ';
-		$space = ' ';
-		$this->assertEquals(" Name: John\n", Text::formatPairs($map, $prefix, $suffix, $space, '', $br));
 	}
 
-	public static function data_format_table(): array
+	/**
+	 * @param string $expected
+	 * @param array $map
+	 * @param string $prefix
+	 * @param string $suffix
+	 * @param string $pad
+	 * @param string $delimiter
+	 * @param string $br
+	 * @return void
+	 * @see          Text::formatPairs()
+	 * @covers ::formatPairs
+	 * @dataProvider dataFormatPairs
+	 */
+	public function testFormatPairs(string $expected, array $map, string $prefix, string $suffix, string $pad, string $delimiter, string $br): void
+	{
+		$this->assertEquals($expected, Text::formatPairs($map, $prefix, $suffix, $pad, $delimiter, $br));
+	}
+
+	public static function dataFormatTable(): array
 	{
 		$rowset1 = [
 			[
@@ -168,14 +176,15 @@ class TextTest extends TestCase
 	 * @param array $table
 	 * @param string $prefix
 	 * @return void
-	 * @dataProvider data_format_table
+	 * @dataProvider dataFormatTable
+	 * @covers       ::formatTable
 	 */
-	public function test_format_table(string $expected, array $table, string $prefix): void
+	public function testFormatTable(string $expected, array $table, string $prefix): void
 	{
 		$this->assertEquals($expected, Text::formatTable($table, $prefix));
 	}
 
-	public static function data_indent(): array
+	public static function dataIndent(): array
 	{
 		return [
 			[
@@ -197,14 +206,15 @@ class TextTest extends TestCase
 	 * @param string $indent_char
 	 * @param string $newline
 	 * @return void
-	 * @dataProvider data_indent
+	 * @dataProvider dataIndent
+	 * @covers ::indent
 	 */
-	public function test_indent(string $expected, string $text, int $indent_count, bool $trim_line_white, string $indent_char, string $newline): void
+	public function testIndent(string $expected, string $text, int $indent_count, bool $trim_line_white, string $indent_char, string $newline): void
 	{
 		$this->assertEquals($expected, Text::indent($text, $indent_count, $trim_line_white, $indent_char, $newline));
 	}
 
-	public static function data_indentString(): array
+	public static function dataIndentString(): array
 	{
 		return [
 			[
@@ -223,20 +233,21 @@ class TextTest extends TestCase
 	}
 
 	/**
-	 * @dataProvider data_indentString
+	 * @dataProvider dataIndentString
 	 * @param string $expected
 	 * @param string $text
 	 * @param string $indentString
 	 * @param string $newline
 	 * @return void
 	 * @see          Text::indentString()
+	 * @covers ::indentString
 	 */
-	public function test_indentString(string $expected, string $text, string $indentString, string $newline): void
+	public function testIndentString(string $expected, string $text, string $indentString, string $newline): void
 	{
 		$this->assertEquals($expected, Text::indentString($text, $indentString, $newline));
 	}
 
-	public static function data_leftAlign(): array
+	public static function dataLeftAlign(): array
 	{
 		return [
 			[
@@ -298,14 +309,15 @@ class TextTest extends TestCase
 	 * @param $pad
 	 * @param $trim
 	 * @return void
-	 * @dataProvider data_leftAlign
+	 * @dataProvider dataLeftAlign
+	 * @covers ::leftAlign
 	 */
-	public function test_leftAlign($expected, $text, $n, $pad, $trim): void
+	public function testLeftAlign($expected, $text, $n, $pad, $trim): void
 	{
 		$this->assertEquals($expected, Text::leftAlign($text, $n, $pad, $trim));
 	}
 
-	public static function data_lines_wrap(): array
+	public static function dataLinesWrap(): array
 	{
 		return [
 			[
@@ -399,14 +411,15 @@ class TextTest extends TestCase
 	 * @param $first_prefix
 	 * @param $last_suffix
 	 * @return void
-	 * @dataProvider data_lines_wrap
+	 * @dataProvider dataLinesWrap
+	 * @covers ::wrapLines
 	 */
-	public function test_lines_wrap($expected, $text, $prefix, $suffix, $first_prefix, $last_suffix): void
+	public function testLinesWrap($expected, $text, $prefix, $suffix, $first_prefix, $last_suffix): void
 	{
 		$this->assertEquals($expected, Text::wrapLines($text, $prefix, $suffix, $first_prefix, $last_suffix));
 	}
 
-	public static function data_parse_table(): array
+	public static function dataParseTable(): array
 	{
 		return [
 			[
@@ -437,14 +450,64 @@ class TextTest extends TestCase
 	 * @param $delimiters
 	 * @param $newline
 	 * @return void
-	 * @dataProvider data_parse_table
+	 * @dataProvider dataParseTable
+	 * @covers ::parseTable
 	 */
-	public function test_parse_table($expected, $content, $num_columns, $delimiters, $newline): void
+	public function testParseTable($expected, $content, $num_columns, $delimiters, $newline): void
 	{
 		$this->assertEquals($expected, Text::parseTable($content, $num_columns, $delimiters, $newline));
 	}
 
-	public static function data_rightAlign(): array
+	public static function dataLeftAlign2(): array
+	{
+		return [
+			[
+				'text',
+				10,
+				'-',
+				true,
+				'text------',
+			],
+			[
+				'text ',
+				10,
+				'-',
+				true,
+				'text -----',
+			],
+			[
+				'textificiation',
+				10,
+				'-',
+				false,
+				'textificiation',
+			],
+			[
+				'textificiation',
+				10,
+				'-',
+				true,
+				'textificia',
+			],
+		];
+	}
+
+	/**
+	 * @param string $text
+	 * @param int $length
+	 * @param string $padding
+	 * @param bool $trim
+	 * @param string $expected
+	 * @return void
+	 * @covers ::leftAlign
+	 * @dataProvider dataLeftAlign2
+	 */
+	public function test_leftAlign2(string $text, int $length, string $padding, bool $trim, string $expected): void
+	{
+		$this->assertEquals($expected, Text::leftAlign($text, $length, $padding, $trim));
+	}
+
+	public static function dataRightAlign(): array
 	{
 		return [
 			[
@@ -506,14 +569,64 @@ class TextTest extends TestCase
 	 * @param string $pad
 	 * @param bool $trim
 	 * @return void
-	 * @dataProvider data_rightAlign
+	 * @dataProvider dataRightAlign
+	 * @covers ::rightAlign
 	 */
-	public function test_rightAlign(string $expected, string $text, int $n, string $pad, bool $trim): void
+	public function testRightAlign(string $expected, string $text, int $n, string $pad, bool $trim): void
 	{
 		$this->assertEquals($expected, Text::rightAlign($text, $n, $pad, $trim));
 	}
 
-	public static function data_remove_line_comments(): array
+	public static function dataRightAlign2(): array
+	{
+		return [
+			[
+				'text',
+				10,
+				'-',
+				true,
+				'------text',
+			],
+			[
+				'text ',
+				10,
+				'-',
+				true,
+				'-----text ',
+			],
+			[
+				'textificiation',
+				10,
+				'-',
+				false,
+				'textificiation',
+			],
+			[
+				'textificiation',
+				10,
+				'-',
+				true,
+				'textificia',
+			],
+		];
+	}
+
+	/**
+	 * @param string $text
+	 * @param int $length
+	 * @param string $padding
+	 * @param bool $trim
+	 * @param string $expected
+	 * @covers ::rightAlign
+	 * @return void
+	 * @dataProvider dataRightAlign2
+	 */
+	public function testRightAlign2(string $text, int $length, string $padding, bool $trim, string $expected): void
+	{
+		$this->assertEquals($expected, Text::rightAlign($text, $length, $padding, $trim));
+	}
+
+	public static function dataRemoveLineComments(): array
 	{
 		return [
 			[
@@ -580,19 +693,20 @@ class TextTest extends TestCase
 	}
 
 	/**
-	 * @dataProvider data_remove_line_comments
+	 * @dataProvider dataRemoveLineComments
 	 * @param string $expected
 	 * @param string $data
 	 * @param string $line_comment
 	 * @param bool $alone
 	 * @return void
+	 * @covers ::removeLineComments
 	 */
-	public function test_remove_line_comments(string $expected, string $data, string $line_comment, bool $alone): void
+	public function testRemoveLineComments(string $expected, string $data, string $line_comment, bool $alone): void
 	{
 		$this->assertEquals($expected, Text::removeLineComments($data, $line_comment, $alone));
 	}
 
-	public static function data_set_line_breaks(): array
+	public static function dataSetLineBreaks(): array
 	{
 		return [
 			[
@@ -618,14 +732,15 @@ class TextTest extends TestCase
 	 * @param $string
 	 * @param $br
 	 * @return void
-	 * @dataProvider data_set_line_breaks
+	 * @dataProvider dataSetLineBreaks
+	 * @covers ::setLineBreaks
 	 */
-	public function test_set_line_breaks($expected, $string, $br): void
+	public function testSetLineBreaks($expected, $string, $br): void
 	{
 		$this->assertEquals($expected, Text::setLineBreaks($string, $br));
 	}
 
-	public static function data_trim_words(): array
+	public static function dataTrimWords(): array
 	{
 		return [
 			[
@@ -701,14 +816,15 @@ class TextTest extends TestCase
 	 * @param string $string
 	 * @param int $wordCount
 	 * @return void
-	 * @dataProvider data_trim_words
+	 * @covers ::trimWords
+	 * @dataProvider dataTrimWords
 	 */
-	public function test_trim_words(string $expected, string $string, int $wordCount): void
+	public function testTrimWords(string $expected, string $string, int $wordCount): void
 	{
 		$this->assertEquals($expected, Text::trimWords($string, $wordCount));
 	}
 
-	public static function data_words(): array
+	public static function dataWords(): array
 	{
 		return [
 			[
@@ -730,14 +846,15 @@ class TextTest extends TestCase
 	 * @param int $expected
 	 * @param string $word
 	 * @return void
-	 * @dataProvider data_words
+	 * @dataProvider dataWords
+	 * @covers ::words
 	 */
-	public function test_words(int $expected, string $word): void
+	public function testWords(int $expected, string $word): void
 	{
 		$this->assertEquals($expected, Text::words($word));
 	}
 
-	public static function data_format_array(): array
+	public static function dataFormatArray(): array
 	{
 		$fields = [
 			'Kind' => 'Apple',
@@ -772,14 +889,15 @@ class TextTest extends TestCase
 	 * @param string $suffix
 	 * @param string $line_end
 	 * @return void
-	 * @dataProvider data_format_array
+	 * @dataProvider dataFormatArray
+	 * @covers ::formatArray
 	 */
-	public function test_format_array(string $expected, array $fields, string $padding, string $prefix, string $suffix, string $line_end): void
+	public function testFormatArray(string $expected, array $fields, string $padding, string $prefix, string $suffix, string $line_end): void
 	{
 		$this->assertEquals($expected, Text::formatArray($fields, $padding, $prefix, $suffix, $line_end));
 	}
 
-	public static function data_provider_parse_columns(): array
+	public static function dataParseColumns(): array
 	{
 		return [
 			[
@@ -1163,10 +1281,14 @@ class TextTest extends TestCase
 	}
 
 	/**
-	 * @dataProvider data_provider_parse_columns
+	 * @dataProvider dataParseColumns
+	 * @covers ::parseColumns
+	 * @param string|array $content
+	 * @param array $expected
+	 * @return void
 	 */
-	public function test_parse_columns($content, array $expected): void
+	public function testParse_columns(string|array $content, array $expected): void
 	{
-		$this->assertEquals(Text::parseColumns(is_array($content) ? $content : explode("\n", $content)), $expected);
+		$this->assertEquals($expected, Text::parseColumns(is_array($content) ? $content : explode("\n", $content)));
 	}
 }

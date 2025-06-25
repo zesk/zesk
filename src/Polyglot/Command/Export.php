@@ -1,13 +1,13 @@
 <?php
 declare(strict_types=1);
 /**
- *
+ * @copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Polyglot\Command;
 
-use zesk\CSV\Writer as CSV_Writer;
 use zesk\Command\SimpleCommand;
+use zesk\CSV\Writer as CSV_Writer;
 use zesk\Locale\Reader as LocaleReader;
 use zesk\Polyglot\Module;
 use zesk\Polyglot\Token;
@@ -22,15 +22,15 @@ class Export extends SimpleCommand
 	protected array $shortcuts = ['polyglot-export'];
 
 	public array $argumentTypes = [
-		'source'      => 'string',
+		'source' => 'string',
 		'destination' => 'string',
-		'no-exclude'  => 'boolean',
+		'no-exclude' => 'boolean',
 	];
 
 	public array $option_help = [
-		'source'      => 'Source file to read (include file which returns an array of phrase => translation',
+		'source' => 'Source file to read (include file which returns an array of phrase => translation',
 		'destination' => 'CSV file to export to',
-		'no-exclude'  => 'Do not exclude database values which have been deleted already',
+		'no-exclude' => 'Do not exclude database values which have been deleted already',
 	];
 
 	protected function run(): int
@@ -72,10 +72,10 @@ class Export extends SimpleCommand
 		$csv->close();
 		$this->info('Wrote {destination} {n_written} {rows}, excluded {n_excluded} {phrases}.', [
 			'destination' => $destination,
-			'n_written'   => $n_written,
-			'rows'        => $this->application->locale->plural('row', $n_written),
-			'n_excluded'  => $n_excluded,
-			'phrases'     => $this->application->locale->plural('phrase', $n_excluded),
+			'n_written' => $n_written,
+			'rows' => $this->application->locale->plural('row', $n_written),
+			'n_excluded' => $n_excluded,
+			'phrases' => $this->application->locale->plural('phrase', $n_excluded),
 		]);
 		return 0;
 	}
@@ -84,7 +84,7 @@ class Export extends SimpleCommand
 	{
 		$column = 'original';
 		return $this->application->ormRegistry(Token::class)->querySelect()->addWhere('status', 'delete')->appendWhat([
-			'key'    => $column,
+			'key' => $column,
 			'exists' => 1,
 		])->toArray('key', 'exists');
 	}

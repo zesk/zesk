@@ -1,15 +1,17 @@
 <?php
 declare(strict_types=1);
+/**
+ * @copyright  Copyright &copy; 2025, Market Acumen, Inc.
+ */
 
 namespace testZesk;
 
 use zesk\Adapter\SettingsArray;
 use zesk\Adapter\SettingsArrayNoCase;
 use zesk\Adapter\SettingsConfiguration;
+use zesk\Configuration;
 use zesk\Exception\KeyNotFound;
 use zesk\Interface\SettingsInterface;
-
-use zesk\Configuration;
 
 class SettingsTest extends TestCase
 {

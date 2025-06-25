@@ -1,4 +1,8 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
+/**
+ * @copyright  Copyright &copy; 2025, Market Acumen, Inc.
+ */
 
 namespace testZesk;
 
@@ -16,7 +20,7 @@ class SimpleTestCommand extends SimpleCommand
 		parent::initialize();
 		$this->argumentTypes += [
 			'file' => 'file',
-			'dir'  => 'dir',
+			'dir' => 'dir',
 		];
 	}
 

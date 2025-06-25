@@ -9,10 +9,12 @@ declare(strict_types=1);
 
 namespace testZesk\Command;
 
+use testZesk\ApplicationTestBase;
 use zesk\Command\Arguments;
 use zesk\Command\Cache;
 use zesk\Command\Cannon;
 use zesk\Command\CONF2JSON;
+use zesk\Command\Configuration;
 use zesk\Command\CWD;
 use zesk\Command\Globals;
 use zesk\Command\Gremlins;
@@ -27,7 +29,6 @@ use zesk\Command\ModuleVersion;
 use zesk\Command\RunTime;
 use zesk\Command\Shell;
 use zesk\Command\Version;
-use zesk\Command\Configuration;
 use zesk\Directory;
 use zesk\Exception\ClassNotFound;
 use zesk\Exception\ConfigurationException;
@@ -42,7 +43,6 @@ use zesk\Exception\UnsupportedException;
 use zesk\File;
 use zesk\JSON;
 use zesk\System;
-use testZesk\ApplicationTestBase;
 
 /**
  * Commands_Test

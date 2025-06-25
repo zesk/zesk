@@ -9,18 +9,10 @@ declare(strict_types=1);
 
 namespace testZesk;
 
-use zesk\Exception\NotFoundException;
-use zesk\PHPUnit\TestCase;
-
 use zesk\Application;
 use zesk\ArrayTools;
-use zesk\Configuration;
-use zesk\Directory;
-use zesk\File;
 use zesk\Kernel;
-use zesk\Options;
-use zesk\Types;
-use zesk\Version;
+use zesk\PHPUnit\TestCase;
 
 /**
  * @coversDefaultClass \zesk\Kernel
@@ -41,6 +33,17 @@ class KernelTest extends TestCase
 	 * @var bool
 	 */
 	public bool $_hook_was_called = false;
+
+	/**
+	 * @return void
+	 * @covers ::callingFunction
+	 */
+	public function testCallingFunction(): void
+	{
+		$this->assertStringContainsString(__FILE__, Kernel::callingFunction(0));
+		$this->assertStringContainsString(__CLASS__, Kernel::callingFunction(0));
+		$this->assertStringContainsString(__FUNCTION__, Kernel::callingFunction(0));
+	}
 
 	public static function _test_hook_order_1st(KernelTest $test): void
 	{

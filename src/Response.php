@@ -7,20 +7,17 @@ declare(strict_types=1);
 namespace zesk;
 
 use DateTimeInterface;
-
 use Psr\Cache\CacheItemInterface;
 use Psr\Cache\CacheItemPoolInterface;
 use Psr\Cache\InvalidArgumentException;
-
 use zesk\CacheItem\CacheItemNULL;
-
 use zesk\Exception\ClassNotFound;
 use zesk\Exception\FileNotFound;
 use zesk\Exception\KeyNotFound;
-use zesk\Exception\SemanticsException;
+use zesk\Exception\ProtocolException;
 use zesk\Exception\Redirect as RedirectException;
+use zesk\Exception\SemanticsException;
 use zesk\Exception\SyntaxException;
-
 use zesk\Response\HTML as HTMLResponse;
 use zesk\Response\JSON as JSONResponse;
 use zesk\Response\Raw;
@@ -99,11 +96,11 @@ class Response extends Hookable
 	 * @var array
 	 */
 	private static array $type_classes = [
-		self::CONTENT_TYPE_HTML      => HTMLResponse::class,
-		self::CONTENT_TYPE_JSON      => JSONResponse::class,
+		self::CONTENT_TYPE_HTML => HTMLResponse::class,
+		self::CONTENT_TYPE_JSON => JSONResponse::class,
 		self::CONTENT_TYPE_PLAINTEXT => Text::class,
-		self::CONTENT_TYPE_RAW       => Raw::class,
-		self::HANDLER_REDIRECT       => RedirectResponse::class,
+		self::CONTENT_TYPE_RAW => Raw::class,
+		self::HANDLER_REDIRECT => RedirectResponse::class,
 	];
 
 	/**
@@ -160,8 +157,8 @@ class Response extends Hookable
 	 */
 	private static array $cache_pattern = [
 		self::CACHE_SCHEME => '{scheme}/{host}_{port}{path}/{query}',
-		self::CACHE_QUERY  => 'any/{host}_{port}{path}/{query}',
-		self::CACHE_PATH   => 'any/{host}_{port}{path}',
+		self::CACHE_QUERY => 'any/{host}_{port}{path}/{query}',
+		self::CACHE_PATH => 'any/{host}_{port}{path}',
 	];
 
 	/**
@@ -262,41 +259,11 @@ class Response extends Hookable
 	 */
 	private bool $rendering = false;
 
-	public function __serialize(): array
-	{
-		return parent::__serialize() + [
-			'content'        => $this->content,
-			'status_code'    => $this->status_code,
-			'status_message' => $this->status_message,
-			'contentType'    => $this->contentType,
-			'output_handler' => $this->output_handler,
-			'charset'        => $this->charset,
-			'types'          => $this->types,
-			'headers'        => $this->headers,
-			'response_data'  => $this->response_data,
-		];
-	}
-
-	public function __unserialize(array $data): void
-	{
-		parent::__unserialize($data);
-		$this->id = self::$response_index++;
-		$this->content = $data['content'];
-		$this->status_code = $data['status_code'];
-		$this->status_message = $data['status_message'];
-		$this->contentType = $data['contentType'];
-		$this->output_handler = $data['output_handler'];
-		$this->charset = $data['charset'];
-		$this->types = $data['types'];
-		$this->headers = $data['headers'];
-		$this->response_data = $data['response_data'];
-	}
-
 	/**
 	 *
 	 * @param Application $application
-	 * @param Request     $request
-	 * @param array       $options
+	 * @param Request $request
+	 * @param array $options
 	 * @return self
 	 */
 	public static function factory(Application $application, Request $request, array $options = []): self
@@ -312,8 +279,8 @@ class Response extends Hookable
 	/**
 	 *
 	 * @param Application $application
-	 * @param Request     $request
-	 * @param array       $options
+	 * @param Request $request
+	 * @param array $options
 	 */
 	public function __construct(Application $application, Request $request, array $options = [])
 	{
@@ -375,7 +342,7 @@ class Response extends Hookable
 	 * If code is unknown, coverts to 500 automatically
 	 * Sets the status message if not passed in; uses default.
 	 *
-	 * @param int     $error_code
+	 * @param int $error_code
 	 * @param ?string $error_string
 	 * @return $this
 	 */
@@ -394,9 +361,9 @@ class Response extends Hookable
 	/**
 	 * These are not saved as part of cached headers, generally speaking
 	 *
-	 * @param string            $name
+	 * @param string $name
 	 * @param array|string|null $value
-	 * @param array             $options
+	 * @param array $options
 	 * @return self
 	 * @throws SemanticsException
 	 */
@@ -417,7 +384,7 @@ class Response extends Hookable
 			if (!str_ends_with($host, $domain)) {
 				$this->application->warning('Unable to set cookie domain {cookie_domain} on host {host}', [
 					'cookie_domain' => $domain,
-					'host'          => $host,
+					'host' => $host,
 				]);
 				$domain = null;
 			}
@@ -587,7 +554,7 @@ class Response extends Hookable
 	final public function setContentType(string $set): self
 	{
 		$this->application->debug('Set content type to {set} at {where}', [
-			'set'   => $set,
+			'set' => $set,
 			'where' => Kernel::callingFunction(),
 		]);
 		$this->contentType = $set;
@@ -627,8 +594,8 @@ class Response extends Hookable
 	final public function setOutputHandler(string $set): self
 	{
 		$this->application->debug('{method} set to {set} from {calling}', [
-			'method'  => __METHOD__,
-			'set'     => $set,
+			'method' => __METHOD__,
+			'set' => $set,
 			'calling' => Kernel::callingFunction(2),
 		]);
 		$this->output_handler = $set;
@@ -638,7 +605,7 @@ class Response extends Hookable
 	/**
 	 * Set a date header
 	 *
-	 * @param string        $name Header to set (Expires, Date, Last-Modified, etc.)
+	 * @param string $name Header to set (Expires, Date, Last-Modified, etc.)
 	 * @param int|Timestamp $value
 	 * @return $this
 	 */
@@ -696,7 +663,7 @@ class Response extends Hookable
 	/**
 	 * Setter for header
 	 *
-	 * @param string       $name
+	 * @param string $name
 	 *            Name of header to get/set
 	 * @param array|string $value
 	 *            Value of header to set
@@ -796,7 +763,7 @@ class Response extends Hookable
 	 * "seconds" - For how many seconds
 	 * "parts" - Url parts to match
 	 *
-	 * @param array   $options
+	 * @param array $options
 	 * @param boolean $append
 	 * @return self
 	 */
@@ -830,7 +797,7 @@ class Response extends Hookable
 	{
 		return $this->setCache([
 			'seconds' => $seconds,
-			'level'   => $level,
+			'level' => $level,
 		]);
 	}
 
@@ -852,11 +819,11 @@ class Response extends Hookable
 			$parts = [];
 		}
 		$parts += [
-			'port'   => URL::protocolPort($parts['scheme']),
+			'port' => URL::protocolPort($parts['scheme']),
 			'scheme' => 'none',
-			'host'   => '_host_',
-			'query'  => '_query_',
-			'path'   => '_path_',
+			'host' => '_host_',
+			'query' => '_query_',
+			'path' => '_path_',
 		];
 		return $parts;
 	}
@@ -881,7 +848,7 @@ class Response extends Hookable
 	 * Retrieve a cached response
 	 *
 	 * @param CacheItemPoolInterface $pool
-	 * @param string                 $id
+	 * @param string $id
 	 * @return CacheItemInterface
 	 */
 	private static function fetchCacheID(CacheItemPoolInterface $pool, string $id): CacheItemInterface
@@ -901,8 +868,9 @@ class Response extends Hookable
 	 * Save this response's content, if the page requested to be cached
 	 *
 	 * @param CacheItemPoolInterface $pool
-	 * @param string                 $url
+	 * @param string $url
 	 * @return boolean
+	 * @throws SemanticsException
 	 */
 	public function cacheSave(CacheItemPoolInterface $pool, string $url): bool
 	{
@@ -940,7 +908,7 @@ class Response extends Hookable
 			} else {
 				$this->application->error('{method} expires is unhandled type: {type}', [
 					'method' => __METHOD__,
-					'type'   => Types::type($expires),
+					'type' => Types::type($expires),
 				]);
 			}
 		}
@@ -954,7 +922,7 @@ class Response extends Hookable
 	 * Returns null if cache item not found
 	 *
 	 * @param CacheItemPoolInterface $pool
-	 * @param string                 $url
+	 * @param string $url
 	 * @return ?Response
 	 */
 	public static function cached(CacheItemPoolInterface $pool, string $url): ?Response
@@ -1087,7 +1055,7 @@ class Response extends Hookable
 	 * Set HTML attributes
 	 *
 	 * @param array $attributes
-	 * @param bool  $merge
+	 * @param bool $merge
 	 * @return Response
 	 */
 	final public function setHTMLAttributes(array $attributes, bool $merge = false): Response
@@ -1142,10 +1110,9 @@ class Response extends Hookable
 	 *
 	 * @param string $path
 	 *            Path to css file
-	 * @param array  $options
+	 * @param array $options
 	 *            Optional options: media (defaults to all), type (defaults to text/css), browser
-	 *            (may be ie,
-	 *            ie6, ie7), and cdn (boolean to prefix with cdn path)
+	 *            (e.g. "ie", "ie6", "ie7"), and cdn (boolean to prefix with cdn path)
 	 * @return self
 	 */
 	final public function css(string $path, array $options = []): self
@@ -1180,7 +1147,7 @@ class Response extends Hookable
 	 *
 	 * @param string|array $path
 	 *            File path to serve for the javascript
-	 * @param array        $options
+	 * @param array $options
 	 *            Optional settings: type (defaults to text/javascript), browser (defaults to all
 	 *            browsers),
 	 *            cdn (defaults to false)
@@ -1195,8 +1162,9 @@ class Response extends Hookable
 	 * Include JavaScript to be included inline in the page
 	 *
 	 * @param string $script
-	 * @param array  $options
+	 * @param array $options
 	 * @return Response
+	 * @throws ProtocolException
 	 */
 	final public function inlineJavaScript(string $script, array $options = []): self
 	{
@@ -1233,7 +1201,7 @@ class Response extends Hookable
 	 * </code>
 	 *
 	 * @param array $data
-	 * @param bool  $add
+	 * @param bool $add
 	 * @return Response
 	 */
 	final public function setResponseData(array $data, bool $add = true): self
@@ -1294,7 +1262,7 @@ class Response extends Hookable
 	/**
 	 * Download a file
 	 *
-	 * @param string      $file
+	 * @param string $file
 	 *            Full path to file to download
 	 * @param string|null $name
 	 *            File name given to browser to save the file
@@ -1328,7 +1296,7 @@ class Response extends Hookable
 	 * If ref is passed in by request, redirect to that location, otherwise, redirect to passed in
 	 * URL.
 	 *
-	 * @param string      $url
+	 * @param string $url
 	 * @param string|null $message Already-localized message to display to user on redirected page
 	 * @return void
 	 * @throws RedirectException
@@ -1355,8 +1323,10 @@ class Response extends Hookable
 	/**
 	 *
 	 * @param string $message
-	 * @param array  $attributes
+	 * @param array $attributes
 	 * @return Response
+	 * @throws KeyNotFound
+	 * @throws ProtocolException
 	 */
 	public function addRedirectMessage(string $message, array $attributes = []): Response
 	{
@@ -1423,5 +1393,47 @@ class Response extends Hookable
 	public function resourceExpireSeconds(): int
 	{
 		return $this->optionInt(self::OPTION_RESOURCE_CACHE_EXPIRE_SECONDS, self::DEFAULT_RESOURCE_CACHE_EXPIRE_SECONDS);
+	}
+
+	/**
+	 * @return array
+	 */
+	public function __serializeChild(): array
+	{
+		return [
+			'charset' => $this->charset,
+			'content' => $this->content,
+			'output_handler' => $this->output_handler,
+			'request' => $this->request,
+			'status_code' => $this->status_code,
+			'status_message' => $this->status_message,
+			'contentType' => $this->contentType,
+			'headers' => $this->headers,
+			'response_data' => $this->response_data,
+			'types' => $this->types,
+			'id' => $this->id,
+		];
+	}
+
+	/**
+	 * @param array $data
+	 * @return void
+	 */
+	public function __unserializeChild(array $data): void
+	{
+		$this->charset = $data['charset'];
+		$this->content = $data['content'];
+		$this->output_handler = $data['output_handler'];
+		$this->request = $data['request'];
+		$this->status_code = $data['status_code'];
+		$this->status_message = $data['status_message'];
+		$this->contentType = $data['contentType'];
+		$this->headers = $data['headers'];
+		$this->response_data = $data['response_data'];
+		$this->types = $data['types'];
+		$this->id = $data['id'];
+
+		$this->cache_settings = [];
+		$this->rendering = false;
 	}
 }

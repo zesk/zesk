@@ -62,7 +62,7 @@ class Value extends Model
 	/**
 	 * Internal function to retrieve
 	 *
-	 * @param User        $user
+	 * @param User $user
 	 * @param Type|string $name
 	 * @return Value
 	 * @throws NotFoundException
@@ -96,7 +96,7 @@ class Value extends Model
 	/**
 	 * Does the user have a preference value?
 	 *
-	 * @param user   $user
+	 * @param user $user
 	 * @param string $name
 	 * @return boolean
 	 */
@@ -110,7 +110,7 @@ class Value extends Model
 	}
 
 	/**
-	 * @param User   $user
+	 * @param User $user
 	 * @param string $name
 	 * @return mixed
 	 * @throws NotFoundException
@@ -122,7 +122,7 @@ class Value extends Model
 	}
 
 	/**
-	 * @param User  $user
+	 * @param User $user
 	 * @param array $values
 	 * @return array
 	 * @throws NotFoundException

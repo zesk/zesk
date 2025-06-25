@@ -14,11 +14,15 @@ use zesk\Exception\NotFoundException;
 use zesk\Exception\SemanticsException;
 use zesk\Exception\SyntaxException;
 use zesk\Exception\SystemException;
+use zesk\PHP;
 use zesk\Request;
 use zesk\Response;
 use zesk\Router;
-use zesk\PHP;
 
+/**
+ * @coversDefaultClass \zesk\Router
+ * @uses Router
+ */
 class RouterTest extends ApplicationTestBase
 {
 	/**
@@ -26,6 +30,7 @@ class RouterTest extends ApplicationTestBase
 	 * @throws SystemException
 	 * @throws SemanticsException
 	 * @throws NotFoundException
+	 * @covers ::getRoute
 	 */
 	public function test_routerReverse(): void
 	{
@@ -49,6 +54,7 @@ class RouterTest extends ApplicationTestBase
 	/**
 	 * @throws ClassNotFound
 	 * @throws SyntaxException
+	 * @covers ::__serializeChild ::__unserializeChild
 	 */
 	public function test_Router_sleep(): void
 	{
@@ -72,6 +78,7 @@ class RouterTest extends ApplicationTestBase
 	 * @throws DirectoryNotFound
 	 * @throws SemanticsException
 	 * @throws FileNotFound
+	 * @covers ::addRoute ::matchRequest
 	 */
 	public function test_Router(): void
 	{
@@ -113,6 +120,7 @@ class RouterTest extends ApplicationTestBase
 	 * @throws ClassNotFound
 	 * @throws DirectoryNotFound
 	 * @throws FileNotFound
+	 * @covers ::matchRequest ::addRoute
 	 */
 	public function test_Router_nf(): void
 	{
@@ -130,12 +138,17 @@ class RouterTest extends ApplicationTestBase
 		]);
 
 		$request = Request::factory($this->application, [
-			'url' => 'http://test/',
+			'url' => 'https://test/',
 		]);
 		$this->expectException(NotFoundException::class);
 		$this->assertNull($testObject->matchRequest($request));
 	}
 
+	/**
+	 * @return void
+	 * @throws NotFoundException
+	 * @covers ::cached
+	 */
 	public function test_not_cached(): void
 	{
 		$mtime = 'null';
