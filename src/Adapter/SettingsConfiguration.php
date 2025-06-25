@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 /**
- *
+ * @copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Adapter;
@@ -64,7 +64,7 @@ class SettingsConfiguration implements SettingsInterface
 	/**
 	 * Retrieve a value from the settings, returning a default value if not set
 	 *
-	 * @param mixed $key     A string or key value (integer, float)
+	 * @param mixed $key A string or key value (integer, float)
 	 * @param mixed $default A value to return if the session value is null
 	 * @return mixed The value of the session variable, or $default if nothing set
 	 */
@@ -76,7 +76,7 @@ class SettingsConfiguration implements SettingsInterface
 	/**
 	 * Store a value to a settings
 	 *
-	 * @param mixed $key   A string or key value (integer, float)
+	 * @param mixed $key A string or key value (integer, float)
 	 * @param mixed $value Value to save. As a general rule, best to use scalar types
 	 */
 	public function __set(int|string $key, mixed $value): void
@@ -87,7 +87,7 @@ class SettingsConfiguration implements SettingsInterface
 	/**
 	 * Store a value to a settings
 	 *
-	 * @param mixed $key   A string or key value (integer, float)
+	 * @param mixed $key A string or key value (integer, float)
 	 * @param mixed $value Value to save. As a general rule, best to use scalar types
 	 * @return self
 	 * @throws SemanticsException

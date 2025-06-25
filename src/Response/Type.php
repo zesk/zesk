@@ -1,9 +1,13 @@
 <?php
 declare(strict_types=1);
+/**
+ * @copyright  Copyright &copy; 2025, Market Acumen, Inc.
+ */
+
 namespace zesk\Response;
 
-use zesk\Response;
 use zesk\Application;
+use zesk\Response;
 
 /**
  * @see Response

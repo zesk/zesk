@@ -1,8 +1,9 @@
 <?php
 declare(strict_types=1);
 /**
- *
+ * @copyright &copy; 2025, Market Acumen, Inc.
  */
+
 namespace zesk;
 
 /**
@@ -19,11 +20,12 @@ class Hexadecimal
 
 	/**
 	 * Decode a hexadecimal string
+	 *
 	 * @todo Doesn't PHP offer this natively?
 	 * @param string $hexadecimal
 	 * @return string
 	 */
-	public static function decode(string $hexadecimal)
+	public static function decode(string $hexadecimal): string
 	{
 		$r = '';
 		$x = preg_replace('/[^' . self::codes . ']/', '', strtoupper($hexadecimal));

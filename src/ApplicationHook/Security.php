@@ -1,4 +1,8 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
+/**
+ * @copyright &copy; 2025, Market Acumen, Inc.
+ */
 
 namespace zesk\ApplicationHook;
 
@@ -9,8 +13,8 @@ interface Security
 {
 	/**
 	 * @param Application $application
-	 * @param string      $message
-	 * @param array       $arguments
+	 * @param string $message
+	 * @param array $arguments
 	 * @return void
 	 */
 	#[FilterMethod(handles: Application::HOOK_SECURITY)]

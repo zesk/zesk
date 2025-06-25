@@ -1,5 +1,8 @@
 <?php
 declare(strict_types=1);
+/**
+ * @copyright &copy; 2025, Market Acumen, Inc.
+ */
 
 namespace zesk\Configuration;
 
@@ -75,7 +78,7 @@ class Dependency
 			}
 		}
 		$this->definitions[$variable] = [
-			'context'      => $context,
+			'context' => $context,
 			'dependencies' => $dependencies,
 		];
 		return $this;

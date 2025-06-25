@@ -27,7 +27,7 @@ class Module extends SimpleCommand
 	protected array $argumentTypes = [
 		'format' => 'string',
 		'loaded' => 'boolean',
-		'*'      => 'string',
+		'*' => 'string',
 	];
 
 	/**

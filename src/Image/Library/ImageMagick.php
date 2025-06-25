@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 /**
- * @copyright &copy; 2023, Market Acumen, Inc.
+ * @copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Image\Library;
@@ -81,7 +81,7 @@ class ImageMagick extends Library
 
 	/**
 	 * @param string $data
-	 * @param array  $options
+	 * @param array $options
 	 * @return string
 	 * @throws CommandFailed
 	 * @throws DirectoryCreate
@@ -93,7 +93,7 @@ class ImageMagick extends Library
 	 */
 	public function imageScaleData(string $data, array $options): string
 	{
-		$extension = Content_Image::determine_extension_simple_data($data);
+		$extension = Library::determine_extension_simple_data($data);
 		$source = File::temporary($this->application->paths->temporary(), $extension);
 		$dest = File::temporary($this->application->paths->temporary(), $extension);
 		file_put_contents($source, $data);
@@ -109,7 +109,7 @@ class ImageMagick extends Library
 	/**
 	 * @param string $source
 	 * @param string $dest
-	 * @param array  $options
+	 * @param array $options
 	 * @return bool
 	 * @throws CommandFailed
 	 * @throws DirectoryNotFound
@@ -155,8 +155,8 @@ class ImageMagick extends Library
 	/**
 	 * @param string $source
 	 * @param string $destination
-	 * @param float  $degrees
-	 * @param array  $options
+	 * @param float $degrees
+	 * @param array $options
 	 * @return bool
 	 * @throws UnimplementedException
 	 */

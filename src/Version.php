@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 /**
- * @package zesk
+ * @package    zesk
  * @subpackage kernel
- * @author kent
- * @copyright &copy; 2023, Market Acumen, Inc.
+ * @author     kent
+ * @copyright  &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -57,7 +57,7 @@ abstract class Version
 	 */
 	private static function _file(string $name, string $default): string
 	{
-		$root = dirname(__DIR__, 2);
+		$root = dirname(__DIR__);
 
 		try {
 			return trim(File::contents(Directory::path($root, $name)));
@@ -108,7 +108,8 @@ abstract class Version
 	public static function variables(): array
 	{
 		return [
-			'release' => self::release(), 'date' => self::date(),
+			'release' => self::release(),
+			'date' => self::date(),
 		];
 	}
 }

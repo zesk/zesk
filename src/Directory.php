@@ -1,14 +1,10 @@
 <?php
 declare(strict_types=1);
 /**
- *
+ * @copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk;
-
-/**
- *
- */
 
 use Closure;
 use DirectoryIterator;
@@ -25,44 +21,8 @@ use zesk\Exception\SyntaxException;
 /**
  *
  */
-class Directory extends Hookable
+abstract class Directory extends Hookable
 {
-	/**
-	 * Build our rule strings
-	 */
-	protected const RULE_PREFIX = 'rules_';
-
-	/**
-	 * Build our rule strings
-	 */
-	protected const RULE_SUFFIX_FILE = 'file';
-
-	/**
-	 * Build our rule strings
-	 */
-	protected const RULE_SUFFIX_DIRECTORY = 'directory';
-
-	/**
-	 * TODO camelCase
-	 * Build our rule strings
-	 */
-	protected const RULE_SUFFIX_DIRECTORY_WALK = 'directory_walk';
-
-	/**
-	 * Option rule for listRecursive
-	 */
-	public const LIST_RULE_DIRECTORY = self::RULE_PREFIX . self::RULE_SUFFIX_DIRECTORY;
-
-	/**
-	 * Option rule for listRecursive
-	 */
-	public const LIST_RULE_FILE = self::RULE_PREFIX . self::RULE_SUFFIX_FILE;
-
-	/**
-	 * Option rule for listRecursive. Rules specify whether a directory should be traversed.
-	 */
-	public const LIST_RULE_DIRECTORY_WALK = self::RULE_PREFIX . self::RULE_SUFFIX_DIRECTORY_WALK;
-
 	/**
 	 * TODO camelCase
 	 * Boolean value whether to prefix resulting strings with the path
@@ -105,7 +65,7 @@ class Directory extends Hookable
 	 *
 	 * @thanks
 	 *
-	 * @param mixed   $path
+	 * @param mixed $path
 	 *            Path or resource to check
 	 * @param ?string $section
 	 *            Section to retrieve, or null for all sections
@@ -131,7 +91,7 @@ class Directory extends Hookable
 	/**
 	 * If a directory does not exist, create it. If an error occurs
 	 *
-	 * @param string   $path
+	 * @param string $path
 	 * @param int|null $mode
 	 * @return string
 	 * @throws DirectoryPermission
@@ -165,7 +125,7 @@ class Directory extends Hookable
 	 * Change directory mode (iff directory exists)
 	 *
 	 * @param string $directory
-	 * @param int    $mode
+	 * @param int $mode
 	 * @return void
 	 * @throws DirectoryNotFound
 	 * @throws DirectoryPermission
@@ -224,7 +184,7 @@ class Directory extends Hookable
 	 * Create a directory if it does not exist
 	 *
 	 * @param string $path Path to create
-	 * @param int    $mode Default mode of directory (UNIX permissions)
+	 * @param int $mode Default mode of directory (UNIX permissions)
 	 * @return string $path of directory if created, null if not
 	 * @throws DirectoryCreate
 	 */
@@ -246,9 +206,9 @@ class Directory extends Hookable
 
 	/**
 	 *
-	 * @param string    $source
-	 * @param string    $destination
-	 * @param boolean   $recursive
+	 * @param string $source
+	 * @param string $destination
+	 * @param boolean $recursive
 	 * @param ?callable $file_copy_function
 	 * @return string
 	 * @throws DirectoryNotFound
@@ -380,7 +340,7 @@ class Directory extends Hookable
 
 	/**
 	 * @param string $absolute_root A known valid path in the file system
-	 * @param string $mixed         An elements to append to convert to an absolute path at the given root
+	 * @param string $mixed An elements to append to convert to an absolute path at the given root
 	 * @return string
 	 * @throws DirectoryNotFound
 	 */
@@ -422,10 +382,10 @@ class Directory extends Hookable
 	 * It uses StringTools::filter to check a path against the patterns. All patterns/defaults are true.
 	 *
 	 * @param string $path
-	 * @param array  $walk
-	 * @param array  $files
-	 * @param array  $directory
-	 * @param array  $options
+	 * @param array $walk
+	 * @param array $files
+	 * @param array $directory
+	 * @param array $options
 	 * @return array
 	 */
 	public static function listRecursive(string $path, array $walk = [], array $files = [], array $directory = [], array $options = []): array
@@ -537,7 +497,7 @@ class Directory extends Hookable
 	 *
 	 */
 	/**
-	 * @param string                $source
+	 * @param string $source
 	 * @param callable|Closure|null $directory_function
 	 * @param callable|Closure|null $file_function
 	 * @return void
@@ -585,9 +545,9 @@ class Directory extends Hookable
 	 *
 	 * To strip the / and return only directories, for example.
 	 *
-	 * @param string      $path     The directory to list
-	 * @param null|string $filter   A pattern to match against files in the directory. Use null for all matches.
-	 * @param boolean     $cat_path Whether to concatenate the path to each resulting file name
+	 * @param string $path The directory to list
+	 * @param null|string $filter A pattern to match against files in the directory. Use null for all matches.
+	 * @param boolean $cat_path Whether to concatenate the path to each resulting file name
 	 * @return array The directory list
 	 * @throws DirectoryNotFound
 	 * @throws DirectoryPermission
@@ -599,14 +559,14 @@ class Directory extends Hookable
 		if (!is_dir($path)) {
 			throw new DirectoryNotFound($path, '{method}: {path} is not a directory', [
 				'method' => __METHOD__,
-				'path'   => $path,
+				'path' => $path,
 			]);
 		}
 		$d = opendir($path);
 		if (!is_resource($d)) {
 			throw new DirectoryPermission($path, '{method}: {path} is not readable', [
 				'method' => __METHOD__,
-				'path'   => $path,
+				'path' => $path,
 			]);
 		}
 		$path = rtrim($path, '/');
@@ -627,13 +587,12 @@ class Directory extends Hookable
 	/**
 	 * @param string $source
 	 * @param string $dest
-	 * @param bool   $create
+	 * @param bool $create
 	 * @return void
 	 * @throws DirectoryCreate
 	 * @throws DirectoryNotFound
 	 * @throws DirectoryPermission
 	 * @throws FilePermission
-	 * @throws ParameterException
 	 */
 	public static function copy(string $source, string $dest, bool $create = false): void
 	{
@@ -695,9 +654,9 @@ class Directory extends Hookable
 	 *   Will delete file names which sort at the top of the list
 	 *
 	 * @param string $directory The directory
-	 * @param int    $total     The number of files to allow in this directory
-	 * @param string $order_by  "name" or "date" are allowed
-	 * @param bool   $ascending
+	 * @param int $total The number of files to allow in this directory
+	 * @param string $order_by "name" or "date" are allowed
+	 * @param bool $ascending
 	 * @return array List of files deleted
 	 * @throws DirectoryNotFound
 	 * @throws DirectoryPermission
@@ -740,7 +699,7 @@ class Directory extends Hookable
 	/**
 	 * Given a list of paths and a directory name, find the first occurrence of the named directory.
 	 *
-	 * @param array             $paths     List of strings representing file system paths
+	 * @param array $paths List of strings representing file system paths
 	 * @param array|string|null $directory Directory to search for, or list of directories suffixes to search for
 	 * @return string
 	 * @throws NotFoundException
@@ -767,7 +726,7 @@ class Directory extends Hookable
 		}
 
 		throw new NotFoundException('No directory exists {paths}, {directory}', [
-			'paths'     => $paths,
+			'paths' => $paths,
 			'directory' => $directory,
 		]);
 	}

@@ -1,15 +1,16 @@
 <?php
 declare(strict_types=1);
 /**
- * @package zesk
+ * @package    zesk
  * @subpackage system
- * @author kent
- * @copyright Copyright &copy; 2025, Market Acumen, Inc.
+ * @author     kent
+ * @copyright  Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Net\POP\Client;
 
 use Iterator;
+use zesk\Mail\Mail;
 use zesk\Net\POP\Client;
 
 class POPIterator implements Iterator
@@ -31,6 +32,7 @@ class POPIterator implements Iterator
 
 	/**
 	 * Message top for current message
+	 *
 	 * @var string
 	 */
 	private array $message_headers = [];

@@ -1,18 +1,18 @@
 <?php
 
 declare(strict_types=1);
+/**
+ * @copyright &copy; 2025, Market Acumen, Inc.
+ */
 
 namespace testZesk\Doctrine;
 
 use Doctrine\ORM\Exception\ORMException;
 use Throwable;
-use zesk\Doctrine\Command\Doctrine;
 use zesk\Doctrine\Lock;
 use zesk\Exception\LockedException;
 use zesk\Exception\SemanticsException;
 use zesk\Exception\TimeoutExpired;
-use zesk\Process;
-use function PHPUnit\Framework\assertLessThan;
 
 /**
  * @coversDefaultClass \zesk\Doctrine\Lock

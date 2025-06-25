@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 /**
- *
+ * @copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace testZesk;
@@ -17,14 +17,12 @@ use zesk\Exception\Redirect;
 use zesk\Exception\SyntaxException;
 use zesk\File;
 use zesk\Mail\Mail;
+use zesk\Net\POP\Client as POPClient;
 use zesk\PHPUnit\TestCase;
-
 use zesk\System;
 use zesk\Timer;
-use zesk\Types;
 use zesk\URL;
 use zesk\UTF8;
-use zesk\Net\POP\Client as POPClient;
 
 /**
  *
@@ -78,13 +76,13 @@ class MailTest extends TestCase
 	{
 		$result = Mail::load(file_get_contents($this->application->zeskHome('tests/test-data/mail_load.0.txt')));
 		$this->assertEquals([
-			'File-Format'           => 'both',
+			'File-Format' => 'both',
 			'File-Format-Separator' => '--DOG--',
-			'Subject'               => 'This is my dog',
-			'From'                  => 'support@conversionruler.com',
-			'Reply-To'              => 'support@conversionruler.com',
-			'body_text'             => 'This is a text email',
-			'body_html'             => 'This is an <strong>HTML</strong> message',
+			'Subject' => 'This is my dog',
+			'From' => 'support@conversionruler.com',
+			'Reply-To' => 'support@conversionruler.com',
+			'body_text' => 'This is a text email',
+			'body_html' => 'This is an <strong>HTML</strong> message',
 		], $result);
 	}
 
@@ -99,11 +97,11 @@ class MailTest extends TestCase
 		$result = Mail::parseAddress($email);
 		$expected = [
 			'length' => 23,
-			'text'   => 'John Doe <john@doe.com>',
-			'name'   => 'John Doe',
-			'email'  => 'john@doe.com',
-			'user'   => 'john',
-			'host'   => 'doe.com',
+			'text' => 'John Doe <john@doe.com>',
+			'name' => 'John Doe',
+			'email' => 'john@doe.com',
+			'user' => 'john',
+			'host' => 'doe.com',
 		];
 		$this->assertEquals($expected, $result);
 	}
@@ -392,9 +390,9 @@ Thanks,
 
 		$options = ['verb' => 'fun'];
 		$this->assertEquals([
-			'Subject'     => 'Yo',
+			'Subject' => 'Yo',
 			'File-Format' => 'html',
-			'body_html'   => "Hello <strong>$hash</strong> you are so fun",
+			'body_html' => "Hello <strong>$hash</strong> you are so fun",
 		], Mail::loadTheme($application, 'The-Template', $options));
 	}
 
@@ -411,7 +409,7 @@ Thanks,
 		$subject = 'This is a subject';
 		$array = [
 			'Hello' => 'Name',
-			'Boo'   => 'FEDF',
+			'Boo' => 'FEDF',
 		];
 		$prefix = '';
 		$suffix = '';
@@ -429,8 +427,8 @@ Thanks,
 	public function test_mailer(): void
 	{
 		$headers = [
-			'From'    => 'no-reply@zesk.com',
-			'To'      => $to = 'noone@example.com',
+			'From' => 'no-reply@zesk.com',
+			'To' => $to = 'noone@example.com',
 			'Subject' => $subject = basename(__FILE__),
 		];
 		$body = "This is the body\n\n--\nnoone@example.com";
@@ -474,7 +472,7 @@ Thanks,
 	public function test_parse_headers(): void
 	{
 		$this->assertEquals([
-			'Header'  => 'Value',
+			'Header' => 'Value',
 			'Another' => 'Thing',
 		], Mail::parseHeaders("Header: Value\r\nAnother: Thing"));
 	}
@@ -494,8 +492,8 @@ Thanks,
 
 
 		$mail_options = [
-			'From'    => $from = 'noone@zesk.com',
-			'To'      => $to = 'no-reply@zesk.com',
+			'From' => $from = 'noone@zesk.com',
+			'To' => $to = 'no-reply@zesk.com',
 			'Subject' => $subject = $this->randomHex(12),
 		];
 		$mailName = $this->randomHex(12);

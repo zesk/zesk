@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package    zesk
  * @subpackage Response
  * @author     kent
- * @copyright  &copy; 2023, Market Acumen, Inc.
+ * @copyright  &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Response;
@@ -16,8 +16,8 @@ use zesk\Exception\DirectoryCreate;
 use zesk\Exception\DirectoryPermission;
 use zesk\Exception\KeyNotFound;
 use zesk\Exception\ParameterException;
-use zesk\Exception\Redirect;
 use zesk\Exception\ProtocolException;
+use zesk\Exception\Redirect;
 use zesk\File;
 use zesk\HTML as HTMLTools;
 use zesk\JSON as JSONTools;
@@ -175,7 +175,7 @@ class HTML extends Type
 	{
 		$this->title = $set;
 		$this->application->debug('Set page title to "{title} ({context})"', [
-			'title'   => $set,
+			'title' => $set,
 			'context' => Kernel::callingFunction(2),
 		]);
 		return $this->parent;
@@ -223,7 +223,7 @@ class HTML extends Type
 	 * Set HTML attributes
 	 *
 	 * @param array $attributes
-	 * @param bool  $merge
+	 * @param bool $merge
 	 * @return Response
 	 */
 	public function setAttributes(array $attributes, bool $merge = false): Response
@@ -312,14 +312,14 @@ class HTML extends Type
 	/**
 	 * Get/set meta tags
 	 *
-	 * @param string       $name
+	 * @param string $name
 	 * @param string|array $content
 	 * @return Response
 	 */
 	public function setMeta(string $name, string|array $content): Response
 	{
 		$this->meta[$name] = is_array($content) ? $content : [
-			'name'    => $name,
+			'name' => $name,
 			'content' => $content,
 		];
 		return $this->parent;
@@ -373,7 +373,7 @@ class HTML extends Type
 	 *            Link rel=""
 	 * @param string $path
 	 * @param string $type
-	 * @param array  $attrs
+	 * @param array $attrs
 	 * @return Response
 	 */
 	public function setLink(string $rel, string $path, string $type = '', array $attrs = []): Response
@@ -382,7 +382,7 @@ class HTML extends Type
 			$attrs['weight'] = count($this->links) * 10;
 		}
 		$arr = [
-			'rel'  => $rel,
+			'rel' => $rel,
 			'href' => HTMLTools::href($this->application, $path),
 		];
 		if ($type) {
@@ -401,7 +401,7 @@ class HTML extends Type
 	/**
 	 * Add a css to the page
 	 *
-	 * @param string       $path
+	 * @param string $path
 	 *                Path to css file
 	 * @param array|string $options
 	 *                Optional options:
@@ -421,7 +421,7 @@ class HTML extends Type
 			];
 		}
 		$options += [
-			'type'  => 'text/css',
+			'type' => 'text/css',
 			'media' => 'all',
 		];
 		return $this->setLink('stylesheet', $path, $options['type'], $options);
@@ -430,7 +430,7 @@ class HTML extends Type
 	/**
 	 * Add a css to the page
 	 *
-	 * @param string       $styles  CSS code
+	 * @param string $styles CSS code
 	 * @param array|string $options Media type or tag options
 	 *                              Optional options: media (defaults to screen), type (defaults to text/css), browser
 	 *                              (may be ie, ie6, ie7), and cdn (boolean to prefix with cdn path)
@@ -482,8 +482,8 @@ class HTML extends Type
 	{
 		return [
 			'page_theme' => $this->pageTheme,
-			'request'    => $this->parent->request,
-			'response'   => $this->parent,
+			'request' => $this->parent->request,
+			'response' => $this->parent,
 		];
 	}
 
@@ -561,7 +561,7 @@ class HTML extends Type
 				$dest = $this->resourcePath($attrs['href'], $attrs);
 				if (empty($dest) || !is_file($dest)) {
 					$this->application->error('Inline stylesheet path {dest} not found: {attributes}', [
-						'dest'       => $dest,
+						'dest' => $dest,
 						'attributes' => serialize($attrs),
 					]);
 				} else {
@@ -595,9 +595,9 @@ class HTML extends Type
 					continue;
 				}
 				$tag += [
-					'name'       => 'link',
+					'name' => 'link',
 					'attributes' => ArrayTools::filter($attrs, 'rel;href;type;media;sizes;crossorigin;hrefland;rev'),
-					'content'    => '',
+					'content' => '',
 				];
 				$result[] = $tag;
 			}
@@ -688,11 +688,11 @@ class HTML extends Type
 			}
 		}
 		return ArrayTools::clean([
-			'elapsed'     => microtime(true) - $this->application->initializationTime(),
-			'scripts'     => count($scripts) ? $scripts : null,
+			'elapsed' => microtime(true) - $this->application->initializationTime(),
+			'scripts' => count($scripts) ? $scripts : null,
 			'stylesheets' => count($stylesheets) ? $stylesheets : null,
-			'head_tags'   => count($head_tags) ? $head_tags : null,
-			'title'       => $this->parent->title(),
+			'head_tags' => count($head_tags) ? $head_tags : null,
+			'title' => $this->parent->title(),
 		], [
 			null,
 			'',
@@ -702,7 +702,7 @@ class HTML extends Type
 	/**
 	 *
 	 * @param string $resource_path
-	 * @param int    $route_expire
+	 * @param int $route_expire
 	 * @return string
 	 * @throws DirectoryCreate
 	 * @throws DirectoryPermission
@@ -737,7 +737,7 @@ class HTML extends Type
 	 * Given a path, retrieve the actual resource path with a timestamp for cache busting
 	 *
 	 * @param string $_path
-	 * @param array  $attributes
+	 * @param array $attributes
 	 * @return string Empty string if something is awry
 	 * @throws DirectoryCreate
 	 * @throws DirectoryPermission
@@ -776,7 +776,7 @@ class HTML extends Type
 	 * Utility function to determine the date of a file
 	 *
 	 * @param string $path
-	 * @param array  $attributes
+	 * @param array $attributes
 	 *            Passed to resource_path
 	 * @return array First item is the URI, 2nd is the full path to the file
 	 * @throws DirectoryCreate
@@ -837,7 +837,7 @@ class HTML extends Type
 					}
 				} else {
 					$this->application->debug('Unknown @import syntax in {file}: {import}', [
-						'file'   => $file,
+						'file' => $file,
 						'import' => $match[0],
 					]);
 
@@ -897,7 +897,7 @@ class HTML extends Type
 	private function process_cached_type(string $src, string $file, string $dest, string $extension): string
 	{
 		$hook = [
-			'js'  => self::HOOK_PROCESS_CACHED_JS,
+			'js' => self::HOOK_PROCESS_CACHED_JS,
 			'css' => self::HOOK_PROCESS_CACHED_CSS,
 		][$extension] ?? null;
 		$contents = file_get_contents($file);
@@ -923,7 +923,7 @@ class HTML extends Type
 	{
 		$path = $this->resourceCachePath($extension);
 		$files = Directory::listRecursive($path, [
-			'#/cache/js#'  => true,
+			'#/cache/js#' => true,
 			'#/cache/css#' => true,
 			false,
 		], [true], [true], [Directory::LIST_ADD_PATH => true]);
@@ -940,8 +940,8 @@ class HTML extends Type
 		}
 
 		$this->application->notice('Deleted {deleted} files from cache directory at {path} (Expire after {expire_seconds} seconds)', [
-			'deleted'        => count($deleted),
-			'path'           => $path,
+			'deleted' => count($deleted),
+			'path' => $path,
 			'expire_seconds' => $expire_seconds,
 		]);
 		return $deleted;
@@ -982,7 +982,7 @@ class HTML extends Type
 	/**
 	 * Run JavaScript/CSS concatenation
 	 *
-	 * @param array  $cached
+	 * @param array $cached
 	 * @param string $extension
 	 * @param string $hook
 	 * @param string $debug
@@ -1025,7 +1025,7 @@ class HTML extends Type
 			$content = $this->parent->invokeTypedFilters($hook, [$content], [$this]);
 			$this->application->info('Created {cache_path} from {sources}', [
 				'cache_path' => $cache_path,
-				'sources'    => $sources,
+				'sources' => $sources,
 			]);
 			file_put_contents($cache_path, $content);
 		}
@@ -1036,7 +1036,7 @@ class HTML extends Type
 	/**
 	 * Run CSS caching
 	 *
-	 * @param array  $cached
+	 * @param array $cached
 	 * @param string $media
 	 * @return array
 	 * @throws DirectoryCreate
@@ -1047,14 +1047,14 @@ class HTML extends Type
 		$debug = '';
 		$href = $this->resourceCache($cached, 'css', 'compress_css', $debug);
 		return [
-			'name'       => 'link',
+			'name' => 'link',
 			'attributes' => [
-				'href'  => $href,
-				'rel'   => 'stylesheet',
+				'href' => $href,
+				'rel' => 'stylesheet',
 				'media' => $media,
 			],
-			'content'    => '',
-			'suffix'     => $this->application->development() ? "<!--\n$debug\n-->" : '',
+			'content' => '',
+			'suffix' => $this->application->development() ? "<!--\n$debug\n-->" : '',
 		];
 	}
 
@@ -1071,13 +1071,13 @@ class HTML extends Type
 		$debug = '';
 		$href = $this->resourceCache($cached, 'js', 'compress_script', $debug);
 		return [
-			'name'       => 'script',
+			'name' => 'script',
 			'attributes' => [
-				'src'  => $href,
+				'src' => $href,
 				'type' => 'text/javascript',
 			],
-			'content'    => '',
-			'suffix'     => $this->application->development() ? "<!--\n$debug\n-->" : '',
+			'content' => '',
+			'suffix' => $this->application->development() ? "<!--\n$debug\n-->" : '',
 		];
 	}
 
@@ -1128,9 +1128,9 @@ class HTML extends Type
 			$script = $this->browserConditionals(strval($attrs ['browser'] ?? ''));
 			if (array_key_exists('content', $attrs)) {
 				$script += [
-					'name'       => 'script',
+					'name' => 'script',
 					'attributes' => $script_attributes,
-					'content'    => $attrs['content'],
+					'content' => $attrs['content'],
 				];
 			} else {
 				assert(array_key_exists('src', $attrs));
@@ -1167,21 +1167,21 @@ class HTML extends Type
 					}
 				}
 				$script += [
-					'name'       => 'script',
+					'name' => 'script',
 					'attributes' => $script_attributes,
-					'content'    => '',
+					'content' => '',
 				];
 			}
 			if (array_key_exists('javascript_before', $attrs)) {
 				$result[] = [
-					'name'    => 'script',
+					'name' => 'script',
 					'content' => $attrs['javascript_before'],
 				];
 			}
 			$result[] = $script;
 			if (array_key_exists('javascript_after', $attrs)) {
 				$result[] = [
-					'name'    => 'script',
+					'name' => 'script',
 					'content' => $attrs['javascript_after'],
 				];
 			}
@@ -1196,7 +1196,7 @@ class HTML extends Type
 	}
 
 	/**
-	 * @param string   $pattern
+	 * @param string $pattern
 	 * @param callable $method
 	 * @return float|null
 	 */
@@ -1216,7 +1216,7 @@ class HTML extends Type
 	 * Internal function to add script tag
 	 *
 	 * @param string $path
-	 * @param array  $options
+	 * @param array $options
 	 * @return Response
 	 */
 	private function scriptAdd(string $path, array $options): Response
@@ -1236,9 +1236,9 @@ class HTML extends Type
 					if ($before !== null) {
 						if ($after <= $before) {
 							throw new RuntimeException('{path} has a computed {before} weight which is greater than the after weight {after}', [
-								'path'   => $path,
+								'path' => $path,
 								'before' => $before,
-								'after'  => $after,
+								'after' => $after,
 							]);
 						} else {
 							$options['weight'] = $before - 1;
@@ -1290,8 +1290,8 @@ class HTML extends Type
 	/**
 	 * Register a javascript to be put on the page
 	 *
-	 * @param string|array $paths   File path(s) to serve for the javascript
-	 * @param array        $options Optional settings:
+	 * @param string|array $paths File path(s) to serve for the javascript
+	 * @param array $options Optional settings:
 	 *                              - type: defaults to text/javascript)
 	 *                              - browser: defaults to all browsers
 	 *                              - cdn: defaults to false
@@ -1313,7 +1313,7 @@ class HTML extends Type
 	 * Include JavaScript to be included inline in the page
 	 *
 	 * @param string $script
-	 * @param array  $options
+	 * @param array $options
 	 * @return Response
 	 * @throws ProtocolException
 	 */
@@ -1377,8 +1377,8 @@ class HTML extends Type
 		}
 		return [
 			'nocache' => true,
-			'prefix'  => $prefix,
-			'suffix'  => $suffix,
+			'prefix' => $prefix,
+			'suffix' => $suffix,
 		];
 	}
 }

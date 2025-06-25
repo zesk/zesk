@@ -1,6 +1,8 @@
 <?php
 declare(strict_types=1);
 /**
+ * @copyright &copy; 2025, Market Acumen, Inc.
+ *
  * @package    zesk
  * @subpackage objects
  */
@@ -10,6 +12,8 @@ namespace zesk\Cron;
 use zesk\ArrayTools;
 use zesk\Date;
 use zesk\Debug;
+use zesk\Exception\KeyNotFound;
+use zesk\Exception\ParameterException;
 use zesk\Exception\ParseException;
 use zesk\Exception\ProtocolException;
 use zesk\HTML;
@@ -28,22 +32,16 @@ class Parser
 {
 	/**
 	 *
-	 * @var boolean
-	 */
-	private $debug = false;
-
-	/**
-	 *
 	 * @var Locale
 	 */
-	private $locale;
+	private Locale $locale;
 
 	/**
 	 * String formatted
 	 *
 	 * @var string
 	 */
-	private $cron_codes;
+	private string $cron_codes;
 
 	/**
 	 *
@@ -84,8 +82,9 @@ class Parser
 	/**
 	 * Parse a string and convert it into a schedule
 	 *
-	 * @param string $text   Some text in the locale's language
-	 * @param string $locale The locale. If null, uses the current global locale.
+	 * @param string $phrase Some text in the locale's language
+	 * @param Locale $locale The locale. If null, uses the current global locale.
+	 * @throws ParseException
 	 */
 	public function __construct(string $phrase, Locale $locale)
 	{
@@ -97,15 +96,12 @@ class Parser
 
 	/**
 	 *
-	 * @param int   $index
-	 * @param mixed $add
+	 * @param int $index
+	 * @param int $add
 	 * @return self
 	 */
-	private function cron_add($index, $add)
+	private function cron_add(int $index, int $add): self
 	{
-		if ($add === null) {
-			return $this;
-		}
 		[
 			$low,
 			$high,
@@ -137,7 +133,7 @@ class Parser
 		if ($low === null) {
 			return $this;
 		}
-		if (is_numeric($add) && $add < $low || $add > $high) {
+		if ($add < $low || $add > $high) {
 			return $this;
 		}
 		$old = $this->cron_codes[$index] ?? '*';
@@ -157,7 +153,10 @@ class Parser
 	 *
 	 * @param Timestamp $now
 	 * @return Timestamp
+	 * @return Timestamp
 	 * @throws ProtocolException
+	 * @throws KeyNotFound
+	 * @throws ParameterException
 	 */
 	public function compute_next(Timestamp $now): Timestamp
 	{
@@ -303,10 +302,11 @@ class Parser
 	/**
 	 * Parse a string and convert it into a schedule
 	 *
-	 * @param string $text   Some text in the locale's language
-	 * @param string $locale The locale. If null, uses the current global locale.
+	 * @param string $text Some text in the locale's language
+	 * @return string
+	 * @throws ParseException
 	 */
-	private function parse_language_en($text)
+	private function parse_language_en(string $text): string
 	{
 		$locale = $this->locale;
 		// Examples:
@@ -333,22 +333,22 @@ class Parser
 		$text = preg_replace('/\s+/', ' ', $text);
 		$text = " $text ";
 		$time_patterns = [
-			'weekday'      => '(weekday)',
-			'weekend'      => '(weekend)',
-			'unitsly'      => '(hourly|monthly|daily|weekly)',
-			'time-word'    => '(?:at )?(midnight|noon|dusk|dawn|sunrise|sunset)',
-			'pm-hint'      => ' (?:every |in the )?(night|afternoon|evening|eve|sunset|sunrise|afternoon) ',
-			'am-hint'      => ' (?:every |in the )?(morning|sunrise|afternoon) ',
-			'ampm-hint'    => ' (?:every |in the )(day|daytime) ',
-			'units'        => ' (?:every )?([0-9]+|other) (min|minute|sec|second|hr|hour|day|week|month)s?',
-			'units-opt'    => ' every ([0-9]+ |other )?(min|minute|sec|second|hr|hour|day|week|month)s?',
-			'month-days'   => '([1-3]?[0-9])(?:nd|st|th|rd)',
-			'time'         => '(?:at )?([0-9]{1,2})(?::([0-9]{2}))?( ?[ap]m?)?',
-			'months'       => '(' . strtolower(implode('|', Date::monthNames($locale))) . ')',
+			'weekday' => '(weekday)',
+			'weekend' => '(weekend)',
+			'unitsly' => '(hourly|monthly|daily|weekly)',
+			'time-word' => '(?:at )?(midnight|noon|dusk|dawn|sunrise|sunset)',
+			'pm-hint' => ' (?:every |in the )?(night|afternoon|evening|eve|sunset|sunrise|afternoon) ',
+			'am-hint' => ' (?:every |in the )?(morning|sunrise|afternoon) ',
+			'ampm-hint' => ' (?:every |in the )(day|daytime) ',
+			'units' => ' (?:every )?([0-9]+|other) (min|minute|sec|second|hr|hour|day|week|month)s?',
+			'units-opt' => ' every ([0-9]+ |other )?(min|minute|sec|second|hr|hour|day|week|month)s?',
+			'month-days' => '([1-3]?[0-9])(?:nd|st|th|rd)',
+			'time' => '(?:at )?([0-9]{1,2})(?::([0-9]{2}))?( ?[ap]m?)?',
+			'months' => '(' . strtolower(implode('|', Date::monthNames($locale))) . ')',
 			'short-months' => '(' . strtolower(implode('|', $short_months)) . ')',
-			'dow'          => '(' . strtolower(implode('|', Date::weekdayNames($locale))) . ')',
-			'short-dow'    => '(' . implode('|', $short_dow) . ')',
-			'years'        => '([0-9]{4})',
+			'dow' => '(' . strtolower(implode('|', Date::weekdayNames($locale))) . ')',
+			'short-dow' => '(' . implode('|', $short_dow) . ')',
+			'years' => '([0-9]{4})',
 		];
 
 		$debug = false;
@@ -428,23 +428,23 @@ class Parser
 								0,
 								0,
 							],
-							'noon'     => [
+							'noon' => [
 								12,
 								0,
 							],
-							'dusk'     => [
+							'dusk' => [
 								19,
 								0,
 							],
-							'dawn'     => [
+							'dawn' => [
 								7,
 								0,
 							],
-							'sunrise'  => [
+							'sunrise' => [
 								7,
 								0,
 							],
-							'sunset'   => [
+							'sunset' => [
 								19,
 								0,
 							],
@@ -777,9 +777,9 @@ class Parser
 		}
 		$phrase = $this->locale->__($translate_string);
 		return ArrayTools::map($phrase, [
-			'time'    => $time_language,
-			'day'     => $day_language,
-			'month'   => $month_language,
+			'time' => $time_language,
+			'day' => $day_language,
+			'month' => $month_language,
 			'weekday' => $dow_language,
 		]);
 	}

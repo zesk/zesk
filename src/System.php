@@ -81,7 +81,7 @@ class System
 	 */
 	public static function ipAddresses(Application $application): array
 	{
-		$interfaces = self::iffilter(self::ifconfig($application), ['inet', 'ether']);
+		$interfaces = self::iffilter(self::interfaceConfiguration($application), ['inet', 'ether']);
 		$ips = [];
 		foreach ($interfaces as $interface => $values) {
 			if (array_key_exists('inet', $values)) {
@@ -101,7 +101,7 @@ class System
 	 */
 	public static function macAddresses(Application $application): array
 	{
-		$interfaces = self::ifconfig($application);
+		$interfaces = self::interfaceConfiguration($application);
 		$macs = [];
 		foreach ($interfaces as $interface => $values) {
 			if (array_key_exists('ether', $values)) {
@@ -171,7 +171,7 @@ class System
 	 * @param Application $application
 	 * @return array
 	 */
-	public static function ifconfig(Application $application): array
+	public static function interfaceConfiguration(Application $application): array
 	{
 		$command = null;
 		$cache = null;

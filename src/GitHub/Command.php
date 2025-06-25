@@ -36,19 +36,10 @@ class Command extends SimpleCommand
 	 * @var array
 	 */
 	protected array $argumentTypes = [
-		'tag'                    => 'boolean',
-		'description-file'       => 'file',
+		'tag' => 'boolean',
+		'description-file' => 'file',
 		self::OPTION_DESCRIPTION => 'string',
-		'commitish'              => 'string',
-	];
-
-	/**
-	 *
-	 * @var array
-	 */
-	protected array $options = [
-		'description' => 'Release of version {version}.',
-		'commitish'   => 'master',
+		'commitish' => 'string',
 	];
 
 	/**
@@ -68,6 +59,15 @@ class Command extends SimpleCommand
 	 * @var integer
 	 */
 	public const EXIT_CODE_TAG_FAILED = 3;
+
+	public function initialize(): void
+	{
+		$this->setOptions([
+			'description' => 'Release of version {version}.',
+			'commitish' => 'master',
+		], false);
+		parent::initialize();
+	}
 
 	/**
 	 *

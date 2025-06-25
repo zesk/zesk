@@ -10,30 +10,17 @@ declare(strict_types=1);
 namespace zesk\World\Bootstrap;
 
 use zesk\Application;
-use zesk\ArrayTools;
-use zesk\Hookable;
-use zesk\StringTools;
-use zesk\Types;
-use zesk\World\Module;
+use zesk\World\Bootstrap;
+use zesk\World\Language;
 
-class BootstrapLanguage extends Hookable
+class BootstrapLanguage extends Bootstrap
 {
-	/**
-	 *
-	 * @var array
-	 */
-	private $include_country = null;
-
-	/**
-	 *
-	 * @var array
-	 */
-	private $include_language = null;
+	protected string $includeOption = self::OPTION_INCLUDE_LANGUAGES_LIST;
 
 	/**
 	 *
 	 * @param Application $application
-	 * @param array       $options
+	 * @param array $options
 	 * @return self
 	 */
 	public static function factory(Application $application, array $options = []): self
@@ -42,50 +29,24 @@ class BootstrapLanguage extends Hookable
 	}
 
 	/**
-	 * @param Application $application
-	 * @param array       $options
+	 * List of languages to bootstrap
 	 */
-	public function __construct(Application $application, array $options = [])
-	{
-		parent::__construct($application, $options);
-		$this->inheritConfiguration(Module::class);
-		$include_language = $this->option('include_language');
-		if ($include_language) {
-			$this->include_language = array_change_key_case(ArrayTools::keysFromValues(Types::toList($include_language), true));
-		}
-	}
-
-	private function is_included(BootstrapLanguage $language)
-	{
-		if ($this->include_language) {
-			$name = strtolower($language->code);
-			return $this->include_language[$name] ?? false;
-		}
-		return true;
-	}
+	public const OPTION_INCLUDE_LANGUAGES_LIST = 'languages';
 
 	public function bootstrap(): void
 	{
-		$application = $this->application;
-		$prefix = __NAMESPACE__ . '\\';
-		$x = $application->ormFactory($prefix . StringTools::removePrefix(__CLASS__, $prefix . 'World_Bootstrap_'));
 		if ($this->optionBool('drop')) {
-			$x->database()->query('TRUNCATE ' . $x->table());
+			$this->deleteEverything(Language::class);
 		}
-		$englishCodes = self::_language_codes_en();
+		$englishCodes = self::_enLanguages();
 		foreach ($englishCodes as $code => $name) {
-			$x = $application->ormFactory($prefix . 'Language', [
-				'code' => strtoupper($code),
-				'name' => $name,
-			]);
-			if ($this->is_included($x)) {
-				$x->register();
-				// TODO - add English translation somewhere
+			if ($this->isIncluded($code)) {
+				Language::register($this->application, $code, '', $name);
 			}
 		}
 	}
 
-	private static function _language_codes_en()
+	private static function _enLanguages(): array
 	{
 		return [
 			'aa' => 'Afar',

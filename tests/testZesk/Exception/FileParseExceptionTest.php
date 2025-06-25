@@ -9,9 +9,8 @@ declare(strict_types=1);
 
 namespace testZesk\Exception;
 
-use zesk\PHPUnit\ExceptionTestCase;
-
 use zesk\Exception\FileParseException;
+use zesk\PHPUnit\ExceptionTestCase;
 
 class FileParseExceptionTest extends ExceptionTestCase
 {

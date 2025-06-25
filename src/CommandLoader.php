@@ -1,7 +1,10 @@
 <?php
 declare(strict_types=1);
 /**
+ * @copyright &copy; 2025, Market Acumen, Inc.
  *
+ * @package    zesk
+ * @subpackage Command
  */
 
 namespace zesk;
@@ -266,7 +269,7 @@ class CommandLoader
 
 	/**
 	 * @param string $arg
-	 * @param array  $args
+	 * @param array $args
 	 * @return array
 	 * @throws ParseException
 	 * @throws DirectoryNotFound
@@ -373,7 +376,7 @@ class CommandLoader
 			} elseif (is_dir($path)) {
 				try {
 					$commands = Directory::listRecursive($path, [
-						"#/\.#" => false,
+						"#/\.*/#" => false,
 						true,
 					], [
 						"#\.php$#" => true,
@@ -422,15 +425,15 @@ class CommandLoader
 				if (array_key_exists($shortcut, $allShortcuts)) {
 					if (str_starts_with($commandClass, __NAMESPACE__ . '\\')) {
 						$this->application->info('Shortcut {shortcut} for {previousClass} overridden by handler {class}', [
-							'shortcut'      => $shortcut,
-							'class'         => $commandClass,
+							'shortcut' => $shortcut,
+							'class' => $commandClass,
 							'previousClass' => $allShortcuts[$shortcut],
 						]);
 						$allShortcuts[$shortcut] = $commandClass;
 					} else {
 						$this->application->debug('Shortcut {shortcut} for {class} will not override existing handler {currentClass}', [
-							'shortcut'     => $shortcut,
-							'class'        => $commandClass,
+							'shortcut' => $shortcut,
+							'class' => $commandClass,
 							'currentClass' => $allShortcuts[$shortcut],
 						]);
 					}
@@ -451,7 +454,7 @@ class CommandLoader
 	 * Run a command
 	 *
 	 * @param string $shortcut
-	 * @param array  $args
+	 * @param array $args
 	 * @return array
 	 * @throws NotFoundException
 	 */
@@ -459,7 +462,7 @@ class CommandLoader
 	{
 		$commands = $this->collectCommandShortcuts();
 		$exceptionArgs = [
-			'command'  => $shortcut,
+			'command' => $shortcut,
 			'commands' => array_keys($commands),
 		];
 		if (!array_key_exists($shortcut, $commands)) {
@@ -510,7 +513,7 @@ class CommandLoader
 	 * Show usage
 	 *
 	 * @param string $error
-	 * @param int    $exitCode
+	 * @param int $exitCode
 	 * @return int
 	 */
 	private function usage(string $error = '', int $exitCode = 2): int
@@ -848,7 +851,7 @@ class CommandLoader
 	 * Output a debug message
 	 *
 	 * @param string $message
-	 * @param array  $context
+	 * @param array $context
 	 * @return void
 	 */
 	private function debug(string $message, array $context = []): void

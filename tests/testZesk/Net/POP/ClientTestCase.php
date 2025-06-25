@@ -13,7 +13,10 @@ declare(strict_types=1);
 namespace testZesk\Net\POP;
 
 use zesk\ArrayTools;
+use zesk\Exception\AuthenticationException;
 use zesk\Mail;
+use zesk\Mail\Mail;
+use zesk\Net\POP\Client;
 use zesk\PHPUnit\TestCase;
 use zesk\Timer;
 use zesk\Types;
@@ -97,7 +100,7 @@ class ClientTestCase extends TestCase
 		$timer = new Timer();
 		echo "Searching for subject containing: $test_key\n";
 		do {
-			$testObject = new Net_POP_Client($this->application, $test_url, $options);
+			$testObject = new Client($this->application, $test_url, $options);
 
 			$iterator = $testObject->iterator();
 			foreach ($iterator as $message_id => $headers) {
@@ -131,18 +134,18 @@ class ClientTestCase extends TestCase
 	 */
 	public function test_bad_password(): void
 	{
-		$this->expectException(Authentication::class);
+		$this->expectException(AuthenticationException::class);
 		$parts = ArrayTools::filter($this->parts, 'scheme;host;user');
 		$parts['pass'] = 'bad-password';
 		$test_url = URL::stringify($parts);
 
 		$options = [
-			'echo_log'   => true,
+			'echo_log' => true,
 			'read_debug' => true,
-			'debug'      => true,
+			'debug' => true,
 			'debug_apop' => true,
 		];
-		$testObject = new Net_POP_Client($this->application, $test_url, $options);
+		$testObject = new Client($this->application, $test_url, $options);
 
 		$testObject->authenticate();
 	}

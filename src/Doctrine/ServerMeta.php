@@ -12,6 +12,7 @@ namespace zesk\Doctrine;
 use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Entity;
+use Doctrine\ORM\Mapping\EntityListeners;
 use Doctrine\ORM\Mapping\JoinColumn;
 use Doctrine\ORM\Mapping\ManyToOne;
 use Doctrine\ORM\Mapping\UniqueConstraint;
@@ -20,12 +21,13 @@ use zesk\Doctrine\Trait\AutoID;
 
 /**
  * @author kent
- * @property int    $id
+ * @property int $id
  * @property Server $server
  * @property string $name
- * @property mixed  $value
+ * @property mixed $value
  */
 #[Entity]
+#[EntityListeners([ModelListener::class])]
 #[UniqueConstraint(name: 'serverName', fields: [
 	'server',
 	'name',
@@ -68,7 +70,7 @@ class ServerMeta extends Model
 	/**
 	 * @param Server $server
 	 * @param string $name
-	 * @param mixed  $value
+	 * @param mixed $value
 	 * @return static
 	 * @throws ORMException
 	 */
@@ -77,7 +79,7 @@ class ServerMeta extends Model
 		$em = $server->entityManager();
 		$meta = $em->getRepository(self::class)->findOneBy([
 			'server' => $server,
-			'name'   => $name,
+			'name' => $name,
 		]);
 		if (!$meta) {
 			$meta = new self($server->application, $server, $name, $value);

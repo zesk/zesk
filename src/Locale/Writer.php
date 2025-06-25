@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 /**
- * @package zesk
+ * @package    zesk
  * @subpackage Locale
- * @author kent
- * @copyright &copy; 2023, Market Acumen, Inc.
+ * @author     kent
+ * @copyright  &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Locale;
@@ -65,7 +65,9 @@ class Writer
 			'php' => $this->appendPHPFile($phrases, $context),
 			'json' => $this->appendCSVFile($phrases, $context),
 			default => throw new UnimplementedException('{method}: No handler for file extension {extension} (file is {file})', [
-				'method' => __METHOD__, 'extension' => $extension, 'file' => $this->file,
+				'method' => __METHOD__,
+				'extension' => $extension,
+				'file' => $this->file,
 			])
 		};
 	}
@@ -133,19 +135,25 @@ class Writer
 		if (count($phrases) === 0) {
 			return [];
 		}
-		$csv = StringTools::csvQuoteRow([
-			'en_US', $this->localeHeader, 'context',
+		$csv = StringTools::quoteCSVRow([
+			'en_US',
+			$this->localeHeader,
+			'context',
 		]);
 		$result = [];
 		foreach ($phrases as $k => $v) {
-			$csv .= StringTools::csvQuoteRow([
-				$k, $v, $context,
+			$csv .= StringTools::quoteCSVRow([
+				$k,
+				$v,
+				$context,
 			]);
 			$result[$k] = $v;
 		}
 		File::append($this->file, $csv);
 		$app->debug('{method} - Appended {n} entries to {filename}', [
-			'filename' => $this->file, 'n' => count($phrases), 'method' => __METHOD__,
+			'filename' => $this->file,
+			'n' => count($phrases),
+			'method' => __METHOD__,
 		]);
 		return $result;
 	}

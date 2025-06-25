@@ -1,5 +1,8 @@
 <?php
 declare(strict_types=1);
+/**
+ * @copyright  Copyright &copy; 2025, Market Acumen, Inc.
+ */
 
 namespace zesk\Settings;
 
@@ -59,7 +62,7 @@ class FileSystemSettings implements SettingsInterface
 			$this->backupDataFile('parse-' . $application->process->id());
 			$application->error('Parsing {dataFile} {message} - data lost', [
 				'dataFile' => $this->dataFile,
-				'message'  => $e->getMessage(),
+				'message' => $e->getMessage(),
 			]);
 			$this->data = [];
 		}
@@ -97,7 +100,7 @@ class FileSystemSettings implements SettingsInterface
 		} catch (FilePermission|FileNotFound $e) {
 			PHP::log('{exceptionClass} while backing up settings file {dataFile}.{extra}: {message}', $e->variables() + [
 				'dataFile' => $this->dataFile,
-				'extra'    => $extra,
+				'extra' => $extra,
 			]);
 		}
 	}

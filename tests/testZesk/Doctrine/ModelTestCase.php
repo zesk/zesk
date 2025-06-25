@@ -11,7 +11,6 @@ declare(strict_types=1);
 
 namespace testZesk\Doctrine;
 
-use Doctrine\Persistence\ObjectRepository;
 use Throwable;
 use zesk\Doctrine\Model;
 use zesk\Exception\ConfigurationException;

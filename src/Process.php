@@ -1,9 +1,9 @@
 <?php
 declare(strict_types=1);
 /**
- * @package zesk
+ * @package    zesk
  * @subpackage kernel
- * @copyright &copy; 2023, Market Acumen, Inc.
+ * @copyright  &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -34,18 +34,19 @@ class Process extends Hookable
 	public bool $debug = false;
 
 	/**
-	 *
+	 * @return array
 	 */
-	public function __serialize(): array
+	public function __serializeChild(): array
 	{
-		return [
-			'debug' => $this->debug,
-		] + parent::__serialize();
+		return ['debug' => $this->debug];
 	}
 
-	public function __unserialize(array $data): void
+	/**
+	 * @param array $data
+	 * @return void
+	 */
+	public function __unserializeChild(array $data): void
 	{
-		parent::__unserialize($data);
 		$this->debug = $data['debug'];
 	}
 
@@ -170,9 +171,9 @@ class Process extends Hookable
 	 * </code>
 	 *
 	 * @param string $command
-	 *            Command to run
+	 *                         Command to run
 	 * @param array $args
-	 *            Arguments to escape and pass into the command
+	 *                         Arguments to escape and pass into the command
 	 * @param bool $passThru Whether to use passthru vs exec
 	 * @return array Lines output by the command (returned by exec)
 	 * @throws CommandFailed

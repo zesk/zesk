@@ -1,14 +1,13 @@
 <?php
 declare(strict_types=1);
 /**
- * @copyright &copy; 2023 Market Acumen, Inc.
- * @author kent
- * @category Management
+ * @copyright &copy; 2025, Market Acumen, Inc.
+ * @author    kent
+ * @category  Management
  */
 
 namespace zesk;
 
-use aws\classes\Hookable;
 use zesk\Exception\DirectoryNotFound;
 use zesk\Exception\FileNotFound;
 use zesk\Exception\FilePermission;
@@ -20,7 +19,7 @@ use zesk\Exception\FilePermission;
  *
  * You can also pass back "wakeup" messages which wake up the server.
  *
- * @author kent
+ * @author   kent
  * @category Management
  */
 class FIFO
@@ -128,8 +127,8 @@ class FIFO
 	 *
 	 * @param float $timeout in seconds
 	 * @return mixed
+	 * @throws Exception\SyntaxException
 	 * @throws FileNotFound
-	 * @throws SyntaxException
 	 */
 	public function read(float $timeout): mixed
 	{

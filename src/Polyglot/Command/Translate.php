@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 /**
- *
+ * @copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Polyglot\Command;
@@ -13,8 +13,8 @@ use zesk\Exception;
 use zesk\Locale\Locale;
 use zesk\Polyglot\Module;
 use zesk\Service;
-use zesk\StringTools;
 use zesk\Service\Translate as TranslateService;
+use zesk\StringTools;
 use zesk\Types;
 
 /**
@@ -41,11 +41,11 @@ class Translate extends SimpleCommand
 	 * @var array
 	 */
 	public array $argumentTypes = [
-		'source'        => 'string',
-		'target'        => 'string',
-		'interactive'   => 'boolean',
-		'list'          => 'boolean',
-		'destination'   => 'dir',
+		'source' => 'string',
+		'target' => 'string',
+		'interactive' => 'boolean',
+		'list' => 'boolean',
+		'destination' => 'dir',
 		'language-file' => 'file',
 	];
 
@@ -54,10 +54,10 @@ class Translate extends SimpleCommand
 	 * @var array
 	 */
 	public array $option_help = [
-		'source'      => 'Source ',
-		'target'      => 'string',
+		'source' => 'Source ',
+		'target' => 'string',
 		'interactive' => 'boolean',
-		'list'        => 'boolean',
+		'list' => 'boolean',
 	];
 
 	/**
@@ -179,7 +179,7 @@ class Translate extends SimpleCommand
 	 * Replace mapped tokens with originals
 	 *
 	 * @param string $phrase
-	 * @param array  $map
+	 * @param array $map
 	 * @return string
 	 */
 	private function postprocessPhrase(string $phrase, array $map): string

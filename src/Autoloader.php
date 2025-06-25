@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 /**
- * @package zesk
+ * @package    zesk
  * @subpackage core
- * @author kent
- * @copyright &copy; 2023, Market Acumen, Inc.
+ * @author     kent
+ * @copyright  &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -191,10 +191,10 @@ class Autoloader
 			}
 
 			throw new ClassNotFound($class, "Class {class} called from {calling_function} invoked from:\n{backtrace}\n{tried_path}", [
-				'class'            => $class,
+				'class' => $class,
 				'calling_function' => Kernel::callingFunction(2),
-				'tried_path'       => Text::indent(implode("\n", $tried_path)),
-				'backtrace'        => Text::indent(Kernel::backtrace()),
+				'tried_path' => Text::indent(implode("\n", $tried_path)),
+				'backtrace' => Text::indent(Kernel::backtrace()),
 			]);
 		}
 		if ($this->debug) {
@@ -349,7 +349,7 @@ class Autoloader
 		}
 		$options += [
 			self::OPTION_CLASS_PREFIX => self::OPTION_CLASS_PREFIX_DEFAULT,
-			self::OPTION_LOWER        => self::OPTION_LOWER_DEFAULT,
+			self::OPTION_LOWER => self::OPTION_LOWER_DEFAULT,
 		];
 		if ($options[self::OPTION_FIRST] ?? null) {
 			$this->first[$add] = $options;

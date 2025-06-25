@@ -62,28 +62,28 @@ abstract class FileConverter extends SimpleCommand
 	public function initialize(): void
 	{
 		$this->argumentTypes += [
-			'nomtime'      => 'boolean',
-			'noclobber'    => 'boolean',
-			'extension'    => 'string',
-			'dry-run'      => 'boolean',
-			'force'        => 'boolean',
-			'target-path'  => 'string',
+			'nomtime' => 'boolean',
+			'noclobber' => 'boolean',
+			'extension' => 'string',
+			'dry-run' => 'boolean',
+			'force' => 'boolean',
+			'target-path' => 'string',
 			'mkdir-target' => 'boolean',
-			'*'            => 'files',
+			'*' => 'files',
 		];
 		$this->setOptions([
-			'extension'   => $this->destination_extension,
+			'extension' => $this->destination_extension,
 			'target-path' => './',
 		], false);
 		$this->option_help += [
-			'nomtime'      => 'Ignore destination file modification time when determining whether to generate',
-			'noclobber'    => 'Do not overwrite existing files',
-			'extension'    => 'Use this extenstion for the generated files instead of the default',
-			'dry-run'      => 'Don\'t make any changes, just show what would happen.',
-			'force'        => 'Always write files',
-			'target-path'  => 'When converting files, create targets here (e.g. `../compiled-js/`)',
+			'nomtime' => 'Ignore destination file modification time when determining whether to generate',
+			'noclobber' => 'Do not overwrite existing files',
+			'extension' => 'Use this extenstion for the generated files instead of the default',
+			'dry-run' => 'Don\'t make any changes, just show what would happen.',
+			'force' => 'Always write files',
+			'target-path' => 'When converting files, create targets here (e.g. `../compiled-js/`)',
 			'mkdir-target' => 'Create target directory if does not exist, then convert`)',
-			'*'            => 'A list of files to process',
+			'*' => 'A list of files to process',
 		];
 		parent::initialize();
 	}
@@ -111,8 +111,8 @@ abstract class FileConverter extends SimpleCommand
 		$app->setConsole(true);
 		$request = $app->requestFactory();
 		$app->template->set([
-			'request'            => $request,
-			'response'           => $app->responseFactory($request),
+			'request' => $request,
+			'response' => $app->responseFactory($request),
 			'stylesheets_inline' => true,
 		]);
 		if ($this->overwrite && $this->optionBool('no-clobber')) {
@@ -183,7 +183,7 @@ abstract class FileConverter extends SimpleCommand
 					$this->convert_file($file, $new_file);
 				} catch (Throwable $t) {
 					$this->application->error('unable to convert from {file} to {new_file}: {throwableClass} {throwableMessage}', [
-						'file'    => $file,
+						'file' => $file,
 						'newFile' => $new_file,
 					] + Exception::exceptionVariables($t));
 				}
@@ -240,23 +240,29 @@ abstract class FileConverter extends SimpleCommand
 
 	/**
 	 *
-	 * @param unknown $content
+	 * @param string $content
 	 * @return string
-	 * @throws SyntaxException
+	 * @throws Exception\DirectoryCreate
+	 * @throws Exception\DirectoryPermission
+	 * @throws FilePermission
 	 */
-	final protected function default_convert_raw($content)
+	final protected function default_convert_raw(string $content): string
 	{
 		$src = File::temporary($this->application->paths->temporary(), '.source');
 		$dst = File::temporary($this->application->paths->temporary(), '.' . $this->destination_extension);
-		File::put($src, $content);
-		$result = $this->convert_file($src, $dst);
-		if ($result) {
+
+		try {
+			File::put($src, $content);
+			$this->convert_file($src, $dst);
+			File::unlink($src);
 			$contents = file_get_contents($dst);
+			File::unlink($dst);
+			return $contents;
+		} catch (Throwable $t) {
 			unlink($dst);
 			@unlink($src);
-			return $contents;
-		}
 
-		throw new SyntaxException('Unable to convert file - ambigious');
+			throw $t;
+		}
 	}
 }

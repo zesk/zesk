@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 /**
- *
+ * @copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Job;
@@ -193,14 +193,14 @@ class Job extends Model implements SystemProcess, ProgressStack
 	 * Job execute depends heavily on the fact that a daemon is running to process jobs.
 	 *
 	 * @param Application $application
-	 * @param string      $name      Name to describe this job to a human.
-	 * @param string      $code      Unique identifier for this job.
-	 * @param string      $hook
+	 * @param string $name Name to describe this job to a human.
+	 * @param string $code Unique identifier for this job.
+	 * @param string $hook
 	 *                               Name of a static method to invoke to run this job. First argument is ALWAYS the
 	 *                               application. Additional arguments are specified in the call and should be easily
 	 *                               serializable.
-	 * @param array       $arguments Additional arguments to pass to the hook.
-	 * @param int         $priority  Numeric priority between 0 and 255.
+	 * @param array $arguments Additional arguments to pass to the hook.
+	 * @param int $priority Numeric priority between 0 and 255.
 	 * @see Modue_Job::daemon
 	 */
 	public static function instance(Application $application, string $name, string $code, string $hook, array $arguments = [], int $priority = self::PRIORITY_NORMAL): self
@@ -228,8 +228,8 @@ class Job extends Model implements SystemProcess, ProgressStack
 	/**
 	 *
 	 * @param Application $application
-	 * @param int         $id
-	 * @param array       $options
+	 * @param int $id
+	 * @param array $options
 	 */
 	public static function mockRun(Application $application, int $id, array $options = []): SystemProcess
 	{
@@ -384,7 +384,7 @@ class Job extends Model implements SystemProcess, ProgressStack
 			return 0;
 		}
 		$server_pid = [
-			'pid'    => $pid,
+			'pid' => $pid,
 			'server' => $server,
 		];
 
@@ -395,7 +395,7 @@ class Job extends Model implements SystemProcess, ProgressStack
 		 * Deals with the situation below where this process grabs them and then crashes. (you never know)
 		 */
 		$application->ormRegistry(__CLASS__)->queryUpdate()->setValues([
-			'pid'    => null,
+			'pid' => null,
 			'server' => null,
 		])->appendWhere($server_pid)->execute();
 		/*
@@ -408,10 +408,10 @@ class Job extends Model implements SystemProcess, ProgressStack
 			 * Now iterate through available Jobs, and re-sort each iteration in case stuff changes between jobs
 			 */
 			$query = $application->ormRegistry(__CLASS__)->querySelect()->ormWhat()->appendWhere([
-				'start|<='  => Timestamp::now('UTC'),
-				'pid'       => null,
+				'start|<=' => Timestamp::now('UTC'),
+				'pid' => null,
 				'completed' => null,
-				'died|<='   => self::retryAttempts($application),
+				'died|<=' => self::retryAttempts($application),
 			])->setOrderBy([
 				'priority DESC',
 				'died',
@@ -425,7 +425,7 @@ class Job extends Model implements SystemProcess, ProgressStack
 				// Tag the Job as "ours" - this avoids race conditions between multiple servers
 				$application->ormRegistry(__CLASS__)->queryUpdate()->setValues($server_pid)->appendWhere([
 					'pid' => null,
-					'id'  => $job->id,
+					'id' => $job->id,
 				])->execute();
 				// Race condition if we crash before this executes
 				if (!Types::toBool($application->ormFactory(__CLASS__)->querySelect()->addWhat('*X', 'COUNT(id)')->appendWhere($server_pid)->addWhere('id', $job->id)->integer('X'))) {
@@ -437,8 +437,8 @@ class Job extends Model implements SystemProcess, ProgressStack
 					$job = $application->ormFactory(__CLASS__, $job->id)->fetch();
 					$found_job = true;
 					$logger->info('Server ID # {id}: Running Job # {job_id} - {job_name}', [
-						'id'       => $server,
-						'job_id'   => $job->id,
+						'id' => $server,
+						'job_id' => $job->id,
 						'job_name' => $job->name,
 					]);
 
@@ -450,7 +450,7 @@ class Job extends Model implements SystemProcess, ProgressStack
 					}
 					$job->release();
 					$jobs++;
-				} catch (ORMNotFound) {
+				} catch (Throwable) {
 					$found_job = false;
 				}
 				self::cleanDeadProcessIDs($application, $server);
@@ -477,7 +477,7 @@ class Job extends Model implements SystemProcess, ProgressStack
 	 * If they're not, mark them as dead and set the PID back to null.
 	 *
 	 * @param Application $application
-	 * @param Server      $server
+	 * @param Server $server
 	 */
 	private static function cleanDeadProcessIDs(Application $application, Server $server): void
 	{
@@ -497,9 +497,9 @@ class Job extends Model implements SystemProcess, ProgressStack
 		 	.died', 1))->where($ex->in('j.pid', $deadPids))->andWhere('j.server', $qb->createNamedParameter($server))->getQuery();
 			$result = $query->execute();
 			$application->info('Removed dead jobs {result} due to dead process IDs on server #{id} {pids}', [
-				'pids'   => $pids,
+				'pids' => $pids,
 				'result' => $result,
-				'id'     => $server->id,
+				'id' => $server->id,
 			]);
 		}
 	}
@@ -569,7 +569,7 @@ class Job extends Model implements SystemProcess, ProgressStack
 
 	/**
 	 * @param string|null $status
-	 * @param float|null  $percent
+	 * @param float|null $percent
 	 * @return void
 	 * @throws ORMException
 	 */
@@ -727,7 +727,7 @@ class Job extends Model implements SystemProcess, ProgressStack
 	/**
 	 * @param                   $level
 	 * @param string|Stringable $message
-	 * @param array             $context
+	 * @param array $context
 	 * @return void
 	 */
 	public function log($level, string|Stringable $message, array $context = []): void
@@ -761,7 +761,7 @@ class Job extends Model implements SystemProcess, ProgressStack
 	 * Data setter
 	 *
 	 * @param int|string $name
-	 * @param mixed      $value
+	 * @param mixed $value
 	 * @return self
 	 */
 	public function setData(int|string $name, mixed $value): self

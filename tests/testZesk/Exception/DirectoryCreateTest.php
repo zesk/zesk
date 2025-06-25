@@ -9,9 +9,8 @@ declare(strict_types=1);
 
 namespace testZesk\Exception;
 
-use zesk\PHPUnit\ExceptionTestCase;
-
 use zesk\Exception\DirectoryCreate;
+use zesk\PHPUnit\ExceptionTestCase;
 
 class DirectoryCreateTest extends ExceptionTestCase
 {

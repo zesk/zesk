@@ -55,10 +55,6 @@ class Debug
 	/**
 	 * Dumps a variable using print_r and surrounds with <pre> tag
 	 *
-	 * @param mixed $x
-	 *            Variable to dump
-	 * @param boolean $html
-	 *            Whether to dump as HTML or not (surround by pre tags)
 	 * @return void
 	 * @see print_r
 	 */

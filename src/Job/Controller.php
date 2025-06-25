@@ -1,5 +1,8 @@
 <?php
 declare(strict_types=1);
+/**
+ * @copyright &copy; 2025, Market Acumen, Inc.
+ */
 
 namespace zesk\Job;
 
@@ -31,9 +34,9 @@ class Controller extends BaseController
 	protected array $afterMethods = [];
 
 	/**
-	 * @param Request  $request
+	 * @param Request $request
 	 * @param Response $response
-	 * @param array    $arguments
+	 * @param array $arguments
 	 * @return array
 	 * @throws AuthenticationException
 	 * @throws NotFoundException
@@ -62,7 +65,7 @@ class Controller extends BaseController
 			if ($permission && !$user->can($permission, $job)) {
 				throw new AuthenticationException('Not allowed to {permission} {id}', [
 					'permission' => $permission,
-					'id'         => $id,
+					'id' => $id,
 				]);
 			}
 		}
@@ -73,7 +76,7 @@ class Controller extends BaseController
 	}
 
 	/**
-	 * @param Job      $job
+	 * @param Job $job
 	 * @param Response $response
 	 * @return Response
 	 */

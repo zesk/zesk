@@ -24,7 +24,7 @@ if (is_array($args)) {
 } else {
 	$args = '';
 }
-echo HTML::tag_open('li');
+echo HTML::tagOpen('li');
 echo HTML::tag(
 	'div',
 	'.method',
@@ -38,4 +38,4 @@ echo HTML::tag(
 	'.location',
 	HTML::etag('span', 'file', $file) . ':' . HTML::etag('span', '.line', $line)
 );
-echo HTML::tag_close('li');
+echo HTML::tagClose('li');

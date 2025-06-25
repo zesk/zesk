@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 /**
- *
+ * @copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Preference;
@@ -10,9 +10,14 @@ use Throwable;
 use zesk\Application\Hooks;
 use zesk\ArrayTools;
 use zesk\Controller as BaseController;
+use zesk\Exception\ClassNotFound;
 use zesk\Exception\FileNotFound;
 use zesk\Exception\FilePermission;
+use zesk\Exception\KeyNotFound;
+use zesk\Exception\NotFoundException;
 use zesk\Exception\ParameterException;
+use zesk\Exception\ParseException;
+use zesk\Exception\SemanticsException;
 use zesk\File;
 use zesk\HTTP;
 use zesk\Request;
@@ -27,7 +32,8 @@ use zesk\Types;
 class Controller extends BaseController
 {
 	protected array $argumentMethods = [
-		'arguments_{METHOD}', 'arguments',
+		'arguments_{METHOD}',
+		'arguments',
 	];
 
 	protected array $actionMethods = [
@@ -42,7 +48,7 @@ class Controller extends BaseController
 	 *
 	 * @var array
 	 */
-	protected array $whitelist = [];
+	protected array $allowed = [];
 
 	/**
 	 *
@@ -59,39 +65,39 @@ class Controller extends BaseController
 	 */
 	public function save_preferences(): void
 	{
-		file_put_contents($this->_whitelistFile(), implode("\n", array_keys($this->whitelist)));
+		file_put_contents($this->_whitelistFile(), implode("\n", array_keys($this->allowed)));
 	}
 
 	/**
 	 * @return array
 	 * @throws FilePermission
 	 */
-	private function _whitelist(): array
+	private function _allowedList(): array
 	{
-		if (count($this->whitelist) === 0) {
+		if (count($this->allowed) === 0) {
 			try {
-				$this->whitelist = array_flip(ArrayTools::clean(explode("\n", File::contents($this->_whitelistFile())), ''));
+				$this->allowed = array_flip(ArrayTools::clean(explode("\n", File::contents($this->_whitelistFile())), ''));
 			} catch (FileNotFound $e) {
-				$this->whitelist = [];
+				$this->allowed = [];
 			}
 			if ($this->optionBool('autoRegister')) {
 				$this->application->hooks->registerHook(Hooks::HOOK_EXIT, $this->save_preferences(...));
 			}
 		}
-		return $this->whitelist;
+		return $this->allowed;
 	}
 
 	/**
-	 * Add a key to the whitelist to permit saving later.
+	 * Add a key to the allowed list to permit saving later.
 	 *
 	 * @param string $name
 	 * @return void
 	 * @throws FilePermission
 	 */
-	private function _addToWhitelist(string $name): void
+	private function _addToAllowedList(string $name): void
 	{
-		$this->_whitelist();
-		$this->whitelist[$name] = true;
+		$this->_allowedList();
+		$this->allowed[$name] = true;
 	}
 
 	/**
@@ -108,14 +114,16 @@ class Controller extends BaseController
 			throw new ParameterException('Need a name');
 		}
 		$name = $arguments[0];
-		$whitelist = $this->_whitelist();
-		if (!array_key_exists($name, $whitelist)) {
+		$allowedList = $this->_allowedList();
+		if (!array_key_exists($name, $allowedList)) {
 			if ($this->optionBool('autoRegister')) {
-				$this->_addToWhitelist($name);
+				$this->_addToAllowedList($name);
 			}
 		}
 		return [
-			$request, $response, $name,
+			$request,
+			$response,
+			$name,
 		];
 	}
 
@@ -126,13 +134,14 @@ class Controller extends BaseController
 	 */
 	public function argument_OPTIONS(Request $request, Response $response): array
 	{
-		return [$response, $request];
+		return [
+			$response,
+			$request,
+		];
 	}
 
 	/**
-	 * @param Request $request
 	 * @param Response $response
-	 * @param string $name
 	 * @return Response
 	 * @dataProvider argument_OPTIONS
 	 */
@@ -147,12 +156,19 @@ class Controller extends BaseController
 	 * @param Response $response
 	 * @param string $name
 	 * @return Response
+	 * @throws NotFoundException
+	 * @throws ClassNotFound
+	 * @throws KeyNotFound
+	 * @throws SemanticsException
 	 * @dataProvider arguments
 	 */
 	public function action_GET(Request $request, Response $response, string $name): Response
 	{
 		$user = $this->application->requireUser($request);
-		return $response->json()->setData(['name' => $name, 'value' => Value::userGet($user, $name)]);
+		return $response->json()->setData([
+			'name' => $name,
+			'value' => Value::userGet($user, $name),
+		]);
 	}
 
 	/**
@@ -160,6 +176,10 @@ class Controller extends BaseController
 	 * @param Response $response
 	 * @param string $name
 	 * @return Response
+	 * @throws ClassNotFound
+	 * @throws KeyNotFound
+	 * @throws ParseException
+	 * @throws SemanticsException
 	 * @dataProvider arguments
 	 */
 	public function action_POST(Request $request, Response $response, string $name): Response
@@ -169,7 +189,10 @@ class Controller extends BaseController
 
 		try {
 			Value::userSet($user, [$name => $value]);
-			return $response->json()->setData(['name' => $name, 'value' => $value]);
+			return $response->json()->setData([
+				'name' => $name,
+				'value' => $value,
+			]);
 		} catch (Throwable $t) {
 			$response->setStatus(HTTP::STATUS_CONFLICT);
 			return $response->json()->setData(['name' => $name]);

@@ -1,11 +1,15 @@
 <?php
 declare(strict_types=1);
+/**
+ * @copyright  Copyright &copy; 2025, Market Acumen, Inc.
+ */
 
 namespace zesk;
 
 use zesk\Exception\ClassNotFound;
+use zesk\Exception\SemanticsException;
 
-class Service extends Hookable
+class Service extends EmptyHookable
 {
 	/**
 	 *
@@ -21,6 +25,7 @@ class Service extends Hookable
 	/**
 	 * Valid service type
 	 *
+	 * @param Application $application
 	 * @param string $type
 	 * @return bool
 	 */
@@ -32,13 +37,17 @@ class Service extends Hookable
 
 	/**
 	 * Valid service types - taken from the class hierarchy
+	 *
 	 * @param Application $application
 	 * @return array
 	 */
 	public static function validTypes(Application $application): array
 	{
 		$types = $application->classes->register(self::class);
-		return ArrayTools::valuesRemovePrefix($types, [self::class . '_', self::class . '\\']);
+		return ArrayTools::valuesRemovePrefix($types, [
+			self::class . '_',
+			self::class . '\\',
+		]);
 	}
 
 	/**
@@ -61,23 +70,27 @@ class Service extends Hookable
 	 *
 	 * @param Application $application
 	 * @param string $type
+	 * @param array $arguments
 	 * @return self
 	 * @throws ClassNotFound
-	 * @throws Semantics
+	 * @throws SemanticsException
 	 */
 	public static function factory(Application $application, string $type, array $arguments = []): self
 	{
 		if (!self::validType($application, $type)) {
-			throw new Semantics('Invalid service type {type}', [
+			throw new SemanticsException('Invalid service type {type}', [
 				'type' => $type,
 			]);
 		}
 		array_unshift($arguments, $application);
-		$class = $application->configuration->getPath([self::class, $type]);
+		$class = $application->configuration->getPath([
+			self::class,
+			$type,
+		]);
 		if (!$class) {
 			$classes = self::serviceClasses($application, $type);
 			if (count($classes) === 0) {
-				throw new Semantics('No service classes for {type}', [
+				throw new SemanticsException('No service classes for {type}', [
 					'type' => $type,
 				]);
 			}

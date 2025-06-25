@@ -15,9 +15,10 @@ use NumberFormatter;
 use zesk\Application;
 use zesk\ArrayTools;
 use zesk\Exception\KeyNotFound;
-use zesk\Hookable;
 use zesk\Exception\ParseException;
 use zesk\Exception\ProtocolException;
+use zesk\Hookable;
+use zesk\RuntimeException;
 use zesk\StringTools;
 use zesk\Temporal;
 use zesk\Timestamp;
@@ -58,7 +59,7 @@ abstract class Locale extends Hookable
 	 * The locale string, e.g. "en_US", etc.
 	 * @var string
 	 */
-	private string $locale_string;
+	private string $localeString;
 
 	/**
 	 *
@@ -81,20 +82,20 @@ abstract class Locale extends Hookable
 	 * Constructor
 	 *
 	 * @param Application $application
-	 * @param string $locale_string
+	 * @param string $localeString
 	 * @param array $options
 	 */
-	public function __construct(Application $application, $locale_string, array $options = [])
+	public function __construct(Application $application, $localeString, array $options = [])
 	{
 		parent::__construct($application, $options);
-		$this->locale_string = $locale_string;
+		$this->localeString = $localeString;
 		[
 			$this->language,
 			$this->dialect,
-		] = self::parse($locale_string);
+		] = self::parse($localeString);
 		$this->inheritConfiguration();
 		$auto = $this->option('auto');
-		if ($auto === true || $auto === $this->language || $auto === $this->locale_string) {
+		if ($auto === true || $auto === $this->language || $auto === $this->localeString) {
 			$this->auto = true;
 		}
 	}
@@ -129,21 +130,21 @@ abstract class Locale extends Hookable
 	/**
 	 *
 	 * @param Application $application
-	 * @param string $locale_string
+	 * @param string $localeString
 	 * @param array $options
 	 * @return self
 	 */
-	public static function factory(Application $application, string $locale_string = '', array $options = []): self
+	public static function factory(Application $application, string $localeString = '', array $options = []): self
 	{
-		if (!$locale_string) {
-			$locale_string = $application->configuration->path(__CLASS__)->getString(self::OPTION_DEFAULT_LOCALE, self::DEFAULT_LOCALE);
+		if (!$localeString) {
+			$localeString = $application->configuration->path(__CLASS__)->getString(self::OPTION_DEFAULT_LOCALE, self::DEFAULT_LOCALE);
 		}
 
 		try {
-			$class = self::localeFactory($locale_string);
-			return new $class($application, $locale_string, $options);
+			$class = self::localeFactory($localeString);
+			return new $class($application, $localeString, $options);
 		} catch (KeyNotFound) {
-			return new Generic($application, $locale_string, $options);
+			return new Generic($application, $localeString, $options);
 		}
 	}
 
@@ -154,7 +155,7 @@ abstract class Locale extends Hookable
 	 */
 	public function id(): string
 	{
-		return $this->locale_string;
+		return $this->localeString;
 	}
 
 	/**
@@ -453,9 +454,9 @@ abstract class Locale extends Hookable
 			$phrase = 'Locale::plural_word:={number} {word}';
 		}
 		return ArrayTools::map($this->__($phrase), [
-			'number'        => $number,
-			'word'          => $this->plural($word, $number),
-			'plural_word'   => $this->plural($word),
+			'number' => $number,
+			'word' => $this->plural($word, $number),
+			'plural_word' => $this->plural($word),
 			'singular_word' => $word,
 		]);
 	}
@@ -472,15 +473,15 @@ abstract class Locale extends Hookable
 		$month = $year / 12;
 		return [
 			intval($year * 1000) => 'millennium',
-			intval($year * 100)  => 'century',
-			intval($year * 10)   => 'decade',
-			intval($year)        => 'year',
-			intval($month)       => 'month',
-			604800               => 'week',
-			86400                => 'day',
-			3600                 => 'hour',
-			60                   => 'minute',
-			1                    => 'second',
+			intval($year * 100) => 'century',
+			intval($year * 10) => 'decade',
+			intval($year) => 'year',
+			intval($month) => 'month',
+			604800 => 'week',
+			86400 => 'day',
+			3600 => 'hour',
+			60 => 'minute',
+			1 => 'second',
 		];
 	}
 
@@ -531,8 +532,8 @@ abstract class Locale extends Hookable
 			$phrase = 'Locale::now_string:={duration} ago';
 		}
 		return $this->__($phrase, [
-			'duration'    => $duration,
-			'min_unit'    => $min_unit,
+			'duration' => $duration,
+			'min_unit' => $min_unit,
 			'zero_string' => $zero_string,
 		]);
 	}
@@ -682,6 +683,27 @@ abstract class Locale extends Hookable
 	}
 
 	/**
+	 * @param string $language 2-character language code
+	 * @param string $dialect 2-character dialect code, or blank
+	 * @return string
+	 */
+	public static function formatLocale(string $language, string $dialect = ''): string
+	{
+		$length = strlen($language);
+		if ($length !== 2) {
+			throw new RuntimeException('{method} - language is: {locale} ({length})', ['method' => __FUNCTION__, 'language' => $language, 'length' => strlen($language)]);
+		}
+		if (!$dialect) {
+			return strtolower($dialect);
+		}
+		$length = strlen($dialect);
+		if ($length !== 2) {
+			throw new RuntimeException('{method} - dialect is: {dialect} ({length})', ['method' => __FUNCTION__, 'dialect' => $dialect, 'length' => strlen($dialect)]);
+		}
+		return strtolower($language) . '_' . strtoupper($dialect);
+	}
+
+	/**
 	 * Convert a locale string into an array of locale, dialog
 	 * @param string $locale
 	 * @return string[]
@@ -734,5 +756,30 @@ abstract class Locale extends Hookable
 			return $lang;
 		}
 		return $lang . '_' . strtoupper(substr($region, 0, 2));
+	}
+
+	/**
+	 * @return array
+	 */
+	public function __serializeChild(): array
+	{
+		return [
+			'localeString' => $this->localeString,
+			'auto' => $this->auto,
+		];
+	}
+
+	/**
+	 * @param array $data
+	 * @return void
+	 */
+	public function __unserializeChild(array $data): void
+	{
+		$this->localeString = $data['localeString'];
+		$this->auto = $data['auto'];
+		[
+			$this->language,
+			$this->dialect,
+		] = self::parse($this->localeString);
 	}
 }

@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 /**
- * @package zesk
- * @subpackage orm
- * @author kent
- * @copyright &copy; 2023, Market Acumen, Inc.
+ * @package    module
+ * @subpackage Doctrine
+ * @author     kent
+ * @copyright  &copy; 2025, Market Acumen, Inc.
  */
 
 /**
@@ -97,6 +97,7 @@ class Walker
 
 	/**
 	 * Hook called on ORM class and object after walked
+	 *
 	 * @var string
 	 */
 	protected string $postprocess_hook = 'walked';
@@ -166,6 +167,7 @@ class Walker
 
 	/**
 	 * Setter for class info
+	 *
 	 * @param bool $set
 	 * @return self
 	 */
@@ -177,6 +179,7 @@ class Walker
 
 	/**
 	 * Getter for class info
+	 *
 	 * @return bool
 	 */
 	public function classInfo(): bool
@@ -429,7 +432,7 @@ class Walker
 	{
 		/* Convert to JSON structure */
 		$class_data = $this->class_info ? [
-			'_class'        => get_class($this),
+			'_class' => get_class($this),
 			'_parent_class' => get_parent_class($this),
 		] : [];
 		$reflectionClass = new ReflectionClass($model);
@@ -450,7 +453,7 @@ class Walker
 				return $result + $class_data;
 			} catch (ReflectionException $e) {
 				throw new RuntimeException('Invalid ids: {ids} for {class}', [
-					'ids'   => $ids,
+					'ids' => $ids,
 					'class' => $model,
 				], $e->getCode(), $e);
 			}
@@ -511,7 +514,7 @@ class Walker
 			} catch (ReflectionException $e) {
 				throw new RuntimeException('Invalid member {member} for class {class}', [
 					'member' => $member,
-					'class'  => $model,
+					'class' => $model,
 				], $e->getCode(), $e);
 			}
 			$child_options->setResolveObjects($resolve_object_match[$member]);
@@ -535,6 +538,7 @@ class Walker
 
 	/**
 	 * Convert an object
+	 *
 	 * @param Model $object
 	 * @param string $member
 	 * @param object $value
@@ -553,7 +557,7 @@ class Walker
 			}
 			$logger->warning('Invalid resolve method passed into {class} walker: {type}', [
 				'class' => $object::class,
-				'type'  => Types::type($resolve_method),
+				'type' => Types::type($resolve_method),
 			]);
 		}
 		return $value->__toString();

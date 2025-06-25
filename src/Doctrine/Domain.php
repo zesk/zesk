@@ -1,24 +1,35 @@
 <?php
 declare(strict_types=1);
+/**
+ * @copyright &copy; 2025, Market Acumen, Inc.
+ */
 
 namespace zesk\Doctrine;
 
+use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Entity;
+use Doctrine\ORM\Mapping\EntityListeners;
 use zesk\Application;
 use zesk\Application\Paths;
 use zesk\ArrayTools;
+use zesk\Cron\Attributes\Cron;
 use zesk\Doctrine\Trait\AutoID;
+use zesk\Exception\ConfigurationException;
 use zesk\Exception\DirectoryNotFound;
 use zesk\Exception\FileNotFound;
 use zesk\Exception\FilePermission;
+use zesk\Exception\SemanticsException;
+use zesk\Exception\SyntaxException;
 use zesk\File;
 use zesk\Net\Sync;
 use zesk\Text;
+use zesk\URL;
 
 /**
  */
 #[Entity]
+#[EntityListeners([ModelListener::class])]
 class Domain extends Model
 {
 	use AutoID;
@@ -28,13 +39,6 @@ class Domain extends Model
 
 	#[Column(type: 'string', length: 8)]
 	public string $tld;
-
-	/**
-	 *
-	 * @todo credit
-	 * @var string
-	 */
-	public const URL_PUBLIC_SUFFIX_LIST = 'https://publicsuffix.org/list/public_suffix_list.dat';
 
 	/**
 	 * @see http://www.seobythesea.com/2006/01/googles-most-popular-and-least-popular-top-level-domains/
@@ -58,11 +62,15 @@ class Domain extends Model
 	/**
 	 *
 	 * @param Application $application
+	 * @throws ConfigurationException
+	 * @throws SemanticsException
 	 */
-	public static function cron_hour(Application $application): void
+	#[Cron(schedule: '0 * * * *', scope: Cron::SCOPE_APPLICATION)]
+	public static function cronUpdateDomains(Application $application): void
 	{
+		$urlPublic = $application->environment()->get(self::URL_PUBLIC_DOMAIN_SUFFIX);
 		foreach ([
-			self::URL_PUBLIC_SUFFIX_LIST => self::publicSuffixListFile($application->paths),
+			$urlPublic => self::publicSuffixListFile($application),
 			self::URL_TOP_LEVEL_DOMAINS => self::topLevelDomainsFile($application->paths),
 		] as $url => $path) {
 			try {
@@ -75,8 +83,10 @@ class Domain extends Model
 
 	/**
 	 * @return void
+	 * @throws ConfigurationException
 	 * @throws DirectoryNotFound
 	 * @throws FilePermission
+	 * @throws SemanticsException
 	 */
 	public function hook_schema_updated(): void
 	{
@@ -88,8 +98,10 @@ class Domain extends Model
 	 * @param Application $application
 	 * @param string $name
 	 * @return Domain
+	 * @throws ConfigurationException
 	 * @throws FileNotFound
 	 * @throws FilePermission
+	 * @throws SemanticsException
 	 */
 	public static function domainFactory(Application $application, string $name): self
 	{
@@ -102,8 +114,10 @@ class Domain extends Model
 	 * Compute the TLD for a domain
 	 *
 	 * @return $this
+	 * @throws ConfigurationException
 	 * @throws FileNotFound
 	 * @throws FilePermission
+	 * @throws SemanticsException
 	 */
 	protected function nameChanged(): self
 	{
@@ -112,9 +126,12 @@ class Domain extends Model
 	}
 
 	/**
-	 * @return $this
+	 * @return self
+	 * @throws ConfigurationException
 	 * @throws FileNotFound
 	 * @throws FilePermission
+	 * @throws ORMException
+	 * @throws SemanticsException
 	 */
 	public function store(): self
 	{
@@ -127,8 +144,11 @@ class Domain extends Model
 	/**
 	 *
 	 * @return string
+	 * @return string
+	 * @throws ConfigurationException
 	 * @throws FileNotFound
 	 * @throws FilePermission
+	 * @throws SemanticsException
 	 */
 	public function computeCookieDomain(): string
 	{
@@ -151,8 +171,11 @@ class Domain extends Model
 	}
 
 	/**
-	 * @throws FilePermission
+	 * @return array
+	 * @throws ConfigurationException
 	 * @throws FileNotFound
+	 * @throws FilePermission
+	 * @throws SemanticsException
 	 */
 	private function _lazyLoadTLDs(): array
 	{
@@ -165,8 +188,10 @@ class Domain extends Model
 	/**
 	 *
 	 * @return string
-	 * @throws FilePermission
+	 * @throws ConfigurationException
 	 * @throws FileNotFound
+	 * @throws FilePermission
+	 * @throws SemanticsException
 	 */
 	public function computeTLD(): string
 	{
@@ -187,13 +212,44 @@ class Domain extends Model
 		return $default;
 	}
 
+	public const URL_PUBLIC_DOMAIN_SUFFIX = 'URL_PUBLIC_DOMAIN_SUFFIX';
+
 	/**
-	 * @param Paths $paths
-	 * @return string
+	 * @param Application $application
+	 * @return array
+	 * @throws ConfigurationException
+	 * @throws SemanticsException
 	 */
-	private static function publicSuffixListFile(Paths $paths): string
+	private static function urlsToUpdate(Application $application): array
 	{
-		return $paths->zesk('etc/db/public-tlds.txt');
+		$urlPublic = $application->environment()->get(self::URL_PUBLIC_DOMAIN_SUFFIX);
+		return [
+			$urlPublic => self::publicSuffixListFile($application),
+			self::URL_TOP_LEVEL_DOMAINS => self::topLevelDomainsFile($application->paths),
+		];
+	}
+
+	/**
+	 * @param Application $application
+	 * @return string
+	 * @return string
+	 * @throws ConfigurationException
+	 * @throws SemanticsException
+	 */
+	private static function publicSuffixListFile(Application $application): string
+	{
+		$domainSuffix = $application->environment()->get(self::URL_PUBLIC_DOMAIN_SUFFIX);
+
+		try {
+			$parts = URL::parse($domainSuffix);
+			$file = basename($parts['path']);
+			if (empty($file)) {
+				throw new ConfigurationException(self::URL_PUBLIC_DOMAIN_SUFFIX, "URL_PUBLIC_DOMAIN_SUFFIX is missing file name: $domainSuffix");
+			}
+		} catch (SyntaxException $e) {
+			throw new ConfigurationException(self::URL_PUBLIC_DOMAIN_SUFFIX, "URL_PUBLIC_DOMAIN_SUFFIX is not a valid URL: $domainSuffix");
+		}
+		return $application->paths->zesk('etc/db/' . $file);
 	}
 
 	/**
@@ -210,26 +266,31 @@ class Domain extends Model
 	 *
 	 * @param Application $application
 	 * @return void
+	 * @throws ConfigurationException
 	 * @throws DirectoryNotFound
 	 * @throws FilePermission
+	 * @throws SemanticsException
 	 */
 	private static function updateDataFiles(Application $application): void
 	{
-		foreach ([
-			self::URL_PUBLIC_SUFFIX_LIST => self::publicSuffixListFile($application->paths),
-			self::URL_TOP_LEVEL_DOMAINS => self::topLevelDomainsFile($application->paths),
-		] as $url => $path) {
+		foreach (self::urlsToUpdate($application) as $url => $path) {
 			Sync::urlToFile($application, $url, $path);
 		}
 	}
 
 	/**
 	 * Load the public TLDs from the file
-	 * @throws FileNotFound|FilePermission
+	 *
+	 * @param Application $application
+	 * @return array
+	 * @throws ConfigurationException
+	 * @throws FileNotFound
+	 * @throws FilePermission
+	 * @throws SemanticsException
 	 */
 	private static function loadPublicTLDs(Application $application): array
 	{
-		$contents = strtolower(File::contents(self::publicSuffixListFile($application->paths)));
+		$contents = strtolower(File::contents(self::publicSuffixListFile($application)));
 		$topDomainSuffixList = ArrayTools::listTrimClean(explode("\n", Text::removeLineComments($contents, '//')));
 		return array_change_key_case(ArrayTools::valuesFlipCopy($topDomainSuffixList));
 	}

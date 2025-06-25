@@ -1,5 +1,9 @@
 <?php
 declare(strict_types=1);
+/**
+ * @copyright &copy; 2025, Market Acumen, Inc.
+ */
+
 namespace zesk\Preference\Preference\zesk\Preference;
 
 namespace zesk\Preference;

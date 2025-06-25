@@ -9,11 +9,11 @@ declare(strict_types=1);
 
 namespace zesk\Daemon\Command;
 
-use zesk\Daemon\Attributes\DaemonMethod;
-use zesk\Daemon\Module;
 use zesk\Application;
 use zesk\ArrayTools;
 use zesk\Command\SimpleCommand;
+use zesk\Daemon\Attributes\DaemonMethod;
+use zesk\Daemon\Module;
 use zesk\Directory;
 use zesk\Exception\ConfigurationException;
 use zesk\Exception\FilePermission;
@@ -40,6 +40,8 @@ use zesk\Timestamp;
  */
 class Daemon extends SimpleCommand implements SystemProcess
 {
+	private static Daemon|null $instance = null;
+
 	protected array $shortcuts = ['daemon'];
 
 	/**
@@ -61,21 +63,21 @@ class Daemon extends SimpleCommand implements SystemProcess
 	 * @var array
 	 */
 	protected array $argumentTypes = [
-		'debug-log'          => 'boolean',
+		'debug-log' => 'boolean',
 		self::OPTION_NO_FORK => 'boolean',
-		'nohup'              => 'boolean',
-		'stop'               => 'boolean',
-		'kill'               => 'boolean',
-		'list'               => 'boolean',
-		'stat'               => 'boolean',
-		'cron'               => 'boolean',
-		'down'               => 'string',
-		'up'                 => 'string',
-		'bounce'             => 'string',
-		'terminate-after'    => 'integer',
-		'alive-interval'     => 'integer',
-		'terminate-wait'     => 'integer',
-		'watch'              => 'file[]',
+		'nohup' => 'boolean',
+		'stop' => 'boolean',
+		'kill' => 'boolean',
+		'list' => 'boolean',
+		'stat' => 'boolean',
+		'cron' => 'boolean',
+		'down' => 'string',
+		'up' => 'string',
+		'bounce' => 'string',
+		'terminate-after' => 'integer',
+		'alive-interval' => 'integer',
+		'terminate-wait' => 'integer',
+		'watch' => 'file[]',
 	];
 
 	/**
@@ -83,21 +85,21 @@ class Daemon extends SimpleCommand implements SystemProcess
 	 * @var array
 	 */
 	protected array $option_help = [
-		'debug-log'          => 'Output log information',
+		'debug-log' => 'Output log information',
 		self::OPTION_NO_FORK => 'Don\'t fork - useful for debugging single processes',
-		'nohup'              => 'Fork and run as a daemon process, ignore HUP signals',
-		'stop'               => 'Stop all daemon processes',
-		'kill'               => 'Kill all daemon processes',
-		'list'               => 'List all daemon methods which would be invoked',
-		'stat'               => 'Output statistics for a running server',
-		'down'               => 'Bring down a single method within a server',
-		'cron'               => 'Use this option to run the daemon via cron - it won\'t output an error message if the daemon is already running.',
-		'up'                 => 'Bring up a single method within a server',
-		'bounce'             => 'Restart a single method within a server',
-		'terminate-after'    => 'Quit after the number of seconds specified; often assists with processes which work for a while then seize up.',
-		'terminate-wait'     => 'Wait number of seconds after termination before re-launching.',
-		'alive-interval'     => 'Number of seconds after which to output a message, to prove server is alive.',
-		'watch'              => 'One or more files which, when their attributes change, should trigger the daemon to exit.',
+		'nohup' => 'Fork and run as a daemon process, ignore HUP signals',
+		'stop' => 'Stop all daemon processes',
+		'kill' => 'Kill all daemon processes',
+		'list' => 'List all daemon methods which would be invoked',
+		'stat' => 'Output statistics for a running server',
+		'down' => 'Bring down a single method within a server',
+		'cron' => 'Use this option to run the daemon via cron - it won\'t output an error message if the daemon is already running.',
+		'up' => 'Bring up a single method within a server',
+		'bounce' => 'Restart a single method within a server',
+		'terminate-after' => 'Quit after the number of seconds specified; often assists with processes which work for a while then seize up.',
+		'terminate-wait' => 'Wait number of seconds after termination before re-launching.',
+		'alive-interval' => 'Number of seconds after which to output a message, to prove server is alive.',
+		'watch' => 'One or more files which, when their attributes change, should trigger the daemon to exit.',
 	];
 
 	/**
@@ -169,11 +171,11 @@ class Daemon extends SimpleCommand implements SystemProcess
 	 * @var array
 	 */
 	public static array $signals = [
-		SIGINT  => 'SIGINT',
+		SIGINT => 'SIGINT',
 		SIGCHLD => 'SIGCHLD',
 		SIGALRM => 'SIGALRM',
 		SIGTERM => 'SIGTERM',
-		SIGHUP  => 'SIGHUP',
+		SIGHUP => 'SIGHUP',
 	];
 
 	/**
@@ -310,7 +312,7 @@ class Daemon extends SimpleCommand implements SystemProcess
 
 		$pid = $me['pid'];
 		$this->application->notice('Sent {signal} to process {pid}', [
-			'pid'    => $pid,
+			'pid' => $pid,
 			'signal' => $signal_name,
 		]);
 		posix_kill($pid, $signal);
@@ -366,8 +368,8 @@ class Daemon extends SimpleCommand implements SystemProcess
 				self::OPTION_MAXIMUM_PROCESSES,
 			], 'Total daemon processes are {total_process_count}, greater than {max} processes. Update {class}::process_count configuration or fix code so fewer processes are created.', [
 				'total_process_count' => $total_process_count,
-				'class'               => __CLASS__,
-				'max'                 => $max,
+				'class' => __CLASS__,
+				'max' => $max,
 			]);
 		}
 		return $new_daemons;
@@ -428,10 +430,10 @@ class Daemon extends SimpleCommand implements SystemProcess
 	/**
 	 * Change state of a daemon process
 	 *
-	 * @param array  $database
-	 * @param string $name     Daemon name
-	 * @param array  $settings Current settings
-	 * @param string $want     Desired state
+	 * @param array $database
+	 * @param string $name Daemon name
+	 * @param array $settings Current settings
+	 * @param string $want Desired state
 	 * @param string $newState
 	 * @return number
 	 */
@@ -461,7 +463,7 @@ class Daemon extends SimpleCommand implements SystemProcess
 				if ($timer->elapsed() > 10) {
 					$this->application->error('Unable to kill process {name} ({pid})', [
 						'name' => $name,
-						'pid'  => $pid,
+						'pid' => $pid,
 					]);
 					return 1;
 				}
@@ -477,7 +479,7 @@ class Daemon extends SimpleCommand implements SystemProcess
 	 *
 	 * @return number
 	 */
-	final public function command_stat()
+	final public function command_stat(): int
 	{
 		$database = $this->loadProcessDatabase();
 		$changed = false;
@@ -555,25 +557,25 @@ class Daemon extends SimpleCommand implements SystemProcess
 	/**
 	 * The unix signal handler for multi-process systems
 	 *
-	 * @param int $signo
+	 * @param int $signal
 	 *            The signal number to handle
+	 * @return void
+	 * @throws FilePermission
 	 */
-	public function signal_handler(int $signo): void
+	public function signal_handler(int $signal): void
 	{
-		$this->application->debug('Signal {signame} {signo} received', [
-			'signo'   => $signo,
-			'signame' => self::$signals[$signo] ?? 'Unknown',
+		$this->application->debug('Signal {name} {signal} received', [
+			'signal' => $signal,
+			'name' => self::$signals[$signal] ?? 'Unknown',
 		]);
 		if (function_exists('pcntl_signal')) {
-			switch ($signo) {
+			switch ($signal) {
 				case SIGINT:
 					$this->terminate('Interrupt signal received');
 
 					break;
 				case SIGCHLD:
 					$this->send(); // Wake up server
-					break;
-				case SIGALRM:
 					break;
 				case SIGTERM:
 					$this->terminate('Termination signal received');
@@ -714,9 +716,9 @@ class Daemon extends SimpleCommand implements SystemProcess
 			/* We are the child */
 		}
 		$database['me'] = [
-			'pid'    => $this->application->process->id(),
+			'pid' => $this->application->process->id(),
 			'status' => 'up',
-			'time'   => microtime(true),
+			'time' => microtime(true),
 		];
 		$this->saveProcessDatabase($database);
 		$this->application->notice('Daemon run successfully.');
@@ -792,7 +794,7 @@ class Daemon extends SimpleCommand implements SystemProcess
 		$pid = $this->application->process->id();
 		$this->application->debug('FORKING for process {name} me={pid}', [
 			'name' => $name,
-			'pid'  => $pid,
+			'pid' => $pid,
 		]);
 		$nofork = $this->optionBool('nofork');
 		if ($nofork) {
@@ -810,7 +812,7 @@ class Daemon extends SimpleCommand implements SystemProcess
 			$this->invokeHooks(Process::HOOK_FORK_CHILD, [$this->application]);
 			$this->application->notice('Running {name} as process id {pid}', [
 				'name' => $name,
-				'pid'  => $this->application->process->id(),
+				'pid' => $this->application->process->id(),
 			]);
 			$this->name = $name;
 			$this->method = StringTools::left($name, '^', $name);
@@ -821,8 +823,8 @@ class Daemon extends SimpleCommand implements SystemProcess
 		$this->invokeHooks(Process::HOOK_FORK_CHILD, [$this->application]);
 
 		$this->application->debug('PARENT FORKED for process {name} me={pid} child={child}', [
-			'name'  => $name,
-			'pid'   => $pid,
+			'name' => $name,
+			'pid' => $pid,
 			'child' => $child,
 		]);
 		while (true) {
@@ -835,9 +837,9 @@ class Daemon extends SimpleCommand implements SystemProcess
 			}
 		}
 		return [
-			'pid'    => $child,
+			'pid' => $child,
 			'status' => 'up',
-			'time'   => microtime(true),
+			'time' => microtime(true),
 		];
 	}
 
@@ -928,7 +930,7 @@ class Daemon extends SimpleCommand implements SystemProcess
 				if (posix_kill($pid, 0)) {
 					if ($status === 'down') {
 						$this->application->debug('Sending TERM to {name} ({pid}) - want down', [
-							'pid'  => $pid,
+							'pid' => $pid,
 							'name' => $name,
 						]);
 						posix_kill($pid, SIGTERM);
@@ -938,7 +940,7 @@ class Daemon extends SimpleCommand implements SystemProcess
 					if ($this->optionBool(self::OPTION_DEBUG)) {
 						$this->application->debug('Checking {name} {pid}: Running', [
 							'name' => $name,
-							'pid'  => $pid,
+							'pid' => $pid,
 						]);
 					}
 				} elseif ($status === 'down') {
@@ -952,9 +954,9 @@ class Daemon extends SimpleCommand implements SystemProcess
 				} else {
 					$errno = posix_get_last_error();
 					$this->application->debug('{name} REMOVED {pid} NOT RUNNING {errno}: {strerror}', [
-						'name'     => $name,
-						'pid'      => $database[$name],
-						'errno'    => $errno,
+						'name' => $name,
+						'pid' => $database[$name],
+						'errno' => $errno,
 						'strerror' => posix_strerror($errno),
 					]);
 					unset($database[$name]);
@@ -1056,7 +1058,7 @@ class Daemon extends SimpleCommand implements SystemProcess
 		]);
 		$this->application->debug('Running {name} as part of {pid}', [
 			'name' => $this->name,
-			'pid'  => $pid,
+			'pid' => $pid,
 		]);
 		$result = call_user_func($this->method, $this);
 		if ($result === 'down') {
@@ -1077,7 +1079,7 @@ class Daemon extends SimpleCommand implements SystemProcess
 	 *
 	 * @var double
 	 */
-	private $last_tick = null;
+	private null|float $last_tick = null;
 
 	/**
 	 * Getter for done state
@@ -1163,15 +1165,15 @@ class Daemon extends SimpleCommand implements SystemProcess
 				$result = pcntl_waitpid($pid, $status, WNOHANG);
 				if ($result === -1) {
 					$this->application->error('pcntl_waitpid({pid}, {status}, WNOHANG) returned -1, child died? {name}', [
-						'name'   => $name,
-						'pid'    => $pid,
+						'name' => $name,
+						'pid' => $pid,
 						'status' => $status,
 					]);
 					unset($database[$name]);
 				} elseif ($result === 0) {
 					$this->application->debug('pcntl_waitpid({pid}, {status}, WNOHANG) returned 0, no child available. {name}.', [
-						'name'   => $name,
-						'pid'    => $pid,
+						'name' => $name,
+						'pid' => $pid,
 						'status' => $status,
 					]);
 					unset($database[$name]);
@@ -1179,8 +1181,8 @@ class Daemon extends SimpleCommand implements SystemProcess
 					if (pcntl_wifexited($status)) {
 						unset($database[$name]);
 						$this->application->debug('pcntl_wifexited({status}) {pid} success {name}', [
-							'name'   => $name,
-							'pid'    => $pid,
+							'name' => $name,
+							'pid' => $pid,
 							'status' => $status,
 						]);
 					}
@@ -1248,17 +1250,5 @@ class Daemon extends SimpleCommand implements SystemProcess
 				usleep($usleep);
 			} while (!$this->done() && $timer->elapsed() < $seconds);
 		}
-	}
-
-	/**
-	 * Logging tool for processes
-	 *
-	 * @param string $message
-	 * @param array  $args
-	 * @param string $level
-	 */
-	public function warning(string $message, array $args = []): void
-	{
-		$this->application->warning($message, $args);
 	}
 }

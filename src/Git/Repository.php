@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 /**
- * @package zesk
+ * @package    zesk
  * @subpackage git
- * @author kent
- * @copyright &copy; 2023, Market Acumen, Inc.
+ * @author     kent
+ * @copyright  &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Git;
@@ -78,7 +78,7 @@ class Repository extends CommandBase
 		$tag = 'origin/master';
 		$target = $this->resolve_target($target);
 		$result = $this->run_command('diff --shortstat {tag} {target}', [
-			'tag'    => $tag,
+			'tag' => $tag,
 			'target' => $target,
 		]);
 		if (count($result) === 0) {

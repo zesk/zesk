@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 /**
- * @package zesk
+ * @package    zesk
  * @subpackage repository
- * @author kent
- * @copyright &copy; 2023, Market Acumen, Inc.
+ * @author     kent
+ * @copyright  &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Repository;
@@ -19,8 +19,8 @@ use zesk\Hookable;
 use zesk\URL;
 
 /**
- * @see \zesk\GitHub\Command
- * @see \zesk\Git\Repository
+ * @see    \zesk\GitHub\Command
+ * @see    \zesk\Git\Repository
  * @author kent
  */
 abstract class Base extends Hookable
@@ -207,9 +207,9 @@ abstract class Base extends Hookable
 		$final_path = realpath($final_path);
 		if (!str_starts_with($this->path, $final_path)) {
 			throw new ProtocolException('Passed absolute path {target} (-> {final_path}) must be a subdirectory of {path}', [
-				'target'     => $target,
+				'target' => $target,
 				'final_path' => $final_path,
-				'path'       => $final_path,
+				'path' => $final_path,
 			]);
 		}
 		return $final_path;

@@ -12,6 +12,7 @@ namespace zesk\Doctrine;
 
 use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Entity;
+use Doctrine\ORM\Mapping\EntityListeners;
 use Throwable;
 use zesk\Doctrine\Trait\AutoID;
 use zesk\Exception;
@@ -34,6 +35,7 @@ use zesk\Types;
  * @author kent
  */
 #[Entity]
+#[EntityListeners([ModelListener::class])]
 class User extends Model implements Userlike
 {
 	/**
@@ -135,9 +137,9 @@ class User extends Model implements Userlike
 	public function authenticationData(): array
 	{
 		return [
-			'email'     => $this->email,
+			'email' => $this->email,
 			'nameFirst' => $this->nameFirst,
-			'nameLast'  => $this->nameLast,
+			'nameLast' => $this->nameLast,
 			'lastLogin' => $this->lastLogin,
 			'validated' => $this->validated,
 		];
@@ -186,7 +188,7 @@ class User extends Model implements Userlike
 	/**
 	 *
 	 * @param string $string
-	 * @param bool   $binary
+	 * @param bool $binary
 	 * @return string
 	 */
 	private function _generateHash(string $string, bool $binary = false): string
@@ -214,7 +216,7 @@ class User extends Model implements Userlike
 	/**
 	 * Get/set authentication status
 	 *
-	 * @param Request       $request  Required. Request to match this user against.
+	 * @param Request $request Required. Request to match this user against.
 	 * @param null|Response $response Optional. If supplied, authenticates this user in the associated response
 	 *                                (generally, by setting a cookie.)
 	 * @return NULL|User
@@ -235,10 +237,10 @@ class User extends Model implements Userlike
 		$session = $this->application->requireSession($request);
 		$session->authenticate($this, $request);
 		$this->invokeHooks(self::HOOK_AUTHENTICATED, [
-			'user'     => $this,
-			'request'  => $request,
+			'user' => $this,
+			'request' => $request,
 			'response' => $response,
-			'session'  => $session,
+			'session' => $session,
 		]);
 		return $this;
 	}
@@ -251,8 +253,8 @@ class User extends Model implements Userlike
 	 * Checks that user can perform action optionally on object
 	 *
 	 * @param array|string $actions
-	 * @param Model|null   $context
-	 * @param array        $options
+	 * @param Model|null $context
+	 * @param array $options
 	 * @return void
 	 * @throws PermissionDenied
 	 */
@@ -266,9 +268,9 @@ class User extends Model implements Userlike
 	final public static function clean_permission($string): string
 	{
 		return strtolower(strtr($string, [
-			' '  => '_',
-			'.'  => '_',
-			'-'  => '_',
+			' ' => '_',
+			'.' => '_',
+			'-' => '_',
 			'__' => '::',
 		]));
 	}
@@ -307,8 +309,8 @@ class User extends Model implements Userlike
 	/**
 	 * @param string|array $actions Can be an array of actions, all of which must pass, or a string of actions whose
 	 *                              uniformly used separator determines if the meaning is "AND" (`;`) or "OR" (`|`)
-	 * @param Model|null   $context Model on which to act
-	 * @param array        $options Extra optional settings, permission-specific
+	 * @param Model|null $context Model on which to act
+	 * @param array $options Extra optional settings, permission-specific
 	 * @return bool
 	 * @see Userlike::can()
 	 */
@@ -333,16 +335,16 @@ class User extends Model implements Userlike
 				$result = false;
 				$skipLog = true;
 				$this->application->error("User::can({action},{context}) = {result} (Roles {roles}): Exception {throwableClass} {message}\n{backtrace}", [
-					'action'  => $action,
+					'action' => $action,
 					'context' => $context,
-					'result'  => false,
+					'result' => false,
 				] + Exception::exceptionVariables($e));
 			}
 			if ($this->optionBool(self::OPTION_DEBUG_PERMISSION) && !$skipLog) {
 				$this->application->debug('User::can({action},{context}) = {result} (Roles {roles}) ({extra})', [
-					'action'  => $action,
+					'action' => $action,
 					'context' => $context,
-					'result'  => $result,
+					'result' => $result,
 				]);
 			}
 			if ($is_or) {
@@ -418,10 +420,10 @@ class User extends Model implements Userlike
 	 * Use the key "permission" in value to specify a permission to check. It can be a string, or an
 	 * array of ($action, $context, $options) to check.
 	 *
-	 * @param array      $actions
+	 * @param array $actions
 	 * @param Model|null $context
 	 *            Default context to pass to "can" function
-	 * @param array      $options
+	 * @param array $options
 	 *            Default options to pass to "can" function
 	 * @return array
 	 */

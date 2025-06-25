@@ -1,15 +1,18 @@
 <?php
 declare(strict_types=1);
+/**
+ * @copyright  Copyright &copy; 2025, Market Acumen, Inc.
+ */
 
 namespace zesk\Router;
 
 use zesk\Application;
+use zesk\Exception\ParseException;
+use zesk\Exception\SyntaxException;
 use zesk\JSON;
 use zesk\Route;
 use zesk\Router;
 use zesk\StringTools;
-use zesk\Exception\ParseException;
-use zesk\Exception\SyntaxException;
 use zesk\Types;
 
 /**
@@ -64,7 +67,7 @@ class Parser
 	/**
 	 *
 	 * @param Router $router
-	 * @param array  $add_options
+	 * @param array $add_options
 	 * @return Route[]
 	 * @throws SyntaxException
 	 */
@@ -78,7 +81,7 @@ class Parser
 		$options = [];
 		$whites = Types::toList(" ;\t");
 		$tr = [
-			'$zesk_root'             => $app->zeskHome(),
+			'$zesk_root' => $app->zeskHome(),
 			'$zesk_application_root' => $app->path(),
 		];
 		$routes = [];
@@ -110,7 +113,7 @@ class Parser
 							$value = $decoded;
 						} catch (ParseException $e) {
 							$logger->error('Error parsing {id}:{lineno} decoding JSON failed', [
-								'id'     => $this->id,
+								'id' => $this->id,
 								'lineno' => $lineno1,
 							]);
 							$app->invokeHooks(Application::HOOK_EXCEPTION, [

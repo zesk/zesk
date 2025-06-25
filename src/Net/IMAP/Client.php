@@ -1,12 +1,15 @@
 <?php
 declare(strict_types=1);
+/**
+ * @copyright &copy; 2025, Market Acumen, Inc.
+ */
 
 namespace zesk\Net\IMAP;
 
 use zesk\Exception\ConnectionFailed;
-use zesk\Net\Client as NetClient;
+use zesk\Net\ConnectClient;
 
-class Client extends NetClient
+class Client extends ConnectClient
 {
 	protected mixed $imap_conn = null;
 

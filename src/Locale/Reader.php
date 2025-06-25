@@ -1,11 +1,12 @@
 <?php
 declare(strict_types=1);
 /**
- * @package zesk
+ * @package    zesk
  * @subpackage Locale
- * @author kent
- * @copyright &copy; 2023, Market Acumen, Inc.
+ * @author     kent
+ * @copyright  &copy; 2025, Market Acumen, Inc.
  */
+
 namespace zesk\Locale;
 
 use Throwable;
@@ -95,7 +96,10 @@ class Reader
 	public function __construct(array $paths, string $id, array $extensions = [])
 	{
 		$this->paths = $paths;
-		[$language, $dialect] = Locale::parse($id);
+		[
+			$language,
+			$dialect,
+		] = Locale::parse($id);
 		$this->id = Locale::normalize($id);
 		$this->language = $language;
 		$this->dialect = $dialect;

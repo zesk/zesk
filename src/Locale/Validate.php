@@ -1,16 +1,19 @@
 <?php
 declare(strict_types=1);
 /**
- *
+ * @package zesk
+ * @subpackage Locale
+ * @author     kent
+ * @copyright  Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Locale;
 
 use zesk\Application;
+use zesk\EmptyHookable;
 use zesk\Exception\ConfigurationException;
 use zesk\Exception\KeyNotFound;
-use zesk\Exception\ProtocolException;
-use zesk\Hookable;
+use zesk\Exception\SemanticsException;
 use zesk\JSON;
 use zesk\StringTools;
 
@@ -19,7 +22,7 @@ use zesk\StringTools;
  * @author kent
  *
  */
-class Validate extends Hookable
+class Validate extends EmptyHookable
 {
 	/**
 	 * @see self::checkTranslationTokenNames()
@@ -39,7 +42,7 @@ class Validate extends Hookable
 	/**
 	 *
 	 * @param Application $application
-	 * @param array       $options
+	 * @param array $options
 	 */
 	public function __construct(Application $application, array $options = [])
 	{
@@ -51,7 +54,7 @@ class Validate extends Hookable
 	{
 		return [
 			self::METHOD_TOKEN_NAMES => $this->checkTranslationTokenNames(...),
-			self::METHOD_BRACES      => $this->checkTranslationBraces(...),
+			self::METHOD_BRACES => $this->checkTranslationBraces(...),
 			self::METHOD_TOKEN_COUNT => $this->checkTranslationTokenCount(...),
 		];
 	}
@@ -216,7 +219,7 @@ class Validate extends Hookable
 	 * @param string $source
 	 * @param string $translation
 	 * @return string[] An array of errors found when the two strings are compared
-	 * @throws ProtocolException
+	 * @throws SemanticsException
 	 */
 	public function checkTranslationBraces(string $source, string $translation): array
 	{
@@ -239,7 +242,7 @@ class Validate extends Hookable
 			$translation_bracket = $translation_matches[$index];
 			if ($translation_bracket !== $bracket) {
 				$errors[] = $locale->__('The {nth} brace in the translation ({translation_bracket}) does not match the source string bracket ({bracket})', [
-					'nth'   => $locale->ordinal($index + 1),
+					'nth' => $locale->ordinal($index + 1),
 					'debug' => JSON::encode($source_matches) . ' ' . JSON::encode($translation_matches),
 				] + compact('translation_bracket', 'bracket'));
 				return $errors;
@@ -247,7 +250,7 @@ class Validate extends Hookable
 		}
 		if (count($translation_matches) > count($source_matches)) {
 			$errors[] = $locale->__('The translation has an extra {num_braces} than the source phrase.', [
-				'n'          => $n = count($translation_matches) - count($source_matches),
+				'n' => $n = count($translation_matches) - count($source_matches),
 				'num_braces' => $locale->pluralWord('brace', $n),
 			]);
 		}

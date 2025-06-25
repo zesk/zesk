@@ -62,11 +62,11 @@ abstract class FileIterator extends SimpleCommand
 	public function initialize(): void
 	{
 		$this->argumentTypes += [
-			'no-recurse'     => 'boolean',
-			'directory'      => 'dir',
+			'no-recurse' => 'boolean',
+			'directory' => 'dir',
 			'include-hidden' => 'boolean',
-			'show-skipped'   => 'boolean',
-			'*'              => 'string',
+			'show-skipped' => 'boolean',
+			'*' => 'string',
 		];
 		parent::initialize();
 	}

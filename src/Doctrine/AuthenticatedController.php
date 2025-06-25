@@ -52,7 +52,7 @@ class AuthenticatedController extends Controller
 	}
 
 	/**
-	 * @param Request  $request
+	 * @param Request $request
 	 * @param Response $response
 	 * @return void
 	 * @throws AuthenticationException
@@ -89,7 +89,7 @@ class AuthenticatedController extends Controller
 	public function variables(): array
 	{
 		return [
-			'user'    => $this->user,
+			'user' => $this->user,
 			'session' => $this->session,
 		] + parent::variables();
 	}

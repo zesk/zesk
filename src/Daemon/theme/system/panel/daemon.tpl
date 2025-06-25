@@ -10,12 +10,10 @@ namespace zesk;
 /* @var $locale Locale */
 /* @var $application Application */
 /* @var $locale Locale */
-/* @var $session Session */
 /* @var $router Router */
 /* @var $route Route */
 /* @var $request Request */
 /* @var $response Response */
-/* @var $current_user User */
 /* @var $server_data_key string */
 
 /* @var $server_updated_key string */

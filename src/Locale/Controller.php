@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 /**
- *
+ * @copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Locale;
@@ -33,7 +33,7 @@ class Controller extends \zesk\Controller
 	/**
 	 * Allow API usage
 	 *
-	 * @param Request  $request
+	 * @param Request $request
 	 * @param Response $response
 	 * @return Response
 	 */

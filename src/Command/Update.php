@@ -11,6 +11,7 @@ namespace zesk\Command;
 
 use Throwable;
 use zesk\ArrayTools;
+use zesk\Configuration;
 use zesk\Directory;
 use zesk\Exception;
 use zesk\Exception\CommandFailed;
@@ -24,7 +25,6 @@ use zesk\Exception\FilePermission;
 use zesk\Exception\NotFoundException;
 use zesk\Exception\ParameterException;
 use zesk\Exception\ParseException;
-use zesk\Configuration;
 use zesk\Exception\SemanticsException;
 use zesk\Exception\SyntaxException;
 use zesk\Exception\SystemException;
@@ -61,38 +61,38 @@ class Update extends SimpleCommand
 	protected array $app_data;
 
 	protected array $argumentTypes = [
-		'share-path'      => 'path',
-		'source-control'  => 'string',
-		'dry-run'         => 'boolean',
-		'skip-delete'     => 'boolean',
-		'skip-database'   => 'boolean',
+		'share-path' => 'path',
+		'source-control' => 'string',
+		'dry-run' => 'boolean',
+		'skip-delete' => 'boolean',
+		'skip-database' => 'boolean',
 		'composer-update' => 'boolean',
-		'timeout'         => 'integer',
-		'list'            => 'boolean',
-		'force'           => 'boolean',
-		'force-check'     => 'boolean',
-		'*'               => 'string',
+		'timeout' => 'integer',
+		'list' => 'boolean',
+		'force' => 'boolean',
+		'force-check' => 'boolean',
+		'*' => 'string',
 	];
 
 	protected array $option_help = [
-		'share-path'      => 'Copy all updated modules files to this directory instead of the default Controller_Share directories.',
-		'source-control'  => 'Uses source control to check in recent updates.',
-		'dry-run'         => 'Show what would have happened without actually doing it.',
-		'skip-delete'     => 'Skip DELETE_AFTER values in module configuration files.',
-		'skip-database'   => 'Do not store results in a local database, or load local database of last request times.',
+		'share-path' => 'Copy all updated modules files to this directory instead of the default Controller_Share directories.',
+		'source-control' => 'Uses source control to check in recent updates.',
+		'dry-run' => 'Show what would have happened without actually doing it.',
+		'skip-delete' => 'Skip DELETE_AFTER values in module configuration files.',
+		'skip-database' => 'Do not store results in a local database, or load local database of last request times.',
 		'composer-update' => 'Update the composer lock file explicitly. Defaults to false.',
-		'timeout'         => 'Timeout in milliseconds for URL downloads - this is the total time to donwload resulting packages, so keep it reasonable.',
-		'list'            => 'List all modules which would update',
-		'force'           => 'Force updates regardless if local copies match most recent downloaded copies',
-		'force-check'     => 'Force check for all modules regardless of when last checked.',
-		'*'               => 'A list of modules to download and update',
+		'timeout' => 'Timeout in milliseconds for URL downloads - this is the total time to donwload resulting packages, so keep it reasonable.',
+		'list' => 'List all modules which would update',
+		'force' => 'Force updates regardless if local copies match most recent downloaded copies',
+		'force-check' => 'Force check for all modules regardless of when last checked.',
+		'*' => 'A list of modules to download and update',
 	];
 
 	protected function initialize(): void
 	{
 		$this->setOptions([
 			'composer-update' => false,
-			'timeout'         => 120000,
+			'timeout' => 120000,
 		], false);
 		parent::initialize();
 	}
@@ -166,9 +166,9 @@ class Update extends SimpleCommand
 				]);
 			} catch (Exception $e) {
 				$this->usage('No version-control of type "{type}" available: {message}', [
-					'type'      => $vc,
+					'type' => $vc,
 					'exception' => $e,
-					'message'   => $e->getMessage(),
+					'message' => $e->getMessage(),
 				]);
 				return 1;
 			}
@@ -234,8 +234,8 @@ class Update extends SimpleCommand
 			}
 			$locale = $this->application->locale;
 			$this->verboseLog($locale('Module path {path}: {count} {modules}'), [
-				'path'    => $path,
-				'count'   => $count,
+				'path' => $path,
+				'count' => $count,
 				'modules' => $locale->plural($locale->__('module'), $count),
 			]);
 			foreach ($globbed as $glob) {
@@ -274,7 +274,7 @@ class Update extends SimpleCommand
 		}
 		$locale = $this->application->locale;
 		$this->verboseLog('Will update {count} {modules}', [
-			'count'   => count($modules),
+			'count' => count($modules),
 			'modules' => $locale->plural($locale->__('module'), count($modules)),
 		]);
 		return $modules;
@@ -399,7 +399,7 @@ class Update extends SimpleCommand
 			$module_object = $this->application->modules->object($module);
 			$logger->debug('Running {class}::hook_{name}', [
 				'class' => $module_object::class,
-				'name'  => $hook_name,
+				'name' => $hook_name,
 			]);
 			$this->invokeObjectHooks($hook_name);
 		} catch (Throwable $e) {
@@ -542,7 +542,7 @@ class Update extends SimpleCommand
 		if (!is_array($composer)) {
 			throw new SyntaxException("Composer value is not an array: {composer}\ndata: {data}", [
 				'composer' => $composer,
-				'data'     => $data,
+				'data' => $data,
 			]);
 		}
 		$composer_command = $this->composerCommand();
@@ -559,7 +559,7 @@ class Update extends SimpleCommand
 		$do_updates = $this->optionBool('composer-update');
 
 		foreach ([
-			''       => $composer_require,
+			'' => $composer_require,
 			'--dev ' => $composer_require_dev,
 		] as $arg => $requires) {
 			foreach ($requires as $require) {
@@ -641,7 +641,7 @@ class Update extends SimpleCommand
 		}
 
 		throw new ConnectionFailed($client->host(), 'Server {url} temporarily down or returning an error? {response_code}', [
-			'url'           => $url,
+			'url' => $url,
 			'response_code' => $response_code,
 		]);
 	}
@@ -665,7 +665,7 @@ class Update extends SimpleCommand
 				$version = ArrayTools::last(array_keys($versions));
 			}
 			$this->info('Updating {name} to version {version}', [
-				'name'    => $name,
+				'name' => $name,
 				'version' => $version,
 			]);
 			$data['version'] = $version;
@@ -680,23 +680,23 @@ class Update extends SimpleCommand
 			if (URL::valid($url)) {
 				if (is_string($value)) {
 					$load_urls[$url] = [
-						'destination'      => $value,
+						'destination' => $value,
 						'strip_components' => $strip_components,
 					];
 				} elseif (is_array($value)) {
 					$load_urls[$url] = array_change_key_case($value) + [
-						'destination'      => $destination,
+						'destination' => $destination,
 						'strip_components' => $strip_components,
 					];
 				}
 			} elseif (!URL::valid($value)) {
 				$this->error('{value} in  module {name} is not a valid URL', [
 					'value' => $value,
-					'name'  => $name,
+					'name' => $name,
 				]);
 			} else {
 				$load_urls[$value] = [
-					'destination'      => $destination,
+					'destination' => $destination,
 					'strip_components' => $strip_components,
 				];
 			}
@@ -748,7 +748,7 @@ class Update extends SimpleCommand
 				] = $this->_fetchURL($url);
 			} catch (Throwable $e) {
 				$this->error('Updating {url} failed: {message}', [
-					'url'     => $url,
+					'url' => $url,
 					'message' => $e->getMessage(),
 				]);
 
@@ -765,7 +765,7 @@ class Update extends SimpleCommand
 				$do_update = true;
 				$this->verboseLog('Destination file {dest_file} doesn\'t exist? (filename is {filename})', [
 					'dest_file' => $dest_file,
-					'filename'  => $filename,
+					'filename' => $filename,
 				]);
 			} else {
 				$hash = $hashes[$url] ?? null;
@@ -773,8 +773,8 @@ class Update extends SimpleCommand
 					$do_update = true;
 					$this->verboseLog('Hashes don\'t match for {dest_file}: {hash} !== {new_hash}', [
 						'dest_file' => $dest_file,
-						'hash'      => $hash,
-						'new_hash'  => $new_hash,
+						'hash' => $hash,
+						'new_hash' => $new_hash,
 					]);
 				} elseif (!is_dir($destination) || Directory::isEmpty($destination)) {
 					$do_update = true;
@@ -843,7 +843,7 @@ class Update extends SimpleCommand
 		foreach ($filesToDelete as $index => $delete) {
 			if (!str_starts_with($delete, $destination)) {
 				$this->verboseLog('Deleted file {delete} does not contain prefix {destination} - skipping', [
-					'delete'      => $delete,
+					'delete' => $delete,
 					'destination' => $destination,
 				]);
 				unset($filesToDelete[$index]);
@@ -879,7 +879,7 @@ class Update extends SimpleCommand
 		}
 		$args = [
 			'command' => $cmd,
-			'path'    => implode(':', $this->application->commandPath()),
+			'path' => implode(':', $this->application->commandPath()),
 		];
 
 		throw new NotFoundException('{command} not found in path: {path}', $args);
@@ -942,7 +942,7 @@ class Update extends SimpleCommand
 		} else {
 			$full_destination = Directory::path($destination, $filename);
 			$this->debugLog('Copying directory {temp_file_name} => {full_destination}', [
-				'temp_file_name'   => $filename,
+				'temp_file_name' => $filename,
 				'full_destination' => $full_destination,
 			]);
 			if (is_dir($temp_file_name)) {
@@ -983,8 +983,8 @@ class Update extends SimpleCommand
 		try {
 			$this->debugLog('Copying share directory from {source} to {dest} for module {name}', [
 				'source' => $source,
-				'dest'   => $dest,
-				'name'   => $data['name'],
+				'dest' => $dest,
+				'name' => $data['name'],
 			]);
 			Directory::copy($source, $dest, true);
 		} catch (DirectoryCreate|DirectoryNotFound|DirectoryPermission|FilePermission
@@ -1007,8 +1007,8 @@ class Update extends SimpleCommand
 	 * paths within the archive.
 	 *
 	 * @param string $temp_directory_name Path of temporary path for work. MUST be a valid directory.
-	 * @param string $final_destination   The final destination path. MUST be a valid directory.
-	 * @param mixed  $strip_components    Number of diretories to strip, or filename patterns to match/remove
+	 * @param string $final_destination The final destination path. MUST be a valid directory.
+	 * @param mixed $strip_components Number of diretories to strip, or filename patterns to match/remove
 	 * @return boolean
 	 * @throws FilePermission
 	 */
@@ -1067,7 +1067,7 @@ class Update extends SimpleCommand
 
 						throw new FilePermission($dest_path, 'Directory::copy {sourcePath} to {destPath}', [
 							'sourcePath' => $source_path,
-							'destPath'   => $dest_path,
+							'destPath' => $dest_path,
 						], $e->getCode(), $e);
 					}
 				}
@@ -1111,7 +1111,7 @@ class Update extends SimpleCommand
 	}
 
 	/**
-	 * @param array  $data
+	 * @param array $data
 	 * @param string $destination
 	 * @return string
 	 */
@@ -1188,9 +1188,9 @@ class Update extends SimpleCommand
 	/**
 	 * Unpack generic command.
 	 *
-	 * @param array      $args
-	 * @param string     $destination
-	 * @param string     $actual_destination
+	 * @param array $args
+	 * @param string $destination
+	 * @param string $actual_destination
 	 * @param int|string $strip_components
 	 * @return bool
 	 * @throws DirectoryNotFound

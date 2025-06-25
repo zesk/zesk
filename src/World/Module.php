@@ -14,6 +14,9 @@ use zesk\Exception\KeyNotFound;
 use zesk\Exception\ProtocolException;
 use zesk\HookMethod;
 use zesk\Module as BaseModule;
+use zesk\World\Bootstrap\BootstrapCountry;
+use zesk\World\Bootstrap\BootstrapCurrency;
+use zesk\World\Bootstrap\BootstrapLanguage;
 
 /**
  *
@@ -68,15 +71,15 @@ class Module extends BaseModule
 		$this->application->debug('{method} begin', $__);
 		if ($bootstrap || $bootstrap_country) {
 			$this->application->debug('{method} World_Bootstrap_Country', $__);
-			Bootstrap_Country::factory($this->application)->bootstrap();
+			BootstrapCountry::factory($this->application)->bootstrap();
 		}
 		if ($bootstrap || $bootstrap_language) {
 			$this->application->debug('{method} World_Bootstrap_Language', $__);
-			Bootstrap_Language::factory($this->application)->bootstrap();
+			BootstrapLanguage::factory($this->application)->bootstrap();
 		}
 		if ($bootstrap || $bootstrap_currency) {
 			$this->application->debug('{method} World_Bootstrap_Currency', $__);
-			Bootstrap_Currency::factory($this->application)->bootstrap();
+			BootstrapCurrency::factory($this->application)->bootstrap();
 		}
 		$this->application->debug('{method} ended', $__);
 

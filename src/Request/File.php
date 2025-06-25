@@ -1,5 +1,8 @@
 <?php
 declare(strict_types=1);
+/**
+ * @copyright  &copy; 2025 Market Acumen, Inc.
+ */
 
 namespace zesk\Request;
 
@@ -14,12 +17,6 @@ use zesk\File as zeskFile;
 
 class File
 {
-	/**
-	 *
-	 * @var string
-	 */
-	private string $tmp_name;
-
 	/**
 	 *
 	 * @var string
@@ -53,7 +50,8 @@ class File
 	{
 		if (!isset($upload_array['tmp_name'])) {
 			throw new ParameterException('{method} must have keys tmp_name (keys passed: {keys})', [
-				'method' => __METHOD__, 'keys' => array_keys($upload_array),
+				'method' => __METHOD__,
+				'keys' => array_keys($upload_array),
 			]);
 		}
 		$this->upload_array = $upload_array;

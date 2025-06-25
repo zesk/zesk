@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 /**
- * @package zesk
+ * @package    zesk
  * @subpackage session
- * @author kent
- * @copyright &copy; 2023, Market Acumen, Inc.
+ * @author     kent
+ * @copyright  &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Session;
@@ -37,7 +37,8 @@ class Module extends BaseModule
 	{
 		parent::initialize();
 		$this->application->registerFactory('session', [
-			$this, 'sessionFactory',
+			$this,
+			'sessionFactory',
 		]);
 	}
 

@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 /**
- * @package zesk
+ * @package    zesk
  * @subpackage model
- * @author kent
- * @copyright Copyright &copy; 2025, Market Acumen, Inc.
+ * @author     kent
+ * @copyright  Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\World;
@@ -12,15 +12,17 @@ namespace zesk\World;
 use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Entity;
+use Doctrine\ORM\Mapping\EntityListeners;
 use Doctrine\ORM\Mapping\JoinColumn;
 use Doctrine\ORM\Mapping\ManyToOne;
 use Doctrine\ORM\Mapping\UniqueConstraint;
 use zesk\Application;
 use zesk\ArrayTools;
+use zesk\Configuration;
 use zesk\Doctrine\Model;
+use zesk\Doctrine\ModelListener;
 use zesk\Doctrine\Trait\AutoID;
 use zesk\Exception\NotFoundException;
-use zesk\ORM\Exception\ORMEmpty;
 
 /**
  * Currency represents a world currency.
@@ -33,10 +35,10 @@ use zesk\ORM\Exception\ORMEmpty;
  * - fractional_units represents what the fractional unit of this currency is. (e.g. cents)
  * - format is how the currency should be output
  *
- * @package zesk
+ * @package    zesk
  * @subpackage currency
- * @see World_Bootstrap_Currency
- * @see Class_Currency
+ * @see        World_Bootstrap_Currency
+ * @see        Class_Currency
  * @property integer $id
  * @property Country $bank_country
  * @property string $country_name
@@ -49,6 +51,7 @@ use zesk\ORM\Exception\ORMEmpty;
  * @property integer $precision
  */
 #[Entity]
+#[EntityListeners([ModelListener::class])]
 #[UniqueConstraint(fields: ['code'])]
 class Currency extends Model
 {
@@ -62,22 +65,29 @@ class Currency extends Model
 	public string $code;
 
 	#[Column(type: 'string', length: 48)]
-	public string $name;
+	public string $name = '';
 
 	#[Column(type: 'string', length: 16)]
-	public string $symbol;
+	public string $symbol = '';
 
 	#[Column(type: 'string', length: 32)]
-	public string $format;
+	public string $format = '';
 
 	#[Column(type: 'smallint')]
-	public int $fractional;
+	public int $fractional = 100;
 
 	#[Column(type: 'string')]
-	public string $fractionalUnits;
+	public string $fractionalUnits = '';
 
 	#[Column(type: 'smallint')]
-	public int $precision;
+	public int $precision = 0;
+
+	public function __construct(Application $application, int $id, string $code, array|Configuration $options = [])
+	{
+		parent::__construct($application, $options);
+		$this->id = $id;
+		$this->code = $code;
+	}
 
 	/**
 	 * Format a currency for output
@@ -91,11 +101,15 @@ class Currency extends Model
 		$decimals = $this->option('decimal_point', $locale->__('Currency::decimalPoint:=.'));
 		$thousands = $this->option('thousands_separator', $locale->__('Currency::thousandsSeparator:=.'));
 		return ArrayTools::map($this->format, [
-			'valueRaw' => $value, 'valueDecimal' => $intValue = intval($value),
-			'valueFraction' => substr(strval(abs($value - $intValue)), 2), 'minus' => $value < 0 ? '-' : '',
-			'plus' => $value > 0 ? '+' : '', 'decimal' => $decimals, 'thousands' => $thousands,
+			'valueRaw' => $value,
+			'valueDecimal' => $intValue = intval($value),
+			'valueFraction' => substr(strval(abs($value - $intValue)), 2),
+			'minus' => $value < 0 ? '-' : '',
+			'plus' => $value > 0 ? '+' : '',
+			'decimal' => $decimals,
+			'thousands' => $thousands,
 			'amount' => number_format($value, $this->precision, $decimals, $thousands),
-		] + $this->variables());
+		] + $this->members());
 	}
 
 	/**
@@ -113,10 +127,8 @@ class Currency extends Model
 		if ($currency) {
 			return $currency;
 		}
-		$currency = new Currency($application);
+		$currency = new Currency($application, 978, $code);
 		$currency->name = 'Euro';
-		$currency->code = $code;
-		$currency->id = 978;
 		$currency->symbol = '&euro;';
 		$currency->format = '{symbol}{amount}';
 		$currency->precision = 2;
@@ -132,6 +144,7 @@ class Currency extends Model
 	 * @param Application $application
 	 * @return self
 	 * @throws ORMException
+	 * @throws NotFoundException
 	 */
 	public static function USD(Application $application): self
 	{
@@ -141,11 +154,9 @@ class Currency extends Model
 		if ($currency) {
 			return $currency;
 		}
-		$currency = new Currency($application);
+		$currency = new Currency($application, 840, $code);
 		$currency->name = 'US Dollar';
-		$currency->code = $code;
 		$currency->bankCountry = Country::findCountry($application, 'us');
-		$currency->id = 840;
 		$currency->symbol = '$';
 		$currency->format = '{symbol}{amount}';
 		$currency->precision = 2;
@@ -170,7 +181,7 @@ class Currency extends Model
 	 * @return Currency
 	 * @throws NotFoundException
 	 */
-	public static function fromCode(Application $application, string $code): Currency
+	public static function find(Application $application, string $code): Currency
 	{
 		$em = $application->entityManager();
 		$currency = $em->getRepository(self::class)->findOneBy(['code' => $code]);
@@ -178,6 +189,9 @@ class Currency extends Model
 			return $currency;
 		}
 
-		throw new NotFoundException('{class} by {code}', ['class' => self::class, 'code' => $code]);
+		throw new NotFoundException('{class} by {code}', [
+			'class' => self::class,
+			'code' => $code,
+		]);
 	}
 }

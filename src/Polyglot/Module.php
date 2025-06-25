@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @author     kent
  * @package    zesk/modules
  * @subpackage Polyglot
- * @copyright  &copy; 2023, Market Acumen, Inc.
+ * @copyright  &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Polyglot;
@@ -14,8 +14,10 @@ namespace zesk\Polyglot;
  */
 
 use Doctrine\Common\Collections\Criteria;
+use zesk\Application;
 use zesk\Exception\FileNotFound;
 use zesk\Exception\FileParseException;
+use zesk\HookMethod;
 use zesk\Interface\Module\Routes;
 use zesk\Locale\Locale;
 use zesk\Locale\Reader;
@@ -97,36 +99,6 @@ class Module extends BaseModule implements Routes
 
 	/**
 	 *
-	 * @see Interface_Module_Routes::hook_routes()
-	 */
-	public function hook_routes(Router $router): void
-	{
-		$base = [
-			'controller' => Controller::class,
-		];
-		$router->addRoute('polyglot', $base);
-		$router->addRoute('polyglot/load/{dialect}', $base + [
-			'action'    => 'load',
-			'arguments' => [
-				2,
-			],
-		]);
-		$router->addRoute('polyglot/token/{dialect}', $base + [
-			'action'    => 'token',
-			'arguments' => [
-				2,
-			],
-		]);
-		$router->addRoute('polyglot/update/{dialect}', $base + [
-			'action'    => 'update',
-			'arguments' => [
-				2,
-			],
-		]);
-	}
-
-	/**
-	 *
 	 * @param string $locale
 	 * @return Token[]
 	 * @throws FileParseException|FileNotFound
@@ -170,5 +142,36 @@ class Module extends BaseModule implements Routes
 			}
 		}
 		return array_values($table);
+	}
+
+	/**
+	 * @param Router $router
+	 * @return void
+	 */
+	#[HookMethod(handles: Application::HOOK_ROUTER)]
+	public function addRoutes(Router $router): void
+	{
+		$base = [
+			'controller' => Controller::class,
+		];
+		$router->addRoute('polyglot', $base);
+		$router->addRoute('polyglot/load/{dialect}', $base + [
+			'action' => 'load',
+			'arguments' => [
+				2,
+			],
+		]);
+		$router->addRoute('polyglot/token/{dialect}', $base + [
+			'action' => 'token',
+			'arguments' => [
+				2,
+			],
+		]);
+		$router->addRoute('polyglot/update/{dialect}', $base + [
+			'action' => 'update',
+			'arguments' => [
+				2,
+			],
+		]);
 	}
 }

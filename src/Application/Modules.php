@@ -6,7 +6,7 @@ declare(strict_types=1);
  * Ideally, we should be able to serialize this entire structure and load again from cache so side effects should be
  * tracked when loading modules (hooks, etc.) or repeated upon __wakeup() in your module itself.
  *
- * @copyright &copy; 2023, Market Acumen, Inc.
+ * @copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Application;
@@ -23,9 +23,8 @@ use zesk\Exception\NotFoundException;
 use zesk\Exception\ParseException;
 use zesk\Exception\SemanticsException;
 use zesk\File;
-use zesk\Module;
 use zesk\JSON;
-use zesk\PHP;
+use zesk\Module;
 
 /**
  * Module loading and management

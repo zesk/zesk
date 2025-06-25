@@ -1,11 +1,12 @@
 <?php
 /**
- * @package zesk
+ * @package    zesk
  * @subpackage kernel
- * @author kent
- * @copyright &copy; 2023, Market Acumen, Inc.
+ * @author     kent
+ * @copyright  &copy; 2025, Market Acumen, Inc.
  */
 declare(strict_types=1);
+
 namespace zesk\FileMonitor;
 
 /**

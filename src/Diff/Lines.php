@@ -47,7 +47,7 @@ class Lines extends Base
 	 *
 	 * @param string $left
 	 * @param string $right
-	 * @param bool   $skipWhitespace
+	 * @param bool $skipWhitespace
 	 * @throws NotFoundException
 	 */
 	public function __construct(string $left, string $right, bool $skipWhitespace = false)
@@ -82,7 +82,7 @@ class Lines extends Base
 	 * Builds the hash table so that it contains each line's hash and the index mapped.
 	 *
 	 * @param array $lines
-	 * @param bool  $skip_whitespace
+	 * @param bool $skip_whitespace
 	 * @return array
 	 */
 	private function hashLines(array $lines, bool $skip_whitespace = false): array

@@ -15,12 +15,12 @@ use zesk\Exception\FilePermission;
 use zesk\Exception\ProtocolException;
 use zesk\Net\POP\Client\POPException;
 use zesk\Net\POP\Client\POPIterator;
-use zesk\Net\SocketClient;
+use zesk\Net\SocketConnectClient;
 use zesk\PHP;
 use zesk\StringTools;
 use zesk\Types;
 
-class Client extends SocketClient
+class Client extends SocketConnectClient
 {
 	/**
 	 *
@@ -185,7 +185,7 @@ class Client extends SocketClient
 			$this->command("USER $user");
 		} catch (ProtocolException $e) {
 			throw new AuthenticationException('User {user} (SHA1 Password: {sha1password}) not found', [
-				'user'         => $user,
+				'user' => $user,
 				'sha1password' => sha1($pass),
 			], 0, $e);
 		}
@@ -194,7 +194,7 @@ class Client extends SocketClient
 			$this->command("PASS $pass");
 		} catch (ProtocolException $e) {
 			throw new AuthenticationException('User {user} invalid password (SHA1 Password: {sha1password}) not found', [
-				'user'         => $user,
+				'user' => $user,
 				'sha1password' => sha1($pass),
 			], 0, $e);
 		}

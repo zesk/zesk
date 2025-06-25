@@ -1,15 +1,18 @@
 <?php
 declare(strict_types=1);
+/**
+ * @copyright &copy; 2025, Market Acumen, Inc.
+ */
 
 namespace zesk\Configuration;
 
-use zesk\Exception\FileParseException;
-use zesk\File;
-use zesk\Types;
 use zesk\Exception\ClassNotFound;
+use zesk\Exception\FileParseException;
 use zesk\Exception\ParseException;
 use zesk\Exception\SemanticsException;
+use zesk\File;
 use zesk\Interface\SettingsInterface;
+use zesk\Types;
 
 class Loader
 {
@@ -96,7 +99,7 @@ class Loader
 
 	/**
 	 *
-	 * @param array             $files
+	 * @param array $files
 	 * @param SettingsInterface $settings
 	 */
 	public function __construct(array $files, SettingsInterface $settings)
@@ -173,7 +176,7 @@ class Loader
 	/**
 	 * Load a single file
 	 *
-	 * @param string $file    Path to file to load
+	 * @param string $file Path to file to load
 	 * @param string $handler Extension to use to load class (CONF, SH, JSON)
 	 * @return self
 	 * @throws ParseException|FileParseException
@@ -251,8 +254,8 @@ class Loader
 	{
 		return [
 			self::PROCESSED => $this->processedFiles,
-			self::MISSING   => $this->missingFiles,
-			self::SKIPPED   => $this->skippedFiles,
+			self::MISSING => $this->missingFiles,
+			self::SKIPPED => $this->skippedFiles,
 			self::EXTERNALS => $this->externals(),
 		];
 	}

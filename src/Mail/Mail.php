@@ -125,9 +125,9 @@ class Mail extends Hookable
 	 * Create a Mail object
 	 *
 	 * @param Application $application
-	 * @param array       $headers
-	 * @param string      $body
-	 * @param array       $options
+	 * @param array $headers
+	 * @param string $body
+	 * @param array $options
 	 */
 	public function __construct(Application $application, array $headers, string $body, array $options = [])
 	{
@@ -142,9 +142,9 @@ class Mail extends Hookable
 	 * Create a Mail object
 	 *
 	 * @param Application $application
-	 * @param array       $headers
-	 * @param string      $body
-	 * @param array       $options
+	 * @param array $headers
+	 * @param string $body
+	 * @param array $options
 	 * @return Mail
 	 */
 	public static function factory(Application $application, array $headers, string $body, array $options = []): self
@@ -164,7 +164,7 @@ class Mail extends Hookable
 	}
 
 	/**
-	 * @param string       $name
+	 * @param string $name
 	 * @param array|string $set
 	 * @return $this
 	 */
@@ -391,12 +391,12 @@ class Mail extends Hookable
 				2,
 				3,
 			],
-			'/<(' . $aText . ')@(' . $domain . ')>/'                                       => [
+			'/<(' . $aText . ')@(' . $domain . ')>/' => [
 				null,
 				1,
 				2,
 			],
-			'/(' . $aText . ')@(' . $domain . ')/'                                         => [
+			'/(' . $aText . ')@(' . $domain . ')/' => [
 				null,
 				1,
 				2,
@@ -420,7 +420,7 @@ class Mail extends Hookable
 		}
 
 		throw new SyntaxException('Invalid {method} email: {email}', [
-			'email'  => $email,
+			'email' => $email,
 			'method' => __METHOD__,
 		]);
 	}
@@ -429,13 +429,13 @@ class Mail extends Hookable
 	 * Identical to sendmail, but truncates the entire message to be 140 characters
 	 * Determined length based on iPhone/AT&T.
 	 *
-	 * @param string $to      Email address to send to
-	 * @param string $from    Email address from (maybe "Hello" <email@example.com> etc.)
+	 * @param string $to Email address to send to
+	 * @param string $from Email address from (maybe "Hello" <email@example.com> etc.)
 	 * @param string $subject Optional. Subject of the message.
-	 * @param string $body    Message to send.
-	 * @param string $cc      Optional. CC email addresses.
-	 * @param string $bcc     Optional. BCC email addresses.
-	 * @param array  $headers Optional extra headers in the form: array("Header-Type: Header Value", "...")
+	 * @param string $body Message to send.
+	 * @param string $cc Optional. CC email addresses.
+	 * @param string $bcc Optional. BCC email addresses.
+	 * @param array $headers Optional extra headers in the form: array("Header-Type: Header Value", "...")
 	 * @return Mail unsent email
 	 * @throws SyntaxException
 	 */
@@ -468,14 +468,14 @@ class Mail extends Hookable
 	 * Email someone.
 	 *
 	 * @param Application $application
-	 * @param string      $to      Email address to send to
-	 * @param string      $from    Email address from (e.g. "Hello" <email@example.com> etc.)
-	 * @param string      $subject Optional. Subject of the message.
-	 * @param string      $body    Message to send.
-	 * @param string      $cc      Optional. CC email addresses.
-	 * @param string      $bcc     Optional. BCC email addresses.
-	 * @param array       $headers Optional extra headers in the form: array("Header-Type: Header Value", "...")
-	 * @param array       $options
+	 * @param string $to Email address to send to
+	 * @param string $from Email address from (e.g. "Hello" <email@example.com> etc.)
+	 * @param string $subject Optional. Subject of the message.
+	 * @param string $body Message to send.
+	 * @param string $cc Optional. CC email addresses.
+	 * @param string $bcc Optional. BCC email addresses.
+	 * @param array $headers Optional extra headers in the form: array("Header-Type: Header Value", "...")
+	 * @param array $options
 	 * @return self
 	 * @throws SyntaxException
 	 */
@@ -550,9 +550,9 @@ class Mail extends Hookable
 
 	/**
 	 * @param Application $application
-	 * @param array       $headers
-	 * @param string      $body
-	 * @param array       $options
+	 * @param array $headers
+	 * @param string $body
+	 * @param array $options
 	 * @return Mail
 	 */
 	public static function mailer(Application $application, array $headers, string $body, array $options = []): self
@@ -562,12 +562,12 @@ class Mail extends Hookable
 
 	/**
 	 * @param Application $application
-	 * @param string      $to
-	 * @param string      $from
-	 * @param string      $subject
-	 * @param array       $array
-	 * @param string      $prefix
-	 * @param string      $suffix
+	 * @param string $to
+	 * @param string $from
+	 * @param string $subject
+	 * @param array $array
+	 * @param string $prefix
+	 * @param string $suffix
 	 * @return Mail
 	 * @throws SyntaxException
 	 */
@@ -579,13 +579,13 @@ class Mail extends Hookable
 
 	/**
 	 * @param Application $application
-	 * @param string      $to
-	 * @param string      $from
-	 * @param string      $subject
-	 * @param string      $filename
-	 * @param array       $fields
-	 * @param string      $cc
-	 * @param string      $bcc
+	 * @param string $to
+	 * @param string $from
+	 * @param string $subject
+	 * @param string $filename
+	 * @param array $fields
+	 * @param string $cc
+	 * @param string $bcc
 	 * @return static
 	 * @throws FileNotFound
 	 * @throws SyntaxException
@@ -629,8 +629,8 @@ class Mail extends Hookable
 	 * Send a text or HTML email, with optional attachments
 	 *
 	 * @param Application $application
-	 * @param array       $mail_options
-	 * @param array       $attachments
+	 * @param array $mail_options
+	 * @param array $attachments
 	 * @return self
 	 * @throws ParameterException
 	 * @throws FileNotFound
@@ -657,13 +657,13 @@ class Mail extends Hookable
 		]);
 		if (!array_key_exists('From', $headers)) {
 			throw new ParameterException('Need to have a From header: {keys} {debug}', [
-				'keys'  => array_keys($headers),
+				'keys' => array_keys($headers),
 				'debug' => $mail_options,
 			]);
 		}
 		if (!array_key_exists('To', $headers)) {
 			throw new ParameterException('Need to have a \"To\" header: {keys} <pre>{debug}</pre>', [
-				'keys'  => array_keys($headers),
+				'keys' => array_keys($headers),
 				'debug' => $mail_options,
 			]);
 		}
@@ -774,9 +774,9 @@ class Mail extends Hookable
 	/**
 	 * Render an email using a theme
 	 *
-	 * @param Application  $application
+	 * @param Application $application
 	 * @param string|array $theme
-	 * @param array        $variables
+	 * @param array $variables
 	 * @return array
 	 * @throws Redirect
 	 */
@@ -921,7 +921,7 @@ class Mail extends Hookable
 	 *
 	 * @param string $content
 	 *            raw email message
-	 * @param array  $options
+	 * @param array $options
 	 *            Optional options for parsing
 	 * @return array
 	 */
@@ -967,5 +967,27 @@ class Mail extends Hookable
 	public function dump(): string
 	{
 		return Text::formatPairs($this->headers) . "\n\n" . $this->body;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function __serializeChild(): array
+	{
+		return [
+			'body' => $this->body,
+			'headers' => $this->headers,
+			'method' => $this->method,
+			'sent' => $this->sent,
+		];
+	}
+
+	/**
+	 * @param array $data
+	 * @return void
+	 */
+	public function __unserializeChild(array $data): void
+	{
+		// TODO: Implement __unserializeChild() method.
 	}
 }

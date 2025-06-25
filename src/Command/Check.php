@@ -5,7 +5,7 @@ declare(strict_types=1);
  * @subpackage bin
  * @category   Debugging
  * @author     kent
- * @copyright  &copy; 2023, Market Acumen, Inc.
+ * @copyright  &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Command;
@@ -195,8 +195,8 @@ class Check extends FileIterator
 	}
 
 	/**
-	 * @param string   $contents
-	 * @param string   $term
+	 * @param string $contents
+	 * @param string $term
 	 * @param callable $fixFunction
 	 * @param callable $addFunction
 	 * @return bool

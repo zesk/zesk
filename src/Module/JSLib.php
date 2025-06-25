@@ -1,10 +1,12 @@
 <?php
 declare(strict_types=1);
+/**
+ * @copyright &copy; 2025, Market Acumen, Inc.
+ */
 
 namespace zesk\Module;
 
 use zesk\Interface\Module\Head;
-
 use zesk\Module;
 use zesk\Request;
 use zesk\Response;

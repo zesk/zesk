@@ -1,7 +1,13 @@
 <?php
 declare(strict_types=1);
+/**
+ * @copyright &copy; 2025, Market Acumen, Inc.
+ */
 
 namespace testZesk;
+
+use zesk\HTMLTag;
+use zesk\PHP;
 
 class HTMLTagTestCase extends TestCase
 {

@@ -1,17 +1,16 @@
 <?php
 declare(strict_types=1);
 /**
- * @package zesk
+ * @package    zesk
  * @subpackage Daemon
- * @author kent
- * @copyright Copyright &copy; 2025, Market Acumen, Inc.
+ * @author     kent
+ * @copyright  Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Daemon;
 
 use Doctrine\ORM\Exception\ORMException;
 use zesk\Cron\Attributes\Cron;
-use zesk\Cron\Attributes\CronMinute;
 use zesk\Directory;
 use zesk\Doctrine\Server;
 use zesk\Exception\ConfigurationException;
@@ -68,9 +67,9 @@ class Module extends \zesk\Module
 	{
 		return [
 			'system/panel/daemon' => [
-				'title'              => $this->application->locale->__('Daemons'),
-				'moduleClass'        => __CLASS__,
-				'server_data_key'    => __CLASS__ . '::process_database',
+				'title' => $this->application->locale->__('Daemons'),
+				'moduleClass' => __CLASS__,
+				'server_data_key' => __CLASS__ . '::process_database',
 				'server_updated_key' => __CLASS__ . '::process_database_updated',
 			],
 		];

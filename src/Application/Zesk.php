@@ -1,11 +1,17 @@
 <?php
 declare(strict_types=1);
+/**
+ * @copyright &copy; 2025, Market Acumen, Inc.
+ *
+ * @package    zesk
+ * @subpackage Command
+ */
 
 namespace zesk\Application;
 
+use Psr\Log\LogLevel;
 use zesk\Application;
 use zesk\ArrayTools;
-use zesk\Doctrine\User;
 use zesk\Exception\CommandFailed;
 use zesk\Exception\ConfigurationException;
 use zesk\Exception\FilePermission;
@@ -14,14 +20,10 @@ use zesk\Exception\NotFoundException;
 use zesk\Exception\SemanticsException as SemanticsException;
 use zesk\File;
 use zesk\HookMethod;
-use zesk\FilterMethod;
 use zesk\Logger\FileLogger;
-use zesk\Model;
-use zesk\Module;
 use zesk\RuntimeException;
 use zesk\Types;
 use zesk\Version;
-use Psr\Log\LogLevel;
 
 /**
  * Used internally for deployment and version management
@@ -43,8 +45,8 @@ class Zesk extends Application
 		try {
 			$logger->setLevels([
 				LogLevel::NOTICE => true,
-				LogLevel::INFO   => true,
-				LogLevel::DEBUG  => false,
+				LogLevel::INFO => true,
+				LogLevel::DEBUG => false,
 			]);
 		} catch (KeyNotFound) {
 			throw new RuntimeException('Where did we go wrong');

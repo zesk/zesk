@@ -9,8 +9,6 @@ declare(strict_types=1);
 
 namespace zesk;
 
-use zesk\Exception\ProtocolException;
-
 /**
  * Javascript tools
  *
@@ -43,54 +41,30 @@ class JavaScript
 	}
 
 	/**
-	 * Begin JavaScript obfuscation output capture
-	 *
-	 * Depends on output buffering
-	 * @throws ProtocolException
+	 * JavaScript obfuscation
 	 */
-	public static function obfuscate_begin(): void
+	public static function obfuscate(string $content, array $functionMap = []): string
 	{
-		if (self::$obfuscated) {
-			throw new ProtocolException('Already called obfuscate_begin');
-		}
-		self::$obfuscated = true;
-		ob_start();
-	}
-
-	/**
-	 * End JavaScript obfuscation output and return obfuscated JavaScript
-	 *
-	 * @param array $function_map Apply string mapping at end
-	 * @return string
-	 * @throws ProtocolException
-	 */
-	public static function obfuscate_end(array $function_map = []): string
-	{
-		if (!self::$obfuscated) {
-			throw new ProtocolException('Need to call obfuscate_begin first');
-		}
-		self::$obfuscated = false;
 		$formatting = [
-			"\t"     => ' ',
-			"\n"     => '',
-			'  '     => ' ',
-			', '     => ',',
-			' {'     => '{',
-			'{ '     => '{',
-			' ='     => '=',
-			'= '     => '=',
-			'; '     => ';',
-			'+ '     => '+',
-			' +'     => '+',
-			'} '     => '}',
-			'if ('   => 'if(',
-			') {'    => '){',
-			' if('   => 'if(',
+			"\t" => ' ',
+			"\n" => '',
+			'  ' => ' ',
+			', ' => ',',
+			' {' => '{',
+			'{ ' => '{',
+			' =' => '=',
+			'= ' => '=',
+			'; ' => ';',
+			'+ ' => '+',
+			' +' => '+',
+			'} ' => '}',
+			'if (' => 'if(',
+			') {' => '){',
+			' if(' => 'if(',
 			'elseif' => 'else if',
 		];
-		$js = ob_get_clean();
-		$formatting = array_merge($formatting, $function_map);
-		return str_replace(array_keys($formatting), array_values($formatting), $js);
+		$formatting = array_merge($formatting, $functionMap);
+		return str_replace(array_keys($formatting), array_values($formatting), $content);
 	}
 
 	/**
@@ -99,7 +73,7 @@ class JavaScript
 	 * @param string $name function name to clean
 	 * @return string
 	 */
-	public static function clean_function_name(string $name): string
+	public static function cleanFunctionName(string $name): string
 	{
 		return preg_replace('/[^A-Za-z0-9_]/', '', $name);
 	}

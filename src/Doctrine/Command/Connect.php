@@ -2,7 +2,7 @@
 declare(strict_types=1);
 /**
  *
- * @copyright &copy; 2023, Market Acumen, Inc.
+ * @copyright &copy; 2025, Market Acumen, Inc.
  * @author    kent
  *
  */
@@ -43,17 +43,17 @@ class Connect extends SimpleCommand
 	 * @var array
 	 */
 	protected array $argumentTypes = [
-		'name'           => 'string',
-		'format'         => 'string',
-		'echo'           => 'boolean',
-		'debug-connect'  => 'boolean',
-		'db-url'         => 'boolean',
+		'name' => 'string',
+		'format' => 'string',
+		'echo' => 'boolean',
+		'debug-connect' => 'boolean',
+		'db-url' => 'boolean',
 		'show-passwords' => 'boolean',
-		'force'          => 'boolean',
-		'test'           => 'boolean',
-		'db-name'        => 'boolean',
-		'grant'          => 'boolean',
-		'host'           => 'string',
+		'force' => 'boolean',
+		'test' => 'boolean',
+		'db-name' => 'boolean',
+		'grant' => 'boolean',
+		'host' => 'string',
 	];
 
 	/**
@@ -61,15 +61,15 @@ class Connect extends SimpleCommand
 	 * @var array
 	 */
 	protected array $option_help = [
-		'name'          => 'Database code name to connect to',
-		'echo'          => 'Output the connection command instead of running it',
+		'name' => 'Database code name to connect to',
+		'echo' => 'Output the connection command instead of running it',
 		'debug-connect' => 'Show the connect command',
-		'db-url'        => 'Output the database URL or URLs',
-		'force'         => 'Force command execution even on failure',
-		'test'          => 'Test to make sure all connections work',
-		'db-name'       => 'Output the database name or names',
-		'grant'         => 'Display grant statements for the database',
-		'host'          => 'Host used in grant statement if not otherwise supplied',
+		'db-url' => 'Output the database URL or URLs',
+		'force' => 'Force command execution even on failure',
+		'test' => 'Test to make sure all connections work',
+		'db-name' => 'Output the database name or names',
+		'grant' => 'Display grant statements for the database',
+		'host' => 'Host used in grant statement if not otherwise supplied',
 	];
 
 	/**
@@ -90,7 +90,8 @@ class Connect extends SimpleCommand
 		}
 
 		if ($this->optionBool('grant')) {
-			return $this->handle_grants();
+			throw new UnsupportedException('TODO');
+			//return $this->handle_grants();
 		}
 
 		$name = $this->optionString('name');
@@ -135,8 +136,8 @@ class Connect extends SimpleCommand
 
 	private static array $shell_command_options = [
 		'sql-dump-command' => 'boolean. Generate a command-line SQL dump command instead of a connection command',
-		'tables'           => 'string[]. Used in conjunction with sql-dump-command - an array of tables to dump',
-		'non-blocking'     => 'boolean. Used in conjunction with sql-dump-command - dump database in a non-blocking manner.',
+		'tables' => 'string[]. Used in conjunction with sql-dump-command - an array of tables to dump',
+		'non-blocking' => 'boolean. Used in conjunction with sql-dump-command - dump database in a non-blocking manner.',
 	];
 
 	public function mysqlShellCommand(array $options = []): array
@@ -150,8 +151,8 @@ class Connect extends SimpleCommand
 		foreach ($options as $option_key => $option_value) {
 			if (!array_key_exists($option_key, self::$shell_command_options)) {
 				$this->application->warning('Unknown option passed to {method}: {option_key}={option_value}', [
-					'method'       => __METHOD__,
-					'option_key'   => $option_key,
+					'method' => __METHOD__,
+					'option_key' => $option_key,
 					'option_value' => Debug::dump($option_value),
 				]);
 			}
@@ -253,36 +254,36 @@ class Connect extends SimpleCommand
 	/**
 	 * TODO
 	 */
-	private function handle_grants(): int
-	{
-		$module = $this->application->databaseModule();
-		$result = [];
-		foreach ($module->names() as $name) {
-			try {
-				$object = $module->databaseRegistry($name, [
-					'connect' => false,
-				]);
-
-				try {
-					$grant_statements = $object->sqlDialect()->grant([
-						'user'      => $object->urlComponent('user'),
-						'pass'      => $object->urlComponent('pass'),
-						'name'      => $object->urlComponent('name'),
-						'from_host' => $this->option('host'),
-						'tables'    => SQLDialect::SQL_GRANT_ALL,
-					]);
-				} catch (UnsupportedException|KeyNotFound) {
-					$grant_statements = null;
-				}
-				if (is_array($grant_statements)) {
-					$result = array_merge($grant_statements, $result);
-				}
-			} catch (NotFoundException|ConnectException $e) {
-				$this->error($e->getMessage());
-				return self::EXIT_CODE_ENVIRONMENT;
-			}
-		}
-		echo ArrayTools::joinSuffix($result, ";\n");
-		return 0;
-	}
+	//	private function handle_grants(): int
+	//	{
+	//		$module = $this->application->databaseModule();
+	//		$result = [];
+	//		foreach ($module->names() as $name) {
+	//			try {
+	//				$object = $module->databaseRegistry($name, [
+	//					'connect' => false,
+	//				]);
+	//
+	//				try {
+	//					$grant_statements = $object->sqlDialect()->grant([
+	//						'user'      => $object->urlComponent('user'),
+	//						'pass'      => $object->urlComponent('pass'),
+	//						'name'      => $object->urlComponent('name'),
+	//						'from_host' => $this->option('host'),
+	//						'tables'    => SQLDialect::SQL_GRANT_ALL,
+	//					]);
+	//				} catch (UnsupportedException|KeyNotFound) {
+	//					$grant_statements = null;
+	//				}
+	//				if (is_array($grant_statements)) {
+	//					$result = array_merge($grant_statements, $result);
+	//				}
+	//			} catch (NotFoundException|ConnectException $e) {
+	//				$this->error($e->getMessage());
+	//				return self::EXIT_CODE_ENVIRONMENT;
+	//			}
+	//		}
+	//		echo ArrayTools::joinSuffix($result, ";\n");
+	//		return 0;
+	//	}
 }

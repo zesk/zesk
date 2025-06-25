@@ -1,13 +1,11 @@
 <?php
 declare(strict_types=1);
 /**
- *
+ * @copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace testZesk;
 
-use Exception as BaseException;
-use Throwable;
 use zesk\Exception\NotFoundException;
 use zesk\Exception\SyntaxException;
 use zesk\Exception\UnsupportedException;

@@ -1,17 +1,19 @@
 <?php
 declare(strict_types=1);
+/**
+ * @copyright  Copyright &copy; 2025, Market Acumen, Inc.
+ */
 
 namespace zesk\Route;
 
 use zesk\ArrayTools;
+use zesk\Exception\FileNotFound;
 use zesk\Exception\NotFoundException;
 use zesk\Exception\SemanticsException;
 use zesk\JSON;
-use zesk\Route;
-
 use zesk\Request;
 use zesk\Response;
-use zesk\Exception\FileNotFound;
+use zesk\Route;
 use zesk\StringTools;
 
 /**
@@ -35,7 +37,7 @@ class Content extends Route
 				$file = $this->_mapVariables($request, $file);
 				if (!is_string($file)) {
 					throw new NotFoundException($request->uri(), [
-						'file'    => $file,
+						'file' => $file,
 						'badType' => gettype($file),
 					], 0);
 				}

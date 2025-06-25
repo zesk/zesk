@@ -1,19 +1,21 @@
 <?php
 declare(strict_types=1);
+/**
+ * @copyright  Copyright &copy; 2025, Market Acumen, Inc.
+ */
 
 namespace zesk\Route;
 
 use zesk\ArrayTools;
 use zesk\Exception\DirectoryCreate;
 use zesk\Exception\DirectoryPermission;
+use zesk\Exception\FileNotFound;
 use zesk\Exception\ProtocolException;
+use zesk\Exception\Redirect as RedirectException;
 use zesk\HTTP;
 use zesk\Request;
 use zesk\Response;
 use zesk\Route;
-
-use zesk\Exception\FileNotFound;
-use zesk\Exception\Redirect as RedirectException;
 use zesk\StringTools;
 use zesk\Types;
 
@@ -75,7 +77,7 @@ class Theme extends Route
 		}
 
 		throw new FileNotFound('No theme {theme} found in {themePaths}', [
-			'theme'      => $theme,
+			'theme' => $theme,
 			'themePaths' => $themes->themePath(),
 		]);
 	}

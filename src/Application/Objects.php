@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 /**
- *
+ * @copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Application;
@@ -70,7 +70,7 @@ class Objects
 	/**
 	 * @return array:Hookable
 	 */
-	public function hookables(): array
+	public function hookableObjects(): array
 	{
 		return array_filter($this->singletons, fn ($object) => $object instanceof Hookable);
 	}
@@ -162,7 +162,7 @@ class Objects
 
 			throw new ProtocolException('Singletons should not change existing {found_object} !== set {object}', [
 				'found_object' => $found_object,
-				'object'       => $found_object,
+				'object' => $found_object,
 			]);
 		}
 		$this->_setSingleton($object, $resolved_class);
@@ -193,8 +193,8 @@ class Objects
 	{
 		if (isset($this->singletons[$resolvedClass])) {
 			throw new ProtocolException('{method}(Object of {class_name}) Can not set singleton {class_name} twice, originally set in {first_caller}', [
-				'method'       => __METHOD__,
-				'class_name'   => $resolvedClass,
+				'method' => __METHOD__,
+				'class_name' => $resolvedClass,
 				'first_caller' => $this->singletonsCaller[$resolvedClass],
 			]);
 		}
@@ -298,8 +298,8 @@ class Objects
 			$rc = new ReflectionClass($resolveClass);
 			if ($rc->isAbstract()) {
 				throw new ClassNotFound($resolveClass, '{this_method}({class} => {resolve_class}) is abstract - can not instantiate', [
-					'this_method'   => __METHOD__,
-					'class'         => $class,
+					'this_method' => __METHOD__,
+					'class' => $class,
 					'resolve_class' => $resolveClass,
 				]);
 			}
@@ -308,12 +308,12 @@ class Objects
 		}
 
 		throw new ClassNotFound($class, "{method}({class} => {resolve_class}, {args}) {message}\nBacktrace: {backtrace}", [
-			'method'        => __METHOD__,
-			'class'         => $class,
+			'method' => __METHOD__,
+			'class' => $class,
 			'resolve_class' => $resolveClass,
-			'args'          => array_keys($arguments),
-			'message'       => $e->getMessage(),
-			'backtrace'     => $e->getTraceAsString(),
+			'args' => array_keys($arguments),
+			'message' => $e->getMessage(),
+			'backtrace' => $e->getTraceAsString(),
 		]);
 	}
 }

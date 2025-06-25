@@ -40,7 +40,7 @@ class Reader extends Base
 
 	/**
 	 * @param string $filename
-	 * @param array  $options
+	 * @param array $options
 	 * @throws FileNotFound
 	 * @throws FilePermission
 	 * @throws ParseException
@@ -59,7 +59,7 @@ class Reader extends Base
 	 * Create a Reader
 	 *
 	 * @param string $filename
-	 * @param array  $options
+	 * @param array $options
 	 * @return self
 	 * @throws FileNotFound
 	 * @throws FilePermission
@@ -117,11 +117,11 @@ class Reader extends Base
 		$offset = ftell($this->File);
 		$line_no = $this->rowIndex;
 		return [
-			'file_pos'    => $offset,
+			'file_pos' => $offset,
 			'file_buffer' => $this->FileBuffer,
-			'row_index'   => $line_no,
-			'row'         => $this->row,
-			'key'         => $this->_magicNumber(),
+			'row_index' => $line_no,
+			'row' => $this->row,
+			'key' => $this->_magicNumber(),
 		];
 	}
 
@@ -314,7 +314,7 @@ class Reader extends Base
 		if ($offset < 0 || !is_int($offset)) {
 			throw new ParameterException('Invalid parameter to CSV_Reader::skip({offset}) of type {type}', [
 				'offset' => $offset,
-				'type'   => gettype($offset),
+				'type' => gettype($offset),
 			]);
 		}
 		while ($offset-- > 0) {

@@ -39,7 +39,7 @@ ADD . "$APPLICATION_HOME"
 RUN /usr/local/sbin/install.sh __installEnvironment /tmp/application.conf "$APPLICATION_CONF" "$APPLICATION_HOME" "$APPLICATION_PREFIX" PHP_IDE_CONFIG XDEBUG_CLIENT_HOST APPLICATION_USER LOG_HOME
 RUN chmod 640 "$APPLICATION_CONF" && chown "root:$APPLICATION_USER" "$APPLICATION_CONF"
 
-RUN mkdir -p "$LOG_HOME" && chmod 750 "$LOG_HOME" && chown "root:$APPLICATION_USER" "$LOG_HOME"
+RUN mkdir -p "$LOG_HOME" && chmod 770 "$LOG_HOME" && chown "root:$APPLICATION_USER" "$LOG_HOME"
 
 # PHP
 COPY etc/docker/php.ini /usr/local/etc/php/MAP.php.ini

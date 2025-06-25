@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package    zesk
  * @subpackage kernel
  * @author     kent
- * @copyright  &copy; 2023, Market Acumen, Inc.
+ * @copyright  &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Application;
@@ -86,12 +86,12 @@ class Hooks
 	}
 
 	private static array $fatalErrors = [
-		E_USER_ERROR      => 'Fatal Error',
-		E_ERROR           => 'Fatal Error',
-		E_PARSE           => 'Parse Error',
-		E_CORE_ERROR      => 'Core Error',
-		E_CORE_WARNING    => 'Core Warning',
-		E_COMPILE_ERROR   => 'Compile Error',
+		E_USER_ERROR => 'Fatal Error',
+		E_ERROR => 'Fatal Error',
+		E_PARSE => 'Parse Error',
+		E_CORE_ERROR => 'Core Error',
+		E_CORE_WARNING => 'Core Warning',
+		E_COMPILE_ERROR => 'Compile Error',
 		E_COMPILE_WARNING => 'Compile Warning',
 	];
 
@@ -111,9 +111,9 @@ class Hooks
 	}
 
 	/**
-	 * @param string           $hookName
+	 * @param string $hookName
 	 * @param callable|Closure $method
-	 * @param bool             $filter
+	 * @param bool $filter
 	 * @return self
 	 */
 	public function registerHook(string $hookName, callable|Closure $method, bool $filter = false): self
@@ -127,7 +127,7 @@ class Hooks
 	}
 
 	/**
-	 * @param string           $hookName
+	 * @param string $hookName
 	 * @param callable|Closure $method
 	 * @return $this
 	 */
@@ -138,7 +138,7 @@ class Hooks
 
 	/**
 	 * @param string $hookName
-	 * @param bool   $isFilter
+	 * @param bool $isFilter
 	 * @return void
 	 */
 	private function _enforceFilterType(string $hookName, bool $isFilter): void
@@ -148,16 +148,16 @@ class Hooks
 		}
 		if (($isType = $this->hooksQueueType[$hookName]) !== $isFilter) {
 			throw new RuntimeException('{hookName} accessed as a {accessedAs} but created as {createdAs}}', [
-				'hookName'   => $hookName,
+				'hookName' => $hookName,
 				'accessedAs' => $isFilter ? 'filter' : 'hook',
-				'createdAs'  => $isType ? 'filter' : 'hook',
+				'createdAs' => $isType ? 'filter' : 'hook',
 			]);
 		}
 	}
 
 	/**
 	 * @param string $hookName
-	 * @param bool   $isFilter
+	 * @param bool $isFilter
 	 * @return array
 	 */
 	public function peekHooks(string $hookName, bool $isFilter = false): array
@@ -178,7 +178,7 @@ class Hooks
 
 	/**
 	 * @param string $hookName
-	 * @param bool   $isFilter
+	 * @param bool $isFilter
 	 * @return array
 	 */
 	public function hooksDequeue(string $hookName, bool $isFilter = false): array

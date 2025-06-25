@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 /**
- *
+ * @copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Configuration\Parser;
@@ -26,8 +26,8 @@ use zesk\Types;
 class JSON extends Parser
 {
 	protected array $parseOptions = [
-		'overwrite'   => true,
-		'lower'       => false,
+		'overwrite' => true,
+		'lower' => false,
 		'interpolate' => true,
 	];
 
@@ -64,7 +64,7 @@ class JSON extends Parser
 			$message = '{method} JSON::decode returned non-array {type}';
 			$__ = [
 				'method' => __METHOD__,
-				'type'   => Types::type($result),
+				'type' => Types::type($result),
 			];
 			PHP::log(ArrayTools::map($message, $__));
 
@@ -88,7 +88,7 @@ class JSON extends Parser
 	 * Handle JSON include files specially
 	 *
 	 * @param string|array $items Files to load
-	 * @param string|null  $context
+	 * @param string|null $context
 	 */
 	private function handleInclude(string|array $items, string $context = null): void
 	{
@@ -102,8 +102,8 @@ class JSON extends Parser
 				$this->loader->appendFiles([$full]);
 			} else {
 				error_log(ArrayTools::map('{method} {file} context {context} was a no-op', [
-					'method'  => __METHOD__,
-					'file'    => $item,
+					'method' => __METHOD__,
+					'file' => $item,
 					'context' => $context,
 				]));
 			}
@@ -114,7 +114,7 @@ class JSON extends Parser
 	 *
 	 * @param array $results
 	 * @param array $path
-	 * @param bool  $interpolate
+	 * @param bool $interpolate
 	 * @return void
 	 */
 	private function mergeResults(array $results, array $path = [], bool $interpolate = false): void

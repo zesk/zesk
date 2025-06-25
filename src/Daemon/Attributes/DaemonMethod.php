@@ -1,11 +1,16 @@
 <?php
 declare(strict_types=1);
+/**
+ * @copyright &copy; 2025, Market Acumen, Inc.
+ */
 
 namespace zesk\Daemon\Attributes;
 
 use Attribute;
+use ReflectionException;
 use ReflectionMethod;
 use zesk\Daemon\ConfigurationManager;
+use zesk\Hookable;
 use zesk\HookableAttribute;
 
 #[Attribute(flags: Attribute::TARGET_METHOD)]
@@ -18,6 +23,8 @@ class DaemonMethod implements HookableAttribute
 	 */
 	private ReflectionMethod $method;
 
+	private Hookable|null $object = null;
+
 	/**
 	 * @var int
 	 */
@@ -28,9 +35,10 @@ class DaemonMethod implements HookableAttribute
 		$this->$managerClass = $managerClass;
 	}
 
-	public function setMethod(ReflectionMethod $method): self
+	public function setMethod(ReflectionMethod $method, Hookable|null $object = null): self
 	{
 		$this->method = $method;
+		$this->object = $object;
 		return $this;
 	}
 
@@ -50,10 +58,11 @@ class DaemonMethod implements HookableAttribute
 	/**
 	 * @param array $arguments
 	 * @return mixed
+	 * @throws ReflectionException
 	 */
 	public function run(array $arguments = []): mixed
 	{
-		$this->method->run(null, $arguments);
+		$this->method->getClosure()->call($this->object, $arguments);
 		return null;
 	}
 }

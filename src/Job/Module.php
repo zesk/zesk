@@ -1,27 +1,25 @@
 <?php
 declare(strict_types=1);
 /**
- *
+ * @copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Job;
 
 use Doctrine\ORM\Exception\ORMException;
-
-use zesk\PHP;
-use zesk\Router;
 use zesk\Application;
-use zesk\HookMethod;
-
 use zesk\Daemon\Attributes\DaemonMethod;
 use zesk\Exception\ClassNotFound;
 use zesk\Exception\KeyNotFound;
 use zesk\Exception\ProtocolException;
 use zesk\Exception\UnimplementedException;
+use zesk\HookMethod;
 use zesk\Interface\Module\Routes;
 use zesk\Interface\SystemProcess;
 use zesk\MockProcess;
 use zesk\Module as BaseModule;
+use zesk\PHP;
+use zesk\Router;
 
 /**
  * Job module for running background jobs in a somewhat reliable manner
@@ -124,10 +122,10 @@ class Module extends BaseModule implements Routes
 	{
 		$router->addRoute('job/{' . Job::class . ' job}(/{option action})', [
 			'controller' => Controller::class,
-			'arguments'  => [
+			'arguments' => [
 				1,
 			],
-			'module'     => $this->codeName(),
+			'module' => $this->codeName(),
 		]);
 		if ($this->application->development() && !$this->optionBool(self::OPTION_HIDE_DEVELOPMENT)) {
 			$router->addRoute('job-execute', [

@@ -62,7 +62,7 @@ class MapReader extends Reader
 	/**
 	 *
 	 * @param string $filename
-	 * @param array  $options
+	 * @param array $options
 	 * @throws FileNotFound
 	 * @throws FilePermission
 	 * @throws FileParseException
@@ -79,7 +79,7 @@ class MapReader extends Reader
 	 * Create
 	 *
 	 * @param string $filename
-	 * @param array  $options
+	 * @param array $options
 	 * @return self
 	 * @throws FileNotFound
 	 * @throws FileParseException
@@ -100,9 +100,9 @@ class MapReader extends Reader
 	 *        `$reader->read_map()` - Returns all read map names associated with this reader (["foo","bar"])
 	 *
 	 * @param string $name Name of this map, case-insensitive
-	 * @param array  $map  Array of csv_column => new_key - if null then returns named map
-	 * @param array  $mapTypes
-	 * @param array  $defaultMap
+	 * @param array $map Array of csv_column => new_key - if null then returns named map
+	 * @param array $mapTypes
+	 * @param array $defaultMap
 	 * @return MapReader
 	 * @throws KeyNotFound
 	 * @throws ProtocolException
@@ -266,7 +266,7 @@ class MapReader extends Reader
 	/**
 	 * Add translation map for a specific type
 	 *
-	 * @param array  $columns
+	 * @param array $columns
 	 * @param string $type Class_Base::type_foo type
 	 * @return self
 	 * @throws KeyNotFound
@@ -276,7 +276,7 @@ class MapReader extends Reader
 		foreach ($columns as $column) {
 			if (!in_array($column, $this->headers)) {
 				throw new KeyNotFound('Unknown header key {key} in CSV reader for file {file} (type {type})', [
-					'key'  => $column,
+					'key' => $column,
 					'type' => $type,
 					'file' => $this->file,
 				]);

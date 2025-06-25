@@ -10,7 +10,6 @@ declare(strict_types=1);
 namespace zesk\Command;
 
 use Throwable;
-use zesk\ArrayTools;
 use zesk\Configuration\Loader;
 
 /**
@@ -40,20 +39,20 @@ class Configuration extends SimpleCommand
 	];
 
 	protected array $argumentTypes = [
-		'loaded'           => 'boolean',
-		'not-loaded'       => 'boolean',
-		'skipped'          => 'boolean',
-		'externals'        => 'boolean',
-		'missing-classes'  => 'boolean',
+		'loaded' => 'boolean',
+		'not-loaded' => 'boolean',
+		'skipped' => 'boolean',
+		'externals' => 'boolean',
+		'missing-classes' => 'boolean',
 		'top-level-scalar' => 'boolean',
 	];
 
 	protected array $option_help = [
-		'loaded'           => 'Show loaded configuration files',
-		'not-loaded'       => 'Show configuration files which would be loaded but were not because they did not exist',
-		'skipped'          => 'Show configuration files which are skipped for any reason',
-		'externals'        => 'Show external variables which affect the configuration',
-		'missing-classes'  => 'Show missing classes in the configuration root',
+		'loaded' => 'Show loaded configuration files',
+		'not-loaded' => 'Show configuration files which would be loaded but were not because they did not exist',
+		'skipped' => 'Show configuration files which are skipped for any reason',
+		'externals' => 'Show external variables which affect the configuration',
+		'missing-classes' => 'Show missing classes in the configuration root',
 		'top-level-scalar' => 'Show top-level configuration settings which are scalars (globals or environment variables)',
 	];
 
@@ -77,23 +76,23 @@ class Configuration extends SimpleCommand
 
 		$result = [];
 		foreach ([
-			'loaded'           => [
+			'loaded' => [
 				'Loaded',
 				Loader::PROCESSED,
 			],
-			'not-loaded'       => [
+			'not-loaded' => [
 				'Missing',
 				Loader::MISSING,
 			],
-			'skipped'          => [
+			'skipped' => [
 				'Skipped',
 				Loader::SKIPPED,
 			],
-			'externals'        => [
+			'externals' => [
 				'External variables',
 				Loader::EXTERNALS,
 			],
-			'missing-classes'  => [
+			'missing-classes' => [
 				'Missing classes',
 				'-missing-classes-',
 			],
@@ -117,11 +116,11 @@ class Configuration extends SimpleCommand
 	private function showFlags(): array
 	{
 		return $this->options([
-			'loaded'           => true,
-			'not-loaded'       => true,
-			'skipped'          => true,
-			'externals'        => true,
-			'missing-classes'  => true,
+			'loaded' => true,
+			'not-loaded' => true,
+			'skipped' => true,
+			'externals' => true,
+			'missing-classes' => true,
 			'top-level-scalar' => true,
 		]);
 	}

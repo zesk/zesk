@@ -1,24 +1,26 @@
 <?php
 declare(strict_types=1);
 /**
- *
+ * @package zesk
+ * @subpackage Router
+ * @author     kent
+ * @copyright  Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Route;
 
-use zesk\ArrayTools;
-use zesk\Route;
-use zesk\Controller as ControllerBase;
-use zesk\Request;
-use zesk\Response;
-use zesk\StringTools;
-use zesk\Model;
-use zesk\Exception\NotFoundException;
-
 use ReflectionClass;
 use ReflectionException;
 use ReflectionMethod;
+use zesk\ArrayTools;
+use zesk\Controller as ControllerBase;
 use zesk\Exception\ClassNotFound;
+use zesk\Exception\NotFoundException;
+use zesk\Model;
+use zesk\Request;
+use zesk\Response;
+use zesk\Route;
+use zesk\StringTools;
 
 /**
  *
@@ -61,24 +63,7 @@ class Controller extends Route
 	}
 
 	/**
-	 * @return array|string[]
-	 */
-	public function __serialize(): array
-	{
-		return parent::__serialize();
-	}
-
-	/**
-	 *
-	 * @see Route::__unserialize()
-	 */
-	public function __unserialize(array $data): void
-	{
-		parent::__unserialize($data);
-		$this->initialize();
-	}
-
-	/**
+	 * /**
 	 *
 	 * @return string
 	 */

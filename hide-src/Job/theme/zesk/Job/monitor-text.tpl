@@ -2,6 +2,7 @@
 declare(strict_types=1);
 namespace zesk;
 
+use zesk\Job\Job;
 use zesk\Locale\Locale;
 
 /* @var $job Job */
@@ -26,8 +27,12 @@ if ($job->dead()) {
 	]), 0);
 }
 ?>
-<div class="job-monitor job-monitor-text" <?php echo $job_attributes; ?>
-	data-id="<?php echo $job->id(); ?>" <?php echo $success; ?>>
-	<span class="name"><?php echo $job->name; ?></span> <span
-		class="message"></span>
+<div class="job-monitor job-monitor-text" <?php
+echo $job_attributes; ?>
+     data-id="<?php
+	 echo $job->id(); ?>" <?php
+echo $success; ?>>
+    <span class="name"><?php
+		echo $job->name; ?></span> <span
+            class="message"></span>
 </div>

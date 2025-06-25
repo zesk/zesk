@@ -1,11 +1,17 @@
 <?php
 declare(strict_types=1);
+/**
+ * @package zesk
+ * @subpackage Response
+ * @author     kent
+ * @copyright  Copyright &copy; 2025, Market Acumen, Inc.
+ */
 
 namespace zesk\Response;
 
 use zesk\Exception\FileNotFound;
 use zesk\Exception\KeyNotFound;
-use zesk\Exception\ProtocolException;
+use zesk\Exception\SemanticsException;
 use zesk\File;
 use zesk\MIME;
 use zesk\Response;
@@ -83,12 +89,12 @@ class Raw extends Type
 	}
 
 	/**
-	 * @throws ProtocolException
+	 * @throws SemanticsException
 	 */
 	public function file(): string
 	{
 		if (empty($this->file)) {
-			throw new ProtocolException('file not set');
+			throw new SemanticsException('file not set');
 		}
 		return $this->file;
 	}

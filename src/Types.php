@@ -15,7 +15,7 @@ use Stringable;
 use Traversable;
 use TypeError;
 use zesk\Exception\ParseException;
-use zesk\Exception\ProtocolException;
+use zesk\Exception\SemanticsException;
 use zesk\Interface\Simplifiable;
 
 class Types
@@ -51,8 +51,8 @@ class Types
 	 *
 	 * - uppercase and lowercase Latin letters A to Z and a to z;
 	 * - digits 0 to 9;
-	 * - special characters !#$%&'*+-/=?^_`{|}~;
-	 * - dot ., provided that it is not the first or last character unless quoted, and provided also that it does not appear consecutively unless quoted (e.g. John..Doe@example.com is not allowed but "John..Doe"@example.com is allowed);
+	 * - special characters `!#$%&*+-/=?^_`{|}~;` `'`
+	 * - dot `.`, provided that it is not the first or last character unless quoted, and provided also that it does not appear consecutively unless quoted (e.g. `John..Doe@example.com` is not allowed but `"John..Doe"@example.com` is allowed)
 	 * - space and "(),:;<>@[\] characters are allowed with restrictions (they are only allowed inside a quoted string, as described in the paragraph below, and in addition, a backslash or double-quote must be preceded by a backslash);
 	 * - comments are allowed with parentheses at either end of the local-part; e.g. john.smith(comment)@example.com and (comment)john.smith@example.com are both equivalent to john.smith@example.com.
 	 *
@@ -428,7 +428,7 @@ class Types
 	 *
 	 * @param mixed $mixed
 	 * @return string|int|float|bool
-	 * @throws ProtocolException
+	 * @throws SemanticsException
 	 */
 	public static function flatten(mixed $mixed): string|int|float|bool
 	{
@@ -510,9 +510,9 @@ class Types
 	{
 		static $weights = [
 			self::INTERNAL_WEIGHT_FIRST => -1e300,
-			self::WEIGHT_FIRST          => -1e299,
-			self::WEIGHT_LAST           => 1e299,
-			self::INTERNAL_WEIGHT_LAST  => 1e300,
+			self::WEIGHT_FIRST => -1e299,
+			self::WEIGHT_LAST => 1e299,
+			self::INTERNAL_WEIGHT_LAST => 1e300,
 		];
 		return floatval($weights[strval($weight)] ?? $weight);
 	}
@@ -578,10 +578,10 @@ class Types
 	{
 		return explode(self::KEY_SEPARATOR, strtr(strtolower($key), [
 			'__' => self::KEY_SEPARATOR,
-			'.'  => '_',
-			'/'  => '_',
-			'-'  => '_',
-			' '  => '_',
+			'.' => '_',
+			'/' => '_',
+			'-' => '_',
+			' ' => '_',
 		]));
 	}
 

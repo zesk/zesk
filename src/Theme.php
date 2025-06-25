@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 /**
- *
+ * @copyright  Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -10,8 +10,8 @@ use Throwable;
 use zesk\Exception\FileNotFound;
 use zesk\Exception\FilePermission;
 use zesk\Exception\NotFoundException;
-use zesk\Exception\Redirect;
 use zesk\Exception\ProtocolException;
+use zesk\Exception\Redirect;
 use zesk\Interface\Themeable;
 
 /**
@@ -29,12 +29,13 @@ use zesk\Interface\Themeable;
  * $this->account
  * $account
  * Are the same value.
- * @format markdown
  *
- * @package zesk
+ * @format     markdown
+ *
+ * @package    zesk
  * @subpackage system
- * @see Application::themePaths
- * @author kent
+ * @see        Application::themePaths
+ * @author     kent
  */
 class Theme implements Themeable
 {
@@ -113,7 +114,7 @@ class Theme implements Themeable
 	 */
 	private static array $_stats = [
 		'counts' => [],
-		'times'  => [],
+		'times' => [],
 	];
 
 	/**
@@ -620,7 +621,7 @@ class Theme implements Themeable
 		}
 		return [
 			'variables' => $this->_vars,
-			'self'      => $this,
+			'self' => $this,
 		][$key] ?? null;
 	}
 

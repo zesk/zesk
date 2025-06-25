@@ -1,17 +1,18 @@
 <?php
 declare(strict_types=1);
 /**
- * @package zesk
+ * @package    zesk
  * @subpackage system
- * @author kent
- * @copyright Copyright &copy; 2025, Market Acumen, Inc.
+ * @author     kent
+ * @copyright  Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Net\SMTP;
 
 use zesk\Exception\ConnectionFailed;
 use zesk\Exception\ProtocolException;
-use zesk\Net\SocketClient;
+use zesk\Mail\Mail;
+use zesk\Net\SocketConnectClient;
 use zesk\Types;
 
 /**
@@ -19,7 +20,7 @@ use zesk\Types;
  * @author kent
  *
  */
-class Client extends SocketClient
+class Client extends SocketConnectClient
 {
 	/**
 	 * Default port to connect to
@@ -95,10 +96,10 @@ class Client extends SocketClient
 		$result = $this->expect('250', $message);
 
 		$this->application->debug('Sent email to {rcpts} {nbytes} bytes via {user}@{host}', [
-			'rcpts'  => $rcpts,
+			'rcpts' => $rcpts,
 			'nbytes' => strlen($body),
-			'user'   => $this->urlComponent('user'),
-			'host'   => $this->urlComponent('host'),
+			'user' => $this->urlComponent('user'),
+			'host' => $this->urlComponent('host'),
 		]);
 		return $result;
 	}
@@ -123,9 +124,9 @@ class Client extends SocketClient
 	 * Connect using rfc2821 method
 	 *
 	 * @see http://www.ietf.org/rfc/rfc2821.txt
-	 * @return boolean
+	 * @return string
 	 */
-	private function helo()
+	private function helo(): string
 	{
 		return $this->command('HELO ' . $this->urlComponent('host'), '250');
 	}
@@ -134,9 +135,9 @@ class Client extends SocketClient
 	 * Connect using SMTP extension
 	 *
 	 * @see http://www.ietf.org/rfc/rfc1869.txt
-	 * @return boolean
+	 * @return string
 	 */
-	private function ehlo()
+	private function ehlo(): string
 	{
 		return $this->command('EHLO ' . $this->urlComponent('host'), '250');
 	}
@@ -144,9 +145,9 @@ class Client extends SocketClient
 	/**
 	 * Authenticate using username and password
 	 *
-	 * @return boolean
+	 * @return string
 	 */
-	private function auth()
+	private function auth(): string
 	{
 		$result = $this->command('AUTH LOGIN', '334');
 		$this->log($result);

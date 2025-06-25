@@ -19,9 +19,9 @@ class Module extends BaseModule
 	{
 		$this->setOptions([
 			'urlLicense' => 'https://raw.githubusercontent.com/sebastianbergmann/phpunit/main/LICENSE',
-			'name'       => 'PHP Unit tests and tools to work with Zesk and PHPUnit',
+			'name' => 'PHP Unit tests and tools to work with Zesk and PHPUnit',
 			'urlProject' => 'https://phpunit.de/',
-			'licenses'   => [
+			'licenses' => [
 				'BSD3',
 			],
 		]);

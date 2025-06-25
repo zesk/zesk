@@ -1,19 +1,19 @@
 <?php
 declare(strict_types=1);
 /**
- * @package zesk
+ * @package    zesk
  * @subpackage redirect
- * @author kent
- * @copyright &copy; 2023, Market Acumen, Inc.
+ * @author     kent
+ * @copyright  &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Route;
 
+use zesk\Exception\Redirect as RedirectException;
 use zesk\HTTP;
-use zesk\Route;
 use zesk\Request;
 use zesk\Response;
-use zesk\Exception\Redirect as RedirectException;
+use zesk\Route;
 
 /**
  * Allow a route which redirects

@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 /**
- * @package zesk-modules
+ * @package    zesk-modules
  * @subpackage diff
- * @author kent
- * @copyright &copy; 2023, Market Acumen, Inc.
+ * @author     kent
+ * @copyright  &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Diff;
@@ -24,10 +24,10 @@ class Module extends BaseModule
 	public function initialize(): void
 	{
 		$this->setOptions([
-			'name'        => 'Diff',
+			'name' => 'Diff',
 			'description' => 'Diff tools',
-			'urlLicense'  => './etc/diff.c.txt',
-			'licenses'    => [
+			'urlLicense' => './etc/diff.c.txt',
+			'licenses' => [
 				'MIT',
 			],
 		]);

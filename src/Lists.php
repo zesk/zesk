@@ -4,7 +4,7 @@ declare(strict_types=1);
  * @package    zesk
  * @subpackage system
  * @author     kent
- * @copyright  Copyright &copy; 2025, Market Acumen, Inc.
+ * @copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -30,13 +30,13 @@ class Lists
 	 * Make a list unique
 	 *
 	 * @param string|array $list
-	 * @param string       $sep
+	 * @param string $sep
 	 * @return string|array
 	 */
 	public static function unique(string|array $list, string $sep = ';'): string|array
 	{
 		if (is_array($list)) {
-			return array_unique($list);
+			return array_values(array_unique($list));
 		}
 		return implode($sep, array_unique(explode($sep, $list)));
 	}
@@ -46,7 +46,7 @@ class Lists
 	 *
 	 * @param string|array $list List of tokens
 	 * @param string|array $item Item or items to remove
-	 * @param string       $sep  List separator, defaults to ";", only relevant if string passed for first parameter
+	 * @param string $sep List separator, defaults to ";", only relevant if string passed for first parameter
 	 * @return string|array The new list
 	 */
 	public static function keysRemove(array|string $list, string|array $item, string $sep = ';'): array|string
@@ -67,7 +67,7 @@ class Lists
 	 *
 	 * @param string|array $list List of strings
 	 * @param string|array $item Item or items to add
-	 * @param string       $sep  List separator, defaults to ";"
+	 * @param string $sep List separator, defaults to ";"
 	 * @return string|array The new list
 	 */
 	public static function append(string|array $list, string|array $item, string $sep = ';'): string|array
@@ -90,7 +90,7 @@ class Lists
 	 *
 	 * @param string|array $list List to append - same type is returned
 	 * @param string|array $item Items to add
-	 * @param string       $sep  List separator
+	 * @param string $sep List separator
 	 * @return string|array Result list
 	 */
 	public static function appendUnique(string|array $list, string|array $item, string $sep = ';'): string|array
@@ -109,8 +109,8 @@ class Lists
 	 * Does this list contain an item?
 	 *
 	 * @param string|array $list List to check
-	 * @param string       $item Item to check if it appears in the list
-	 * @param string       $sep  List separator, defaults to ";"
+	 * @param string $item Item to check if it appears in the list
+	 * @param string $sep List separator, defaults to ";"
 	 * @return bool
 	 */
 	public static function contains(array|string $list, string $item, string $sep = ';'): bool
@@ -124,9 +124,9 @@ class Lists
 	/**
 	 * Prepend an item to a list, maintaining existing order
 	 *
-	 * @param array|string $list  List of strings
+	 * @param array|string $list List of strings
 	 * @param array|string $items Item to add
-	 * @param string       $sep   List separator, defaults to ";"
+	 * @param string $sep List separator, defaults to ";"
 	 * @return array|string The new list
 	 */
 	public static function prepend(array|string $list, array|string $items, string $sep = ';'): array|string
@@ -146,7 +146,7 @@ class Lists
 	 * Pop an item from a list (similar to a stack)
 	 *
 	 * @param string|array $list
-	 * @param string       $sep
+	 * @param string $sep
 	 * @return string|array List with the last item removed
 	 */
 	public static function pop(string|array $list, string $sep = ';'): array|string

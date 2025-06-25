@@ -1,19 +1,17 @@
 <?php
 declare(strict_types=1);
 /**
- *
+ * @copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk;
 
 use ReflectionObject;
 use Throwable;
-use zesk\Exception\DirectoryNotFound;
 use zesk\Exception\KeyNotFound;
 use zesk\Exception\ParseException;
 use zesk\Exception\SyntaxException;
 use zesk\Exception\UnimplementedException;
-use zesk\Exception\ParameterException;
 use zesk\Exception\UnsupportedException;
 
 /**

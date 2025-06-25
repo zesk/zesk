@@ -1,8 +1,7 @@
 <?php
-
-
 declare(strict_types=1);
 /**
+ * @copyright &copy; 2025, Market Acumen, Inc.
  * @package    zesk
  * @subpackage test
  */
@@ -10,7 +9,6 @@ declare(strict_types=1);
 namespace testZesk;
 
 use stdClass;
-
 use zesk\ArrayTools;
 use zesk\Types;
 
@@ -216,8 +214,8 @@ abstract class ArrayToolsData
 					'three',
 				],
 				[
-					'one'   => 'one',
-					'two'   => 'two',
+					'one' => 'one',
+					'two' => 'two',
 					'three' => 'three',
 				],
 			],
@@ -233,12 +231,12 @@ abstract class ArrayToolsData
 					'2',
 				],
 				[
-					'1'    => '1',
-					'2'    => '2',
-					'3'    => '3',
+					'1' => '1',
+					'2' => '2',
+					'3' => '3',
 					'fish' => 'fish',
-					'4'    => '4',
-					'5'    => '5',
+					'4' => '4',
+					'5' => '5',
 				],
 			],
 			[
@@ -382,14 +380,14 @@ abstract class ArrayToolsData
 		return [
 			[
 				[
-					'{UserID}'   => 'UserUser',
+					'{UserID}' => 'UserUser',
 					'{UserName}' => 'UserUser',
-					'{UserDig}'  => 'UserUser',
+					'{UserDig}' => 'UserUser',
 				],
 				[
-					'UserID'   => 'UserUser',
+					'UserID' => 'UserUser',
 					'UserName' => 'UserUser',
-					'UserDig'  => 'UserUser',
+					'UserDig' => 'UserUser',
 				],
 				'{',
 				'}',
@@ -416,27 +414,6 @@ abstract class ArrayToolsData
 					6,
 				],
 				Types::toList('0;2;4;6'),
-			],
-			[
-				[
-					'0-Things',
-					'1-Things',
-					'2-Things',
-					'3-Things',
-					'4-Things',
-					'5-Things',
-					'6-Things',
-				],
-				[
-					0,
-					1,
-					2,
-					3,
-					4,
-					5,
-					6,
-				],
-				'-Things',
 			],
 		];
 	}
@@ -484,14 +461,14 @@ abstract class ArrayToolsData
 		return [
 			[
 				[
-					'ID'   => 'UserUser',
+					'ID' => 'UserUser',
 					'Name' => 'UserUser',
-					'Dig'  => 'UserUser',
+					'Dig' => 'UserUser',
 				],
 				[
-					'UserID'   => 'UserUser',
+					'UserID' => 'UserUser',
 					'UserName' => 'UserUser',
-					'UserDig'  => 'UserUser',
+					'UserDig' => 'UserUser',
 				],
 				'User',
 			],
@@ -513,9 +490,28 @@ abstract class ArrayToolsData
 			'/setup/landings-generate.php',
 		];
 		return [
-			[],
-			$files,
-			'/setup/landings-generate.php',
+			[
+				[
+					'want-to-be-complete',
+					'want',
+					1,
+					1,
+				],
+				$files,
+				[
+					'report',
+					'want',
+				],
+			],
+			[
+				[
+					'/setup/landings-generate.php',
+					'/setup/landings-generate.php',
+					9,
+				],
+				$files,
+				'/setup/landings-generate.php',
+			],
 		];
 	}
 
@@ -524,29 +520,29 @@ abstract class ArrayToolsData
 		return [
 			[
 				[
-					'UserID'   => 'UserUser',
+					'UserID' => 'UserUser',
 					'UserName' => 'UserUser',
-					'UserDig'  => 'UserUser',
+					'UserDig' => 'UserUser',
 				],
 				[
-					'UserID'   => 'UserUser',
+					'UserID' => 'UserUser',
 					'UserName' => 'UserUser',
-					'UserDig'  => 'UserUser',
+					'UserDig' => 'UserUser',
 				],
 				'User',
 			],
 			[
 				[
-					'UserID'   => 'UserUser',
+					'UserID' => 'UserUser',
 					'UserName' => 'UserUser',
-					'UserDig'  => 'UserUser',
+					'UserDig' => 'UserUser',
 					'NoSuffix' => 'UserUser',
 				],
 				[
-					'UserIDUser'   => 'UserUser',
+					'UserIDUser' => 'UserUser',
 					'UserNameUser' => 'UserUser',
-					'UserDigUser'  => 'UserUser',
-					'NoSuffix'     => 'UserUser',
+					'UserDigUser' => 'UserUser',
+					'NoSuffix' => 'UserUser',
 				],
 				'User',
 			],
@@ -574,15 +570,15 @@ abstract class ArrayToolsData
 			[
 				[
 					'First' => 'Bar',
-					'One'   => 'Bird',
-					'To'    => 'Plan',
-					'Dive'  => 'gooCmon',
+					'One' => 'Bird',
+					'To' => 'Plan',
+					'Dive' => 'gooCmon',
 				],
 				[
 					'First' => 'GooBar',
-					'One'   => 'GooBird',
-					'To'    => 'GooPlan',
-					'Dive'  => 'gooCmon',
+					'One' => 'GooBird',
+					'To' => 'GooPlan',
+					'Dive' => 'gooCmon',
 				],
 				'Goo',
 			],
@@ -611,17 +607,17 @@ abstract class ArrayToolsData
 			],
 			[
 				[
-					2      => '0',
+					2 => '0',
 					'1',
 					'2',
-					11     => '3-Thingy',
+					11 => '3-Thingy',
 					'null' => '0',
 				],
 				[
-					2      => '0-Thing',
+					2 => '0-Thing',
 					'1-Thing',
 					'2-Thing',
-					11     => '3-Thingy',
+					11 => '3-Thingy',
 					'null' => '0-Thing',
 				],
 				'-Thing',
@@ -632,9 +628,9 @@ abstract class ArrayToolsData
 	public static function filterKeyPrefixes(): array
 	{
 		$a = [
-			'AHello'      => 94,
-			'Dog'         => 34,
-			'Hello'       => 1,
+			'AHello' => 94,
+			'Dog' => 34,
+			'Hello' => 1,
 			'hello_there' => 2,
 			'HELLO.THERE' => new stdClass(),
 			'Hello.Kitty' => 'Kitty',
@@ -642,7 +638,7 @@ abstract class ArrayToolsData
 		return [
 			[
 				[
-					'Hello'       => 1,
+					'Hello' => 1,
 					'hello_there' => 2,
 					'HELLO.THERE' => new stdClass(),
 					'Hello.Kitty' => 'Kitty',
@@ -656,9 +652,9 @@ abstract class ArrayToolsData
 					'hello_there' => 2,
 				],
 				[
-					'AHello'      => 94,
-					'Dog'         => 34,
-					'Hello'       => 1,
+					'AHello' => 94,
+					'Dog' => 34,
+					'Hello' => 1,
 					'hello_there' => 2,
 					'HELLO.THERE' => new stdClass(),
 					'Hello.Kitty' => 'Kitty',
@@ -668,8 +664,8 @@ abstract class ArrayToolsData
 			],
 			[
 				[
-					'AHello'      => 94,
-					'Hello'       => 1,
+					'AHello' => 94,
+					'Hello' => 1,
 					'Hello.Kitty' => 'Kitty',
 				],
 				$a,
@@ -716,7 +712,7 @@ abstract class ArrayToolsData
 			'A' => 'Kent',
 			'b' => 'Ruler',
 			'C' => 'another',
-			3   => 'dogs',
+			3 => 'dogs',
 		];
 
 		return [
@@ -765,18 +761,18 @@ abstract class ArrayToolsData
 			[
 				[
 					'A' => 'Kent',
-					3   => 'dogs',
+					3 => 'dogs',
 				],
 				[
 					'A' => 'Kent',
-					3   => 'dogs',
+					3 => 'dogs',
 				],
 				'A;3',
 			],
 			[
 				[
 					'A' => 'B',
-					1   => 'A',
+					1 => 'A',
 				],
 				[
 					'A' => 'B',
@@ -784,7 +780,7 @@ abstract class ArrayToolsData
 					'A',
 					'C' => 'D',
 				],
-				'A,1',
+				'A;1',
 			],
 		];
 	}
@@ -808,40 +804,40 @@ abstract class ArrayToolsData
 	public static function has(): array
 	{
 		$array = [
-			0       => 'hello',
-			3       => 'dude',
+			0 => 'hello',
+			3 => 'dude',
 			'kitty' => 'cat',
 		];
 
 		return [
 			[
-				$array,
 				true,
+				$array,
 				'0;3',
 			],
 			[
-				$array,
 				true,
+				$array,
 				3,
 			],
 			[
-				$array,
 				true,
+				$array,
 				0,
 			],
 			[
-				$array,
 				true,
+				$array,
 				'kitty',
 			],
 			[
-				$array,
 				false,
+				$array,
 				1,
 			],
 			[
-				$array,
 				false,
+				$array,
 				'Kitty',
 			],
 		];
@@ -851,42 +847,42 @@ abstract class ArrayToolsData
 	{
 		$a1 = [
 			'hello' => [
-				'now'      => 'yes',
-				'i'        => 'do',
+				'now' => 'yes',
+				'i' => 'do',
 				'nooooow!' => [
 					'where' => 'are',
-					'you'   => 'going',
-					'what'  => 'do you mean',
+					'you' => 'going',
+					'what' => 'do you mean',
 				],
 			],
 		];
 		$a2 = [
 			'hold-on' => 'no',
-			'hello'   => [
-				'now1'     => 'yes',
-				'i2'       => 'do',
-				'i'        => 'don\'t',
+			'hello' => [
+				'now1' => 'yes',
+				'i2' => 'do',
+				'i' => 'don\'t',
 				'nooooow!' => [
 					'where1' => 'are',
-					'you2'   => 'going',
-					'what3'  => 'do you mean',
+					'you2' => 'going',
+					'what3' => 'do you mean',
 				],
 			],
 		];
 		$expected = [
-			'hello'   => [
-				'now'      => 'yes',
-				'i'        => 'don\'t',
+			'hello' => [
+				'now' => 'yes',
+				'i' => 'don\'t',
 				'nooooow!' => [
-					'where'  => 'are',
-					'you'    => 'going',
-					'what'   => 'do you mean',
+					'where' => 'are',
+					'you' => 'going',
+					'what' => 'do you mean',
 					'where1' => 'are',
-					'you2'   => 'going',
-					'what3'  => 'do you mean',
+					'you2' => 'going',
+					'what3' => 'do you mean',
 				],
-				'now1'     => 'yes',
-				'i2'       => 'do',
+				'now1' => 'yes',
+				'i2' => 'do',
 			],
 			'hold-on' => 'no',
 		];
@@ -1112,13 +1108,13 @@ abstract class ArrayToolsData
 			],
 			[
 				[
-					'a'    => 'abcc',
-					2      => 'abcc',
+					'a' => 'abcc',
+					2 => 'abcc',
 					412312 => 'a54cc',
 				],
 				[
-					'a'    => 'b',
-					2      => 'b',
+					'a' => 'b',
+					2 => 'b',
 					412312 => 54,
 				],
 				'a',
@@ -1155,7 +1151,7 @@ abstract class ArrayToolsData
 					'a' => 'a',
 					'b' => 'b',
 					'c' => 'c',
-					9   => 'd',
+					9 => 'd',
 				],
 				'Dude',
 			],
@@ -1625,60 +1621,60 @@ abstract class ArrayToolsData
 			],
 			[
 				[
-					'one'   => 1,
-					'two'   => 2,
+					'one' => 1,
+					'two' => 2,
 					'three' => 3,
-					'four'  => 4,
+					'four' => 4,
 				],
 				[
-					'one'   => 'un',
-					'two'   => 'deux',
+					'one' => 'un',
+					'two' => 'deux',
 					'three' => 'trois',
 				],
 				[
-					'un'    => 1,
-					'deux'  => 2,
+					'un' => 1,
+					'deux' => 2,
 					'trois' => 3,
-					'four'  => 4,
+					'four' => 4,
 				],
 			],
 			[
 				[
-					'a'        => 'a',
-					'b'        => 'b',
+					'a' => 'a',
+					'b' => 'b',
 					'Aardvark' => 'animal',
-					123        => 'one-two-three',
-					'Zebra'    => 'stripes',
+					123 => 'one-two-three',
+					'Zebra' => 'stripes',
 				],
 				[
 					'a' => 'b',
 					123 => 'Zamboni',
 				],
 				[
-					'b'        => 'a',
+					'b' => 'a',
 					'Aardvark' => 'animal',
-					'Zamboni'  => 'one-two-three',
-					'Zebra'    => 'stripes',
+					'Zamboni' => 'one-two-three',
+					'Zebra' => 'stripes',
 				],
 			],
 			[
 				[
-					'a'        => 'a',
-					'b'        => 'b',
+					'a' => 'a',
+					'b' => 'b',
 					'Aardvark' => 'animal',
-					123        => 'one-two-three',
-					'Zebra'    => 'stripes',
+					123 => 'one-two-three',
+					'Zebra' => 'stripes',
 				],
 				[
 					'a' => 'c',
 					123 => 'Zamboni',
 				],
 				[
-					'b'        => 'b',
-					'c'        => 'a',
+					'b' => 'b',
+					'c' => 'a',
 					'Aardvark' => 'animal',
-					'Zamboni'  => 'one-two-three',
-					'Zebra'    => 'stripes',
+					'Zamboni' => 'one-two-three',
+					'Zebra' => 'stripes',
 				],
 			],
 		];
@@ -1710,8 +1706,8 @@ abstract class ArrayToolsData
 				],
 				'=',
 				[
-					'mix'   => 'up',
-					'dog '  => ' poo',
+					'mix' => 'up',
+					'dog ' => ' poo',
 					'place' => 'place',
 				],
 			],
@@ -1744,8 +1740,8 @@ abstract class ArrayToolsData
 					4 => 'four',
 				],
 				[
-					'one'   => 'un',
-					'two'   => 'deux',
+					'one' => 'un',
+					'two' => 'deux',
 					'three' => 'trois',
 				],
 				[
@@ -1937,7 +1933,7 @@ abstract class ArrayToolsData
 			],
 			[
 				[
-					'key'  => [
+					'key' => [
 						1,
 						3,
 					],

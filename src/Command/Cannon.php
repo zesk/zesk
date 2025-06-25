@@ -3,17 +3,22 @@ declare(strict_types=1);
 /**
  * @package    zesk
  * @subpackage Command
- * @copyright  @copy; 2023 Market Acumen, Inc.
+ * @copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Command;
 
 use zesk\Directory;
+use zesk\Exception\ConfigurationException;
+use zesk\Exception\FilePermission;
+use zesk\Exception\NotFoundException;
 use zesk\Exception\ParameterException;
+use zesk\Exception\SemanticsException;
+use zesk\Exception\SystemException;
 use zesk\File;
 use zesk\Number;
-use zesk\Text;
 use zesk\StringTools;
+use zesk\Text;
 
 /**
  * Global search and replace tool for code
@@ -25,36 +30,36 @@ class Cannon extends SimpleCommand
 	protected array $shortcuts = ['cannon'];
 
 	protected array $argumentTypes = [
-		'directory'         => 'dir',
-		'dir'               => 'dir',
-		'list'              => 'boolean',
-		'show'              => 'boolean',
-		'dry-run'           => 'boolean',
-		'backup'            => 'boolean',
-		'duplicate'         => 'boolean',
-		'config'            => 'file',
-		'extensions'        => 'string',
-		'extension'         => 'string',
-		'files'             => 'files',
+		'directory' => 'dir',
+		'dir' => 'dir',
+		'list' => 'boolean',
+		'show' => 'boolean',
+		'dry-run' => 'boolean',
+		'backup' => 'boolean',
+		'duplicate' => 'boolean',
+		'config' => 'file',
+		'extensions' => 'string',
+		'extension' => 'string',
+		'files' => 'files',
 		'skip-when-matches' => 'string[]',
-		'also-match'        => 'string[]',
-		'*'                 => 'string',
+		'also-match' => 'string[]',
+		'*' => 'string',
 	];
 
 	protected array $option_help = [
-		'directory'         => 'Directory to look for files',
-		'dir'               => 'Synonym for --directory',
-		'list'              => 'List files which would be scanned',
-		'show'              => 'Output files and matched lines',
-		'dry-run'           => 'Show what files would match without changing anything (implies --show)',
-		'backup'            => 'Backup files before changing',
-		'duplicate'         => 'Create a copy of the file next to the original which has changes',
-		'extensions'        => 'List of extensions separated by commas to look for',
-		'extension'         => 'Synonym for --extensions',
-		'files'             => 'Just run against this file',
+		'directory' => 'Directory to look for files',
+		'dir' => 'Synonym for --directory',
+		'list' => 'List files which would be scanned',
+		'show' => 'Output files and matched lines',
+		'dry-run' => 'Show what files would match without changing anything (implies --show)',
+		'backup' => 'Backup files before changing',
+		'duplicate' => 'Create a copy of the file next to the original which has changes',
+		'extensions' => 'List of extensions separated by commas to look for',
+		'extension' => 'Synonym for --extensions',
+		'files' => 'Just run against this file',
 		'skip-when-matches' => 'Skip replacements in files which contain ANY of the string(s) specified.',
-		'also-match'        => 'File must also match ANY of the given strings(s) in addition to the search term',
-		'*'                 => 'Follow by Search string and Replace string',
+		'also-match' => 'File must also match ANY of the given strings(s) in addition to the search term',
+		'*' => 'Follow by Search string and Replace string',
 	];
 
 	protected function initialize(): void
@@ -83,8 +88,13 @@ class Cannon extends SimpleCommand
 	private ?array $also_match = null;
 
 	/**
-	 *
+	 * @return int
 	 * @throws ParameterException
+	 * @throws ConfigurationException
+	 * @throws FilePermission
+	 * @throws NotFoundException
+	 * @throws SemanticsException
+	 * @throws SystemException
 	 */
 	public function run(): int
 	{
@@ -203,7 +213,7 @@ class Cannon extends SimpleCommand
 			true,
 		], [
 			'#\.' . implode('|', $extensions) . '$#' => true,
-			'#.*/\.#'                                => true,
+			'#.*/\.#' => true,
 			false,
 		], [false], [Directory::LIST_ADD_PATH => true]);
 	}
@@ -221,8 +231,8 @@ class Cannon extends SimpleCommand
 			$locale = $this->application->locale;
 			$this->info('Skipping {file} which exceeds {maxFileSize} (file is {size})', [
 				'maxFileSize' => Number::formatBytes($locale, $maxFileSize),
-				'size'        => Number::formatBytes($locale, $size),
-				'file'        => $file,
+				'size' => Number::formatBytes($locale, $size),
+				'file' => $file,
 			]);
 			return 0;
 		}

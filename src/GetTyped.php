@@ -1,19 +1,22 @@
 <?php
 declare(strict_types=1);
 /**
- * @package    zesk
- * @subpackage system
- * @author     kent
+ * @package zesk
+ * @copyright  Copyright &copy; 2025, Market Acumen, Inc.
+ * @subpackage Traits
  */
 
 namespace zesk;
 
+/**
+ * Attach to any object which has __get and __set and needs typed accessors
+ */
 trait GetTyped
 {
 	/**
 	 * Check for a value and check optionally that it is not empty.
 	 *
-	 * @param string  $key
+	 * @param string $key
 	 * @param boolean $check_empty
 	 * @return boolean
 	 */
@@ -33,7 +36,7 @@ trait GetTyped
 	 * Get a variable name, with a default
 	 *
 	 * @param string|int $k
-	 * @param mixed      $default
+	 * @param mixed $default
 	 * @return mixed
 	 */
 	public function get(string|int $k, mixed $default = null): mixed
@@ -45,7 +48,7 @@ trait GetTyped
 	 * Get first key value matching, or default
 	 *
 	 * @param string|array $keys
-	 * @param mixed        $default
+	 * @param mixed $default
 	 * @return mixed
 	 */
 	public function getFirst(string|array $keys, mixed $default = null): mixed
@@ -62,7 +65,7 @@ trait GetTyped
 	 * Retrieve a non-empty value
 	 *
 	 * @param string $key Value to retrieve.
-	 * @param mixed  $default
+	 * @param mixed $default
 	 * @return mixed
 	 */
 	public function getNotEmpty(string $key, mixed $default = null): mixed
@@ -78,7 +81,7 @@ trait GetTyped
 	 * Get a value and convert it to an integer, or return $default
 	 *
 	 * @param string|int $key
-	 * @param int        $default
+	 * @param int $default
 	 * @return integer
 	 */
 	public function getInt(string|int $key, int $default = 0): int
@@ -90,7 +93,7 @@ trait GetTyped
 	 * Get a value and convert it to a string, or return $default
 	 *
 	 * @param string|int $key
-	 * @param string     $default
+	 * @param string $default
 	 * @return string
 	 */
 	public function getString(string|int $key, string $default = ''): string
@@ -106,7 +109,7 @@ trait GetTyped
 	 * Retrieve a variable as a double value
 	 *
 	 * @param string $name
-	 * @param float  $default
+	 * @param float $default
 	 * @return float
 	 */
 	public function getFloat(string $name, float $default = 0.0): float
@@ -118,7 +121,7 @@ trait GetTyped
 	 * Get a value and convert it to a boolean value, or return $default
 	 *
 	 * @param string|int $key
-	 * @param mixed      $default
+	 * @param mixed $default
 	 * @return boolean
 	 */
 	public function getBool(string|int $key, bool $default = false): bool
@@ -130,7 +133,7 @@ trait GetTyped
 	 * Get a value if it's an array, or return $default
 	 *
 	 * @param string|int $key
-	 * @param mixed      $default
+	 * @param mixed $default
 	 * @return array
 	 */
 	public function getArray(string|int $key, array $default = []): array
@@ -146,12 +149,12 @@ trait GetTyped
 	 * Retrieve a value as an iterable
 	 *
 	 * @param string $name
-	 * @param mixed  $default
-	 * @param string $sep
+	 * @param mixed $default
+	 * @param string $separator
 	 *            For string values, split on this character
 	 * @return array
 	 */
-	public function getIterable(string $name, iterable $default = [], string $sep = ';'): iterable
+	public function getIterable(string $name, iterable $default = [], string $separator = ';'): iterable
 	{
 		$x = $this->__get($name);
 		if (is_iterable($x)) {
@@ -160,9 +163,9 @@ trait GetTyped
 		if (!is_string($x)) {
 			return $default;
 		}
-		if ($sep === '') {
+		if ($separator === '') {
 			return str_split($x);
 		}
-		return explode($sep, $x);
+		return explode($separator, $x);
 	}
 }

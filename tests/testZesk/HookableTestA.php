@@ -1,14 +1,21 @@
 <?php
+/**
+ * @package    zeskTest
+ * @subpackage Hookable
+ * @author     kent
+ * @copyright  Copyright &copy; 2025, Market Acumen, Inc.
+ */
+
 declare(strict_types=1);
 
 namespace testZesk;
 
 use zesk\Application;
-use zesk\Hookable;
+use zesk\EmptyHookable;
 use zesk\HookMethod;
 use zesk\Types;
 
-class HookableTestA extends Hookable
+class HookableTestA extends EmptyHookable
 {
 	public const HOOK_TEST = __CLASS__ . '::test';
 

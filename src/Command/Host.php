@@ -9,8 +9,8 @@ declare(strict_types=1);
 
 namespace zesk\Command;
 
-use zesk\System;
 use zesk\Command;
+use zesk\System;
 
 /**
  * Display the hostname according to Zesk

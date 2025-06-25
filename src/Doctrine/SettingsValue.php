@@ -1,15 +1,15 @@
 <?php
 declare(strict_types=1);
 /**
- * @copyright &copy; 2023, Market Acumen, Inc.
+ * @copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Doctrine;
 
-use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Entity;
+use Doctrine\ORM\Mapping\EntityListeners;
 use Doctrine\ORM\Mapping\Id;
 use Doctrine\ORM\Mapping\Table;
 use Doctrine\ORM\OptimisticLockException;
@@ -22,6 +22,7 @@ use zesk\Exception\NotFoundException;
  *
  */
 #[Entity]
+#[EntityListeners([ModelListener::class])]
 #[Table(name: 'Settings')]
 class SettingsValue extends Model
 {
@@ -40,8 +41,8 @@ class SettingsValue extends Model
 
 	/**
 	 * @param Application $application
-	 * @param string      $name
-	 * @param string      $entityManager
+	 * @param string $name
+	 * @param string $entityManager
 	 * @return SettingsValue
 	 * @throws NotFoundException
 	 */
@@ -54,36 +55,36 @@ class SettingsValue extends Model
 
 		throw new NotFoundException('No {class} with name {name} found', [
 			'class' => self::class,
-			'name'  => $name,
+			'name' => $name,
 		]);
 	}
 
 	/**
-	 * @param Application   $application
-	 * @param EntityManager $em
-	 * @param string        $name
-	 * @param mixed|null    $value
-	 * @param string        $entityManager
+	 * @param Application $application
+	 * @param string $name
+	 * @param mixed|null $value
+	 * @param string $entityManager
 	 * @return SettingsValue
 	 * @throws ORMException
 	 * @throws OptimisticLockException
 	 */
-	public static function register(Application $application, EntityManager $em, string $name, mixed $value = null, string $entityManager = ''): SettingsValue
+	public static function register(Application $application, string $name, mixed $value = null, string $entityManager = ''): SettingsValue
 	{
+		$em = $application->entityManager($entityManager);
 		$repo = $em->getRepository(self::class);
 		$item = $repo->find($name);
 		if ($item) {
 			if ($item->value !== $value) {
 				$item->value = $value;
 				$em->persist($item);
-				$em->flush($item);
+				$em->flush();
 				return $item;
 			}
 			return $item;
 		}
 		$item = new self($application, $name, $value);
 		$item->store();
-		$em->flush($item);
+		$em->flush();
 		return $item;
 	}
 }

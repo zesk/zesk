@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 /**
- *
+ * @copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -28,6 +28,27 @@ class Configuration implements Iterator, Countable, ArrayAccess
 	 * @var string
 	 */
 	public const key_separator = '::';
+
+	public function __serialize(): array
+	{
+		return [
+			'path' => $this->path,
+			'keys' => $this->keys,
+			'readOnly' => $this->readOnly,
+		];
+		// return array_merge(..., parent::__serialize());
+	}
+
+	public function __unserialize(array $data): void
+	{
+		$this->path = $data['path'];
+		$this->keys = $data['keys'];
+		$this->readOnly = $data['readOnly'];
+		$this->index = 0;
+		$this->count = count($this->keys);
+		$this->skipNext = false;
+		// parent::__unserialize($data);
+	}
 
 	/**
 	 * Path to get to this configuration location
@@ -93,11 +114,6 @@ class Configuration implements Iterator, Countable, ArrayAccess
 		$this->count = count($this->keys);
 	}
 
-	public static function normalizeKey(string $key): string
-	{
-		return Types::keyToString(Types::configurationKey($key));
-	}
-
 	/**
 	 *
 	 * @param array $array
@@ -146,13 +162,16 @@ class Configuration implements Iterator, Countable, ArrayAccess
 	 * the current object.
 	 *
 	 * @param Configuration $config
-	 * @param boolean       $overwrite
+	 * @param boolean $overwrite
 	 * @return self
-	 * @throws SemanticsException
 	 */
 	public function merge(Configuration $config, bool $overwrite = true): self
 	{
-		$this->writeAttempt();
+		try {
+			$this->writeAttempt(__FUNCTION__);
+		} catch (SemanticsException) {
+			return $this;
+		}
 		foreach ($config as $key => $value) {
 			if (isset($this->keys[$key])) {
 				$this_value = $this->keys[$key];
@@ -184,10 +203,11 @@ class Configuration implements Iterator, Countable, ArrayAccess
 	/**
 	 * @param string|int $key
 	 * @return void
+	 * @throws SemanticsException
 	 */
 	public function __unset(string|int $key): void
 	{
-		$this->writeAttempt();
+		$this->writeAttempt(__FUNCTION__ . ' ' . $key);
 		if (isset($this->keys[$key])) {
 			unset($this->keys[$key]);
 			$this->count = count($this->keys);
@@ -196,12 +216,12 @@ class Configuration implements Iterator, Countable, ArrayAccess
 
 	/**
 	 * @param string|array $key
-	 * @param mixed|null   $value
+	 * @param mixed|null $value
 	 * @return $this
+	 * @throws SemanticsException
 	 */
 	public function set(string|array $key, mixed $value = null): self
 	{
-		$this->writeAttempt();
 		if (is_array($key)) {
 			foreach ($key as $k => $v) {
 				$this->__set($k, $v);
@@ -216,12 +236,13 @@ class Configuration implements Iterator, Countable, ArrayAccess
 	 * Set a value in a configuration object. Setting a value to null is the same as deleting it.
 	 *
 	 * @param string|int $key
-	 * @param mixed      $value
+	 * @param mixed $value
 	 * @return void
+	 * @throws SemanticsException
 	 */
 	public function __set(string|int $key, mixed $value): void
 	{
-		$this->writeAttempt();
+		$this->writeAttempt(__FUNCTION__ . ' ' . $key);
 		if (is_array($value) && ArrayTools::isAssoc($value)) {
 			$value = new self($value, $this->_addPath($key));
 		}
@@ -255,10 +276,11 @@ class Configuration implements Iterator, Countable, ArrayAccess
 	 *
 	 * @param array $paths
 	 * @return Configuration[]
+	 * @throws SemanticsException
 	 */
 	public function setPaths(array $paths): array
 	{
-		$this->writeAttempt();
+		$this->writeAttempt(__FUNCTION__ . ' ' . implode(' -> ', $paths));
 		$result = [];
 		foreach ($paths as $path => $value) {
 			$result[$path] = $this->setPath(Types::toList($path, [], self::key_separator), $value);
@@ -270,7 +292,7 @@ class Configuration implements Iterator, Countable, ArrayAccess
 	 * Retrieve a path using self::key_separator
 	 *
 	 * @param string|array $path
-	 * @param mixed        $default
+	 * @param mixed $default
 	 * @return mixed
 	 */
 	public function getPath(string|array $path, mixed $default = null): mixed
@@ -292,7 +314,7 @@ class Configuration implements Iterator, Countable, ArrayAccess
 	 * Retrieve a path and fetch a string value
 	 *
 	 * @param string|array $path
-	 * @param string       $default
+	 * @param string $default
 	 * @return string
 	 */
 	public function getPathString(string|array $path, string $default = ''): string
@@ -305,7 +327,7 @@ class Configuration implements Iterator, Countable, ArrayAccess
 	 * Retrieve a path and fetch a string value
 	 *
 	 * @param string|array $path
-	 * @param int          $default
+	 * @param int $default
 	 * @return int
 	 */
 	public function getPathInt(string|array $path, int $default = 0): int
@@ -318,7 +340,7 @@ class Configuration implements Iterator, Countable, ArrayAccess
 	 * Retrieve a path and fetch a float value
 	 *
 	 * @param string|array $path
-	 * @param float        $default
+	 * @param float $default
 	 * @return float
 	 */
 	public function getPathFloat(string|array $path, float $default = 0.0): float
@@ -361,14 +383,14 @@ class Configuration implements Iterator, Countable, ArrayAccess
 	 * Given a path into the configuration tree, set a value
 	 *
 	 * @param string|array $path
-	 * @param mixed        $value
+	 * @param mixed $value
 	 * @return self returns self always
 	 * @throws SemanticsException
 	 */
 	public function setPath(string|array $path, mixed $value = null): self
 	{
 		$path = is_array($path) ? $path : explode(self::key_separator, $path);
-		$this->writeAttempt(implode(' -> ', $path));
+		$this->writeAttempt(__FUNCTION__ . ' ' . implode(' -> ', $path));
 		$key = array_pop($path);
 		if (count($path) > 0) {
 			$this->path($path)->setPath($key, $value);
@@ -387,8 +409,8 @@ class Configuration implements Iterator, Countable, ArrayAccess
 	 */
 	public function path(string|array $keys): self
 	{
-		$this->writeAttempt();
 		$keys = is_array($keys) ? $keys : explode(self::key_separator, $keys);
+		$this->writeAttempt(__FUNCTION__ . ' ' . implode(' -> ', $keys));
 		$current = $this;
 		while (count($keys) > 0) {
 			$next = array_shift($keys);
@@ -404,7 +426,7 @@ class Configuration implements Iterator, Countable, ArrayAccess
 	 * Walk configuration and return found value, or default if not found
 	 *
 	 * @param string|array $keys
-	 * @param mixed        $default
+	 * @param mixed $default
 	 * @return mixed
 	 */
 	public function walk(string|array $keys, mixed $default = null): mixed
@@ -561,6 +583,7 @@ class Configuration implements Iterator, Countable, ArrayAccess
 	 *
 	 * @param mixed $offset
 	 * @param mixed $value
+	 * @throws SemanticsException
 	 * @see ArrayAccess
 	 */
 	public function offsetSet(mixed $offset, mixed $value): void
@@ -571,6 +594,7 @@ class Configuration implements Iterator, Countable, ArrayAccess
 	/**
 	 *
 	 * @param mixed $offset
+	 * @throws SemanticsException
 	 * @see ArrayAccess
 	 */
 	public function offsetUnset(mixed $offset): void
@@ -594,10 +618,10 @@ class Configuration implements Iterator, Countable, ArrayAccess
 	/**
 	 * Returns true if old configuration option is still being used
 	 *
-	 * @param array|string      $old_path
+	 * @param array|string $old_path
 	 * @param string|array|null $new_path
 	 * @return boolean Returns true if OLD value still found and (optionally) mapped to new
-	 * @throws Deprecated
+	 * @throws Deprecated|SemanticsException
 	 */
 	final public function deprecated(string|array $old_path, string|array|null $new_path = null): bool
 	{

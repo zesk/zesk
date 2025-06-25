@@ -4,13 +4,13 @@ declare(strict_types=1);
  * @package    zesk
  * @subpackage Controller
  * @author     kent
- * @copyright  &copy; 2023, Market Acumen, Inc.
+ * @copyright  &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Controller;
 
 use zesk\Application;
-use zesk\Command;
+use zesk\Controller;
 use zesk\Directory;
 use zesk\Exception\DirectoryCreate;
 use zesk\Exception\DirectoryPermission;
@@ -19,8 +19,6 @@ use zesk\Exception\FilePermission;
 use zesk\Exception\KeyNotFound;
 use zesk\Exception\SemanticsException;
 use zesk\Exception\SyntaxException;
-
-use zesk\Controller;
 use zesk\File;
 use zesk\HookMethod;
 use zesk\HTTP;
@@ -90,9 +88,9 @@ class Cache extends Controller
 	 *
 	 * Useful for populating a file system from alternate sources such as share paths, or from the database or a remote store, for example.
 	 *
-	 * @param Request  $request
+	 * @param Request $request
 	 * @param Response $response
-	 * @param string   $contents
+	 * @param string $contents
 	 * @return Response
 	 * @throws FileNotFound|FilePermission|SemanticsException
 	 */
@@ -102,7 +100,7 @@ class Cache extends Controller
 		if (!File::pathCheck($file)) {
 			$message = 'User accessed {file} which contains suspicious path components while trying to write {contents_size} bytes.';
 			$args = [
-				'file'          => $file,
+				'file' => $file,
 				'contents_size' => strlen($contents),
 			];
 			$this->application->error($message, $args);
@@ -128,7 +126,7 @@ class Cache extends Controller
 				$this->application,
 				$message,
 				[
-					'cacheFile'    => $cacheFile,
+					'cacheFile' => $cacheFile,
 					'documentRoot' => $documentRoot,
 				],
 			]);

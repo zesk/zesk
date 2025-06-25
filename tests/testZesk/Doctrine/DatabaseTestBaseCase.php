@@ -1,6 +1,8 @@
 <?php
 declare(strict_types=1);
 /**
+ * @copyright &copy; 2025, Market Acumen, Inc.
+ *
  * Unit tests for database tests
  */
 
@@ -8,18 +10,19 @@ namespace testZesk\Doctrine;
 
 use Doctrine\ORM\EntityManager;
 use Doctrine\Persistence\ObjectRepository;
-use testZesk\TestApplicationTestBase;
+use testZesk\ApplicationTestBase;
+use zesk\Doctrine\Model;
 use zesk\Exception\ConfigurationException;
 use zesk\Exception\NotFoundException;
 use zesk\Exception\SemanticsException;
-use zesk\Types;
 use zesk\Module;
+use zesk\Types;
 
 /**
  *
  * @author kent
  */
-class DatabaseTestBaseCase extends TestApplicationTestBase
+class DatabaseTestBaseCase extends ApplicationTestBase
 {
 	public EntityManager $em;
 
@@ -43,11 +46,11 @@ class DatabaseTestBaseCase extends TestApplicationTestBase
 			'connections',
 			'default',
 		], [
-			'driver'   => 'mysqli',
-			'user'     => $_SERVER['DATABASE_ROOT_USER'] ?? 'root',
+			'driver' => 'mysqli',
+			'user' => $_SERVER['DATABASE_ROOT_USER'] ?? 'root',
 			'password' => $password,
-			'host'     => $_SERVER['DATABASE_HOST'] ?? 'localhost',
-			'dbname'   => $_SERVER['DATABASE_TEST_NAME'] ?? 'zeskTest',
+			'host' => $_SERVER['DATABASE_HOST'] ?? 'localhost',
+			'dbname' => $_SERVER['DATABASE_TEST_NAME'] ?? 'zeskTest',
 		]);
 		$this->em = $this->testApplication->entityManager();
 	}
@@ -105,7 +108,7 @@ class DatabaseTestBaseCase extends TestApplicationTestBase
 	//	}
 	//
 	/**
-	 * @param int    $expected
+	 * @param int $expected
 	 * @param string $modelClass
 	 * @return void
 	 */
@@ -123,7 +126,7 @@ class DatabaseTestBaseCase extends TestApplicationTestBase
 		$rows = [];
 		foreach ($objects as $item) {
 			/* @var $item Model */
-			$rows[] = $item->variables();
+			$rows[] = $item->members();
 		}
 		$headers = null;
 		$databaseRows = [];

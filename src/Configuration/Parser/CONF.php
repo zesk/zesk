@@ -1,19 +1,18 @@
 <?php
 declare(strict_types=1);
 /**
- * @package zesk
+ * @package    zesk
  * @subpackage Configuration
- * @author kent
- * @copyright &copy; 2023, Market Acumen, Inc.
+ * @author     kent
+ * @copyright  &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Configuration\Parser;
 
 use zesk\bash;
 use zesk\Configuration\Editor;
-use zesk\Configuration\Parser;
-
 use zesk\Configuration\Editor\CONFEditor;
+use zesk\Configuration\Parser;
 use zesk\Directory;
 use zesk\Exception\KeyNotFound;
 use zesk\Exception\ParseException;
@@ -140,7 +139,7 @@ class CONF extends Parser
 			$found_quote = null;
 			$key = strtr($key, [
 				'___' => '\\',
-				'__'  => '::',
+				'__' => '::',
 			]);
 			/**
 			 * Parse and normalize value

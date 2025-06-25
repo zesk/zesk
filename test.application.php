@@ -13,7 +13,10 @@ use testZesk\TestApplication;
 use Throwable;
 use zesk\CacheItemPool\FileCacheItemPool;
 
-require_once __DIR__ . '/xdebug.php';
+$xdebug = require_once __DIR__ . '/src/__xdebug.php';
+if (is_callable($xdebug)) {
+	$xdebug();
+}
 require_once __DIR__ . '/vendor/autoload.php';
 
 /**
@@ -30,9 +33,9 @@ class TestApplicationFactory
 
 			$application = ApplicationLoader::application([
 				Application::OPTION_APPLICATION_CLASS => TestApplication::class,
-				Application::OPTION_PATH              => __DIR__,
-				Application::OPTION_CACHE_POOL        => $pool,
-				Application::OPTION_DEPRECATED        => Application::DEPRECATED_EXCEPTION,
+				Application::OPTION_PATH => __DIR__,
+				Application::OPTION_CACHE_POOL => $pool,
+				Application::OPTION_DEPRECATED => Application::DEPRECATED_EXCEPTION,
 			]);
 			$logger = new Logger\FileLogger('test.log');
 			return $application->setLogger($logger);

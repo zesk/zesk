@@ -4,12 +4,13 @@ declare(strict_types=1);
  * @author     kent
  * @package    zesk/modules
  * @subpackage Polyglot
- * @copyright  &copy; 2023, Market Acumen, Inc.
+ * @copyright  &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Polyglot;
 
 use zesk\Doctrine\AuthenticatedController;
+use zesk\Doctrine\User;
 use zesk\Exception\AuthenticationException;
 use zesk\Exception\ClassNotFound;
 use zesk\Exception\KeyNotFound;
@@ -17,7 +18,6 @@ use zesk\Exception\PermissionDenied;
 use zesk\Exception\Redirect;
 use zesk\Exception\SemanticsException;
 use zesk\Locale\Locale;
-use zesk\Doctrine\User;
 use zesk\Request;
 use zesk\Response;
 use zesk\World\Language;
@@ -51,7 +51,7 @@ class Controller extends AuthenticatedController
 	 * @see Controller_Authenticated::before()
 	 */
 	/**
-	 * @param Request  $request
+	 * @param Request $request
 	 * @param Response $response
 	 * @return void
 	 * @throws PermissionDenied
@@ -81,7 +81,7 @@ class Controller extends AuthenticatedController
 	 * @return string
 	 * @throws PermissionDenied|Redirect
 	 */
-	public function action_index()
+	public function action_index(): string
 	{
 		if (!$this->user->can('zesk\\Module_PolyGlot::translate')) {
 			$app_locale = $this->application->locale;
@@ -105,19 +105,19 @@ class Controller extends AuthenticatedController
 		$app_locale = $this->application->locale;
 		$__ = [
 			'lang_name' => Language::lang_name($this->application, $locale_string, $app_locale),
-			'locale'    => $locale_string,
+			'locale' => $locale_string,
 		];
 		if ($this->user->can('zesk\\Module_PolyGlot::load', null, [
 			'locale' => $app_locale,
 		])) {
 			return $this->json([
-				'status'  => true,
+				'status' => true,
 				'message' => $app_locale->__('Loaded locale {lang_name}.', $__),
-				'items'   => $this->module->loadLocale($locale_string),
+				'items' => $this->module->loadLocale($locale_string),
 			]);
 		}
 		return $this->json([
-			'status'  => false,
+			'status' => false,
 			'message' => $app_locale->__('You do not have permission to do translations.'),
 		]);
 	}
@@ -133,24 +133,24 @@ class Controller extends AuthenticatedController
 		$locale_string = Locale::normalize($locale_string);
 		$__ = [
 			'lang_name' => Language::lang_name($this->application, $locale_string),
-			'locale'    => $locale_string,
+			'locale' => $locale_string,
 		];
 		if (!$this->user->can($this->module::class . 'update', null, [
 			'locale' => $locale_string,
 		])) {
 			return $this->json([
-				'status'  => false,
+				'status' => false,
 				'message' => $locale->__('You do not have permission to update the {lang_name} locale.'),
 			]);
 		}
 		if (Update::factory($this->application, $locale_string, $this->user)) {
 			return $this->json([
-				'status'  => true,
+				'status' => true,
 				'message' => $locale->__('Locale {lang_name} will be updated in the next few minutes.', $__),
 			]);
 		}
 		return $this->json([
-			'status'  => false,
+			'status' => false,
 			'message' => $locale->__('Locale {lang_name} was not updated.', $__),
 		]);
 	}
@@ -158,20 +158,22 @@ class Controller extends AuthenticatedController
 	/**
 	 * Save a token
 	 *
-	 * @param unknown $locale
-	 * @return Ambigous <Response, boolean>
+	 * @param Request $request
+	 * @param Response $response
+	 * @param string $locale
+	 * @return Response
 	 */
 	public function action_token(Request $request, Response $response, string $locale): Response
 	{
 		$__ = [
-			'lang_name' => Language::lang_name($this->application, $locale),
-			'locale'    => $locale,
+			'lang_name' => Locale::parseLanguage($locale),
+			'locale' => $locale,
 		];
-		if (!$this->user->can('zesk\\Module_PolyGlot::translate', null, [
+		if (!$this->user->can(Module::class . '::translate', null, [
 			'locale' => $locale,
 		])) {
 			return $this->json([
-				'status'  => false,
+				'status' => false,
 				'message' => $this->application->locale->__('No permission to update {lang_name}.', $__),
 			]);
 		}
@@ -188,7 +190,7 @@ class Controller extends AuthenticatedController
 		$fields['language'] = $language = Locale::parseLanguage($locale);
 		if (empty($language)) {
 			return $this->json([
-				'status'  => false,
+				'status' => false,
 				'message' => $this->application->locale->__('No language? {locale} ({language})', compact('locale', 'language')),
 			]);
 		}
@@ -201,14 +203,14 @@ class Controller extends AuthenticatedController
 		$errors = ($fields['status'] === 'delete') ? [] : $object->validate();
 		if (count($errors)) {
 			return $this->json([
-				'status'  => false,
+				'status' => false,
 				'message' => $errors,
 			]);
 		}
 		$result = $object->store();
 		return $response->json()->setData([
-			'status'  => $result,
-			'id'      => $object->id(),
+			'status' => $result,
+			'id' => $object->id(),
 			'message' => $result ? null : $object->storeErrors(),
 		]);
 	}

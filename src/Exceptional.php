@@ -1,5 +1,8 @@
 <?php
 declare(strict_types=1);
+/**
+ * @copyright &copy; 2025, Market Acumen, Inc.
+ */
 
 namespace zesk;
 
@@ -71,8 +74,8 @@ trait Exceptional
 	{
 		return $this->arguments + [
 			'rawMessage' => $this->raw_message,
-			'arguments'  => $this->arguments,
-			'codeName'   => $this->codeName(),
+			'arguments' => $this->arguments,
+			'codeName' => $this->codeName(),
 		] + Exception::phpExceptionVariables($this);
 	}
 

@@ -60,7 +60,7 @@ class Module extends BaseModule
 		if ($version) {
 			if (!$this->hasCredentials()) {
 				$logger->warning('{class} is not configured: need options owner, repository, and access_token to generate release for version {version}', [
-					'class'   => get_class($this),
+					'class' => get_class($this),
 					'version' => $version,
 				]);
 				return;
@@ -70,7 +70,7 @@ class Module extends BaseModule
 				$result = $this->generateTag("v$version", $commitish);
 				$logger->info('Generated {version} for {owner}/{repository}: {result}', [
 					'version' => $version,
-					'result'  => $result,
+					'result' => $result,
 				] + $this->options());
 			} catch (Throwable $t) {
 				$logger->error('Unable to generate a tag for {version}: {throwableClass} {message}', [
@@ -110,11 +110,11 @@ class Module extends BaseModule
 			$description = "Release of version $name";
 		}
 		$json_struct = [
-			'tag_name'               => $name,
-			'name'                   => $name,
-			'body'                   => $description,
-			'draft'                  => false,
-			'prerelease'             => false,
+			'tag_name' => $name,
+			'name' => $name,
+			'body' => $description,
+			'draft' => false,
+			'prerelease' => false,
 			'generate_release_notes' => false,
 		];
 		if ($commitish) {
@@ -122,8 +122,8 @@ class Module extends BaseModule
 		}
 		$missing = self::MISSING_TOKEN;
 		$options = $this->options() + [
-			'owner'       => $missing,
-			'repository'  => $missing,
+			'owner' => $missing,
+			'repository' => $missing,
 			'accessToken' => $missing,
 		];
 		$url = ArrayTools::map(self::API_ENDPOINT_RELEASE, $options);

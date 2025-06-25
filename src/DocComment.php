@@ -21,8 +21,8 @@ class DocComment extends Options
 	/**
 	 * For patterns which are keyed by the first token in the DocComment
 	 *
-	 *  * @name key0 value0 and things
-	 *  * @name key1 value1 and others
+	 * `    @foo key0 value0 and things`
+	 * `    @foo key1 value1 and others`
 	 *
 	 * Converted to:
 	 *
@@ -109,7 +109,7 @@ class DocComment extends Options
 	 * String is parsed, array is unparsed
 	 *
 	 * @param array|string $content
-	 * @param array        $options
+	 * @param array $options
 	 */
 	public function __construct(array|string $content, array $options = [])
 	{
@@ -127,7 +127,7 @@ class DocComment extends Options
 	 * Retrieve all DocComment blocks in content as strings. Resulting strings are ready to be consumed.
 	 *
 	 * @param string $content
-	 * @param array  $options
+	 * @param array $options
 	 * @return DocComment[]
 	 */
 	public static function extract(string $content, array $options = []): array
@@ -152,7 +152,7 @@ class DocComment extends Options
 	/**
 	 *
 	 * @param array|string $content
-	 * @param array        $options
+	 * @param array $options
 	 * @return self
 	 */
 	public static function instance(array|string $content, array $options = []): self
@@ -315,7 +315,7 @@ class DocComment extends Options
 
 	/**
 	 *
-	 * @param array  $value
+	 * @param array $value
 	 * @param string $key
 	 * @return array
 	 */
@@ -401,7 +401,7 @@ class DocComment extends Options
 	 * Add spaces after newlines to maintain indentation for multi-line
 	 *
 	 * @param string|array $value
-	 * @param string       $key
+	 * @param string $key
 	 * @return string
 	 */
 	private function formatDefault(string|array $value, string $key): string

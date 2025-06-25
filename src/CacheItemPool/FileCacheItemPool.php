@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 /**
- * @copyright &copy; 2023, Market Acumen, Inc.
+ * @copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\CacheItemPool;
@@ -11,12 +11,12 @@ use Psr\Cache\CacheItemInterface;
 use Psr\Cache\CacheItemPoolInterface;
 use Throwable;
 use zesk\CacheItem;
-use zesk\File;
 use zesk\Directory;
 use zesk\Exception\DirectoryCreate;
 use zesk\Exception\DirectoryNotFound;
 use zesk\Exception\DirectoryPermission;
 use zesk\Exception\FilePermission;
+use zesk\File;
 use zesk\PHP;
 
 /**

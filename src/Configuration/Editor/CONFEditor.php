@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 /**
- * @copyright &copy; 2023 Market Acumen, Inc.
+ * @copyright &copy; 2025, Market Acumen, Inc.
  * @package   zesk
  */
 
@@ -28,7 +28,7 @@ class CONFEditor extends Editor
 	 * @return string
 	 * @throws SemanticsException
 	 * @package   zesk
-	 * @copyright &copy; 2023 Market Acumen, Inc.
+	 * @copyright &copy; 2025, Market Acumen, Inc.
 	 */
 	public function edit(array $edits): string
 	{

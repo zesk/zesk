@@ -1,10 +1,14 @@
 <?php
 declare(strict_types=1);
+/**
+ * @package zeskTest
+ * @copyright  Copyright &copy; 2025, Market Acumen, Inc.
+ * @subpackage Classes
+ */
 
 namespace testZesk\Application;
 
 use testZesk\TestCase;
-use zesk\Hookable;
 use zesk\HTML;
 
 /**
@@ -22,21 +26,21 @@ class ClassesTestCase extends TestCase
 
 		$myPrefix = __NAMESPACE__ . '\\';
 		$zPrefix = 'zesk\\';
-		$this->assertEquals($app->classes->hierarchy(__NAMESPACE__ . '\\A'), [
-			"${myPrefix}A",
+		$this->assertEquals($app->classes->hierarchy(__NAMESPACE__ . '\\AClass'), [
+			"${myPrefix}AClass",
 			"${zPrefix}Hookable",
 			"${zPrefix}Options",
 		]);
-		$this->assertEquals($app->classes->hierarchy(__NAMESPACE__ . '\\B'), [
-			"${myPrefix}B",
-			"${myPrefix}A",
+		$this->assertEquals($app->classes->hierarchy(__NAMESPACE__ . '\\BClass'), [
+			"${myPrefix}BClass",
+			"${myPrefix}AClass",
 			"${zPrefix}Hookable",
 			"${zPrefix}Options",
 		]);
-		$this->assertEquals($app->classes->hierarchy(__NAMESPACE__ . '\\C'), [
-			"${myPrefix}C",
-			"${myPrefix}B",
-			"${myPrefix}A",
+		$this->assertEquals($app->classes->hierarchy(__NAMESPACE__ . '\\CClass'), [
+			"${myPrefix}CClass",
+			"${myPrefix}BClass",
+			"${myPrefix}AClass",
 			"${zPrefix}Hookable",
 			"${zPrefix}Options",
 		]);
@@ -47,26 +51,4 @@ class ClassesTestCase extends TestCase
 			$zPrefix . 'Options',
 		]);
 	}
-}
-
-class A extends Hookable
-{
-}
-
-/**
- *
- * @author kent
- *
- */
-class B extends A
-{
-}
-
-/**
- *
- * @author kent
- *
- */
-class C extends B
-{
 }

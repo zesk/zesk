@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 /**
- * @package zesk
+ * @package    zesk
  * @subpackage system
- * @author kent
- * @copyright Copyright &copy; 2025, Market Acumen, Inc.
+ * @author     kent
+ * @copyright  Copyright &copy; 2025, Market Acumen, Inc.
  * Created on Thu Feb 04 12:06:13 EST 2010 12:06:13
  */
 
@@ -52,14 +52,14 @@ class Iterator extends Options implements BaseIterator
 	 *
 	 * @var array
 	 */
-	private $row;
+	private array $row = [];
 
 	/**
 	 * At end of file?
 	 *
 	 * @var boolean
 	 */
-	private bool $is_valid;
+	private bool $valid;
 
 	public function __construct(Reader $csv, array $options = [])
 	{
@@ -68,15 +68,15 @@ class Iterator extends Options implements BaseIterator
 		$this->csv_tell = $csv->tell();
 		$this->assoc = $this->optionBool('assoc', true);
 		$this->use_map = $this->optionString('use_map');
-		$this->row = null;
-		$this->is_valid = true;
+		$this->row = [];
+		$this->valid = true;
 	}
 
 	public function rewind(): void
 	{
 		$this->assoc = $this->optionBool('assoc', true);
 		$this->csv->seek($this->csv_tell);
-		$this->is_valid = true;
+		$this->valid = true;
 		$this->next();
 	}
 
@@ -98,7 +98,7 @@ class Iterator extends Options implements BaseIterator
 			$this->row = $this->csv->read_row();
 		}
 		if (!is_array($this->row)) {
-			$this->is_valid = false;
+			$this->valid = false;
 		} elseif ($this->use_map) {
 			$this->row = $this->csv->read_map($this->use_map);
 		}
@@ -106,7 +106,7 @@ class Iterator extends Options implements BaseIterator
 
 	public function valid(): bool
 	{
-		return $this->is_valid;
+		return $this->valid;
 	}
 
 	/**

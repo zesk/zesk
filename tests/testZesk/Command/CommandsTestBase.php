@@ -3,16 +3,18 @@ declare(strict_types=1);
 /**
  * @package    zesk
  * @subpackage test
- * @copyright  &copy; 2023 Market Acumen, Inc.
  * @author     kent
+ * @copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace testZesk\Command;
 
+use testZesk\ApplicationTestBase;
 use zesk\Command\Arguments;
 use zesk\Command\Cache;
 use zesk\Command\Cannon;
 use zesk\Command\CONF2JSON;
+use zesk\Command\Configuration;
 use zesk\Command\CWD;
 use zesk\Command\Globals;
 use zesk\Command\Gremlins;
@@ -27,7 +29,6 @@ use zesk\Command\ModuleVersion;
 use zesk\Command\RunTime;
 use zesk\Command\Shell;
 use zesk\Command\Version;
-use zesk\Command\Configuration;
 use zesk\Directory;
 use zesk\Exception\ClassNotFound;
 use zesk\Exception\ConfigurationException;
@@ -42,7 +43,6 @@ use zesk\Exception\UnsupportedException;
 use zesk\File;
 use zesk\JSON;
 use zesk\System;
-use testZesk\TestApplicationTestBase;
 
 /**
  * Commands_Test
@@ -51,7 +51,7 @@ use testZesk\TestApplicationTestBase;
 /**
  * @coversDefaultClass \zesk\Command
  */
-class CommandsTestBase extends TestApplicationTestBase
+class CommandsTestBase extends ApplicationTestBase
 {
 	public function initialize(): void
 	{
@@ -88,7 +88,7 @@ World: false';
 			'',
 		];
 		return [
-			Arguments::class     => [
+			Arguments::class => [
 				[
 					[
 						'a',
@@ -108,7 +108,7 @@ World: false';
 					"[\"a\",\"b\",\"dee\"]\n",
 				],
 			],
-			Cache::class         => [
+			Cache::class => [
 				[
 					['print'],
 					0,
@@ -124,7 +124,7 @@ World: false';
 					"NOTICE: /var/www/.cache/testAppCache/ is empty.\n",
 				],
 			],
-			Version::class       => [
+			Version::class => [
 				[
 					[
 						function (CommandsTestBase $command) {
@@ -185,7 +185,7 @@ World: false';
 					"INFO: Updated version from 1.0.0.0 to 2.1.0.0\n",
 				],
 			],
-			Shell::class         => [
+			Shell::class => [
 				[
 					[
 						'$app->optionInt("isSecondary")',
@@ -194,14 +194,14 @@ World: false';
 					"# return 1\n",
 				],
 			],
-			RunTime::class       => [
+			RunTime::class => [
 				[
 					[''],
 					0,
 					"/0\.[01][0-9]{2} sec\n/",
 				],
 			],
-			Module::class        => [
+			Module::class => [
 				/* State is for application load time */
 				[
 					[],
@@ -230,7 +230,7 @@ World: false';
 					"CSV:  true\nDiff: true\n",
 				],
 			],
-			Maintenance::class   => [
+			Maintenance::class => [
 				/* Maintenance uses state on disk so call updates state */
 				[
 					[],
@@ -298,7 +298,7 @@ World: false';
 					'',
 				],
 			],
-			Licenses::class      => [
+			Licenses::class => [
 				[
 					[],
 					0,
@@ -318,7 +318,7 @@ World: false';
 					JSON::encodePretty(json_decode(File::contents(self::applicationPath('tests/test-data/license.json')))),
 				],
 			],
-			CWD::class           => [
+			CWD::class => [
 				[
 					[],
 					0,
@@ -357,7 +357,7 @@ World: false';
 					'#\"API_KEY\"#',
 				],
 			],
-			Globals::class       => [
+			Globals::class => [
 				[
 					[],
 					0,
@@ -383,14 +383,14 @@ World: false';
 					File::contents(self::applicationPath('tests/test-data/testSettings.txt')),
 				],
 			],
-			Gremlins::class      => [
+			Gremlins::class => [
 				[
 					[],
 					0,
 					"#/var/www/app/bin/zesk-command\.php#",
 				],
 			],
-			Help::class          => [
+			Help::class => [
 				[
 					[],
 					0,
@@ -402,21 +402,21 @@ World: false';
 					'##',
 				],
 			],
-			Host::class          => [
+			Host::class => [
 				[
 					[],
 					0,
 					System::uname() . "\n",
 				],
 			],
-			Included::class      => [
+			Included::class => [
 				[
 					[],
 					0,
 					'#' . preg_quote(__FILE__, '#') . '#',
 				],
 			],
-			Info::class          => [
+			Info::class => [
 				[
 					[
 						'--format',
@@ -427,7 +427,7 @@ World: false';
 					'#version\": \"1\.0\.0#',
 				],
 			],
-			CONF2JSON::class     => [
+			CONF2JSON::class => [
 				[
 					[
 						'--directory',
@@ -466,7 +466,7 @@ World: false';
 					"CSV: none\n",
 				],
 			],
-			Cannon::class        => [
+			Cannon::class => [
 				[
 					[
 						'--dir',
@@ -512,8 +512,8 @@ World: false';
 	 * Command test
 	 *
 	 * @param string $class
-	 * @param array  $testArguments
-	 * @param int    $expectedStatus
+	 * @param array $testArguments
+	 * @param int $expectedStatus
 	 * @param string $expectedOutput
 	 * @return void
 	 * @throws ClassNotFound

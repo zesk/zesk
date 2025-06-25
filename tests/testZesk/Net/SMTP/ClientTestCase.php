@@ -1,18 +1,17 @@
 <?php
 declare(strict_types=1);
 /**
- *
+ * @copyright  Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace testZesk\Net\SMTP;
 
-use zesk\Exception\SemanticsException;
-use zesk\URL;
-
 use testZesk\TestCase;
 use zesk\Exception\ConnectionFailed;
+use zesk\Exception\SemanticsException;
 use zesk\Exception\SyntaxException;
 use zesk\Net\SMTP\Client;
+use zesk\URL;
 
 /**
  *

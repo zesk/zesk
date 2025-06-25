@@ -1,18 +1,18 @@
 <?php
 declare(strict_types=1);
 /**
- *
+ * @copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Logger;
 
-use Psr\Log\NullLogger;
-use Stringable;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LoggerTrait;
 use Psr\Log\LogLevel;
-use zesk\Directory;
+use Psr\Log\NullLogger;
+use Stringable;
 use zesk\ArrayTools;
+use zesk\Directory;
 use zesk\Exception\KeyNotFound;
 use zesk\Exception\ParameterException;
 use zesk\File;

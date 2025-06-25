@@ -1,27 +1,26 @@
 <?php
 declare(strict_types=1);
 /**
- * @package zesk
+ * @package    zesk
  * @subpackage response
- * @author kent
- * @copyright &copy; 2023, Market Acumen, Inc.
+ * @author     kent
+ * @copyright  &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Response;
 
 use Throwable;
 use zesk\Exception\KeyNotFound;
+use zesk\Exception\ProtocolException;
 use zesk\Exception\Redirect as RedirectException;
 use zesk\Exception\RedirectTemporary;
-use zesk\Exception\ProtocolException;
+use zesk\HTTP;
 use zesk\Interface\SessionInterface;
-use zesk\Net_HTTP;
-use zesk\Preference\Type;
 use zesk\Response;
 use zesk\Types;
 
 /**
- * @see Type
+ * @see    Type
  * @author kent
  */
 class Redirect extends Type
@@ -29,7 +28,6 @@ class Redirect extends Type
 	/**
 	 *
 	 * @return SessionInterface
-	 * @throws ProtocolException
 	 */
 	private function session(): SessionInterface
 	{
@@ -47,7 +45,7 @@ class Redirect extends Type
 		} catch (Throwable $e) {
 			$this->application->debug('{method} caused an exception {e}', [
 				'method' => __METHOD__,
-				'e'      => $e,
+				'e' => $e,
 			]);
 		}
 	}

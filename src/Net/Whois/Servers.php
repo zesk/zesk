@@ -1,12 +1,17 @@
 <?php
 declare(strict_types=1);
+/**
+ * @copyright &copy; 2025, Market Acumen, Inc.
+ */
+
 namespace zesk\Net\Whois;
 
-use zesk\NotFoundException;
+use zesk\Exception\NotFoundException;
+use zesk\StringTools;
 
-class Net_Whois_Servers
+class Servers
 {
-	private static $servers = [
+	private static array $servers = [
 		'biz' => 'whois.neulevel.biz',
 		'com' => 'whois.internic.net',
 		'us' => 'whois.nic.us',

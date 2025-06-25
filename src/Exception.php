@@ -33,7 +33,7 @@ abstract class Exception extends BaseException
 
 	/**
 	 * @param Throwable $e
-	 * @param string    $prefix
+	 * @param string $prefix
 	 * @return array
 	 */
 	public static function phpExceptionVariables(Throwable $e, string $prefix = 'exception'): array
@@ -41,14 +41,14 @@ abstract class Exception extends BaseException
 		return [
 			'throwableClass' => $e::class,
 			"{$prefix}Class" => $e::class,
-			'throwableCode'  => $e->getCode(),
-			"{$prefix}Code"  => $e->getCode(),
-			'message'        => $e->getMessage(),
-			'rawMessage'     => $e->getMessage(),
-			'file'           => $e->getFile(),
-			'line'           => $e->getLine(),
-			'trace'          => $e->getTrace(),
-			'backtrace'      => $e->getTraceAsString(),
+			'throwableCode' => $e->getCode(),
+			"{$prefix}Code" => $e->getCode(),
+			'message' => $e->getMessage(),
+			'rawMessage' => $e->getMessage(),
+			'file' => $e->getFile(),
+			'line' => $e->getLine(),
+			'trace' => $e->getTrace(),
+			'backtrace' => $e->getTraceAsString(),
 		];
 	}
 }

@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 /**
- * @package zesk
+ * @package    zesk
  * @subpackage locale
- * @author kent
- * @copyright &copy; 2023, Market Acumen, Inc.
+ * @author     kent
+ * @copyright  &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Locale;
@@ -13,6 +13,7 @@ namespace zesk\Locale;
  *
  */
 
+use zesk\Application;
 use zesk\Directory;
 use zesk\Exception\FileNotFound;
 use zesk\Exception\FilePermission;
@@ -54,7 +55,7 @@ class Module extends \zesk\Module implements Head, Routes
 		$path = $this->application->paths->expand($autoPath);
 		if (!is_dir($path)) {
 			$this->application->warning('{class}::autoPath {path} is not a directory', [
-				'path'  => $path,
+				'path' => $path,
 				'class' => get_class($this),
 			]);
 			return;
@@ -79,11 +80,11 @@ class Module extends \zesk\Module implements Head, Routes
 		try {
 			$response->html()->javascript('/share/Locale/js/locale.js', [
 				'weight' => -20,
-				'share'  => true,
+				'share' => true,
 			]);
 			$response->html()->javascript('/locale/js?ll=' . $this->application->locale->id(), [
-				'weight'       => -10,
-				'is_route'     => true,
+				'weight' => -10,
+				'is_route' => true,
 				'route_expire' => 3600,
 				/* once an hour */
 			]);
@@ -94,10 +95,11 @@ class Module extends \zesk\Module implements Head, Routes
 	}
 
 	/**
-	 *
 	 * @param Router $router
+	 * @return void
 	 */
-	public function hook_routes(Router $router): void
+	#[HookMethod(handles: Application::HOOK_ROUTER)]
+	public function addRoutes(Router $router): void
 	{
 		$router->addRoute('locale(/{option action})', [
 			'controller' => Controller::class,

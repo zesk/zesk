@@ -96,11 +96,14 @@ zeskTest() {
   fi
   args+=("--display-skipped")
 
+  args+=("--log-events-text" "$top/phpunit.log")
   __verifyDatabase "$usage" || return $?
 
   local testBinary="vendor/bin/phpunit" testResultPath="$top/test-results"
 
+  cacheDirectory=$(__catchEnvironment "$usage" buildCacheDirectory "zeskTest") || return $?
   args+=("--log-junit" "$testResultPath/junit.xml")
+  args+=("--order-by=defects" "--cache-result"  "--cache-directory" "$cacheDirectory" )
 
   [ -x "$testBinary" ] || __throwEnvironment "$usage" "$testBinary does not exist or is not executable" || return $?
 

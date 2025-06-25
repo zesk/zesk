@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 /**
- *
+ * @copyright  Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -21,8 +21,8 @@ class URL
 	 * @var array
 	 */
 	protected static array $secureProtocols = [
-		'http'   => 'https',
-		'ftp'    => 'sftp',
+		'http' => 'https',
+		'ftp' => 'sftp',
 		'telnet' => 'ssh',
 	];
 
@@ -363,7 +363,7 @@ class URL
 	 * @param string $default
 	 *            Default value to return if component specified is not found
 	 * @return mixed An associative array if whole URL is parsed, a string if component, or false if
-	 *         parsing failed
+	 *            parsing failed
 	 */
 	/**
 	 * @param string $url
@@ -379,15 +379,15 @@ class URL
 		if (strtolower(substr($url, 0, 7)) === 'file://') {
 			$result = [
 				'scheme' => 'file',
-				'host'   => '',
-				'path'   => substr($url, 7),
+				'host' => '',
+				'path' => substr($url, 7),
 			];
 		} else {
 			$result = parse_url($url);
 			if (!is_array($result)) {
 				throw new SyntaxException('parse_url({url}) failed {type}', [
 					'type' => Types::type($result),
-					'url'  => $url,
+					'url' => $url,
 				]);
 			}
 		}
@@ -545,13 +545,13 @@ class URL
 	public static function protocolPort(string $scheme): int
 	{
 		static $protocols = [
-			'ftp'    => 21,
-			'smtp'   => 25,
+			'ftp' => 21,
+			'smtp' => 25,
 			'mailto' => 25,
-			'http'   => 80,
-			'pop'    => 110,
-			'https'  => 443,
-			'file'   => -1,
+			'http' => 80,
+			'pop' => 110,
+			'https' => 443,
+			'file' => -1,
 			'telnet' => 23,
 		];
 		return $protocols[strtolower($scheme)] ?? -1;
@@ -654,7 +654,7 @@ class URL
 	 * @return string The URL up to the path
 	 * @throws SyntaxException
 	 */
-	public static function left_path(string $url): string
+	public static function leftPath(string $url): string
 	{
 		return self::left($url, 'path');
 	}
@@ -794,16 +794,16 @@ class URL
 		$scheme = $parts['scheme'] ?? '';
 		if (!array_key_exists($scheme, self::$secureProtocols)) {
 			throw new ProtocolException('{url} Not a known insecure protocol: {choices}', [
-				'url'     => $url,
+				'url' => $url,
 				'choices' => array_keys(self::$secureProtocols),
 			]);
 		}
 		$defaultPort = self::protocolPort($scheme);
 		if (intval($parts['port'] ?? $defaultPort) !== $defaultPort) {
 			throw new ProtocolException('{url} Port must be standard to promote: {port} !== {defaultPort}', [
-				'url'         => $url,
+				'url' => $url,
 				'defaultPort' => $defaultPort,
-				'port'        => $parts['port'],
+				'port' => $parts['port'],
 			]);
 		}
 		$parts['scheme'] = self::$secureProtocols[$scheme];

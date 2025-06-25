@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 /**
- * @package zesk
+ * @package    zesk
  * @subpackage system
- * @author kent
- * @copyright Copyright &copy; 2025, Market Acumen, Inc.
+ * @author     kent
+ * @copyright  Copyright &copy; 2025, Market Acumen, Inc.
  *            Created on Fri Sep 05 19:32:05 EDT 2008 19:32:05
  */
 
@@ -14,13 +14,15 @@ namespace zesk;
  * Representation of an HTML tag.
  * contents is a string containing more HTML.
  * Inherits Options, attributes of the tag can be accessed via option, optionBool, hasOption, etc.
- * @package zesk
+ *
+ * @package    zesk
  * @subpackage tools
  */
 class HTMLTag extends Options
 {
 	/**
 	 * Tag name
+	 *
 	 * @var string
 	 */
 	public string $name = '';
@@ -28,6 +30,7 @@ class HTMLTag extends Options
 	/**
 	 * Contents between tags.
 	 * If empty, then singleton tag, e.g. <tag />
+	 *
 	 * @var string
 	 */
 	private string $innerHTML;
@@ -36,12 +39,14 @@ class HTMLTag extends Options
 	 * Original, outer HTML including tag itself.
 	 * Useful for replacing a matched tag in a document.
 	 * If null, means it has not been matched in a document, or has been edited.
+	 *
 	 * @var string
 	 */
 	private string $outerHTML;
 
 	/**
 	 * Offset to where the tag is in the found context
+	 *
 	 * @var integer
 	 */
 	public int $offset = -1;
@@ -143,7 +148,7 @@ class HTMLTag extends Options
 	 *
 	 * @return string
 	 */
-	public function toPHP()
+	public function toPHP(): string
 	{
 		return 'new ' . __CLASS__ . '(' . implode(', ', [
 			PHP::dump($this->name),

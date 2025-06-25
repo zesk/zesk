@@ -1,5 +1,8 @@
 <?php
 declare(strict_types=1);
+/**
+ * @copyright &copy; 2025, Market Acumen, Inc.
+ */
 
 namespace zesk;
 
@@ -7,7 +10,6 @@ use Attribute;
 use Closure;
 use ReflectionMethod;
 use zesk\Application\Hooks;
-use zesk\Exception\ParameterException;
 
 /**
  * @see Hookable
@@ -47,10 +49,10 @@ class HookMethod implements HookableAttribute
 	public Hookable|null $object;
 
 	/**
-	 * @param string|array $handles       List of hook names this method handles
-	 * @param array        $argumentTypes Optional argument types for type-checking
-	 * @param object|null  $object        Object to use
-	 * @param bool         $filter        True when this hook is used as a filter and should have a compatible method signatures of
+	 * @param string|array $handles List of hook names this method handles
+	 * @param array $argumentTypes Optional argument types for type-checking
+	 * @param object|null $object Object to use
+	 * @param bool $filter True when this hook is used as a filter and should have a compatible method signatures of
 	 *                                    other filters of this hook name.
 	 */
 	public function __construct(string|array $handles, array $argumentTypes = [], ?object $object = null, bool $filter = false)
@@ -65,7 +67,7 @@ class HookMethod implements HookableAttribute
 	 * Manually set the method closure for this hook method
 	 *
 	 * @param Closure $closure
-	 * @param string  $name
+	 * @param string $name
 	 * @return $this
 	 */
 	public function setClosure(Closure $closure, string $name = ''): self

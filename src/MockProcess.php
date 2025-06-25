@@ -1,7 +1,10 @@
 <?php
 declare(strict_types=1);
 /**
- *
+ * @package zesk
+ * @subpackage core
+ * @author     kent
+ * @copyright  Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -127,5 +130,28 @@ class MockProcess extends Hookable implements SystemProcess
 	public function log($level, $message, array $context = []): void
 	{
 		$this->application->log($context['severity'] ?? 'info', $message, $context);
+	}
+
+	/**
+	 * @return array
+	 */
+	public function __serializeChild(): array
+	{
+		return [
+			'done' => $this->done,
+			'quit_after' => $this->quit_after,
+			'timer' => $this->timer,
+		];
+	}
+
+	/**
+	 * @param array $data
+	 * @return void
+	 */
+	public function __unserializeChild(array $data): void
+	{
+		$this->done = $data['done'];
+		$this->quit_after = $data['quit_after'];
+		$this->timer = $data['timer'];
 	}
 }

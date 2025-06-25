@@ -1,10 +1,14 @@
 <?php
 declare(strict_types=1);
+/**
+ * @copyright &copy; 2025, Market Acumen, Inc.
+ */
 
 namespace testZesk\Repository;
 
 use zesk\ArrayTools;
 use zesk\Exception\NotFoundException;
+use zesk\Repository\Base;
 use zesk\Types;
 use zesk\UnitTest;
 

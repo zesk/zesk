@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 /**
- * @package zesk
+ * @package    zesk
  * @subpackage system
- * @author kent
- * @copyright Copyright &copy; 2025, Market Acumen, Inc.
+ * @author     kent
+ * @copyright  Copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -19,6 +19,7 @@ use Throwable;
 use zesk\Exception\KeyNotFound;
 use zesk\Exception\ParameterException;
 use zesk\Exception\ParseException;
+use zesk\Exception\SemanticsException;
 use zesk\Exception\SyntaxException;
 use zesk\Locale\Locale;
 
@@ -30,7 +31,7 @@ use zesk\Locale\Locale;
  *
  * @author kent
  */
-class Timestamp extends Temporal
+class Timestamp extends Weekday
 {
 	/**
 	 * Default __toString format
@@ -237,14 +238,14 @@ class Timestamp extends Temporal
 
 	/**
 	 * Create a new Timestamp with a single value.
-	 * Syntactic sugar, for example:
-	 * Timestamp::factory($value)->format("{MMM} {DDD}");
+	 *
+	 *     $item = Timestamp::factory($value)->format("{MMM} {DDD}");
 	 *
 	 * @param int|Date|Time|Timestamp|null $value
-	 * @param string|DateTimeZone|null $timezone
-	 * @return static
+	 * @param string|DateTimeZone $timezone
+	 * @return self
 	 */
-	public static function factory(null|int|Date|Time|Timestamp $value = null, string|DateTimeZone $timezone = null): self
+	public static function factory(null|int|Date|Time|Timestamp $value = null, string|DateTimeZone $timezone = ''): self
 	{
 		if (!$timezone instanceof DateTimeZone) {
 			$timezone = empty($timezone) ? null : new DateTimeZone($timezone);
@@ -255,10 +256,10 @@ class Timestamp extends Temporal
 	/**
 	 * Return new Timestamp date time representing now
 	 *
-	 * @param string|DateTimeZone|null $timezone
+	 * @param string|DateTimeZone $timezone
 	 * @return Timestamp
 	 */
-	public static function now(string|DateTimeZone $timezone = null): self
+	public static function now(string|DateTimeZone $timezone = ''): self
 	{
 		return self::factory(null, $timezone)->setNow();
 	}
@@ -452,7 +453,8 @@ class Timestamp extends Temporal
 						}
 
 						throw new ParseException('Timestamp::parse_locale_string({value},{locale_format}): Unknown format', [
-							'value' => $value, 'locale_format' => $locale_format,
+							'value' => $value,
+							'locale_format' => $locale_format,
 						]);
 					case 'M':
 						$this->setMonth(intval($values[$i]));
@@ -478,8 +480,18 @@ class Timestamp extends Temporal
 	private function _month_names_en(): array
 	{
 		static $m = [
-			'jan' => 1, 'feb' => 2, 'mar' => 3, 'apr' => 4, 'may' => 5, 'jun' => 6, 'jul' => 7, 'aug' => 8, 'sep' => 9,
-			'oct' => 10, 'nov' => 11, 'dec' => 12,
+			'jan' => 1,
+			'feb' => 2,
+			'mar' => 3,
+			'apr' => 4,
+			'may' => 5,
+			'jun' => 6,
+			'jul' => 7,
+			'aug' => 8,
+			'sep' => 9,
+			'oct' => 10,
+			'nov' => 11,
+			'dec' => 12,
 		];
 		return $m;
 	}
@@ -616,8 +628,9 @@ class Timestamp extends Temporal
 	 */
 	public function setDay(int $set): self
 	{
-		if ($set < 0 || $set > 31) {
-			throw new OutOfBoundsException("Day must be between 1 and 31 ($set passed)");
+		$max = Date::daysInMonth($this->month(), $this->year());
+		if ($set < 0 || $set > $max) {
+			throw new OutOfBoundsException("Day must be between 1 and $max ($set passed)");
 		}
 		$this->datetime->setDate($this->year(), $this->month(), $set);
 		return $this;
@@ -655,37 +668,13 @@ class Timestamp extends Temporal
 	}
 
 	/**
-	 * Get/set weekday.
-	 * Weekday, when set, is always the NEXT possible weekday, including today.
+	 * Get day of the week
 	 *
 	 * @return integer
 	 */
 	public function weekday(): int
 	{
 		return intval($this->datetime->format(self::DATETIME_FORMAT_WEEKDAY));
-	}
-
-	/**
-	 * Set weekday
-	 *
-	 * Weekday, when set, is always the NEXT possible weekday, including today.
-	 *
-	 * @param int $set
-	 * @return Timestamp
-	 */
-	public function setWeekday(int $set): self
-	{
-		$set = abs($set) % 7;
-		$weekday = $this->weekday();
-		if ($weekday === $set) {
-			return $this;
-		}
-		if ($weekday < $set) {
-			$dd = $set - $weekday;
-		} else {
-			$dd = 7 + $set - $weekday;
-		}
-		return $this->add(0, 0, $dd);
 	}
 
 	/**
@@ -788,6 +777,7 @@ class Timestamp extends Temporal
 
 	/**
 	 * Set millisecond
+	 *
 	 * @param int $set
 	 * @return $this
 	 */
@@ -952,7 +942,8 @@ class Timestamp extends Temporal
 	 *            time
 	 *            'skipHook' => bool. Do not invoke the formatting hook
 	 * @return array
-	 * @see Locale::nowString
+	 * @throws SemanticsException
+	 * @see  Locale::nowString
 	 * @hook Timestamp::formatting
 	 */
 	public function formatting(array $options = []): array
@@ -986,10 +977,14 @@ class Timestamp extends Temporal
 	 * @param Locale $locale
 	 * @param array $formatting
 	 * @return array
+	 * @throws SemanticsException
 	 */
 	private function localeFormatting(Locale $locale, array $formatting): array
 	{
-		$config_timestamp = $locale->application->configuration->path([__CLASS__, 'formatting']);
+		$config_timestamp = $locale->application->configuration->path([
+			__CLASS__,
+			'formatting',
+		]);
 		$unit_minimum = $options['unit_minimum'] ?? $config_timestamp->getString('unit_minumum');
 		$zero_string = $options['zero_string'] ?? $config_timestamp->getString('zero_string');
 		// Support $unit_minimum and $zero_string strings which include formatting
@@ -1198,10 +1193,10 @@ class Timestamp extends Temporal
 	 *
 	 * @param Timestamp $timestamp
 	 * @param string $unit
-	 *            millisecond, second, minute, hour, day, week, weekday, quarter
+	 *              millisecond, second, minute, hour, day, week, weekday, quarter
 	 *              bad unit defaults to year
 	 * @param int $precision
-	 *            The precision for the result (decimal places to use)
+	 *              The precision for the result (decimal places to use)
 	 * @return int|float
 	 */
 	public function difference(Timestamp $timestamp, string $unit = self::UNIT_SECOND, int $precision = 0): int|float
@@ -1328,7 +1323,8 @@ class Timestamp extends Temporal
 			self::UNIT_QUARTER => $this->setQuarter($value),
 			self::UNIT_YEAR => $this->setYear($value),
 			default => throw new KeyNotFound($unit, [
-				'unit' => $unit, 'value' => $value,
+				'unit' => $unit,
+				'value' => $value,
 			]),
 		};
 	}
@@ -1355,7 +1351,9 @@ class Timestamp extends Temporal
 			self::UNIT_QUARTER => $this->add(0, $n_units * self::MONTHS_PER_QUARTER),
 			self::UNIT_YEAR => $this->add($n_units),
 			default => PHP::log('{method)({n_units}, {units}): Invalid unit, using seconds', [
-				'method' => __METHOD__, 'n_units' => $n_units, 'units' => $unit,
+				'method' => __METHOD__,
+				'n_units' => $n_units,
+				'units' => $unit,
 			]) ?? $this->add(0, 0, 0, 0, 0, $n_units),
 		};
 	}
@@ -1376,10 +1374,11 @@ class Timestamp extends Temporal
 	 *
 	 * @return string
 	 */
-	private function _hms_format(): string
+	private function _hms_format(string $separator = ':'): string
 	{
-		return implode(':', [
-			StringTools::zeroPad($this->hour()), StringTools::zeroPad($this->minute()),
+		return implode($separator, [
+			StringTools::zeroPad($this->hour()),
+			StringTools::zeroPad($this->minute()),
 			StringTools::zeroPad($this->second()),
 		]);
 	}
@@ -1402,8 +1401,15 @@ class Timestamp extends Temporal
 	 */
 	public function iso8601(): string
 	{
-		return $this->_ymd_format('') . 'T' . $this->_hms_format();
+		return $this->_ymd_format() . 'T' . $this->_hms_format();
 	}
+
+	public function iso8601Compact(): string
+	{
+		return $this->_ymd_format('') . 'T' . $this->_hms_format('');
+	}
+
+	public const PREG_ISO8601 = '#^(\d{4})-?([012]\d)-?([0-3]\d)T([012]\d):?([0-5]\d):?([0-5]\d)(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})?$#';
 
 	/**
 	 * @param string $set
@@ -1413,16 +1419,12 @@ class Timestamp extends Temporal
 	public function setISO8601(string $set): self
 	{
 		$value = trim($set);
-		// if (preg_match('/[0-9]{4}-([0-9]{2}-[0-9]{2}|W[0-9]{2}|[0-9]{3})(T[0-9]{2}(:?[0-9]{2}(:?[0-9]{2}))/',
-		// $value, $matches)) {
-		// TODO support iso8601 latest
-		// }
-		[$dd, $tt] = StringTools::pair(strtoupper($value), 'T');
-		if ($dd === false || $tt === false) {
-			throw new SyntaxException('Timestamp::iso8601({set}) - invalid date format', ['set' => $set]);
+		$matches = [];
+		if (!preg_match(self::PREG_ISO8601, $value, $matches)) {
+			throw new SyntaxException('Timestamp::iso8601({set}) - invalid date format', ['set' => $value]);
 		}
-		[$hh, $mm, $ss] = explode(':', $tt, 3);
-		$this->setYMDHMS(intval(substr($dd, 0, 4)), intval(substr($dd, 4, 2)), intval(substr($dd, 6, 2)), intval($hh), intval($mm), intval($ss));
+		[$_, $YYYY, $MM, $DD, $hh, $mm, $ss] = $matches;
+		$this->setYMDHMS(intval($YYYY), intval($MM), intval($DD), intval($hh), intval($mm), intval($ss));
 		return $this;
 	}
 

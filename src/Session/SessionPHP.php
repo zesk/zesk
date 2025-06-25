@@ -1,17 +1,17 @@
 <?php
 declare(strict_types=1);
 /**
- *
+ * @copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Session;
 
 use Throwable;
 use zesk\Application;
+use zesk\Doctrine\User;
 use zesk\Exception\AuthenticationException;
 use zesk\Interface\SessionInterface;
 use zesk\Interface\Userlike;
-use zesk\ORM\User;
 use zesk\Request;
 
 /**
@@ -51,6 +51,7 @@ class SessionPHP implements SessionInterface
 
 	/**
 	 * Configure session connected to the Request
+	 *
 	 * @param Request $request
 	 * @return self
 	 */
@@ -191,12 +192,7 @@ class SessionPHP implements SessionInterface
 		} catch (Throwable $e) {
 			$this->__set($this->globalSessionUserId(), null);
 
-			throw new AuthenticationException(
-				'No user fetched for user id "{userId}"',
-				['userId' => $userId],
-				0,
-				$e
-			);
+			throw new AuthenticationException('No user fetched for user id "{userId}"', ['userId' => $userId], 0, $e);
 		}
 	}
 

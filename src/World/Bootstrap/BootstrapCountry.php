@@ -10,41 +10,44 @@ declare(strict_types=1);
 
 namespace zesk\World\Bootstrap;
 
+use Doctrine\ORM\Exception\ORMException;
+use Doctrine\ORM\OptimisticLockException;
 use zesk\Application;
 use zesk\ArrayTools;
 use zesk\Directory;
+use zesk\Exception\DirectoryCreate;
 use zesk\Exception\DirectoryNotFound;
+use zesk\Exception\DirectoryPermission;
+use zesk\Exception\DomainLookupFailed;
 use zesk\Exception\FilePermission;
-use zesk\Exception\NotFoundException;
-use zesk\Hookable;
+use zesk\Exception\ParameterException;
+use zesk\Exception\UnsupportedException;
+use zesk\Net\HTTP\Client\Exception;
 use zesk\Net\Sync;
-use zesk\Types;
+use zesk\World\Bootstrap;
 use zesk\World\Country;
+use zesk\World\Module;
 
 /**
  *
  * @author kent
  *
  */
-class BootstrapCountry extends Hookable
+class BootstrapCountry extends Bootstrap
 {
 	/**
 	 * Source http://download.geonames.org/export/dump/countryInfo.txt
 	 *
 	 * Country database (TXT file)
 	 */
-	public const url_geonames_country_file = 'https://download.geonames.org/export/dump/countryInfo.txt';
+	public const URL_GEONAMES_COUNTRY_DOWNLOAD = 'https://download.geonames.org/export/dump/countryInfo.txt';
 
-	/**
-	 *
-	 * @var array
-	 */
-	private array $include_country;
+	protected string $includeOption = Module::OPTION_INCLUDE_COUNTRY;
 
 	/**
 	 *
 	 * @param Application $application
-	 * @param array       $options
+	 * @param array $options
 	 * @return self
 	 */
 	public static function factory(Application $application, array $options = []): self
@@ -53,40 +56,34 @@ class BootstrapCountry extends Hookable
 	}
 
 	/**
-	 *
-	 * @param mixed $options
-	 * @global Module_World::include_country List of country codes to include
-	 *
+	 * @throws DirectoryPermission
+	 * @throws ORMException
+	 * @throws DirectoryCreate
+	 * @throws OptimisticLockException
+	 * @throws FilePermission
+	 * @throws DirectoryNotFound
+	 * @throws UnsupportedException
+	 * @throws Exception
+	 * @throws ParameterException
+	 * @throws DomainLookupFailed
 	 */
-	public function __construct(Application $application, array $options = [])
-	{
-		parent::__construct($application, $options);
-		$this->inheritConfiguration(Module::class);
-		$include_country = $this->optionIterable('include_country');
-		$this->include_country = array_change_key_case(ArrayTools::keysFromValues(Types::toList($include_country), true));
-	}
-
 	public function bootstrap(): void
 	{
 		$application = $this->application;
 		$em = $application->entityManager();
-		$em->getConnection()->executeQuery('TRUNCATE ' . Country::class);
-		$map = $this->load_countryinfo($application);
+		if ($this->optionBool('drop')) {
+			$this->deleteEverything(Country::class);
+		}
+		$map = $this->loadCountryInformation($application);
 		foreach ($map as $fields) {
-			$country = new Country($application, $fields['code'], $fields['name']);
-			if ($this->is_included($country)) {
+			$code = $fields['code'];
+			$name = $fields['name'];
+			$country = new Country($application, $code, $name);
+			if ($this->isIncluded($code)) {
 				$em->persist($country);
 			}
 		}
 		$em->flush();
-	}
-
-	private function is_included(Country $country)
-	{
-		if ($this->include_country) {
-			return $this->include_country[strtolower($country->code)] ?? false;
-		}
-		return true;
 	}
 
 	/**
@@ -96,17 +93,23 @@ class BootstrapCountry extends Hookable
 	 * @return array
 	 * @throws DirectoryNotFound
 	 * @throws FilePermission
-	 * @throws NotFoundException
+	 * @throws DirectoryCreate
+	 * @throws DirectoryPermission
+	 * @throws DomainLookupFailed
+	 * @throws ParameterException
+	 * @throws UnsupportedException
+	 * @throws Exception
 	 */
-	private function load_countryinfo(Application $application): array
+	private function loadCountryInformation(Application $application): array
 	{
-		$world_path = $application->modules->path('world');
-		$file = $this->option('geonames_country_cache_file', Directory::path($world_path, 'bootstrap-data/countryinfo.txt'));
-		Sync::urlToFile($application, self::url_geonames_country_file, $file, [
-			'time_to_live' => $this->option('geonames_time_to_live', 86400 * 30),
+		$file = $this->option('geonames_country_cache_file', Directory::path(__DIR__, 'bootstrap-data/countryinfo.txt'));
+		Sync::urlToFile($application, self::URL_GEONAMES_COUNTRY_DOWNLOAD, $file, [
+			Sync::OPTION_TIME_TO_LIVE_SECONDS => $this->option(Sync::OPTION_TIME_TO_LIVE_SECONDS, 86400 * 30),
+			// Geopolitically, let's assume things do not change much every 30 days... sigh.
 		]);
 		$fp = fopen($file, 'rb');
 		$headers = null;
+		$rows = [];
 		while (is_array($row = fgetcsv($fp, null, "\t"))) {
 			if ($headers === null) {
 				if (in_array('#ISO', $row)) {

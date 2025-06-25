@@ -2,8 +2,8 @@
 declare(strict_types=1);
 /**
  *
- * @author kent
- * @copyright &copy; 2023, Market Acumen, Inc.
+ * @author    kent
+ * @copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk;
@@ -73,7 +73,7 @@ class TimeSpan extends Temporal
 
 		throw new SyntaxException('{method} can not parse {mixed}', [
 			'method' => __METHOD__,
-			'mixed'  => $mixed,
+			'mixed' => $mixed,
 		]);
 	}
 
@@ -161,20 +161,20 @@ class TimeSpan extends Temporal
 		$days = intval(floor($seconds / 86400));
 		return [
 			'negative' => $this->invert ? '-' : '',
-			'seconds'  => $seconds,
-			's'        => $seconds,
-			'ss'       => StringTools::zeroPad($ss),
-			'minutes'  => $minutes,
-			'm'        => $minutes,
-			'mm'       => StringTools::zeroPad($mm),
-			'hours'    => $hours,
-			'hh'       => StringTools::zeroPad($hh),
-			'days'     => $days,
-			'd'        => $days,
-			'd365'     => $days % 365,
-			'dd'       => StringTools::zeroPad($days),
-			'ddd'      => StringTools::zeroPad($days, 3),
-			'ddd365'   => StringTools::zeroPad($days % 365, 3),
+			'seconds' => $seconds,
+			's' => $seconds,
+			'ss' => StringTools::zeroPad($ss),
+			'minutes' => $minutes,
+			'm' => $minutes,
+			'mm' => StringTools::zeroPad($mm),
+			'hours' => $hours,
+			'hh' => StringTools::zeroPad($hh),
+			'days' => $days,
+			'd' => $days,
+			'd365' => $days % 365,
+			'dd' => StringTools::zeroPad($days),
+			'ddd' => StringTools::zeroPad($days, 3),
+			'ddd365' => StringTools::zeroPad($days % 365, 3),
 		];
 	}
 }

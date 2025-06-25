@@ -65,9 +65,9 @@ class Kernel
 				} catch (Throwable $t) {
 					PHP::log('Failed shutting down application {className} {id} with exception {class} (app is also {appClass})', [
 						'className' => $className,
-						'id'        => $id,
-						'appClass'  => $application::class,
-						'class'     => $t::class,
+						'id' => $id,
+						'appClass' => $application::class,
+						'class' => $t::class,
 					]);
 					PHP::log($t);
 				}
@@ -119,11 +119,11 @@ class Kernel
 	private static function _stackFrameNormalize(array $stackFrame): array
 	{
 		return $stackFrame + [
-			'file'     => '',
-			'class'    => '',
-			'type'     => '',
+			'file' => '',
+			'class' => '',
+			'type' => '',
 			'function' => '',
-			'line'     => '',
+			'line' => '',
 		];
 	}
 
@@ -150,11 +150,11 @@ class Kernel
 		}
 		$last = self::_stackFrameNormalize($last);
 		$top = self::_stackFrameNormalize(array_shift($bt) ?? [
-			'file'     => "-no calling function $depth deep-",
-			'line'     => -1,
-			'class'    => '',
+			'file' => "-no calling function $depth deep-",
+			'line' => -1,
+			'class' => '',
 			'function' => '-no calling function $depth deep-',
-			'type'     => '',
+			'type' => '',
 		]);
 
 		$top['callingLine'] = $top['line'];
@@ -176,7 +176,7 @@ class Kernel
 	 * Moved from Debug:: class to help in profiling bootstrap functions (for example)
 	 * which don't have the autoloader set yet.
 	 *
-	 * @param int  $depth
+	 * @param int $depth
 	 * @param bool $include_line
 	 * @return string
 	 * @see debug_backtrace()
@@ -261,7 +261,7 @@ class Kernel
 		unset($options[Application::OPTION_CACHE_POOL]);
 
 		$configuration = Configuration::factory(self::$configurationDefaults)->setPath(self::class, $options + [
-			'init'        => $initialized,
+			'init' => $initialized,
 			'environment' => $_SERVER,
 		]);
 		$kernelConfiguration = $configuration->path(self::class);
@@ -301,8 +301,15 @@ class Kernel
 	/**
 	 * @return Application
 	 */
-	public static function wakeupApplication(): Application
+	public static function wakeupApplication(string $class = ''): Application
 	{
+		if ($class) {
+			$applications = Kernel::singleton()->applicationByClass($class);
+			$application = ArrayTools::first($applications);
+			if (!$application) {
+				throw new RuntimeException('Application {class} could not be found', ['class' => $class]);
+			}
+		}
 		return Kernel::singleton()->application();
 	}
 }

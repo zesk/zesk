@@ -1,13 +1,13 @@
 <?php
 declare(strict_types=1);
 /**
- *
+ * @copyright &copy; 2025, Market Acumen, Inc.
  */
 
 namespace zesk\Cron\Command;
 
-use zesk\Cron\Module;
 use zesk\Command\SimpleCommand;
+use zesk\Cron\Module;
 use zesk\Exception;
 use zesk\Exception\NotFoundException;
 use zesk\Text;
@@ -26,14 +26,14 @@ class Cron extends SimpleCommand
 	protected string $help = 'Run zesk cron hooks';
 
 	protected array $argumentTypes = [
-		'list'  => 'boolean',
-		'last'  => 'boolean',
+		'list' => 'boolean',
+		'last' => 'boolean',
 		'reset' => 'boolean',
 	];
 
 	protected array $option_help = [
-		'list'  => 'List cron functions which would be run',
-		'last'  => 'Show last run times',
+		'list' => 'List cron functions which would be run',
+		'last' => 'Show last run times',
 		'reset' => 'Reset all cron state information, forcing all cron tasks to run next time cron is run.',
 	];
 
@@ -70,8 +70,8 @@ class Cron extends SimpleCommand
 			foreach ($result as $key => $ts) {
 				if ($ts instanceof Timestamp) {
 					$rows[] = [
-						'key'         => $key,
-						'value'       => $ts->isEmpty() ? null : $ts->iso8601(),
+						'key' => $key,
+						'value' => $ts->isEmpty() ? null : $ts->iso8601(),
 						'seconds ago' => $ts->isEmpty() ? $locale->__('Never') : $now->difference($ts),
 					];
 				}
