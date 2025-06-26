@@ -154,7 +154,7 @@ zeskPipelineSetup() {
   if test "$clean"; then
     cleanArgs=("--no-cache" "--pull")
   fi
-  __catchEnvironment "$usage" zeskContainerLatest "$CONTAINER_DATABASE_HOST" "${cleanArgs[@]}" || return $?
+  __catchEnvironment "$usage" zeskCompose --env "DATABASE_HOST=$CONTAINER_DATABASE_HOST" --build "${cleanArgs[@]}" || return $?
 
   #==========================================================================================
   #  ▀▛▘     ▐
