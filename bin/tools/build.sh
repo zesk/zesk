@@ -45,24 +45,24 @@ zeskPipelineSetup() {
     local argument="$1" __index=$((__count - $# + 1))
     [ -n "$argument" ] || __throwArgument "$usage" "blank #$__index/$__count ($(decorate each quote "${__saved[@]}"))" || return $?
     case "$argument" in
-      # _IDENTICAL_ --help 4
-      --help)
-        "$usage" 0
-        return $?
-        ;;
-      --clean)
-        clean=1
-        statusMessage decorate info "Clean install ..."
-        shift
-        ;;
-      --staging)
-        versionArgs+=("--staging")
-        statusMessage decorate info "Staging ..."
-        shift
-        ;;
-      *)
-        break
-        ;;
+    # _IDENTICAL_ --help 4
+    --help)
+      "$usage" 0
+      return $?
+      ;;
+    --clean)
+      clean=1
+      statusMessage decorate info "Clean install ..."
+      shift
+      ;;
+    --staging)
+      versionArgs+=("--staging")
+      statusMessage decorate info "Staging ..."
+      shift
+      ;;
+    *)
+      break
+      ;;
     esac
     # _IDENTICAL_ argument-esac-shift 1
     shift
@@ -127,7 +127,13 @@ zeskPipelineSetup() {
   #
   statusMessage decorate info "Loading schema ... "
   start=$(__catchEnvironment "$usage" timingStart) || return $?
-  mapEnvironment <./etc/docker/schema.sql | __catchEnvironment "$usage" mariadb "${databaseArguments[@]}" >>"$quietLog" || buildFailed "$quietLog" || return $?
+
+  local tempEnvironment
+  tempEnvironment=$(fileTemporaryName "$usage") || return $?
+  randomPassword=$(randomString)
+  __catchEnvironment "$usage" urlParse --prefix "DSN_" --uppercase "mysqli://testUser:$randomPassword@$DATABASE_HOST$/testDatabase" >"$tempEnvironment" || _clean $? "$tempEnvironment" || return $?
+  DATABASE_NETWORK="%" __catchEnvironment "$usage" environmentFileLoad "$tempEnvironment" --execute mapEnvironment <./etc/docker/schema.sql | __catchEnvironment "$usage" mariadb "${databaseArguments[@]}" >>"$quietLog" || buildFailed "$quietLog" || _clean $? "$tempEnvironment" || return $?
+  __catchEnvironment "$usage" rm -f "$tempEnvironment" || return $?
   statusMessage timingReport "$start" "Schema load completed in"
 
   #==========================================================================================
