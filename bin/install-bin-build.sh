@@ -261,7 +261,7 @@ _installRemotePackage() {
       ;;
     --user | --header | --password)
       shift
-      fetchArguments+=("$argument" "$(usageArgumentString "$usage" "$argument" "${1-}")")
+      fetchArguments+=("$argument" "$(usageArgumentString "$usage" "$argument" "${1-}")") || return $?
       ;;
     --url)
       shift
