@@ -91,7 +91,6 @@ zeskPipelineSetup() {
   # Install
   #
   local home
-  __catchEnvironment "$usage" packageInstall || return $?
   __catchEnvironment "$usage" phpInstall || return $?
   __catchEnvironment "$usage" mariadbInstall || return $?
   home=$(__catchEnvironment "$usage" buildHome) || return $?
@@ -154,7 +153,18 @@ zeskPipelineSetup() {
   if test "$clean"; then
     cleanArgs=("--no-cache" "--pull")
   fi
-  __catchEnvironment "$usage" zeskCompose --env "DATABASE_HOST=$CONTAINER_DATABASE_HOST" --build "${cleanArgs[@]}" || return $?
+
+  local envFile envFileCreated=false
+  envFile="$home/.$(uppercase "$DEPLOYMENT").env"
+  if [ ! -f "$envFile" ]; then
+    envFileCreated=true
+    __catchEnvironment "$usage" environmentValueWrite DATABASE_HOST "$CONTAINER_DATABASE_HOST" >>"$envFile" || _clean $? "$envFile" || return $?
+    for variable in DATABASE_ROOT_PASSWORD CONTAINER_DATABASE_HOST; do
+      __catchEnvironment "$usage" environmentValueWrite "$variable" "${!variable}" >>"$envFile" || _clean $? "$envFile" || return $?
+    done
+  fi
+  __catchEnvironment "$usage" zeskCompose --build web "${cleanArgs[@]}" || return $?
+  ! $envFileCreated || __catchEnvironment "$usage" rm -f "$envFile" || return $?
 
   #==========================================================================================
   #  ▀▛▘     ▐
