@@ -128,11 +128,17 @@ zeskPipelineSetup() {
   start=$(__catchEnvironment "$usage" timingStart) || return $?
 
   local tempEnvironment
-  tempEnvironment=$(fileTemporaryName "$usage") || return $?
+  tempEnvironment="$home/.build.env" || return $?
   randomPassword=$(randomString)
   __catchEnvironment "$usage" urlParse --prefix "DSN_" --uppercase "mysqli://testUser:$randomPassword@$DATABASE_HOST$/testDatabase" >"$tempEnvironment" || _clean $? "$tempEnvironment" || return $?
-  DATABASE_NETWORK="%" __catchEnvironment "$usage" environmentFileLoad "$tempEnvironment" --execute mapEnvironment <./etc/docker/schema.sql | __catchEnvironment "$usage" mariadb "${databaseArguments[@]}" >>"$quietLog" || buildFailed "$quietLog" || _clean $? "$tempEnvironment" || return $?
-  __catchEnvironment "$usage" rm -f "$tempEnvironment" || return $?
+  {
+    __catchEnvironment "$usage" environmentValueWrite DATABASE_HOST "$CONTAINER_DATABASE_HOST" || return $?
+    __catchEnvironment "$usage" environmentValueWrite "DATABASE_NETWORK" "%" || return $?
+    for variable in "${requireEnvironment[@]}"; do
+      __catchEnvironment "$usage" environmentValueWrite "$variable" "${!variable}" || return $?
+    done
+  } >>"$tempEnvironment" || _clean $? "$tempEnvironment" || return $?
+  __catchEnvironment "$usage" environmentFileLoad "$tempEnvironment" --execute mapEnvironment <./etc/docker/schema.sql | __catchEnvironment "$usage" mariadb "${databaseArguments[@]}" >>"$quietLog" || buildFailed "$quietLog" || _clean $? "$tempEnvironment" || return $?
   statusMessage timingReport "$start" "Schema load completed in"
 
   #==========================================================================================
@@ -142,7 +148,7 @@ zeskPipelineSetup() {
   if test $clean; then
     if [ -d "./vendor" ]; then
       statusMessage decorate warning "Deleting ./vendor ..."
-      __catchEnvironment "$usage" rm -rf "./vendor" || return $?
+      __catchEnvironment "$usage" rm -rf "./vendor" || _clean $? "$tempEnvironment" || return $?
     fi
   fi
   #==========================================================================================
@@ -153,18 +159,15 @@ zeskPipelineSetup() {
   if test "$clean"; then
     cleanArgs=("--no-cache" "--pull")
   fi
-
-  local envFile envFileCreated=false
-  envFile="$home/.$(uppercase "$DEPLOYMENT").env"
-  if [ ! -f "$envFile" ]; then
-    envFileCreated=true
-    __catchEnvironment "$usage" environmentValueWrite DATABASE_HOST "$CONTAINER_DATABASE_HOST" >>"$envFile" || _clean $? "$envFile" || return $?
-    for variable in DATABASE_ROOT_PASSWORD CONTAINER_DATABASE_HOST; do
-      __catchEnvironment "$usage" environmentValueWrite "$variable" "${!variable}" >>"$envFile" || _clean $? "$envFile" || return $?
-    done
+  local undo=()
+  if [ -f "$home/.env" ]; then
+    undo+=(mv "$home/.env.$$" "$home/.env" --)
+    mv "$home/.env" "$home/.env.$$" || _clean $? "$tempEnvironment" || return $?
   fi
-  __catchEnvironment "$usage" zeskCompose --build web "${cleanArgs[@]}" || return $?
-  ! $envFileCreated || __catchEnvironment "$usage" rm -f "$envFile" || return $?
+  __catchEnvironment "$usage" cp "$home/.build.env" "$home/.env" || _clean $? "$tempEnvironment" || _undo $? "${undo[@]+"${undo[@]}"}" || return $?
+  __catchEnvironment "$usage" docker build "${cleanArgs[@]}" -f ./etc/docker/web.Dockerfile --tag zesk:latest || _clean $? "$tempEnvironment" || _undo $? "${undo[@]+"${undo[@]}"}" || return $?
+  __catchEnvironment "$usage" rm -f "$home/.env" || _clean $? "$tempEnvironment" || _undo $? "${undo[@]+"${undo[@]}"}" || return $?
+  _undo 0 "${undo[@]+"${undo[@]}"}" || return $?
 
   #==========================================================================================
   #  ▀▛▘     ▐
