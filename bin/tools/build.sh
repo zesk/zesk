@@ -111,7 +111,7 @@ zeskPipelineSetup() {
   databaseArguments=("-u" "root" "-p$DATABASE_ROOT_PASSWORD" "-h" "$DATABASE_HOST" "--port" "$DATABASE_PORT")
   statusMessage decorate info "Setting up database ... "
   {
-    figlet "Database"
+    bigText "Database"
     echoBar
     printf "%s" "COMMAND: mariadb"
     echo "${databaseArguments[@]}"
