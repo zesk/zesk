@@ -39,7 +39,7 @@
 /composer.lock
 /DEPRECATED/
 /etc/maintenance.json
-/fileCache/
+/.fileCache/
 /share/js/zesk.min.js
 /test-coverage/
 /test-reports/
