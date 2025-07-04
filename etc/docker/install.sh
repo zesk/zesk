@@ -25,28 +25,28 @@ __installDevelopment() {
 # Incomplete but add extensions as needed
 __phpExtensionDependency() {
   case "$1" in
-    curl)
-      if php -i | grep -q "with-curl"; then
-        return 1
-      fi
-      printf -- "%s\n" "libcurl4"
-      ;;
-    gd)
-      printf -- "%s\n" "zlib1g-dev" "libpng-dev" "libjpeg-dev"
-      ;;
-    # Built-in
-    json | readline | ftp)
+  curl)
+    if php -i | grep -q "with-curl"; then
       return 1
-      ;;
-    intl)
-      printf -- "%s\n" "libicu-dev"
-      ;;
-    zip)
-      printf -- "%s\n" "libzip-dev"
-      ;;
-    mysqli)
-      printf -- "%s\n" "mariadb-client"
-      ;;
+    fi
+    printf -- "%s\n" "libcurl4"
+    ;;
+  gd)
+    printf -- "%s\n" "zlib1g-dev" "libpng-dev" "libjpeg-dev"
+    ;;
+  # Built-in
+  json | readline | ftp)
+    return 1
+    ;;
+  intl)
+    printf -- "%s\n" "libicu-dev"
+    ;;
+  zip)
+    printf -- "%s\n" "libzip-dev"
+    ;;
+  mysqli)
+    printf -- "%s\n" "mariadb-client"
+    ;;
   esac
 }
 
@@ -134,21 +134,21 @@ __mapFiles() {
     local argument="$1" __index=$((__count - $# + 1))
     [ -n "$argument" ] || __throwArgument "$usage" "blank #$__index/$__count ($(decorate each quote "${__saved[@]}"))" || return $?
     case "$argument" in
-      # _IDENTICAL_ --help 4
-      --help)
-        "$usage" 0
-        return $?
-        ;;
-      --keep)
-        shift
-        local keep
-        keep=$(usageArgumentDirectory "$usage" "directory" "${1-}") || return $?
-        deleteArgs+=(! -path "${keep%/}")
-        ;;
-      *)
-        directory=$(usageArgumentDirectory "$usage" "directory" "${1-}") || return $?
-        directories+=("$directory")
-        ;;
+    # _IDENTICAL_ --help 4
+    --help)
+      "$usage" 0
+      return $?
+      ;;
+    --keep)
+      shift
+      local keep
+      keep=$(usageArgumentDirectory "$usage" "directory" "${1-}") || return $?
+      deleteArgs+=(! -path "${keep%/}")
+      ;;
+    *)
+      directory=$(usageArgumentDirectory "$usage" "directory" "${1-}") || return $?
+      directories+=("$directory")
+      ;;
     esac
     # _IDENTICAL_ argument-esac-shift 1
     shift
@@ -210,11 +210,11 @@ __productionValues() {
 # Argument: databaseSchema - String. Required.
 __portFromScheme() {
   case "${1-}" in
-    mysql*) printf "%d\n" 3306 ;;
-    postgres*) printf "%d\n" 5432 ;;
-    *)
-      __throwArgument "$usage" "Unknown database scheme: \"$1\"" || return $?
-      ;;
+  mysql*) printf "%d\n" 3306 ;;
+  postgres*) printf "%d\n" 5432 ;;
+  *)
+    __throwArgument "$usage" "Unknown database scheme: \"$1\"" || return $?
+    ;;
   esac
 }
 
@@ -246,7 +246,7 @@ __dsnExpansions() {
         statusMessage decorate info "$variable not a valid URL ..."
       else
         local host="" name="" port="" user="" password="" scheme="" suffix
-        eval "$(urlParse "$url")"
+        urlParse --uppercase --prefix "${variable}_" "$url"
         [ -n "$port" ] || port=$(__portFromScheme "$scheme") || return $?
         for suffix in scheme host name port user password; do
           __catchEnvironment "$usage" environmentValueWrite "${variable}_$(uppercase "$suffix")" "${!suffix}" >>"$target" || return $?
