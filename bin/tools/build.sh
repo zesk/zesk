@@ -182,15 +182,9 @@ zeskPipelineSetup() {
     cleanArgs=("--no-cache" "--pull")
   fi
   local undo=()
-  if [ -f "$home/.env" ]; then
-    undo+=(mv "$home/.env.$$" "$home/.env" --)
-    mv "$home/.env" "$home/.env.$$" || _clean $? "${clean[@]}" || return $?
-  fi
-  __catchEnvironment "$usage" cp "$home/.build.env" "$home/.env" || _clean $? "${clean[@]}" || _undo $? "${undo[@]+"${undo[@]}"}" || return $?
   __catchEnvironment "$usage" muzzle pushd "$home/etc/docker" || _clean $? "${clean[@]}" || _undo $? "${undo[@]+"${undo[@]}"}" || return $?
   undo+=(muzzle popd --)
   __catchEnvironment "$usage" docker build -D -f web.Dockerfile --tag zesk:latest "${cleanArgs[@]}" ../.. || _clean $? "${clean[@]}" || _undo $? "${undo[@]+"${undo[@]}"}" || return $?
-  __catchEnvironment "$usage" rm -f "$home/.env" || _clean $? "${clean[@]}" || _undo $? "${undo[@]+"${undo[@]}"}" || return $?
   _undo 0 "${undo[@]+"${undo[@]}"}" || return $?
 
   #==========================================================================================
@@ -202,15 +196,16 @@ zeskPipelineSetup() {
   clearLine
   statusMessage decorate info Testing ...
   for d in "test-results" ".zesk-coverage" "test-coverage" ".phpunit-cache"; do
-    [ -d "$d" ] || mkdir -p "$d"
+    [ -d "$d" ] || __catchEnvironment "$usage" mkdir -p "$d" || _clean $? "${clean[@]}" || return $?
   done
-  __catchEnvironment "$usage" docker run -v "$(pwd)/:/zesk" zesk:latest /zesk/bin/test-zesk.sh "$@" || return $?
+  __catchEnvironment "$usage" docker run -v "$(pwd)/:/zesk" zesk:latest /zesk/bin/test-zesk.sh "$@" || _clean $? "${clean[@]}" || return $?
   statusMessage timingReport "$start" "zesk-test.sh completed in"
+
+  __catchEnvironment "$usage" rm -f "${clean[@]}" || return $?
 
   statusMessage decorate info "Tagging ..."
   __catchEnvironment "$usage" gitTagVersion "${versionArgs[@]}" || return $?
-  statusMessage timingReport "$startSetup" "Setup complete."
-  printf -- "\n"
+  statusMessage --last timingReport "$startSetup" "Setup complete."
 }
 _zeskPipelineSetup() {
   # _IDENTICAL_ usageDocument 1
