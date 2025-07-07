@@ -184,7 +184,7 @@ zeskPipelineSetup() {
   local undo=()
   __catchEnvironment "$usage" muzzle pushd "$home/etc/docker" || _clean $? "${clean[@]}" || _undo $? "${undo[@]+"${undo[@]}"}" || return $?
   undo+=(muzzle popd --)
-  __catchEnvironment "$usage" docker build -D -f web.Dockerfile --tag zesk:latest "${cleanArgs[@]}" ../.. || _clean $? "${clean[@]}" || _undo $? "${undo[@]+"${undo[@]}"}" || return $?
+  __catchEnvironment "$usage" docker build -f web.Dockerfile --tag zesk:latest "${cleanArgs[@]}" ../.. || _clean $? "${clean[@]}" || _undo $? "${undo[@]+"${undo[@]}"}" || return $?
   _undo 0 "${undo[@]+"${undo[@]}"}" || return $?
 
   #==========================================================================================
