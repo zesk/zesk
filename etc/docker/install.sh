@@ -245,12 +245,11 @@ __dsnExpansions() {
         __catchEnvironment "$usage" environmentValueWrite "${variable}_ERROR" "not-urlValid: $url" || return $?
         statusMessage decorate info "$variable not a valid URL ..."
       else
-        local host="" name="" port="" user="" password="" scheme="" suffix
-        urlParse --uppercase --prefix "${variable}_" "$url"
+        local host="" name="" port="" user="" password="" scheme="" error="" portDefault=""
+        __catchEnvironment "$usage" urlParse --uppercase --prefix "${variable}_" "$url" >>"$target" || return $?
+        eval "$(urlParse "$url")"
+        : "$error" "$portDefault"
         [ -n "$port" ] || port=$(__portFromScheme "$scheme") || return $?
-        for suffix in scheme host name port user password; do
-          __catchEnvironment "$usage" environmentValueWrite "${variable}_$(uppercase "$suffix")" "${!suffix}" >>"$target" || return $?
-        done
         statusMessage --last printf -- "%s\n" "$(decorate pair "Database:" "$name ($scheme)")"
         printf -- "%s\n" "$(decorate pair "Host:" "$host:$port")" \
           "$(decorate pair "User:" "$user")" \
