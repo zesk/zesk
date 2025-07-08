@@ -198,8 +198,8 @@ zeskPipelineSetup() {
   for d in "test-results" ".zesk-coverage" "test-coverage" ".phpunit-cache"; do
     [ -d "$d" ] || __catchEnvironment "$usage" mkdir -p "$d" || _clean $? "${clean[@]}" || return $?
   done
-  __catchEnvironment "$usage" docker run -v "$(pwd)/:/zesk" zesk:latest /zesk/bin/test-zesk.sh "$@" || _clean $? "${clean[@]}" || return $?
-  statusMessage timingReport "$start" "zesk-test.sh completed in"
+  __catchEnvironment "$usage" docker run -v "$(pwd)/:/zesk" zesk:latest /zesk/bin/test.sh "$@" || _clean $? "${clean[@]}" || return $?
+  statusMessage timingReport "$start" "test.sh completed in"
 
   __catchEnvironment "$usage" rm -f "${clean[@]}" || return $?
 
