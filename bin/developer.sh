@@ -14,9 +14,14 @@
 if source "${BASH_SOURCE[0]%/*}/tools.sh"; then
 
   __zeskPHPDeveloperContext() {
-    local home
+    local handler="_return"
+    local home name
 
-    home=$(__environment buildHome) || return $?
+    home=$(__catch "$handler" buildHome) || return $?
+
+    name=$(__catch "$handler" buildEnvironmentGet APPLICATION_NAME) || return $?
+    [ -n "$name" ] || name=$(basename "$home")
+    bigText "$name"
 
     # shellcheck disable=SC2139
     alias z="$home/bin/zesk.sh"
@@ -29,11 +34,13 @@ if source "${BASH_SOURCE[0]%/*}/tools.sh"; then
       alias suZeskBash="__dockerPHPExec \"$home\" root bash"
     fi
 
-    reloadChanges --stop --quiet
-    reloadChanges --name "Zesk PHP Tools" bin/tools.sh bin/tools/
+    pathConfigure --last "$home/bin" "$home/vendor/bin"
+
+    __catch "$handler" muzzle reloadChanges --stop --quiet || return $?
+    __catch "$handler" reloadChanges --name "$name" bin/tools.sh bin/tools/ || return $?
+
     developerAnnounce < <(__applicationToolsList)
 
-    pathConfigure --last "$home/bin" "$home/vendor/bin"
   }
 
   __zeskPHPDeveloperContextUndo() {
