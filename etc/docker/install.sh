@@ -432,7 +432,7 @@ __buildRequirements() {
       return 1
     fi
     rm -rf "$tempFile"
-    if ! __aptWrapper install -y apt-utils toilet toilet-fonts jq pcregrep "$URL_FETCHER" >>"$tempFile"; then
+    if ! __aptWrapper install -y apt-utils toilet toilet-fonts jq pcre2-utils "$URL_FETCHER" >>"$tempFile"; then
       printf -- "%s\n" "apt-get install failed?" 1>&2
       cat "$tempFile"
       rm -rf "$tempFile"

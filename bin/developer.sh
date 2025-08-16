@@ -15,10 +15,11 @@ if source "${BASH_SOURCE[0]%/*}/tools.sh"; then
 
   __zeskPHPDeveloperContext() {
     local handler="_return"
-    local home name
+    local home
 
     home=$(__catch "$handler" buildHome) || return $?
 
+    local name
     name=$(__catch "$handler" buildEnvironmentGet APPLICATION_NAME) || return $?
     [ -n "$name" ] || name=$(basename "$home")
     bigText "$name"
