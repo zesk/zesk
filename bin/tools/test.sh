@@ -14,34 +14,32 @@
 # Additional arguments passed directly through to PHPUnit
 #
 zeskTest() {
-  local usage="_${FUNCNAME[0]}"
+  local handler="_${FUNCNAME[0]}"
   local top
 
   local cleanFlag=false doCoverage=false doStop=false
 
-  # _IDENTICAL_ argument-case-header 5
+  # _IDENTICAL_ argumentNonBlankLoopHandler 6
   local __saved=("$@") __count=$#
   while [ $# -gt 0 ]; do
     local argument="$1" __index=$((__count - $# + 1))
-    [ -n "$argument" ] || __throwArgument "$usage" "blank #$__index/$__count ($(decorate each quote "${__saved[@]}"))" || return $?
+    # __IDENTICAL__ __checkBlankArgumentHandler 1
+    [ -n "$argument" ] || __throwArgument "$handler" "blank #$__index/$__count ($(decorate each quote "${__saved[@]}"))" || return $?
     case "$argument" in
-      # _IDENTICAL_ --help 4
-      --help)
-        "$usage" 0
-        return $?
-        ;;
-      --clean)
-        cleanFlag=true
-        ;;
-      --coverage)
-        doCoverage=true
-        ;;
-      --stop)
-        doStop=true
-        ;;
-      *)
-        break
-        ;;
+    # _IDENTICAL_ helpHandler 1
+    --help) "$handler" 0 && return $? || return $? ;;
+    --clean)
+      cleanFlag=true
+      ;;
+    --coverage)
+      doCoverage=true
+      ;;
+    --stop)
+      doStop=true
+      ;;
+    *)
+      break
+      ;;
     esac
     # _IDENTICAL_ argument-esac-shift 1
     shift
@@ -49,14 +47,14 @@ zeskTest() {
 
   set -eou pipefail
 
-  top=$(__catchEnvironment "$usage" "buildHome") || return $?
+  top=$(__catchEnvironment "$handler" buildHome) || return $?
 
   #  export PATH
 
   # pathConfigure --last "$top/vendor/bin"
 
   if [ -f "$top/.env" ]; then
-    __catch "$usage" environmentFileLoad "$top/.env" || return $?
+    __catch "$handler" environmentFileLoad "$top/.env" || return $?
     statusMessage decorate info "Loaded $(decorate file "$top/.env")"
   fi
 
@@ -67,18 +65,18 @@ zeskTest() {
         local thing=file
         [ ! -d "$item" ] || thing=directory
         statusMessage decorate warning "Deleted temporary $thing $(decorate file "$item")"
-        __catchEnvironment "$usage" rm -rf "$item" || return $?
+        __catchEnvironment "$handler" rm -rf "$item" || return $?
       fi
     done
   fi
-  __catchEnvironment "$usage" muzzle pushd "$top" || return $?
+  __catchEnvironment "$handler" muzzle pushd "$top" || return $?
 
   local needPaths=() args=()
   args+=("--disallow-test-output")
   args+=("--display-warnings" "--colors=auto")
   if $doCoverage; then
     local home
-    home=$(__catch "$usage" buildHome) || return $?
+    home=$(__catch "$handler" buildHome) || return $?
 
     # coverage_cache="./.zesk-coverage"
     # needPaths+=("$coverage_cache" "$home/test-coverage")
@@ -97,19 +95,19 @@ zeskTest() {
   args+=("--display-skipped")
 
   args+=("--log-events-text" "$top/phpunit.log")
-  __verifyDatabase "$usage" || return $?
+  __verifyDatabase "$handler" || return $?
 
   local testBinary="vendor/bin/phpunit" testResultPath="$top/test-results"
 
-  cacheDirectory=$(__catch "$usage" buildCacheDirectory "zeskTest") || return $?
+  cacheDirectory=$(__catch "$handler" buildCacheDirectory "zeskTest") || return $?
   args+=("--log-junit" "$testResultPath/junit.xml")
-  args+=("--order-by=defects" "--cache-result"  "--cache-directory" "$cacheDirectory" )
+  args+=("--order-by=defects" "--cache-result" "--cache-directory" "$cacheDirectory")
 
-  [ -x "$testBinary" ] || __throwEnvironment "$usage" "$testBinary does not exist or is not executable" || return $?
+  [ -x "$testBinary" ] || __throwEnvironment "$handler" "$testBinary does not exist or is not executable" || return $?
 
   needPaths+=("$testResultPath")
 
-  muzzle __catch "$usage" directoryRequire "${needPaths[@]}" || return $?
+  muzzle __catch "$handler" directoryRequire "${needPaths[@]}" || return $?
 
   __execute "$testBinary" "${args[@]}" "$@" || return $?
 }
@@ -125,20 +123,20 @@ __query() {
 }
 
 __verifyDatabase() {
-  local usage="$1" version user
+  local handler="$1" version user
 
   export DATABASE_HOST DATABASE DATABASE_ROOT_PASSWORD DATABASE_ROOT_USER DATABASE_TEST_NAME
 
   DATABASE_TEST_NAME=${DATABASE_TEST_NAME-zeskTest}
   if ! whichExists mariadb; then
-    __throwEnvironment "$usage" "Missing mariadb" || return $?
+    __throwEnvironment "$handler" "Missing mariadb" || return $?
   fi
   user=${DATABASE_ROOT_USER-root}
   DATABASE_ROOT_USER=$user
 
   version=$(printf "%s\n" "SELECT VERSION()" | __query 2>/dev/null || :)
   if [ -z "$version" ]; then
-    __throwEnvironment "$usage" "Unable to connect to $DATABASE_HOST as $user" || return $?
+    __throwEnvironment "$handler" "Unable to connect to $DATABASE_HOST as $user" || return $?
   fi
-  printf "%s\n" "CREATE DATABASE IF NOT EXISTS $DATABASE_TEST_NAME" | __catch "$usage" __query || return $?
+  printf "%s\n" "CREATE DATABASE IF NOT EXISTS $DATABASE_TEST_NAME" | __catch "$handler" __query || return $?
 }
