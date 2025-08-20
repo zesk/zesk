@@ -15,7 +15,7 @@
 # Example:     local undo thing
 # Example:     thing=$(__catchEnvironment "$handler" createLargeResource) || return $?
 # Example:     undo+=(-- deleteLargeResource "$thing")
-# Example:     thing=$(__catchEnvironment "$handler" createMassiveResource) || _undo $? "${undo[@]}" || return $?
+# Example:     thing=$(__catchEnvironment "$handler" createMassiveResource) || returnUndo $? "${undo[@]}" || return $?
 # Example:     undo+=(-- deleteMassiveResource "$thing")
 # Requires: isPositiveInteger __catchArgument decorate __execute
 # Requires: usageDocument
@@ -39,6 +39,6 @@ _undo() {
   return "$exitCode"
 }
 __undo() {
-  # _IDENTICAL_ usageDocument 1
+  # __IDENTICAL__ usageDocument 1
   usageDocument "${BASH_SOURCE[0]}" "${FUNCNAME[0]#_}" "$@"
 }

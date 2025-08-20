@@ -43,7 +43,7 @@ __hookPreCommitPHP() {
 
   local company
 
-  company=$(__catchEnvironment "$usage" buildEnvironmentGet BUILD_COMPANY) || return $?
+  company=$(__catch "$usage" buildEnvironmentGet BUILD_COMPANY) || return $?
 
   while read -r file; do
     while read -r line; do
@@ -63,7 +63,7 @@ __hookPreCommitPHP() {
     done <"$matches"
     decorate info "Opening $(decorate each code "${files[@]}") ..."
     muzzle contextOpen "${files[@]}" 2>&1 &
-    __throwEnvironment "$usage" "File pattern check failed" || _clean $? "$matches" || return $?
+    __throwEnvironment "$usage" "File pattern check failed" || returnClean $? "$matches" || return $?
   fi
   __catchEnvironment "$usage" rm -f "$matches" || return $?
 }

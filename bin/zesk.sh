@@ -63,7 +63,7 @@ __link() {
   local link="$here/$linkName" source="$path/$target"
   if [ ! -L "$link" ]; then
     if [ -f "$link" ]; then
-      __throwEnvironment "$usage" "$(decorate file "$link") exists and was not a link $(decorate code "$(betterType "$link")")" || :
+      __throwEnvironment "$usage" "$(decorate file "$link") exists and was not a link $(decorate code "$(fileType "$link")")" || :
       __catchEnvironment "$usage" mv "$link" "$link.$$.backup" || return $?
     fi
     __catchEnvironment "$usage" ln -s "$linkName" "$source" || return $?
@@ -183,7 +183,7 @@ __zesk() {
   __throwEnvironment "$usage" "No valid zesk application found" || return $?
 }
 ___zesk() {
-  # _IDENTICAL_ usageDocument 1
+  # __IDENTICAL__ usageDocument 1
   usageDocument "${BASH_SOURCE[0]}" "${FUNCNAME[0]#_}" "$@"
 }
 

@@ -30,18 +30,23 @@ if source "${BASH_SOURCE[0]%/*}/tools.sh"; then
 
     if whichExists docker; then
       # shellcheck disable=SC2139
-      alias zeskBash="__dockerPHPExec \"$home\" www-data bash"
+      alias zeskBash="__dockerPHPExec \"$home\" web www-data bash"
       # shellcheck disable=SC2139
-      alias suZeskBash="__dockerPHPExec \"$home\" root bash"
+      alias suZeskBash="__dockerPHPExec \"$home\" web root bash"
+      # shellcheck disable=SC2139
+      alias suZeskDB="__dockerPHPExec \"$home\" db root bash "
     fi
 
     pathConfigure --last "$home/bin" "$home/vendor/bin"
 
     __catch "$handler" muzzle reloadChanges --stop --quiet || return $?
-    __catch "$handler" reloadChanges --name "$name" bin/tools.sh bin/tools/ || return $?
+    __catch "$handler" reloadChanges --name "$name" "$home/bin/tools.sh" "$home/bin/tools/" || return $?
 
-    developerAnnounce < <(__applicationToolsList)
+    developerAnnounce < <(developerTrack)
 
+    export BUILD_PROJECT_DEACTIVATE
+
+    BUILD_PROJECT_DEACTIVATE="__zeskPHPDeveloperContextUndo"
   }
 
   __zeskPHPDeveloperContextUndo() {
@@ -49,7 +54,7 @@ if source "${BASH_SOURCE[0]%/*}/tools.sh"; then
 
     home=$(__environment buildHome) || return $?
     pathRemove "$home/bin" "$home/vendor/bin"
-    developerUndo < <(__applicationToolsList)
+    developerUndo < <(developerTrack)
   }
 
   __zeskPHPDeveloperContext

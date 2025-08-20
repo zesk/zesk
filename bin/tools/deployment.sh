@@ -39,7 +39,7 @@ zeskPrepareRelease() {
 
   local yml home
 
-  home=$(__catchEnvironment "$usage" buildHome) || return $?
+  home=$(__catch "$usage" buildHome) || return $?
   yml="$home/docker-compose.yml"
 
   [ -f "$yml" ] || __throwEnvironment "$usage" "Requires $(decorate file "$yml")" || return $?
@@ -48,14 +48,14 @@ zeskPrepareRelease() {
 
   export "${envs[@]}"
   # WAS ZESK_REPOSITORY_VERSION_PREFIX
-  __catchEnvironment "$usage" buildEnvironmentLoad "${envs[@]}" || return $?
+  __catch "$usage" buildEnvironmentLoad "${envs[@]}" || return $?
 
   if [ -z "${VERSION_URL-}" ]; then
     local owner
-    owner=$(__catchEnvironment "$usage" buildEnvironmentGet GITHUB_REPOSITORY_OWNER) || return $?
+    owner=$(__catch "$usage" buildEnvironmentGet GITHUB_REPOSITORY_OWNER) || return $?
     [ -n "$owner" ] || __throwEnvironment "$usage" "GITHUB_REPOSITORY_OWNER is blank" || return $?
     local name
-    name=$(__catchEnvironment "$usage" buildEnvironmentGet GITHUB_REPOSITORY_NAME) || return $?
+    name=$(__catch "$usage" buildEnvironmentGet GITHUB_REPOSITORY_NAME) || return $?
     [ -n "$name" ] || __throwEnvironment "$usage" "GITHUB_REPOSITORY_NAME is blank" || return $?
 
     VERSION_URL="https://github.com/$owner/$name/compare/{previous}...{current}"
@@ -153,6 +153,6 @@ zeskPrepareRelease() {
 
 }
 _zeskPrepareRelease() {
-  # _IDENTICAL_ usageDocument 1
+  # __IDENTICAL__ usageDocument 1
   usageDocument "${BASH_SOURCE[0]}" "${FUNCNAME[0]#_}" "$@"
 }

@@ -65,7 +65,7 @@ __installBinBuildVersion() {
   jsonFile=$(__installBinBuildJSON "$usage") || return $?
 
   # Version comparison
-  version=$(jsonField "$usage" "$jsonFile" .tag_name) || return $?
+  version=$(jsonField "$usage" "$jsonFile" .tag_name) || returnClean $? "$jsonFile" || return $?
   if [ -d "$packagePath" ] && [ -f "$packagePath/build.json" ]; then
     local latest
     myVersion=$(jq -r .version <"$packagePath/build.json")
@@ -73,13 +73,15 @@ __installBinBuildVersion() {
     latest=$(printf "%s\n" "$myVersion" "$version" | versionSort | tail -n 1)
     if [ "$myVersion" = "$latest" ]; then
       printf -- "%s %s" "$okIcon" "$(decorate info "$version")"
+      __catchEnvironment "$usage" rm -f "$jsonFile" || return $?
       return 0
     fi
     printf -- "%s %s️ %s" "$(decorate error "$myVersion")" "$upIcon" "$(decorate success "$version")"
   fi
 
   # URL caching
-  url=$(__githubInstallationURL "$usage" "$jsonFile") || return $?
+  url=$(__githubInstallationURL "$usage" "$jsonFile") || returnClean $? "$jsonFile" || return $?
+  __catchEnvironment "$usage" rm -f "$jsonFile" || return $?
   [ "${url#https://}" != "$url" ] || __throwArgument "$usage" "URL must begin with https://" || return $?
   ___TEMP_BIN_BUILD_URL="$url"
 
@@ -92,9 +94,11 @@ __installBinBuildCheck() {
   __installCheck "zesk/build" "build.json" "$@"
 }
 
-# _IDENTICAL_ jsonField 22
+# _IDENTICAL_ jsonField 29
 
 # Fetch a non-blank field from a JSON file with error handling
+# DOC TEMPLATE: --help 1
+# Argument: --help - Optional. Flag. Display this help.
 # Argument: handler - Function. Required. Error handler.
 # Argument: jsonFile - File. Required. A JSON file to parse
 # Argument: ... - Arguments. Optional. Passed directly to jq
@@ -104,6 +108,7 @@ __installBinBuildCheck() {
 # Exit Code: 1 - Field was not found or is blank
 # Requires: jq whichExists __throwEnvironment printf rm decorate head
 jsonField() {
+  [ "${1-}" != "--help" ] || __help "_${FUNCNAME[0]}" "$@" || return 0
   local handler="$1" jsonFile="$2" value message && shift 2
 
   [ -f "$jsonFile" ] || __throwEnvironment "$handler" "$jsonFile is not a file" || return $?
@@ -114,6 +119,10 @@ jsonField() {
   fi
   [ -n "$value" ] || __throwEnvironment "$handler" "$(printf -- "%s\n%s\n" "Selector $(decorate each code "$@") was blank from JSON:" "$(head -n 100 "$jsonFile")")" || return $?
   printf -- "%s\n" "$value"
+}
+_jsonField() {
+  # __IDENTICAL__ usageDocument 1
+  usageDocument "${BASH_SOURCE[0]}" "${FUNCNAME[0]#_}" "$@"
 }
 
 # IDENTICAL __installCheck 20
@@ -159,7 +168,7 @@ __installPackageConfiguration() {
   _installRemotePackage "$rel" "bin/build" "install-bin-build.sh" --version-function __installBinBuildVersion --url-function __installBinBuildURL --check-function __installBinBuildCheck --name "Zesk Build" "$@"
 }
 
-# IDENTICAL _installRemotePackage 400
+# IDENTICAL _installRemotePackage 399
 
 # Installs {name} in a local project directory if not installed. Also
 # will overwrite {source} with the latest version after installation.
@@ -220,9 +229,9 @@ __installPackageConfiguration() {
 # Argument: --diff - Optional. Flag. Show differences between old and new file.
 # Exit Code: 1 - Environment error
 # Exit Code: 2 - Argument error
-# Requires: cp rm cat printf realPath whichExists _return fileTemporaryName __catchArgument __throwArgument __catchEnvironment decorate usageArgumentString isFunction
+# Requires: cp rm cat printf realPath whichExists _return fileTemporaryName __catchArgument __throwArgument __catchEnvironment decorate usageArgumentString isFunction __decorateExtensionQuote
 _installRemotePackage() {
-  local usage="_${FUNCNAME[0]}"
+  local handler="_${FUNCNAME[0]}"
 
   local relative="${1-}" defaultPackagePath="${2-}" packageInstallerName="${3-}"
 
@@ -234,90 +243,88 @@ _installRemotePackage() {
   local localPath="" fetchArguments=() url="" versionFunction="" urlFunction="" checkFunction="" installers=()
   local installPath="" installArgs=() forceFlag=false installReason="" skipSelf=false
 
-  # _IDENTICAL_ argument-case-header 5
+  # _IDENTICAL_ argumentNonBlankLoopHandler 6
   local __saved=("$@") __count=$#
   while [ $# -gt 0 ]; do
     local argument="$1" __index=$((__count - $# + 1))
-    [ -n "$argument" ] || __throwArgument "$usage" "blank #$__index/$__count ($(decorate each quote "${__saved[@]}"))" || return $?
+    # __IDENTICAL__ __checkBlankArgumentHandler 1
+    [ -n "$argument" ] || __throwArgument "$handler" "blank #$__index/$__count ($(decorate each quote "${__saved[@]}"))" || return $?
     case "$argument" in
-    # _IDENTICAL_ --help 4
-    --help)
-      "$usage" 0
-      return $?
-      ;;
+    # _IDENTICAL_ helpHandler 1
+    --help) "$handler" 0 && return $? || return $? ;;
     --source)
       shift
-      source=$(usageArgumentString "$usage" "$argument" "${1-}") || return $?
+      source=$(usageArgumentString "$handler" "$argument" "${1-}") || return $?
       ;;
     --name)
       shift
-      name=$(usageArgumentString "$usage" "$argument" "${1-}") || return $?
+      name=$(usageArgumentString "$handler" "$argument" "${1-}") || return $?
       ;;
     --mock | --local)
-      [ -z "$localPath" ] || __throwArgument "$usage" "$argument already" || return $?
+      [ -z "$localPath" ] || __throwArgument "$handler" "$argument already" || return $?
       shift
-      [ -n "${1-}" ] || __throwArgument "$usage" "$argument blank argument #$__index" || return $?
-      localPath="$(__catchArgument "$usage" realPath "${1%/}")" || return $?
+      [ -n "${1-}" ] || __throwArgument "$handler" "$argument blank argument #$__index" || return $?
+      localPath="$(__catchArgument "$handler" realPath "${1%/}")" || return $?
       ;;
     --user | --header | --password)
       shift
-      fetchArguments+=("$argument" "$(usageArgumentString "$usage" "$argument" "${1-}")") || return $?
+      fetchArguments+=("$argument" "$(usageArgumentString "$handler" "$argument" "${1-}")") || return $?
       ;;
     --url)
       shift
-      [ -z "$url" ] || __throwArgument "$usage" "$argument already" || return $?
-      [ -n "${1-}" ] || __throwArgument "$usage" "$argument blank argument" || return $?
+      [ -z "$url" ] || __throwArgument "$handler" "$argument already" || return $?
+      [ -n "${1-}" ] || __throwArgument "$handler" "$argument blank argument" || return $?
       url="$1"
       ;;
     --version-function)
       shift
-      [ -z "$versionFunction" ] || __throwArgument "$usage" "$argument already" || return $?
-      isFunction "${1-}" || __throwArgument "$usage" "$argument not callable: ${1-}" || return $?
+      [ -z "$versionFunction" ] || __throwArgument "$handler" "$argument already" || return $?
+      isFunction "${1-}" || __throwArgument "$handler" "$argument not callable: ${1-}" || return $?
       versionFunction="$1"
       ;;
     --url-function)
       shift
-      [ -z "$urlFunction" ] || __throwArgument "$usage" "$argument already" || return $?
-      isFunction "${1-}" || __throwArgument "$usage" "$argument not callable: ${1-}" || return $?
+      [ -z "$urlFunction" ] || __throwArgument "$handler" "$argument already" || return $?
+      isFunction "${1-}" || __throwArgument "$handler" "$argument not callable: ${1-}" || return $?
       urlFunction="$1"
       ;;
     --check-function)
       shift
-      [ -z "$checkFunction" ] || __throwArgument "$usage" "$argument already" || return $?
-      isFunction "${1-}" || __throwArgument "$usage" "$argument not callable: ${1-}" || return $?
+      [ -z "$checkFunction" ] || __throwArgument "$handler" "$argument already" || return $?
+      isFunction "${1-}" || __throwArgument "$handler" "$argument not callable: ${1-}" || return $?
       checkFunction="$1"
       ;;
     --installer)
       shift
-      installers+=("$(usageArgumentString "$usage" "$argument" "${1-}")") || return $?
+      installers+=("$(usageArgumentString "$handler" "$argument" "${1-}")") || return $?
       ;;
     #
     # I believe this ensures that the process running does not modify its source script directly
     #
-    # 1. Copy new script to bin/installer.sh.$$
-    # 2. Run exec bin/installer.sh.$$ --replace bin/installer.sh
+    # 1. Copy new script to bin/install.sample.sh.$$
+    # 2. Run exec bin/install.sample.sh.$$ --replace bin/install.sample.sh
     # 3. Memory reloaded with "new" version of script
     # 4. New version copies itself (.sh.$$) to old installer (.sh version), and runs
-    # 4. exec bin/installer.sh --finalize bin/installer.sh.$$
-    # 5. Loads NEW version of script, and then deletes `bin/installer.sh.$$` and exits
+    # 4. exec bin/install.sample.sh --finalize bin/install.sample.sh.$$
+    # 5. Loads NEW version of script, and then deletes `bin/install.sample.sh.$$` and exits
     #
     # But I could be wrong.
     #
     --replace)
       local newName
       shift
-      newName=$(usageArgumentString "$usage" "$argument" "${1-}") || return $?
+      newName=$(usageArgumentString "$handler" "$argument" "${1-}") || return $?
       decorate bold-blue "Updating -> $(decorate bold-orange "$newName")"
-      __catchEnvironment "$usage" cp -f "${BASH_SOURCE[0]}" "$newName" || return $?
-      __catchEnvironment "$usage" chmod +x "$newName" || return $?
+      __catchEnvironment "$handler" cp -f "${BASH_SOURCE[0]}" "$newName" || return $?
+      __catchEnvironment "$handler" chmod +x "$newName" || return $?
       exec "$newName" --finalize "${BASH_SOURCE[0]}" || return $?
       return 0
       ;;
     --finalize)
       local oldName
       shift
-      oldName=$(usageArgumentString "$usage" "$argument" "${1-}") || return $?
-      __catchEnvironment "$usage" rm -rf "$oldName" || return $?
+      oldName=$(usageArgumentString "$handler" "$argument" "${1-}") || return $?
+      __catchEnvironment "$handler" rm -rf "$oldName" || return $?
       return 0
       ;;
     --debug)
@@ -334,36 +341,35 @@ _installRemotePackage() {
       installArgs+=("$argument")
       ;;
     *)
-      installPath=$(usageArgumentString "$usage" "installPath" "$1") || return $?
+      installPath=$(usageArgumentString "$handler" "installPath" "$1") || return $?
       installPath="${installPath%/}"
       ;;
     esac
-    # _IDENTICAL_ argument-esac-shift 1
     shift
   done
 
   local installFlag=false
   local myBinary myPath applicationHome installPath packagePath
   # Move to starting point
-  myBinary=$(__catchEnvironment "$usage" realPath "${BASH_SOURCE[0]}") || return $?
+  myBinary=$(__catchEnvironment "$handler" realPath "${BASH_SOURCE[0]}") || return $?
   myPath="${myBinary%/*}" || return $?
-  applicationHome=$(__catchEnvironment "$usage" realPath "$myPath/$relative") || return $?
+  applicationHome=$(__catchEnvironment "$handler" realPath "$myPath/$relative") || return $?
   applicationHome="${applicationHome%/}"
   [ -n "$installPath" ] || installPath="$applicationHome/$defaultPackagePath"
   packagePath="${installPath#"$applicationHome"}"
   packagePath="${packagePath#/}"
 
-  __catchEnvironment "$usage" pushd "$applicationHome" || return $?
+  __catchEnvironment "$handler" pushd "$applicationHome" || return $?
   if [ -z "$url" ]; then
     if [ -n "$urlFunction" ]; then
-      url=$(__catchEnvironment "$usage" "$urlFunction" "$usage") || return $?
+      url=$(__catchEnvironment "$handler" "$urlFunction" "$handler") || return $?
       if [ -z "$url" ]; then
-        __throwArgument "$usage" "$urlFunction failed" || return $?
+        __throwArgument "$handler" "$urlFunction failed" || return $?
       fi
     fi
   fi
   if [ -z "$url" ] && [ -z "$localPath" ]; then
-    __throwArgument "$usage" "--local or --url|--url-function is required" || return $?
+    __throwArgument "$handler" "--local or --url|--url-function is required" || return $?
   fi
 
   if [ ! -d "$installPath" ]; then
@@ -374,7 +380,7 @@ _installRemotePackage() {
     installFlag=true
   elif ! $forceFlag && [ -n "$versionFunction" ]; then
     local newVersion=""
-    if newVersion=$("$versionFunction" "$usage" "$applicationHome" "$packagePath"); then
+    if newVersion=$("$versionFunction" "$handler" "$applicationHome" "$packagePath"); then
       printf "%s %s %s\n" "$(decorate value "$name")" "$(decorate info "Newest version installed")" "$newVersion"
       __installRemotePackageGitCheck "$applicationHome" "$packagePath" || :
       return 0
@@ -392,9 +398,9 @@ _installRemotePackage() {
   local message suffix
   if $installFlag; then
     local start
-    start=$(($(__catchEnvironment "$usage" date +%s) + 0)) || return $?
-    __installRemotePackageDirectory "$usage" "$packagePath" "$applicationHome" "$url" "$localPath" "${fetchArguments[@]+"${fetchArguments[@]}"}" || return $?
-    [ -d "$packagePath" ] || __throwEnvironment "$usage" "Unable to download and install $packagePath (not a directory, still)" || return $?
+    start=$(($(__catchEnvironment "$handler" date +%s) + 0)) || return $?
+    __installRemotePackageDirectory "$handler" "$packagePath" "$applicationHome" "$url" "$localPath" "${fetchArguments[@]+"${fetchArguments[@]}"}" || return $?
+    [ -d "$packagePath" ] || __throwEnvironment "$handler" "Unable to download and install $packagePath (not a directory, still)" || return $?
     message="Installed "
     suffix="in $(($(date +%s) - start)) seconds$binName"
   else
@@ -402,14 +408,14 @@ _installRemotePackage() {
     suffix="already installed"
   fi
   local messageFile
-  messageFile=$(fileTemporaryName "$usage") || return $?
+  messageFile=$(fileTemporaryName "$handler") || return $?
   if [ -n "$checkFunction" ]; then
-    "$checkFunction" "$usage" "$packagePath" >"$messageFile" 2>&1 || return $?
+    "$checkFunction" "$handler" "$packagePath" >"$messageFile" 2>&1 || return $?
   else
-    __catchEnvironment "$usage" printf -- "%s\n" "$packagePath" >"$messageFile" || return $?
+    __catchEnvironment "$handler" printf -- "%s\n" "$packagePath" >"$messageFile" || return $?
   fi
   message="${message}Installed $(cat "$messageFile") $suffix"
-  __catchEnvironment "$usage" rm -f "$messageFile" || return $?
+  __catchEnvironment "$handler" rm -f "$messageFile" || return $?
   __installRemotePackageGitCheck "$applicationHome" "$packagePath" || :
   message="$message (local)$binName"
   printf -- "%s\n" "$message"
@@ -419,7 +425,7 @@ _installRemotePackage() {
   if [ "${#installers[@]}" -gt 0 ]; then
     local installer lastExit=0 installerLog
 
-    installerLog=$(fileTemporaryName "$usage") || return $?
+    installerLog=$(fileTemporaryName "$handler") || return $?
 
     for installer in "${installers[@]}"; do
       local ignoreErrors=false
@@ -428,15 +434,15 @@ _installRemotePackage() {
         installer="${installer#@}"
       fi
       if [ ! -f "$installer" ]; then
-        __throwEnvironment "$usage" "$installer is missing" || exitCode=$?
+        __throwEnvironment "$handler" "$installer is missing" || exitCode=$?
         continue
       fi
       if [ ! -x "$installer" ]; then
-        __throwEnvironment "$usage" "$installer is not executable" || exitCode=$?
+        __throwEnvironment "$handler" "$installer is not executable" || exitCode=$?
         continue
       fi
       decorate info "Running installer $(decorate code "$installer") ($ignoreErrors) ..."
-      __catchEnvironment "$usage" "$installer" >"$installerLog" 2>&1 || lastExit=$?
+      __catchEnvironment "$handler" "$installer" >"$installerLog" 2>&1 || lastExit=$?
       if [ $lastExit -gt 0 ]; then
         if $ignoreErrors; then
           decorate warning "Installer $(decorate code "$installer") did not succeed [$(decorate value "$lastExit")]"
@@ -483,17 +489,17 @@ __installRemotePackageDebug() {
 # Requires: uname pushd popd rm tar dirname
 # Requires: __catchEnvironment __throwEnvironment urlFetch
 __installRemotePackageDirectory() {
-  local usage="$1" packagePath="$2" applicationHome="$3" url="$4" localPath="$5"
+  local handler="$1" packagePath="$2" applicationHome="$3" url="$4" localPath="$5"
   local start tarArgs osName
   local target="$applicationHome/.$$.package.tar.gz"
 
   shift 5
   if [ -n "$localPath" ]; then
-    __installRemotePackageDirectoryLocal "$usage" "$packagePath" "$applicationHome" "$localPath"
+    __installRemotePackageDirectoryLocal "$handler" "$packagePath" "$applicationHome" "$localPath"
     return $?
   fi
-  __catchEnvironment "$usage" urlFetch "$url" "$target" || return $?
-  [ -f "$target" ] || __throwEnvironment "$usage" "$target does not exist after download from $url" || return $?
+  __catchEnvironment "$handler" urlFetch "$url" "$target" || return $?
+  [ -f "$target" ] || __throwEnvironment "$handler" "$target does not exist after download from $url" || return $?
   packagePath=${packagePath%/}
   packagePath=${packagePath#/}
   if ! osName="$(uname)" || [ "$osName" != "Darwin" ]; then
@@ -501,31 +507,31 @@ __installRemotePackageDirectory() {
   else
     tarArgs=(--include="*$packagePath/*")
   fi
-  __catchEnvironment "$usage" pushd "$(dirname "$target")" >/dev/null || return $?
-  __catchEnvironment "$usage" rm -rf "$packagePath" || return $?
-  __catchEnvironment "$usage" tar xf "$target" --strip-components=1 "${tarArgs[@]}" || return $?
-  __catchEnvironment "$usage" popd >/dev/null || return $?
+  __catchEnvironment "$handler" pushd "$(dirname "$target")" >/dev/null || return $?
+  __catchEnvironment "$handler" rm -rf "$packagePath" || return $?
+  __catchEnvironment "$handler" tar xf "$target" --strip-components=1 "${tarArgs[@]}" || return $?
+  __catchEnvironment "$handler" popd >/dev/null || return $?
   rm -f "$target" || :
 }
 
 # Install the build directory from a copy
 # Requires: rm mv cp mkdir
-# Requires: _undo __catchEnvironment __throwEnvironment
+# Requires: returnUndo __catchEnvironment __throwEnvironment
 __installRemotePackageDirectoryLocal() {
-  local usage="$1" packagePath="$2" applicationHome="$3" localPath="$4" installPath tempPath
+  local handler="$1" packagePath="$2" applicationHome="$3" localPath="$4" installPath tempPath
 
   installPath="${applicationHome%/}/${packagePath#/}"
   # Clean target regardless
   if [ -d "$installPath" ]; then
     tempPath="$installPath.aboutToDelete.$$"
-    __catchEnvironment "$usage" rm -rf "$tempPath" || return $?
-    __catchEnvironment "$usage" mv -f "$installPath" "$tempPath" || return $?
-    __catchEnvironment "$usage" cp -r "$localPath" "$installPath" || _undo $? rf -f "$installPath" -- mv -f "$tempPath" "$installPath" || return $?
-    __catchEnvironment "$usage" rm -rf "$tempPath" || :
+    __catchEnvironment "$handler" rm -rf "$tempPath" || return $?
+    __catchEnvironment "$handler" mv -f "$installPath" "$tempPath" || return $?
+    __catchEnvironment "$handler" cp -r "$localPath" "$installPath" || returnUndo $? rf -f "$installPath" -- mv -f "$tempPath" "$installPath" || return $?
+    __catchEnvironment "$handler" rm -rf "$tempPath" || :
   else
-    tempPath=$(__catchEnvironment "$usage" dirname "$installPath") || return $?
-    [ -d "$tempPath" ] || __catchEnvironment "$usage" mkdir -p "$tempPath" || return $?
-    __catchEnvironment "$usage" cp -r "$localPath" "$installPath" || return $?
+    tempPath=$(__catchEnvironment "$handler" dirname "$installPath") || return $?
+    [ -d "$tempPath" ] || __catchEnvironment "$handler" mkdir -p "$tempPath" || return $?
+    __catchEnvironment "$handler" cp -r "$localPath" "$installPath" || return $?
   fi
 }
 
@@ -547,7 +553,7 @@ __installRemotePackageGitCheck() {
 
 # Usage: {fn} _installRemotePackageSource targetBinary relativePath
 # Requires: grep printf chmod wait
-# Requires: _environment isUnsignedInteger cat _clean
+# Requires: _environment isUnsignedInteger cat returnClean
 __installRemotePackageLocal() {
   local source="$1" myBinary="$2" relTop="$3"
   {
@@ -561,7 +567,8 @@ __installRemotePackageLocal() {
   exec "$myBinary.$$" --replace "$myBinary"
 }
 
-# IDENTICAL versionSort 51
+# <-- END of IDENTICAL _installRemotePackage
+# IDENTICAL versionSort 48
 
 # Summary: Sort versions in the format v0.0.0
 #
@@ -579,30 +586,27 @@ __installRemotePackageLocal() {
 # Example:    git tag | grep -e '^v[0-9.]*$' | versionSort
 # Requires: __throwArgument sort usageDocument
 versionSort() {
-  local usage="_${FUNCNAME[0]}"
+  local handler="_${FUNCNAME[0]}"
 
   local reverse=""
 
-  # _IDENTICAL_ argument-case-header 5
+  # _IDENTICAL_ argumentNonBlankLoopHandler 6
   local __saved=("$@") __count=$#
   while [ $# -gt 0 ]; do
     local argument="$1" __index=$((__count - $# + 1))
-    [ -n "$argument" ] || __throwArgument "$usage" "blank #$__index/$__count ($(decorate each quote "${__saved[@]}"))" || return $?
+    # __IDENTICAL__ __checkBlankArgumentHandler 1
+    [ -n "$argument" ] || __throwArgument "$handler" "blank #$__index/$__count ($(decorate each quote "${__saved[@]}"))" || return $?
     case "$argument" in
-    # _IDENTICAL_ --help 4
-    --help)
-      "$usage" 0
-      return $?
-      ;;
+    # _IDENTICAL_ helpHandler 1
+    --help) "$handler" 0 && return $? || return $? ;;
     -r | --reverse)
       reverse="r"
       ;;
     *)
-      # _IDENTICAL_ argumentUnknown 1
-      __throwArgument "$usage" "unknown #$__index/$__count \"$argument\" ($(decorate each code "${__saved[@]}"))" || return $?
+      # _IDENTICAL_ argumentUnknownHandler 1
+      __throwArgument "$handler" "unknown #$__index/$__count \"$argument\" ($(decorate each code "${__saved[@]}"))" || return $?
       ;;
     esac
-    # _IDENTICAL_ argument-esac-shift 1
     shift
   done
   sort -t . -k "1.2,1n$reverse" -k "2,2n$reverse" -k "3,3n$reverse"
@@ -610,26 +614,26 @@ versionSort() {
 _versionSort() {
   # Fix SC2120
   ! false || versionSort --help
-  # _IDENTICAL_ usageDocument 1
+  # __IDENTICAL__ usageDocument 1
   usageDocument "${BASH_SOURCE[0]}" "${FUNCNAME[0]#_}" "$@"
 }
 
 # IDENTICAL usageArgumentCore 13
 
 # Require an argument to be non-blank
-# Argument: usage - Required. Function. Usage function to call upon failure.
+# Argument: handler - Required. Function. Usage function to call upon failure.
 # Argument: argument - Required. String. Name of the argument used in error messages.
 # Argument: value - Optional. String, Value which should be non-blank otherwise an argument error is thrown.
 # Exit Code: 2 - If `value` is blank
 # Exit code: 0 - If `value` is non-blank
 usageArgumentString() {
-  local usage="$1" argument="$2"
+  local handler="$1" argument="$2"
   shift 2 || :
-  [ -n "${1-}" ] || __throwArgument "$usage" "blank" "$argument" || return $?
+  [ -n "${1-}" ] || __throwArgument "$handler" "blank" "$argument" || return $?
   printf "%s\n" "$1"
 }
 
-# IDENTICAL urlFetch 128
+# IDENTICAL urlFetch 125
 
 # Fetch URL content
 # DOC TEMPLATE: --help 1
@@ -648,30 +652,28 @@ usageArgumentString() {
 # Requires: __throwArgument __catchArgument
 # Requires: __throwEnvironment __catchEnvironment
 urlFetch() {
-  local usage="_${FUNCNAME[0]}"
+  local handler="_${FUNCNAME[0]}"
 
   local wgetArgs=() curlArgs=() headers wgetExists binary="" userHasColons=false user="" password="" format="" url="" target=""
 
   wgetExists=$(whichExists wget && printf true || printf false)
 
-  # _IDENTICAL_ argument-case-header 5
+  # _IDENTICAL_ argumentNonBlankLoopHandler 6
   local __saved=("$@") __count=$#
   while [ $# -gt 0 ]; do
     local argument="$1" __index=$((__count - $# + 1))
-    [ -n "$argument" ] || __throwArgument "$usage" "blank #$__index/$__count ($(decorate each quote "${__saved[@]}"))" || return $?
+    # __IDENTICAL__ __checkBlankArgumentHandler 1
+    [ -n "$argument" ] || __throwArgument "$handler" "blank #$__index/$__count ($(decorate each quote "${__saved[@]}"))" || return $?
     case "$argument" in
-    # _IDENTICAL_ --help 4
-    --help)
-      "$usage" 0
-      return $?
-      ;;
+    # _IDENTICAL_ helpHandler 1
+    --help) "$handler" 0 && return $? || return $? ;;
     --header)
       shift
       local name value
       name="${1%%:}"
       value="${1#*:}"
       if [ "$name" = "$1" ] || [ "$value" = "$1" ]; then
-        __catchArgument "$usage" "Invalid $argument $1 passed" || return $?
+        __catchArgument "$handler" "Invalid $argument $1 passed" || return $?
       fi
       headers+=("$1")
       curlArgs+=("--header" "$1")
@@ -685,12 +687,12 @@ urlFetch() {
       ;;
     --binary)
       shift
-      binary=$(usageArgumentString "$usage" "$argument" "${1-}") || return $?
-      whichExists "$binary" || __throwArgument "$usage" "$binary must be in PATH: $PATH" || return $?
+      binary=$(usageArgumentString "$handler" "$argument" "${1-}") || return $?
+      whichExists "$binary" || __throwArgument "$handler" "$binary must be in PATH: $PATH" || return $?
       ;;
     --argument-format)
-      format=$(usageArgumentString "$usage" "$argument" "${1-}") || return $?
-      case "$format" in curl | wget) ;; *) __throwArgument "$usage" "$argument must be curl or wget" || return $? ;; esac
+      format=$(usageArgumentString "$handler" "$argument" "${1-}") || return $?
+      case "$format" in curl | wget) ;; *) __throwArgument "$handler" "$argument must be curl or wget" || return $? ;; esac
       ;;
     --password)
       shift
@@ -698,7 +700,7 @@ urlFetch() {
       ;;
     --user)
       shift
-      user=$(usageArgumentString "$usage" "$argument (user)" "$user") || return $?
+      user=$(usageArgumentString "$handler" "$argument (user)" "$user") || return $?
       if [ "$user" != "${user#*:}" ]; then
         userHasColons=true
       fi
@@ -709,7 +711,7 @@ urlFetch() {
     --agent)
       shift
       local agent="$1"
-      [ -n "$agent" ] || __throwArgument "$usage" "$argument must be non-blank" || return $?
+      [ -n "$agent" ] || __throwArgument "$handler" "$argument must be non-blank" || return $?
       wgetArgs+=("--user-agent=$1")
       curlArgs+=("--user-agent" "$1")
       genericArgs+=("$argument" "$1")
@@ -722,12 +724,11 @@ urlFetch() {
         shift
         break
       else
-        # _IDENTICAL_ argumentUnknown 1
-        __throwArgument "$usage" "unknown #$__index/$__count \"$argument\" ($(decorate each code "${__saved[@]}"))" || return $?
+        # _IDENTICAL_ argumentUnknownHandler 1
+        __throwArgument "$handler" "unknown #$__index/$__count \"$argument\" ($(decorate each code "${__saved[@]}"))" || return $?
       fi
       ;;
     esac
-    # _IDENTICAL_ argument-esac-shift 1
     shift
   done
 
@@ -737,7 +738,7 @@ urlFetch() {
     genericArgs+=("--user" "$user" "--password" "$password")
   fi
   if [ "$binary" = "curl" ] && $userHasColons; then
-    __throwArgument "$usage" "$argument: Users ($argument \"$(decorate code "$user")\") with colons are not supported by curl, use wget" || return $?
+    __throwArgument "$handler" "$argument: Users ($argument \"$(decorate code "$user")\") with colons are not supported by curl, use wget" || return $?
   fi
   if [ -z "$binary" ]; then
     if $wgetExists; then
@@ -746,20 +747,20 @@ urlFetch() {
       binary="curl"
     fi
   fi
-  [ -n "$binary" ] || __throwEnvironment "$usage" "wget or curl required" || return $?
+  [ -n "$binary" ] || __throwEnvironment "$handler" "wget or curl required" || return $?
   [ -n "$format" ] || format="$binary"
   case "$format" in
-  wget) __catchEnvironment "$usage" "$binary" -q --output-document="$target" --timeout=10 "${wgetArgs[@]+"${wgetArgs[@]}"}" "$url" "$@" || return $? ;;
-  curl) __catchEnvironment "$usage" "$binary" -L -s "$url" "$@" -o "$target" "${curlArgs[@]+"${curlArgs[@]}"}" || return $? ;;
-  *) __throwEnvironment "$usage" "No handler for binary format $(decorate value "$format") (binary is $(decorate code "$binary")) $(decorate each value "${genericArgs[@]}")" || return $? ;;
+  wget) __catchEnvironment "$handler" "$binary" -q --output-document="$target" --timeout=10 "${wgetArgs[@]+"${wgetArgs[@]}"}" "$url" "$@" || return $? ;;
+  curl) __catchEnvironment "$handler" "$binary" -L -s "$url" "$@" -o "$target" "${curlArgs[@]+"${curlArgs[@]}"}" || return $? ;;
+  *) __throwEnvironment "$handler" "No handler for binary format $(decorate value "$format") (binary is $(decorate code "$binary")) $(decorate each value "${genericArgs[@]}")" || return $? ;;
   esac
 }
 _urlFetch() {
-  # _IDENTICAL_ usageDocument 1
+  # __IDENTICAL__ usageDocument 1
   usageDocument "${BASH_SOURCE[0]}" "${FUNCNAME[0]#_}" "$@"
 }
 
-# IDENTICAL __help 33
+# IDENTICAL __help 55
 
 # Simple help argument handler.
 #
@@ -768,84 +769,125 @@ _urlFetch() {
 # Useful for utilities which single argument types, single arguments, and no arguments (except for `--help`)
 #
 # Oddly one of the few functions we can not offer the `--help` flag for.
-#
+# DOC TEMPLATE: noArgumentsForHelp 1
+# Without arguments, displays help.
 # Argument: --only - Flag. Optional. Must be first parameter. If calling function ONLY takes the `--help` parameter then throw an argument error if the argument is anything but `--help`.
-# Argument: usageFunction - Function. Required. Must be first or second parameter. If calling function ONLY takes the `--help` parameter then throw an argument error if the argument is anything but `--help`.
+# Argument: handlerFunction - Function. Required. Must be first or second parameter. If calling function ONLY takes the `--help` parameter then throw an argument error if the argument is anything but `--help`.
 # Argument: arguments ... - Arguments. Optional. Arguments passed to calling function to check for `--help` argument.
+#
+# Example:     # NOT DEFINED handler
+# Example:
 # Example:     __help "_${FUNCNAME[0]}" "$@" || return 0
-# Example:     __help "$usage" "$@" || return 0
-# Example:     [ $# -eq 0 ] || __help --only "_${FUNCNAME[0]}" "$@" || return 0
-# Example:     [ $# -eq 0 ] || __help --only "$usage" "$@" || return 0
-# Requires: __throwArgument
+# Example:     [ "$1" != "--help" ] || __help "_${FUNCNAME[0]}" "$@" || return 0
+# Example:     [ "${1-}" != "--help" ] || __help "_${FUNCNAME[0]}" "$@" || return 0
+# Example:     [ $# -eq 0 ] || __help --only "_${FUNCNAME[0]}" "$@" || return "$(convertValue $? 1 0)"
+# Example:
+# Example:     # DEFINED handler
+# Example:
+# Example:     local handler="_${FUNCNAME[0]}"
+# Example:     __help "$handler" "$@" || return 0
+# Example:     [ "$1" != "--help" ] || __help "$handler" "$@" || return 0
+# Example:     [ "${1-}" != "--help" ] || __help "$handler" "$@" || return 0
+# Example:     [ $# -eq 0 ] || __help --only "$handler" "$@" || return "$(convertValue $? 1 0)"
+# Example:
+# Example:     # Blank Arguments for help
+# Example:     [ $# -gt 0 ] || __help "_${FUNCNAME[0]}" --help || return 0
+# Example:     [ $# -gt 0 ] || __help "$handler" --help || return 0
+#
+# DEPRECATED-Example: [ $# -eq 0 ] || __help --only "_${FUNCNAME[0]}" "$@" || return $?
+# DEPRECATED-Example: [ $# -eq 0 ] || __help --only "$handler" "$@" || return $?
+#
+# Requires: __throwArgument usageDocument ___help
 __help() {
-  local usage="${1-}" && shift
-  if [ "$usage" = "--only" ]; then
-    usage="${1-}" && shift
+  [ $# -gt 0 ] || ! ___help 0 || return 0
+  local handler="${1-}" && shift
+  if [ "$handler" = "--only" ]; then
+    handler="${1-}" && shift
     [ $# -gt 0 ] || return 0
-    [ "$#" -eq 1 ] && [ "${1-}" = "--help" ] || __throwArgument "$usage" "Only argument allowed is --help: \"${1-}\"" || return $?
+    [ "$#" -eq 1 ] && [ "${1-}" = "--help" ] || __throwArgument "$handler" "Only argument allowed is --help: \"${1-}\"" || return $?
   fi
   while [ $# -gt 0 ]; do
-    if [ "$1" = "--help" ]; then
-      "$usage" 0
-      return 1
-    fi
+    [ "$1" != "--help" ] || ! "$handler" 0 || return 1
     shift
   done
   return 0
+}
+___help() {
+  # __IDENTICAL__ usageDocument 1
+  usageDocument "${BASH_SOURCE[0]}" "${FUNCNAME[0]#_}" "$@"
 }
 
 usageDocument() {
   usageDocumentSimple "$@"
 }
 
-# IDENTICAL usageDocumentSimple 20
+# IDENTICAL usageDocumentSimple 33
 
 # Output a simple error message for a function
+# DOC TEMPLATE: --help 1
+# Argument: --help - Optional. Flag. Display this help.
 # Argument: source - File. Required. File where documentation exists.
 # Argument: function - String. Required. Function to document.
 # Argument: returnCode - UnsignedInteger. Required. Exit code to return.
 # Argument: message ... - Optional. String. Message to display to the user.
-# Requires: bashFunctionComment decorate read printf exitString
+# Requires: bashFunctionComment decorate read printf exitString __help usageDocument
 usageDocumentSimple() {
-  local source="${1-}" functionName="${2-}" exitCode="${3-}" color helpColor="info" icon="❌" line prefix="" done=false skip=false && shift 3
+  [ "${1-}" != "--help" ] || __help "_${FUNCNAME[0]}" "$@" || return 0
+  local source="${1-}" functionName="${2-}" returnCode="${3-}" color helpColor="info" icon="❌" line prefix="" done=false skip=false && shift 3
 
-  case "$exitCode" in 0) icon="🏆" && color="info" && [ $# -ne 0 ] || skip=true ;; 1) color="error" ;; 2) color="bold-red" ;; *) color="orange" ;; esac
-  [ $# -eq 0 ] || [ "$exitCode" -ne 0 ]
-  $skip || printf -- "%s [%s] %s\n" "$icon" "$(decorate "code" "$(exitString "$exitCode")")" "$(decorate "$color" "$*")"
+  case "$returnCode" in 0) icon="🏆" && color="info" && [ $# -ne 0 ] || skip=true ;; 1) color="error" ;; 2) color="bold-red" ;; *) color="orange" ;; esac
+  [ "$returnCode" -eq 0 ] || exec 1>&2
+  $skip || printf -- "%s [%s] %s\n" "$icon" "$(decorate "code" "$(exitString "$returnCode")")" "$(decorate "$color" "$*")"
+  if [ ! -f "$source" ]; then
+    export BUILD_HOME
+    [ -d "${BUILD_HOME-}" ] || _argument "Unable to locate $source (${PWD-})" || return $?
+    source="$BUILD_HOME/$source"
+    [ -f "$source" ] || _argument "Unable to locate $source (${PWD-})" || return $?
+  fi
   while ! $done; do
     IFS='' read -r line || done=true
     printf "%s%s\n" "$prefix" "$(decorate "$helpColor" "$line")"
     prefix=""
-  done < <(bashFunctionComment "$source" "$functionName")
-  return "$exitCode"
+  done < <(bashFunctionComment "$source" "$functionName" | sed "s/{fn}/$functionName/g")
+  return "$returnCode"
+}
+_usageDocumentSimple() {
+  # __IDENTICAL__ usageDocument 1
+  usageDocument "${BASH_SOURCE[0]}" "${FUNCNAME[0]#_}" "$@"
 }
 
-# IDENTICAL bashFunctionComment 23
+# IDENTICAL bashFunctionComment 29
 
 # Extract a bash comment from a file. Excludes lines containing the following tokens:
 #
-# - `" IDENTICAL "` or `" _IDENTICAL_ "`
+# - `" IDENTICAL "` or `"_IDENTICAL_"`
 # - `"Internal:"` or `"INTERNAL:"`
 # - `"DOC TEMPLATE:"`
 #
 # Argument: source - File. Required. File where the function is defined.
 # Argument: functionName - String. Required. The name of the bash function to extract the documentation for.
-# Requires: grep cut reverseFileLines __help
+# Requires: grep cut fileReverseLines __help
 # Requires: usageDocument
 bashFunctionComment() {
   local source="${1-}" functionName="${2-}"
   local maxLines=1000
   __help "_${FUNCNAME[0]}" "$@" || return 0
-  grep -m 1 -B $maxLines "^$functionName() {" "$source" | grep -v -e '( IDENTICAL | _IDENTICAL_ |DOC TEMPLATE:|Internal:|INTERNAL:)' |
-    reverseFileLines | grep -B "$maxLines" -m 1 -E '^\s*$' |
-    reverseFileLines | grep -E '^#' | cut -c 3-
+  grep -m 1 -B $maxLines "^$functionName() {" "$source" | grep -v -e '\( IDENTICAL \|_IDENTICAL_\|DOC TEMPLATE:\|Internal:\|INTERNAL:\)' | fileReverseLines | sed -n -e '1d' -e '/^#/!q; p' | fileReverseLines | cut -c 3-
+  # Explained:
+  # - grep -m 1 ... - Finds the `function() {` string in the file and all lines afterwards
+  # - grep -v ... - Removes internal documentation and anything we want to hide from the user
+  # - fileReverseLines - First reversal to get that comment, file lines are reverse ordered
+  # - sed 1d - Deletes the first line (e.g. the `function() { ` which was the LAST thing in the line and is now our first line
+  # - sed -n '/^#/!q; p' - `-n` - disables automatic printing. /^#/!q quits when it does not match a '#' comment and prints all `#` lines (effectively outputting just the comment lines)
+  # - fileReverseLines - File is back to normal
+  # - cut -c 3- - Delete the first 2 characters on each line
 }
 _bashFunctionComment() {
-  # _IDENTICAL_ usageDocument 1
+  # __IDENTICAL__ usageDocument 1
   usageDocument "${BASH_SOURCE[0]}" "${FUNCNAME[0]#_}" "$@"
 }
 
-# IDENTICAL reverseFileLines 12
+# IDENTICAL fileReverseLines 18
 
 # Reverses a pipe's input lines to output using an awk trick.
 #
@@ -855,67 +897,101 @@ _bashFunctionComment() {
 # Source: https://web.archive.org/web/20090208232311/http://student.northpark.edu/pemente/awk/awk1line.txt
 # Credits: Eric Pement
 # Depends: awk
-reverseFileLines() {
+fileReverseLines() {
+  [ "${1-}" != "--help" ] || __help "_${FUNCNAME[0]}" "$@" || return 0
   awk '{a[i++]=$0} END {for (j=i-1; j>=0;) print a[j--] }'
 }
+_fileReverseLines() {
+  true || fileReverseLines --help
+  # __IDENTICAL__ usageDocument 1
+  usageDocument "${BASH_SOURCE[0]}" "${FUNCNAME[0]#_}" "$@"
+}
 
-# IDENTICAL _realPath 12
+# IDENTICAL _realPath 20
 
-# Usage: realPath argument
+# Find the full, actual path of a file avoiding symlinks or redirection.
+# See: readlink realpath
+# DOC TEMPLATE: noArgumentsForHelp 1
+# Without arguments, displays help.
 # Argument: file ... - Required. File. One or more files to `realpath`.
-# Requires: whichExists realpath
+# Requires: whichExists realpath __help usageDocument _argument
 realPath() {
-  [ -e "$1" ] || _argument "Not a file: $1" || return $?
+  # __IDENTICAL__ --help-when-blank 1
+  [ $# -gt 0 ] || __help "_${FUNCNAME[0]}" --help || return 0
   if whichExists realpath; then
     realpath "$@"
   else
     readlink -f -n "$@"
   fi
 }
+_realPath() {
+  # __IDENTICAL__ usageDocument 1
+  usageDocument "${BASH_SOURCE[0]}" "${FUNCNAME[0]#_}" "$@"
+}
 
-# IDENTICAL fileTemporaryName 19
+# IDENTICAL fileTemporaryName 33
 
-# Generate a temporary file name using mktemp, and fail using a function
-# Argument: handler - Function. Required. Function to call if mktemp fails. Function Type: _return
+# Wrapper for `mktemp`. Generate a temporary file name, and fail using a function
+# Argument: handler - Function. Required. Function to call on failure. Function Type: _return
 # DOC TEMPLATE: --help 1
 # Argument: --help - Optional. Flag. Display this help.
-# Argument: ... - Optional. Arguments. Any additional arguments are passed through to mktemp.
-# Requires: __help __catchEnvironment mktemp usageDocument
+# Argument: ... - Optional. Arguments. Any additional arguments are passed through.
+# Requires: mktemp __help __catchEnvironment usageDocument
+# BUILD_DEBUG: temp - Logs backtrace of all temporary files to a file in application root named after this function to detect and clean up leaks
 fileTemporaryName() {
   local handler="_${FUNCNAME[0]}"
   __help "$handler" "$@" || return 0
   handler="$1" && shift
-  __catchEnvironment "$handler" mktemp "$@" || return $?
+  local debug=";${BUILD_DEBUG-};"
+  if [ "${debug#*;temp;}" != "$debug" ]; then
+    local target="${BUILD_HOME-.}/.${FUNCNAME[0]}"
+    printf "%s" "fileTemporaryName: " >>"$target"
+    __catchEnvironment "$handler" mktemp "$@" | tee -a "$target" || return $?
+    local sources=() count=${#FUNCNAME[@]} index=0
+    while [ "$index" -lt "$count" ]; do
+      sources+=("${BASH_SOURCE[index + 1]-}:${BASH_LINENO[index]-"$LINENO"} - ${FUNCNAME[index]-}")
+      index=$((index + 1))
+    done
+    printf "%s\n" "${sources[@]}" "-- END" >>"$target"
+  else
+    __catchEnvironment "$handler" mktemp "$@" || return $?
+  fi
 }
 _fileTemporaryName() {
-  # _IDENTICAL_ usageDocument 1
+  # __IDENTICAL__ usageDocument 1
   usageDocument "${BASH_SOURCE[0]}" "${FUNCNAME[0]#_}" "$@"
 }
 
 # <-- END of IDENTICAL fileTemporaryName
 
-# IDENTICAL whichExists 19
+# IDENTICAL whichExists 25
 
+# Summary: Does a binary exist in the PATH?
+# DOC TEMPLATE: --help 1
+# Argument: --help - Optional. Flag. Display this help.
 # Argument: binary ... - Required. String. One or more Binaries to find in the system `PATH`.
 # Exit code: 0 - If all values are found
 # Exit code: 1 - If any value is not found
 # Requires: __throwArgument which decorate __decorateExtensionEach
 whichExists() {
-  local usage="_${FUNCNAME[0]}"
+  local handler="_${FUNCNAME[0]}"
+  [ "${1-}" != "--help" ] || __help "$handler" "$@" || return 0
   local __saved=("$@") __count=$#
-  [ $# -gt 0 ] || __throwArgument "$usage" "no arguments" || return $?
+  [ $# -gt 0 ] || __throwArgument "$handler" "no arguments" || return $?
   while [ $# -gt 0 ]; do
-    [ -n "${1-}" ] || __throwArgument "$usage" "blank argument #$((__count - $# + 1)) ($(decorate each code "${__saved[@]}"))" || return $?
+    local argument="$1" __index=$((__count - $# + 1))
+    # __IDENTICAL__ __checkBlankArgumentHandler 1
+    [ -n "$argument" ] || __throwArgument "$handler" "blank #$__index/$__count ($(decorate each quote "${__saved[@]}"))" || return $?
     which "$1" >/dev/null || return 1
     shift
   done
 }
 _whichExists() {
-  # _IDENTICAL_ usageDocument 1
+  # __IDENTICAL__ usageDocument 1
   usageDocument "${BASH_SOURCE[0]}" "${FUNCNAME[0]#_}" "$@"
 }
 
-# IDENTICAL _type 45
+# IDENTICAL _type 42
 
 # Test if an argument is a positive integer (non-zero)
 # Takes one argument only.
@@ -925,24 +1001,20 @@ _whichExists() {
 # Requires: __catchArgument isUnsignedInteger usageDocument
 isPositiveInteger() {
   # _IDENTICAL_ functionSignatureSingleArgument 2
-  local usage="_${FUNCNAME[0]}"
-  [ $# -eq 1 ] || __catchArgument "$usage" "Single argument only: $*" || return $?
-  if isUnsignedInteger "$1"; then
+  local handler="_${FUNCNAME[0]}"
+  [ $# -eq 1 ] || __catchArgument "$handler" "Single argument only: $*" || return $?
+  [ "${1-}" != "--help" ] || __help "$handler" "$@" || return 0
+  if isUnsignedInteger "${1-}"; then
     [ "$1" -gt 0 ] || return 1
-    return 0
-  fi
-  if [ "$1" = "--help" ]; then
-    "$usage" 0
     return 0
   fi
   return 1
 }
 _isPositiveInteger() {
-  # _IDENTICAL_ usageDocument 1
+  # __IDENTICAL__ usageDocument 1
   usageDocument "${BASH_SOURCE[0]}" "${FUNCNAME[0]#_}" "$@"
 }
 
-#
 # Test if argument are bash functions
 # Argument: string - Required. String to test if it is a bash function. Builtins are supported. `.` is explicitly not supported to disambiguate it from the current directory `.`.
 # If no arguments are passed, returns exit code 1.
@@ -951,55 +1023,54 @@ _isPositiveInteger() {
 # Requires: __catchArgument isUnsignedInteger usageDocument type
 isFunction() {
   # _IDENTICAL_ functionSignatureSingleArgument 2
-  local usage="_${FUNCNAME[0]}"
-  [ $# -eq 1 ] || __catchArgument "$usage" "Single argument only: $*" || return $?
+  local handler="_${FUNCNAME[0]}"
+  [ $# -eq 1 ] || __catchArgument "$handler" "Single argument only: $*" || return $?
+  [ "${1-}" != "--help" ] || __help "$handler" "$@" || return 0
   # Skip illegal options "--" and "-foo"
   [ "$1" = "${1#-}" ] || return 1
   case "$(type -t "$1")" in function | builtin) [ "$1" != "." ] || return 1 ;; *) return 1 ;; esac
 }
 _isFunction() {
-  # _IDENTICAL_ usageDocument 1
+  # __IDENTICAL__ usageDocument 1
   usageDocument "${BASH_SOURCE[0]}" "${FUNCNAME[0]#_}" "$@"
 }
 
-# IDENTICAL decorate 236
+# IDENTICAL decorate 240
 
 # Sets the environment variable `BUILD_COLORS` if not set, uses `TERM` to calculate
 #
 # Usage: hasColors
+# DOC TEMPLATE: --help 1
+# Argument: --help - Optional. Flag. Display this help.
 # Exit Code: 0 - Console or output supports colors
 # Exit Code: 1 - Colors are likely not supported by console
 # Environment: BUILD_COLORS - Optional. Boolean. Whether the build system will output ANSI colors.
 # Requires: isPositiveInteger tput
 hasColors() {
-  local usage="_${FUNCNAME[0]}"
-  local termColors
-  export BUILD_COLORS TERM
+  # --help is only argument allowed
+  [ $# -eq 0 ] || __help --only "_${FUNCNAME[0]}" "$@" || return "$(convertValue $? 1 0)"
 
-  [ "${1-}" != "--help" ] || ! "$usage" 0 || return 0
   # Values allowed for this global are true and false
-  # Important - must not use buildEnvironmentLoad BUILD_COLORS TERM; then
-  BUILD_COLORS="${BUILD_COLORS-}"
-  if [ -z "$BUILD_COLORS" ]; then
+  # Important: DO NOT use buildEnvironmentLoad BUILD_COLORS TERM
+  export BUILD_COLORS
+  if [ -z "${BUILD_COLORS-}" ]; then
     BUILD_COLORS=false
     case "${TERM-}" in "" | "dumb" | "unknown") BUILD_COLORS=true ;; *)
+      local termColors
       termColors="$(tput colors 2>/dev/null)"
       isPositiveInteger "$termColors" || termColors=2
       [ "$termColors" -lt 8 ] || BUILD_COLORS=true
       ;;
     esac
-  elif [ "$BUILD_COLORS" = "1" ]; then
-    # Backwards
-    BUILD_COLORS=true
-  elif [ -n "$BUILD_COLORS" ] && [ "$BUILD_COLORS" != "true" ]; then
+  elif [ "${BUILD_COLORS-}" != "true" ]; then
     BUILD_COLORS=false
   fi
   [ "${BUILD_COLORS-}" = "true" ]
 }
 _hasColors() {
-  # _IDENTICAL_ usageDocument 1
+  true || hasColors --help
+  # __IDENTICAL__ usageDocument 1
   usageDocument "${BASH_SOURCE[0]}" "${FUNCNAME[0]#_}" "$@"
-  ! false || hasColors --help
 }
 
 #
@@ -1025,7 +1096,7 @@ __decorate() {
 # DOC TEMPLATE: --help 1
 # Argument: --help - Optional. Flag. Display this help.
 decorations() {
-  [ $# -eq 0 ] || __help --only "_${FUNCNAME[0]}" "$@" || return 0
+  [ $# -eq 0 ] || __help --only "_${FUNCNAME[0]}" "$@" || return "$(convertValue $? 1 0)"
   printf "%s\n" reset \
     underline no-underline bold no-bold \
     black black-contrast blue cyan green magenta orange red white yellow \
@@ -1034,7 +1105,7 @@ decorations() {
 }
 _decorations() {
   ! false || decorations --help
-  # _IDENTICAL_ usageDocument 1
+  # __IDENTICAL__ usageDocument 1
   usageDocument "${BASH_SOURCE[0]}" "${FUNCNAME[0]#_}" "$@"
 }
 
@@ -1043,28 +1114,29 @@ _decorations() {
 # Argument: style - String. Required. One of: reset underline no-underline bold no-bold black black-contrast blue cyan green magenta orange red white yellow bold-black bold-black-contrast bold-blue bold-cyan bold-green bold-magenta bold-orange bold-red bold-white bold-yellow code info notice success warning error subtle label value decoration
 # Argument: text - Text to output. If not supplied, outputs a code to change the style to the new style.
 # stdout: Decorated text
-# Requires: isFunction _argument awk __catchEnvironment usageDocument __executeInputSupport
+# Requires: isFunction _argument awk __catchEnvironment usageDocument __executeInputSupport __help
 decorate() {
-  local usage="_${FUNCNAME[0]}" text="" what="${1-}" lp dp style
-  shift && [ -n "$what" ] || __catchArgument "$usage" "Requires at least one argument: \"$*\"" || return $?
+  local handler="_${FUNCNAME[0]}" text="" what="${1-}" lp dp style
+  [ "$what" != "--help" ] || __help "_${FUNCNAME[0]}" "$@" || return 0
+  shift && [ -n "$what" ] || __catchArgument "$handler" "Requires at least one argument: \"$*\"" || return $?
 
-  if ! style=$(_decorateStyle "$what"); then
+  if ! style=$(__decorateStyle "$what"); then
     local extend func="${what/-/_}"
     extend="__decorateExtension$(printf "%s" "${func:0:1}" | awk '{print toupper($0)}')${func:1}"
-    # When this next line calls `__catchArgument` it results in an infinite loop
+    # When this next line calls `__catchArgument` it results in an infinite loop, so don't - use _argument
     # shellcheck disable=SC2119
     isFunction "$extend" || _argument printf -- "%s\n%s\n" "Unknown decoration name: $what ($extend)" "$(decorations)" || return $?
-    __executeInputSupport "$usage" "$extend" -- "$@" || return $?
+    __executeInputSupport "$handler" "$extend" -- "$@" || return $?
     return 0
   fi
   IFS=" " read -r lp dp text <<<"$style" || :
   [ "$dp" != "-" ] || dp="$lp"
   local p='\033['
 
-  __executeInputSupport "$usage" __decorate "$text" "${p}${lp}m" "${p}${dp:-$lp}m" "${p}0m" -- "$@" || return $?
+  __executeInputSupport "$handler" __decorate "$text" "${p}${lp}m" "${p}${dp:-$lp}m" "${p}0m" -- "$@" || return $?
 }
 _decorate() {
-  # _IDENTICAL_ usageDocument 1
+  # __IDENTICAL__ usageDocument 1
   usageDocument "${BASH_SOURCE[0]}" "${FUNCNAME[0]#_}" "$@"
 }
 
@@ -1077,7 +1149,7 @@ _decorateInitialize() {
 # dp may be a dash for simpler parsing - dp=lp when dp is blank or dash
 # text is optional, lp is required to be non-blank
 # Requires: isArray __decorateStyles
-_decorateStyle() {
+__decorateStyle() {
   local original style pattern=$'\n'"$1="
 
   _decorateInitialize || return $?
@@ -1145,8 +1217,10 @@ decoration=45;97 45;30
 # Also supports formatting input lines instead (on the same line)
 # Example:     decorate each code "$@"
 # Requires: decorate printf
+# Argument: style - String. Required. The style to decorate each element.
+# Argument: -- - Flag. Optional. Pass as the first argument after the style to avoid reading arguments from stdin.
 # Argument: --index - Flag. Optional. Show the index of each item before with a colon. `0:first 1:second` etc.
-# Argument: --count - Flag. Optional. Show the count of the items at the end in brackets `[11]`.
+# Argument: --count - Flag. Optional. Show the count of items in the list after the list is generated.
 __decorateExtensionEach() {
   local formatted=() item addIndex=false showCount=false index=0 prefix=""
 
@@ -1177,6 +1251,7 @@ __decorateExtensionEach() {
       done
     fi
   else
+    [ "${1-}" != "--" ] || shift
     while [ $# -gt 0 ]; do
       ! $addIndex || prefix="$index:"
       item="$1"
@@ -1200,6 +1275,8 @@ __decorateExtensionQuote() {
   printf -- "\"%s\"\n" "$text"
 }
 
+# <-- END of IDENTICAL decorate
+
 # _IDENTICAL_ __executeInputSupport 39
 
 # Support arguments and stdin as arguments to an executor
@@ -1207,7 +1284,7 @@ __decorateExtensionQuote() {
 # Argument: -- - Alone after the executor forces `stdin` to be ignored. The `--` flag is also removed from the arguments passed to the executor.
 # Argument: ... - Any additional arguments are passed directly to the executor
 __executeInputSupport() {
-  local usage="$1" executor=() && shift
+  local handler="$1" executor=() && shift
 
   while [ $# -gt 0 ]; do
     if [ "$1" = "--" ]; then
@@ -1224,28 +1301,29 @@ __executeInputSupport() {
   if [ $# -eq 0 ] && IFS="" read -r -t 1 -n 1 byte; then
     local line done=false
     if [ "$byte" = $'\n' ]; then
-      __catchEnvironment "$usage" "${executor[@]}" "" || return $?
+      __catchEnvironment "$handler" "${executor[@]}" "" || return $?
       byte=""
     fi
     while ! $done; do
       IFS="" read -r line || done=true
       [ -n "$byte$line" ] || ! $done || break
-      __catchEnvironment "$usage" "${executor[@]}" "$byte$line" || return $?
+      __catchEnvironment "$handler" "${executor[@]}" "$byte$line" || return $?
       byte=""
     done
   else
     if [ "${1-}" = "--" ]; then
       shift
     fi
-    __catchEnvironment "$usage" "${executor[@]}" "$@" || return $?
+    __catchEnvironment "$handler" "${executor[@]}" "$@" || return $?
   fi
 }
 
-# _IDENTICAL_ isArray 14
+# _IDENTICAL_ isArray 19
 
 # Is a variable declared as an array?
 # Argument: variableName - Required. String. Variable to check is an array.
 isArray() {
+  [ "${1-}" != "--help" ] || __help "_${FUNCNAME[0]}" "$@" || return 0
   while [ $# -gt 0 ]; do
     [ -n "${1-}" ] || return 1
     case "$(declare -p "${1-}" 2>/dev/null)" in
@@ -1256,18 +1334,29 @@ isArray() {
   done
   return 0
 }
-
-# _IDENTICAL_ _exitString 8
-
-# Output the exit code as a string
-# Winner of the one-line bash award 10 years running
-# Argument: code ... - UnsignedInteger. String. Exit code value to output.
-# stdout: exitCodeToken, one per line
-exitString() {
-  local k="" && while [ $# -gt 0 ]; do case "$1" in 0) k="success" ;; 1) k="environment" ;; 2) k="argument" ;; 97) k="assert" ;; 105) k="identical" ;; 108) k="leak" ;; 116) k="timeout" ;; 120) k="exit" ;; 127) k="not-found" ;; 141) k="interrupt" ;; 253) k="internal" ;; 254) k="unknown" ;; *) k="[exitString unknown \"$1\"]" ;; esac && [ -n "$k" ] || k="$1" && printf "%s\n" "$k" && shift; done
+_isArray() {
+  # __IDENTICAL__ usageDocument 1
+  usageDocument "${BASH_SOURCE[0]}" "${FUNCNAME[0]#_}" "$@"
 }
 
-# IDENTICAL _return 27
+# _IDENTICAL_ exitString 15
+
+# Output the exit code as a string
+#
+# INTERNAL: Winner of the one-line bash award 10 years running
+# Argument: code ... - UnsignedInteger. String. Exit code value to output.
+# DOC TEMPLATE: --help 1
+# Argument: --help - Optional. Flag. Display this help.
+# stdout: exitCodeToken, one per line
+exitString() {
+  local k="" && while [ $# -gt 0 ]; do case "$1" in 0) k="success" ;; 1) k="environment" ;; 2) k="argument" ;; 97) k="assert" ;; 105) k="identical" ;; 108) k="leak" ;; 116) k="timeout" ;; 120) k="exit" ;; 127) k="not-found" ;; 130) k="user-interrupt" ;; 141) k="interrupt" ;; 253) k="internal" ;; 254) k="unknown" ;; --help) "_${FUNCNAME[0]}" 0 && return $? || return $? ;; *) k="[exitString unknown \"$1\"]" ;; esac && [ -n "$k" ] || k="$1" && printf "%s\n" "$k" && shift; done
+}
+_exitString() {
+  # __IDENTICAL__ usageDocument 1
+  usageDocument "${BASH_SOURCE[0]}" "${FUNCNAME[0]#_}" "$@"
+}
+
+# IDENTICAL _return 29
 
 # Return passed in integer return code and output message to `stderr` (non-zero) or `stdout` (zero)
 # Argument: exitCode - Required. UnsignedInteger. Exit code to return. Default is 1.
@@ -1275,9 +1364,10 @@ exitString() {
 # Exit Code: exitCode
 # Requires: isUnsignedInteger printf _return
 _return() {
-  local code="${1:-1}" && shift 2>/dev/null
+  local to=1 icon="✅" code="${1:-1}" && shift 2>/dev/null
   isUnsignedInteger "$code" || _return 2 "${FUNCNAME[1]-none}:${BASH_LINENO[1]-} -> ${FUNCNAME[0]} non-integer \"$code\"" "$@" || return $?
-  [ "$code" -eq 0 ] && printf -- "✅ %s\n" "${*-§}" && return 0 || printf -- "❌ [%d] %s\n" "$code" "${*-§}" 1>&2
+  if [ "$code" -gt 0 ]; then icon="❌ [$code]" && to=2; fi
+  printf -- "%s %s\n" "$icon" "${*-§}" 1>&"$to"
   return "$code"
 }
 
@@ -1285,18 +1375,19 @@ _return() {
 # Source: https://stackoverflow.com/questions/806906/how-do-i-test-if-a-variable-is-a-number-in-bash
 # Credits: F. Hauri - Give Up GitHub (isnum_Case)
 # Original: is_uint
+# Argument: value - EmptyString. Value to test if it is an unsigned integer.
 # Usage: {fn} argument ...
 # Exit Code: 0 - if it is an unsigned integer
 # Exit Code: 1 - if it is not an unsigned integer
 # Requires: _return
 isUnsignedInteger() {
   [ $# -eq 1 ] || _return 2 "Single argument only: $*" || return $?
-  case "${1#+}" in '' | *[!0-9]*) return 1 ;; esac
+  case "${1#+}" in --help) usageDocument "${BASH_SOURCE[0]}" "${FUNCNAME[0]}" 0 ;; '' | *[!0-9]*) return 1 ;; esac
 }
 
 # <-- END of IDENTICAL _return
 
-# IDENTICAL _tinySugar 73
+# IDENTICAL _tinySugar 89
 
 # Run `handler` with an argument error
 # Usage: {fn} handler ...
@@ -1362,14 +1453,31 @@ __environment() {
   "$@" || _environment "$@" || return $?
 }
 
-# Usage: {fn} exitCode item ...
+# _IDENTICAL_ returnClean 21
+
+# Delete files or directories and return the same exit code passed in.
 # Argument: exitCode - Required. Integer. Exit code to return.
 # Argument: item - Optional. One or more files or folders to delete, failures are logged to stderr.
-# Requires: rm
-_clean() {
-  local r="${1-}" && shift && rm -rf "$@"
-  return "$r"
+# Requires: isUnsignedInteger _argument __environment usageDocument
+# Group: Sugar
+returnClean() {
+  local handler="_${FUNCNAME[0]}"
+  [ "${1-}" != "--help" ] || __help "$handler" "$@" || return 0
+  local exitCode="${1-}" && shift
+  if ! isUnsignedInteger "$exitCode"; then
+    __throwArgument "$handler" "$exitCode (not an integer) $*" || return $?
+  else
+    __environment rm -rf "$@" || return "$exitCode"
+    return "$exitCode"
+  fi
 }
+_returnClean() {
+  # __IDENTICAL__ usageDocument 1
+  usageDocument "${BASH_SOURCE[0]}" "${FUNCNAME[0]#_}" "$@"
+}
+
+# <-- END of IDENTICAL _tinySugar
+# <-- END of IDENTICAL _tinySugar
 
 # Argument: binary ... - Required. Executable. Any arguments are passed to `binary`.
 # Run binary and output failed command upon error
@@ -1378,25 +1486,30 @@ __execute() {
   "$@" || _return "$?" "$@" || return $?
 }
 
-# IDENTICAL _undo 37
+# IDENTICAL returnUndo 42
 
 # Run a function and preserve exit code
-# Returns `exitCode`
-# Argument: exitCode - Required. Integer. Exit code to return.
+# Returns `code`
+# DOC TEMPLATE: --help 1
+# Argument: --help - Optional. Flag. Display this help.
+# Argument: code - Required. UnsignedInteger. Exit code to return.
 # Argument: undoFunction - Optional. Command to run to undo something. Return status is ignored.
 # Argument: -- - Flag. Optional. Used to delimit multiple commands.
 # As a caveat, your command to `undo` can NOT take the argument `--` as a parameter.
 # Example:     local undo thing
 # Example:     thing=$(__catchEnvironment "$handler" createLargeResource) || return $?
 # Example:     undo+=(-- deleteLargeResource "$thing")
-# Example:     thing=$(__catchEnvironment "$handler" createMassiveResource) || _undo $? "${undo[@]}" || return $?
+# Example:     thing=$(__catchEnvironment "$handler" createMassiveResource) || returnUndo $? "${undo[@]}" || return $?
 # Example:     undo+=(-- deleteMassiveResource "$thing")
 # Requires: isPositiveInteger __catchArgument decorate __execute
 # Requires: usageDocument
-_undo() {
-  local __count=$# __saved=("$@") __usage="_${FUNCNAME[0]}" exitCode="${1-}" args=()
+returnUndo() {
+  local __count=$# __saved=("$@") __handler="_${FUNCNAME[0]}" code="${1-}" args=()
+  # __IDENTICAL__ __checkHelp1__handler 1
+  [ "${1-}" != "--help" ] || __help "$__handler" "$@" || return 0
   shift
-  isPositiveInteger "$exitCode" || __catchArgument "$__usage" "Not an integer $(decorate value "$exitCode") (#$__count: $(decorate each code "${__saved[@]+"${__saved[@]}"}"))" || return $?
+  # __IDENTICAL__ __checkCode__handler 1
+  isInteger "$code" || __throwArgument "$__handler" "Not integer: $(decorate value "[$code]") (#$__count $(decorate each code "${__saved[@]}"))" || return $?
   while [ $# -gt 0 ]; do
     case "$1" in
     --)
@@ -1410,10 +1523,10 @@ _undo() {
     shift
   done
   [ "${#args[@]}" -eq 0 ] || __execute "${args[@]}" || :
-  return "$exitCode"
+  return "$code"
 }
-__undo() {
-  # _IDENTICAL_ usageDocument 1
+_returnUndo() {
+  # __IDENTICAL__ usageDocument 1
   usageDocument "${BASH_SOURCE[0]}" "${FUNCNAME[0]#_}" "$@"
 }
 

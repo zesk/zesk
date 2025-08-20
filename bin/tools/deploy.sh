@@ -51,7 +51,7 @@ __zeskChangeLog() {
   #  Generate our release notes for the online release
   #  Update the code in CHANGELOG.md which is effectively a concatenation of files
   #
-  start=$(__catchEnvironment "$usage" timingStart) || return $?
+  start=$(__catch "$usage" timingStart) || return $?
   remoteChangeLogName=".release-notes.md"
   remoteChangeLog="./$remoteChangeLogName"
   {
@@ -82,12 +82,12 @@ zeskDeploy() {
 
   export "${ee[@]}"
 
-  home=$(__catchEnvironment "$usage" buildHome) || return $?
+  home=$(__catch "$usage" buildHome) || return $?
   releaseDate=$(__catchEnvironment "$usage" date) || return $?
-  releaseStart=$(__catchEnvironment "$usage" timingStart) || return $?
+  releaseStart=$(__catch "$usage" timingStart) || return $?
 
-  __catchEnvironment "$usage" buildEnvironmentLoad "${ee[@]}" || return $?
-  __catchEnvironment "$usage" environmentFileLoad --optional "$home/.local.env" --required "$home/.env" || return $?
+  __catch "$usage" buildEnvironmentLoad "${ee[@]}" || return $?
+  __catch "$usage" environmentFileLoad --optional "$home/.local.env" --required "$home/.env" || return $?
 
   [ -d "$home/.git" ] || __throwEnvironment "$usage" "Missing .git directory" || return $?
 
@@ -99,7 +99,7 @@ zeskDeploy() {
   currentVersion=$(__catchEnvironment "$usage" runHook version-current) || return $?
 
   printf "%s" "$(decorate info "Generating release notes and CHANGELOG ...")"
-  start=$(__catchEnvironment "$usage" timingStart) || return $?
+  start=$(__catch "$usage" timingStart) || return $?
   remoteChangeLog=$(__zeskChangeLog "$usage" "$currentVersion") || return $?
   printf "%s\n\n" "$(timingReport "$start" OK)"
 
@@ -120,7 +120,7 @@ zeskDeploy() {
 
   decorate info -n "Mark release in GitHub ... "
   usageRequireEnvironment "$usage" GITHUB_ACCESS_TOKEN GITHUB_REPOSITORY_OWNER GITHUB_REPOSITORY_NAME || return $?
-  start=$(__catchEnvironment "$usage" timingStart) || return $?
+  start=$(__catch "$usage" timingStart) || return $?
   githubRelease --token "$GITHUB_ACCESS_TOKEN" --owner "$GITHUB_REPOSITORY_OWNER" --name "$GITHUB_REPOSITORY_NAME" "$remoteChangeLog" "$currentVersion" || return $?
   printf "%s\n\n" "$(timingReport "$start" OK)"
 
@@ -131,7 +131,7 @@ zeskDeploy() {
   decorate info "Pull github and push origin ... " && echo
   decorate decoration "$(echoBar)"
   decorate info "git pull --all" && echo
-  start=$(__catchEnvironment "$usage" timingStart) || return $?
+  start=$(__catch "$usage" timingStart) || return $?
   # TODO Remove this if they are AOK
   __echo git pull --all || decorate red "Failed: $?"
   printf -- "\n"
@@ -147,6 +147,6 @@ zeskDeploy() {
 
 }
 _zeskDeploy() {
-  # _IDENTICAL_ usageDocument 1
+  # __IDENTICAL__ usageDocument 1
   usageDocument "${BASH_SOURCE[0]}" "${FUNCNAME[0]#_}" "$@"
 }

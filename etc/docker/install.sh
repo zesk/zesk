@@ -13,7 +13,7 @@ __aptWrapper() {
 # Install our base packages required for basic operations
 __installBase() {
   # Debian package names
-  packageInstall procps ssh bash software-properties-common net-tools bc zip unzip jq
+  packageInstall procps ssh bash net-tools bc zip unzip jq
 }
 
 # Install development packages for testing or development work
@@ -83,9 +83,9 @@ __installPHP() {
   elif ! whichExists composer; then
     local target="/usr/local/bin/composer"
     local tempBinary="$target.$$"
-    __catchEnvironment "$usage" urlFetch "https://getcomposer.org/composer.phar" "$tempBinary" || _clean $? "$tempBinary" || return $?
-    __catchEnvironment "$usage" mv -f "$tempBinary" "$target" || _clean $? "$tempBinary" || return $?
-    __catchEnvironment "$usage" chmod +x "$target" || _clean $? "$tempBinary" || return $?
+    __catch "$usage" urlFetch "https://getcomposer.org/composer.phar" "$tempBinary" || returnClean $? "$tempBinary" || return $?
+    __catchEnvironment "$usage" mv -f "$tempBinary" "$target" || returnClean $? "$tempBinary" || return $?
+    __catchEnvironment "$usage" chmod +x "$target" || returnClean $? "$tempBinary" || return $?
   fi
 
   while [ $# -gt 0 ]; do
@@ -106,7 +106,7 @@ __installPHP() {
         local dependencies=()
         IFS=$'\n' read -d "" -r -a dependencies < <(__phpExtensionDependency "$extension") || :
         statusMessage decorate info "Extension dependencies: $(decorate value "${#dependencies[@]} $(plural ${#dependencies[@]} library libraries)") $(decorate each code "${dependencies[@]}")"
-        [ "${#dependencies[@]}" -eq 0 ] || __catchEnvironment "$usage" packageInstall "${dependencies[@]}" || return $?
+        [ "${#dependencies[@]}" -eq 0 ] || __catch "$usage" packageInstall "${dependencies[@]}" || return $?
         __catchEnvironment "$usage" docker-php-ext-install "$extension" || return $?
       else
         decorate info "Extension $(decorate code "$extension") is not installable, skipping."
@@ -157,7 +157,7 @@ __mapFiles() {
   [ "${#directories[@]}" -gt 0 ] || __throwArgument "$usage" "No directory supplied" || return $?
 
   local fileCount=0 start
-  __catchEnvironment "$usage" environmentFileLoad "/etc/application.conf" || return $?
+  __catch "$usage" environmentFileLoad "/etc/application.conf" || return $?
   start=$(startTiming)
   for directory in "${directories[@]}"; do
     local fileName
@@ -166,7 +166,7 @@ __mapFiles() {
       newFileName="${newFileName#MAP.}"
       statusMessage decorate info "Mapping $(decorate subtle "$fileName") -> $(decorate green "$newFileName")"
       newFileName="$(dirname "$fileName")/$newFileName"
-      __catchEnvironment "$usage" mapEnvironment <"$fileName" >"${newFileName}" || return $?
+      __catch "$usage" mapEnvironment <"$fileName" >"${newFileName}" || return $?
       fileCount=$((fileCount + 1))
     done < <(find "$directory" -type f -name 'MAP.*')
     find "$directory" -type f -name 'MAP.*' "${deleteArgs[@]+"${deleteArgs[@]}"}" -exec rm "{}" \; || :
@@ -242,11 +242,11 @@ __dsnExpansions() {
     url=$(environmentValueRead "$target" "$variable") || url=""
     if [ -n "$url" ]; then
       if ! urlValid "$url"; then
-        __catchEnvironment "$usage" environmentValueWrite "${variable}_ERROR" "not-urlValid: $url" || return $?
+        __catch "$usage" environmentValueWrite "${variable}_ERROR" "not-urlValid: $url" || return $?
         statusMessage decorate info "$variable not a valid URL ..."
       else
         local host="" name="" port="" user="" password="" scheme="" error="" portDefault=""
-        __catchEnvironment "$usage" urlParse --uppercase --prefix "${variable}_" "$url" >>"$target" || return $?
+        __catch "$usage" urlParse --uppercase --prefix "${variable}_" "$url" >>"$target" || return $?
         eval "$(urlParse "$url")"
         : "$error" "$portDefault"
         [ -n "$port" ] || port=$(__portFromScheme "$scheme") || return $?
@@ -270,9 +270,9 @@ __applicationValues() {
   # shellcheck source=/dev/null
   __catchEnvironment "$usage" source "$application/bin/build/tools.sh" || return $?
 
-  __catchEnvironment "$usage" buildEnvironmentLoad APPLICATION_NAME || return $?
-  __catchEnvironment "$usage" buildEnvironmentLoad APPLICATION_CODE || return $?
-  __catchEnvironment "$usage" environmentApplicationLoad APPLICATION_NAME APPLICATION_CODE || return $?
+  __catch "$usage" buildEnvironmentLoad APPLICATION_NAME || return $?
+  __catch "$usage" buildEnvironmentLoad APPLICATION_CODE || return $?
+  __catch "$usage" environmentApplicationLoad APPLICATION_NAME APPLICATION_CODE || return $?
 
   __catchEnvironment "$usage" muzzle popd || return $?
 
@@ -280,7 +280,7 @@ __applicationValues() {
 
   for variable in APPLICATION_NAME APPLICATION_CODE; do
     local value="${!variable-}"
-    [ -z "$value" ] || __catchEnvironment "$usage" environmentValueWrite "$prefix$variable" "${!variable-}" || return $?
+    [ -z "$value" ] || __catch "$usage" environmentValueWrite "$prefix$variable" "${!variable-}" || return $?
   done
 }
 
@@ -304,29 +304,29 @@ __installEnvironment() {
   [ -z "$application" ] || application=$(usageArgumentDirectory "$usage" "application" "$application") || return $?
   prefix="${1-}" && shift
 
-  __catchEnvironment "$usage" environmentFileLoad "$source" || return $?
+  __catch "$usage" environmentFileLoad "$source" || return $?
 
   target="$finalTarget.$$"
 
-  __catchEnvironment "$usage" cp -f "$source" "$target" || _clean $? "$target" || return $?
+  __catchEnvironment "$usage" cp -f "$source" "$target" || returnClean $? "$target" || return $?
   while [ $# -gt 0 ]; do
     local name="$1"
     export "${name?}"
     local value="${!1-}"
-    [ -n "$value" ] || __throwEnvironment "$usage" "Required environment variable $(decorate code "$name") is blank" || _undo $? dumpPipe < <(declare -px) || _clean $? "$target" || return $?
+    [ -n "$value" ] || __throwEnvironment "$usage" "Required environment variable $(decorate code "$name") is blank" || returnUndo $? dumpPipe < <(declare -px) || returnClean $? "$target" || return $?
     if ! environmentValueRead "$source" "$name"; then
-      __catchEnvironment "$usage" environmentValueWrite "$name" "$value" >>"$target" || _clean $? "$target" || return $?
+      __catch "$usage" environmentValueWrite "$name" "$value" >>"$target" || returnClean $? "$target" || return $?
     fi
     shift
   done
-  production=$(__catchEnvironment "$usage" environmentValueRead "$target" "PRODUCTION" "unset") || _clean $? "$target" || return $?
+  production=$(__catch "$usage" environmentValueRead "$target" "PRODUCTION" "unset") || returnClean $? "$target" || return $?
 
-  __dsnExpansions "$usage" "$target" DSN || _clean $? "$target" || return $?
-  __catchEnvironment "$usage" __productionValues "$production" >>"$target" || _clean $? "$target" || return $?
+  __dsnExpansions "$usage" "$target" DSN || returnClean $? "$target" || return $?
+  __catch "$usage" __productionValues "$production" >>"$target" || returnClean $? "$target" || return $?
   if [ -d "$application" ]; then
-    __applicationValues "$usage" "$application" "$prefix" >>"$target" || _clean $? "$target" || return $?
+    __applicationValues "$usage" "$application" "$prefix" >>"$target" || returnClean $? "$target" || return $?
   fi
-  __catchEnvironment "$usage" sort -u "$target" >"$finalTarget" || _clean $? "$target" || return $?
+  __catchEnvironment "$usage" sort -u "$target" >"$finalTarget" || returnClean $? "$target" || return $?
   __catchEnvironment "$usage" rm -f "$target" || return $?
   # Sanity check I guess with Docker layers:
   if [ -f "$finalTarget" ]; then

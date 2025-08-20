@@ -35,6 +35,6 @@ zeskPHPDevelopmentLink() {
   developerDevelopmentLink --handler "$usage" --composer "zesk/zesk" --variable "ZESK_PHP_DEVELOPMENT_HOME" "${__saved[@]+"${__saved[@]}"}"
 }
 _zeskPHPDevelopmentLink() {
-  # _IDENTICAL_ usageDocument 1
+  # __IDENTICAL__ usageDocument 1
   usageDocument "${BASH_SOURCE[0]}" "${FUNCNAME[0]#_}" "$@"
 }

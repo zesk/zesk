@@ -40,7 +40,7 @@ __preCommit() {
 
   local home version mode
 
-  home=$(__catchEnvironment "$usage" buildHome) || return $?
+  home=$(__catch "$usage" buildHome) || return $?
 
   version=$(hookVersionCurrent) || return $?
   statusMessage --last bigText "$(printf "%s %s\n" "$(buildEnvironmentGet APPLICATION_NAME)" "$version")" | decorate bold-blue
@@ -67,7 +67,7 @@ __preCommit() {
   statusMessage decorate info "Converted mode for $(decorate code "${ee[@]}")"
 }
 ___preCommit() {
-  # _IDENTICAL_ usageDocument 1
+  # __IDENTICAL__ usageDocument 1
   usageDocument "${BASH_SOURCE[0]}" "${FUNCNAME[0]#_}" "$@"
 }
 

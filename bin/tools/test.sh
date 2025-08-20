@@ -56,7 +56,7 @@ zeskTest() {
   # pathConfigure --last "$top/vendor/bin"
 
   if [ -f "$top/.env" ]; then
-    __catchEnvironment "$usage" environmentFileLoad "$top/.env" || return $?
+    __catch "$usage" environmentFileLoad "$top/.env" || return $?
     statusMessage decorate info "Loaded $(decorate file "$top/.env")"
   fi
 
@@ -78,7 +78,7 @@ zeskTest() {
   args+=("--display-warnings" "--colors=auto")
   if $doCoverage; then
     local home
-    home=$(__catchEnvironment "$usage" buildHome) || return $?
+    home=$(__catch "$usage" buildHome) || return $?
 
     # coverage_cache="./.zesk-coverage"
     # needPaths+=("$coverage_cache" "$home/test-coverage")
@@ -101,7 +101,7 @@ zeskTest() {
 
   local testBinary="vendor/bin/phpunit" testResultPath="$top/test-results"
 
-  cacheDirectory=$(__catchEnvironment "$usage" buildCacheDirectory "zeskTest") || return $?
+  cacheDirectory=$(__catch "$usage" buildCacheDirectory "zeskTest") || return $?
   args+=("--log-junit" "$testResultPath/junit.xml")
   args+=("--order-by=defects" "--cache-result"  "--cache-directory" "$cacheDirectory" )
 
@@ -109,7 +109,7 @@ zeskTest() {
 
   needPaths+=("$testResultPath")
 
-  muzzle __catchEnvironment "$usage" requireDirectory "${needPaths[@]}" || return $?
+  muzzle __catch "$usage" directoryRequire "${needPaths[@]}" || return $?
 
   __execute "$testBinary" "${args[@]}" "$@" || return $?
 }
@@ -140,5 +140,5 @@ __verifyDatabase() {
   if [ -z "$version" ]; then
     __throwEnvironment "$usage" "Unable to connect to $DATABASE_HOST as $user" || return $?
   fi
-  printf "%s\n" "CREATE DATABASE IF NOT EXISTS $DATABASE_TEST_NAME" | __catchEnvironment "$usage" __query || return $?
+  printf "%s\n" "CREATE DATABASE IF NOT EXISTS $DATABASE_TEST_NAME" | __catch "$usage" __query || return $?
 }

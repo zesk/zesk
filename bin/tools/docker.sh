@@ -12,8 +12,8 @@
 #  local usage="_${FUNCNAME[0]}"
 #  local host quietLog start
 #
-#  quietLog=$(__catchEnvironment "$usage" buildQuietLog "$usage") || return $?
-#  start=$(__catchEnvironment "$usage" timingStart) || return $?
+#  quietLog=$(__catch "$usage" buildQuietLog "$usage") || return $?
+#  start=$(__catch "$usage" timingStart) || return $?
 #
 #  # _IDENTICAL_ argument-case-header 5
 #  local __saved=("$@") __count=$#
@@ -45,15 +45,15 @@
 #  statusMessage --last timingReport "$start" "Zesk latest container built in"
 #}
 #_zeskContainerLatest() {
-#  # _IDENTICAL_ usageDocument 1
+#  # __IDENTICAL__ usageDocument 1
 #  usageDocument "${BASH_SOURCE[0]}" "${FUNCNAME[0]#_}" "$@"
 #}
 
 if whichExists docker; then
   __dockerPHPExec() {
-    local home="$1" user="$2" ttyArg=() && shift 2
+    local home="$1" target="$2" user="$3" ttyArg=() && shift 3
     [ -t 0 ] || ttyArg+=(-T)
-    docker compose -f "$home/docker-compose.yml" exec "${ttyArg[@]}" -u "${user}" web "$@"
+    docker compose -f "$home/docker-compose.yml" exec "${ttyArg[@]}" -u "${user}" "$target" "$@"
   }
 
   zeskCompose() {
@@ -69,7 +69,7 @@ if whichExists docker; then
     dockerCompose "${envs[@]}" "$@"
   }
   _zeskCompose() {
-    # _IDENTICAL_ usageDocument 1
+    # __IDENTICAL__ usageDocument 1
     usageDocument "${BASH_SOURCE[0]}" "${FUNCNAME[0]#_}" "$@"
   }
 fi
