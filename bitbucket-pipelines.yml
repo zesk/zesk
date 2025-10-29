@@ -15,24 +15,7 @@ definitions:
 image: atlassian/default-image:4
 pipelines:
   branches:
-    staging:
-      - step:
-          deployment: staging
-          name: Build and test
-          services:
-            - mariadb
-          artifacts:
-            - .build.env
-            - .release-notes.md
-            - test-coverage/
-            - test.log
-          caches:
-            - docker
-            - apt-lists
-            - apt-cache
-          script:
-            - CONTAINER_DATABASE_HOST=$BITBUCKET_DOCKER_HOST_INTERNAL bin/build.sh --staging --testsuite core
-    production:
+    main:
       - step:
           deployment: production
           name: Build and test
@@ -55,6 +38,23 @@ pipelines:
           trigger: manual
           script:
             - bin/deploy.sh
+    staging:
+      - step:
+          deployment: staging
+          name: Build and test
+          services:
+            - mariadb
+          artifacts:
+            - .build.env
+            - .release-notes.md
+            - test-coverage/
+            - test.log
+          caches:
+            - docker
+            - apt-lists
+            - apt-cache
+          script:
+            - CONTAINER_DATABASE_HOST=$BITBUCKET_DOCKER_HOST_INTERNAL bin/build.sh --staging --testsuite core
     deploy:
       - step:
           deployment: deploy
