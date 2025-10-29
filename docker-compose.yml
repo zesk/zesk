@@ -13,7 +13,6 @@ services:
   db:
     environment:
       BUILD_CODE: db
-      MARIADB_ROOT_PASSWORD: $DATABASE_ROOT_PASSWORD
     volumes:
       - database_data:/var/lib/mysql
     build:

@@ -35,6 +35,37 @@ class TextTest extends TestCase
 		];
 	}
 
+	public static function dataHead(): array
+	{
+		return [
+			['Line1', "Line1\nLine2\nLine3", 1, "\n"],
+			["Line1\nLine2", "Line1\nLine2\nLine3", 2, "\n"],
+			["Line1\nLine2\nLine3", "Line1\nLine2\nLine3", 3, "\n"],
+			["Line1\nLine2\nLine3", "Line1\nLine2\nLine3", 4, "\n"],
+		];
+	}
+
+	public static function dataRemoveRangeComments(): array
+	{
+		return [
+			['Hello', 'Hello /* World */', '/*', '*/'],
+			[' Hello ', '/* World */ Hello /* World *//* World *//* World *//* World *//* World */', '/*', '*/'],
+		];
+	}
+
+	/**
+	 * @param string $expected
+	 * @param string $text
+	 * @param string $beginComment
+	 * @param string $endComment
+	 * @return void
+	 * @dataProvider dataRemoveRangeComments
+	 */
+	public function testRemoveRangeComments(string $expected, string $text, string $beginComment, string $endComment): void
+	{
+		$this->assertEquals($expected, Text::removeRangeComments($text, $beginComment, $endComment));
+	}
+
 	/**
 	 * @param string $expected
 	 * @param int $n
@@ -412,11 +443,24 @@ class TextTest extends TestCase
 	 * @param $last_suffix
 	 * @return void
 	 * @dataProvider dataLinesWrap
-	 * @covers ::wrapLines
+	 * @covers ::decorate wrap
 	 */
 	public function testLinesWrap($expected, $text, $prefix, $suffix, $first_prefix, $last_suffix): void
 	{
 		$this->assertEquals($expected, Text::wrapLines($text, $prefix, $suffix, $first_prefix, $last_suffix));
+	}
+
+	/**
+	 * @param string $expected
+	 * @param string $string
+	 * @param int $count
+	 * @param string $newline
+	 * @return void
+	 * @dataProvider dataHead
+	 */
+	public function testHead(string $expected, string $string, int $count = 20, string $newline = "\n"): void
+	{
+		$this->assertEquals($expected, Text::head($string, $count, $newline));
 	}
 
 	public static function dataParseTable(): array

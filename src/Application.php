@@ -2010,6 +2010,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 * @return Request
 	 * @throws ParameterException
 	 * @throws ParseException
+	 * @throws SemanticsException
 	 */
 	public function requestFactory(?Request $inherit = null): Request
 	{
@@ -2244,6 +2245,7 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	 *
 	 * KMD 2018-01 Made this more Response-centric and less content-centric
 	 *
+	 * @throws SemanticsException
 	 */
 	public function index(): Response
 	{

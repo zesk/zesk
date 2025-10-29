@@ -17,10 +17,10 @@ if source "${BASH_SOURCE[0]%/*}/tools.sh"; then
     local handler="_return"
     local home
 
-    home=$(__catch "$handler" buildHome) || return $?
+    home=$(catchReturn "$handler" buildHome) || return $?
 
     local name
-    name=$(__catch "$handler" buildEnvironmentGet APPLICATION_NAME) || return $?
+    name=$(catchReturn "$handler" buildEnvironmentGet APPLICATION_NAME) || return $?
     [ -n "$name" ] || name=$(basename "$home")
     bigText "$name"
 
@@ -35,12 +35,14 @@ if source "${BASH_SOURCE[0]%/*}/tools.sh"; then
       alias suZeskBash="__dockerPHPExec \"$home\" web root bash"
       # shellcheck disable=SC2139
       alias suZeskDB="__dockerPHPExec \"$home\" db root bash "
+      # shellcheck disable=SC2139
+      alias zeskDatabase="__dockerPHPExec \"$home\" db root /db-connect.sh"
     fi
 
     pathConfigure --last "$home/bin" "$home/vendor/bin"
 
-    __catch "$handler" muzzle reloadChanges --stop --quiet || return $?
-    __catch "$handler" reloadChanges --name "$name" "$home/bin/tools.sh" "$home/bin/tools/" || return $?
+    catchReturn "$handler" muzzle reloadChanges --stop --quiet || return $?
+    catchReturn "$handler" reloadChanges --name "$name" "$home/bin/tools.sh" "$home/bin/tools/" || return $?
 
     developerAnnounce < <(developerTrack)
 
@@ -52,7 +54,7 @@ if source "${BASH_SOURCE[0]%/*}/tools.sh"; then
   __zeskPHPDeveloperContextUndo() {
     local home
 
-    home=$(__environment buildHome) || return $?
+    home=$(catchEnvironment "returnMessage" buildHome) || return $?
     pathRemove "$home/bin" "$home/vendor/bin"
     developerUndo < <(developerTrack)
   }

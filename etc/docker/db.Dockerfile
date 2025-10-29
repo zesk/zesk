@@ -5,6 +5,7 @@
 #
 FROM mariadb:10
 
+ARG DATABASE_ROOT_PASSWORD
 ENV BUILD_CODE=db
 ENV USER_HOME=/root
 
@@ -13,6 +14,7 @@ ENV APPLICATION_PREFIX=""
 ENV INITDBPATH=/docker-entrypoint-initdb.d/
 ENV DATABASE_NETWORK=%
 ENV DSN="mysqli://docker:test@db/phpContainer"
+ENV MARIADB_ROOT_PASSWORD=${DATABASE_ROOT_PASSWORD?no-root-password}
 
 # IDENTICAL phpContainerDockerPrefix 15
 ENV APPLICATION_CONF=/etc/application.conf

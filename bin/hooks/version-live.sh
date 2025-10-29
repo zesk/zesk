@@ -16,12 +16,12 @@ else
     local handler="_${FUNCNAME[0]}"
 
     local name owner
-    name=$(__catch "$handler" buildEnvironmentGet GITHUB_REPOSITORY_NAME) || return $?
-    [ -n "$name" ] || __throwEnvironment "$handler" "GITHUB_REPOSITORY_NAME is blank" || return $?
+    name=$(catchReturn "$handler" buildEnvironmentGet GITHUB_REPOSITORY_NAME) || return $?
+    [ -n "$name" ] || throwEnvironment "$handler" "GITHUB_REPOSITORY_NAME is blank" || return $?
 
-    owner=$(__catch "$handler" buildEnvironmentGet GITHUB_REPOSITORY_OWNER) || return $?
-    [ -n "$owner" ] || __throwEnvironment "$handler" "GITHUB_REPOSITORY_OWNER is blank" || return $?
-    __catchEnvironment "$handler" githubLatestRelease "$owner/$name" "$@" || return $?
+    owner=$(catchReturn "$handler" buildEnvironmentGet GITHUB_REPOSITORY_OWNER) || return $?
+    [ -n "$owner" ] || throwEnvironment "$handler" "GITHUB_REPOSITORY_OWNER is blank" || return $?
+    catchEnvironment "$handler" githubLatestRelease "$owner/$name" "$@" || return $?
   }
   ___hookVersionLive() {
     # __IDENTICAL__ usageDocument 1

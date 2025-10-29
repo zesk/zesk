@@ -1,45 +1,9 @@
 {
-  "name": "zesk/zesk",
-  "description": "The Zesk Application Framework",
-  "require": {
-    "php": ">=8.1",
-    "psr/log": "^3.0.2",
-    "components/jquery": "^3.7.1",
-    "psr/cache": "^3",
-    "ext-calendar": "*",
-    "ext-json": "*",
-    "ext-posix": "*",
-    "ext-pcntl": "*",
-    "ext-intl": "*",
-    "ext-readline": "*",
-    "ext-mysqli": "*",
-    "doctrine/orm": "^3.3.3",
-    "ext-gd": "*",
-    "ext-sockets": "*",
-    "ext-curl": "*"
-  },
-  "suggest": {
-    "ext-xdebug": "*",
-    "ext-imap": "*"
-  },
-  "require-dev": {
-    "phpunit/phpunit": ">=10",
-    "phpunit/php-invoker": ">=4",
-    "friendsofphp/php-cs-fixer": ">=3.75",
-    "ext-ftp": "*",
-    "phpunit/php-code-coverage": "^10.1"
-  },
   "authors": [
     {
-      "name": "Kent Davidson",
-      "email": "projects@marketacumen.com"
+      "email": "projects@marketacumen.com",
+      "name": "Kent Davidson"
     }
-  ],
-  "scripts": {},
-  "keywords": [
-    "zesk",
-    "application",
-    "framework"
   ],
   "autoload": {
     "psr-4": {
@@ -56,8 +20,45 @@
     "bin/zesk-command.php",
     "bin/zesk"
   ],
-  "type": "library",
-  "license": "MIT",
+  "description": "The Zesk Application Framework",
+  "fingerprint": "Hello",
   "homepage": "https://php.zesk.com",
+  "keywords": [
+    "zesk",
+    "application",
+    "framework"
+  ],
+  "license": "MIT",
+  "name": "zesk/zesk",
+  "require": {
+    "components/jquery": "^3.7.1",
+    "doctrine/orm": "^3.3.3",
+    "ext-calendar": "*",
+    "ext-curl": "*",
+    "ext-gd": "*",
+    "ext-intl": "*",
+    "ext-json": "*",
+    "ext-mysqli": "*",
+    "ext-pcntl": "*",
+    "ext-posix": "*",
+    "ext-readline": "*",
+    "ext-sockets": "*",
+    "php": ">=8.1",
+    "psr/cache": "^3",
+    "psr/log": "^3.0.2"
+  },
+  "require-dev": {
+    "ext-ftp": "*",
+    "friendsofphp/php-cs-fixer": ">=3.75",
+    "phpunit/php-code-coverage": "^10.1",
+    "phpunit/php-invoker": ">=4",
+    "phpunit/phpunit": ">=10"
+  },
+  "scripts": {},
+  "suggest": {
+    "ext-imap": "*",
+    "ext-xdebug": "*"
+  },
+  "type": "library",
   "version": "0.32.0"
 }

@@ -24,7 +24,7 @@ zeskTest() {
   while [ $# -gt 0 ]; do
     local argument="$1" __index=$((__count - $# + 1))
     # __IDENTICAL__ __checkBlankArgumentHandler 1
-    [ -n "$argument" ] || __throwArgument "$handler" "blank #$__index/$__count ($(decorate each quote "${__saved[@]}"))" || return $?
+    [ -n "$argument" ] || throwArgument "$handler" "blank #$__index/$__count ($(decorate each quote "${__saved[@]}"))" || return $?
     case "$argument" in
     # _IDENTICAL_ helpHandler 1
     --help) "$handler" 0 && return $? || return $? ;;
@@ -47,14 +47,14 @@ zeskTest() {
 
   set -eou pipefail
 
-  top=$(__catchEnvironment "$handler" buildHome) || return $?
+  top=$(catchReturn "$handler" buildHome) || return $?
 
   #  export PATH
 
   # pathConfigure --last "$top/vendor/bin"
 
   if [ -f "$top/.env" ]; then
-    __catch "$handler" environmentFileLoad "$top/.env" || return $?
+    catchReturn "$handler" environmentFileLoad "$top/.env" || return $?
     statusMessage decorate info "Loaded $(decorate file "$top/.env")"
   fi
 
@@ -65,18 +65,18 @@ zeskTest() {
         local thing=file
         [ ! -d "$item" ] || thing=directory
         statusMessage decorate warning "Deleted temporary $thing $(decorate file "$item")"
-        __catchEnvironment "$handler" rm -rf "$item" || return $?
+        catchEnvironment "$handler" rm -rf "$item" || return $?
       fi
     done
   fi
-  __catchEnvironment "$handler" muzzle pushd "$top" || return $?
+  catchEnvironment "$handler" muzzle pushd "$top" || return $?
 
   local needPaths=() args=()
   args+=("--disallow-test-output")
   args+=("--display-warnings" "--colors=auto")
   if $doCoverage; then
     local home
-    home=$(__catch "$handler" buildHome) || return $?
+    home=$(catchReturn "$handler" buildHome) || return $?
 
     # coverage_cache="./.zesk-coverage"
     # needPaths+=("$coverage_cache" "$home/test-coverage")
@@ -99,17 +99,17 @@ zeskTest() {
 
   local testBinary="vendor/bin/phpunit" testResultPath="$top/test-results"
 
-  cacheDirectory=$(__catch "$handler" buildCacheDirectory "zeskTest") || return $?
+  cacheDirectory=$(catchReturn "$handler" buildCacheDirectory "zeskTest") || return $?
   args+=("--log-junit" "$testResultPath/junit.xml")
   args+=("--order-by=defects" "--cache-result" "--cache-directory" "$cacheDirectory")
 
-  [ -x "$testBinary" ] || __throwEnvironment "$handler" "$testBinary does not exist or is not executable" || return $?
+  [ -x "$testBinary" ] || throwEnvironment "$handler" "$testBinary does not exist or is not executable" || return $?
 
   needPaths+=("$testResultPath")
 
-  muzzle __catch "$handler" directoryRequire "${needPaths[@]}" || return $?
+  muzzle catchReturn "$handler" directoryRequire "${needPaths[@]}" || return $?
 
-  __execute "$testBinary" "${args[@]}" "$@" || return $?
+  execute "$testBinary" "${args[@]}" "$@" || return $?
 }
 _zeskTest() {
   usageDocument "${BASH_SOURCE[0]}" "${FUNCNAME[0]#_}" "$@"
@@ -129,14 +129,14 @@ __verifyDatabase() {
 
   DATABASE_TEST_NAME=${DATABASE_TEST_NAME-zeskTest}
   if ! whichExists mariadb; then
-    __throwEnvironment "$handler" "Missing mariadb" || return $?
+    throwEnvironment "$handler" "Missing mariadb" || return $?
   fi
   user=${DATABASE_ROOT_USER-root}
   DATABASE_ROOT_USER=$user
 
   version=$(printf "%s\n" "SELECT VERSION()" | __query 2>/dev/null || :)
   if [ -z "$version" ]; then
-    __throwEnvironment "$handler" "Unable to connect to $DATABASE_HOST as $user" || return $?
+    throwEnvironment "$handler" "Unable to connect to $DATABASE_HOST as $user" || return $?
   fi
-  printf "%s\n" "CREATE DATABASE IF NOT EXISTS $DATABASE_TEST_NAME" | __catch "$handler" __query || return $?
+  printf "%s\n" "CREATE DATABASE IF NOT EXISTS $DATABASE_TEST_NAME" | catchReturn "$handler" __query || return $?
 }

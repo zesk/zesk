@@ -19,7 +19,7 @@ zeskPrepareRelease() {
   while [ $# -gt 0 ]; do
     local argument="$1" __index=$((__count - $# + 1))
     # __IDENTICAL__ __checkBlankArgumentHandler 1
-    [ -n "$argument" ] || __throwArgument "$handler" "blank #$__index/$__count ($(decorate each quote "${__saved[@]}"))" || return $?
+    [ -n "$argument" ] || throwArgument "$handler" "blank #$__index/$__count ($(decorate each quote "${__saved[@]}"))" || return $?
     case "$argument" in
     # _IDENTICAL_ helpHandler 1
     --help) "$handler" 0 && return $? || return $? ;;
@@ -28,7 +28,7 @@ zeskPrepareRelease() {
       ;;
     *)
       # _IDENTICAL_ argumentUnknownHandler 1
-      __throwArgument "$handler" "unknown #$__index/$__count \"$argument\" ($(decorate each code "${__saved[@]}"))" || return $?
+      throwArgument "$handler" "unknown #$__index/$__count \"$argument\" ($(decorate each code "${__saved[@]}"))" || return $?
       ;;
     esac
     # _IDENTICAL_ argument-esac-shift 1
@@ -37,44 +37,44 @@ zeskPrepareRelease() {
 
   local yml home
 
-  home=$(__catch "$handler" buildHome) || return $?
+  home=$(catchReturn "$handler" buildHome) || return $?
   yml="$home/docker-compose.yml"
 
-  [ -f "$yml" ] || __throwEnvironment "$handler" "Requires $(decorate file "$yml")" || return $?
+  [ -f "$yml" ] || throwEnvironment "$handler" "Requires $(decorate file "$yml")" || return $?
 
   local envs=(VERSION_URL)
 
   export "${envs[@]}"
   # WAS ZESK_REPOSITORY_VERSION_PREFIX
-  __catch "$handler" buildEnvironmentLoad "${envs[@]}" || return $?
+  catchReturn "$handler" buildEnvironmentLoad "${envs[@]}" || return $?
 
   if [ -z "${VERSION_URL-}" ]; then
     local owner
-    owner=$(__catch "$handler" buildEnvironmentGet GITHUB_REPOSITORY_OWNER) || return $?
-    [ -n "$owner" ] || __throwEnvironment "$handler" "GITHUB_REPOSITORY_OWNER is blank" || return $?
+    owner=$(catchReturn "$handler" buildEnvironmentGet GITHUB_REPOSITORY_OWNER) || return $?
+    [ -n "$owner" ] || throwEnvironment "$handler" "GITHUB_REPOSITORY_OWNER is blank" || return $?
     local name
-    name=$(__catch "$handler" buildEnvironmentGet GITHUB_REPOSITORY_NAME) || return $?
-    [ -n "$name" ] || __throwEnvironment "$handler" "GITHUB_REPOSITORY_NAME is blank" || return $?
+    name=$(catchReturn "$handler" buildEnvironmentGet GITHUB_REPOSITORY_NAME) || return $?
+    [ -n "$name" ] || throwEnvironment "$handler" "GITHUB_REPOSITORY_NAME is blank" || return $?
 
     VERSION_URL="https://github.com/$owner/$name/compare/{previous}...{current}"
   fi
 
-  __catchEnvironment "$handler" dockerComposeInstall || return $?
+  catchEnvironment "$handler" dockerComposeInstall || return $?
 
-  __catchEnvironment "$handler" dockerCompose up -d >/dev/null || return $?
+  catchEnvironment "$handler" dockerCompose up -d >/dev/null || return $?
 
-  currentVersion=$(__catchEnvironment "$handler" hookVersionCurrent) || return $?
-  previousVersion=$(__catchEnvironment "$handler" gitVersionLast "$currentVersion") || return $?
+  currentVersion=$(catchEnvironment "$handler" hookVersionCurrent) || return $?
+  previousVersion=$(catchEnvironment "$handler" gitVersionLast "$currentVersion") || return $?
 
   #
   # Sync with remote
   #
   statusMessage decorate info "Synchronizing with git remote ..."
-  __catchEnvironment "$handler" muzzle git pull --tags || return $?
-  __catchEnvironment "$handler" muzzle git push --tags || return $?
+  catchEnvironment "$handler" muzzle git pull --tags || return $?
+  catchEnvironment "$handler" muzzle git push --tags || return $?
 
   statusMessage decorate info "Cleaning ..."
-  __catchEnvironment "$handler" docker-compose -f "$yml" exec php bash -c 'cd /zesk && ./bin/cs-zesk.sh' || return $?
+  catchEnvironment "$handler" dockerComposeWrapper -f "$yml" exec php bash -c 'cd /zesk && ./bin/cs-zesk.sh' || return $?
 
   local nLines
   #
@@ -82,7 +82,7 @@ zeskPrepareRelease() {
   #
   nLines=$(($(git status --short | wc -l | awk '{ print $1 }') + 0))
   if [ $nLines -gt 0 ]; then
-    __catchEnvironment "$handler" git status --short || return $?
+    catchEnvironment "$handler" git status --short || return $?
     pause "Current git status, ok?"
   else
     statusMessage decorate info "Git status is clean."
@@ -103,7 +103,7 @@ zeskPrepareRelease() {
       echo
       echo '<!-- Generated automatically by release-prepare.sh, edit me please -->'
     } >"$currentChangeLog"
-    muzzle __catchEnvironment "$handler" git add "$currentChangeLog" || return $?
+    muzzle catchEnvironment "$handler" git add "$currentChangeLog" || return $?
     statusMessage decorate info "Added $(decorate file "$currentChangeLog") to repository - please edit"
   fi
 
@@ -131,17 +131,17 @@ zeskPrepareRelease() {
     grep -A $moreLines LINK-HERE "$permanentChangeLog" | grep -v "$currentVersion" | grep -v LINK-HERE
   } >"$editedLog"
 
-  __catchEnvironment "$handler" mv "$editedLog" "$permanentChangeLog" || return $?
+  catchEnvironment "$handler" mv "$editedLog" "$permanentChangeLog" || return $?
   releaseDateFile="$home/etc/db/release-date"
-  __catchEnvironment "$handler" date >"$releaseDateFile" || return $?
+  catchEnvironment "$handler" date >"$releaseDateFile" || return $?
 
-  __catchEnvironment "$handler" git commit -m "Release $currentVersion" "$currentChangeLog" "$permanentChangeLog" "$releaseDateFile" || return $?
+  catchEnvironment "$handler" git commit -m "Release $currentVersion" "$currentChangeLog" "$permanentChangeLog" "$releaseDateFile" || return $?
 
   #
   # Push to remote
   #
-  __catchEnvironment "$handler" git push --tags || return $?
-  __catchEnvironment "$handler" git push --all || return $?
+  catchEnvironment "$handler" git push --tags || return $?
+  catchEnvironment "$handler" git push --all || return $?
   #
   # Good
   #

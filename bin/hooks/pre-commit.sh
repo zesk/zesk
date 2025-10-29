@@ -20,7 +20,7 @@ __preCommit() {
   while [ $# -gt 0 ]; do
     local argument="$1" __index=$((__count - $# + 1))
     # __IDENTICAL__ __checkBlankArgumentHandler 1
-    [ -n "$argument" ] || __throwArgument "$handler" "blank #$__index/$__count ($(decorate each quote "${__saved[@]}"))" || return $?
+    [ -n "$argument" ] || throwArgument "$handler" "blank #$__index/$__count ($(decorate each quote "${__saved[@]}"))" || return $?
     case "$argument" in
     # _IDENTICAL_ helpHandler 1
     --help) "$handler" 0 && return $? || return $? ;;
@@ -29,7 +29,7 @@ __preCommit() {
       ;;
     *)
       # _IDENTICAL_ argumentUnknownHandler 1
-      __throwArgument "$handler" "unknown #$__index/$__count \"$argument\" ($(decorate each code "${__saved[@]}"))" || return $?
+      throwArgument "$handler" "unknown #$__index/$__count \"$argument\" ($(decorate each code "${__saved[@]}"))" || return $?
       ;;
     esac
     # _IDENTICAL_ argument-esac-shift 1
@@ -38,15 +38,15 @@ __preCommit() {
 
   local home version mode
 
-  home=$(__catch "$handler" buildHome) || return $?
+  home=$(catchReturn "$handler" buildHome) || return $?
 
   version=$(hookVersionCurrent) || return $?
   statusMessage --last bigText "$(printf "%s %s\n" "$(buildEnvironmentGet APPLICATION_NAME)" "$version")" | decorate bold-blue
 
-  mode=$(_choose "$readOnly" 0440 0640)
-  __catchEnvironment "$handler" find "$home" -type f -name '*.php' ! -path '*/bin/*' ! -path '*/.*/*' ! -path '*/vendor/*' -exec chmod "$mode" {} \; || return $?
-  mode=$(_choose "$readOnly" 0770 0550)
-  __catchEnvironment "$handler" find "$home" -type f -name '*.php' -path '*/bin/*' ! -path '*/.*/*' ! -path '*/vendor/*' -exec chmod "$mode" {} \; || return $?
+  mode=$(booleanChoose "$readOnly" 0440 0640)
+  catchEnvironment "$handler" find "$home" -type f -name '*.php' ! -path '*/bin/*' ! -path '*/.*/*' ! -path '*/vendor/*' -exec chmod "$mode" {} \; || return $?
+  mode=$(booleanChoose "$readOnly" 0770 0550)
+  catchEnvironment "$handler" find "$home" -type f -name '*.php' -path '*/bin/*' ! -path '*/.*/*' ! -path '*/vendor/*' -exec chmod "$mode" {} \; || return $?
   local extensions=(conf classes css csv data gif html inc ini json less md png py router rst sql svg tpl ttf txt xls xml yml)
 
   local extension aa=() ee=()
@@ -60,8 +60,8 @@ __preCommit() {
   done
   unset "a[0]"
   aa=("${aa[@]}")
-  mode=$(_choose "$readOnly" 0440 0640)
-  __catchEnvironment "$handler" find "$home" -type f -name "${aa[@]}" ! -path '*/.*/*' -exec chmod -v "$mode" {} \; || return $?
+  mode=$(booleanChoose "$readOnly" 0440 0640)
+  catchEnvironment "$handler" find "$home" -type f -name "${aa[@]}" ! -path '*/.*/*' -exec chmod -v "$mode" {} \; || return $?
   statusMessage decorate info "Converted mode for $(decorate code "${ee[@]}")"
 }
 ___preCommit() {
