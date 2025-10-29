@@ -13,18 +13,18 @@ if ! source "${BASH_SOURCE[0]%/*}/../tools.sh"; then
 else
   # Fetch the current live version of the software
   __hookVersionLive() {
-    local usage="_${FUNCNAME[0]}"
+    local handler="_${FUNCNAME[0]}"
 
     local name owner
-    name=$(__catchEnvironment "$usage" buildEnvironmentGet GITHUB_REPOSITORY_NAME) || return $?
-    [ -n "$name" ] || __throwEnvironment "$usage" "GITHUB_REPOSITORY_NAME is blank" || return $?
+    name=$(catchReturn "$handler" buildEnvironmentGet GITHUB_REPOSITORY_NAME) || return $?
+    [ -n "$name" ] || throwEnvironment "$handler" "GITHUB_REPOSITORY_NAME is blank" || return $?
 
-    owner=$(__catchEnvironment "$usage" buildEnvironmentGet GITHUB_REPOSITORY_OWNER) || return $?
-    [ -n "$owner" ] || __throwEnvironment "$usage" "GITHUB_REPOSITORY_OWNER is blank" || return $?
-    __catchEnvironment "$usage" githubLatestRelease "$owner/$name" "$@" || return $?
+    owner=$(catchReturn "$handler" buildEnvironmentGet GITHUB_REPOSITORY_OWNER) || return $?
+    [ -n "$owner" ] || throwEnvironment "$handler" "GITHUB_REPOSITORY_OWNER is blank" || return $?
+    catchEnvironment "$handler" githubLatestRelease "$owner/$name" "$@" || return $?
   }
   ___hookVersionLive() {
-    # _IDENTICAL_ usageDocument 1
+    # __IDENTICAL__ usageDocument 1
     usageDocument "${BASH_SOURCE[0]}" "${FUNCNAME[0]#_}" "$@"
   }
   __hookVersionLive "$@"

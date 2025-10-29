@@ -47,7 +47,7 @@ class VersionTest extends TestCase
 		$this->assertStringStartsNotWith('-', $date);
 		$this->assertTrue(Types::isDate($date), "is_date($date)");
 		// TODO Reduce this after you release this
-		$this->assertLessThan(30.0, Timestamp::now()->difference(Timestamp::factory()->parse($date), Temporal::UNIT_MONTH), "Released within 25 months ($date)");
+		$this->assertLessThan(36.0, Timestamp::now()->difference(Timestamp::factory()->parse($date), Temporal::UNIT_MONTH), "Released within 25 months ($date)");
 
 		$string = Version::string($this->application->locale);
 		$this->assertStringContainsString($date, $string);

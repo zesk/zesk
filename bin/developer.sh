@@ -14,9 +14,15 @@
 if source "${BASH_SOURCE[0]%/*}/tools.sh"; then
 
   __zeskPHPDeveloperContext() {
+    local handler="_return"
     local home
 
-    home=$(__environment buildHome) || return $?
+    home=$(catchReturn "$handler" buildHome) || return $?
+
+    local name
+    name=$(catchReturn "$handler" buildEnvironmentGet APPLICATION_NAME) || return $?
+    [ -n "$name" ] || name=$(basename "$home")
+    bigText "$name"
 
     # shellcheck disable=SC2139
     alias z="$home/bin/zesk.sh"
@@ -24,24 +30,33 @@ if source "${BASH_SOURCE[0]%/*}/tools.sh"; then
 
     if whichExists docker; then
       # shellcheck disable=SC2139
-      alias zeskBash="__dockerPHPExec \"$home\" www-data bash"
+      alias zeskBash="__dockerPHPExec \"$home\" web www-data bash"
       # shellcheck disable=SC2139
-      alias suZeskBash="__dockerPHPExec \"$home\" root bash"
+      alias suZeskBash="__dockerPHPExec \"$home\" web root bash"
+      # shellcheck disable=SC2139
+      alias suZeskDB="__dockerPHPExec \"$home\" db root bash "
+      # shellcheck disable=SC2139
+      alias zeskDatabase="__dockerPHPExec \"$home\" db root /db-connect.sh"
     fi
 
-    reloadChanges --stop --quiet
-    reloadChanges --name "Zesk PHP Tools" bin/tools.sh bin/tools/
-    developerAnnounce < <(__applicationToolsList)
-
     pathConfigure --last "$home/bin" "$home/vendor/bin"
+
+    catchReturn "$handler" muzzle reloadChanges --stop --quiet || return $?
+    catchReturn "$handler" reloadChanges --name "$name" "$home/bin/tools.sh" "$home/bin/tools/" || return $?
+
+    developerAnnounce < <(developerTrack)
+
+    export BUILD_PROJECT_DEACTIVATE
+
+    BUILD_PROJECT_DEACTIVATE="__zeskPHPDeveloperContextUndo"
   }
 
   __zeskPHPDeveloperContextUndo() {
     local home
 
-    home=$(__environment buildHome) || return $?
+    home=$(catchEnvironment "returnMessage" buildHome) || return $?
     pathRemove "$home/bin" "$home/vendor/bin"
-    developerUndo < <(__applicationToolsList)
+    developerUndo < <(developerTrack)
   }
 
   __zeskPHPDeveloperContext

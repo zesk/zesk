@@ -12,7 +12,7 @@ set -eou pipefail
 source "${BASH_SOURCE[0]%/*}/../tools.sh"
 
 __hookPreCommitPHP() {
-  local usage="_${FUNCNAME[0]}"
+  local handler="_${FUNCNAME[0]}"
 
   # Run internal hook first
 
@@ -21,51 +21,42 @@ __hookPreCommitPHP() {
   hookName="${hookName%.sh}"
   hookRun --next "${BASH_SOURCE[0]}" "$hookName" "$@"
 
-  # _IDENTICAL_ argument-case-header 5
+  # _IDENTICAL_ argumentNonBlankLoopHandler 6
   local __saved=("$@") __count=$#
   while [ $# -gt 0 ]; do
     local argument="$1" __index=$((__count - $# + 1))
-    [ -n "$argument" ] || __throwArgument "$usage" "blank #$__index/$__count ($(decorate each quote "${__saved[@]}"))" || return $?
+    # __IDENTICAL__ __checkBlankArgumentHandler 1
+    [ -n "$argument" ] || throwArgument "$handler" "blank #$__index/$__count ($(decorate each quote "${__saved[@]}"))" || return $?
     case "$argument" in
-      # _IDENTICAL_ --help 4
-      --help)
-        "$usage" 0
-        return $?
-        ;;
-      *)
-        # _IDENTICAL_ argumentUnknown 1
-        __throwArgument "$usage" "unknown #$__index/$__count \"$argument\" ($(decorate each code "${__saved[@]}"))" || return $?
-        ;;
+    # _IDENTICAL_ helpHandler 1
+    --help) "$handler" 0 && return $? || return $? ;;
+    *)
+      # _IDENTICAL_ argumentUnknownHandler 1
+      throwArgument "$handler" "unknown #$__index/$__count \"$argument\" ($(decorate each code "${__saved[@]}"))" || return $?
+      ;;
     esac
-    # _IDENTICAL_ argument-esac-shift 1
     shift
   done
 
   local company
 
-  company=$(__catchEnvironment "$usage" buildEnvironmentGet BUILD_COMPANY) || return $?
-
-  while read -r file; do
-    while read -r line; do
-      copyrightExceptions+=("$line")
-    done <"$file"
-  done < <(find . -name ".skip-copyright" -type f ! -path "*/.*/*")
+  company=$(catchReturn "$handler" buildEnvironmentGet BUILD_COMPANY) || return $?
 
   local matches
-  matches=$(fileTemporaryName "$usage") || return $?
+  matches=$(fileTemporaryName "$handler") || return $?
   local year
-  year="$(__catchEnvironment "$usage" date +%Y)" || return $?
+  year="$(catchEnvironment "$handler" date +%Y)" || return $?
   files=()
-  if fileNotMatches 'declare(strict_types=1);' "@copyright" "&copy; $year" "$company" -- "${copyrightExceptions[@]+"${copyrightExceptions[@]}"}" -- - >"$matches" < <(gitPreCommitListExtension php); then
+  if fileNotMatches 'declare(strict_types=1);' "@copyright" "&copy; $year" "$company" -- -- - >"$matches" < <(gitPreCommitListExtension php); then
     while IFS=":" read -r file pattern; do
       printf "%s: %s missing from %s\n" "$(decorate error "No pattern used")" "$(decorate value "$pattern")" "$(decorate code "$file")"
       files+=("$file")
     done <"$matches"
     decorate info "Opening $(decorate each code "${files[@]}") ..."
     muzzle contextOpen "${files[@]}" 2>&1 &
-    __throwEnvironment "$usage" "File pattern check failed" || _clean $? "$matches" || return $?
+    throwEnvironment "$handler" "File pattern check failed" || returnClean $? "$matches" || return $?
   fi
-  __catchEnvironment "$usage" rm -f "$matches" || return $?
+  catchEnvironment "$handler" rm -f "$matches" || return $?
 }
 ___hookPreCommitPHP() {
   usageDocument "${BASH_SOURCE[0]}" "${FUNCNAME[0]#_}" "$@"

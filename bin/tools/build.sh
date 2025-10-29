@@ -14,28 +14,26 @@
 # Argument: --develop - Optional. Development build.
 #
 zeskPipelineSetup() {
-  local usage="_${FUNCNAME[0]}"
+  local handler="_${FUNCNAME[0]}"
 
   local startSetup quietLog cleanFlag=false versionArgs=()
 
-  startSetup=$(__catchEnvironment "$usage" timingStart) || return $?
+  startSetup=$(catchReturn "$handler" timingStart) || return $?
 
   #
   # --clean - Do a clean build
   # --develop - Development build, tag with a d-tag upon success
   #
 
-  # _IDENTICAL_ argument-case-header 5
+  # _IDENTICAL_ argumentNonBlankLoopHandler 6
   local __saved=("$@") __count=$#
   while [ $# -gt 0 ]; do
     local argument="$1" __index=$((__count - $# + 1))
-    [ -n "$argument" ] || __throwArgument "$usage" "blank #$__index/$__count ($(decorate each quote "${__saved[@]}"))" || return $?
+    # __IDENTICAL__ __checkBlankArgumentHandler 1
+    [ -n "$argument" ] || throwArgument "$handler" "blank #$__index/$__count ($(decorate each quote "${__saved[@]}"))" || return $?
     case "$argument" in
-    # _IDENTICAL_ --help 4
-    --help)
-      "$usage" 0
-      return $?
-      ;;
+    # _IDENTICAL_ helpHandler 1
+    --help) "$handler" 0 && return $? || return $? ;;
     --clean)
       cleanFlag=true
       statusMessage decorate info "Clean install ..."
@@ -54,10 +52,13 @@ zeskPipelineSetup() {
     shift
   done
 
+  local home
+  home=$(catchReturn "$handler" buildHome) || return $?
+
   #
   # Check shell files
   #
-  find "$home" -type f -name '*.sh' ! -path '*/bin/build/*' ! -path '*/vendor/*' ! -path '*/DEPRECATED/*' | __catchEnvironment "$usage" bashLintFiles || return $?
+  find "$home" -type f -name '*.sh' ! -path '*/bin/build/*' ! -path '*/vendor/*' ! -path '*/DEPRECATED/*' | catchEnvironment "$handler" bashLintFiles || return $?
 
   #==========================================================================================
   #
@@ -70,25 +71,25 @@ zeskPipelineSetup() {
     DATABASE_PORT DATABASE_HOST CONTAINER_DATABASE_HOST
   )
 
-  quietLog=$(__catchEnvironment "$usage" buildQuietLog "${FUNCNAME[0]}") || return $?
+  quietLog=$(catchReturn "$handler" buildQuietLog "${FUNCNAME[0]}") || return $?
 
   export "${requireEnvironment[@]}"
 
-  __catchEnvironment "$usage" buildEnvironmentLoad "${requireEnvironment[@]}" || return $?
+  catchReturn "$handler" buildEnvironmentLoad "${requireEnvironment[@]}" || return $?
 
   #==========================================================================================
   #
   # Validate our default environment
   #
 
-  export DATABASE_ROOT_PASSWORD DATABASE_HOST PHP_IDE_CONFIG XDEBUG_CLIENT_HOST
+  export DATABASE_ROOT_PASSWORD DATABASE_HOST PHP_IDE_CONFIG XDEBUG_CLIENT_HOST DATABASE_PORT
   if [ -z "${DATABASE_ROOT_PASSWORD-}" ]; then
     local variable
     for variable in DATABASE_ROOT_PASSWORD MARIADB_ROOT_PASSWORD MYSQL_ROOT_PASSWORD; do
-      DATABASE_ROOT_PASSWORD=$(getFromPipelineYML "$variable" 2>/dev/null) || :
+      DATABASE_ROOT_PASSWORD=$(bitbucketGetVariable "$variable" 2>/dev/null) || :
       [ -z "$DATABASE_ROOT_PASSWORD" ] || break
     done
-    [ -n "$DATABASE_ROOT_PASSWORD" ] || __throwEnvironment "$usage" "No DATABASE_ROOT_PASSWORD defined in environment or bitbucket-pipelines.yml" || return $?
+    [ -n "$DATABASE_ROOT_PASSWORD" ] || throwEnvironment "$handler" "No DATABASE_ROOT_PASSWORD defined in environment or bitbucket-pipelines.yml" || return $?
   fi
 
   [ -n "${DATABASE_HOST-}" ] || DATABASE_HOST="localhost"
@@ -103,7 +104,7 @@ zeskPipelineSetup() {
   [ -n "${DATABASE_NETWORK-}" ] || DATABASE_NETWORK="%"
   requireEnvironment+=(DATABASE_NETWORK)
 
-  usageRequireEnvironment "$usage" "${requireEnvironment[@]}" || return $?
+  usageRequireEnvironment "$handler" "${requireEnvironment[@]}" || return $?
 
   statusMessage decorate info "Started on $(date)"
 
@@ -112,14 +113,14 @@ zeskPipelineSetup() {
   # Install
   #
   local home
-  whichExists php || __catchEnvironment "$usage" phpInstall || return $?
-  whichExists mysql || __catchEnvironment "$usage" mariadbInstall || return $?
-  home=$(__catchEnvironment "$usage" buildHome) || return $?
+  whichExists php || catchEnvironment "$handler" phpInstall || return $?
+  whichExists mysql || catchEnvironment "$handler" mariadbInstall || return $?
+  home=$(catchReturn "$handler" buildHome) || return $?
 
   # Set up dependencies so hooks work (environmentFileApplicationMake calls hooks)
-  start=$(__catchEnvironment "$usage" timingStart) || return $?
+  start=$(catchReturn "$handler" timingStart) || return $?
   statusMessage decorate info "Composer ... "
-  __catchEnvironment "$usage" phpComposer "$home" || return $?
+  catchEnvironment "$handler" phpComposer "$home" || return $?
   statusMessage timingReport "$start" "composer completed in"
 
   local dotEnv="$home/.env" clean=()
@@ -127,7 +128,9 @@ zeskPipelineSetup() {
   #
   # Connect to the database and set up test schema
   #
-  start=$(__catchEnvironment "$usage" timingStart) || _clean $? "${clean[@]}" || return $?
+  start=$(catchReturn "$handler" timingStart) || returnClean $? "${clean[@]}" || return $?
+
+  DATABASE_PORT="${DATABASE_PORT-3306}"
   local rootDSN=("mysqli://root:$DATABASE_ROOT_PASSWORD@$DATABASE_HOST:$DATABASE_PORT/mysql")
 
   #==========================================================================================
@@ -135,12 +138,12 @@ zeskPipelineSetup() {
   # Load the test schema into our database
   #
   statusMessage decorate info "Loading schema ... "
-  start=$(__catchEnvironment "$usage" timingStart) || return $?
+  start=$(catchReturn "$handler" timingStart) || return $?
 
   # Writing .env file
   statusMessage decorate info "Generating environment artifact ... "
   clean+=("$dotEnv")
-  __catchEnvironment "$usage" environmentFileApplicationMake "${requireEnvironment[@]}" -- GITHUB_ACCESS_TOKEN | __catchEnvironment "$usage" muzzle tee "$dotEnv" || _clean $? "${clean[@]}" || return $?
+  catchReturn "$handler" environmentFileApplicationMake "${requireEnvironment[@]}" -- GITHUB_ACCESS_TOKEN | catchEnvironment "$handler" muzzle tee "$dotEnv" || returnClean $? "${clean[@]}" || return $?
   environmentFileShow || :
 
   local randomPassword
@@ -148,19 +151,19 @@ zeskPipelineSetup() {
   randomPassword=${randomPassword:0:12}
   export DSN="mysqli://testUser:$randomPassword@$DATABASE_HOST/testDatabase"
   {
-    __catchEnvironment "$usage" environmentValueWrite DSN "$DSN" || return $?
-    __catchEnvironment "$usage" urlParse --prefix "DSN_" --uppercase "$DSN" >>"$dotEnv" || return $?
-    __catchEnvironment "$usage" environmentValueWrite DATABASE_HOST "$CONTAINER_DATABASE_HOST" || return $?
-    __catchEnvironment "$usage" environmentValueWrite "DATABASE_NETWORK" "%" || return $?
+    catchReturn "$handler" environmentValueWrite DSN "$DSN" || return $?
+    catchReturn "$handler" urlParse --prefix "DSN_" --uppercase "$DSN" >>"$dotEnv" || return $?
+    catchReturn "$handler" environmentValueWrite DATABASE_HOST "$CONTAINER_DATABASE_HOST" || return $?
+    catchReturn "$handler" environmentValueWrite "DATABASE_NETWORK" "%" || return $?
     for variable in "${requireEnvironment[@]}"; do
-      __catchEnvironment "$usage" environmentValueWrite "$variable" "${!variable}" || return $?
+      catchReturn "$handler" environmentValueWrite "$variable" "${!variable}" || return $?
     done
-  } >>"$dotEnv" || _clean $? "${clean[@]}" || return $?
+  } >>"$dotEnv" || returnClean $? "${clean[@]}" || return $?
 
   dumpPipe ".env:" <"$dotEnv"
   environmentFileLoad "$dotEnv" --execute mapEnvironment <./etc/docker/schema.sql | dumpPipe "Schema:" || :
 
-  __catchEnvironment "$usage" environmentFileLoad "$dotEnv" --execute mapEnvironment <./etc/docker/schema.sql | __catchEnvironment "$usage" mariadbConnect "${rootDSN[@]}" >>"$quietLog" || buildFailed "$quietLog" || _clean $? "${clean[@]}" || return $?
+  catchReturn "$handler" environmentFileLoad "$dotEnv" --execute mapEnvironment <./etc/docker/schema.sql | catchEnvironment "$handler" mariadbConnect "${rootDSN[@]}" >>"$quietLog" || buildFailed "$quietLog" || returnClean $? "${clean[@]}" || return $?
   statusMessage timingReport "$start" "Schema load completed in"
 
   #==========================================================================================
@@ -170,7 +173,7 @@ zeskPipelineSetup() {
   if $cleanFlag; then
     if [ -d "./vendor" ]; then
       statusMessage decorate warning "Deleting ./vendor ..."
-      __catchEnvironment "$usage" rm -rf "./vendor" || _clean $? "${clean[@]}" || return $?
+      catchEnvironment "$handler" rm -rf "./vendor" || returnClean $? "${clean[@]}" || return $?
     fi
   fi
   #==========================================================================================
@@ -182,32 +185,32 @@ zeskPipelineSetup() {
     cleanArgs=("--no-cache" "--pull")
   fi
   local undo=()
-  __catchEnvironment "$usage" muzzle pushd "$home/etc/docker" || _clean $? "${clean[@]}" || _undo $? "${undo[@]+"${undo[@]}"}" || return $?
+  catchEnvironment "$handler" muzzle pushd "$home/etc/docker" || returnClean $? "${clean[@]}" || returnUndo $? "${undo[@]+"${undo[@]}"}" || return $?
   undo+=(muzzle popd --)
-  __catchEnvironment "$usage" docker build -f web.Dockerfile --tag zesk:latest "${cleanArgs[@]}" ../.. || _clean $? "${clean[@]}" || _undo $? "${undo[@]+"${undo[@]}"}" || return $?
-  _undo 0 "${undo[@]+"${undo[@]}"}" || return $?
+  catchEnvironment "$handler" docker build -f web.Dockerfile --tag zesk:latest "${cleanArgs[@]}" ../.. || returnClean $? "${clean[@]}" || returnUndo $? "${undo[@]+"${undo[@]}"}" || return $?
+  returnUndo 0 "${undo[@]+"${undo[@]}"}" || return $?
 
   #==========================================================================================
   #  ▀▛▘     ▐
   #   ▌▞▀▖▞▀▘▜▀
   #   ▌▛▀ ▝▀▖▐ ▖
   #   ▘▝▀▘▀▀  ▀
-  start=$(__catchEnvironment "$usage" timingStart) || return $?
+  start=$(catchReturn "$handler" timingStart) || return $?
   clearLine
   statusMessage decorate info Testing ...
   for d in "test-results" ".zesk-coverage" "test-coverage" ".phpunit-cache"; do
-    [ -d "$d" ] || __catchEnvironment "$usage" mkdir -p "$d" || _clean $? "${clean[@]}" || return $?
+    [ -d "$d" ] || catchEnvironment "$handler" mkdir -p "$d" || returnClean $? "${clean[@]}" || return $?
   done
-  __catchEnvironment "$usage" docker run -v "$(pwd)/:/zesk" zesk:latest /zesk/bin/test.sh "$@" || _clean $? "${clean[@]}" || return $?
+  catchEnvironment "$handler" docker run -v "$(pwd)/:/zesk" zesk:latest /zesk/bin/test.sh "$@" || returnClean $? "${clean[@]}" || return $?
   statusMessage timingReport "$start" "test.sh completed in"
 
-  __catchEnvironment "$usage" rm -f "${clean[@]}" || return $?
+  catchEnvironment "$handler" rm -f "${clean[@]}" || return $?
 
   statusMessage decorate info "Tagging ..."
-  __catchEnvironment "$usage" gitTagVersion "${versionArgs[@]}" || return $?
+  catchEnvironment "$handler" gitTagVersion "${versionArgs[@]}" || return $?
   statusMessage --last timingReport "$startSetup" "Setup complete."
 }
 _zeskPipelineSetup() {
-  # _IDENTICAL_ usageDocument 1
+  # __IDENTICAL__ usageDocument 1
   usageDocument "${BASH_SOURCE[0]}" "${FUNCNAME[0]#_}" "$@"
 }

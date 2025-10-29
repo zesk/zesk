@@ -34,37 +34,34 @@
 # MOST RECENT STUFF at the top as it will likely have more hits
 # See: docs/_templates/deprecated.md
 __deprecatedCleanup() {
-  local usage="_${FUNCNAME[0]}" exitCode=0
+  local handler="_${FUNCNAME[0]}" exitCode=0
   local ignoreExtras=()
 
-  # _IDENTICAL_ argument-case-header 5
+  # _IDENTICAL_ argumentNonBlankLoopHandler 6
   local __saved=("$@") __count=$#
   while [ $# -gt 0 ]; do
     local argument="$1" __index=$((__count - $# + 1))
-    [ -n "$argument" ] || __throwArgument "$usage" "blank #$__index/$__count ($(decorate each quote "${__saved[@]}"))" || return $?
+    # __IDENTICAL__ __checkBlankArgumentHandler 1
+    [ -n "$argument" ] || throwArgument "$handler" "blank #$__index/$__count ($(decorate each quote "${__saved[@]}"))" || return $?
     case "$argument" in
-      # _IDENTICAL_ --help 4
-      --help)
-        "$usage" 0
-        return $?
-        ;;
-      --find)
+    # _IDENTICAL_ helpHandler 1
+    --help) "$handler" 0 && return $? || return $? ;;
+    --find)
+      shift
+      while [ $# -gt 0 ]; do
+        if [ "$1" = "--" ]; then
+          break
+        fi
+        ignoreExtras+=("$1")
         shift
-        while [ $# -gt 0 ]; do
-          if [ "$1" = "--" ]; then
-            break
-          fi
-          ignoreExtras+=("$1")
-          shift
-        done
-        [ $# -eq 0 ] || shift
-        ;;
-      *)
-        # _IDENTICAL_ argumentUnknown 1
-        __throwArgument "$usage" "unknown #$__index/$__count \"$argument\" ($(decorate each code "${__saved[@]}"))" || return $?
-        ;;
+      done
+      [ $# -eq 0 ] || shift
+      ;;
+    *)
+      # _IDENTICAL_ argumentUnknownHandler 1
+      throwArgument "$handler" "unknown #$__index/$__count \"$argument\" ($(decorate each code "${__saved[@]}"))" || return $?
+      ;;
     esac
-    # _IDENTICAL_ argument-esac-shift 1
     shift
   done
 
@@ -73,10 +70,10 @@ __deprecatedCleanup() {
 
   __BUILD_DEPRECATED_EXTRAS+=(! -path '*/vendor/*' ! -path '*/.composer/*')
 
-  start=$(__environment timingStart) || return $?
+  start=$(catchEnvironment "returnMessage" timingStart) || return $?
   local home
 
-  home=$(__environment buildHome) || return $?
+  home=$(catchEnvironment "returnMessage" buildHome) || return $?
 
   statusMessage decorate info "Deprecated cannon in \"$home\" ..."
   __deprecatedCannonsByVersion "$home" || exitCode=$?
@@ -85,7 +82,7 @@ __deprecatedCleanup() {
   return "$exitCode"
 }
 ___deprecatedCleanup() {
-  # _IDENTICAL_ usageDocument 1
+  # __IDENTICAL__ usageDocument 1
   usageDocument "${BASH_SOURCE[0]}" "${FUNCNAME[0]#_}" "$@"
 }
 

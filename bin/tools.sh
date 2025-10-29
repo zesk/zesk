@@ -76,7 +76,7 @@ __install() {
   # shellcheck source=/dev/null
   source "$tools" || _return "$e" source "$tools" || return $?
   [ ${#a[@]} -gt 0 ] || return 0
-  __execute "${a[@]}" || return $?
+  execute "${a[@]}" || return $?
 }
 
 # IDENTICAL __build 11
@@ -92,7 +92,7 @@ __build() {
   __install "$installerPath/install-bin-build.sh" "bin/build/tools.sh" "$relative" "$@" || return $?
 }
 
-# IDENTICAL _return 27
+# IDENTICAL returnMessage 27
 
 # Return passed in integer return code and output message to `stderr` (non-zero) or `stdout` (zero)
 # Argument: exitCode - Required. UnsignedInteger. Exit code to return. Default is 1.
@@ -130,7 +130,7 @@ __applicationTools() {
 
   bashSourcePath "$(realPath "$here/tools/")" || return $?
 
-  __execute "${__saved[@]+"${__saved[@]}"}" || return $?
+  execute "${__saved[@]+"${__saved[@]}"}" || return $?
 }
 
 if [ "$(basename "${0##-}")" = "$(basename "${BASH_SOURCE[0]}")" ] && [ $# -gt 0 ]; then

@@ -595,6 +595,35 @@ class TimestampTest extends TestCase
 	}
 
 	/**
+	 * @return array[]
+	 */
+	public static function data_setMonth(): array
+	{
+		return [
+			['2025-10-30 01:23:45', 2, '2025-02-28 01:23:45'],
+			['2025-10-31 01:23:45', 11, '2025-11-30 01:23:45'],
+			['2025-10-31 01:23:45', 2, '2025-02-28 01:23:45'],
+		];
+	}
+
+	/**
+	 * @param string $startingDate
+	 * @param int $month
+	 * @param string $finalDate
+	 * @return void
+	 * @throws ParseException
+	 * @dataProvider data_setMonth
+	 * @covers       Timestamp::setMonth
+	 */
+	public function test_setMonth(string $startingDate, int $month, string $finalDate): void
+	{
+		$x = Timestamp::factory();
+		$x->parse($startingDate);
+		$x->setMonth($month);
+		$this->assertEquals($finalDate, $x->format());
+	}
+
+	/**
 	 * @dataProvider data_setDayError
 	 * @param int $month
 	 * @param int $value
@@ -605,6 +634,10 @@ class TimestampTest extends TestCase
 	{
 		$x = Timestamp::factory();
 		$x->setMonth($month);
+		$year = $x->year();
+		if ($value > 0) {
+			$this->assertGreaterThan(Date::daysInMonth($month, $year), $value, "Date::daysInMonth($month, $year) = " . Date::daysInMonth($month, $year) . " < $value");
+		}
 		$this->expectException(OutOfBoundsException::class);
 		$x->setDay($value);
 	}

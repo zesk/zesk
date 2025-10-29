@@ -10,8 +10,7 @@ definitions:
       memory: 1024
       image: mariadb:latest
       variables:
-        MARIADB_ROOT_PASSWORD: hard-to-guess
-        MYSQL_ROOT_PASSWORD: hard-to-guess
+        MARIADB_ROOT_PASSWORD: $DATABASE_ROOT_PASSWORD
 
 image: atlassian/default-image:4
 pipelines:

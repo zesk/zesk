@@ -12,14 +12,14 @@
 #  local usage="_${FUNCNAME[0]}"
 #  local host quietLog start
 #
-#  quietLog=$(__catchEnvironment "$usage" buildQuietLog "$usage") || return $?
-#  start=$(__catchEnvironment "$usage" timingStart) || return $?
+#  quietLog=$(catchReturn "$usage" buildQuietLog "$usage") || return $?
+#  start=$(catchReturn "$usage" timingStart) || return $?
 #
 #  # _IDENTICAL_ argument-case-header 5
 #  local __saved=("$@") __count=$#
 #  while [ $# -gt 0 ]; do
 #    local argument="$1" __index=$((__count - $# + 1))
-#    [ -n "$argument" ] || __throwArgument "$usage" "blank #$__index/$__count ($(decorate each quote "${__saved[@]}"))" || return $?
+#    [ -n "$argument" ] || throwArgument "$usage" "blank #$__index/$__count ($(decorate each quote "${__saved[@]}"))" || return $?
 #    case "$argument" in
 #      # _IDENTICAL_ --help 4
 #      --help)
@@ -27,7 +27,7 @@
 #        return $?
 #        ;;
 #      *)
-#        [ -z "$host" ] || __throwArgument "$usage" "Host already specified" || return $?
+#        [ -z "$host" ] || throwArgument "$usage" "Host already specified" || return $?
 #        host="$argument"
 #        ;;
 #    esac
@@ -35,29 +35,30 @@
 #    shift
 #  done
 #
-#  [ -z "$host" ] || __throwArgument "$usage" "host requires" || return $?
+#  [ -z "$host" ] || throwArgument "$usage" "host requires" || return $?
 #
 #  local name=zesk
 #
 #  statusMessage decorate info -n "Build container $(decorate code "$name:latest") ... "
 #  figlet "Build container" >>"$quietLog"
-#  __catchEnvironment "$usage" docker build "$@" --build-arg "DATABASE_HOST=$host" -f ./docker/php.Dockerfile --tag "$name:latest" . >>"$quietLog" || buildFailed "$quietLog" || return $?
+#  catchEnvironment "$usage" docker build "$@" --build-arg "DATABASE_HOST=$host" -f ./docker/php.Dockerfile --tag "$name:latest" . >>"$quietLog" || buildFailed "$quietLog" || return $?
 #  statusMessage --last timingReport "$start" "Zesk latest container built in"
 #}
 #_zeskContainerLatest() {
-#  # _IDENTICAL_ usageDocument 1
+#  # __IDENTICAL__ usageDocument 1
 #  usageDocument "${BASH_SOURCE[0]}" "${FUNCNAME[0]#_}" "$@"
 #}
 
 if whichExists docker; then
   __dockerPHPExec() {
-    local home="$1" user="$2" ttyArg=() && shift 2
+    local home="$1" target="$2" user="$3" ttyArg=() && shift 3
     [ -t 0 ] || ttyArg+=(-T)
-    docker compose -f "$home/docker-compose.yml" exec "${ttyArg[@]}" -u "${user}" web "$@"
+    docker compose -f "$home/docker-compose.yml" exec "${ttyArg[@]}" -u "${user}" "$target" "$@"
   }
 
   zeskCompose() {
     local envs=(
+      --arg DATABASE_ROOT_PASSWORD=zesk-applications
       --env CONTAINER_PORT_WEB=4071
       --env CONTAINER_PORT_DATABASE=4072
       --env XDEBUG_ENABLED=true
@@ -69,7 +70,7 @@ if whichExists docker; then
     dockerCompose "${envs[@]}" "$@"
   }
   _zeskCompose() {
-    # _IDENTICAL_ usageDocument 1
+    # __IDENTICAL__ usageDocument 1
     usageDocument "${BASH_SOURCE[0]}" "${FUNCNAME[0]#_}" "$@"
   }
 fi

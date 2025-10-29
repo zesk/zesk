@@ -224,7 +224,7 @@ class Text
 	 * @param string $data
 	 *            Contents to remove line comments from
 	 * @param string $line_comment
-	 *            The line comment prefix (e.g. #, or ', etc.)
+	 *            The line comment prefix (e.g. `#`, or `'`, etc.)
 	 * @param boolean $alone
 	 *            True if line comments should be alone on their own line, otherwise, will trim line
 	 *            comments at the end of a line
@@ -252,15 +252,15 @@ class Text
 	 * Remove C/Java/PHP/etc-style range comments
 	 *
 	 * @param string $text
-	 * @param string $begin_comment
+	 * @param string $beginComment
 	 *            Optional beginning string - is preg_quoted
-	 * @param string $end_comment
+	 * @param string $endComment
 	 *            Optional ending string - is preg_quoted
 	 * @return string
 	 */
-	public static function removeRangeComments(string $text, string $begin_comment = '/*', string $end_comment = '*/'): string
+	public static function removeRangeComments(string $text, string $beginComment = '/*', string $endComment = '*/'): string
 	{
-		return preg_replace('#' . preg_quote($begin_comment) . '.*?' . preg_quote($end_comment) . '#s', '', $text);
+		return preg_replace('#' . preg_quote($beginComment, '#') . '.*?' . preg_quote($endComment, '#') . '#s', '', $text);
 	}
 
 	public static function fill_pattern(string $pattern, int $char_length): string
@@ -278,7 +278,7 @@ class Text
 	 * @param array $map
 	 * @param string $prefix Character(s) to place before the key
 	 * @param string $suffix Character(s) to place after the key
-	 * @param string $pad Padding character (blank for no padding))
+	 * @param string $pad Padding character (blank for no padding)
 	 * @param string $delimiter Character after padding and before value
 	 * @param string $br End of line character
 	 * @return string

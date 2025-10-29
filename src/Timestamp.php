@@ -606,7 +606,8 @@ class Timestamp extends Weekday
 		if ($set < 1 || $set > 12) {
 			throw new OutOfBoundsException("Month must be between 1 and 12 ($set passed)");
 		}
-		$this->datetime->setDate($this->year(), $set, $this->day());
+		$year = $this->year();
+		$this->datetime->setDate($year, $set, min($this->day(), Date::daysInMonth($set, $year)));
 		return $this;
 	}
 
