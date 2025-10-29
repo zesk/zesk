@@ -119,7 +119,7 @@ __query() {
   local user
   export DATABASE_HOST DATABASE DATABASE_ROOT_PASSWORD DATABASE_ROOT_USER
   user=${DATABASE_ROOT_USER-root}
-  mariadb -u "$user" -p"$DATABASE_ROOT_PASSWORD" -h "$DATABASE_HOST" -N
+  mariadb -u "$user" -p"$DATABASE_ROOT_PASSWORD" -h "$DATABASE_HOST" -N --skip-ssl
 }
 
 __verifyDatabase() {
