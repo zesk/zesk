@@ -117,10 +117,13 @@ zeskPipelineSetup() {
   whichExists mysql || catchEnvironment "$handler" mariadbInstall || return $?
   home=$(catchReturn "$handler" buildHome) || return $?
 
+  local dd=()
+  # If docker exists, use it for composer
+  ! whichExists docker || dd+=(--docker)
   # Set up dependencies so hooks work (environmentFileApplicationMake calls hooks)
   start=$(catchReturn "$handler" timingStart) || return $?
   statusMessage decorate info "Composer ... "
-  catchEnvironment "$handler" phpComposer "$home" || return $?
+  catchEnvironment "$handler" phpComposer "${dd[@]+"${dd[@]}"}" "$home" || return $?
   statusMessage timingReport "$start" "composer completed in"
 
   local dotEnv="$home/.env" clean=()
