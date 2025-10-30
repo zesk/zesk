@@ -207,7 +207,7 @@ zeskPipelineSetup() {
   for d in "test-results" ".zesk-coverage" "test-coverage" ".phpunit-cache"; do
     [ -d "$d" ] || catchEnvironment "$handler" mkdir -p "$d" || returnClean $? "${clean[@]}" || return $?
   done
-  catchEnvironment "$handler" docker run -v "$(pwd)/:/zesk" zesk:latest /zesk/bin/test.sh "$@" || returnClean $? "${clean[@]}" || return $?
+  catchEnvironment "$handler" docker run --env "DATABASE_HOST=$CONTAINER_DATABASE_HOST" -v "$(pwd)/:/zesk" zesk:latest /zesk/bin/test.sh "$@" || returnClean $? "${clean[@]}" || return $?
   statusMessage timingReport "$start" "test.sh completed in"
 
   catchEnvironment "$handler" rm -f "${clean[@]}" || return $?
