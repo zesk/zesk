@@ -9,8 +9,6 @@ definitions:
     mariadb:
       memory: 1024
       image: mariadb:latest
-      variables:
-        MARIADB_ROOT_PASSWORD: $DATABASE_ROOT_PASSWORD
 
 image: atlassian/default-image:4
 pipelines:
@@ -32,7 +30,7 @@ pipelines:
             - apt-cache
           size: 2x
           script:
-            - CONTAINER_DATABASE_HOST=localhost bin/build.sh --testsuite core
+            - DATABASE_ROOT_PASSWORD=$MARIADB_ROOT_PASSWORD CONTAINER_DATABASE_HOST=localhost bin/build.sh --testsuite core
       - step:
           name: Deploy
           trigger: manual
@@ -54,7 +52,7 @@ pipelines:
             - apt-lists
             - apt-cache
           script:
-            - CONTAINER_DATABASE_HOST=localhost bin/build.sh --staging --testsuite core
+            - DATABASE_ROOT_PASSWORD=$MARIADB_ROOT_PASSWORD CONTAINER_DATABASE_HOST=localhost bin/build.sh --staging --testsuite core
     deploy:
       - step:
           deployment: deploy
