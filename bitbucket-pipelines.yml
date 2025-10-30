@@ -53,6 +53,7 @@ pipelines:
             - docker
             - apt-lists
             - apt-cache
+          size: 2x
           script:
             - CONTAINER_DATABASE_HOST=localhost bin/build.sh --staging --testsuite core
     deploy:
