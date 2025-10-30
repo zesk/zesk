@@ -19,7 +19,7 @@ __installBase() {
 # Install development packages for testing or development work
 __installDevelopment() {
   # Debian package names
-  packageInstall vim manpages git curl strace dnsutils
+  packageInstall vim manpages git curl strace dnsutils shellcheck
 }
 
 # Incomplete but add extensions as needed

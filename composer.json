@@ -21,7 +21,6 @@
     "bin/zesk"
   ],
   "description": "The Zesk Application Framework",
-  "fingerprint": "Hello",
   "homepage": "https://php.zesk.com",
   "keywords": [
     "zesk",
