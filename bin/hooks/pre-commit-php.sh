@@ -57,6 +57,16 @@ __hookPreCommitPHP() {
     throwEnvironment "$handler" "File pattern check failed" || returnClean $? "$matches" || return $?
   fi
   catchEnvironment "$handler" rm -f "$matches" || return $?
+
+  local home
+  home=$(catchEnvironment "$handler" buildHome) || return $?
+  local composerFile="$home/composer.json"
+  if [ -f "$composerFile" ]; then
+    if [ -n "$(jq .version <"$composerFile")" ]; then
+      catchEnvironment "$handler" jq 'del(.version)' "$composerFile" >"$composerFile.versionless" || return $?
+      catchEnvironment "$handler" mv "$home/$composerFile.versionless" "$home/composer.json" || return $?
+    fi
+  fi
 }
 ___hookPreCommitPHP() {
   usageDocument "${BASH_SOURCE[0]}" "${FUNCNAME[0]#_}" "$@"
