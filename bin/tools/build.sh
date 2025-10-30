@@ -86,9 +86,9 @@ zeskPipelineSetup() {
   if [ -z "${DATABASE_ROOT_PASSWORD-}" ]; then
     local variable value
     for variable in MARIADB_ROOT_PASSWORD MYSQL_ROOT_PASSWORD; do
-      value=$(bitbucketGetVariable "$variable" 2>/dev/null) || :
-      [ -z "$value" ] || break
       value="${!variable-}"
+      [ -z "$value" ] || break
+      value=$(bitbucketGetVariable "$variable" 2>/dev/null) || :
       [ -z "$value" ] || break
     done
     [ -n "$value" ] || throwEnvironment "$handler" "No DATABASE_ROOT_PASSWORD defined in environment or bitbucket-pipelines.yml" || return $?
