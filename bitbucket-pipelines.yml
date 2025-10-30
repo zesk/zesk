@@ -9,6 +9,8 @@ definitions:
     mariadb:
       memory: 1024
       image: mariadb:latest
+      variables:
+        MARIADB_ROOT_PASSWORD: $MARIADB_ROOT_PASSWORD
 
 image: atlassian/default-image:4
 pipelines:
