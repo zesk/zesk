@@ -344,7 +344,7 @@ __installPHPXdebug() {
     printf -- "%s\n" "$iniFile file not found" 1>&2
     return 1
   fi
-  packageInstall php-dev
+  # packageInstall php-dev
   decorate info "Setting php ini path to $iniFile"
   pear config-set php_ini "$iniFile"
 
