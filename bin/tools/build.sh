@@ -84,12 +84,15 @@ zeskPipelineSetup() {
 
   export DATABASE_ROOT_PASSWORD DATABASE_HOST PHP_IDE_CONFIG XDEBUG_CLIENT_HOST DATABASE_PORT
   if [ -z "${DATABASE_ROOT_PASSWORD-}" ]; then
-    local variable
-    for variable in DATABASE_ROOT_PASSWORD MARIADB_ROOT_PASSWORD MYSQL_ROOT_PASSWORD; do
-      DATABASE_ROOT_PASSWORD=$(bitbucketGetVariable "$variable" 2>/dev/null) || :
-      [ -z "$DATABASE_ROOT_PASSWORD" ] || break
+    local variable value
+    for variable in MARIADB_ROOT_PASSWORD MYSQL_ROOT_PASSWORD; do
+      value=$(bitbucketGetVariable "$variable" 2>/dev/null) || :
+      [ -z "$value" ] || break
+      value="${!variable-}"
+      [ -z "$value" ] || break
     done
-    [ -n "$DATABASE_ROOT_PASSWORD" ] || throwEnvironment "$handler" "No DATABASE_ROOT_PASSWORD defined in environment or bitbucket-pipelines.yml" || return $?
+    [ -n "$value" ] || throwEnvironment "$handler" "No DATABASE_ROOT_PASSWORD defined in environment or bitbucket-pipelines.yml" || return $?
+    DATABASE_ROOT_PASSWORD="$value"
   fi
 
   [ -n "${DATABASE_HOST-}" ] || DATABASE_HOST="localhost"
