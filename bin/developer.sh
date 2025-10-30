@@ -22,7 +22,8 @@ if source "${BASH_SOURCE[0]%/*}/tools.sh"; then
     local name
     name=$(catchReturn "$handler" buildEnvironmentGet APPLICATION_NAME) || return $?
     [ -n "$name" ] || name=$(basename "$home")
-    bigText "$name"
+    iTerm2Image -i --height 4 "$home/etc/zesk-logo.png" || :
+    bigText "$name" || :
 
     # shellcheck disable=SC2139
     alias z="$home/bin/zesk.sh"

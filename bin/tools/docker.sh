@@ -9,25 +9,25 @@
 # Argument: dockerBuildArgs - Any additional arguments are passed directly to `docker build`
 #
 #zeskContainerLatest() {
-#  local usage="_${FUNCNAME[0]}"
+#  local handler="_${FUNCNAME[0]}"
 #  local host quietLog start
 #
-#  quietLog=$(catchReturn "$usage" buildQuietLog "$usage") || return $?
-#  start=$(catchReturn "$usage" timingStart) || return $?
+#  quietLog=$(catchReturn "$handler" buildQuietLog "$handler") || return $?
+#  start=$(catchReturn "$handler" timingStart) || return $?
 #
 #  # _IDENTICAL_ argument-case-header 5
 #  local __saved=("$@") __count=$#
 #  while [ $# -gt 0 ]; do
 #    local argument="$1" __index=$((__count - $# + 1))
-#    [ -n "$argument" ] || throwArgument "$usage" "blank #$__index/$__count ($(decorate each quote "${__saved[@]}"))" || return $?
+#    [ -n "$argument" ] || throwArgument "$handler" "blank #$__index/$__count ($(decorate each quote "${__saved[@]}"))" || return $?
 #    case "$argument" in
 #      # _IDENTICAL_ --help 4
 #      --help)
-#        "$usage" 0
+#        "$handler" 0
 #        return $?
 #        ;;
 #      *)
-#        [ -z "$host" ] || throwArgument "$usage" "Host already specified" || return $?
+#        [ -z "$host" ] || throwArgument "$handler" "Host already specified" || return $?
 #        host="$argument"
 #        ;;
 #    esac
@@ -35,13 +35,13 @@
 #    shift
 #  done
 #
-#  [ -z "$host" ] || throwArgument "$usage" "host requires" || return $?
+#  [ -z "$host" ] || throwArgument "$handler" "host requires" || return $?
 #
 #  local name=zesk
 #
 #  statusMessage decorate info -n "Build container $(decorate code "$name:latest") ... "
 #  figlet "Build container" >>"$quietLog"
-#  catchEnvironment "$usage" docker build "$@" --build-arg "DATABASE_HOST=$host" -f ./docker/php.Dockerfile --tag "$name:latest" . >>"$quietLog" || buildFailed "$quietLog" || return $?
+#  catchEnvironment "$handler" docker build "$@" --build-arg "DATABASE_HOST=$host" -f ./docker/php.Dockerfile --tag "$name:latest" . >>"$quietLog" || buildFailed "$quietLog" || return $?
 #  statusMessage --last timingReport "$start" "Zesk latest container built in"
 #}
 #_zeskContainerLatest() {
