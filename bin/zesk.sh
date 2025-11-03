@@ -17,34 +17,46 @@
 #
 # Copyright &copy; 2025 Market Acumen, Inc.
 
-# IDENTICAL returnMessage 27
+# IDENTICAL returnMessage 39
 
 # Return passed in integer return code and output message to `stderr` (non-zero) or `stdout` (zero)
 # Argument: exitCode - Required. UnsignedInteger. Exit code to return. Default is 1.
 # Argument: message ... - Optional. String. Message to output
-# Exit Code: exitCode
-# Requires: isUnsignedInteger printf _return
-_return() {
-  local code="${1:-1}" && shift 2>/dev/null
-  isUnsignedInteger "$code" || _return 2 "${FUNCNAME[1]-none}:${BASH_LINENO[1]-} -> ${FUNCNAME[0]} non-integer \"$code\"" "$@" || return $?
-  [ "$code" -eq 0 ] && printf -- "✅ %s\n" "${*-§}" && return 0 || printf -- "❌ [%d] %s\n" "$code" "${*-§}" 1>&2
+# Return Code: exitCode
+# Requires: isUnsignedInteger printf returnMessage
+returnMessage() {
+  local handler="_${FUNCNAME[0]}"
+  local to=1 icon="✅" code="${1:-1}" && shift 2>/dev/null
+  if [ "$code" = "--help" ]; then "$handler" 0 && return; fi
+  isUnsignedInteger "$code" || returnMessage 2 "${FUNCNAME[1]-none}:${BASH_LINENO[1]-} -> ${handler#_} non-integer \"$code\"" "$@" || return $?
+  if [ "$code" -gt 0 ]; then icon="❌ [$code]" && to=2; fi
+  printf -- "%s %s\n" "$icon" "${*-§}" 1>&"$to"
   return "$code"
+}
+_returnMessage() {
+  # __IDENTICAL__ usageDocument 1
+  usageDocument "${BASH_SOURCE[0]}" "${FUNCNAME[0]#_}" "$@"
 }
 
 # Test if an argument is an unsigned integer
 # Source: https://stackoverflow.com/questions/806906/how-do-i-test-if-a-variable-is-a-number-in-bash
 # Credits: F. Hauri - Give Up GitHub (isnum_Case)
 # Original: is_uint
+# Argument: value - EmptyString. Value to test if it is an unsigned integer.
 # Usage: {fn} argument ...
-# Exit Code: 0 - if it is an unsigned integer
-# Exit Code: 1 - if it is not an unsigned integer
-# Requires: _return
+# Return Code: 0 - if it is an unsigned integer
+# Return Code: 1 - if it is not an unsigned integer
+# Requires: returnMessage
 isUnsignedInteger() {
-  [ $# -eq 1 ] || _return 2 "Single argument only: $*" || return $?
-  case "${1#+}" in '' | *[!0-9]*) return 1 ;; esac
+  [ $# -eq 1 ] || returnMessage 2 "Single argument only: $*" || return $?
+  case "${1#+}" in --help) usageDocument "${BASH_SOURCE[0]}" "${FUNCNAME[0]}" 0 ;; '' | *[!0-9]*) return 1 ;; esac
+}
+_isUnsignedInteger() {
+  # __IDENTICAL__ usageDocument 1
+  usageDocument "${BASH_SOURCE[0]}" "${FUNCNAME[0]#_}" "$@"
 }
 
-# <-- END of IDENTICAL _return
+# <-- END of IDENTICAL returnMessage
 
 # Argument: handler - Function. Required. Call on failure
 # Argument: path - Directory.  Required. Directory to generate a symlink.

@@ -93,6 +93,15 @@ zeskPipelineSetup() {
     done
     [ -n "$value" ] || throwEnvironment "$handler" "No DATABASE_ROOT_PASSWORD defined in environment or bitbucket-pipelines.yml" || return $?
     DATABASE_ROOT_PASSWORD="$value"
+
+    # Evaluate variables found in bitbucket
+    if [ "${DATABASE_ROOT_PASSWORD:0:1}" = '$' ]; then
+      local varName=${DATABASE_ROOT_PASSWORD:1}
+      DATABASE_ROOT_PASSWORD="${!varName-}"
+      if [ -z "$DATABASE_ROOT_PASSWORD" ]; then
+        throwEnvironment "$handler" "DATABASE_ROOT_PASSWORD value of $varName does not evaluate to any value, stopping" || return $?
+      fi
+    fi
   fi
 
   [ -n "${DATABASE_HOST-}" ] || DATABASE_HOST="localhost"
@@ -149,7 +158,7 @@ zeskPipelineSetup() {
   # Writing .env file
   statusMessage decorate info "Generating environment artifact ... "
   clean+=("$dotEnv")
-  catchReturn "$handler" environmentFileApplicationMake "${requireEnvironment[@]}" -- GITHUB_ACCESS_TOKEN | catchEnvironment "$handler" muzzle tee "$dotEnv" || returnClean $? "${clean[@]}" || return $?
+  catchReturn "$handler" environmentFileApplicationMake -- GITHUB_ACCESS_TOKEN | catchEnvironment "$handler" muzzle tee "$dotEnv" || returnClean $? "${clean[@]}" || return $?
   environmentFileShow || :
 
   local randomPassword
@@ -159,7 +168,6 @@ zeskPipelineSetup() {
   {
     catchReturn "$handler" environmentValueWrite DSN "$DSN" || return $?
     catchReturn "$handler" urlParse --prefix "DSN_" --uppercase "$DSN" >>"$dotEnv" || return $?
-    catchReturn "$handler" environmentValueWrite DATABASE_HOST "$CONTAINER_DATABASE_HOST" || return $?
     catchReturn "$handler" environmentValueWrite "DATABASE_NETWORK" "%" || return $?
     for variable in "${requireEnvironment[@]}"; do
       catchReturn "$handler" environmentValueWrite "$variable" "${!variable}" || return $?
@@ -207,7 +215,11 @@ zeskPipelineSetup() {
   for d in "test-results" ".zesk-coverage" "test-coverage" ".phpunit-cache"; do
     [ -d "$d" ] || catchEnvironment "$handler" mkdir -p "$d" || returnClean $? "${clean[@]}" || return $?
   done
-  catchEnvironment "$handler" docker run --env "DATABASE_HOST=$CONTAINER_DATABASE_HOST" -v "$(pwd)/:/zesk" zesk:latest /zesk/bin/test.sh "$@" || returnClean $? "${clean[@]}" || return $?
+  local ee=()
+  ee+=(--env "DATABASE_ROOT_PASSWORD=$DATABASE_ROOT_PASSWORD")
+  ee+=(--env "DATABASE_HOST=$CONTAINER_DATABASE_HOST")
+
+  catchEnvironment "$handler" executeEcho docker run -v "$(pwd)/:/zesk" zesk:latest /zesk/bin/test.sh "${ee[@]}" "$@" || returnClean $? "${clean[@]}" || return $?
   statusMessage timingReport "$start" "test.sh completed in"
 
   catchEnvironment "$handler" rm -f "${clean[@]}" || return $?
