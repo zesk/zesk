@@ -11,13 +11,15 @@
 # Usage: {fn} [ --coverage ] [ --stop ] testBinaryArguments ...
 # Argument: --coverage - Flag. Optional. Run coverage tests and output results to `./test-coverage`
 # Argument: --stop - Flag. Optional. Stop on any error.
+# Argument: --env envPair - String. Optional. envPair is a NAME=value pair or single values NAME unsets the environment variable.
+# Argument: --env-file envFile - File. Optional. Load an environment file (any format).
 # Additional arguments passed directly through to PHPUnit
 #
 zeskTest() {
   local handler="_${FUNCNAME[0]}"
   local top
 
-  local cleanFlag=false doCoverage=false doStop=false
+  local cleanFlag=false doCoverage=false doStop=false verboseFlag=false
 
   # _IDENTICAL_ argumentNonBlankLoopHandler 6
   local __saved=("$@") __count=$#
@@ -33,6 +35,24 @@ zeskTest() {
       ;;
     --coverage)
       doCoverage=true
+      ;;
+    --verbose) verboseFlag=true ;;
+    --quiet) verboseFlag=false ;;
+    --env)
+      local envPair name
+      shift && envPair=$(usageArgumentString "$handler" "$argument" "${1-}") || return $?
+      name="${envPair%%=*}"
+      if [ "$name" = "$envPair" ]; then
+        ! $verboseFlag || decorate info "Unsetting $name"
+        unset "$name"
+      else
+        ! $verboseFlag || decorate info "Setting $(decorate label "$name") to $(decorate value "${envPair#.*=}")"
+        export "$name"="${envPair#*=}"
+      fi
+      ;;
+    --env-file)
+      shift && muzzle usageArgumentEnvironmentFileLoad "$handler" "$argument" "${1-}" || return $?
+      ! $verboseFlag || decorate info "Loaded $(decoate file "$1")"
       ;;
     --stop)
       doStop=true
@@ -52,12 +72,6 @@ zeskTest() {
   #  export PATH
 
   # pathConfigure --last "$top/vendor/bin"
-
-  if [ -f "$top/.env" ]; then
-    catchReturn "$handler" environmentFileLoad "$top/.env" || return $?
-    statusMessage decorate info "Loaded $(decorate file "$top/.env")"
-  fi
-
   if $cleanFlag; then
     statusMessage decorate warning "Cleaning all caches (not vendor) ..."
     for item in "$top/cache/" "$(buildCacheDirectory)" "$top/.fileCache" "$top/test-results/" "$top/test-reports/"; do

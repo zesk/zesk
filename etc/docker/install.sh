@@ -70,7 +70,7 @@ __phpExtensionExists() {
 # Argument: composerJson - File. Optional. One or more `composer.json` files to determine additional depencencies.
 #
 __installPHP() {
-  local handler="_return"
+  local handler="returnMessage"
 
   packageInstall wget unzip zip awscli
   statusMessage decorate info Installing php extensions ...
@@ -125,7 +125,7 @@ __installPHP() {
 # Argument: directory - Directory. Required.
 # Argument: --keep directory - Flag. Do not delete any files in this path.
 __mapFiles() {
-  local handler="_return"
+  local handler="returnMessage"
   local directories=() directory="" deleteArgs=()
 
   # _IDENTICAL_ argumentNonBlankLoopHandler 6
@@ -221,7 +221,7 @@ __portFromScheme() {
 # Argument: target - Function. Required. Error handler.
 # Argument: variables - String. Required. One or more environment variables which represent a data source URL which should be expanded
 __dsnExpansions() {
-  local handler="${1-"_return"}" target="${2-}"
+  local handler="${1-"returnMessage"}" target="${2-}"
 
   shift 2 >/dev/null || throwArgument "$handler" "Missing handler and target" || return $?
 
@@ -291,7 +291,7 @@ __applicationValues() {
 # Argument: applicationPrefix - String. Optional. Prefix application variables with this.
 # Argument: variables - EnvironmentName. Optional. Require these to be defined in the build environment and then written to the file.
 __installEnvironment() {
-  local handler="_return"
+  local handler="returnMessage"
   local source target finalTarget application=""
 
   source=$(usageArgumentFile "$handler" "source" "${1-}") && shift || return $?
@@ -352,51 +352,63 @@ __installPHPXdebug() {
   pecl install xdebug >/dev/null
 }
 
-# IDENTICAL returnMessage 27
+# IDENTICAL returnMessage 39
 
 # Return passed in integer return code and output message to `stderr` (non-zero) or `stdout` (zero)
 # Argument: exitCode - Required. UnsignedInteger. Exit code to return. Default is 1.
 # Argument: message ... - Optional. String. Message to output
-# Exit Code: exitCode
-# Requires: isUnsignedInteger printf _return
-_return() {
-  local code="${1:-1}" && shift 2>/dev/null
-  isUnsignedInteger "$code" || _return 2 "${FUNCNAME[1]-none}:${BASH_LINENO[1]-} -> ${FUNCNAME[0]} non-integer \"$code\"" "$@" || return $?
-  [ "$code" -eq 0 ] && printf -- "✅ %s\n" "${*-§}" && return 0 || printf -- "❌ [%d] %s\n" "$code" "${*-§}" 1>&2
+# Return Code: exitCode
+# Requires: isUnsignedInteger printf returnMessage
+returnMessage() {
+  local handler="_${FUNCNAME[0]}"
+  local to=1 icon="✅" code="${1:-1}" && shift 2>/dev/null
+  if [ "$code" = "--help" ]; then "$handler" 0 && return; fi
+  isUnsignedInteger "$code" || returnMessage 2 "${FUNCNAME[1]-none}:${BASH_LINENO[1]-} -> ${handler#_} non-integer \"$code\"" "$@" || return $?
+  if [ "$code" -gt 0 ]; then icon="❌ [$code]" && to=2; fi
+  printf -- "%s %s\n" "$icon" "${*-§}" 1>&"$to"
   return "$code"
+}
+_returnMessage() {
+  # __IDENTICAL__ usageDocument 1
+  usageDocument "${BASH_SOURCE[0]}" "${FUNCNAME[0]#_}" "$@"
 }
 
 # Test if an argument is an unsigned integer
 # Source: https://stackoverflow.com/questions/806906/how-do-i-test-if-a-variable-is-a-number-in-bash
 # Credits: F. Hauri - Give Up GitHub (isnum_Case)
 # Original: is_uint
+# Argument: value - EmptyString. Value to test if it is an unsigned integer.
 # Usage: {fn} argument ...
-# Exit Code: 0 - if it is an unsigned integer
-# Exit Code: 1 - if it is not an unsigned integer
-# Requires: _return
+# Return Code: 0 - if it is an unsigned integer
+# Return Code: 1 - if it is not an unsigned integer
+# Requires: returnMessage
 isUnsignedInteger() {
-  [ $# -eq 1 ] || _return 2 "Single argument only: $*" || return $?
-  case "${1#+}" in '' | *[!0-9]*) return 1 ;; esac
+  [ $# -eq 1 ] || returnMessage 2 "Single argument only: $*" || return $?
+  case "${1#+}" in --help) usageDocument "${BASH_SOURCE[0]}" "${FUNCNAME[0]}" 0 ;; '' | *[!0-9]*) return 1 ;; esac
+}
+_isUnsignedInteger() {
+  # __IDENTICAL__ usageDocument 1
+  usageDocument "${BASH_SOURCE[0]}" "${FUNCNAME[0]#_}" "$@"
 }
 
-# <-- END of IDENTICAL _return
+# <-- END of IDENTICAL returnMessage
 
 # ALTERNATE __source
 # Load a source file and run a command
 # Argument: source - Required. File. Path to source relative to application root..
 # Argument: relativeHome - Required. Directory. Path to application root.
 # Argument: command ... - Optional. Callable. A command to run and optional arguments.
-# Requires: _return
+# Requires: returnMessage
 # Security: source
 __source() {
   local me="${BASH_SOURCE[0]}" e=253
   local here="${me%/*}"
-  local source="$here/${2:-".."}/${1-}" && shift 2 || _return $e "missing source" || return $?
-  [ -d "${source%/*}" ] || _return $e "${source%/*} is not a directory" || return $?
-  [ -f "$source" ] && [ -x "$source" ] || _return $e "$source not an executable file" "$@" || return $?
+  local source="$here/${2:-".."}/${1-}" && shift 2 || returnMessage $e "missing source" || return $?
+  [ -d "${source%/*}" ] || returnMessage $e "${source%/*} is not a directory" || return $?
+  [ -f "$source" ] && [ -x "$source" ] || returnMessage $e "$source not an executable file" "$@" || return $?
   local a=("$@") && set --
   # shellcheck source=/dev/null
-  source "$source" || _return $e source "$source" "$@" || return $?
+  source "$source" || returnMessage $e source "$source" "$@" || return $?
   [ ${#a[@]} -gt 0 ] || return 0
   "${a[@]}" || return $?
 }

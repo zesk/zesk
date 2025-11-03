@@ -32,7 +32,7 @@ pipelines:
             - apt-cache
           size: 2x
           script:
-            - DATABASE_HOST=host.docker.internal bin/build.sh --testsuite core
+            - DATABASE_HOST=127.0.0.1 bin/build.sh
       - step:
           name: Deploy
           trigger: manual
@@ -55,7 +55,7 @@ pipelines:
             - apt-cache
           size: 2x
           script:
-            - DATABASE_HOST=host.docker.internal bin/build.sh --staging --testsuite core
+            - DATABASE_HOST=host.docker.internal bin/build.sh --staging
     deploy:
       - step:
           deployment: deploy
