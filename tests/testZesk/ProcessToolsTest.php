@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace testZesk;
 
+use zesk\Exception\ClassNotFound;
 use zesk\Exception\FilePermission;
 use zesk\File;
 use zesk\ProcessTools;
@@ -21,75 +22,85 @@ use zesk\ProcessTools;
  */
 class ProcessToolsTest extends TestCase
 {
-	/**
-	 * @todo this
-	 */
-	public function alt_test_code_changed(): void
-	{
-		$php_file = $this->test_sandbox('change-php-file.php');
+    /**
+     * @todo this
+     */
+    public function alt_test_code_changed(): void
+    {
+        $php_file = $this->test_sandbox('change-php-file.php');
 
-		file_put_contents($php_file, "<?php\ndefine('TEST_PGT',true);\n");
-		echo filemtime($php_file) . "\n";
-		echo "Including $php_file\n";
+        file_put_contents($php_file, "<?php\ndefine('TEST_PGT',true);\n");
+        echo filemtime($php_file) . "\n";
+        echo "Including $php_file\n";
 
-		require_once $php_file;
+        require_once $php_file;
 
-		$this->assertFalse(ProcessTools::includesChanged($this->application));
-		sleep(1);
-		file_put_contents($php_file, "<?php\ndefine('TEST_PGT',false);\n");
-		clearstatcache();
-		echo filemtime($php_file) . "\n";
+        $this->assertFalse(ProcessTools::includesChanged($this->application));
+        sleep(1);
+        file_put_contents($php_file, "<?php\ndefine('TEST_PGT',false);\n");
+        clearstatcache();
+        echo filemtime($php_file) . "\n";
 
-		$this->assertTrue(ProcessTools::includesChanged($this->application));
+        $this->assertTrue(ProcessTools::includesChanged($this->application));
 
-		unlink($php_file);
+        unlink($php_file);
 
-		$db = $this->application->databaseRegistry();
+        $db = $this->application->databaseRegistry();
 
-		$db->query('DROP TABLE IF EXISTS test_PGT');
-	}
+        $db->query('DROP TABLE IF EXISTS test_PGT');
+    }
 
-	/**
-	 * @return void
-	 * @throws FilePermission
-	 * @covers ::includesChanged
-	 * @covers ::includesChangedFiles
-	 */
-	public function test_code_changed(): void
-	{
-		$result = ProcessTools::includesChanged($this->application);
-		if ($result) {
-			$changed = ProcessTools::includesChangedFiles($this->application);
-			$appCache = $this->application->cachePath('test');
-			foreach ($changed as $changedFile) {
-				$this->assertStringStartsWith($appCache, $changedFile);
-			}
-		} else {
-			$this->assertEquals([], ProcessTools::includesChangedFiles($this->application));
-		}
+    protected bool $configureApplication = true;
 
-		$files = get_included_files();
-		$include = $this->test_sandbox('includesChanged.php');
-		File::put($include, "<?php\n");
+//There was 1 failure:
+//
+//1) testZesk\ProcessToolsTest::test_code_changed
+//Failed asserting that '/var/www/app/cache/test/3063/testlike.php' starts with "/var/www/.cache/test".
+//
+///var/www/app/tests/testZesk/ProcessToolsTest.php:67
 
-		$this->assertNotInArray($include, $files, 'test file should not be already included');
+    /**
+     * @return void
+     * @throws FilePermission
+     * @throws ClassNotFound
+     * @covers ::includesChanged
+     * @covers ::includesChangedFiles
+     */
+    public function test_code_changed(): void
+    {
+        $result = ProcessTools::includesChanged($this->application);
+        if ($result) {
+            $changed = ProcessTools::includesChangedFiles($this->application);
+            $appCache = $this->application->cachePath('test');
+            foreach ($changed as $changedFile) {
+                $this->assertStringStartsWith($appCache, $changedFile);
+            }
+        } else {
+            $this->assertEquals([], ProcessTools::includesChangedFiles($this->application));
+        }
 
-		require_once $include;
+        $files = get_included_files();
+        $include = $this->test_sandbox('includesChanged.php');
+        File::put($include, "<?php\n");
 
-		$files = get_included_files();
+        $this->assertNotInArray($include, $files, 'test file should not be already included');
 
-		$this->assertInArray($include, $files, 'test file should be included now');
+        require_once $include;
 
-		$result = ProcessTools::includesChanged($this->application);
+        $files = get_included_files();
 
-		$this->assertFalse($result, 'New include does not mean process code changed');
+        $this->assertInArray($include, $files, 'test file should be included now');
 
-		sleep(1);
+        $result = ProcessTools::includesChanged($this->application);
 
-		File::put($include, "<?php\n//Hello");
+        $this->assertFalse($result, 'New include does not mean process code changed');
 
-		$result = ProcessTools::includesChanged($this->application);
+        sleep(1);
 
-		$this->assertTrue($result, 'Changed include means process code changed');
-	}
+        File::put($include, "<?php\n//Hello");
+
+        $result = ProcessTools::includesChanged($this->application);
+
+        $this->assertTrue($result, 'Changed include means process code changed');
+    }
 }
