@@ -3,19 +3,15 @@
 /*-min.js
 /*.codekit
 /*.codekit3
-/*.log
 /.bin/
 /.build/
 /.buildpath
 /.composer/
-/.composer/
 /*.env
 /.github.conf
 /.history/
-/.history/
 /.idea/*.iml
 /.idea/*.xml
-/.idea/*/
 /.memory_get_usage
 /.php-cs-fixer.cache
 /.php-cs-fixer.cache/
@@ -36,7 +32,6 @@
 /bin/zesk
 /cache/
 /CHANGELOG.md.backup
-/composer.lock
 /DEPRECATED/
 /etc/maintenance.json
 /.fileCache/
