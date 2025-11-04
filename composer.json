@@ -58,6 +58,5 @@
     "ext-imap": "*",
     "ext-xdebug": "*"
   },
-  "type": "library",
-  "version": "0.32.0"
+  "type": "library"
 }

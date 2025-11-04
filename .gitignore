@@ -12,6 +12,7 @@
 /.history/
 /.idea/*.iml
 /.idea/*.xml
+/.idea/*/*
 /.memory_get_usage
 /.php-cs-fixer.cache
 /.php-cs-fixer.cache/
