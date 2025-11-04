@@ -17,29 +17,29 @@ use zesk\FileMonitor\IncludeFilesMonitor;
  */
 class ProcessTools
 {
-    /**
-     * Test to see if any files have changed in this process.
-     *
-     * First method call of this is always false.
-     *
-     * @param Application $application
-     * @return bool
-     * @throws ClassNotFound
-     */
-    public static function includesChanged(Application $application): bool
-    {
-        return $application->objects->singletonArguments(IncludeFilesMonitor::class)->changed();
-    }
+	/**
+	 * Test to see if any files have changed in this process.
+	 *
+	 * First method call of this is always false.
+	 *
+	 * @param Application $application
+	 * @return bool
+	 * @throws ClassNotFound
+	 */
+	public static function includesChanged(Application $application): bool
+	{
+		return $application->objects->singletonArguments(IncludeFilesMonitor::class)->changed();
+	}
 
-    /**
-     * Get a list of the files which have changed since initial check.
-     *
-     * @param Application $application
-     * @return array
-     * @throws ClassNotFound
-     */
-    public static function includesChangedFiles(Application $application): array
-    {
-        return $application->objects->singletonArguments(IncludeFilesMonitor::class)->changedFiles();
-    }
+	/**
+	 * Get a list of the files which have changed since initial check.
+	 *
+	 * @param Application $application
+	 * @return array
+	 * @throws ClassNotFound
+	 */
+	public static function includesChangedFiles(Application $application): array
+	{
+		return $application->objects->singletonArguments(IncludeFilesMonitor::class)->changedFiles();
+	}
 }
