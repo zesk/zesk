@@ -487,7 +487,7 @@ class TestCase extends BaseTestCase
 
 	protected function zeskBin(): string
 	{
-		$zeskBin = $this->application->zeskHome('bin/zesk');
+		$zeskBin = $this->application->zeskHome('bin/zesk.sh');
 		$this->assertFileExists($zeskBin);
 		$this->assertFileIsReadable($zeskBin);
 		// 2>&1 Captures stderr to capture output with $captureFail

@@ -64,7 +64,7 @@ __hookPreCommitPHP() {
   if [ -f "$composerFile" ]; then
     if [ -n "$(jq .version <"$composerFile")" ]; then
       catchEnvironment "$handler" jq 'del(.version)' "$composerFile" >"$composerFile.versionless" || return $?
-      catchEnvironment "$handler" mv "$home/$composerFile.versionless" "$home/composer.json" || return $?
+      catchEnvironment "$handler" mv "$composerFile.versionless" "$home/composer.json" || return $?
     fi
   fi
 }
