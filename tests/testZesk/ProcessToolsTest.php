@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace testZesk;
 
+use zesk\Exception\ClassNotFound;
 use zesk\Exception\FilePermission;
 use zesk\File;
 use zesk\ProcessTools;
@@ -49,9 +50,19 @@ class ProcessToolsTest extends TestCase
 		$db->query('DROP TABLE IF EXISTS test_PGT');
 	}
 
+	protected bool $configureApplication = true;
+
+	//There was 1 failure:
+	//
+	//1) testZesk\ProcessToolsTest::test_code_changed
+	//Failed asserting that '/var/www/app/cache/test/3063/testlike.php' starts with "/var/www/.cache/test".
+	//
+	///var/www/app/tests/testZesk/ProcessToolsTest.php:67
+
 	/**
 	 * @return void
 	 * @throws FilePermission
+	 * @throws ClassNotFound
 	 * @covers ::includesChanged
 	 * @covers ::includesChangedFiles
 	 */

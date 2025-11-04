@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace zesk;
 
+use zesk\Exception\ClassNotFound;
 use zesk\FileMonitor\IncludeFilesMonitor;
 
 /**
@@ -23,6 +24,7 @@ class ProcessTools
 	 *
 	 * @param Application $application
 	 * @return bool
+	 * @throws ClassNotFound
 	 */
 	public static function includesChanged(Application $application): bool
 	{
@@ -34,6 +36,7 @@ class ProcessTools
 	 *
 	 * @param Application $application
 	 * @return array
+	 * @throws ClassNotFound
 	 */
 	public static function includesChangedFiles(Application $application): array
 	{

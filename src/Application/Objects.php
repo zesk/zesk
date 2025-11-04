@@ -17,6 +17,7 @@ use zesk\Exception\ProtocolException;
 use zesk\Hookable;
 use zesk\Kernel;
 use zesk\PHP;
+use zesk\RuntimeException;
 
 /**
  * Manage object creation, singletons, and object sharing across the system
@@ -263,8 +264,7 @@ class Objects
 			throw new ClassNotFound($resolveClass, '', [], $e);
 		} catch (ProtocolException $e) {
 			/* NEVER from _setSingleton */
-			throw new ClassNotFound($resolveClass, 'Semantics SHOULD NOT HAPPEN as getSingleton returned
-			null', [], $e);
+			throw new RuntimeException('Semantics SHOULD NOT HAPPEN as getSingleton returned null', [], 0, $e);
 		}
 	}
 
