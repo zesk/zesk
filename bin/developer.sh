@@ -13,6 +13,7 @@
 # shellcheck source=/dev/null
 if source "${BASH_SOURCE[0]%/*}/tools.sh"; then
 
+  # Zesk PHP shell
   __zeskPHPDeveloperContext() {
     local handler="_return"
     local home
@@ -45,11 +46,11 @@ if source "${BASH_SOURCE[0]%/*}/tools.sh"; then
     catchReturn "$handler" muzzle reloadChanges --stop --quiet || return $?
     catchReturn "$handler" reloadChanges --name "$name" "$home/bin/tools.sh" "$home/bin/tools/" || return $?
 
-    developerAnnounce < <(developerTrack)
-
     export BUILD_PROJECT_DEACTIVATE
 
-    BUILD_PROJECT_DEACTIVATE="__zeskPHPDeveloperContextUndo"
+    BUILD_PROJECT_DEACTIVATE="${FUNCNAME[0]}Undo"
+
+    unset "${FUNCNAME[0]}"
   }
 
   __zeskPHPDeveloperContextUndo() {
@@ -57,7 +58,8 @@ if source "${BASH_SOURCE[0]%/*}/tools.sh"; then
 
     home=$(catchEnvironment "returnMessage" buildHome) || return $?
     pathRemove "$home/bin" "$home/vendor/bin"
-    developerUndo < <(developerTrack)
+
+    unset "${FUNCNAME[0]}"
   }
 
   __zeskPHPDeveloperContext

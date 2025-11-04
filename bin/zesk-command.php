@@ -18,32 +18,32 @@ use Throwable;
 
 class CommandLoaderFactory
 {
-	public static function main(): void
-	{
-		$here = dirname(__DIR__) . '/';
-		if (str_contains(__DIR__, 'vendor/bin')) {
-			$here .= 'zesk/zesk/';
-		}
+    public static function main(): void
+    {
+        $here = dirname(__DIR__) . '/';
+        if (str_contains(__DIR__, 'vendor/bin')) {
+            $here .= 'zesk/zesk/';
+        }
 
-		/* We love debuggers */
-		$xdebug = require_once $here . 'src/__xdebug.php';
-		if (is_callable($xdebug)) {
-			$xdebug();
-		}
-		/* Basic autoloader */
-		require_once $here . 'src/autoload.php';
+        /* We love debuggers */
+        $xdebug = require_once $here . 'src/__xdebug.php';
+        if (is_callable($xdebug)) {
+            $xdebug();
+        }
+        /* Basic autoloader */
+        require_once $here . 'src/autoload.php';
 
-		/**
-		 * Run a zesk command and exit
-		 */
-		$command = CommandLoader::factory();
+        /**
+         * Run a zesk command and exit
+         */
+        $command = CommandLoader::factory();
 
-		try {
-			exit($command->terminate($command->run()));
-		} catch (Throwable $e) {
-			fprintf(STDERR, "%s @ %s:%s\n", $e->getMessage(), $e->getFile(), $e->getLine());
-		}
-	}
+        try {
+            exit($command->terminate($command->run()));
+        } catch (Throwable $e) {
+            fprintf(STDERR, "%s @ %s:%s\n", $e->getMessage(), $e->getFile(), $e->getLine());
+        }
+    }
 }
 
 CommandLoaderFactory::main();
