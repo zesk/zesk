@@ -1,3 +1,6 @@
+# 
+# https://community.atlassian.com/forums/Bitbucket-questions/Can-t-access-MySQL-On-BitBucket-Cloud/qaq-p/1595905
+#
 options:
   docker: true
 
@@ -32,7 +35,7 @@ pipelines:
             - apt-cache
           size: 2x
           script:
-            - bin/build.sh
+            - CONTAINER_DATABASE_HOST=$BITBUCKET_DOCKER_HOST_INTERNAL bin/build.sh
       - step:
           name: Deploy
           trigger: manual
@@ -55,7 +58,7 @@ pipelines:
             - apt-cache
           size: 2x
           script:
-            - bin/build.sh --staging
+            - CONTAINER_DATABASE_HOST=$BITBUCKET_DOCKER_HOST_INTERNAL bin/build.sh --staging
     deploy:
       - step:
           deployment: deploy
