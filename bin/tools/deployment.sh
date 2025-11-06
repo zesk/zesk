@@ -74,7 +74,7 @@ zeskPrepareRelease() {
   catchEnvironment "$handler" muzzle git push --tags || return $?
 
   statusMessage decorate info "Cleaning ..."
-  catchEnvironment "$handler" dockerComposeWrapper -f "$yml" exec php bash -c 'cd /zesk && ./bin/cs-zesk.sh' || return $?
+  catchEnvironment "$handler" dockerComposeWrapper -f "$yml" exec web bash -c 'cd /var/www/app && ./vendor/bin/php-cs-fixer fix' || return $?
 
   local nLines
   #
