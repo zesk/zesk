@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# pre-commit.sh
+# REMOVING-pre-commit.sh
 #
 # Copyright &copy; 2025 Market Acumen, Inc.
 
