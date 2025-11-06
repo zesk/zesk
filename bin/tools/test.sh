@@ -124,6 +124,8 @@ zeskTest() {
   muzzle catchReturn "$handler" directoryRequire "${needPaths[@]}" || return $?
 
   execute "$testBinary" "${args[@]}" "$@" || return $?
+
+  catchEnvironment "$handler" __zeskBashTestSuite || return $?
 }
 _zeskTest() {
   usageDocument "${BASH_SOURCE[0]}" "${FUNCNAME[0]#_}" "$@"
@@ -139,7 +141,9 @@ __query() {
 __verifyDatabase() {
   local handler="$1" version user
 
-  export DATABASE_HOST DATABASE DATABASE_ROOT_PASSWORD DATABASE_ROOT_USER DATABASE_TEST_NAME
+  export DATABASE_HOST DATABASE_ROOT_PASSWORD DATABASE_ROOT_USER DATABASE_TEST_NAME
+
+  usageRequireEnvironment "$handler" DATABASE_HOST DATABASE_ROOT_PASSWORD || return $?
 
   DATABASE_TEST_NAME=${DATABASE_TEST_NAME-zeskTest}
   if ! whichExists mariadb; then
@@ -150,7 +154,49 @@ __verifyDatabase() {
 
   version=$(printf "%s\n" "SELECT VERSION()" | __query 2>/dev/null || :)
   if [ -z "$version" ]; then
-    throwEnvironment "$handler" "Unable to connect to $DATABASE_HOST as $user" || return $?
+    throwEnvironment "$handler" "Unable to connect to ${DATABASE_HOST-} as $user" || return $?
   fi
   printf "%s\n" "CREATE DATABASE IF NOT EXISTS $DATABASE_TEST_NAME" | catchReturn "$handler" __query || return $?
+}
+
+__zeskShellTestRequirements() {
+  local handler="$1" && shift
+
+  local bigBinary
+  bigBinary=$(catchReturn "$handler" __bigTextBinary) || return $?
+  [ -n "$bigBinary" ] || bigBinary="toilet"
+  catchReturn "$handler" packageWhich "$bigBinary" "$bigBinary" || return $?
+  catchReturn "$handler" packageWhich shellcheck shellcheck || return $?
+  #catchReturn "$handler" pcregrepInstall || return $?
+}
+
+# Standard test layout
+#
+# Test functions prefixed with the word `test` in:
+#
+# - ./test/tests/suite-tests.sh
+#
+# Test support files (available per test):
+#
+# - ./test/support/*.sh -
+#
+# Once ready, do `testTools testSuite --help`
+#
+__zeskBashTestSuite() {
+  local handler="_${FUNCNAME[0]}"
+  local testHome
+
+  testHome="$(catchReturn "$handler" buildHome)" || return $?
+  [ -d "$testHome/tests/tools" ] || throwArgument "$handler" "Missing test directory" || return $?
+
+  # Include our own test support files if needed
+  [ ! -d "$testHome/tests/support" ] || catchEnvironment "$handler" bashSourcePath "$testHome/tests/support" || return $?
+
+  __zeskShellTestRequirements "$handler" || return $?
+
+  catchEnvironment "$handler" testTools testSuite --cd-away --delete-common --tests "$testHome/tests/tools/" "$@" || return $?
+}
+___zeskBashTestSuite() {
+  # __IDENTICAL__ usageDocument 1
+  usageDocument "${BASH_SOURCE[0]}" "${FUNCNAME[0]#_}" "$@"
 }
