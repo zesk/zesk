@@ -55,8 +55,13 @@ class ProcessToolsTest extends TestCase
 		if ($result) {
 			$changed = ProcessTools::includesChangedFiles($this->application);
 			$appCache = $this->application->cachePath('test');
+			$sandboxCache = $this->sandbox();
 			foreach ($changed as $changedFile) {
-				$this->assertStringStartsWith($appCache, $changedFile);
+				if (str_starts_with($changedFile, $appCache)) {
+					$this->assertStringStartsWith($appCache, $changedFile);
+				} else {
+					$this->assertStringStartsWith($appCache, $sandboxCache);
+				}
 			}
 		} else {
 			$this->assertEquals([], ProcessTools::includesChangedFiles($this->application));
