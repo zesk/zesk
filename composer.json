@@ -20,6 +20,7 @@
     "bin/zesk-command.php",
     "bin/zesk"
   ],
+  "deprecated": "d2e6475d3896cc0bdaf8280102cbb1679e5004a1",
   "description": "The Zesk Application Framework",
   "homepage": "https://php.zesk.com",
   "keywords": [
