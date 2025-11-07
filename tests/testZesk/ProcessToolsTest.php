@@ -27,34 +27,6 @@ use zesk\ProcessTools;
  */
 class ProcessToolsTest extends TestCase
 {
-    /**
-     * @todo this
-     */
-    public function alt_test_code_changed(): void
-    {
-        $php_file = $this->test_sandbox('change-php-file.php');
-
-        file_put_contents($php_file, "<?php\ndefine('TEST_PGT',true);\n");
-        echo filemtime($php_file) . "\n";
-        echo "Including $php_file\n";
-
-        require_once $php_file;
-
-        $this->assertFalse(ProcessTools::includesChanged($this->application));
-        sleep(1);
-        file_put_contents($php_file, "<?php\ndefine('TEST_PGT',false);\n");
-        clearstatcache();
-        echo filemtime($php_file) . "\n";
-
-        $this->assertTrue(ProcessTools::includesChanged($this->application));
-
-        unlink($php_file);
-
-        $db = $this->application->databaseRegistry();
-
-        $db->query('DROP TABLE IF EXISTS test_PGT');
-    }
-
     protected bool $configureApplication = true;
 
     //There was 1 failure:
