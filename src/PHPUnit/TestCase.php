@@ -221,18 +221,6 @@ class TestCase extends BaseTestCase
 		]));
 	}
 
-	public function assertPostConditions(): void
-	{
-		try {
-			$lastFile = $this->lastTestCaseFile();
-			clearstatcache(false, $lastFile);
-			if (file_exists($lastFile)) {
-				File::unlink($lastFile);
-			}
-		} catch (FilePermission) {
-		}
-	}
-
 	private function lastTestCaseFile(): string
 	{
 		return $this->application->path('phpunit-testcase-last.json');

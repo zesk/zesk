@@ -79,9 +79,9 @@ class FIFOTest extends TestCase
 		$badFile = Directory::path($parentDir, 'badperm.pipe');
 		Directory::depend($badFile, 0o700);
 
-		$this->expectException(FilePermission::class);
+		$this->expectException(FileNotFound::class);
 		/* posix_mkfifo on a directory will fail I believe */
-		$fifo = new FIFO($badFile, true);
+		new FIFO($badFile, true);
 	}
 
 	public static function data_fifo_dataSet(): array

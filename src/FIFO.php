@@ -58,8 +58,9 @@ class FIFO
 	 * @param string $path Full path name
 	 * @param bool $create Create the FIFO if it doesn't exist (assumes READER)
 	 * @param int $mode File mode to create the FIFO (uses umask)
-	 * @throws DirectoryNotFound
-	 * @throws FilePermission
+	 * @throws DirectoryNotFound - Path directory does not exist
+	 * @throws FilePermission - Unable to create the FIFO due to directory permissions or disk full
+	 * @throws FileNotFound - Path is a directory
 	 */
 	public function __construct(string $path, bool $create = false, int $mode = 384 /* 0o600 */)
 	{
@@ -72,8 +73,12 @@ class FIFO
 			throw new DirectoryNotFound($dir, 'Creating fifo {path}', [
 				'path' => $this->path,
 			]);
+		} elseif (is_dir($path)) {
+			throw new FileNotFound($path, 'FIFO path is a directory: {path}', ['path' => $path]);
 		}
-		File::unlink($this->path);
+		if (is_file($this->path)) {
+			File::unlink($this->path);
+		}
 		if (!posix_mkfifo($this->path, $mode)) {
 			throw new FilePermission($this->path, 'posix_mkfifo {path}');
 		}
