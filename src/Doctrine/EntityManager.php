@@ -8,5 +8,4 @@ namespace zesk\Doctrine;
 
 class EntityManager extends \Doctrine\ORM\EntityManager
 {
-    
 }
