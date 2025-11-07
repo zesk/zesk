@@ -41,7 +41,7 @@ class Model extends ModelBase
      */
     public function entityManager(bool $ensureOpen = false): EntityManager
     {
-        return $this->em ??= $this->application->entityManager($this->emName, $ensureOpen);
+        return $this->em = $this->application->entityManager($this->emName, $ensureOpen);
     }
 
     public function hydrate(Application $application): void
