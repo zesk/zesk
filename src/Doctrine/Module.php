@@ -18,7 +18,6 @@ use Doctrine\DBAL\Tools\DsnParser;
 use Doctrine\DBAL\Types\Exception\TypesAlreadyExists;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\Configuration;
-use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Exception\MissingMappingDriverImplementation;
 use Doctrine\ORM\Mapping\AssociationMapping;
 use Doctrine\ORM\ORMSetup;
@@ -43,259 +42,293 @@ use zesk\Types;
 
 class Module extends BaseModule
 {
-	/**
-	 * @todo Call this somewhere
-	 */
-	public const HOOK_SCHEMA_UPDATED = self::class . '::schemaUpdated';
+    /**
+     * @todo Call this somewhere
+     */
+    public const HOOK_SCHEMA_UPDATED = self::class . '::schemaUpdated';
 
-	/**
-	 *
-	 */
-	public const OPTION_SOURCE_HOMES = 'paths';
+    /**
+     *
+     */
+    public const OPTION_SOURCE_HOMES = 'paths';
 
-	/**
-	 *
-	 */
-	private Configuration $ormConfig;
+    /**
+     *
+     */
+    private Configuration $ormConfig;
 
-	private EventManager $eventManager;
+    private EventManager $eventManager;
 
-	/**
-	 * @var array<string, EntityManager>
-	 */
-	private array $managers = [];
+    /**
+     * @var array<string, EntityManager>
+     */
+    private array $managers = [];
 
-	private static array $zeskTypes = [
-		Timestamp::TYPE => Timestamp::class,
-		EnumBoolean::TYPE => EnumBoolean::class,
-	];
+    private static array $zeskTypes = [
+        Timestamp::TYPE => Timestamp::class,
+        EnumBoolean::TYPE => EnumBoolean::class,
+    ];
 
-	/**
-	 * @return void
-	 * @throws ConfigurationException
-	 * @throws Exception
-	 * @throws UnsupportedException
-	 */
-	public function initialize(): void
-	{
-		parent::initialize();
-		foreach (self::$zeskTypes as $type => $class) {
-			try {
-				Type::addType($type, $class);
-			} catch (TypesAlreadyExists) {
-			}
-		}
-		$this->eventManager = new EventManager($this->application);
-		$this->application->registerManager('entity', $this->entityManager(...));
-	}
+    /**
+     * @return void
+     * @throws ConfigurationException
+     * @throws Exception
+     * @throws UnsupportedException
+     */
+    public function initialize(): void
+    {
+        parent::initialize();
+        foreach (self::$zeskTypes as $type => $class) {
+            try {
+                Type::addType($type, $class);
+            } catch (TypesAlreadyExists) {
+            }
+        }
+        $this->eventManager = new EventManager($this->application);
+        $this->application->registerManager('entity', $this->entityManager(...));
+    }
 
-	/**
-	 * @param EntityManager $em
-	 * @return BaseApplication
-	 */
-	public static function entityManagerApplication(EntityManager $em): BaseApplication
-	{
-		$eventManager = $em->getEventManager();
-		if ($eventManager instanceof EventManager) {
-			return $eventManager->application;
-		}
-		return Kernel::wakeupApplication();
-	}
+    /**
+     * @param EntityManager $em
+     * @return BaseApplication
+     */
+    public static function entityManagerApplication(EntityManager $em): BaseApplication
+    {
+        $eventManager = $em->getEventManager();
+        if ($eventManager instanceof EventManager) {
+            return $eventManager->application;
+        }
+        return Kernel::wakeupApplication();
+    }
 
-	#[FilterMethod(handles: Info::FILTER_INFO)]
-	public function info(array $info): array
-	{
-		$info['doctrine'] = true;
-		return $info;
-	}
+    #[FilterMethod(handles: Info::FILTER_INFO)]
+    public function info(array $info): array
+    {
+        $info['doctrine'] = true;
+        return $info;
+    }
 
-	/**
-	 * @param string $path
-	 * @return $this
-	 */
-	public function addPath(string $path): self
-	{
-		$paths = $this->optionArray(self::OPTION_SOURCE_HOMES);
-		if (!in_array($path, $paths)) {
-			$paths[] = $path;
-		}
-		$this->setOption(self::OPTION_SOURCE_HOMES, $paths);
-		return $this;
-	}
+    /**
+     * @param string $path
+     * @return $this
+     */
+    public function addPath(string $path): self
+    {
+        $paths = $this->optionArray(self::OPTION_SOURCE_HOMES);
+        if (!in_array($path, $paths)) {
+            $paths[] = $path;
+        }
+        $this->setOption(self::OPTION_SOURCE_HOMES, $paths);
+        return $this;
+    }
 
-	/**
-	 * @return void
-	 * @throws ConfigurationException
-	 * @throws DirectoryCreate
-	 * @throws DirectoryNotFound
-	 * @throws DirectoryPermission
-	 * @throws Exception
-	 */
-	public function configureORM(): void
-	{
-		$this->inheritConfiguration();
-		$paths = Types::toList($this->optionIterable(self::OPTION_SOURCE_HOMES, ['./src']));
-		$paths = array_map($this->application->paths->expand(...), $paths);
-		$cachePath = Directory::depend($this->application->cachePath('doctrine'));
-		$config = $this->ormConfig = ORMSetup::createAttributeMetadataConfiguration(paths: $paths, isDevMode: $this->application->development(), cache: new FileCacheItemPool($cachePath));
-		$config->setEntityListenerResolver(new EntityListenerResolver());
-		$this->_setupConnections();
-	}
+    /**
+     * @return void
+     * @throws ConfigurationException
+     * @throws DirectoryCreate
+     * @throws DirectoryNotFound
+     * @throws DirectoryPermission
+     * @throws Exception
+     */
+    public function configureORM(): void
+    {
+        $this->inheritConfiguration();
+        $paths = Types::toList($this->optionIterable(self::OPTION_SOURCE_HOMES, ['./src']));
+        $paths = array_map($this->application->paths->expand(...), $paths);
+        $cachePath = Directory::depend($this->application->cachePath('doctrine'));
+        $config = $this->ormConfig = ORMSetup::createAttributeMetadataConfiguration(paths: $paths, isDevMode: $this->application->development(), cache: new FileCacheItemPool($cachePath));
+        $config->setEntityListenerResolver(new EntityListenerResolver());
+        $this->openConnections();
+    }
 
-	/**
-	 * @throws ConfigurationException
-	 * @throws Exception
-	 */
-	private function _setupConnections(): void
-	{
-		foreach ($this->optionArray('connections') as $name => $dsn) {
-			$this->_connectDSN($dsn, $name);
-		}
-	}
+    const OPTION_CONNECTIONS = 'connections';
 
-	private function _connectDSN(mixed $dsn, string $name): void
-	{
-		if (is_string($dsn)) {
-			$parser = new DsnParser();
+    /**
+     * @return array
+     */
+    public function optionConnections(): array
+    {
+        return $this->optionArray(self::OPTION_CONNECTIONS);
+    }
 
-			try {
-				$parts = $parser->parse($dsn);
-			} catch (MalformedDsnException $e) {
-				throw new ConfigurationException([
-					self::class,
-					'connections',
-					$name,
-				], 'Invalid URL {dsn}', ['dsn' => $dsn], $e);
-			}
-		} elseif (is_array($dsn)) {
-			$parts = $dsn;
-		} else {
-			throw new ConfigurationException([
-				self::class,
-				'connections',
-				$name,
-			], 'Bad configuration {type}', ['type' => Types::type($dsn)]);
-		}
-		$connection = DriverManager::getConnection($parts, $this->ormConfig);
-		foreach (array_keys(self::$zeskTypes) as $type) {
-			$connection->getDatabasePlatform()->registerDoctrineTypeMapping('db_' . $type, $type);
-		}
+    /**
+     * @return void
+     * @throws ConfigurationException
+     * @throws Exception
+     */
+    public function openConnections(): void
+    {
+        foreach ($this->optionConnections() as $name => $dsn) {
+            $isOpen = $this->managers[$name]?->isOpen() ?? false;
+            if ($isOpen) continue;
+            $this->managers[$name] = $this->_connectDSN($dsn, $name);
+        }
+    }
 
-		try {
-			$this->managers[$name] = $em = new EntityManager($connection, $this->ormConfig, $this->eventManager);
-		} catch (MissingMappingDriverImplementation $e) {
-			throw new ConfigurationException([
-				self::class,
-				'connections',
-				$name,
-			], 'Missing driver {parts}', ['parts' => $parts]);
-		}
-	}
+    public function dsnFromName(string $name): string
+    {
+        return $this->optionConnections()[$name] ?? throw new NotFoundException("No such name {name}", ['name' => $name]);
+    }
 
-	/**
-	 * @throws SemanticsException
-	 */
-	private function defaultEntityManager(): string
-	{
-		return $this->optionString('default', 'default');
-	}
+    /**
+     * @param mixed $dsn
+     * @param string $name
+     * @return EntityManager
+     * @throws ConfigurationException
+     * @throws Exception
+     */
+    private function _connectDSN(mixed $dsn, string $name): EntityManager
+    {
+        if (is_string($dsn)) {
+            $parser = new DsnParser();
 
-	/**
-	 * @param string $name
-	 * @return EntityManager
-	 * @throws ConfigurationException
-	 * @throws DirectoryCreate
-	 * @throws DirectoryNotFound
-	 * @throws DirectoryPermission
-	 * @throws Exception
-	 * @throws NotFoundException|SemanticsException
-	 */
-	public function entityManager(string $name = ''): EntityManager
-	{
-		if ($name === '') {
-			$name = $this->defaultEntityManager();
-		}
-		if (count($this->managers) === 0) {
-			// Lazy setup. May not be the best idea.
-			$this->configureORM();
-		}
-		if (array_key_exists($name, $this->managers)) {
-			return $this->managers[$name];
-		}
+            try {
+                $parts = $parser->parse($dsn);
+            } catch (MalformedDsnException $e) {
+                throw new ConfigurationException([
+                    self::class,
+                    'connections',
+                    $name,
+                ], 'Invalid URL {dsn}', ['dsn' => $dsn], $e);
+            }
+        } elseif (is_array($dsn)) {
+            $parts = $dsn;
+        } else {
+            throw new ConfigurationException([
+                self::class,
+                'connections',
+                $name,
+            ], 'Bad configuration {type}', ['type' => Types::type($dsn)]);
+        }
+        $connection = DriverManager::getConnection($parts, $this->ormConfig);
+        foreach (array_keys(self::$zeskTypes) as $type) {
+            $connection->getDatabasePlatform()->registerDoctrineTypeMapping('db_' . $type, $type);
+        }
 
-		throw new NotFoundException('No entityManager with name {name}', ['name' => $name]);
-	}
+        try {
+            return new EntityManager($connection, $this->ormConfig, $this->eventManager);
+        } catch (MissingMappingDriverImplementation $e) {
+            throw new ConfigurationException([
+                self::class,
+                'connections',
+                $name,
+            ], 'Missing driver {parts}', ['parts' => $parts]);
+        }
+    }
 
-	/**
-	 * @param array $entities
-	 * @param string $name
-	 * @return array
-	 * @throws ConfigurationException
-	 * @throws DirectoryCreate
-	 * @throws DirectoryNotFound
-	 * @throws DirectoryPermission
-	 * @throws Exception
-	 * @throws NotFoundException|SemanticsException
-	 */
-	public function schemaSynchronizeSQL(array $entities, string $name = ''): array
-	{
-		$em = $this->entityManager($name);
-		$tool = new SchemaTool($em);
-		$classMetadata = [];
-		foreach ($entities as $entity) {
-			$classMetadata[] = $em->getClassMetadata($entity);
-		}
-		$sql = $tool->getUpdateSchemaSql($classMetadata);
-		return $sql;
-	}
+    /**
+     * @throws SemanticsException
+     */
+    private function defaultEntityManager(): string
+    {
+        return $this->optionString('default', 'default');
+    }
 
-	/**
-	 * @param array $entities
-	 * @param string $name
-	 * @return array
-	 * @throws ConfigurationException
-	 * @throws DirectoryCreate
-	 * @throws DirectoryNotFound
-	 * @throws DirectoryPermission
-	 * @throws Exception
-	 * @throws NotFoundException|SemanticsException
-	 */
-	public function schemaSynchronize(array $entities, string $name = ''): array
-	{
-		$connection = $this->entityManager($name)->getConnection();
-		$sqlList = $this->schemaSynchronizeSQL($entities, $name);
-		$results = [];
-		foreach ($sqlList as $sql) {
-			$results[$sql] = $connection->executeQuery($sql);
-		}
-		return $results;
-	}
+    /**
+     * @param string $name
+     * @return EntityManager
+     * @throws ConfigurationException
+     * @throws DirectoryCreate
+     * @throws DirectoryNotFound
+     * @throws DirectoryPermission
+     * @throws Exception
+     * @throws NotFoundException|SemanticsException
+     */
+    public function entityManager(string $name = '', bool $ensureOpen = false): EntityManager
+    {
+        if ($name === '') {
+            $name = $this->defaultEntityManager();
+        }
+        if (count($this->managers) === 0) {
+            // Lazy setup. May not be the best idea.
+            $this->configureORM();
+        }
+        if (array_key_exists($name, $this->managers)) {
+            $em = $this->managers[$name];
+            if ($ensureOpen) {
+                if ($em->isOpen()) {
+                    return $em;
+                }
+                $dsn = $this->dsnFromName($name);
+                $em = $this->_connectDSN($dsn, $name);
+                $this->managers[$name] = $em;
+            }
+            return $em;
+        }
 
-	/**
-	 * @param string $entityName
-	 * @param string $name
-	 * @return array
-	 * @throws ConfigurationException
-	 * @throws DirectoryCreate
-	 * @throws DirectoryNotFound
-	 * @throws DirectoryPermission
-	 * @throws Exception
-	 * @throws NotFoundException|SemanticsException
-	 */
-	public function dependentEntities(string $entityName, string $name = ''): array
-	{
-		$depend = [];
-		foreach ($this->entityManager($name)->getClassMetadata($entityName)->getAssociationMappings() as $mapping) {
-			if ($mapping instanceof AssociationMapping) {
-				$entity = $mapping->targetEntity;
-				if ($entity) {
-					$depend[$entity] = true;
-				}
-			} elseif (is_string($mapping)) {
-				$depend[$mapping] = true;
-			}
-		}
-		unset($depend[$entityName]);
-		return array_keys($depend);
-	}
+        throw new NotFoundException('No entityManager with name {name}', ['name' => $name]);
+    }
+
+    /**
+     * @param array $entities
+     * @param string $name
+     * @return array
+     * @throws ConfigurationException
+     * @throws DirectoryCreate
+     * @throws DirectoryNotFound
+     * @throws DirectoryPermission
+     * @throws Exception
+     * @throws NotFoundException|SemanticsException
+     */
+    public function schemaSynchronizeSQL(array $entities, string $name = ''): array
+    {
+        $em = $this->entityManager($name);
+        $tool = new SchemaTool($em);
+        $classMetadata = [];
+        foreach ($entities as $entity) {
+            $classMetadata[] = $em->getClassMetadata($entity);
+        }
+        $sql = $tool->getUpdateSchemaSql($classMetadata);
+        return $sql;
+    }
+
+    /**
+     * @param array $entities
+     * @param string $name
+     * @return array
+     * @throws ConfigurationException
+     * @throws DirectoryCreate
+     * @throws DirectoryNotFound
+     * @throws DirectoryPermission
+     * @throws Exception
+     * @throws NotFoundException|SemanticsException
+     */
+    public function schemaSynchronize(array $entities, string $name = ''): array
+    {
+        $connection = $this->entityManager($name)->getConnection();
+        $sqlList = $this->schemaSynchronizeSQL($entities, $name);
+        $results = [];
+        foreach ($sqlList as $sql) {
+            $results[$sql] = $connection->executeQuery($sql);
+        }
+        return $results;
+    }
+
+    /**
+     * @param string $entityName
+     * @param string $name
+     * @return array
+     * @throws ConfigurationException
+     * @throws DirectoryCreate
+     * @throws DirectoryNotFound
+     * @throws DirectoryPermission
+     * @throws Exception
+     * @throws NotFoundException|SemanticsException
+     */
+    public function dependentEntities(string $entityName, string $name = ''): array
+    {
+        $depend = [];
+        foreach ($this->entityManager($name)->getClassMetadata($entityName)->getAssociationMappings() as $mapping) {
+            if ($mapping instanceof AssociationMapping) {
+                $entity = $mapping->targetEntity;
+                if ($entity) {
+                    $depend[$entity] = true;
+                }
+            } elseif (is_string($mapping)) {
+                $depend[$mapping] = true;
+            }
+        }
+        unset($depend[$entityName]);
+        return array_keys($depend);
+    }
 }
