@@ -159,9 +159,11 @@ class Module extends BaseModule
 	public function openConnections(): void
 	{
 		foreach ($this->optionConnections() as $name => $dsn) {
-			$isOpen = $this->managers[$name]?->isOpen() ?? false;
-			if ($isOpen) {
-				continue;
+			if ($manager = $this->managers[$name] ?? null) {
+				if ($manager->isOpen()) {
+					continue;
+				}
+				$manager->clear();
 			}
 			$this->managers[$name] = $this->_connectDSN($dsn, $name);
 		}
