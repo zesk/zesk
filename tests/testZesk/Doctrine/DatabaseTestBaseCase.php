@@ -8,7 +8,7 @@ declare(strict_types=1);
 
 namespace testZesk\Doctrine;
 
-use Doctrine\ORM\EntityManager;
+use zesk\Doctrine\EntityManager;
 use Doctrine\Persistence\ObjectRepository;
 use testZesk\ApplicationTestBase;
 use zesk\Doctrine\Model;

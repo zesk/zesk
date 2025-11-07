@@ -6,7 +6,6 @@ declare(strict_types=1);
 
 namespace zesk\Doctrine;
 
-use Doctrine\ORM\EntityManager;
 use zesk\Application;
 use zesk\Hookable as HookableBase;
 

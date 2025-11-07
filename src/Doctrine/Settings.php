@@ -9,7 +9,6 @@ declare(strict_types=1);
 
 namespace zesk\Doctrine;
 
-use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;

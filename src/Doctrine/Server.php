@@ -292,7 +292,7 @@ class Server extends Model implements MetaInterface
 	 */
 	protected function _findSingleton(): self
 	{
-		$server = $this->entityManager()->getRepository(self::class)->findOneBy([
+		$server = $this->entityManager(true)->getRepository(self::class)->findOneBy([
 			'name' => self::hostDefault(),
 		]);
 		if (!$server) {

@@ -439,7 +439,7 @@ class Lock extends Model
 			if ($this->id === null) {
 				return false;
 			}
-			$this->entityManager()->refresh($this);
+			$this->entityManager(true)->refresh($this);
 			if ($this->server === null) {
 				return false;
 			}

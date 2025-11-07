@@ -10,7 +10,7 @@ declare(strict_types=1);
 namespace zesk;
 
 use Closure;
-use Doctrine\ORM\EntityManager;
+use zesk\Doctrine\EntityManager;
 use Psr\Cache\CacheItemPoolInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LoggerTrait;
@@ -65,7 +65,7 @@ use zesk\Settings\FileSystemSettings;
  *
  * Methods below require you to actually load the modules for them to work.
  *
- * @method EntityManager entityManager(string $name = '');
+ * @method EntityManager entityManager(string $name = '', bool $ensureOpen = false);
  * @method DoctrineModule doctrineModule()
  *
  *

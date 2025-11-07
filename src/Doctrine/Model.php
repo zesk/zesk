@@ -6,7 +6,6 @@ declare(strict_types=1);
 
 namespace zesk\Doctrine;
 
-use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Exception\ORMException;
 use Throwable;
@@ -37,11 +36,12 @@ class Model extends ModelBase
 	}
 
 	/**
+	 * @param bool $ensureOpen
 	 * @return EntityManager
 	 */
-	public function entityManager(): EntityManager
+	public function entityManager(bool $ensureOpen): EntityManager
 	{
-		return $this->em ??= $this->application->entityManager($this->emName);
+		return $this->em ??= $this->application->entityManager($this->emName, $ensureOpen);
 	}
 
 	public function hydrate(Application $application): void

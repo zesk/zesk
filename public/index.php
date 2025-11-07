@@ -8,4 +8,8 @@ use zesk\Application;
 
 $application = require_once dirname(__DIR__) . '/test.application.php';
 
+if (!$application instanceof Application) {
+	throw new Exception('Application not initialized');
+}
+
 $application->index();

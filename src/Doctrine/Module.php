@@ -18,7 +18,6 @@ use Doctrine\DBAL\Tools\DsnParser;
 use Doctrine\DBAL\Types\Exception\TypesAlreadyExists;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\Configuration;
-use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Exception\MissingMappingDriverImplementation;
 use Doctrine\ORM\Mapping\AssociationMapping;
 use Doctrine\ORM\ORMSetup;
@@ -139,21 +138,48 @@ class Module extends BaseModule
 		$cachePath = Directory::depend($this->application->cachePath('doctrine'));
 		$config = $this->ormConfig = ORMSetup::createAttributeMetadataConfiguration(paths: $paths, isDevMode: $this->application->development(), cache: new FileCacheItemPool($cachePath));
 		$config->setEntityListenerResolver(new EntityListenerResolver());
-		$this->_setupConnections();
+		$this->openConnections();
+	}
+
+	public const OPTION_CONNECTIONS = 'connections';
+
+	/**
+	 * @return array
+	 */
+	public function optionConnections(): array
+	{
+		return $this->optionArray(self::OPTION_CONNECTIONS);
 	}
 
 	/**
+	 * @return void
 	 * @throws ConfigurationException
 	 * @throws Exception
 	 */
-	private function _setupConnections(): void
+	public function openConnections(): void
 	{
-		foreach ($this->optionArray('connections') as $name => $dsn) {
-			$this->_connectDSN($dsn, $name);
+		foreach ($this->optionConnections() as $name => $dsn) {
+			$isOpen = $this->managers[$name]?->isOpen() ?? false;
+			if ($isOpen) {
+				continue;
+			}
+			$this->managers[$name] = $this->_connectDSN($dsn, $name);
 		}
 	}
 
-	private function _connectDSN(mixed $dsn, string $name): void
+	public function dsnFromName(string $name): string
+	{
+		return $this->optionConnections()[$name] ?? throw new NotFoundException('No such name {name}', ['name' => $name]);
+	}
+
+	/**
+	 * @param mixed $dsn
+	 * @param string $name
+	 * @return EntityManager
+	 * @throws ConfigurationException
+	 * @throws Exception
+	 */
+	private function _connectDSN(mixed $dsn, string $name): EntityManager
 	{
 		if (is_string($dsn)) {
 			$parser = new DsnParser();
@@ -182,7 +208,7 @@ class Module extends BaseModule
 		}
 
 		try {
-			$this->managers[$name] = $em = new EntityManager($connection, $this->ormConfig, $this->eventManager);
+			return new EntityManager($connection, $this->ormConfig, $this->eventManager);
 		} catch (MissingMappingDriverImplementation $e) {
 			throw new ConfigurationException([
 				self::class,
@@ -210,7 +236,7 @@ class Module extends BaseModule
 	 * @throws Exception
 	 * @throws NotFoundException|SemanticsException
 	 */
-	public function entityManager(string $name = ''): EntityManager
+	public function entityManager(string $name = '', bool $ensureOpen = false): EntityManager
 	{
 		if ($name === '') {
 			$name = $this->defaultEntityManager();
@@ -220,7 +246,16 @@ class Module extends BaseModule
 			$this->configureORM();
 		}
 		if (array_key_exists($name, $this->managers)) {
-			return $this->managers[$name];
+			$em = $this->managers[$name];
+			if ($ensureOpen) {
+				if ($em->isOpen()) {
+					return $em;
+				}
+				$dsn = $this->dsnFromName($name);
+				$em = $this->_connectDSN($dsn, $name);
+				$this->managers[$name] = $em;
+			}
+			return $em;
 		}
 
 		throw new NotFoundException('No entityManager with name {name}', ['name' => $name]);
