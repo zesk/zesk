@@ -175,7 +175,7 @@ zeskPipelineSetup() {
   } >>"$dotEnv" || returnClean $? "${clean[@]}" || return $?
 
   dumpPipe ".env:" <"$dotEnv"
-  environmentFileLoad "$dotEnv" --execute mapEnvironment <./etc/docker/schema.sql | dumpPipe "Schema:" || :
+  environmentFileLoad "$dotEnv" --execute mapEnvironment <"$home/etc/docker/schema.sql" | dumpPipe "Schema:" || :
 
   catchReturn "$handler" environmentFileLoad "$dotEnv" --execute mapEnvironment <./etc/docker/schema.sql | catchEnvironment "$handler" mariadbConnect "${rootDSN[@]}" >>"$quietLog" || buildFailed "$quietLog" || returnClean $? "${clean[@]}" || return $?
   statusMessage timingReport "$start" "Schema load completed in"
@@ -194,6 +194,7 @@ zeskPipelineSetup() {
   #
   # Build the Zesk docker image
   #
+  catchEnvironment "$handler" directoryRequire "$home/.docker" || return $?
   cleanArgs=()
   if $cleanFlag; then
     cleanArgs=("--no-cache" "--pull")
@@ -201,7 +202,7 @@ zeskPipelineSetup() {
   local undo=()
   catchEnvironment "$handler" muzzle pushd "$home/etc/docker" || returnClean $? "${clean[@]}" || returnUndo $? "${undo[@]+"${undo[@]}"}" || return $?
   undo+=(muzzle popd --)
-  catchEnvironment "$handler" docker build -f web.Dockerfile --tag zesk:latest "${cleanArgs[@]}" ../.. || returnClean $? "${clean[@]}" || returnUndo $? "${undo[@]+"${undo[@]}"}" || return $?
+  DOCKER_BUILDKIT=1 catchEnvironment "$handler" docker build -f web.Dockerfile --tag zesk:latest --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from="type=local,src=$home/.docker/" "${cleanArgs[@]}" ../.. || returnClean $? "${clean[@]}" || returnUndo $? "${undo[@]+"${undo[@]}"}" || return $?
   returnUndo 0 "${undo[@]+"${undo[@]}"}" || return $?
 
   #==========================================================================================

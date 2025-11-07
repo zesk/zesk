@@ -8,6 +8,7 @@ definitions:
   caches:
     apt-lists: /var/lib/apt/lists
     apt-cache: /var/cache/apt
+    docker-cache: /opt/atlassian/pipelines/agent/build/.docker/
   services:
     mariadb:
       memory: 1024
@@ -57,9 +58,8 @@ pipelines:
             - test-coverage/
             - test.log
           caches:
+            - docker-cache
             - docker
-            - apt-lists
-            - apt-cache
           size: 2x
           script:
             - CONTAINER_DATABASE_HOST=$BITBUCKET_DOCKER_HOST_INTERNAL bin/build.sh --staging
