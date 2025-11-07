@@ -40,596 +40,584 @@ use function random_int;
 
 class TestCase extends BaseTestCase
 {
-	/**
-	 * @var bool
-	 */
-	protected bool $configureApplication = false;
+    /**
+     * @var bool
+     */
+    protected bool $configureApplication = false;
 
-	/**
-	 *
-	 * @var ?Application
-	 */
-	protected ?Application $application = null;
+    /**
+     *
+     * @var ?Application
+     */
+    protected ?Application $application = null;
 
-	/**
-	 *
-	 * @var array
-	 */
-	protected array $loadModules = [];
+    /**
+     *
+     * @var array
+     */
+    protected array $loadModules = [];
 
-	/**
-	 *
-	 * @var ?Configuration
-	 */
-	protected ?Configuration $configuration = null;
+    /**
+     *
+     * @var ?Configuration
+     */
+    protected ?Configuration $configuration = null;
 
-	/**
-	 * Current object's configuration (better version than using Options superclass)
-	 *
-	 * @var ?Configuration
-	 */
-	protected ?Configuration $option = null;
+    /**
+     * Current object's configuration (better version than using Options superclass)
+     *
+     * @var ?Configuration
+     */
+    protected ?Configuration $option = null;
 
-	/**
-	 * @var string
-	 */
-	protected string $cacheHome = '';
+    /**
+     * @var string
+     */
+    protected string $cacheHome = '';
 
-	/**
-	 * @var bool
-	 */
-	private bool $initialized = false;
+    /**
+     * @var bool
+     */
+    private bool $initialized = false;
 
-	/**
-	 * Must *not* call in dataProvider
-	 *
-	 * @return Application
-	 */
-	public static function app(): Application
-	{
-		return Kernel::singleton()->application();
-	}
+    /**
+     * Must *not* call in dataProvider
+     *
+     * @return Application
+     */
+    public static function app(): Application
+    {
+        return Kernel::singleton()->application();
+    }
 
-	/**
-	 * Ensures our zesk variables above are properly populated
-	 *
-	 * @return void
-	 * @throws ConfigurationException
-	 * @throws Exception
-	 * @throws SemanticsException
-	 * @throws SystemException
-	 * @throws NotFoundException
-	 * @covers \zesk\Application
-	 */
-	public function setUp(): void
-	{
-		/*
-		 * Set up our state
-		 */
-		if (!$this->application) {
-			require_once dirname(__DIR__, 2) . '/test.application.php';
-			$this->application = Kernel::singleton()->application();
-		}
-		foreach ($this->loadModules as $moduleName) {
-			$this->application->modules->load($moduleName);
-			$this->assertTrue($this->application->modules->loaded($moduleName));
-		}
-		if (!$this->configuration) {
-			$this->configuration = $this->application->configuration;
-		}
-		if (!$this->option) {
-			$this->option = Configuration::factory();
-			foreach ($this->application->classes->hierarchy(get_class($this)) as $class) {
-				$this->option = $this->option->merge($this->configuration->path($class), false); // traverses leaf to base. Leaf wins, do not overwrite.
-			}
-			$options = $this->option->toArray();
-			if (count($options)) {
-				$this->application->debug('{method}: {class} options is {option}', [
-					'method' => __METHOD__,
-					'class' => get_class($this),
-					'option' => $options,
-				]);
-			}
-		}
-		$this->subclassInitialize();
-		if ($this->configureApplication) {
-			$this->application->configure();
-		}
-	}
+    /**
+     * Ensures our zesk variables above are properly populated
+     *
+     * @return void
+     * @throws ConfigurationException
+     * @throws Exception
+     * @throws SemanticsException
+     * @throws SystemException
+     * @throws NotFoundException
+     * @covers \zesk\Application
+     */
+    public function setUp(): void
+    {
+        /*
+         * Set up our state
+         */
+        if (!$this->application) {
+            require_once dirname(__DIR__, 2) . '/test.application.php';
+            $this->application = Kernel::singleton()->application();
+        }
+        foreach ($this->loadModules as $moduleName) {
+            $this->application->modules->load($moduleName);
+            $this->assertTrue($this->application->modules->loaded($moduleName));
+        }
+        if (!$this->configuration) {
+            $this->configuration = $this->application->configuration;
+        }
+        if (!$this->option) {
+            $this->option = Configuration::factory();
+            foreach ($this->application->classes->hierarchy(get_class($this)) as $class) {
+                $this->option = $this->option->merge($this->configuration->path($class), false); // traverses leaf to base. Leaf wins, do not overwrite.
+            }
+            $options = $this->option->toArray();
+            if (count($options)) {
+                $this->application->debug('{method}: {class} options is {option}', [
+                    'method' => __METHOD__,
+                    'class' => get_class($this),
+                    'option' => $options,
+                ]);
+            }
+        }
+        $this->subclassInitialize();
+        if ($this->configureApplication) {
+            $this->application->configure();
+        }
+    }
 
-	private function subclassInitialize(): void
-	{
-		if (!$this->initialized) {
-			if (method_exists($this, 'initialize')) {
-				$this->initialize();
-			}
-			$this->initialized = true;
-		}
-	}
+    private function subclassInitialize(): void
+    {
+        if (!$this->initialized) {
+            if (method_exists($this, 'initialize')) {
+                $this->initialize();
+            }
+            $this->initialized = true;
+        }
+    }
 
-	private function subclassShutdown(): void
-	{
-		if ($this->initialized) {
-			if (method_exists($this, 'shutdown')) {
-				$this->shutdown();
-			}
-			$this->initialized = false;
-		}
-	}
+    private function subclassShutdown(): void
+    {
+        if ($this->initialized) {
+            if (method_exists($this, 'shutdown')) {
+                $this->shutdown();
+            }
+            $this->initialized = false;
+        }
+    }
 
-	public function checkMemoryUsage(): void
-	{
-		$usage = memory_get_usage(true);
-		$this->application->info('Memory usage: ' . Number::formatBytes($this->application->locale, $usage));
-		$maxFile = $this->application->path('.memory_get_usage');
+    public function checkMemoryUsage(): void
+    {
+        $usage = memory_get_usage(true);
+        $this->application->info('Memory usage: ' . Number::formatBytes($this->application->locale, $usage));
+        $maxFile = $this->application->path('.memory_get_usage');
 
-		try {
-			$item = intval(File::contents($maxFile));
-		} catch (Exception) {
-			$item = 0;
-		}
-		if ($usage > $item) {
-			try {
-				File::put($maxFile, strval($usage));
-			} catch (Exception) {
-				// pass
-			}
-		}
-	}
+        try {
+            $item = intval(File::contents($maxFile));
+        } catch (Exception) {
+            $item = 0;
+        }
+        if ($usage > $item) {
+            try {
+                File::put($maxFile, strval($usage));
+            } catch (Exception) {
+                // pass
+            }
+        }
+    }
 
-	/**
-	 * Easy way to defer setup until data is needed. Use this on input parameters to convert
-	 * any closures to values which depend on setUp.
-	 *
-	 * @param mixed $mixed
-	 * @return mixed
-	 */
-	public function applyClosures(mixed $mixed): mixed
-	{
-		if ($mixed instanceof Closure) {
-			return $mixed($this);
-		}
-		if (is_array($mixed)) {
-			foreach ($mixed as $key => $value) {
-				$mixed[$key] = $this->applyClosures($value);
-			}
-			return $mixed;
-		}
-		return $mixed;
-	}
+    /**
+     * Easy way to defer setup until data is needed. Use this on input parameters to convert
+     * any closures to values which depend on setUp.
+     *
+     * @param mixed $mixed
+     * @return mixed
+     */
+    public function applyClosures(mixed $mixed): mixed
+    {
+        if ($mixed instanceof Closure) {
+            return $mixed($this);
+        }
+        if (is_array($mixed)) {
+            foreach ($mixed as $key => $value) {
+                $mixed[$key] = $this->applyClosures($value);
+            }
+            return $mixed;
+        }
+        return $mixed;
+    }
 
-	public function tearDown(): void
-	{
-		$this->subclassShutdown();
-		$this->checkMemoryUsage();
-		$this->application?->shutdown();
-		unset($this->application);
-		unset($this->configuration);
-		unset($this->option);
-		$this->_test_sandbox_shutdown();
-	}
+    public function tearDown(): void
+    {
+        $this->subclassShutdown();
+        $this->checkMemoryUsage();
+        $this->application?->shutdown();
+        unset($this->application);
+        unset($this->configuration);
+        unset($this->option);
+        $this->_test_sandbox_shutdown();
+    }
 
-	public function assertPreConditions(): void
-	{
-		$this->assertInstanceOf(Configuration::class, $this->configuration);
-		$this->assertInstanceOf(Application::class, $this->application);
-		file_put_contents($this->lastTestCaseFile(), JSON::encodePretty([
-			'class' => get_class($this),
-			'hierarchy' => $this->application->classes->hierarchy(get_class($this)),
-			'when' => date('Y-m-d H:i:s'),
-			'debug' => $this->option->toArray(),
-		]));
-	}
+    public function assertPreConditions(): void
+    {
+        $this->assertInstanceOf(Configuration::class, $this->configuration);
+        $this->assertInstanceOf(Application::class, $this->application);
+        file_put_contents($this->lastTestCaseFile(), JSON::encodePretty([
+            'class' => get_class($this),
+            'hierarchy' => $this->application->classes->hierarchy(get_class($this)),
+            'when' => date('Y-m-d H:i:s'),
+            'debug' => $this->option->toArray(),
+        ]));
+    }
+    
+    private function lastTestCaseFile(): string
+    {
+        return $this->application->path('phpunit-testcase-last.json');
+    }
 
-	public function assertPostConditions(): void
-	{
-		try {
-			$lastFile = $this->lastTestCaseFile();
-			clearstatcache(false, $lastFile);
-			if (file_exists($lastFile)) {
-				File::unlink($lastFile);
-			}
-		} catch (FilePermission) {
-		}
-	}
+    /**
+     *
+     * @param string $string
+     * @param string $message
+     * @return void
+     */
+    public function assertStringIsURL(string $string, string $message = ''): void
+    {
+        $this->assertTrue(URL::valid($string), $message ?: "$string is not a URL");
+    }
 
-	private function lastTestCaseFile(): string
-	{
-		return $this->application->path('phpunit-testcase-last.json');
-	}
+    /**
+     * @param string|array $keys
+     * @param array $array
+     * @param string $message
+     * @return void
+     */
+    public function assertArrayHasKeys(string|array $keys, array $array, string $message = ''): void
+    {
+        $keys = Types::toList($keys);
+        foreach ($keys as $key) {
+            $this->assertArrayHasKey($key, $array, $message === '' ? implode(', ', array_keys($array)) : $message);
+        }
+    }
 
-	/**
-	 *
-	 * @param string $string
-	 * @param string $message
-	 * @return void
-	 */
-	public function assertStringIsURL(string $string, string $message = ''): void
-	{
-		$this->assertTrue(URL::valid($string), $message ?: "$string is not a URL");
-	}
+    /**
+     * Generate a list of absolute paths
+     *
+     * @param string $path
+     * @param string[] $suffixes
+     * @return string[]
+     */
+    public function pathCatenator(string $path, array $suffixes): array
+    {
+        $result = [];
+        foreach ($suffixes as $suffix) {
+            $result[] = Directory::path($path, $suffix);
+        }
+        return $result;
+    }
 
-	/**
-	 * @param string|array $keys
-	 * @param array $array
-	 * @param string $message
-	 * @return void
-	 */
-	public function assertArrayHasKeys(string|array $keys, array $array, string $message = ''): void
-	{
-		$keys = Types::toList($keys);
-		foreach ($keys as $key) {
-			$this->assertArrayHasKey($key, $array, $message === '' ? implode(', ', array_keys($array)) : $message);
-		}
-	}
+    /**
+     * All the passed in directories MUST exist to succeed
+     *
+     * @param array $paths
+     * @param string $message
+     * @return void
+     */
+    public function assertDirectoriesExist(array $paths, string $message = ''): void
+    {
+        if (!$message) {
+            $message = 'Path does not exist';
+        }
+        foreach ($paths as $index => $path) {
+            $this->assertDirectoryExists($path, "$index: $path $message");
+        }
+    }
 
-	/**
-	 * Generate a list of absolute paths
-	 *
-	 * @param string $path
-	 * @param string[] $suffixes
-	 * @return string[]
-	 */
-	public function pathCatenator(string $path, array $suffixes): array
-	{
-		$result = [];
-		foreach ($suffixes as $suffix) {
-			$result[] = Directory::path($path, $suffix);
-		}
-		return $result;
-	}
+    /**
+     * All the passed in directories MUST exist to succeed
+     *
+     * @param array $paths
+     * @param string $message
+     * @return void
+     */
+    public function assertDirectoriesNotExist(array $paths, string $message = ''): void
+    {
+        if (!$message) {
+            $message = 'Path should not exist';
+        }
+        foreach ($paths as $index => $path) {
+            $this->assertDirectoryDoesNotExist($path, "$index: $path $message");
+        }
+    }
 
-	/**
-	 * All the passed in directories MUST exist to succeed
-	 *
-	 * @param array $paths
-	 * @param string $message
-	 * @return void
-	 */
-	public function assertDirectoriesExist(array $paths, string $message = ''): void
-	{
-		if (!$message) {
-			$message = 'Path does not exist';
-		}
-		foreach ($paths as $index => $path) {
-			$this->assertDirectoryExists($path, "$index: $path $message");
-		}
-	}
+    /**
+     * Assert that the expected value is an integer
+     *
+     * @param mixed $expected
+     * @param string $message
+     */
+    public function assertIsInteger(mixed $expected, string $message = ''): void
+    {
+        $this->assertTrue(is_int($expected), $message ?: 'Item expected to be an integer but is a ' . Types::type($expected));
+    }
 
-	/**
-	 * All the passed in directories MUST exist to succeed
-	 *
-	 * @param array $paths
-	 * @param string $message
-	 * @return void
-	 */
-	public function assertDirectoriesNotExist(array $paths, string $message = ''): void
-	{
-		if (!$message) {
-			$message = 'Path should not exist';
-		}
-		foreach ($paths as $index => $path) {
-			$this->assertDirectoryDoesNotExist($path, "$index: $path $message");
-		}
-	}
+    /**
+     * PHPUnit "echo" and "print" are captured, so we use fprintf(STDERR) to output test debugging stuff
+     *
+     * Generally, you should use these during development and remove them before committing your changes.
+     *
+     * @param string $contents
+     * @return void
+     */
+    protected function debug(mixed $contents): void
+    {
+        if (!is_string($contents)) {
+            $contents = var_export($contents, true);
+        }
+        $contents = trim($contents, "\n");
+        fprintf(STDERR, "\n$contents\n");
+    }
 
-	/**
-	 * Assert that the expected value is an integer
-	 *
-	 * @param mixed $expected
-	 * @param string $message
-	 */
-	public function assertIsInteger(mixed $expected, string $message = ''): void
-	{
-		$this->assertTrue(is_int($expected), $message ?: 'Item expected to be an integer but is a ' . Types::type($expected));
-	}
+    /**
+     * @param int $count
+     * @return string
+     */
+    protected static function randomBytes(int $count = 64): string
+    {
+        try {
+            return random_bytes($count);
+        } catch (\Exception) {
+        }
 
-	/**
-	 * PHPUnit "echo" and "print" are captured, so we use fprintf(STDERR) to output test debugging stuff
-	 *
-	 * Generally, you should use these during development and remove them before committing your changes.
-	 *
-	 * @param string $contents
-	 * @return void
-	 */
-	protected function debug(mixed $contents): void
-	{
-		if (!is_string($contents)) {
-			$contents = var_export($contents, true);
-		}
-		$contents = trim($contents, "\n");
-		fprintf(STDERR, "\n$contents\n");
-	}
+        try {
+            $result = '';
+            do {
+                $result .= sha1(long2ip(random_int(0, 0xFFFFFFFF)), true);
+            } while (strlen($result) < $count);
+            return $result;
+        } catch (\Exception) {
+        }
+        $result = '';
+        do {
+            $result .= sha1(microtime(), true);
+        } while (strlen($result) < $count);
+        return $result;
+    }
 
-	/**
-	 * @param int $count
-	 * @return string
-	 */
-	protected static function randomBytes(int $count = 64): string
-	{
-		try {
-			return random_bytes($count);
-		} catch (\Exception) {
-		}
+    /**
+     * @param int $min
+     * @param int $max
+     * @return int
+     */
+    protected static function randomInteger(int $min = 0, int $max = 0x7FFFFFFF): int
+    {
+        try {
+            return random_int($min, $max);
+        } catch (Throwable) {
+            return -1;
+        }
+    }
 
-		try {
-			$result = '';
-			do {
-				$result .= sha1(long2ip(random_int(0, 0xFFFFFFFF)), true);
-			} while (strlen($result) < $count);
-			return $result;
-		} catch (\Exception) {
-		}
-		$result = '';
-		do {
-			$result .= sha1(microtime(), true);
-		} while (strlen($result) < $count);
-		return $result;
-	}
+    /**
+     * @param int $characters
+     * @return string
+     */
+    protected static function randomHex(int $characters = 32): string
+    {
+        $result = '';
+        do {
+            $result .= sha1(self::randomBytes());
+        } while (strlen($result) < $characters);
+        return substr($result, 0, $characters);
+    }
 
-	/**
-	 * @param int $min
-	 * @param int $max
-	 * @return int
-	 */
-	protected static function randomInteger(int $min = 0, int $max = 0x7FFFFFFF): int
-	{
-		try {
-			return random_int($min, $max);
-		} catch (Throwable) {
-			return -1;
-		}
-	}
+    /**
+     * Create a sandbox folder to test with
+     *
+     * @param string $file
+     * @param bool $auto_delete
+     * @return string
+     * @see self::sandbox
+     */
+    final protected function test_sandbox(string $file = '', bool $auto_delete = true): string
+    {
+        return $this->sandbox($file, $auto_delete);
+    }
 
-	/**
-	 * @param int $characters
-	 * @return string
-	 */
-	protected static function randomHex(int $characters = 32): string
-	{
-		$result = '';
-		do {
-			$result .= sha1(self::randomBytes());
-		} while (strlen($result) < $characters);
-		return substr($result, 0, $characters);
-	}
+    /**
+     */
+    final public function sandbox(string $file = '', bool $auto_delete = true): string
+    {
+        $cache_dir = $this->application->path('cache/test/' . $this->application->process->id());
+        $perms = 511; /* 0o777 */
+        if (!is_dir($cache_dir)) {
+            if (!mkdir($cache_dir, $perms/* 0777 */, true)) {
+                $this->fail("test_sandbox: Can't create $cache_dir");
+            }
+            chmod($cache_dir, $perms);
+            if ($auto_delete) {
+                $this->cacheHome = $cache_dir;
+            }
+        }
+        return Directory::path($cache_dir, $file);
+    }
 
-	/**
-	 * Create a sandbox folder to test with
-	 *
-	 * @param string $file
-	 * @param bool $auto_delete
-	 * @return string
-	 * @see self::sandbox
-	 */
-	final protected function test_sandbox(string $file = '', bool $auto_delete = true): string
-	{
-		return $this->sandbox($file, $auto_delete);
-	}
+    /**
+     * Delete cache dir after test runs
+     *
+     * @return void
+     * @throws DirectoryPermission
+     * @throws FilePermission
+     */
+    final public function _test_sandbox_shutdown(): void
+    {
+        $cache_dir = $this->cacheHome;
+        $this->cacheHome = '';
+        if ($cache_dir === '') {
+            return;
+        }
+        if (is_dir($cache_dir)) {
+            try {
+                Directory::delete($cache_dir);
+            } catch (DirectoryNotFound) {
+            }
+        }
+    }
 
-	/**
-	 */
-	final public function sandbox(string $file = '', bool $auto_delete = true): string
-	{
-		$cache_dir = $this->application->path('cache/test/' . $this->application->process->id());
-		$perms = 511; /* 0o777 */
-		if (!is_dir($cache_dir)) {
-			if (!mkdir($cache_dir, $perms/* 0777 */, true)) {
-				$this->fail("test_sandbox: Can't create $cache_dir");
-			}
-			chmod($cache_dir, $perms);
-			if ($auto_delete) {
-				$this->cacheHome = $cache_dir;
-			}
-		}
-		return Directory::path($cache_dir, $file);
-	}
+    public function streamCapture(mixed $stream): void
+    {
+        stream_filter_register('testIntercept', StreamIntercept::class);
+        stream_filter_append($stream, 'testIntercept');
+    }
 
-	/**
-	 * Delete cache dir after test runs
-	 *
-	 * @return void
-	 * @throws DirectoryPermission
-	 * @throws FilePermission
-	 */
-	final public function _test_sandbox_shutdown(): void
-	{
-		$cache_dir = $this->cacheHome;
-		$this->cacheHome = '';
-		if ($cache_dir === '') {
-			return;
-		}
-		if (is_dir($cache_dir)) {
-			try {
-				Directory::delete($cache_dir);
-			} catch (DirectoryNotFound) {
-			}
-		}
-	}
+    /**
+     * @param string $name
+     * @param mixed|null $default
+     * @return mixed
+     */
+    final public function option(string $name, mixed $default = null): mixed
+    {
+        return $this->configuration?->getPath([
+            get_class($this),
+            $name,
+        ], $default);
+    }
 
-	public function streamCapture(mixed $stream): void
-	{
-		stream_filter_register('testIntercept', StreamIntercept::class);
-		stream_filter_append($stream, 'testIntercept');
-	}
+    public function optionBool(string $name, bool $default = false): bool
+    {
+        return Types::toBool($this->option($name, $default), null) ?? $default;
+    }
 
-	/**
-	 * @param string $name
-	 * @param mixed|null $default
-	 * @return mixed
-	 */
-	final public function option(string $name, mixed $default = null): mixed
-	{
-		return $this->configuration?->getPath([
-			get_class($this),
-			$name,
-		], $default);
-	}
+    public function awaitFile(string $filename, float $timeout = 5.0): void
+    {
+        $timer = new Timer();
+        while (!is_file($filename) && !is_readable($filename)) {
+            usleep(10000);
+            $this->assertLessThan($timeout, $timer->elapsed(), "Timer elapsed beyond $timeout seconds awaiting $filename");
+        }
+    }
 
-	public function optionBool(string $name, bool $default = false): bool
-	{
-		return Types::toBool($this->option($name, $default), null) ?? $default;
-	}
+    /**
+     * @param string $includeFile
+     * @return string[]
+     */
+    protected function zeskBinIncludeArgs(string $includeFile): array
+    {
+        return [$includeFile];
+    }
 
-	public function awaitFile(string $filename, float $timeout = 5.0): void
-	{
-		$timer = new Timer();
-		while (!is_file($filename) && !is_readable($filename)) {
-			usleep(10000);
-			$this->assertLessThan($timeout, $timer->elapsed(), "Timer elapsed beyond $timeout seconds awaiting $filename");
-		}
-	}
+    protected function zeskBin(): string
+    {
+        $zeskBin = $this->application->zeskHome('bin/zesk.sh');
+        $this->assertFileExists($zeskBin);
+        $this->assertFileIsReadable($zeskBin);
+        // 2>&1 Captures stderr to capture output with $captureFail
+        return "XDEBUG_ENABLED=0 $zeskBin {*} 2>&1";
+    }
 
-	/**
-	 * @param string $includeFile
-	 * @return string[]
-	 */
-	protected function zeskBinIncludeArgs(string $includeFile): array
-	{
-		return [$includeFile];
-	}
+    /**
+     * @param array $args
+     * @param bool $captureFail
+     * @return array Lines output
+     * @throws CommandFailed
+     */
+    protected function zeskBinExecute(array $args, bool $captureFail = false): array
+    {
+        try {
+            return $this->application->process->executeArguments($this->zeskBin(), $args);
+        } catch (CommandFailed $e) {
+            if ($captureFail) {
+                return $e->getOutput();
+            }
 
-	protected function zeskBin(): string
-	{
-		$zeskBin = $this->application->zeskHome('bin/zesk.sh');
-		$this->assertFileExists($zeskBin);
-		$this->assertFileIsReadable($zeskBin);
-		// 2>&1 Captures stderr to capture output with $captureFail
-		return "XDEBUG_ENABLED=0 $zeskBin {*} 2>&1";
-	}
+            throw $e;
+        }
+    }
 
-	/**
-	 * @param array $args
-	 * @param bool $captureFail
-	 * @return array Lines output
-	 * @throws CommandFailed
-	 */
-	protected function zeskBinExecute(array $args, bool $captureFail = false): array
-	{
-		try {
-			return $this->application->process->executeArguments($this->zeskBin(), $args);
-		} catch (CommandFailed $e) {
-			if ($captureFail) {
-				return $e->getOutput();
-			}
+    /**
+     * Run a PHP include file and return lines of output as an array.
+     *
+     * @param string $includeFile
+     * @return array
+     * @throws CommandFailed
+     */
+    public function zeskEvalFile(string $includeFile): array
+    {
+        return $this->application->process->executeArguments($this->zeskBin(), $this->zeskBinIncludeArgs($includeFile));
+    }
 
-			throw $e;
-		}
-	}
+    /**
+     * Run a PHP include file in the background and return the PID of the process.
+     *
+     * @param string $includeFile
+     * @return int
+     * @throws CommandFailed
+     */
+    public function zeskEvalFileProcess(string $includeFile): int
+    {
+        $output = $this->test_sandbox(basename($includeFile) . '.log');
+        return $this->application->process->executeBackground($this->zeskBin(), $this->zeskBinIncludeArgs($includeFile), $output, $output);
+    }
 
-	/**
-	 * Run a PHP include file and return lines of output as an array.
-	 *
-	 * @param string $includeFile
-	 * @return array
-	 * @throws CommandFailed
-	 */
-	public function zeskEvalFile(string $includeFile): array
-	{
-		return $this->application->process->executeArguments($this->zeskBin(), $this->zeskBinIncludeArgs($includeFile));
-	}
+    /**
+     * @param       $message
+     * @param array $args
+     * @return void
+     */
+    public function log($message, array $args = []): void
+    {
+        $this->application->debug($message, $args);
+    }
 
-	/**
-	 * Run a PHP include file in the background and return the PID of the process.
-	 *
-	 * @param string $includeFile
-	 * @return int
-	 * @throws CommandFailed
-	 */
-	public function zeskEvalFileProcess(string $includeFile): int
-	{
-		$output = $this->test_sandbox(basename($includeFile) . '.log');
-		return $this->application->process->executeBackground($this->zeskBin(), $this->zeskBinIncludeArgs($includeFile), $output, $output);
-	}
+    /**
+     * Assert an object or class implements an interface
+     *
+     * @param string $interface_class
+     * @param object|string $instanceof
+     * @param string $message
+     * @return void
+     */
+    final public function assertImplements(string $interface_class, object|string $instanceof, string $message = ''): void
+    {
+        $interfaces = class_implements($instanceof);
+        $this->assertInArray($interface_class, $interfaces, $message);
+    }
 
-	/**
-	 * @param       $message
-	 * @param array $args
-	 * @return void
-	 */
-	public function log($message, array $args = []): void
-	{
-		$this->application->debug($message, $args);
-	}
+    /**
+     * @param mixed $mixed
+     * @param array $array
+     * @param string $message
+     * @return void
+     */
+    final protected function assertInArray(mixed $mixed, array $array, string $message = ''): void
+    {
+        if (!empty($message)) {
+            $message .= "\n";
+        }
+        $message .= "Array does not contain value \"$mixed\" (values: " . implode(', ', array_values($array)) . ')';
+        $this->assertTrue(in_array($mixed, $array), $message);
+    }
 
-	/**
-	 * Assert an object or class implements an interface
-	 *
-	 * @param string $interface_class
-	 * @param object|string $instanceof
-	 * @param string $message
-	 * @return void
-	 */
-	final public function assertImplements(string $interface_class, object|string $instanceof, string $message = ''): void
-	{
-		$interfaces = class_implements($instanceof);
-		$this->assertInArray($interface_class, $interfaces, $message);
-	}
+    /**
+     * @param mixed $mixed
+     * @param array $array
+     * @param string $message
+     * @return void
+     */
+    final protected function assertNotInArray(mixed $mixed, array $array, string $message = ''): void
+    {
+        if (!empty($message)) {
+            $message .= "\n";
+        }
+        $message .= "Array contains value and should not \"$mixed\" (values: " . implode(', ', array_values($array)) . ')';
+        $this->assertFalse(in_array($mixed, $array), $message);
+    }
 
-	/**
-	 * @param mixed $mixed
-	 * @param array $array
-	 * @param string $message
-	 * @return void
-	 */
-	final protected function assertInArray(mixed $mixed, array $array, string $message = ''): void
-	{
-		if (!empty($message)) {
-			$message .= "\n";
-		}
-		$message .= "Array does not contain value \"$mixed\" (values: " . implode(', ', array_values($array)) . ')';
-		$this->assertTrue(in_array($mixed, $array), $message);
-	}
+    /**
+     * Central place to dump variables to output.
+     * Use PHP output to facilitate generating tests whose output can be copied for first writing
+     * and manual verification.
+     *
+     * @param mixed $value
+     * @return string
+     */
+    protected function dump(mixed $value): string
+    {
+        return PHP::singleton()->settingsOneLine()->render($value);
+    }
 
-	/**
-	 * @param mixed $mixed
-	 * @param array $array
-	 * @param string $message
-	 * @return void
-	 */
-	final protected function assertNotInArray(mixed $mixed, array $array, string $message = ''): void
-	{
-		if (!empty($message)) {
-			$message .= "\n";
-		}
-		$message .= "Array contains value and should not \"$mixed\" (values: " . implode(', ', array_values($array)) . ')';
-		$this->assertFalse(in_array($mixed, $array), $message);
-	}
-
-	/**
-	 * Central place to dump variables to output.
-	 * Use PHP output to facilitate generating tests whose output can be copied for first writing
-	 * and manual verification.
-	 *
-	 * @param mixed $value
-	 * @return string
-	 */
-	protected function dump(mixed $value): string
-	{
-		return PHP::singleton()->settingsOneLine()->render($value);
-	}
-
-	/**
-	 * Given a class and a method, make the available method not-private to do blackbox testing
-	 *
-	 * @param string $class
-	 * @param array $methods
-	 * @return array
-	 * @throws ReflectionException
-	 */
-	public function exposePrivateMethod(string $class, array $methods): array
-	{
-		$reflectionClass = new ReflectionClass($class);
-		$results = [];
-		foreach ($methods as $method) {
-			$classMethod = $reflectionClass->getMethod($method);
-			$classMethod->setAccessible(true);
-			$results[$method] = function ($object) use ($classMethod) {
-				$args = func_get_args();
-				array_shift($args);
-				return $classMethod->invokeArgs($object, $args);
-			};
-		}
-		return $results;
-	}
+    /**
+     * Given a class and a method, make the available method not-private to do blackbox testing
+     *
+     * @param string $class
+     * @param array $methods
+     * @return array
+     * @throws ReflectionException
+     */
+    public function exposePrivateMethod(string $class, array $methods): array
+    {
+        $reflectionClass = new ReflectionClass($class);
+        $results = [];
+        foreach ($methods as $method) {
+            $classMethod = $reflectionClass->getMethod($method);
+            $classMethod->setAccessible(true);
+            $results[$method] = function ($object) use ($classMethod) {
+                $args = func_get_args();
+                array_shift($args);
+                return $classMethod->invokeArgs($object, $args);
+            };
+        }
+        return $results;
+    }
 }
