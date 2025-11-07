@@ -201,7 +201,7 @@ zeskPipelineSetup() {
   local undo=()
   catchEnvironment "$handler" muzzle pushd "$home/etc/docker" || returnClean $? "${clean[@]}" || returnUndo $? "${undo[@]+"${undo[@]}"}" || return $?
   undo+=(muzzle popd --)
-  DOCKER_BUILDKIT=1 catchEnvironment "$handler" docker buildx build -f web.Dockerfile --tag zesk:latest --build-arg BUILDKIT_INLINE_CACHE=1 "${cleanArgs[@]}" ../.. || returnClean $? "${clean[@]}" || returnUndo $? "${undo[@]+"${undo[@]}"}" || return $?
+  DOCKER_BUILDKIT=1 catchEnvironment "$handler" docker build -f web.Dockerfile --tag zesk:latest --build-arg BUILDKIT_INLINE_CACHE=1 "${cleanArgs[@]}" ../.. || returnClean $? "${clean[@]}" || returnUndo $? "${undo[@]+"${undo[@]}"}" || return $?
   returnUndo 0 "${undo[@]+"${undo[@]}"}" || return $?
 
   #==========================================================================================
