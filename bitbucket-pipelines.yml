@@ -27,6 +27,8 @@ pipelines:
           artifacts:
             - .build.env
             - .release-notes.md
+            - phpunit-testcase-last.json
+            - test-results/
             - test-coverage/
             - test.log
           caches:
@@ -50,6 +52,8 @@ pipelines:
           artifacts:
             - .build.env
             - .release-notes.md
+            - phpunit-testcase-last.json
+            - test-results/
             - test-coverage/
             - test.log
           caches:
