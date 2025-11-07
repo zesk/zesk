@@ -102,7 +102,7 @@ class LockTest extends ModelTestCase
             $this->assertFalse($childLock->isLocked());
             $this->assertTrue($childLock->isMine());
             sleep(10);
-            $childLock->entityManager()->getConnection()->close();
+            // $childLock->entityManager()->getConnection()->close();
 
             /* Die without releasing here - is there some hook which releases upon fork/exit? Hmmm. Should know this. */
             exit(0);
