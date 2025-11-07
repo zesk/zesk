@@ -4,4 +4,4 @@
 # Category: Application
 # All about APPLICATION_JSON and how it is used
 export APPLICATION_JSON_PREFIX
-APPLICATION_JSON_PREFIX="extras"
+APPLICATION_JSON_PREFIX="extra"
