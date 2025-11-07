@@ -21,6 +21,9 @@
     "bin/zesk"
   ],
   "description": "The Zesk Application Framework",
+  "extra": {
+    "deprecated": "4df02d82928a8fd28b7f7fb19e01ca9949f4f93e"
+  },
   "homepage": "https://php.zesk.com",
   "keywords": [
     "zesk",
