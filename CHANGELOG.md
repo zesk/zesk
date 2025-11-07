@@ -76,6 +76,9 @@ Version 1.0 of Zesk will have:
 - Fixing how environment gets passed to tests (connection problems)
 - zeskBin uses alias
 - fixed path issue with ProcessToolsTest.php
+- new table name `Locks`
+- need way to rename tables via configuration or something
+- Lock creation is now a spinner to handle race conditions
 
 ## [v0.31.2][]
 
