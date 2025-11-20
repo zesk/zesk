@@ -43,7 +43,6 @@ use zesk\URL;
 
 class Module extends BaseModule
 {
-
     /**
      *
      */
@@ -201,14 +200,14 @@ class Module extends BaseModule
         if (is_string($dsn)) {
             return $dsn;
         } elseif (is_array($dsn)) {
-            $dsn['scheme'] = $dsn['scheme'] ?? $dsn['driver'] ?? null;
+            $dsn['scheme'] ??= $dsn['driver'] ?? null;
             $requiredKeys = ['driver', 'host', 'user', 'password', 'name'];
             foreach ($requiredKeys as $key) {
                 if (!isset($dsn[$key])) {
-                    throw new UnsupportedException("No {key} in connection settings keys: {keys}", ['keys' => array_keys($dsn), 'key' => $key]);
+                    throw new UnsupportedException('No {key} in connection settings keys: {keys}', ['keys' => array_keys($dsn), 'key' => $key]);
                 }
                 if (!empty($dsn[$key])) {
-                    throw new UnsupportedException("Empty {key} in connection settings keys: {keys}", ['keys' => array_keys($dsn), 'key' => $key]);
+                    throw new UnsupportedException('Empty {key} in connection settings keys: {keys}', ['keys' => array_keys($dsn), 'key' => $key]);
                 }
             }
             $urlParts = [
