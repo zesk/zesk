@@ -1542,15 +1542,15 @@ returnEnvironment() {
   returnMessage 1 "$@" || return $?
 }
 
-# Run `handler` with an argument error
-# Argument: exitCode - Integer. Required. Return code.
+# Run `handler` with a passed return code
+# Argument: returnCode - Integer. Required. Return code.
 # Argument: handler - Function. Required. Error handler.
 # Argument: message ... - String. Optional. Error message
 # Requires: returnArgument
 returnThrow() {
-  local exitCode="${1-}" && shift || returnArgument "Missing exit code" || return $?
+  local returnCode="${1-}" && shift || returnArgument "Missing return code" || return $?
   local handler="${1-}" && shift || returnArgument "Missing error handler" || return $?
-  "$handler" "$exitCode" "$@" || return $?
+  "$handler" "$returnCode" "$@" || return $?
 }
 
 # Run binary and catch errors with handler
