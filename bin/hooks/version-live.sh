@@ -8,10 +8,10 @@
 # IDENTICAL githubVersionLive 23
 
 # shellcheck source=/dev/null
-if ! source "${BASH_SOURCE[0]%/*}/../tools.sh"; then
-  printf "%s\n" "Unable to load ${BASH_SOURCE[0]%/*}/../tools.sh" 1>&2
-else
-  # Fetch the current live version of the software
+if source "${BASH_SOURCE[0]%/*}/../tools.sh"; then
+  # Fetch the current live version of the software using GitHub APIs
+  # Environment: GITHUB_REPOSITORY_OWNER - Repository owner to fetch
+  # Environment: GITHUB_REPOSITORY_NAME - Repository name to fetch
   __hookVersionLive() {
     local handler="_${FUNCNAME[0]}"
 
