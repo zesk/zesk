@@ -14,6 +14,10 @@
 if source "${BASH_SOURCE[0]%/*}/tools.sh"; then
 
   # Zesk PHP shell
+  # - `zeskCompose build` - build containers for testing etc.
+  # - `zeskPrepareRelease`
+  # - `zeskPHPIdenticalRepair`
+  # - `zeskPR` - Open URL to new PR
   __zeskPHPDeveloperContext() {
     local handler="_return"
     local home
@@ -44,11 +48,11 @@ if source "${BASH_SOURCE[0]%/*}/tools.sh"; then
     pathConfigure --last "$home/bin" "$home/vendor/bin"
 
     catchReturn "$handler" muzzle reloadChanges --stop --quiet || return $?
-    catchReturn "$handler" reloadChanges --name "$name" "$home/bin/tools.sh" "$home/bin/tools/" || return $?
+    catchReturn "$handler" muzzle reloadChanges --name "$name" "$home/bin/tools.sh" "$home/bin/tools/" || return $?
 
-    export BUILD_PROJECT_DEACTIVATE
+    export BUILD_PROJECT_DEACTIVATE="${FUNCNAME[0]}Undo"
 
-    BUILD_PROJECT_DEACTIVATE="${FUNCNAME[0]}Undo"
+    simpleMarkdownToConsole < <(bashFunctionComment "${BASH_SOURCE[0]}" "${FUNCNAME[0]}")
 
     unset "${FUNCNAME[0]}"
   }

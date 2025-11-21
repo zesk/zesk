@@ -62,6 +62,7 @@ class LockTest extends ModelTestCase
 		if (($secondPid = pcntl_fork()) === 0) {
 			/* I am now the child */
 			$lock->entityManager()->getConnection()->close();
+			sleep(0);
 			$childLock = Lock::instance($this->testApplication, $childName);
 			$crackLock = Lock::instance($this->testApplication, $crackChildName);
 			$parentLock = Lock::instance($this->testApplication, $parentName);
@@ -109,6 +110,7 @@ class LockTest extends ModelTestCase
 		} else {
 			/* I am the parent, close database connection and reconnect (give connection to child). */
 			$lock->entityManager()->getConnection()->close();
+			sleep(0);
 			$childLock = Lock::instance($this->testApplication, $childName);
 			$parentCrackLock = Lock::instance($this->testApplication, $crackChildName);
 			$start = microtime(true);
