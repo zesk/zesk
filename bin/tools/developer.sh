@@ -38,3 +38,30 @@ _zeskPHPDevelopmentLink() {
 zeskPR() {
   bitbucketPRNew "$@"
 }
+
+# Update the `vendor/bin` binaries with the latest from the vendor Zesk directory.
+zeskVendorBin() {
+  local handler="_${FUNCNAME[0]}"
+  local home
+
+  home=$(catchReturn "$handler" buildHome) || return $?
+
+  local binDir="$home/vendor/bin"
+  [ -d "$binDir" ] || throwEnvironment "$handler" "Missing $binDir" || return $?
+
+  local zeskHome="$home/vendor/zesk/zesk"
+  [ -d "$zeskHome" ] || throwEnvironment "$handler" "Missing $zeskHome" || return $?
+
+  local binary
+  for binary in "zesk.sh" "zesk-command.php"; do
+    if [ ! -f "$binDir/$binary" ] || muzzle diff -q "$zeskHome/bin/$binary" "$binDir/$binary"; then
+      catchEnvironment "$handler" cp "$zeskHome/bin/$binary" "$binDir/$binary" || return $?
+      statusMessage --last decorate info "Updated $(decorate file "$binDir/$binary")"
+    fi
+  done
+}
+
+_zeskVendorBin() {
+  # __IDENTICAL__ usageDocument 1
+  usageDocument "${BASH_SOURCE[0]}" "${FUNCNAME[0]#_}" "$@"
+}

@@ -72,7 +72,7 @@ __link() {
 
   [ -e "$path/$target" ] || throwEnvironment "$handler" "$path/$target must be a file or directory" || return $?
 
-  local link="$here/$linkName" source="$path/$target"
+  local link="$path/$linkName" source="$path/$target"
   if [ ! -L "$link" ]; then
     if [ -f "$link" ]; then
       throwEnvironment "$handler" "$(decorate file "$link") exists and was not a link $(decorate code "$(fileType "$link")")" || :
@@ -94,14 +94,18 @@ __link() {
 # zeskCommand ... - The zesk command to run. Try `help` or `info`. Argument after the command are parsed by the command itself.
 __zesk() {
   local me="${BASH_SOURCE[0]}"
-  local here="${me%/*}"
-  local tools="$here/build/tools.sh"
+  local home="${me%/*}"
   local handler="_${FUNCNAME[0]}"
+
+  if [ "${me#*/vendor/bin/}" != "$me" ]; then
+    home="$home/../zesk/zesk/bin"
+  fi
+  local tools="$home/build/tools.sh"
 
   # shellcheck source=/dev/null
   source "$tools" || _return 1 "Loading $tools" || return $?
 
-  catchEnvironment "$handler" bashSourcePath "$here/tools/" || return $?
+  catchEnvironment "$handler" bashSourcePath "$home/tools/" || return $?
 
   if [ "${me%.sh}" != "$me" ]; then
     catchEnvironment "$handler" linkCreate --no-backup "${BASH_SOURCE[0]}" zesk || return $?

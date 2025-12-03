@@ -17,8 +17,7 @@
   },
   "bin": [
     "bin/zesk.sh",
-    "bin/zesk-command.php",
-    "bin/zesk"
+    "bin/zesk-command.php"
   ],
   "description": "The Zesk Application Framework",
   "extra": {
