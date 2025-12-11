@@ -15,8 +15,8 @@ if source "${BASH_SOURCE[0]%/*}/tools.sh"; then
 
   # Zesk PHP shell
   # - `zeskCompose build` - build containers for testing etc.
-  # - `zeskPrepareRelease`
-  # - `zeskPHPIdenticalRepair`
+  # - `zeskPrepareRelease` - prepare for a release
+  # - `zeskIdenticalRepair` - run identical check and repair across the project
   # - `zeskPR` - Open URL to new PR
   __zeskPHPDeveloperContext() {
     local handler="_return"
