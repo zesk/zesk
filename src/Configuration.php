@@ -32,8 +32,8 @@ class Configuration implements Iterator, Countable, ArrayAccess
 	public function __serialize(): array
 	{
 		return [
-			'path' => $this->path,
-			'keys' => $this->keys,
+			'path'     => $this->path,
+			'keys'     => $this->keys,
 			'readOnly' => $this->readOnly,
 		];
 		// return array_merge(..., parent::__serialize());
@@ -321,6 +321,19 @@ class Configuration implements Iterator, Countable, ArrayAccess
 	{
 		$path = $this->getPath($path);
 		return is_string($path) ? $path : $default;
+	}
+
+	/**
+	 * Retrieve a path and fetch a boolean value
+	 *
+	 * @param string|array $path
+	 * @param bool $default
+	 * @return bool
+	 */
+	public function getPathBool(string|array $path, bool $default = false): bool
+	{
+		$value = $this->getPath($path);
+		return is_scalar($value) ? Types::toBool($value, $default) : $default;
 	}
 
 	/**
