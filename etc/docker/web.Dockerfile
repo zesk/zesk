@@ -31,13 +31,13 @@ RUN /usr/local/sbin/install.sh __installDevelopment
 COPY .env /tmp/application.conf
 # -- phpContainerDockerPrefix
 
+RUN /usr/local/sbin/install.sh __installEnvironment /tmp/application.conf "$APPLICATION_CONF" "$APPLICATION_HOME" "$APPLICATION_PREFIX" PHP_IDE_CONFIG XDEBUG_CLIENT_HOST APPLICATION_USER LOG_HOME
+RUN chmod 640 "$APPLICATION_CONF" && chown "root:$APPLICATION_USER" "$APPLICATION_CONF"
+
 ADD . "$APPLICATION_HOME"
 
 # ===========================================================================
 # -- Middle part --
-
-RUN /usr/local/sbin/install.sh __installEnvironment /tmp/application.conf "$APPLICATION_CONF" "$APPLICATION_HOME" "$APPLICATION_PREFIX" PHP_IDE_CONFIG XDEBUG_CLIENT_HOST APPLICATION_USER LOG_HOME
-RUN chmod 640 "$APPLICATION_CONF" && chown "root:$APPLICATION_USER" "$APPLICATION_CONF"
 
 RUN mkdir -p "$LOG_HOME" && chmod 770 "$LOG_HOME" && chown "root:$APPLICATION_USER" "$LOG_HOME"
 
@@ -51,8 +51,8 @@ RUN /usr/local/sbin/install.sh __mapFiles /usr/local/etc/php
 COPY composer.json /tmp/composer.json
 RUN /usr/local/sbin/install.sh __installPHP /tmp/composer.json
 
-RUN /usr/local/sbin/install.sh __installPHPXdebug
-RUN date > /etc/xdebug-enabled
+RUN /usr/local/sbin/install.sh __installPHPXdebug && date > /etc/xdebug-enabled
+COPY etc/docker/xdebug.ini /usr/local/etc/php/conf.d/MAP.xdebug.ini
 
 # -- Middle part end --
 # ===========================================================================

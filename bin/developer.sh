@@ -15,8 +15,8 @@ if source "${BASH_SOURCE[0]%/*}/tools.sh"; then
 
   # Zesk PHP shell
   # - `zeskCompose build` - build containers for testing etc.
-  # - `zeskPrepareRelease`
-  # - `zeskPHPIdenticalRepair`
+  # - `zeskPrepareRelease` - prepare for a release
+  # - `zeskIdenticalRepair` - run identical check and repair across the project
   # - `zeskPR` - Open URL to new PR
   __zeskPHPDeveloperContext() {
     local handler="_return"
@@ -53,6 +53,13 @@ if source "${BASH_SOURCE[0]%/*}/tools.sh"; then
     export BUILD_PROJECT_DEACTIVATE="${FUNCNAME[0]}Undo"
 
     simpleMarkdownToConsole < <(bashFunctionComment "${BASH_SOURCE[0]}" "${FUNCNAME[0]}")
+
+    # IDENTICAL developerPHPContainer 5
+    # php-container
+    export PHP_CONTAINER_DEVELOPMENT_HOME
+    buildEnvironmentLoad PHP_CONTAINER_DEVELOPMENT_HOME
+    [ -z "${PHP_CONTAINER_DEVELOPMENT_HOME-}" ] || muzzle phpContainerSync
+    # END OF IDENTICAL developerPHPContainer
 
     unset "${FUNCNAME[0]}"
   }

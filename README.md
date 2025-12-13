@@ -16,6 +16,8 @@ Copyright &copy; [Market Acumen, Inc.](https://marketacumen.com/?crsource=zesk-r
 
 See [the license to use Zesk](./LICENSE.md). (the MIT license)
 
+See [our security policies](./SECURITY.md). (and ways to submit security issues)
+
 See the [latest changes in the change log](./CHANGELOG.md).
 
 ## History

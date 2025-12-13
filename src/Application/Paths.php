@@ -255,9 +255,41 @@ class Paths
 		$this->directoryMode = $options->getInt(Application::OPTION_DIRECTORY_CREATE_MODE, Application::MODE_DIRECTORY_CREATE);
 		$options->set($this->_initializeZesk() + $this->_updateConfiguration());
 		if (!$this->temporary) {
-			$this->temporary = Directory::depend($this->home('.cache'));
+			$this->_temporaryDefault($options->getString(Application::OPTION_CACHE_SUFFIX, self::CACHE_SUFFIX));
 		}
 		$this->configured = true;
+	}
+
+	public const CACHE_SUFFIX = '.zeskCache';
+
+	/**
+	 * @param array $directories
+	 * @return string|null
+	 */
+	private static function _temporaryDirectory(array $directories = []): string|null
+	{
+		$directories = array_merge([$_SERVER['TMPDIR'] ?? null, '/var/tmp', '/tmp'], $directories);
+		foreach ($directories as $try) {
+			if (is_string($try) && is_dir($try)) {
+				return "$try";
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * @param string $suffix
+	 * @return void
+	 * @throws DirectoryCreate
+	 * @throws DirectoryPermission
+	 */
+	private function _temporaryDefault(string $suffix = self::CACHE_SUFFIX): void
+	{
+		$temp = self::_temporaryDirectory([$this->home]);
+		if ($temp) {
+			$this->temporary = Directory::path($temp, $suffix);
+			Directory::depend($this->temporary);
+		}
 	}
 
 	/**

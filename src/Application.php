@@ -347,6 +347,11 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 	public const OPTION_CACHE_HOME = 'cachePath';
 
 	/**
+	 * Value is a basename of directory created automatically for temporary files. Default is `.cache`
+	 */
+	public const OPTION_CACHE_SUFFIX = 'cacheSuffix';
+
+	/**
 	 * "Read-only" option which contains the Zesk Root path.
 	 */
 	public const OPTION_ZESK_ROOT = 'zeskRoot';
@@ -1126,9 +1131,10 @@ class Application extends Hookable implements ModelFactory, HookSource, LoggerIn
 			if (!in_array($path, $this->zeskCommandPath)) {
 				$this->zeskCommandPath[] = $path;
 			} else {
-				$this->logger->debug('{method}: did not add "{path}" because it already exists', [
+				$this->logger->debug('{method}: did not add "{path}" because it already exists (Called from {calling})', [
 					'method' => __METHOD__,
 					'path' => $path,
+					'calling' => Kernel::callingFunction(),
 				]);
 			}
 		}
