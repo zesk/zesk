@@ -41,7 +41,8 @@ use zesk\Module as BaseModule;
 use zesk\Types;
 use zesk\URL;
 
-class Module extends BaseModule {
+class Module extends BaseModule
+{
 	/**
 	 *
 	 */
@@ -197,7 +198,7 @@ class Module extends BaseModule {
 	{
 		if (is_string($dsn)) {
 			return $dsn;
-		} else if (is_array($dsn)) {
+		} elseif (is_array($dsn)) {
 			$dsn['scheme'] ??= $dsn['driver'] ?? null;
 			$requiredKeys = [
 				'driver',
@@ -257,7 +258,7 @@ class Module extends BaseModule {
 					$name,
 				], 'Invalid URL {dsn}', ['dsn' => $dsn], $e);
 			}
-		} else if (is_array($dsn)) {
+		} elseif (is_array($dsn)) {
 			$parts = $dsn;
 		} else {
 			throw new ConfigurationException([
@@ -396,7 +397,7 @@ class Module extends BaseModule {
 				if ($entity) {
 					$depend[$entity] = true;
 				}
-			} else if (is_string($mapping)) {
+			} elseif (is_string($mapping)) {
 				$depend[$mapping] = true;
 			}
 		}
