@@ -41,8 +41,7 @@ use zesk\Module as BaseModule;
 use zesk\Types;
 use zesk\URL;
 
-class Module extends BaseModule
-{
+class Module extends BaseModule {
 	/**
 	 *
 	 */
@@ -71,7 +70,7 @@ class Module extends BaseModule
 	private array $managers = [];
 
 	private static array $zeskTypes = [
-		Timestamp::TYPE => Timestamp::class,
+		Timestamp::TYPE   => Timestamp::class,
 		EnumBoolean::TYPE => EnumBoolean::class,
 	];
 
@@ -85,9 +84,8 @@ class Module extends BaseModule
 	{
 		parent::initialize();
 		foreach (self::$zeskTypes as $type => $class) {
-			try {
+			if (!Type::hasType($type)) {
 				Type::addType($type, $class);
-			} catch (TypesAlreadyExists) {
 			}
 		}
 		$this->eventManager = new EventManager($this->application);
@@ -199,23 +197,35 @@ class Module extends BaseModule
 	{
 		if (is_string($dsn)) {
 			return $dsn;
-		} elseif (is_array($dsn)) {
+		} else if (is_array($dsn)) {
 			$dsn['scheme'] ??= $dsn['driver'] ?? null;
-			$requiredKeys = ['driver', 'host', 'user', 'password', 'name'];
+			$requiredKeys = [
+				'driver',
+				'host',
+				'user',
+				'password',
+				'name',
+			];
 			foreach ($requiredKeys as $key) {
 				if (!isset($dsn[$key])) {
-					throw new UnsupportedException('No {key} in connection settings keys: {keys}', ['keys' => array_keys($dsn), 'key' => $key]);
+					throw new UnsupportedException('No {key} in connection settings keys: {keys}', [
+						'keys' => array_keys($dsn),
+						'key'  => $key,
+					]);
 				}
 				if (!empty($dsn[$key])) {
-					throw new UnsupportedException('Empty {key} in connection settings keys: {keys}', ['keys' => array_keys($dsn), 'key' => $key]);
+					throw new UnsupportedException('Empty {key} in connection settings keys: {keys}', [
+						'keys' => array_keys($dsn),
+						'key'  => $key,
+					]);
 				}
 			}
 			$urlParts = [
-				'scheme' => $dsn['driver'],
-				'user' => $dsn['user'],
+				'scheme'   => $dsn['driver'],
+				'user'     => $dsn['user'],
 				'password' => $dsn['password'],
-				'host' => $dsn['host'],
-				'path' => $dsn['path'] ?? '/' . $dsn['name'],
+				'host'     => $dsn['host'],
+				'path'     => $dsn['path'] ?? '/' . $dsn['name'],
 			];
 			return URL::stringify($urlParts);
 		} else {
@@ -247,7 +257,7 @@ class Module extends BaseModule
 					$name,
 				], 'Invalid URL {dsn}', ['dsn' => $dsn], $e);
 			}
-		} elseif (is_array($dsn)) {
+		} else if (is_array($dsn)) {
 			$parts = $dsn;
 		} else {
 			throw new ConfigurationException([
@@ -386,7 +396,7 @@ class Module extends BaseModule
 				if ($entity) {
 					$depend[$entity] = true;
 				}
-			} elseif (is_string($mapping)) {
+			} else if (is_string($mapping)) {
 				$depend[$mapping] = true;
 			}
 		}
