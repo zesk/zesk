@@ -82,6 +82,10 @@ Version 1.0 of Zesk will have:
 - Added `zesk\Doctrine\Module::dsnFromMixed`
 - Adding `zeskPR` and associated environment files
 - php 8.1 only
+- `php-container` updates
+- Added `PHP_CONTAINER_DEVELOPMENT_HOME` and `phpContainerSync`
+- Security policy
+- fixing type registration in Doctrine
 
 ## [v0.31.2][]
 

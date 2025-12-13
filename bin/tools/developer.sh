@@ -18,13 +18,13 @@ zeskPHPDevelopmentLink() {
     # __IDENTICAL__ __checkBlankArgumentHandler 1
     [ -n "$argument" ] || throwArgument "$handler" "blank #$__index/$__count ($(decorate each quote -- "${__saved[@]}"))" || return $?
     case "$argument" in
-    # _IDENTICAL_ helpHandler 1
-    --help) "$handler" 0 && return $? || return $? ;;
-    --reset | --copy) ;;
-    *)
-      # _IDENTICAL_ argumentUnknownHandler 1
-      throwArgument "$handler" "unknown #$__index/$__count \"$argument\" ($(decorate each code -- "${__saved[@]}"))" || return $?
-      ;;
+      # _IDENTICAL_ helpHandler 1
+      --help) "$handler" 0 && return $? || return $? ;;
+      --reset | --copy) ;;
+      *)
+        # _IDENTICAL_ argumentUnknownHandler 1
+        throwArgument "$handler" "unknown #$__index/$__count \"$argument\" ($(decorate each code -- "${__saved[@]}"))" || return $?
+        ;;
     esac
     shift
   done
@@ -40,6 +40,7 @@ zeskPR() {
 }
 
 # Update the `vendor/bin` binaries with the latest from the vendor Zesk directory.
+# Intended to be used in *other* projects which use this library, not for this library itself
 zeskVendorBin() {
   local handler="_${FUNCNAME[0]}"
   local home

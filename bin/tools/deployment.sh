@@ -21,15 +21,15 @@ zeskPrepareRelease() {
     # __IDENTICAL__ __checkBlankArgumentHandler 1
     [ -n "$argument" ] || throwArgument "$handler" "blank #$__index/$__count ($(decorate each quote -- "${__saved[@]}"))" || return $?
     case "$argument" in
-    # _IDENTICAL_ helpHandler 1
-    --help) "$handler" 0 && return $? || return $? ;;
-    --force)
-      forceWrite=true
-      ;;
-    *)
-      # _IDENTICAL_ argumentUnknownHandler 1
-      throwArgument "$handler" "unknown #$__index/$__count \"$argument\" ($(decorate each code -- "${__saved[@]}"))" || return $?
-      ;;
+      # _IDENTICAL_ helpHandler 1
+      --help) "$handler" 0 && return $? || return $? ;;
+      --force)
+        forceWrite=true
+        ;;
+      *)
+        # _IDENTICAL_ argumentUnknownHandler 1
+        throwArgument "$handler" "unknown #$__index/$__count \"$argument\" ($(decorate each code -- "${__saved[@]}"))" || return $?
+        ;;
     esac
     # _IDENTICAL_ argument-esac-shift 1
     shift
@@ -38,6 +38,7 @@ zeskPrepareRelease() {
   local yml home
 
   home=$(catchReturn "$handler" buildHome) || return $?
+
   yml="$home/docker-compose.yml"
 
   [ -f "$yml" ] || throwEnvironment "$handler" "Requires $(decorate file "$yml")" || return $?
@@ -76,6 +77,9 @@ zeskPrepareRelease() {
   statusMessage decorate info "Cleaning ..."
   catchEnvironment "$handler" dockerComposeWrapper -f "$yml" exec web bash -c 'cd /var/www/app && ./vendor/bin/php-cs-fixer fix' || return $?
 
+  statusMessage decorate info "Composer update ..."
+  catchEnvironment "$handler" dockerComposeWrapper -f "$yml" exec web bash -c 'cd /var/www/app && bin/tools.sh phpComposer . update' || return $?
+
   local nLines
   #
   # Make sure repository state seems sane
@@ -83,7 +87,9 @@ zeskPrepareRelease() {
   nLines=$(($(git status --short | wc -l | awk '{ print $1 }') + 0))
   if [ $nLines -gt 0 ]; then
     catchEnvironment "$handler" git status --short || return $?
-    pause "Current git status, ok?"
+    if ! confirmYesNo --timeout 30 "Current git status, ok?"; then
+      return "$(returnCode exit)"
+    fi
   else
     statusMessage decorate info "Git status is clean."
   fi
