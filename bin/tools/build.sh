@@ -32,21 +32,22 @@ zeskPipelineSetup() {
     # __IDENTICAL__ __checkBlankArgumentHandler 1
     [ -n "$argument" ] || throwArgument "$handler" "blank #$__index/$__count ($(decorate each quote -- "${__saved[@]}"))" || return $?
     case "$argument" in
-    # _IDENTICAL_ helpHandler 1
-    --help) "$handler" 0 && return $? || return $? ;;
-    --clean)
-      cleanFlag=true
-      statusMessage decorate info "Clean install ..."
-      shift
-      ;;
-    --staging)
-      versionArgs+=("--staging")
-      statusMessage decorate info "Staging ..."
-      shift
-      ;;
-    *)
-      break
-      ;;
+      # _IDENTICAL_ helpHandler 1
+      --help) "$handler" 0 && return $? || return $? ;;
+      --clean)
+        cleanFlag=true
+        statusMessage decorate info "Clean install ..."
+        shift
+        ;;
+      --staging)
+        versionArgs+=("--suffix d")
+        export BUILD_VERSION_SUFFIX="d"
+        statusMessage decorate info "Staging ..."
+        shift
+        ;;
+      *)
+        break
+        ;;
     esac
     # _IDENTICAL_ argument-esac-shift 1
     shift

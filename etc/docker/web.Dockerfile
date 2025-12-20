@@ -28,6 +28,7 @@ COPY bin/build/ /usr/local/bin/build/
 RUN /usr/local/sbin/install.sh
 RUN /usr/local/sbin/install.sh __installBase
 RUN /usr/local/sbin/install.sh __installDevelopment
+
 COPY .env /tmp/application.conf
 # -- phpContainerDockerPrefix
 
