@@ -12,6 +12,28 @@
 
 # shellcheck source=/dev/null
 if source "${BASH_SOURCE[0]%/*}/tools.sh"; then
+  # ## Docker container commands
+  # - `Dc` `Dcd` `Dcu` - Docker Compose, bring containers down, bring containers up
+  # - `zeskBash` `suZeskBash` - Connect to the docker web container as `www-data` or `root`
+  # - `zeskConnect` - Connect to the container database engine as `root`
+  # - `suZeskDatabase` - Connect to the database container as `root`
+  __zeskPHPDeveloperContextDocker() {
+    if whichExists docker; then
+      alias Dc='docker compose'
+      alias Dcu='Dc up -d'
+      alias Dcd='Dc down --remove-orphans'
+      # shellcheck disable=SC2139
+      alias zeskBash="__dockerPHPExec \"$home\" web www-data bash"
+      # shellcheck disable=SC2139
+      alias suZeskBash="__dockerPHPExec \"$home\" web root bash"
+      # shellcheck disable=SC2139
+      alias suZeskDatabase="__dockerPHPExec \"$home\" db root bash "
+      # shellcheck disable=SC2139
+      alias zeskConnect="__dockerPHPExec \"$home\" db root /db-connect.sh"
+
+      markdownToConsole < <(bashFunctionComment "${BASH_SOURCE[0]}" "${FUNCNAME[0]}")
+    fi
+  }
 
   # Zesk PHP shell
   # - `zeskCompose build` - build containers for testing etc.
@@ -34,17 +56,6 @@ if source "${BASH_SOURCE[0]%/*}/tools.sh"; then
     alias z="$home/bin/zesk.sh"
     alias IdenticalRepair="zeskPHPIdenticalRepair"
 
-    if whichExists docker; then
-      # shellcheck disable=SC2139
-      alias zeskBash="__dockerPHPExec \"$home\" web www-data bash"
-      # shellcheck disable=SC2139
-      alias suZeskBash="__dockerPHPExec \"$home\" web root bash"
-      # shellcheck disable=SC2139
-      alias suZeskDB="__dockerPHPExec \"$home\" db root bash "
-      # shellcheck disable=SC2139
-      alias zeskDatabase="__dockerPHPExec \"$home\" db root /db-connect.sh"
-    fi
-
     pathConfigure --last "$home/bin" "$home/vendor/bin"
 
     catchReturn "$handler" muzzle reloadChanges --stop --quiet || return $?
@@ -53,6 +64,8 @@ if source "${BASH_SOURCE[0]%/*}/tools.sh"; then
     export BUILD_PROJECT_DEACTIVATE="${FUNCNAME[0]}Undo"
 
     markdownToConsole < <(bashFunctionComment "${BASH_SOURCE[0]}" "${FUNCNAME[0]}")
+
+    __zeskPHPDeveloperContextDocker
 
     # IDENTICAL developerPHPContainer 5
     # php-container

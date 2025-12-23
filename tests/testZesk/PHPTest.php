@@ -181,7 +181,7 @@ class PHPTest extends TestCase
 			],
 			[
 				PHP::FEATURE_TIME_LIMIT,
-				null,
+				10000,
 			],
 			[
 				'not-a-feature',
