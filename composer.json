@@ -21,7 +21,7 @@
   ],
   "description": "The Zesk Application Framework",
   "extra": {
-    "deprecated": "756e50c537be8fbfbe17a686d391349cac16c901"
+    "deprecated": "7fab50d420d8ae2ee1453f7a14371291f890fa39"
   },
   "homepage": "https://php.zesk.com",
   "keywords": [

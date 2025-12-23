@@ -52,7 +52,7 @@ if source "${BASH_SOURCE[0]%/*}/tools.sh"; then
 
     export BUILD_PROJECT_DEACTIVATE="${FUNCNAME[0]}Undo"
 
-    simpleMarkdownToConsole < <(bashFunctionComment "${BASH_SOURCE[0]}" "${FUNCNAME[0]}")
+    markdownToConsole < <(bashFunctionComment "${BASH_SOURCE[0]}" "${FUNCNAME[0]}")
 
     # IDENTICAL developerPHPContainer 5
     # php-container

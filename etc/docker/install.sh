@@ -25,28 +25,28 @@ __installDevelopment() {
 # Incomplete but add extensions as needed
 __phpExtensionDependency() {
   case "$1" in
-  curl)
-    if php -i | grep -q "with-curl"; then
+    curl)
+      if php -i | grep -q "with-curl"; then
+        return 1
+      fi
+      printf -- "%s\n" "libcurl4"
+      ;;
+    gd)
+      printf -- "%s\n" "zlib1g-dev" "libpng-dev" "libjpeg-dev"
+      ;;
+    # Built-in
+    json | readline | ftp)
       return 1
-    fi
-    printf -- "%s\n" "libcurl4"
-    ;;
-  gd)
-    printf -- "%s\n" "zlib1g-dev" "libpng-dev" "libjpeg-dev"
-    ;;
-  # Built-in
-  json | readline | ftp)
-    return 1
-    ;;
-  intl)
-    printf -- "%s\n" "libicu-dev"
-    ;;
-  zip)
-    printf -- "%s\n" "libzip-dev"
-    ;;
-  mysqli)
-    printf -- "%s\n" "mariadb-client"
-    ;;
+      ;;
+    intl)
+      printf -- "%s\n" "libicu-dev"
+      ;;
+    zip)
+      printf -- "%s\n" "libzip-dev"
+      ;;
+    mysqli)
+      printf -- "%s\n" "mariadb-client"
+      ;;
   esac
 }
 
@@ -117,6 +117,30 @@ __installPHP() {
 
 }
 
+# Install xdebug
+__installPHPXdebug() {
+  local iniFile
+
+  # shellcheck source=/dev/null
+  if [ "$(source /etc/application.conf && [ "$DEBUGGING" = "true" ] && printf -- "1")" != "1" ]; then
+    decorate warning "XDebug not installed"
+    return 0
+  fi
+  iniFile=$(phpIniFile)
+  if [ ! -f "$iniFile" ]; then
+    printf -- "%s\n" "$iniFile file not found" 1>&2
+    return 1
+  fi
+  # packageInstall php-dev
+  decorate info "Setting php ini path to $iniFile"
+  pear config-set php_ini "$iniFile"
+
+  decorate info "Installing xdebug ..."
+  pecl install xdebug >/dev/null
+
+  date >/etc/xdebug-enabled
+}
+
 # Tool to find any file name `MAP.*` and map it use it environment files to a new file name.
 # Files are renamed unless they exist in the `--keep` directories in which case the `MAP.` file is kept.
 #
@@ -135,18 +159,18 @@ __mapFiles() {
     # __IDENTICAL__ __checkBlankArgumentHandler 1
     [ -n "$argument" ] || throwArgument "$handler" "blank #$__index/$__count ($(decorate each quote -- "${__saved[@]}"))" || return $?
     case "$argument" in
-    # _IDENTICAL_ helpHandler 1
-    --help) "$handler" 0 && return $? || return $? ;;
-    --keep)
-      shift
-      local keep
-      keep=$(usageArgumentDirectory "$handler" "directory" "${1-}") || return $?
-      deleteArgs+=(! -path "${keep%/}")
-      ;;
-    *)
-      directory=$(usageArgumentDirectory "$handler" "directory" "${1-}") || return $?
-      directories+=("$directory")
-      ;;
+      # _IDENTICAL_ helpHandler 1
+      --help) "$handler" 0 && return $? || return $? ;;
+      --keep)
+        shift
+        local keep
+        keep=$(usageArgumentDirectory "$handler" "directory" "${1-}") || return $?
+        deleteArgs+=(! -path "${keep%/}")
+        ;;
+      *)
+        directory=$(usageArgumentDirectory "$handler" "directory" "${1-}") || return $?
+        directories+=("$directory")
+        ;;
     esac
     # _IDENTICAL_ argument-esac-shift 1
     shift
@@ -208,11 +232,11 @@ __productionValues() {
 # Argument: databaseSchema - String. Required.
 __portFromScheme() {
   case "${1-}" in
-  mysql*) printf "%d\n" 3306 ;;
-  postgres*) printf "%d\n" 5432 ;;
-  *)
-    throwArgument "$handler" "Unknown database scheme: \"$1\"" || return $?
-    ;;
+    mysql*) printf "%d\n" 3306 ;;
+    postgres*) printf "%d\n" 5432 ;;
+    *)
+      throwArgument "$handler" "Unknown database scheme: \"$1\"" || return $?
+      ;;
   esac
 }
 
@@ -333,23 +357,6 @@ __installEnvironment() {
     return 0
   fi
   throwEnvironment "$handler" statusMessage --last decorate error "$finalTarget does NOT exist" 1>&2 || return $?
-}
-
-# Install xdebug
-__installPHPXdebug() {
-  local iniFile
-
-  iniFile=$(phpIniFile)
-  if [ ! -f "$iniFile" ]; then
-    printf -- "%s\n" "$iniFile file not found" 1>&2
-    return 1
-  fi
-  # packageInstall php-dev
-  decorate info "Setting php ini path to $iniFile"
-  pear config-set php_ini "$iniFile"
-
-  decorate info "Installing xdebug ..."
-  pecl install xdebug >/dev/null
 }
 
 # IDENTICAL returnMessage 39
