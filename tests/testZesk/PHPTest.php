@@ -14,7 +14,8 @@ use zesk\PHP;
 /**
  * @coversDefaultClass \zesk\PHP
  */
-class PHPTest extends TestCase {
+class PHPTest extends TestCase
+{
 	public static function data_provider_clean_function(): array
 	{
 		return [
@@ -53,13 +54,13 @@ class PHPTest extends TestCase {
 	public function test_php_basics(): void
 	{
 		$this->assertFalse(!![]);
-		$this->assertTrue(!![1,]);
+		$this->assertTrue(!![1, ]);
 		$truthy = [
 			new stdClass(),
-			[1,],
-			['',],
-			[0,],
-			[null,],
+			[1, ],
+			['', ],
+			[0, ],
+			[null, ],
 		];
 		$falsy = [
 			0,
