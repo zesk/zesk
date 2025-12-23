@@ -40,7 +40,7 @@ zeskPipelineSetup() {
         shift
         ;;
       --staging)
-        versionArgs+=("--suffix d")
+        versionArgs+=("--suffix" "d")
         export BUILD_VERSION_SUFFIX="d"
         statusMessage decorate info "Staging ..."
         shift
