@@ -60,6 +60,7 @@ if whichExists docker; then
     local envs=(
       --arg DATABASE_ROOT_PASSWORD=zesk-applications
       --env CONTAINER_PORT_WEB=4071
+      --env CONTAINER_PORT_WEB=4071
       --env CONTAINER_PORT_DATABASE=4072
       --env XDEBUG_ENABLED=true
       --env PHP_IDE_KEY="serverName=zesk"
