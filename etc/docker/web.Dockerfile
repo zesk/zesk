@@ -52,7 +52,7 @@ RUN /usr/local/sbin/install.sh __mapFiles /usr/local/etc/php
 COPY composer.json /tmp/composer.json
 RUN /usr/local/sbin/install.sh __installPHP /tmp/composer.json
 
-RUN /usr/local/sbin/install.sh __installPHPXdebug && date > /etc/xdebug-enabled
+RUN /usr/local/sbin/install.sh __installPHPXdebug
 COPY etc/docker/xdebug.ini /usr/local/etc/php/conf.d/MAP.xdebug.ini
 
 # -- Middle part end --
