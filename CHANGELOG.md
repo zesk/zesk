@@ -86,6 +86,8 @@ Version 1.0 of Zesk will have:
 - Added `PHP_CONTAINER_DEVELOPMENT_HOME` and `phpContainerSync`
 - Security policy
 - fixing type registration in Doctrine
+- corrected naming and handling of common environment file to `.env`
+- rearrange docs
 
 ## [v0.31.2][]
 

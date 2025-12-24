@@ -1,14 +1,6 @@
-# Zesk Platform
+# Zesk Application Platform
 
-Zesk is an application development platform which solves many problems found in other development platforms:
-
-- Object-Oriented, PHP 5.2+ support only
-- Robust and flexible hook methodology
-- Toolkits to easily manage database schemas
-- MVC implementation
-- Class autoloading mechanism to simplify code dependencies
-- Integration with Composer
-- 135 Modules and growing
+Zesk is an application development platform.
 
 [About this documentation](readme.md). [Version history](versions.md). [Next release notes](current.md).
 

@@ -1,10 +1,9 @@
+/.env-ATTIC/
 /.bin/
 /.build/
 /.buildpath
-/.code-ATTIC/
 /.composer/
 /.fileCache/
-/.github.conf
 /.history/
 /.idea/*.iml
 /.idea/*.xml
@@ -19,10 +18,8 @@
 /.phpunit.result.cache/
 /.pipeline-key*
 /.project
-/.release-notes.md
 /.settings
 /.svn/
-/.update.json
 /.vscode/
 /.zesk-coverage/
 /*-min.js
