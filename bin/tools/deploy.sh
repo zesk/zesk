@@ -95,7 +95,7 @@ zeskDeploy() {
 
   local remoteChangeLog currentVersion
 
-  currentVersion=$(catchEnvironment "$handler" runHook version-current) || return $?
+  currentVersion=$(catchEnvironment "$handler" hookRun version-current) || return $?
 
   statusMessage decorate info "Generating release notes and CHANGELOG ... "
   start=$(catchReturn "$handler" timingStart) || return $?
