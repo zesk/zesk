@@ -140,7 +140,6 @@ zeskDeploy() {
   #========================================================================
   figlet "zesk $currentVersion OK"
   timingReport "$releaseStart" "Release complete."
-
 }
 _zeskDeploy() {
   # __IDENTICAL__ usageDocument 1
