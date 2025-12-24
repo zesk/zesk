@@ -193,7 +193,7 @@ zeskPHPBuild() {
   #
   # Build the Zesk docker image
   #
-  cleanArgs=()
+  local cleanArgs=()
   if $cleanFlag; then
     cleanArgs=("--no-cache" "--pull")
   fi
@@ -221,10 +221,8 @@ zeskPHPBuild() {
   catchEnvironment "$handler" executeEcho docker run -v "$(pwd)/:/zesk" zesk:latest /zesk/bin/test.sh "${ee[@]}" "$@" || returnClean $? "${clean[@]}" || return $?
   statusMessage timingReport "$start" "test.sh completed in"
 
-  catchEnvironment "$handler" rm -f "${clean[@]}" || return $?
-
   statusMessage decorate info "Tagging ..."
-  catchEnvironment "$handler" gitTagVersion "${versionArgs[@]}" || return $?
+  catchEnvironment "$handler" gitTagVersion "${versionArgs[@]}" || returnClean $? "${clean[@]}" || return $?
   statusMessage --last timingReport "$startSetup" "Setup complete."
 }
 _zeskPHPBuild() {
