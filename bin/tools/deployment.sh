@@ -79,6 +79,7 @@ zeskPrepareRelease() {
 
   statusMessage decorate info "Composer update ..."
   catchEnvironment "$handler" dockerComposeWrapper -f "$yml" exec web bash -c 'cd /var/www/app && bin/tools.sh phpComposer . update' || return $?
+  catchEnvironment "$handler" dockerComposeWrapper -f "$yml" exec web bash -c 'cd /var/www/app && composer update' || return $?
 
   local nLines
   #
