@@ -66,8 +66,13 @@ zeskPHPBuild() {
 
   local requireEnvironment=(
     DEPLOYMENT
-    GITHUB_REPOSITORY_OWNER GITHUB_REPOSITORY_NAME
-    DATABASE_PORT DATABASE_HOST CONTAINER_DATABASE_HOST
+    GITHUB_ACCESS_TOKEN
+    GITHUB_ACCESS_TOKEN_EXPIRE
+    GITHUB_REPOSITORY_OWNER
+    GITHUB_REPOSITORY_NAME
+    DATABASE_PORT
+    DATABASE_HOST
+    CONTAINER_DATABASE_HOST
   )
 
   quietLog=$(catchReturn "$handler" buildQuietLog "${FUNCNAME[0]}") || return $?
@@ -157,7 +162,7 @@ zeskPHPBuild() {
   # Writing environment file
   statusMessage decorate info "Generating environment artifact ... "
   clean+=("$dotEnv")
-  catchReturn "$handler" environmentFileApplicationMake -- GITHUB_ACCESS_TOKEN | catchEnvironment "$handler" muzzle tee "$dotEnv" || returnClean $? "${clean[@]}" || return $?
+  catchReturn "$handler" environmentFileApplicationMake -- GITHUB_ACCESS_TOKEN GITHUB_ACCESS_TOKEN_EXPIRE | catchEnvironment "$handler" muzzle tee "$dotEnv" || returnClean $? "${clean[@]}" || return $?
   environmentFileShow || :
 
   local randomPassword
