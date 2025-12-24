@@ -38,6 +38,7 @@ __zeskChangeLogGenerate() {
     prevVersion="$rawVersion"
   done
   catchEnvironment "$handler" muzzle popd || returnClean $? "${clean[@]}" || return $?
+  catchEnvironment "$handler" muzzle popd || returnClean $? "${clean[@]}" || return $?
   catchEnvironment "$handler" cat "$releasePath/footer.md" || returnClean $? "${clean[@]}" || return $?
   catchEnvironment "$handler" cat "$linksSuffix" || returnClean $? "${clean[@]}" || return $?
   catchEnvironment "$handler" rm "$linksSuffix" || return $?
@@ -86,6 +87,8 @@ zeskDeploy() {
 
   export "${ee[@]}"
 
+  whichExists --any figlet toilet || catchReturn "$handler" packageInstall toilet || return $?
+
   home=$(catchReturn "$handler" buildHome) || return $?
   releaseDate=$(catchEnvironment "$handler" date) || return $?
   releaseStart=$(catchReturn "$handler" timingStart) || return $?
@@ -115,7 +118,10 @@ zeskDeploy() {
   #   / /  __/\__ \   <
   #  /___\___||___/_|\_\
   #
-  figlet "zesk $currentVersion"
+  bigText "zesk $currentVersion"
+  local appId
+  appId="$(catchReturn "$handler" hookRun application-id)" || return $?
+  decorate pair "Application ID" "$appId"
 
   #========================================================================
   #
@@ -126,7 +132,7 @@ zeskDeploy() {
   decorate info -n "Mark release in GitHub ... "
   usageRequireEnvironment "$handler" GITHUB_ACCESS_TOKEN GITHUB_REPOSITORY_OWNER GITHUB_REPOSITORY_NAME || return $?
   start=$(catchReturn "$handler" timingStart) || return $?
-  githubRelease --token "$GITHUB_ACCESS_TOKEN" --owner "$GITHUB_REPOSITORY_OWNER" --name "$GITHUB_REPOSITORY_NAME" "$remoteChangeLog" "$currentVersion" || return $?
+  githubRelease --token "$GITHUB_ACCESS_TOKEN" --owner "$GITHUB_REPOSITORY_OWNER" --name "$GITHUB_REPOSITORY_NAME" "$remoteChangeLog" "$currentVersion" "$appId" || return $?
   printf "%s\n\n" "$(timingReport "$start" OK)"
 
   #========================================================================
@@ -145,7 +151,7 @@ zeskDeploy() {
   decorate decoration "$(echoBar)"
   printf "%s\n\n" "$(timingReport "$start" OK)"
   #========================================================================
-  figlet "zesk $currentVersion OK"
+  bigText "zesk $currentVersion OK"
   timingReport "$releaseStart" "Release complete."
 }
 _zeskDeploy() {
