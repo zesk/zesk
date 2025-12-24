@@ -38,7 +38,6 @@ __zeskChangeLogGenerate() {
     prevVersion="$rawVersion"
   done
   catchEnvironment "$handler" muzzle popd || returnClean $? "${clean[@]}" || return $?
-  catchEnvironment "$handler" muzzle popd || returnClean $? "${clean[@]}" || return $?
   catchEnvironment "$handler" cat "$releasePath/footer.md" || returnClean $? "${clean[@]}" || return $?
   catchEnvironment "$handler" cat "$linksSuffix" || returnClean $? "${clean[@]}" || return $?
   catchEnvironment "$handler" rm "$linksSuffix" || return $?
@@ -109,7 +108,7 @@ zeskDeploy() {
   statusMessage decorate info "Generating release notes and CHANGELOG ... "
   start=$(catchReturn "$handler" timingStart) || return $?
   remoteChangeLog=$(__zeskChangeLog "$handler" "$currentVersion") || return $?
-  statusMessage --first timingReport "$start" OK
+  timingReport "$start" OK
 
   #========================================================================
   #                _
@@ -129,10 +128,10 @@ zeskDeploy() {
   # release notes.
   #
 
-  decorate info -n "Mark release in GitHub ... "
-  usageRequireEnvironment "$handler" GITHUB_ACCESS_TOKEN GITHUB_REPOSITORY_OWNER GITHUB_REPOSITORY_NAME || return $?
+  statusMessage decorate info "Mark release in GitHub ... "
+  usageRequireEnvironment "$handler" GITHUB_ACCESS_TOKEN GITHUB_ACCESS_TOKEN_EXPIRE GITHUB_REPOSITORY_OWNER GITHUB_REPOSITORY_NAME || return $?
   start=$(catchReturn "$handler" timingStart) || return $?
-  githubRelease --token "$GITHUB_ACCESS_TOKEN" --owner "$GITHUB_REPOSITORY_OWNER" --name "$GITHUB_REPOSITORY_NAME" "$remoteChangeLog" "$currentVersion" "$appId" || return $?
+  githubRelease --token "$GITHUB_ACCESS_TOKEN" --owner "$GITHUB_REPOSITORY_OWNER" --name "$GITHUB_REPOSITORY_NAME" --expire "$GITHUB_ACCESS_TOKEN_EXPIRE" "$remoteChangeLog" "$currentVersion" "$appId" || return $?
   printf "%s\n\n" "$(timingReport "$start" OK)"
 
   #========================================================================
