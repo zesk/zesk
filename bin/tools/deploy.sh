@@ -85,7 +85,7 @@ zeskDeploy() {
   releaseStart=$(catchReturn "$handler" timingStart) || return $?
 
   catchReturn "$handler" buildEnvironmentLoad "${ee[@]}" || return $?
-  catchReturn "$handler" environmentFileLoad --optional "$home/.local.env" --required "$home/.env" || return $?
+  catchReturn "$handler" environmentFileLoad --optional "$home/.local.env" --require "$home/.env" || return $?
 
   [ -d "$home/.git" ] || throwEnvironment "$handler" "Missing .git directory" || return $?
 
