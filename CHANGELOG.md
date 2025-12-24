@@ -74,7 +74,7 @@ Version 1.0 of Zesk will have:
 - removing `version` from `composer.json`
 - Adding `shellcheck` to test image
 - Fixing how environment gets passed to tests (connection problems)
-- zeskBin uses alias
+- `zeskBin` uses alias
 - fixed path issue with ProcessToolsTest.php
 - new table name `Locks`
 - need way to rename tables via configuration or something

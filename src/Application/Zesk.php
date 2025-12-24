@@ -28,7 +28,8 @@ use zesk\Version;
 /**
  * Used internally for deployment and version management
  */
-class Zesk extends Application {
+class Zesk extends Application
+{
 	public string $file = __FILE__;
 
 	/**

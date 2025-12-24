@@ -12,11 +12,13 @@
 
 # shellcheck source=/dev/null
 if source "${BASH_SOURCE[0]%/*}/tools.sh"; then
-  # ## Docker container commands
+  # Docker container commands
+  #
   # - `Dc` `Dcd` `Dcu` - Docker Compose, bring containers down, bring containers up
   # - `zeskBash` `suZeskBash` - Connect to the docker web container as `www-data` or `root`
   # - `zeskConnect` - Connect to the container database engine as `root`
   # - `suZeskDatabase` - Connect to the database container as `root`
+  #
   __zeskPHPDeveloperContextDocker() {
     if whichExists docker; then
       alias Dc='docker compose'
@@ -36,10 +38,12 @@ if source "${BASH_SOURCE[0]%/*}/tools.sh"; then
   }
 
   # Zesk PHP shell
+  #
   # - `zeskCompose build` - build containers for testing etc.
   # - `zeskPrepareRelease` - prepare for a release
   # - `zeskIdenticalRepair` - run identical check and repair across the project
   # - `zeskPR` - Open URL to new PR
+  #
   __zeskPHPDeveloperContext() {
     local handler="_return"
     local home
