@@ -137,7 +137,7 @@ zeskPHPBuild() {
   catchEnvironment "$handler" phpComposer "${dd[@]+"${dd[@]}"}" "$home" || return $?
   statusMessage timingReport "$start" "composer completed in"
 
-  local dotEnv="$home/.env" clean=()
+  local dotEnv="$home/.zesk.env" clean=()
 
   #
   # Connect to the database and set up test schema
@@ -154,7 +154,7 @@ zeskPHPBuild() {
   statusMessage decorate info "Loading schema ... "
   start=$(catchReturn "$handler" timingStart) || return $?
 
-  # Writing .env file
+  # Writing environment file
   statusMessage decorate info "Generating environment artifact ... "
   clean+=("$dotEnv")
   catchReturn "$handler" environmentFileApplicationMake -- GITHUB_ACCESS_TOKEN | catchEnvironment "$handler" muzzle tee "$dotEnv" || returnClean $? "${clean[@]}" || return $?
@@ -173,7 +173,8 @@ zeskPHPBuild() {
     done
   } >>"$dotEnv" || returnClean $? "${clean[@]}" || return $?
 
-  dumpPipe ".env:" <"$dotEnv"
+  # shellcheck disable=SC2094
+  dumpPipe "$(decorate file "$dotEnv")" <"$dotEnv"
   environmentFileLoad "$dotEnv" --execute mapEnvironment <"$home/etc/docker/schema.sql" | dumpPipe "Schema:" || :
 
   catchReturn "$handler" environmentFileLoad "$dotEnv" --execute mapEnvironment <./etc/docker/schema.sql | catchEnvironment "$handler" mariadbConnect "${rootDSN[@]}" >>"$quietLog" || buildFailed "$quietLog" || returnClean $? "${clean[@]}" || return $?
