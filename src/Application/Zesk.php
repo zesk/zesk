@@ -28,8 +28,7 @@ use zesk\Version;
 /**
  * Used internally for deployment and version management
  */
-class Zesk extends Application
-{
+class Zesk extends Application {
 	public string $file = __FILE__;
 
 	/**
@@ -45,8 +44,8 @@ class Zesk extends Application
 		try {
 			$logger->setLevels([
 				LogLevel::NOTICE => true,
-				LogLevel::INFO => true,
-				LogLevel::DEBUG => false,
+				LogLevel::INFO   => true,
+				LogLevel::DEBUG  => false,
 			]);
 		} catch (KeyNotFound) {
 			throw new RuntimeException('Where did we go wrong');
@@ -83,7 +82,7 @@ class Zesk extends Application
 	{
 		$version = $data['version'];
 		$stringVersion = "v$version";
-		$releaseNotes = $this->path("docs/release/$stringVersion.md");
+		$releaseNotes = $this->path("documentation/source/release/$stringVersion.md");
 		if (!file_exists($releaseNotes)) {
 			File::put($releaseNotes, "# [$stringVersion][]\n\n- Great new things\n");
 			$this->process->executeArguments('git add {x}', ['x' => $releaseNotes]);
