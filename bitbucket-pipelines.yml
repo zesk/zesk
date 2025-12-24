@@ -25,7 +25,7 @@ pipelines:
           services:
             - mariadb
           artifacts:
-            - .zesk.env
+            - .env
             - .release-notes.md
             - phpunit-testcase-last.json
             - test-results/
@@ -50,7 +50,7 @@ pipelines:
           services:
             - mariadb
           artifacts:
-            - .zesk.env
+            - .env
             - .release-notes.md
             - phpunit-testcase-last.json
             - test-results/

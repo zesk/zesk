@@ -137,7 +137,7 @@ zeskPHPBuild() {
   catchEnvironment "$handler" phpComposer "${dd[@]+"${dd[@]}"}" "$home" || return $?
   statusMessage timingReport "$start" "composer completed in"
 
-  local dotEnv="$home/.zesk.env" clean=()
+  local dotEnv="$home/.env" clean=()
 
   #
   # Connect to the database and set up test schema
