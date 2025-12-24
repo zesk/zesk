@@ -19,11 +19,17 @@
     "bin/zesk.sh",
     "bin/zesk-command.php"
   ],
+  "deprecated": "a08adee9806c8dc34292b8dd8ef71b36adc268bf",
   "description": "The Zesk Application Framework",
   "extra": {
     "deprecated": "7fab50d420d8ae2ee1453f7a14371291f890fa39"
   },
+  "fingerprint": "a08adee9806c8dc34292b8dd8ef71b36adc268bf",
   "homepage": "https://php.zesk.com",
+  "identical": {
+    "--internal": "a08adee9806c8dc34292b8dd8ef71b36adc268bf",
+    "default": "a08adee9806c8dc34292b8dd8ef71b36adc268bf"
+  },
   "keywords": [
     "zesk",
     "application",
