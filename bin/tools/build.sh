@@ -7,13 +7,11 @@
 # Copyright &copy; 2025 Market Acumen, Inc.
 #
 
-# fn: {base}
-# Usage: {fn}
-# Build and test Zesk, and tag release
+# Build and test Zesk for PHP, and tag release
 # Argument: --clean - Optional. Do a clean build.
-# Argument: --develop - Optional. Development build.
-#
-zeskPipelineSetup() {
+# Argument: --staging - Optional. Development build.
+# Any additional arguments are passed to the test runner.
+zeskPHPBuild() {
   local handler="_${FUNCNAME[0]}"
 
   local startSetup quietLog cleanFlag=false versionArgs=()
@@ -229,7 +227,7 @@ zeskPipelineSetup() {
   catchEnvironment "$handler" gitTagVersion "${versionArgs[@]}" || return $?
   statusMessage --last timingReport "$startSetup" "Setup complete."
 }
-_zeskPipelineSetup() {
+_zeskPHPBuild() {
   # __IDENTICAL__ usageDocument 1
   usageDocument "${BASH_SOURCE[0]}" "${FUNCNAME[0]#_}" "$@"
 }
