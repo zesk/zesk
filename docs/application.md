@@ -23,16 +23,15 @@ Your application file solely handles setting up the context (configuration) for 
 	 */
 	namespace awesome;
 
-	use zesk\Kernel;
-	use zesk\Application;
-	use zesk\Kernel;
-
 	require_once __DIR__ . '/vendor/autoload.php';
+
+	use zesk\ApplicationLoader;
 
 	/*
 	 * Load Zesk
 	 */
-	$application = Kernel::singleton()->createApplication(MyApplicationClass::class, [
+	$application = ApplicationLoader::application([
+        Application::OPTION_APPLICATION_CLASS => MyApplicationClass::class
         Application::OPTION_PATH => __DIR__,
     ]);
 	

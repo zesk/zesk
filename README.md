@@ -1,18 +1,22 @@
-# Zesk
+# Zesk PHP
 
-**Zesk Application Framework**: One-button PHP Cloud, Big Data, and Secure Web Applications.
+**Zesk PHP Application Framework**: PHP Cloud, Big Data, and Secure Web Applications.
 
 **Zesk is a suite of tools which make writing web applications easy and fast.** Levering Doctrine's **Object Relational Mapping**  and Database interfaces, easy command line tool coding, and tons of tools to allow you to write web applications quickly.
 
 It also has a modular interface to all extension via modules, a powerful hook system to allow integration and notifications for events, and an object-oriented architecture to allow for fast development using subclasses.
 
-Strict PHP 8.1 support is planned for 2023 and migration to PHPUnit for all testing and coverage as well as docker testing built-in.
+Strict PHP 8 support is planned for 2025 and migration to PHPUnit for all testing and coverage as well as docker testing built-in.
 
 Visit [Zesk.com](https://zesk.com) for up-to-date information. For technical information, read the [docs](./docs/index.md).
 
-Copyright &copy; [Market Acumen, Inc.](https://marketacumen.com/?crsource=zesk-readme) 2022 All Rights Reserved
+Now using **[Zesk Build](https://github.com/zesk/build)** for build, integration and deployment support.
+
+Copyright &copy; [Market Acumen, Inc.](https://marketacumen.com/?crsource=zesk-readme) 2022-2025 All Rights Reserved
 
 See [the license to use Zesk](./LICENSE.md). (the MIT license)
+
+See [our security policies](./SECURITY.md). (and ways to submit security issues)
 
 See the [latest changes in the change log](./CHANGELOG.md).
 
@@ -20,5 +24,5 @@ See the [latest changes in the change log](./CHANGELOG.md).
 
 Zesk was written primarily by [Market Acumen, Inc.](https://marketacumen.com/?crsource=zesk-readme) and has been in use in commercial products since 2002 and written originally in PHP 4.
 
-Zesk has been refactored several times and all good ideas were taken out of the original version and improved. Inspired over the years by other frameworks like CodeIgniter, Kohana, Zend Framework, Drupal, Wordpress, Laravel, and Symfony &mdash; in addition to the work of many talented developers &mdash; including [Fabian Potencier](http://fabien.potencier.org/). Currently
-use [Doctrine](https://www.doctrine-project.org/) for the underlying database and ORM framework.
+Zesk has been refactored several times and all good ideas were taken out of the original version and improved. Inspired over the years by other frameworks like CodeIgniter, Kohana, Zend Framework, Drupal, Wordpress, Laravel, and Symfony &mdash; in addition to the work of many talented developers &mdash;
+including [Fabian Potencier](http://fabien.potencier.org/). Currently use [Doctrine](https://www.doctrine-project.org/) for the underlying database and ORM framework.

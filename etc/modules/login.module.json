@@ -1,0 +1,12 @@
+{
+	"name": "Login",
+	"autoload": {
+		"classPrefix": "zesk\\Login\\",
+		"path": "zesk/Login"
+	},
+	"moduleClass": "zesk\\Login\\Module",
+	"requires": [
+		"Doctrine"
+	],
+	"copyright": "Copyright &copy; 2025, Market Acumen, Inc."
+}

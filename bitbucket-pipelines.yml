@@ -1,3 +1,6 @@
+#
+# https://community.atlassian.com/forums/Bitbucket-questions/Can-t-access-MySQL-On-BitBucket-Cloud/qaq-p/1595905
+#
 options:
   docker: true
 
@@ -10,69 +13,57 @@ definitions:
       memory: 1024
       image: mariadb:latest
       variables:
-        MARIADB_ROOT_PASSWORD: hard-to-guess
-        MYSQL_ROOT_PASSWORD: hard-to-guess
+        MARIADB_ROOT_PASSWORD: $MARIADB_ROOT_PASSWORD
 
 image: atlassian/default-image:4
 pipelines:
   branches:
-    develop:
-      - step:
-          deployment: develop
-          name: Build and test
-          services:
-            - mariadb
-          artifacts:
-            - .env
-            - .build/
-            - .release-notes.md
-            - test-coverage/
-            - test.log
-            - .memory_get_usage
-            - memory-logs.txt
-          caches:
-            - docker
-            - apt-lists
-            - apt-cache
-          script:
-            - while true; do date && echo -n "Memory usage in megabytes:" && echo $(($(cat /sys/fs/cgroup/memory/memory.memsw.usage_in_bytes | awk '{print $1}')/1048576)) && echo "" && sleep 30; done >> memory-logs.txt &
-            - export CONTAINER_DATABASE_HOST=$BITBUCKET_DOCKER_HOST_INTERNAL
-            - bin/pipeline-setup.sh --develop --testsuite core
-    production:
+    main:
       - step:
           deployment: production
           name: Build and test
           services:
             - mariadb
           artifacts:
-            - .env
-            - .build/
+            - .build.env
             - .release-notes.md
+            - phpunit-testcase-last.json
+            - test-results/
             - test-coverage/
             - test.log
-            - .memory_get_usage
-            - memory-logs.txt
           caches:
             - docker
             - apt-lists
             - apt-cache
           size: 2x
           script:
-            - while true; do date && echo -n "Memory usage in megabytes:" && echo $(($(cat /sys/fs/cgroup/memory/memory.memsw.usage_in_bytes | awk '{print $1}')/1048576)) && echo "" && sleep 30; done >> memory-logs.txt &
-            - export CONTAINER_DATABASE_HOST=$BITBUCKET_DOCKER_HOST_INTERNAL
-            - bin/pipeline-setup.sh --testsuite core
+            - CONTAINER_DATABASE_HOST=$BITBUCKET_DOCKER_HOST_INTERNAL bin/build.sh
       - step:
           name: Deploy
           trigger: manual
-          size: 2x
-          artifacts:
-            - .env
           script:
-            - bin/pipeline-release.sh
+            - bin/deploy.sh
+    staging:
+      - step:
+          deployment: staging
+          name: Build and test
+          services:
+            - mariadb
+          artifacts:
+            - .build.env
+            - .release-notes.md
+            - phpunit-testcase-last.json
+            - test-results/
+            - test-coverage/
+            - test.log
+          caches:
+            - docker
+          size: 2x
+          script:
+            - CONTAINER_DATABASE_HOST=$BITBUCKET_DOCKER_HOST_INTERNAL bin/build.sh --staging
     deploy:
       - step:
           deployment: deploy
           name: Deploy Testing
-          size: 2x
           script:
-            - bin/pipeline-release.sh
+            - bin/deploy.sh

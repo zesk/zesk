@@ -1,33 +1,35 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.1/phpunit.xsd" bootstrap="test.application.php"
-         beStrictAboutOutputDuringTests="true" processIsolation="false" backupGlobals="false" colors="true"
-         cacheDirectory=".phpunit-cache" backupStaticProperties="false">
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.5/phpunit.xsd"
+         bootstrap="vendor/autoload.php"
+         executionOrder="depends,defects"
+         requireCoverageMetadata="true"
+         beStrictAboutCoverageMetadata="true"
+         beStrictAboutOutputDuringTests="true"
+         cacheDirectory=".phpunit.cache"
+         cacheResult="true"
+         colors="true"
+         columns="max"
+         displayDetailsOnPhpunitDeprecations="true"
+         failOnPhpunitDeprecation="true"
+         failOnRisky="true"
+         failOnWarning="true">
     <testsuites>
-        <!--Test suite for Zesk web application framework -->
-        <testsuite name="core">
-            <directory>test/zesk</directory>
-        </testsuite>
-        <testsuite name="CSV">
-            <directory>modules/CSV/test</directory>
-        </testsuite>
-        <testsuite name="Diff">
-            <directory>modules/Diff/test</directory>
-        </testsuite>
-        <testsuite name="Doctrine">
-            <directory>modules/Doctrine/test</directory>
+        <testsuite name="default">
+            <directory>tests/testZesk</directory>
         </testsuite>
     </testsuites>
-    <php>
-        <const name="PHPUNIT" value="true"/>
-    </php>
-    <coverage includeUncoveredFiles="true" pathCoverage="true" ignoreDeprecatedCodeUnits="true"
-              disableCodeCoverageIgnore="false">
+
+    <source restrictDeprecations="false" restrictNotices="false" restrictWarnings="false">
+        <include>
+            <directory suffix=".php">src</directory>
+            <directory suffix=".tpl">theme</directory>
+        </include>
+    </source>
+
+    <coverage includeUncoveredFiles="true">
         <report>
-            <html outputDirectory="test-coverage"/>
+            <html outputDirectory="test-coverage" lowUpperBound="50" highLowerBound="90"/>
         </report>
     </coverage>
-    <logging>
-        <junit outputFile="test-reports/junit.xml"/>
-    </logging>
 </phpunit>

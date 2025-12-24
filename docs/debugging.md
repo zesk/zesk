@@ -13,7 +13,7 @@ the global `zesk\Application` `zesk\Configuration` object.
 Naming should be as follows:
 
 - `namespace\ClassName::debug` - Enable debugging for entire class
-- `namespace\ClassName::debug_foo` - Enable debugging for class-specific feature `foo`
+- `namespace\ClassName::debugFoo` - Enable debugging for class-specific feature `Foo`
 
 This is a RECOMMENDATION and variations among classes may be permitted depending on your configuration needs.
 
@@ -26,7 +26,7 @@ This is a RECOMMENDATION and variations among classes may be permitted depending
 		public static $debug = false;
 		
 		public static function configured(Application $app) {
-			self::$debug = toBool($app->configuration->path_get(array(__CLASS__, "debug")));
+			self::$debug = toBool($app->configuration->pathGet(array(self::class, "debug")));
 		}
 		
 		// Snip
@@ -66,15 +66,14 @@ This is a RECOMMENDATION and variations among classes may be permitted depending
 		 * Send the current message
 		 *
 		 * @option boolean debug 
-		 * @option boolean debug_send
+		 * @option boolean debugSend
 		 * @return self
 		 */
 		public function send() {
-			if ($this->optionBool("debug_send", $this->optionBool("debug"))) {
+			if ($this->optionBool("debugSend", $this->optionBool("debug"))) {
 				$this->application->debug("Sending message {id}", array("id" => $this->id));
 			}
 		}
 		// Snip
 	}
 
-TODO: @option - implement something like this?

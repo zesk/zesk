@@ -1,0 +1,315 @@
+<?php
+declare(strict_types=1);
+/**
+ *
+ * @package    zesk
+ * @subpackage kernel
+ * @author     kent
+ * @copyright  Copyright &copy; 2025, Market Acumen, Inc.
+ */
+
+namespace zesk;
+
+use ReflectionClass;
+use ReflectionException;
+use Throwable;
+use zesk\CacheItemPool\NULLCacheItemPool;
+use zesk\Exception\ClassNotFound;
+use zesk\Exception\SemanticsException;
+
+/**
+ *
+ * @todo   self::reset is NOT production ready
+ * @author kent
+ *
+ */
+class Kernel
+{
+	/**
+	 *
+	 * @var array
+	 */
+	private static array $configurationDefaults = [
+		__CLASS__ => [
+			'applicationClass' => Application::class,
+		],
+	];
+
+	/**
+	 *
+	 * @var Application
+	 */
+	private Application $application;
+
+	/**
+	 * @var array[]
+	 */
+	private array $applications = [];
+
+	public static null|self $singleton = null;
+
+	private function __construct(Application $initial)
+	{
+		Compatibility::check();
+		$this->application = $initial;
+		$this->applications[$initial::class] = [$initial->id() => $initial];
+		register_shutdown_function($this->shutdown(...));
+	}
+
+	public function shutdown(): void
+	{
+		foreach ($this->applications as $className => $applications) {
+			foreach ($applications as $id => $application) {
+				try {
+					$application->shutdown();
+				} catch (Throwable $t) {
+					PHP::log('Failed shutting down application {className} {id} with exception {class} (app is also {appClass})', [
+						'className' => $className,
+						'id' => $id,
+						'appClass' => $application::class,
+						'class' => $t::class,
+					]);
+					PHP::log($t);
+				}
+			}
+		}
+	}
+
+	/**
+	 * Fetch the kernel singleton. Avoid this call whenever possible.
+	 *
+	 * @return self
+	 */
+	public static function singleton(): self
+	{
+		if (!self::$singleton) {
+			throw new RuntimeException('Need to create singleton with {class}::factory first', ['class' => __CLASS__, ]);
+		}
+		return self::$singleton;
+	}
+
+	/**
+	 * @return Application
+	 */
+	public function application(): Application
+	{
+		return $this->application;
+	}
+
+	/**
+	 * Find app by class
+	 *
+	 * @param string $class
+	 * @return array
+	 */
+	public function applicationByClass(string $class): array
+	{
+		return $this->applications[$class] ?? [];
+	}
+
+	/**
+	 * @param Application $app
+	 * @return void
+	 */
+	public function add(Application $app): void
+	{
+		$this->applications[$app::class] ??= [] + [$app->id() => $app];
+	}
+
+	private static function _stackFrameNormalize(array $stackFrame): array
+	{
+		return $stackFrame + [
+			'file' => '',
+			'class' => '',
+			'type' => '',
+			'function' => '',
+			'line' => '',
+		];
+	}
+
+	/**
+	 * Return information about the calling function. Increase depth to look back in the stack frame.
+	 *
+	 * Pass -1 to test and get the information about this function. Not super useful.
+	 * Pass 0 to get the immediately calling function (e.g., where you are before you called this)
+	 * Pass 1 to get what called you (most useful)
+	 *
+	 * @param int $depth Depth 0 means the immediately calling function
+	 * @return string[]
+	 */
+	public static function caller(int $depth = 1): array
+	{
+		$bt = debug_backtrace();
+		$last = [];
+		/* Skip the current frame by default - depth zero always means calling function */
+		$depth++;
+		if ($depth > 0) {
+			while ($depth-- !== 0) {
+				$last = array_shift($bt);
+			}
+		}
+		$last = self::_stackFrameNormalize($last);
+		$top = self::_stackFrameNormalize(array_shift($bt) ?? [
+			'file' => "-no calling function $depth deep-",
+			'line' => -1,
+			'class' => '',
+			'function' => '-no calling function $depth deep-',
+			'type' => '',
+		]);
+
+		$top['callingLine'] = $top['line'];
+		$top['callingFile'] = $top['file'];
+		$top['line'] = $last['line'];
+		$top['file'] = $last['file'];
+		$top['lineSuffix'] = ($top['line'] >= 0) ? ':' . $top['line'] : '';
+		$top['method'] = $top['class'] . $top['type'] . $top['function'];
+		$top['methodLine'] = $top['class'] . $top['type'] . $top['function'] . $top['lineSuffix'];
+		$top['fileMethod'] = $top['file'] . ' ' . $top['method'];
+		$top['fileMethodLine'] = $top['file'] . ' ' . $top['method'] . $top['lineSuffix'];
+		return $top;
+	}
+
+	/**
+	 * Returns the name of the function or class/method which called the current code.
+	 * Useful for debugging.
+	 *
+	 * Moved from Debug:: class to help in profiling bootstrap functions (for example)
+	 * which don't have the autoloader set yet.
+	 *
+	 * @param int $depth
+	 * @param bool $include_line
+	 * @return string
+	 * @see debug_backtrace()
+	 * @see Debug::calling_function
+	 */
+	public static function callingFunction(int $depth = 1, bool $include_line = true): string
+	{
+		$top = self::caller($depth + 1);
+		return $top[$include_line ? 'fileMethodLine' : 'fileMethod'];
+	}
+
+	/**
+	 * Return a backtrace of the stack
+	 *
+	 * @param int $n The number of frames to output. Pass a negative number to pass all frames.
+	 */
+	public static function backtrace(int $n = -1): string
+	{
+		$bt = debug_backtrace();
+		array_shift($bt);
+		if ($n <= 0) {
+			$n = count($bt);
+		}
+		$result = [];
+		foreach ($bt as $i) {
+			$file = 'closure';
+			$line = '-none-';
+			$class = '-no-class-';
+			$type = $function = $args = null;
+			extract($i, EXTR_OVERWRITE | EXTR_IF_EXISTS);
+			$line = "$file: $line $class$type$function";
+			if (is_array($args)) {
+				$arg_dump = [];
+				foreach ($args as $index => $arg) {
+					if (is_object($arg)) {
+						$arg_dump[$index] = $arg::class;
+					} elseif (is_scalar($arg)) {
+						$arg_dump[$index] = PHP::dump($arg);
+					} else {
+						$arg_dump[$index] = Types::type($arg);
+					}
+				}
+				if (count($arg_dump)) {
+					$line .= '(' . implode(', ', $arg_dump) . ')';
+				}
+			}
+			$result[] = $line;
+			if (--$n <= 0) {
+				break;
+			}
+		}
+		return implode("\n", $result);
+	}
+
+	private static function getApplicationClass(Configuration $configuration): string
+	{
+		return $configuration->getFirstPath([
+			[
+				Application::class,
+				Application::OPTION_APPLICATION_CLASS,
+			],
+			[
+				self::class,
+				Application::OPTION_APPLICATION_CLASS,
+			],
+		], Application::class);
+	}
+
+	/**
+	 * Create an application
+	 *
+	 * @param array $options
+	 * @return Application
+	 * @throws ClassNotFound
+	 * @throws SemanticsException
+	 */
+	public static function createApplication(array $options = []): Application
+	{
+		$initialized = $options['init'] ?? microtime(true);
+		$options['main'] ??= Kernel::caller()['file'];
+		$cacheItemPool = $options[Application::OPTION_CACHE_POOL] ?? new NULLCacheItemPool();
+		unset($options[Application::OPTION_CACHE_POOL]);
+
+		$configuration = Configuration::factory(self::$configurationDefaults)->setPath(self::class, $options + [
+			'init' => $initialized,
+			'environment' => $_SERVER,
+		]);
+		$kernelConfiguration = $configuration->path(self::class);
+		$configuration->setPath(Application::class, $kernelConfiguration->toArray());
+
+		$applicationClass = self::getApplicationClass($configuration);
+		$kernelConfiguration->setReadOnly(true);
+
+		try {
+			$reflectionClass = new ReflectionClass($applicationClass);
+			$app = $reflectionClass->newInstanceArgs([
+				$configuration,
+				$cacheItemPool,
+			]);
+		} catch (ReflectionException $e) {
+			throw new ClassNotFound($applicationClass, $e->getMessage(), Exception::exceptionVariables($e));
+		}
+		assert($app instanceof Application);
+		if (!self::$singleton) {
+			self::$singleton = new self($app);
+		} else {
+			self::$singleton->add($app);
+		}
+		return $app;
+	}
+
+	/**
+	 * Who owns the copyright on the Zesk Application Framework for PHP
+	 *
+	 * @return string
+	 */
+	public static function copyrightHolder(): string
+	{
+		return 'Market Acumen, Inc.';
+	}
+
+	/**
+	 * @return Application
+	 */
+	public static function wakeupApplication(string $class = ''): Application
+	{
+		if ($class) {
+			$applications = Kernel::singleton()->applicationByClass($class);
+			$application = ArrayTools::first($applications);
+			if (!$application) {
+				throw new RuntimeException('Application {class} could not be found', ['class' => $class]);
+			}
+		}
+		return Kernel::singleton()->application();
+	}
+}

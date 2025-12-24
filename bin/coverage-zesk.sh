@@ -1,2 +1,6 @@
 #!/usr/bin/env bash
-test-zesk.sh --coverage
+#
+# Copyright &copy; 2025 Market Acumen, Inc.
+#
+
+"${BASH_SOURCE[0]%/*}/tools.sh" zeskTest --coverage "$@"

@@ -2,13 +2,13 @@
 
 TODO Way out of date
 
-The Zesk configuration file format allows for diverse structures to be embedded in a plain text file and is used primarily for loading application default settings. 
+The Zesk configuration file format allows for diverse structures to be embedded in a plain text file and is used primarily for loading application default settings.
 
 ## Main call
 
 	new zesk\Configuration\Parser\CONF(...)
-	
-The main workhorse of the configuration file processing is `conf::parse` which takes a list of file lines and a set of options. 
+
+The main workhorse of the configuration file processing is `conf::parse` which takes a list of file lines and a set of options.
 
 The options affect how the file is loaded, and what features are present in the file. All options are optional, but you should be aware of their defaults The options available are:
 
@@ -27,26 +27,26 @@ Class is `zesk\Configuration\Parser\CONF` to set default configuration settings.
 
 The Zesk configuration format was designed to work easily with shell programs such as `bash` or `sh` to enable sharing settings between PHP and other types of scripts. Zesk configuration files support the following features:
 
-### Automatic stripping of the term "export " from variables names. 
+### Automatic stripping of the term "export " from variables names.
 
 So:
 
-    export LOG_PATH=/var/log
+    export LOG_HOME=/var/log
 
 AND
 
-	LOG_PATH=/var/log
-	
+	LOG_HOME=/var/log
+
 Are equivalent. The "export " portion of the variable name is removed prior to setting.
 
 ### Variables substitution
 
 If a variable is already defined, it will be substituted using `bash` variable syntax:
 
-    LOG_PATH=${HOME}/log
-	READER_LOG_PATH=${LOG_PATH}/reader/
-	HTTPD_LOG_PATH=${LOG_PATH}/httpd/
-	
+    LOG_HOME=${HOME}/log
+	READER_LOG_HOME=${LOG_HOME}/reader/
+	HTTPD_LOG_HOME=${LOG_HOME}/httpd/
+
 If a variable is *undefined*, then it is replaced with blanks.
 
 ### Name munging
@@ -64,4 +64,4 @@ Both are equivalent.
 
 As with all things Zesk, the default configuration file behavior can be overridden by specific applications. The main configuration file processing logic appears in `Zesk_Application::configure` and follows this pseudo-code:
 
- TODO
+TODO

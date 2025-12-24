@@ -1,0 +1,38 @@
+<?php
+declare(strict_types=1);
+/**
+ * @package    zesk
+ * @subpackage git
+ * @author     kent
+ * @copyright  &copy; 2025, Market Acumen, Inc.
+ */
+
+namespace zesk\Git;
+
+use zesk\Repository\ModuleBase;
+
+/**
+ *
+ * Basically registers our class and leaves the rest to parent class.
+ *
+ * @author kent
+ */
+class Module extends ModuleBase
+{
+	public function initialize(): void
+	{
+		parent::initialize();
+	}
+
+	public function configure(): void
+	{
+		$this->registerRepository(Repository::class, [
+			'git',
+		]);
+	}
+
+	public function checkDependencies(): void
+	{
+		$this->application->modules->load('Repository');
+	}
+}

@@ -1,19 +1,21 @@
 <?php
 declare(strict_types=1);
+
 namespace zesk;
 
-/* @var $this \zesk\Theme */
-/* @var $application \zesk\Application */
-/* @var $locale \zesk\Locale\Locale */
-/* @var $session \zesk\Session */
-/* @var $router \zesk\Router */
-/* @var $request \zesk\Request */
-/* @var $response \zesk\Response */
+use zesk\Locale\Locale;
+
+/* @var $this Theme */
+/* @var $application Application */
+/* @var $locale Locale */
+/* @var $router Router */
+/* @var $request Request */
+/* @var $response Response */
 
 // For some bizarre reason, when outputting frames beyond 10, the output is immediately rendered to
 // STDOUT and the outer page.tpl is NOT rendered; like
 $trace = $this->content;
-echo HTML::tag_open('ol', '.exception-trace');
+echo HTML::tagOpen('ol', '.exception-trace');
 $skip_frames = $request->getInt('skip_frames', 10);
 $frames = $request->getInt('frames', 20);
 foreach ($trace as $index => $trace_item) {
@@ -24,4 +26,4 @@ foreach ($trace as $index => $trace_item) {
 		break;
 	}
 }
-echo HTML::tag_close();
+echo HTML::tagClose();

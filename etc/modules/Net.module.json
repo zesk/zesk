@@ -1,0 +1,12 @@
+{
+	"name": "Net",
+	"moduleClass": "zesk\\Net\\Module",
+	"autoload": {
+		"classPrefix": "zesk\\Net\\",
+		"path": "zesk/Net/"
+	},
+	"requires": [
+		"Mail"
+	],
+	"copyright": "Copyright &copy; 2025, Market Acumen, Inc."
+}

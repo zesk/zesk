@@ -1,13 +1,14 @@
 <?php
 declare(strict_types=1);
+
 namespace zesk;
 
+use zesk\Exception\Redirect;
 use zesk\Locale\Locale;
 
 /* @var $this Theme */
 /* @var $application Application */
 /* @var $locale Locale */
-/* @var $session Session */
 /* @var $router Router */
 /* @var $route Route */
 /* @var $request Request */
@@ -19,8 +20,8 @@ if ($response->optionBool('debug_redirect')) {
 	$original_url = $exception->url();
 	$url = $response->redirect()->processURL($original_url);
 	echo $this->theme('zesk/exception/redirect-debug', [
-		'content' => HTML::a($url, $url),
-		'url' => $url,
+		'content'      => HTML::a($url, $url),
+		'url'          => $url,
 		'original_url' => $original_url,
 	]);
 } else {

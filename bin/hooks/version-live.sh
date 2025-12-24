@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+#
+# Sample live version script, uses github API to fetch release version
+#
+# Copyright &copy; 2025 Market Acumen, Inc.
+#
+
+# IDENTICAL githubVersionLive 23
+
+# shellcheck source=/dev/null
+if source "${BASH_SOURCE[0]%/*}/../tools.sh"; then
+  # Fetch the current live version of the software using GitHub APIs
+  # Environment: GITHUB_REPOSITORY_OWNER - Repository owner to fetch
+  # Environment: GITHUB_REPOSITORY_NAME - Repository name to fetch
+  __hookVersionLive() {
+    local handler="_${FUNCNAME[0]}"
+
+    local name owner
+    name=$(catchReturn "$handler" buildEnvironmentGet GITHUB_REPOSITORY_NAME) || return $?
+    [ -n "$name" ] || throwEnvironment "$handler" "GITHUB_REPOSITORY_NAME is blank" || return $?
+
+    owner=$(catchReturn "$handler" buildEnvironmentGet GITHUB_REPOSITORY_OWNER) || return $?
+    [ -n "$owner" ] || throwEnvironment "$handler" "GITHUB_REPOSITORY_OWNER is blank" || return $?
+    catchEnvironment "$handler" githubLatestRelease "$owner/$name" "$@" || return $?
+  }
+  ___hookVersionLive() {
+    # __IDENTICAL__ usageDocument 1
+    usageDocument "${BASH_SOURCE[0]}" "${FUNCNAME[0]#_}" "$@"
+  }
+  __hookVersionLive "$@"
+fi

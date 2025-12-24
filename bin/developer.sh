@@ -1,0 +1,92 @@
+#!/usr/bin/env bash
+#
+# developer.sh
+#
+# Copyright &copy; 2025 Market Acumen, Inc.
+#
+# Zesk PHP Developer scripts
+
+#
+# source this file to get additional tools within your Bash environment
+#
+
+# shellcheck source=/dev/null
+if source "${BASH_SOURCE[0]%/*}/tools.sh"; then
+  # ## Docker container commands
+  # - `Dc` `Dcd` `Dcu` - Docker Compose, bring containers down, bring containers up
+  # - `zeskBash` `suZeskBash` - Connect to the docker web container as `www-data` or `root`
+  # - `zeskConnect` - Connect to the container database engine as `root`
+  # - `suZeskDatabase` - Connect to the database container as `root`
+  __zeskPHPDeveloperContextDocker() {
+    if whichExists docker; then
+      alias Dc='docker compose'
+      alias Dcu='Dc up -d'
+      alias Dcd='Dc down --remove-orphans'
+      # shellcheck disable=SC2139
+      alias zeskBash="__dockerPHPExec \"$home\" web www-data bash"
+      # shellcheck disable=SC2139
+      alias suZeskBash="__dockerPHPExec \"$home\" web root bash"
+      # shellcheck disable=SC2139
+      alias suZeskDatabase="__dockerPHPExec \"$home\" db root bash "
+      # shellcheck disable=SC2139
+      alias zeskConnect="__dockerPHPExec \"$home\" db root /db-connect.sh"
+
+      markdownToConsole < <(bashFunctionComment "${BASH_SOURCE[0]}" "${FUNCNAME[0]}")
+    fi
+  }
+
+  # Zesk PHP shell
+  # - `zeskCompose build` - build containers for testing etc.
+  # - `zeskPrepareRelease` - prepare for a release
+  # - `zeskIdenticalRepair` - run identical check and repair across the project
+  # - `zeskPR` - Open URL to new PR
+  __zeskPHPDeveloperContext() {
+    local handler="_return"
+    local home
+
+    home=$(catchReturn "$handler" buildHome) || return $?
+
+    local name
+    name=$(catchReturn "$handler" buildEnvironmentGet APPLICATION_NAME) || return $?
+    [ -n "$name" ] || name=$(basename "$home")
+    iTerm2Image -i --height 4 "$home/etc/zesk-logo.png" || :
+    bigText "$name" || :
+
+    # shellcheck disable=SC2139
+    alias z="$home/bin/zesk.sh"
+    alias IdenticalRepair="zeskPHPIdenticalRepair"
+
+    pathConfigure --last "$home/bin" "$home/vendor/bin"
+
+    catchReturn "$handler" muzzle reloadChanges --stop --quiet || return $?
+    catchReturn "$handler" muzzle reloadChanges --name "$name" "$home/bin/tools.sh" "$home/bin/tools/" || return $?
+
+    export BUILD_PROJECT_DEACTIVATE="${FUNCNAME[0]}Undo"
+
+    markdownToConsole < <(bashFunctionComment "${BASH_SOURCE[0]}" "${FUNCNAME[0]}")
+
+    __zeskPHPDeveloperContextDocker
+
+    # IDENTICAL developerPHPContainer 5
+    # php-container
+    export PHP_CONTAINER_DEVELOPMENT_HOME
+    buildEnvironmentLoad PHP_CONTAINER_DEVELOPMENT_HOME
+    [ -z "${PHP_CONTAINER_DEVELOPMENT_HOME-}" ] || muzzle phpContainerSync
+    # END OF IDENTICAL developerPHPContainer
+
+    unset "${FUNCNAME[0]}"
+  }
+
+  __zeskPHPDeveloperContextUndo() {
+    local home
+
+    home=$(catchEnvironment "returnMessage" buildHome) || return $?
+    pathRemove "$home/bin" "$home/vendor/bin"
+
+    unset "${FUNCNAME[0]}"
+  }
+
+  __zeskPHPDeveloperContext
+
+  unset __zeskPHPDeveloperContext
+fi

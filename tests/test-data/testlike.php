@@ -1,0 +1,16 @@
+<?php
+declare(strict_types=1);
+
+namespace testZesk\Command;
+
+use zesk\Command\SimpleCommand;
+
+class Testlike extends SimpleCommand
+{
+	protected array $shortcuts = ['test-like'];
+
+	public function run(): int
+	{
+		return $this->application->development() ? 1 : 0;
+	}
+}

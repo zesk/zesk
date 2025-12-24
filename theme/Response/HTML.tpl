@@ -23,13 +23,13 @@ $hook_parameters = [
 $application->invokeHooks(ResponseHTML::HOOK_HEADERS, $hook_parameters);
 {
 	echo $this->theme('Response/HTML/head/doctype');
-	echo HTML::tag_open('html', $response->htmlAttributes());
+	echo HTML::tagOpen('html', $response->htmlAttributes());
 	$application->invokeHooks(ResponseHTML::HOOK_HTML_OPEN, $hook_parameters);
 	{
 		echo $this->theme('Response/HTML/head', [
 			'hook_parameters' => $hook_parameters,
 		]);
-		echo HTML::tag_open('body', $response->bodyAttributes());
+		echo HTML::tagOpen('body', $response->bodyAttributes());
 		{
 			$application->invokeHooks(ResponseHTML::HOOK_BODY_OPEN, $hook_parameters);
 			foreach ([
@@ -45,9 +45,9 @@ $application->invokeHooks(ResponseHTML::HOOK_HEADERS, $hook_parameters);
 			$application->invokeHooks(ResponseHTML::HOOK_BODY_CLOSE, $hook_parameters);
 		}
 
-		echo "\n" . HTML::tag_close('body');
+		echo "\n" . HTML::tagClose('body');
 	}
 	$application->invokeHooks(ResponseHTML::HOOK_HTML_CLOSE, $hook_parameters);
-	echo "\n" . HTML::tag_close('html');
+	echo "\n" . HTML::tagClose('html');
 }
 $application->invokeHooks(ResponseHTML::HOOK_DONE, $hook_parameters);
