@@ -96,10 +96,10 @@ zeskDeploy() {
 
   currentVersion=$(catchEnvironment "$handler" runHook version-current) || return $?
 
-  printf "%s" "$(decorate info "Generating release notes and CHANGELOG ...")"
+  statusMessage decorate info "Generating release notes and CHANGELOG ... "
   start=$(catchReturn "$handler" timingStart) || return $?
   remoteChangeLog=$(__zeskChangeLog "$handler" "$currentVersion") || return $?
-  printf "%s\n\n" "$(timingReport "$start" OK)"
+  statusMessage --first timingReport "$start" OK
 
   #========================================================================
   #                _
@@ -137,9 +137,7 @@ zeskDeploy() {
   executeEcho git push origin || decorate red "Failed: $?"
   decorate decoration "$(echoBar)"
   printf "%s\n\n" "$(timingReport "$start" OK)"
-  #
   #========================================================================
-  #
   figlet "zesk $currentVersion OK"
   timingReport "$releaseStart" "Release complete."
 
