@@ -40,7 +40,6 @@ pipelines:
             - CONTAINER_DATABASE_HOST=$BITBUCKET_DOCKER_HOST_INTERNAL bin/build.sh
       - step:
           name: Deploy
-          trigger: manual
           script:
             - bin/deploy.sh
     staging:
@@ -64,6 +63,6 @@ pipelines:
     deploy:
       - step:
           deployment: deploy
-          name: Deploy Testing
+          name: Deploy only
           script:
             - bin/deploy.sh
